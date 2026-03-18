@@ -53,7 +53,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     guest_name_underline: false,
     guest_name_font_size: 40,
     info_font_size: 16,
-    name_spacing: 4
+    name_spacing: 4,
+    info_bold: false,
+    info_italic: false,
+    info_underline: false
   };
 
   // Get table display value - prefer table name, fall back to table_no

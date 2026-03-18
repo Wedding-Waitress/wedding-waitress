@@ -320,34 +320,69 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 />
               </div>
 
-              <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
-                <Label className="text-sm font-semibold">Guest Name Styling</Label>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="bold-toggle" className="text-sm">Bold</Label>
-                  <Switch 
-                    id="bold-toggle"
-                    checked={currentSettings.guest_name_bold} 
-                    onCheckedChange={value => handleSettingChange('guest_name_bold', value)} 
-                  />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Guest Name Styling Box */}
+                <div className="border border-primary rounded-xl bg-white p-3 space-y-3">
+                  <Label className="text-sm font-semibold">Guest Name Styling</Label>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="bold-toggle" className="text-sm">Bold</Label>
+                    <Switch 
+                      id="bold-toggle"
+                      checked={currentSettings.guest_name_bold} 
+                      onCheckedChange={value => handleSettingChange('guest_name_bold', value)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="italic-toggle" className="text-sm">Italic</Label>
+                    <Switch 
+                      id="italic-toggle"
+                      checked={currentSettings.guest_name_italic} 
+                      onCheckedChange={value => handleSettingChange('guest_name_italic', value)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="underline-toggle" className="text-sm">Underline</Label>
+                    <Switch 
+                      id="underline-toggle"
+                      checked={currentSettings.guest_name_underline} 
+                      onCheckedChange={value => handleSettingChange('guest_name_underline', value)} 
+                    />
+                  </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="italic-toggle" className="text-sm">Italic</Label>
-                  <Switch 
-                    id="italic-toggle"
-                    checked={currentSettings.guest_name_italic} 
-                    onCheckedChange={value => handleSettingChange('guest_name_italic', value)} 
-                  />
-                </div>
+                {/* Table & Seat Styling Box */}
+                <div className="border border-primary rounded-xl bg-white p-3 space-y-3">
+                  <Label className="text-sm font-semibold">Table & Seat Styling</Label>
+                  
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="info-bold-toggle" className="text-sm">Bold</Label>
+                    <Switch 
+                      id="info-bold-toggle"
+                      checked={currentSettings.info_bold} 
+                      onCheckedChange={value => handleSettingChange('info_bold', value)} 
+                    />
+                  </div>
 
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="underline-toggle" className="text-sm">Underline</Label>
-                  <Switch 
-                    id="underline-toggle"
-                    checked={currentSettings.guest_name_underline} 
-                    onCheckedChange={value => handleSettingChange('guest_name_underline', value)} 
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="info-italic-toggle" className="text-sm">Italic</Label>
+                    <Switch 
+                      id="info-italic-toggle"
+                      checked={currentSettings.info_italic} 
+                      onCheckedChange={value => handleSettingChange('info_italic', value)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="info-underline-toggle" className="text-sm">Underline</Label>
+                    <Switch 
+                      id="info-underline-toggle"
+                      checked={currentSettings.info_underline} 
+                      onCheckedChange={value => handleSettingChange('info_underline', value)} 
+                    />
+                  </div>
                 </div>
               </div>
 
