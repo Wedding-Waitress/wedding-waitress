@@ -181,23 +181,25 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const dyMm = (dyPercent / 100) * FRONT_HEIGHT_MM;
 
     if (element === 'guest-name') {
-      const curX = Number(currentSettings.guest_name_offset_x ?? 0);
-      const curY = Number(currentSettings.guest_name_offset_y ?? 0);
-      onSettingsChange({
-        guest_name_offset_x: Math.round((curX + dxMm) * 10) / 10,
-        guest_name_offset_y: Math.round((curY + dyMm) * 10) / 10,
-      });
+      const curX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
+      const curY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
+      setCommittedOverrides(prev => ({ ...prev, guest_name_offset_x: newX, guest_name_offset_y: newY }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
+      onSettingsChange({ guest_name_offset_x: newX, guest_name_offset_y: newY });
     } else {
-      const curX = Number(currentSettings.table_offset_x ?? 0);
-      const curY = Number(currentSettings.table_offset_y ?? 0);
-      onSettingsChange({
-        table_offset_x: Math.round((curX + dxMm) * 10) / 10,
-        table_offset_y: Math.round((curY + dyMm) * 10) / 10,
-      });
+      const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
+      const curY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
+      setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
+      onSettingsChange({ table_offset_x: newX, table_offset_y: newY });
     }
-    // Clear live draft — optimistic settings update is now authoritative
-    setDraftOverrides(null);
-  }, [onSettingsChange, currentSettings]);
+  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
 
   const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
     if (!onSettingsChange) return;
