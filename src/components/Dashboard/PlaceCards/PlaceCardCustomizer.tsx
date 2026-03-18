@@ -158,7 +158,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       font_color: '#000000',
       info_bold: false,
       info_italic: false,
-      info_underline: false
+      info_underline: false,
+      info_font_color: '#000000'
     };
     
     await onSettingsChange(designDefaults);
