@@ -56,7 +56,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     name_spacing: 4,
     info_bold: false,
     info_italic: false,
-    info_underline: false
+    info_underline: false,
+    info_font_color: '#000000',
+    background_behind_names: false,
+    background_behind_table_seats: false,
+    guest_name_offset_x: 0,
+    guest_name_offset_y: 0,
+    table_offset_x: 0,
+    table_offset_y: 0,
+    seat_offset_x: 0,
+    seat_offset_y: 0,
+    guest_name_rotation: 0,
+    table_seat_rotation: 0,
   };
 
   // Get table display value - prefer table name, fall back to table_no
