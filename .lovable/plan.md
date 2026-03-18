@@ -1,21 +1,52 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix: Drag/Move Triggering "Failed to save settings" Error
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### Root Cause
 
-### File Changes
+In `PlaceCardsPage.tsx`, the `onSettingsChange` prop passed to `PlaceCardPreview` is wired directly to `updateSettings` (the database-saving function). When a user drags text in Text Edit Mode, the move handler calls `onSettingsChange` which immediately hits Supabase. If no settings row exists yet, the `ensureSettingsExist` call can fail or race, producing the "Failed to save settings" error. Even when it succeeds, the round-trip is slow and the toast spam is disruptive.
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+### Fix: Local State Buffer with Deferred Save
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+Add a local settings override layer in `PlaceCardsPage.tsx` that separates visual updates from database persistence:
+
+1. **`PlaceCardsPage.tsx`** — Add `localSettingsOverride` state (a `Partial<PlaceCardSettings>` object):
+   - Create a new `handlePreviewSettingsChange` function that merges changes into `localSettingsOverride` state (instant, no DB call)
+   - Pass `{ ...settings, ...localSettingsOverride }` as the merged settings to `PlaceCardPreview`
+   - Keep `updateSettings` as `onSettingsChange` for `PlaceCardCustomizer` (sliders/inputs already work fine)
+
+2. **`PlaceCardPreview.tsx`** — Add an `onSettingsCommit` prop for final persistence:
+   - Add a new `onSettingsCommit?: (settings: Partial<PlaceCardSettings>) => void` prop
+   - In the `InteractiveTextOverlay` `onDragEnd` callback (already fires on pointer-up), call `onSettingsCommit` with the accumulated changes
+   - Keep `onSettingsChange` for instant visual feedback during drag
+
+3. **`PlaceCardsPage.tsx`** — Wire `onSettingsCommit` to `updateSettings`:
+   - When `onSettingsCommit` fires, call `updateSettings(changes)` and clear `localSettingsOverride`
+   - This saves to DB only once per drag operation
+
+### Simpler Alternative (preferred)
+
+Actually, looking more carefully, `InteractiveTextOverlay` already only calls `onMove` on pointer-up (line 180). The problem is purely that `updateSettings` itself fails. The simplest fix:
+
+1. **`PlaceCardsPage.tsx`** — Add local settings state that merges with DB settings:
+   - `const [localOverrides, setLocalOverrides] = useState<Partial<PlaceCardSettings>>({});`
+   - Create `handlePreviewChange` that: (a) merges into `localOverrides` immediately, (b) calls `updateSettings` in background without blocking UI, (c) suppresses the error toast for drag operations
+   - Pass merged `{ ...settings, ...localOverrides }` to preview
+   - Pass `handlePreviewChange` as `onSettingsChange` to preview
+
+2. **`usePlaceCardSettings.ts`** — Add a silent update variant or option:
+   - Add `updateSettingsSilent` that does the same DB operation but doesn't show error/success toasts
+   - This prevents the red error toast from appearing during drag operations
+   - On success, sync local state; on failure, log but don't toast
+
+### Files Changed
+
+- **`src/hooks/usePlaceCardSettings.ts`**: Add `updateSettingsSilent` function (same as `updateSettings` but no toasts, returns boolean)
+- **`src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx`**: Add `localOverrides` state, create `handlePreviewChange` that updates locally + saves silently, pass merged settings to preview
 
 ### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+- Dragging text elements updates the canvas instantly via local state
+- DB save happens in background without blocking or error-toasting
+- If save fails silently, the next successful save will include all accumulated changes
+- Customizer sliders continue to use `updateSettings` with normal toast feedback
 
