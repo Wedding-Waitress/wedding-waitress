@@ -123,6 +123,10 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         ...newSettings,
       };
 
+      // Optimistic local state update — ensures React re-renders immediately
+      // so DOM reconciler can override any direct style changes from drag
+      setSettings(prev => prev ? { ...prev, ...newSettings } as PlaceCardSettings : null);
+
       let result;
       if (settings?.id) {
         // Update existing settings
