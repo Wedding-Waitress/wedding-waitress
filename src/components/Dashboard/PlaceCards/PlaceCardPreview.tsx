@@ -428,6 +428,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             /* Standard centered table/seat layout */
             isInteractive ? (
               <InteractiveTextOverlay
+                hideSideHandles
                 isSelected={selectedElement === 'table-seat'}
                 onSelect={() => setSelectedElement('table-seat')}
                 onMove={(dx, dy) => handleInteractiveMove('table-seat', dx, dy)}
