@@ -26,6 +26,9 @@ interface InteractiveTextOverlayProps {
   onRotate?: (degrees: number) => void;
   onDragMove?: (pixelOffset: { x: number; y: number }) => void;
   onDragEnd?: () => void;
+  onLiveMove?: (dxPercent: number, dyPercent: number) => void;
+  onLiveRotate?: (degrees: number) => void;
+  onLiveFontSize?: (size: number) => void;
   onCopy?: () => void;
   onReset?: () => void;
   onDuplicate?: () => void;
@@ -56,6 +59,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onRotate,
   onDragMove,
   onDragEnd,
+  onLiveMove,
+  onLiveRotate,
+  onLiveFontSize,
   onCopy,
   onReset,
   onDuplicate,
@@ -127,6 +133,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         accumY = dy;
         el.style.transform = `${baseTransform} translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
         onDragMove?.({ x: dx, y: dy });
+        onLiveMove?.((dx / containerRect.width) * 100, (dy / containerRect.height) * 100);
         return;
       }
 
@@ -159,6 +166,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
         lastFontDelta = newFontSize - (currentFontSize || 24);
         setLiveFontSize(Math.round(newFontSize));
+        onLiveFontSize?.(Math.round(newFontSize));
         return;
       }
 
@@ -169,6 +177,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         if (Math.abs(raw) < SNAP_THRESHOLD) raw = 0;
         currentAngle = Math.round(raw);
         setLiveAngle(currentAngle);
+        onLiveRotate?.(currentAngle);
         const finalDeg = ((currentAngle % 360) + 360) % 360;
         el.style.transform = `${baseTransform} rotate(${finalDeg}deg)`;
       }
@@ -237,7 +246,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
+  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, onLiveMove, onLiveRotate, onLiveFontSize, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
   const hasToolbar = onCopy || onReset || onDuplicate || onDelete;
