@@ -309,7 +309,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   Table, Seat & Message Font
                 </Label>
                 <PlaceCardFontPicker
-                  value={currentSettings.info_font_family || 'Inter'}
+                  value={currentSettings.info_font_family || 'ET Emilia Grace Demo'}
                   onValueChange={value => handleSettingChange('info_font_family', value)}
                 />
               </div>
