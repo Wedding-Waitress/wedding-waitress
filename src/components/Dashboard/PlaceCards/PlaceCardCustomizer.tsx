@@ -68,33 +68,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     setLocalMassMessage(settings?.mass_message || '');
   }, [settings?.mass_message]);
 
-  // Local state for position sliders (deferred save on release)
-  const [localGuestNameOffsetX, setLocalGuestNameOffsetX] = useState(0);
-  const [localGuestNameOffsetY, setLocalGuestNameOffsetY] = useState(0);
-  const [localTableOffsetX, setLocalTableOffsetX] = useState(0);
-  const [localTableOffsetY, setLocalTableOffsetY] = useState(0);
-
-  // String states for manual input (allows free typing of "-", ".", etc.)
-  const [inputGuestX, setInputGuestX] = useState('0');
-  const [inputGuestY, setInputGuestY] = useState('0');
-  const [inputTableX, setInputTableX] = useState('0');
-  const [inputTableY, setInputTableY] = useState('0');
-
-  useEffect(() => {
-    const gx = Number(settings?.guest_name_offset_x ?? 0);
-    const gy = Number(settings?.guest_name_offset_y ?? 0);
-    const tx = Number(settings?.table_offset_x ?? 0);
-    const ty = Number(settings?.table_offset_y ?? 0);
-    setLocalGuestNameOffsetX(gx);
-    setLocalGuestNameOffsetY(gy);
-    setLocalTableOffsetX(tx);
-    setLocalTableOffsetY(ty);
-    setInputGuestX(String(gx));
-    setInputGuestY(String(gy));
-    setInputTableX(String(tx));
-    setInputTableY(String(ty));
-  }, [settings?.guest_name_offset_x, settings?.guest_name_offset_y, settings?.table_offset_x, settings?.table_offset_y]);
-
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
