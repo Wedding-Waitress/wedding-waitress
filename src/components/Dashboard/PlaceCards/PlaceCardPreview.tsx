@@ -300,7 +300,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   style={{
                     fontFamily: currentSettings.info_font_family,
                     fontSize: `${currentSettings.info_font_size}pt`,
-                    color: currentSettings.font_color,
+                    color: (currentSettings as any).info_font_color || '#000000',
                     fontWeight: currentSettings.info_bold ? '700' : undefined,
                     fontStyle: currentSettings.info_italic ? 'italic' : undefined,
                     textDecoration: currentSettings.info_underline ? 'underline' : undefined,
