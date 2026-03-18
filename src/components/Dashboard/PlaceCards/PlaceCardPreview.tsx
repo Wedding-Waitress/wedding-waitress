@@ -291,18 +291,28 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const useDraft = !isInteractive;
 
     // --- Shared position calculations (one global model) ---
+    // Effective offsets: committed overrides take priority over persisted settings
+    const effGuestOffsetX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
+    const effGuestOffsetY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
+    const effGuestRotation = Number(committedOverrides.guest_name_rotation ?? currentSettings.guest_name_rotation ?? 0);
+    const effGuestFontSize = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 40);
+    const effTableOffsetX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
+    const effTableOffsetY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
+    const effTableRotation = Number(committedOverrides.table_seat_rotation ?? currentSettings.table_seat_rotation ?? 0);
+    const effTableFontSize = Number(committedOverrides.info_font_size ?? currentSettings.info_font_size ?? 16);
+
     const guestPos = {
-      x: GUEST_ANCHOR_X + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.guestDx ?? 0) : 0),
-      y: GUEST_ANCHOR_Y + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.guestDy ?? 0) : 0),
-      rotation: useDraft && draftOverrides?.guestRotation !== undefined ? draftOverrides.guestRotation : (currentSettings.guest_name_rotation ?? 0),
-      fontSize: useDraft && draftOverrides?.guestFontSize !== undefined ? draftOverrides.guestFontSize : currentSettings.guest_name_font_size,
+      x: GUEST_ANCHOR_X + (effGuestOffsetX / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.guestDx ?? 0) : 0),
+      y: GUEST_ANCHOR_Y + (effGuestOffsetY / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.guestDy ?? 0) : 0),
+      rotation: useDraft && draftOverrides?.guestRotation !== undefined ? draftOverrides.guestRotation : effGuestRotation,
+      fontSize: useDraft && draftOverrides?.guestFontSize !== undefined ? draftOverrides.guestFontSize : effGuestFontSize,
     };
 
     const tablePos = {
-      x: TABLE_ANCHOR_X + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.tableDx ?? 0) : 0),
-      y: TABLE_ANCHOR_Y + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.tableDy ?? 0) : 0),
-      rotation: useDraft && draftOverrides?.tableRotation !== undefined ? draftOverrides.tableRotation : (currentSettings.table_seat_rotation ?? 0),
-      fontSize: useDraft && draftOverrides?.tableFontSize !== undefined ? draftOverrides.tableFontSize : currentSettings.info_font_size,
+      x: TABLE_ANCHOR_X + (effTableOffsetX / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.tableDx ?? 0) : 0),
+      y: TABLE_ANCHOR_Y + (effTableOffsetY / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.tableDy ?? 0) : 0),
+      rotation: useDraft && draftOverrides?.tableRotation !== undefined ? draftOverrides.tableRotation : effTableRotation,
+      fontSize: useDraft && draftOverrides?.tableFontSize !== undefined ? draftOverrides.tableFontSize : effTableFontSize,
     };
 
     // --- Shared base styles ---
