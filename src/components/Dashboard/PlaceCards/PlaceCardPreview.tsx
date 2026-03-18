@@ -11,7 +11,7 @@
  * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
  */
 
-import React, { forwardRef, useState, useRef, useCallback } from 'react';
+import React, { forwardRef, useState, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
