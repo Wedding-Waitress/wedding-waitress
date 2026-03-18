@@ -20,6 +20,11 @@ import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
 
 
+                <div className="border border-primary/30 rounded-lg p-3 bg-primary/5">
+                  <p className="text-sm text-muted-foreground">
+                    Adding a QR code to your invitation is only necessary and recommended when you are physically printing your invites and sending them in the mail.
+                  </p>
+                </div>
 
 interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
