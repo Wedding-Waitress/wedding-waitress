@@ -227,7 +227,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 fontFamily: currentSettings.info_font_family,
                 fontSize: `${currentSettings.info_font_size}pt`,
                 fontStyle: 'italic',
-                color: currentSettings.font_color,
+                color: (currentSettings as any).info_font_color || '#000000',
               }}
             >
               {message}
