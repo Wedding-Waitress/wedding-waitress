@@ -58,6 +58,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     info_italic: false,
     info_underline: false,
     info_font_color: '#000000',
+    message_font_family: 'Beauty Mountains',
+    message_font_size: 16,
+    message_font_color: '#000000',
+    message_bold: false,
+    message_italic: false,
+    message_underline: false,
     background_behind_names: false,
     background_behind_table_seats: false,
     guest_name_offset_x: 0,
@@ -224,10 +230,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             <div
               className="text-center"
               style={{
-                fontFamily: currentSettings.info_font_family,
-                fontSize: `${currentSettings.info_font_size}pt`,
-                fontStyle: 'italic',
-                color: (currentSettings as any).info_font_color || '#000000',
+                fontFamily: currentSettings.message_font_family || currentSettings.info_font_family,
+                fontSize: `${currentSettings.message_font_size || currentSettings.info_font_size}pt`,
+                fontWeight: currentSettings.message_bold ? 'bold' : 'normal',
+                fontStyle: currentSettings.message_italic ? 'italic' : 'normal',
+                textDecoration: currentSettings.message_underline ? 'underline' : 'none',
+                color: currentSettings.message_font_color || '#000000',
               }}
             >
               {message}
