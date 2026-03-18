@@ -39,7 +39,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   onEventSelect
 }) => {
   const [focusedPage, setFocusedPage] = useState<number | null>(null);
-  const [editMode, setEditMode] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -50,35 +49,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
-  const { settings, loading: settingsLoading, updateSettings, updateSettingsSilent } = usePlaceCardSettings(selectedEventId);
+  const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
   const { toast } = useToast();
-
-  // Local overrides for drag operations — instant visual feedback without DB round-trip
-  const [localOverrides, setLocalOverrides] = useState<Partial<import('@/hooks/usePlaceCardSettings').PlaceCardSettings>>({});
-  const mergedSettings = settings ? { ...settings, ...localOverrides } : settings;
-
-  // Handle preview changes (drag/move): update locally, save silently in background
-  const handlePreviewSettingsChange = React.useCallback(async (changes: Partial<import('@/hooks/usePlaceCardSettings').PlaceCardSettings>) => {
-    // Instant local update for visual feedback
-    setLocalOverrides(prev => ({ ...prev, ...changes }));
-    // Silent background save — don't clear overrides here; let useEffect sync
-    await updateSettingsSilent(changes);
-  }, [updateSettingsSilent]);
-
-  // Sync effect: clear localOverrides once DB settings have caught up
-  React.useEffect(() => {
-    if (!settings) return;
-    setLocalOverrides(prev => {
-      if (Object.keys(prev).length === 0) return prev;
-      const next: typeof prev = {};
-      for (const [key, value] of Object.entries(prev)) {
-        if ((settings as any)[key] !== value) {
-          (next as any)[key] = value;
-        }
-      }
-      return Object.keys(next).length > 0 ? next : {};
-    });
-  }, [settings]);
 
   // Persist table selection to sessionStorage
   React.useEffect(() => {
@@ -465,23 +437,18 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               settings={settings}
               onSettingsChange={updateSettings}
               guests={assignedGuests}
-              editMode={editMode}
-              onEditModeChange={setEditMode}
             />
           </div>
 
           {/* Right Panel - Preview */}
           <div className="lg:col-span-3">
             <PlaceCardPreview
-              settings={mergedSettings}
+              settings={settings}
               guests={assignedGuests}
               event={selectedEvent}
               isExporting={isExporting}
               focusedPage={focusedPage}
               selectedTable={selectedTable}
-              onSettingsChange={handlePreviewSettingsChange}
-              editMode={editMode}
-              onEditModeChange={setEditMode}
             />
           </div>
         </div>

@@ -9,17 +9,13 @@
  * 
  * Last completed: 2025-10-04
  * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
- * Updated: 2026-03-18 - Added interactive visual editor (Edit Mode)
  */
 
-import React, { forwardRef, useState, useRef, useCallback } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
-import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
-import { useToast } from '@/hooks/use-toast';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
@@ -28,13 +24,7 @@ interface PlaceCardPreviewProps {
   isExporting?: boolean;
   focusedPage?: number | null;
   selectedTable?: { name: string; table_no?: number | null } | null;
-  onSettingsChange?: (settings: Partial<PlaceCardSettings>) => void;
-  editMode?: boolean;
-  onEditModeChange?: (mode: boolean) => void;
 }
-
-const CARD_WIDTH_MM = 105;
-const FRONT_HEIGHT_MM = 49.5;
 
 export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps>(({
   settings,
@@ -42,21 +32,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   event,
   isExporting = false,
   focusedPage = null,
-  selectedTable = null,
-  onSettingsChange,
-  editMode: editModeProp = false,
-  onEditModeChange,
+  selectedTable = null
 }, ref) => {
-  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
-  const editMode = editModeProp;
-  const [selectedElement, setSelectedElement] = useState<'guest_name' | 'table_seat' | null>(null);
-
-  // Clear selection when edit mode is turned off
-  React.useEffect(() => {
-    if (!editMode) setSelectedElement(null);
-  }, [editMode]);
-  const frontHalfRef = useRef<HTMLDivElement>(null);
   
   const currentSettings = settings || {
     event_id: '',
@@ -78,82 +56,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     name_spacing: 4,
     info_bold: false,
     info_italic: false,
-    info_underline: false,
-    info_font_color: '#000000',
-    message_font_family: 'Beauty Mountains',
-    message_font_size: 16,
-    message_font_color: '#000000',
-    message_bold: false,
-    message_italic: false,
-    message_underline: false,
-    background_behind_names: false,
-    background_behind_table_seats: false,
-    guest_name_offset_x: 0,
-    guest_name_offset_y: 0,
-    table_offset_x: 0,
-    table_offset_y: 0,
-    seat_offset_x: 0,
-    seat_offset_y: 0,
+    info_underline: false
   };
-
-  // ─── Interactive Editor Handlers ───
-  const handleGuestNameMove = useCallback((dxPct: number, dyPct: number) => {
-    const rawX = (currentSettings.guest_name_offset_x ?? 0) + (dxPct * CARD_WIDTH_MM) / 100;
-    const rawY = (currentSettings.guest_name_offset_y ?? 0) + (dyPct * FRONT_HEIGHT_MM) / 100;
-    const newX = Math.max(-CARD_WIDTH_MM * 0.35, Math.min(CARD_WIDTH_MM * 0.35, rawX));
-    const newY = Math.max(-FRONT_HEIGHT_MM * 0.35, Math.min(FRONT_HEIGHT_MM * 0.35, rawY));
-    onSettingsChange?.({
-      guest_name_offset_x: Math.round(newX * 10) / 10,
-      guest_name_offset_y: Math.round(newY * 10) / 10,
-    });
-  }, [currentSettings.guest_name_offset_x, currentSettings.guest_name_offset_y, onSettingsChange]);
-
-  const handleGuestNameFontSize = useCallback((deltaPx: number) => {
-    const newSize = Math.max(8, Math.min(120, currentSettings.guest_name_font_size + Math.round(deltaPx)));
-    onSettingsChange?.({ guest_name_font_size: newSize });
-  }, [currentSettings.guest_name_font_size, onSettingsChange]);
-
-  const handleGuestNameRotate = useCallback((degrees: number) => {
-    onSettingsChange?.({ guest_name_rotation: degrees } as any);
-  }, [onSettingsChange]);
-
-  const handleGuestNameReset = useCallback(() => {
-    onSettingsChange?.({
-      guest_name_offset_x: 0,
-      guest_name_offset_y: 0,
-      guest_name_font_size: 40,
-      guest_name_rotation: 0,
-    } as any);
-  }, [onSettingsChange]);
-
-  const handleTableSeatMove = useCallback((dxPct: number, dyPct: number) => {
-    const rawX = (currentSettings.table_offset_x ?? 0) + (dxPct * CARD_WIDTH_MM) / 100;
-    const rawY = (currentSettings.table_offset_y ?? 0) + (dyPct * FRONT_HEIGHT_MM) / 100;
-    const newX = Math.max(-CARD_WIDTH_MM * 0.35, Math.min(CARD_WIDTH_MM * 0.35, rawX));
-    const newY = Math.max(-FRONT_HEIGHT_MM * 0.35, Math.min(FRONT_HEIGHT_MM * 0.35, rawY));
-    onSettingsChange?.({
-      table_offset_x: Math.round(newX * 10) / 10,
-      table_offset_y: Math.round(newY * 10) / 10,
-    });
-  }, [currentSettings.table_offset_x, currentSettings.table_offset_y, onSettingsChange]);
-
-  const handleTableSeatFontSize = useCallback((deltaPx: number) => {
-    const newSize = Math.max(6, Math.min(80, currentSettings.info_font_size + Math.round(deltaPx)));
-    onSettingsChange?.({ info_font_size: newSize });
-  }, [currentSettings.info_font_size, onSettingsChange]);
-
-  const handleTableSeatRotate = useCallback((degrees: number) => {
-    onSettingsChange?.({ table_seat_rotation: degrees } as any);
-  }, [onSettingsChange]);
-
-  const handleTableSeatReset = useCallback(() => {
-    onSettingsChange?.({
-      table_offset_x: 0,
-      table_offset_y: 0,
-      info_font_size: 16,
-      table_seat_rotation: 0,
-    } as any);
-  }, [onSettingsChange]);
 
   // Get table display value - prefer table name, fall back to table_no
   const getTableDisplay = () => {
@@ -226,7 +130,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     );
   };
 
-  const renderPlaceCard = (guest: Guest, cardIndex: number = 0) => {
+  const renderPlaceCard = (guest: Guest) => {
     const tableDisplay = getTableDisplay();
     const tableInfo = guest.seat_no
       ? `Table ${tableDisplay}, Seat ${guest.seat_no}`
@@ -234,17 +138,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
     const individualMessage = currentSettings.individual_messages?.[guest.id];
     const message = individualMessage || currentSettings.mass_message || '';
-
-    const isFirstInteractive = editMode && !isExporting && cardIndex === 0 && onSettingsChange;
-    const isDecorative = currentSettings.background_image_type === 'decorative' && !!currentSettings.background_image_url;
-
-    // Compute interactive positions (percentages of front half container)
-    const guestNameLeftPct = 50 + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
-    const guestNameTopPct = (isDecorative ? 2 : 16) + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
-    const tableSeatLeftPct = 50 + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
-    const tableSeatTopPct = (isDecorative ? 45 : 55) + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
-    const guestNameRotation = (currentSettings as any).guest_name_rotation ?? 0;
-    const tableSeatRotation = (currentSettings as any).table_seat_rotation ?? 0;
 
     return (
       <div
@@ -322,12 +215,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             <div
               className="text-center"
               style={{
-                fontFamily: currentSettings.message_font_family || currentSettings.info_font_family,
-                fontSize: `${currentSettings.message_font_size || currentSettings.info_font_size}pt`,
-                fontWeight: currentSettings.message_bold ? 'bold' : 'normal',
-                fontStyle: currentSettings.message_italic ? 'italic' : 'normal',
-                textDecoration: currentSettings.message_underline ? 'underline' : 'none',
-                color: currentSettings.message_font_color || '#000000',
+                fontFamily: currentSettings.info_font_family,
+                fontSize: `${currentSettings.info_font_size}pt`,
+                fontStyle: 'italic',
+                color: currentSettings.font_color,
               }}
             >
               {message}
@@ -347,273 +238,149 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         />
 
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT */}
-        {isFirstInteractive ? (
-          /* ─── INTERACTIVE FRONT HALF ─── */
-          <div 
-            ref={frontHalfRef}
-            className="relative z-10"
-            style={{ 
-              height: '49.5mm',
-              overflow: 'hidden',
+        <div 
+          className="relative z-10 flex flex-col items-center justify-start"
+          style={{ 
+            height: '49.5mm',
+            padding: '5mm',
+            paddingTop: currentSettings.background_image_type === 'decorative' ? '1mm' : '8mm'
+          }}
+        >
+          {/* Guest Name */}
+          <div
+            style={{
+              fontFamily: currentSettings.guest_font_family,
+              fontWeight: currentSettings.guest_name_bold ? '700' : '400',
+              fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
+              textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
+              fontSize: `${currentSettings.guest_name_font_size}pt`,
+              marginBottom: currentSettings.background_image_type === 'decorative' ? '0mm' : `${currentSettings.name_spacing}mm`,
+              transform: `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`,
+              transformOrigin: 'center center',
             }}
-            onClick={() => setSelectedElement(null)}
           >
-            {/* Decorative center image (still rendered normally) */}
-            {isDecorative && currentSettings.background_image_url && (
+            {currentSettings.background_behind_names ? (
+              <div style={{
+                background: 'white',
+                borderRadius: '9999px',
+                padding: '0.2mm 3mm',
+                display: 'inline-block'
+              }}>
+                {guest.first_name} {guest.last_name}
+              </div>
+            ) : (
+              <>{guest.first_name} {guest.last_name}</>
+            )}
+          </div>
+          
+          {/* Table/Seat Info - Different layout for decorative mode */}
+          {currentSettings.background_image_type === 'decorative' && currentSettings.background_image_url ? (
+            /* Three-column layout: Table | Image | Seat */
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                width: '100%',
+                marginTop: '0mm',
+              }}
+            >
+              {/* Left - Table info stacked */}
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${currentSettings.info_font_size}pt`,
+                    color: currentSettings.font_color,
+                    fontWeight: currentSettings.info_bold ? '700' : undefined,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+                  }}
+                >
+                  Table
+                </div>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
+                    fontWeight: currentSettings.info_bold ? '700' : '600',
+                    color: currentSettings.font_color,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+                  }}
+                >
+                  {tableDisplay}
+                </div>
+              </div>
+
+              {/* Center - Decorative Image */}
               <div
-                className="absolute pointer-events-none"
                 style={{
-                  left: '22.5%',
-                  top: '30%',
                   width: '55%',
-                  height: '60%',
+                  height: '35mm',
                   backgroundImage: `url(${currentSettings.background_image_url})`,
                   backgroundPosition: 'center',
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
                 }}
               />
-            )}
 
-            {/* Guest Name - Interactive */}
-             <InteractiveTextOverlay
-              isSelected={selectedElement === 'guest_name'}
-              onSelect={() => setSelectedElement('guest_name')}
-              onMove={handleGuestNameMove}
-              onFontSizeChange={handleGuestNameFontSize}
-              onRotate={handleGuestNameRotate}
-              onReset={handleGuestNameReset}
-              onDuplicate={() => toast({ title: "Not available", description: "Guest Name is a fixed element and cannot be duplicated" })}
-              onDelete={() => toast({ title: "Not available", description: "Guest Name is a fixed element and cannot be deleted" })}
-              containerRef={frontHalfRef as React.RefObject<HTMLElement>}
-              rotation={guestNameRotation}
-              currentFontSize={currentSettings.guest_name_font_size}
-              showResizeHandles={true}
-              showRotateHandle={true}
-              style={{
-                left: `${guestNameLeftPct}%`,
-                top: `${guestNameTopPct}%`,
-                transform: `translateX(-50%) rotate(${guestNameRotation}deg)`,
-                textAlign: 'center' as const,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: currentSettings.guest_font_family,
-                  fontWeight: currentSettings.guest_name_bold ? '700' : '400',
-                  fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
-                  textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
-                  fontSize: `${currentSettings.guest_name_font_size}pt`,
-                }}
-              >
-                {currentSettings.background_behind_names ? (
-                  <span style={{
-                    background: 'white',
-                    borderRadius: '9999px',
-                    padding: '0.2mm 3mm',
-                  }}>
-                    {guest.first_name} {guest.last_name}
-                  </span>
-                ) : (
-                  <>{guest.first_name} {guest.last_name}</>
-                )}
+              {/* Right - Seat info stacked */}
+              <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.seat_offset_x ?? 0}mm, ${currentSettings.seat_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${currentSettings.info_font_size}pt`,
+                    color: currentSettings.font_color,
+                    fontWeight: currentSettings.info_bold ? '700' : undefined,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+                  }}
+                >
+                  Seat
+                </div>
+                <div
+                  style={{
+                    fontFamily: currentSettings.info_font_family,
+                    fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
+                    fontWeight: currentSettings.info_bold ? '700' : '600',
+                    color: currentSettings.font_color,
+                    fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                    textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+                  }}
+                >
+                  {guest.seat_no || '—'}
+                </div>
               </div>
-            </InteractiveTextOverlay>
-
-            {/* Table/Seat Info - Interactive */}
-             <InteractiveTextOverlay
-              isSelected={selectedElement === 'table_seat'}
-              onSelect={() => setSelectedElement('table_seat')}
-              onMove={handleTableSeatMove}
-              onFontSizeChange={handleTableSeatFontSize}
-              onRotate={handleTableSeatRotate}
-              onReset={handleTableSeatReset}
-              onDuplicate={() => toast({ title: "Not available", description: "Table/Seat is a fixed element and cannot be duplicated" })}
-              onDelete={() => toast({ title: "Not available", description: "Table/Seat is a fixed element and cannot be deleted" })}
-              containerRef={frontHalfRef as React.RefObject<HTMLElement>}
-              rotation={tableSeatRotation}
-              currentFontSize={currentSettings.info_font_size}
-              showResizeHandles={true}
-              showRotateHandle={true}
-              style={{
-                left: `${tableSeatLeftPct}%`,
-                top: `${tableSeatTopPct}%`,
-                transform: `translateX(-50%) rotate(${tableSeatRotation}deg)`,
-                textAlign: 'center' as const,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <div
-                style={{
-                  fontFamily: currentSettings.info_font_family,
-                  fontSize: `${currentSettings.info_font_size}pt`,
-                  fontWeight: currentSettings.info_bold ? '700' : undefined,
-                  fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-                  textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-                  color: (currentSettings as any).info_font_color || '#000000',
-                }}
-              >
-                {currentSettings.background_behind_table_seats ? (
-                  <span style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '0.75mm 1.5mm',
-                  }}>
-                    {tableInfo}
-                  </span>
-                ) : (
-                  <>{tableInfo}</>
-                )}
-              </div>
-            </InteractiveTextOverlay>
-          </div>
-        ) : (
-          /* ─── NORMAL FRONT HALF (non-interactive / export / print) ─── */
-          <div 
-            className="relative z-10 flex flex-col items-center justify-start"
-            style={{ 
-              height: '49.5mm',
-              padding: '5mm',
-              paddingTop: isDecorative ? '1mm' : '8mm'
-            }}
-          >
-            {/* Guest Name */}
+            </div>
+          ) : (
+            /* Standard centered table/seat layout for other modes */
             <div
               style={{
-                fontFamily: currentSettings.guest_font_family,
-                fontWeight: currentSettings.guest_name_bold ? '700' : '400',
-                fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
-                textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
-                fontSize: `${currentSettings.guest_name_font_size}pt`,
-                marginBottom: isDecorative ? '0mm' : `${currentSettings.name_spacing}mm`,
-                transform: `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${guestNameRotation}deg)`,
+                fontFamily: currentSettings.info_font_family,
+                fontSize: `${currentSettings.info_font_size}pt`,
+                fontWeight: currentSettings.info_bold ? '700' : undefined,
+                fontStyle: currentSettings.info_italic ? 'italic' : undefined,
+                textDecoration: currentSettings.info_underline ? 'underline' : undefined,
+                transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`,
                 transformOrigin: 'center center',
               }}
             >
-              {currentSettings.background_behind_names ? (
+              {currentSettings.background_behind_table_seats ? (
                 <div style={{
                   background: 'white',
-                  borderRadius: '9999px',
-                  padding: '0.2mm 3mm',
+                  borderRadius: '12px',
+                  padding: '0.75mm 1.5mm',
                   display: 'inline-block'
                 }}>
-                  {guest.first_name} {guest.last_name}
+                  {tableInfo}
                 </div>
               ) : (
-                <>{guest.first_name} {guest.last_name}</>
+                <>{tableInfo}</>
               )}
             </div>
-            
-            {/* Table/Seat Info - Different layout for decorative mode */}
-            {isDecorative ? (
-              /* Three-column layout: Table | Image | Seat */
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  width: '100%',
-                  marginTop: '0mm',
-                }}
-              >
-                {/* Left - Table info stacked */}
-                <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${tableSeatRotation}deg)`, transformOrigin: 'center center' }}>
-                  <div
-                    style={{
-                      fontFamily: currentSettings.info_font_family,
-                      fontSize: `${currentSettings.info_font_size}pt`,
-                      color: (currentSettings as any).info_font_color || '#000000',
-                      fontWeight: currentSettings.info_bold ? '700' : undefined,
-                      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-                      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-                    }}
-                  >
-                    Table
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: currentSettings.info_font_family,
-                      fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
-                      fontWeight: currentSettings.info_bold ? '700' : '600',
-                      color: (currentSettings as any).info_font_color || '#000000',
-                      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-                      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-                    }}
-                  >
-                    {tableDisplay}
-                  </div>
-                </div>
-
-                {/* Center - Decorative Image */}
-                <div
-                  style={{
-                    width: '55%',
-                    height: '35mm',
-                    backgroundImage: `url(${currentSettings.background_image_url})`,
-                    backgroundPosition: 'center',
-                    backgroundSize: 'contain',
-                    backgroundRepeat: 'no-repeat',
-                  }}
-                />
-
-                {/* Right - Seat info stacked */}
-                <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.seat_offset_x ?? 0}mm, ${currentSettings.seat_offset_y ?? 0}mm) rotate(${tableSeatRotation}deg)`, transformOrigin: 'center center' }}>
-                  <div
-                    style={{
-                      fontFamily: currentSettings.info_font_family,
-                      fontSize: `${currentSettings.info_font_size}pt`,
-                      color: (currentSettings as any).info_font_color || '#000000',
-                      fontWeight: currentSettings.info_bold ? '700' : undefined,
-                      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-                      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-                    }}
-                  >
-                    Seat
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: currentSettings.info_font_family,
-                      fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`,
-                      fontWeight: currentSettings.info_bold ? '700' : '600',
-                      color: (currentSettings as any).info_font_color || '#000000',
-                      fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-                      textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-                    }}
-                  >
-                    {guest.seat_no || '—'}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Standard centered table/seat layout for other modes */
-              <div
-                style={{
-                  fontFamily: currentSettings.info_font_family,
-                  fontSize: `${currentSettings.info_font_size}pt`,
-                  fontWeight: currentSettings.info_bold ? '700' : undefined,
-                  fontStyle: currentSettings.info_italic ? 'italic' : undefined,
-                  textDecoration: currentSettings.info_underline ? 'underline' : undefined,
-                  transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${tableSeatRotation}deg)`,
-                  transformOrigin: 'center center',
-                }}
-              >
-                {currentSettings.background_behind_table_seats ? (
-                  <div style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    padding: '0.75mm 1.5mm',
-                    display: 'inline-block'
-                  }}>
-                    {tableInfo}
-                  </div>
-                ) : (
-                  <>{tableInfo}</>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   };
@@ -622,9 +389,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     <div className="space-y-6">
           {/* Screen Preview Only */}
           <div className="print:hidden">
-            {/* Edit Mode Toggle + Pagination Controls */}
+            {/* TOP Pagination Controls */}
             <div className="flex items-center justify-center gap-4 mb-6">
-
               <Button
                 variant="outline"
                 size="sm"
@@ -695,7 +461,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
                       {Array.from({ length: 6 }).map((_, index) => {
                         const guest = currentPageGuests[index];
-                        return guest ? renderPlaceCard(guest, index) : renderEmptyCard(index);
+                        return guest ? renderPlaceCard(guest) : renderEmptyCard(index);
                       })}
                     </div>
                   </div>

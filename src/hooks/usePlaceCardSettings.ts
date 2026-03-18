@@ -10,7 +10,7 @@
  * Last completed: 2025-10-04
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,85 +52,14 @@ export interface PlaceCardSettings {
   info_bold: boolean;
   info_italic: boolean;
   info_underline: boolean;
-  info_font_color: string;
-  message_font_family: string;
-  message_font_size: number;
-  message_font_color: string;
-  message_bold: boolean;
-  message_italic: boolean;
-  message_underline: boolean;
   created_at?: string;
   updated_at?: string;
-}
-
-const INSERT_DEFAULTS = {
-  font_family: 'Great Vibes',
-  font_color: '#000000',
-  background_color: '#ffffff',
-  background_image_type: 'none',
-  mass_message: '',
-  individual_messages: {},
-  guest_font_family: 'Great Vibes',
-  info_font_family: 'Beauty Mountains',
-  guest_name_bold: false,
-  guest_name_italic: false,
-  guest_name_underline: false,
-  guest_name_font_size: 40,
-  info_font_size: 16,
-  name_spacing: 0,
-  info_bold: false,
-  info_italic: false,
-  info_underline: false,
-  info_font_color: '#000000',
-  guest_name_offset_x: 0,
-  guest_name_offset_y: 0,
-  table_offset_x: 0,
-  table_offset_y: 0,
-  seat_offset_x: 0,
-  seat_offset_y: 0,
-  guest_name_rotation: 0,
-  table_seat_rotation: 0,
-  message_font_family: 'Beauty Mountains',
-  message_font_size: 16,
-  message_font_color: '#000000',
-  message_bold: false,
-  message_italic: false,
-  message_underline: false,
-};
-
-/** Normalize DB row into typed PlaceCardSettings */
-function normalizeRow(row: any): PlaceCardSettings {
-  return {
-    ...row,
-    background_image_type: row.background_image_type as PlaceCardSettings['background_image_type'],
-    individual_messages: (row.individual_messages as Record<string, string>) ?? {},
-    message_font_family: row.message_font_family || 'Beauty Mountains',
-    message_font_size: row.message_font_size ?? 16,
-    message_font_color: row.message_font_color || '#000000',
-    message_bold: row.message_bold ?? false,
-    message_italic: row.message_italic ?? false,
-    message_underline: row.message_underline ?? false,
-    guest_name_offset_x: row.guest_name_offset_x ?? 0,
-    guest_name_offset_y: row.guest_name_offset_y ?? 0,
-    table_offset_x: row.table_offset_x ?? 0,
-    table_offset_y: row.table_offset_y ?? 0,
-    seat_offset_x: row.seat_offset_x ?? 0,
-    seat_offset_y: row.seat_offset_y ?? 0,
-    guest_name_rotation: row.guest_name_rotation ?? 0,
-    table_seat_rotation: row.table_seat_rotation ?? 0,
-    info_bold: row.info_bold ?? false,
-    info_italic: row.info_italic ?? false,
-    info_underline: row.info_underline ?? false,
-    info_font_color: row.info_font_color || '#000000',
-  };
 }
 
 export const usePlaceCardSettings = (eventId: string | null) => {
   const [settings, setSettings] = useState<PlaceCardSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  // Mutex: prevents concurrent insert race conditions during first save
-  const creatingRef = useRef<Promise<PlaceCardSettings | null> | null>(null);
 
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
@@ -156,7 +85,11 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return;
       }
 
-      setSettings(data ? normalizeRow(data) : null);
+      setSettings(data ? {
+        ...data,
+        background_image_type: data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
+        individual_messages: data.individual_messages as Record<string, string>
+      } : null);
     } catch (error) {
       console.error('Error fetching place card settings:', error);
       toast({
@@ -169,157 +102,74 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     }
   }, [eventId, toast]);
 
-  /**
-   * Ensures a settings row exists for the current event.
-   * Uses a ref-based mutex so concurrent callers share the same insert promise.
-   */
-  const ensureSettingsExist = async (userId: string): Promise<PlaceCardSettings | null> => {
-    // Already have a persisted row
-    if (settings?.id) return settings;
-
-    // Another call is already creating — wait for it
-    if (creatingRef.current) return creatingRef.current;
-
-    const promise = (async () => {
-      const { data, error } = await supabase
-        .from('place_card_settings')
-        .insert({
-          event_id: eventId!,
-          user_id: userId,
-          ...INSERT_DEFAULTS,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating place card settings:', error);
-        // Might be a duplicate — try fetching instead
-        const { data: existing } = await supabase
-          .from('place_card_settings')
-          .select('*')
-          .eq('event_id', eventId!)
-          .maybeSingle();
-        if (existing) {
-          const normalized = normalizeRow(existing);
-          setSettings(normalized);
-          return normalized;
-        }
-        return null;
-      }
-
-      const normalized = normalizeRow(data);
-      setSettings(normalized);
-      return normalized;
-    })();
-
-    creatingRef.current = promise;
-    try {
-      return await promise;
-    } finally {
-      creatingRef.current = null;
-    }
-  };
-
-  /** Core save logic, optionally silent (no toasts) */
-  const saveSettings = async (newSettings: Partial<PlaceCardSettings>, silent = false): Promise<boolean> => {
+  const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
     if (!eventId) return false;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        if (!silent) {
-          toast({
-            title: "Error",
-            description: "You must be logged in to save settings",
-            variant: "destructive",
-          });
-        }
+        toast({
+          title: "Error",
+          description: "You must be logged in to save settings",
+          variant: "destructive",
+        });
         return false;
       }
 
-      // Step 1: Ensure a base row exists (handles first-time creation safely)
-      const baseSettings = await ensureSettingsExist(user.id);
-      if (!baseSettings?.id) {
-        if (!silent) {
-          toast({
-            title: "Error",
-            description: "Failed to save settings",
-            variant: "destructive",
-          });
-        }
-        return false;
-      }
-
-      // Step 2: Ensure all NOT NULL columns have safe values (fixes legacy rows with NULLs)
-      const safeDefaults = {
-        guest_name_offset_x: baseSettings.guest_name_offset_x ?? INSERT_DEFAULTS.guest_name_offset_x,
-        guest_name_offset_y: baseSettings.guest_name_offset_y ?? INSERT_DEFAULTS.guest_name_offset_y,
-        table_offset_x: baseSettings.table_offset_x ?? INSERT_DEFAULTS.table_offset_x,
-        table_offset_y: baseSettings.table_offset_y ?? INSERT_DEFAULTS.table_offset_y,
-        seat_offset_x: baseSettings.seat_offset_x ?? INSERT_DEFAULTS.seat_offset_x,
-        seat_offset_y: baseSettings.seat_offset_y ?? INSERT_DEFAULTS.seat_offset_y,
-        guest_name_rotation: baseSettings.guest_name_rotation ?? INSERT_DEFAULTS.guest_name_rotation,
-        table_seat_rotation: baseSettings.table_seat_rotation ?? INSERT_DEFAULTS.table_seat_rotation,
-        info_font_color: baseSettings.info_font_color ?? INSERT_DEFAULTS.info_font_color,
-        info_bold: baseSettings.info_bold ?? INSERT_DEFAULTS.info_bold,
-        info_italic: baseSettings.info_italic ?? INSERT_DEFAULTS.info_italic,
-        info_underline: baseSettings.info_underline ?? INSERT_DEFAULTS.info_underline,
-        message_font_family: baseSettings.message_font_family ?? INSERT_DEFAULTS.message_font_family,
-        message_font_color: baseSettings.message_font_color ?? INSERT_DEFAULTS.message_font_color,
-        message_font_size: baseSettings.message_font_size ?? INSERT_DEFAULTS.message_font_size,
-        message_bold: baseSettings.message_bold ?? INSERT_DEFAULTS.message_bold,
-        message_italic: baseSettings.message_italic ?? INSERT_DEFAULTS.message_italic,
-        message_underline: baseSettings.message_underline ?? INSERT_DEFAULTS.message_underline,
+      const settingsData = {
+        event_id: eventId,
+        user_id: user.id,
+        ...newSettings,
       };
 
-      // Step 3: Update the existing row with safe defaults + caller's changes
-      const { data, error } = await supabase
-        .from('place_card_settings')
-        .update({
-          ...safeDefaults,
-          ...newSettings,
-          event_id: eventId,
-          user_id: user.id,
-        })
-        .eq('id', baseSettings.id)
-        .select()
-        .single();
+      let result;
+      if (settings?.id) {
+        // Update existing settings
+        result = await supabase
+          .from('place_card_settings')
+          .update(settingsData)
+          .eq('id', settings.id)
+          .select()
+          .single();
+      } else {
+        // Create new settings
+        result = await supabase
+          .from('place_card_settings')
+          .insert(settingsData)
+          .select()
+          .single();
+      }
 
-      if (error) {
-        console.error('Error updating place card settings:', error);
-        if (!silent) {
-          toast({
-            title: "Error",
-            description: "Failed to save settings",
-            variant: "destructive",
-          });
-        }
+      if (result.error) {
+        console.error('Error updating place card settings:', result.error);
+        toast({
+          title: "Error",
+          description: "Failed to save settings",
+          variant: "destructive",
+        });
         return false;
       }
 
-      setSettings(normalizeRow(data));
-      if (!silent) {
-        toast({
-          title: "Success",
-          description: "Settings saved successfully",
-        });
-      }
+      setSettings({
+        ...result.data,
+        background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
+        individual_messages: result.data.individual_messages as Record<string, string>
+      });
+      toast({
+        title: "Success",
+        description: "Settings saved successfully",
+      });
       return true;
     } catch (error) {
       console.error('Error updating place card settings:', error);
-      if (!silent) {
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
       return false;
     }
   };
-
-  const updateSettings = (newSettings: Partial<PlaceCardSettings>) => saveSettings(newSettings, false);
-  const updateSettingsSilent = (newSettings: Partial<PlaceCardSettings>) => saveSettings(newSettings, true);
 
   useEffect(() => {
     fetchSettings();
@@ -329,7 +179,6 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     settings,
     loading,
     updateSettings,
-    updateSettingsSilent,
     refetchSettings: fetchSettings,
   };
 };
