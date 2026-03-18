@@ -1038,7 +1038,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <Input 
                         placeholder="Enter email address" 
-                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                        className="rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
                         {...field} 
                       />
                     </FormControl>
