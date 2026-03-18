@@ -1,21 +1,20 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Update Default Fonts & Sizes for Name Place Cards
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### Changes
 
-### File Changes
+Three sets of defaults need updating across two files:
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**1. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`**
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+- **Initial defaults** (~lines 108-114): Change `guest_font_family` from `'Inter'` to `'Great Vibes'`, `info_font_family` to `'ET Emilia Grace Demo'`, `guest_name_font_size` from `24` to `40`, `info_font_size` from `12` to `16`.
+- **Reset defaults** (~lines 147-155): Same changes — `'Arial'` → `'Great Vibes'` / `'ET Emilia Grace Demo'`, sizes `24→40`, `12→16`.
+- **Fallback values** (~lines 301, 312): Change `|| 'Inter'` to `|| 'Great Vibes'` and `|| 'ET Emilia Grace Demo'` respectively.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**2. `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`**
+
+- **Fallback defaults** (~lines 49-55): Same font family and size changes.
+
+Font color default is already `#000000` (black) — no change needed.
 
