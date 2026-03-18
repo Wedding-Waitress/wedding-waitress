@@ -246,7 +246,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
 
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, rotation, getBaseTransform]);
+  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, onLiveMove, onLiveRotate, onLiveFontSize, rotation, getBaseTransform]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
   const hasToolbar = onCopy || onReset || onDuplicate || onDelete;
