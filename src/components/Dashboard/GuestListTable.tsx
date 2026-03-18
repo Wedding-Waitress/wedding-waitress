@@ -1416,7 +1416,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   return (
     <>
-      <Card className="border-[3px] border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+      <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         {/* Header Controls */}
         <div className="px-3 sm:px-6 py-4">
           {/* Page Title with Couple Names Section */}
@@ -1434,7 +1434,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
               <div className="grid grid-cols-1 md:grid-cols-[2fr_2fr_2fr_1fr] gap-4 items-stretch">
-                <div className="border-[3px] border-[#7248E6] rounded-lg p-4 flex-1">
+                <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">1</span>
                     <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-semibold text-primary">
@@ -1442,7 +1442,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </Label>
                   </div>
                   <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-full border-[3px] border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
+                    <SelectTrigger className="w-full border-2 border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -1460,7 +1460,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Box 1: Type of Event */}
                 {selectedEventId && (
-                  <div className="border-[3px] border-[#7248E6] rounded-lg p-4 flex-1">
+                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">2</span>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1480,7 +1480,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                            "h-8 text-sm justify-start transition-all",
                            eventType === 'two'
                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
-                              : "border-[3px] border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                             : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                          )}
                       >
                         💍 Wedding Or Engagement
@@ -1493,7 +1493,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                            "h-8 text-sm justify-start transition-all",
                            eventType === 'single'
                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
-                             : "border-[3px] border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                             : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                          )}
                       >
                         🎂 Birthday, Single Person Event Or Corporate Party
@@ -1504,7 +1504,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Box 2: Guest Relations */}
                 {selectedEventId && (
-                  <div className="border-[3px] border-[#7248E6] rounded-lg p-4 flex-1">
+                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
                     <div className="flex items-start gap-3 mb-2">
                      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0 mt-0">3</span>
                       <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
@@ -1618,7 +1618,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </div>
                 )}
                 {/* Box 4: Add Guest */}
-                <div className="border-[3px] border-primary rounded-lg p-4 flex flex-col h-full">
+                <div className="border-2 border-primary rounded-lg p-4 flex flex-col h-full">
                   <div className="flex items-start gap-2">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
                     <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
@@ -1650,7 +1650,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   placeholder="Search guests..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-[180px] sm:w-[200px] border-[3px] border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
+                  className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
                 />
               </div>
               <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0">

@@ -499,7 +499,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
-          <div className="bg-white rounded-lg border-[3px] border-purple-200 p-4 flex items-center justify-center min-h-[320px]">
+          <div className="bg-white rounded-lg border-2 border-purple-200 p-4 flex items-center justify-center min-h-[320px]">
             <div id="qr-preview" className="w-full max-w-[280px] aspect-square flex items-center justify-center">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
@@ -517,7 +517,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}
-              <AccordionItem value="color" className="border-[1.5px] border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="color" className="border border-purple-200 rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Palette className="h-4 w-4 text-purple-600" />
@@ -562,7 +562,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* SHAPE Section */}
-              <AccordionItem value="shape" className="border-[1.5px] border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="shape" className="border border-purple-200 rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Square className="h-4 w-4 text-purple-600" />
@@ -642,7 +642,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* LOGO Section */}
-              <AccordionItem value="logo" className="border-[1.5px] border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="logo" className="border border-purple-200 rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-purple-600" />

@@ -124,7 +124,7 @@ export const EventNameCombobox: React.FC<EventNameComboboxProps> = ({
                 onChange={(e) => setCustomName(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type custom name..."
-                className="h-9 text-sm rounded-full border-[3px] border-primary focus-visible:border-[3px] focus-visible:ring-0"
+                className="h-9 text-sm rounded-full border-2 border-primary focus-visible:border-[3px] focus-visible:ring-0"
               />
               <div className="flex justify-end gap-2">
                 <Button

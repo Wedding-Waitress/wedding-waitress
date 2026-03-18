@@ -350,7 +350,7 @@ export const FamilyGroupCombobox: React.FC<FamilyGroupComboboxProps> = ({
               onBlur={() => onChange?.(inputValue, Array.from(selectedMemberIds))}
               placeholder={placeholder}
               className={cn(
-                "rounded-full border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none cursor-text",
+                "rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none cursor-text",
                 inputValue ? "pr-16" : "pr-8"
               )}
               autoComplete="off"

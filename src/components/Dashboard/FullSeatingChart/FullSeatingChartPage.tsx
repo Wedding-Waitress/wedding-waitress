@@ -261,7 +261,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
               {/* Export Controls */}
               {isDataReady && (
-                <div className="border-[1.5px] border-primary rounded-xl p-3 flex flex-col gap-3">
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
                   <div className="flex items-center">
                     <span className="font-bold text-sm">Export Controls</span>
                     <span className="text-muted-foreground ml-2 text-sm">

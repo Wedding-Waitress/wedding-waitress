@@ -921,7 +921,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             {!isEdit && (
               <div className="pt-1 pb-2">
                 <Label className="text-sm font-medium mb-2 block">Guest Category</Label>
-                <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-[3px] border-[#7248e6] rounded-full p-1 w-full">
+                <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
                   <button
                     type="button"
                     onClick={() => {
@@ -981,7 +981,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <Input 
                         placeholder="Enter first name" 
-                        className="rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
                         {...field} 
                       />
                     </FormControl>
@@ -999,7 +999,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <Input 
                         placeholder="Enter last name" 
-                        className="rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
                         {...field} 
                       />
                     </FormControl>
@@ -1020,7 +1020,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <Input 
                         placeholder="Enter mobile number" 
-                        className="rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
                         {...field} 
                       />
                     </FormControl>
@@ -1038,7 +1038,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <Input 
                         placeholder="Enter email address" 
-                        className="rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                        className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
                         {...field} 
                       />
                     </FormControl>
@@ -1064,7 +1064,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       handleTableChange(value);
                     }} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-[3px] border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                           <SelectValue placeholder="Select table" />
                         </SelectTrigger>
                       </FormControl>
@@ -1155,7 +1155,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-[3px] border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                           <SelectValue placeholder="Select RSVP status" />
                         </SelectTrigger>
                       </FormControl>
@@ -1181,7 +1181,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-[3px] border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                           <SelectValue placeholder="Select dietary requirements" />
                         </SelectTrigger>
                       </FormControl>
@@ -1344,7 +1344,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
                 </Label>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-[3px] border-primary/30 bg-muted/30">
+                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30">
                     {form.watch('relation_partner') && form.watch('relation_role')
                       ? computeRelationDisplay(
                           form.watch('relation_partner') as RelationPartner,
@@ -1384,7 +1384,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <FormControl>
                     <Textarea 
                       placeholder="Add any additional notes about this guest..."
-                      className="rounded-3xl border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
+                      className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
                       {...field}
                     />
                   </FormControl>

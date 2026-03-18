@@ -65,8 +65,8 @@ interface PublicAddGuestModalProps {
   addedByGuestTableNo?: number;
 }
 
-const inputClasses = "rounded-full border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
-const selectTriggerClasses = "w-full border-[3px] border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9";
+const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
+const selectTriggerClasses = "w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9";
 
 export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   open,
@@ -204,7 +204,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
         {/* Custom purple circle close button */}
-        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-[3px] border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
           <X className="w-5 h-5 text-primary" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
@@ -223,7 +223,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
             <Label className="text-sm font-medium mb-1.5 block">Guest Category <span className="text-destructive">*</span></Label>
-            <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-[3px] border-[#7248e6] rounded-full p-1 w-full">
+            <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
               <button
                 type="button"
                 onClick={() => { setGuestType('individual'); setPartyMembers([]); }}
@@ -407,7 +407,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                       value={memberForm.notes}
                       onChange={e => setMemberForm(prev => ({ ...prev, notes: e.target.value }))}
                       placeholder="Add any notes..."
-                      className="rounded-3xl border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none text-sm"
+                      className="rounded-3xl border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none text-sm"
                     />
                   </div>
                   {/* Action buttons */}
@@ -588,7 +588,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                   value={guest.notes}
                   onChange={e => setGuest(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Add any additional notes about this guest..."
-                  className="rounded-3xl border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
+                  className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
                 />
               </div>
 

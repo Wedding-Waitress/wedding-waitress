@@ -35,7 +35,7 @@ export const EventDatePicker: React.FC<EventDatePickerProps> = ({
         <Button
           variant="outline"
           className={cn(
-            "w-full justify-start text-left font-normal border-[3px] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none",
+            "w-full justify-start text-left font-normal border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none",
             filled 
               ? "border-green-500 hover:border-green-500 focus-visible:border-green-500" 
               : "border-[#7248e6] hover:border-[#7248e6] focus-visible:border-[#7248e6]",

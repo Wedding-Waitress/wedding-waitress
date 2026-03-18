@@ -176,7 +176,7 @@ export const FloorPlanPage = ({
 
           {/* Export Controls */}
           {isDataReady && floorPlanType === 'ceremony' && (
-            <div className="border-[1.5px] border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <p className="text-sm">
                 <span className="font-bold">Export Controls</span>
                 {' '}Download your floor plan for venue staff.

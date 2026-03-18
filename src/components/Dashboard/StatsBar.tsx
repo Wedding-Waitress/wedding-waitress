@@ -125,7 +125,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
   ];
 
   return (
-    <Card className="mb-6 border-[3px] border-primary shadow-sm" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+    <Card className="mb-6 border-2 border-primary shadow-sm" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
       <div className="p-3 sm:p-4 md:p-6">
         {/* Mobile: Horizontal scrollable row */}
         <div className="sm:hidden">

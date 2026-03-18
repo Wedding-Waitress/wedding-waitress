@@ -324,7 +324,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               }}
               placeholder="e.g., 1, Bridal, VIP A"
               disabled={isSubmitting}
-              className={`rounded-full border-[3px] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none ${
+              className={`rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none ${
                 validationState === 'duplicate' 
                   ? 'border-red-600 focus-visible:border-red-600' 
                   : validationState === 'valid' 
@@ -416,7 +416,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 }
               }}
               disabled={isSubmitting}
-              className="rounded-full border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+              className="rounded-full border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
             />
             {errors.limitSeats && (
               <p className="text-sm text-destructive">{errors.limitSeats}</p>
@@ -465,7 +465,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               placeholder="Optional notes about this table..."
               rows={3}
               disabled={isSubmitting}
-              className="rounded-3xl border-[3px] border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
+              className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none"
             />
           </div>
 
