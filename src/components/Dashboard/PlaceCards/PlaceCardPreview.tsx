@@ -133,8 +133,37 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     if (!textEditMode) {
       setSelectedElement(null);
       setDraftOverrides(null);
+      setCommittedOverrides({});
     }
   }, [textEditMode]);
+
+  // Clear committed overrides once the settings prop has been updated (optimistic or server)
+  React.useEffect(() => {
+    if (settings !== prevSettingsRef.current) {
+      prevSettingsRef.current = settings;
+      setCommittedOverrides({});
+    }
+  }, [settings]);
+
+  // Helper to clear stale inline styles from the master card's InteractiveTextOverlay elements
+  const clearMasterInlineStyles = useCallback(() => {
+    requestAnimationFrame(() => {
+      const el = firstCardRef.current;
+      if (el) {
+        el.querySelectorAll('[data-text-content]').forEach(node => {
+          const parent = node.parentElement;
+          if (parent) {
+            parent.style.left = '';
+            parent.style.top = '';
+            parent.style.transform = '';
+            parent.style.width = '';
+            parent.style.height = '';
+            parent.style.fontSize = '';
+          }
+        });
+      }
+    });
+  }, []);
 
   // Card dimensions in mm for coordinate conversion
   const CARD_WIDTH_MM = 105;
