@@ -1,22 +1,21 @@
 
 
-## Plan: Add informational note below "Add QR Code to Invite" heading
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### Change
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-**File: `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`**
+### File Changes
 
-Insert a styled note between line 603 (after the heading closing `</h3>`) and line 605 (before the "Choose Event" section). The note will be wrapped in a soft purple-bordered container:
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-```tsx
-<div className="border border-primary/30 rounded-lg p-3 bg-primary/5">
-  <p className="text-sm text-muted-foreground">
-    Adding a QR code to your invitation is only necessary and recommended when you are physically printing your invites and sending them in the mail.
-  </p>
-</div>
-```
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-This sits between the heading and the "Choose Event" dropdown, inherits the `space-y-4` gap from the parent, and uses a subtle purple border with light purple background consistent with the panel styling.
-
-### Files changed: 1
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 

@@ -19,8 +19,6 @@ import { useToast } from '@/hooks/use-toast';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
 
-
-
 interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
   onSettingsChange: (settings: Partial<InvitationCardSettings>) => Promise<boolean>;
@@ -601,6 +599,12 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   <QrCode className="h-5 w-5 inline-block mr-2" />
                   Add QR Code to Invite
                 </h3>
+
+                <div className="border border-primary/30 rounded-lg p-3 bg-primary/5">
+                  <p className="text-sm text-muted-foreground">
+                    Adding a QR code to your invitation is only necessary and recommended when you are physically printing your invites and sending them in the mail.
+                  </p>
+                </div>
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Choose Event</Label>
