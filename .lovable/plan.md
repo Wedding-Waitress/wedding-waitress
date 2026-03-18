@@ -1,21 +1,36 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Fix Place Card Text Controls — Full Reset + Prevent Clipping
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+### Issue 1: Reset Button Not Fully Resetting
 
-### File Changes
+**Current state**: The per-element toolbar reset (`handleInteractiveReset`) resets `offset_x/y` and `rotation` but does NOT reset font size. The bottom "Reset to Default" button also doesn't reset font sizes.
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+**Fix**: Update `handleInteractiveReset` in `PlaceCardPreview.tsx` to also reset font size back to defaults:
+- Guest Name: `guest_name_font_size: 40` (the default)
+- Table/Seat: `info_font_size: 16` (the default)
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+Also update the bottom "Reset to Default" button in `PlaceCardCustomizer.tsx` to include `guest_name_font_size: 40` and `info_font_size: 16`.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+**Files**: `PlaceCardPreview.tsx` (lines 158-166), `PlaceCardCustomizer.tsx` (lines 437-447)
+
+### Issue 2: Controls Getting Cut Off / Hidden
+
+**Root cause**: The front-half container has `overflow: hidden` (line 325) which clips the toolbar and handles when text is near the edges.
+
+**Fix** — three changes in `PlaceCardPreview.tsx`:
+
+1. **Remove `overflow: hidden`** from the interactive front-half container (line 325). Change to `overflow: visible` when `isInteractive`.
+
+2. **Increase z-index** on the interactive card container so selected overlays render above adjacent cards and guide lines:
+   - The card div (line 219) gets `zIndex: 200` when `isInteractive`
+   - The front-half div gets `zIndex: 200` when `isInteractive`
+
+3. **InteractiveTextOverlay already uses `zIndex: 20` for selected** — this is sufficient relative to siblings. The toolbar uses `zIndex: 30`. These work correctly once the parent stops clipping.
+
+No changes to `InteractiveTextOverlay.tsx` (locked file) are needed.
+
+### Files Modified
+- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` — full reset + overflow fix
+- `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx` — bottom reset includes font sizes
 
