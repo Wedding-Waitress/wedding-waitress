@@ -49,7 +49,9 @@ interface ExtendedPlaceCardSettings extends PlaceCardSettings {
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   settings,
   onSettingsChange,
-  guests
+  guests,
+  textEditMode = false,
+  onTextEditModeChange,
 }) => {
   const [individualMessages, setIndividualMessages] = useState<Record<string, string>>(settings?.individual_messages || {});
   const [uploading, setUploading] = useState(false);
