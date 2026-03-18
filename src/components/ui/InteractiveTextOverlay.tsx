@@ -172,8 +172,8 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
         const newFontSize = Math.max(6, Math.min(200, (newWidth / baseWidth) * (currentFontSize || 24)));
         el.style.fontSize = `${newFontSize}px`;
 
-        lastFontDelta = newFontSize - (currentFontSize || 24);
         setLiveFontSize(Math.round(newFontSize));
+        onLiveFontSize?.(Math.round(newFontSize));
         return;
       }
 
