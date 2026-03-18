@@ -354,7 +354,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             className="relative z-10"
             style={{ 
               height: '49.5mm',
-              overflow: 'visible',
+              overflow: 'hidden',
             }}
             onClick={() => setSelectedElement(null)}
           >
