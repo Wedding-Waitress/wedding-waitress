@@ -598,9 +598,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <h3 className="text-lg font-semibold text-primary">
                   <QrCode className="h-5 w-5 inline-block mr-2" />
                   Add QR Code to Invite
-                </h3>
 
-                <div className="space-y-2">
+                <div className="border border-primary/30 rounded-lg p-3 bg-primary/5">
+                  <p className="text-sm text-muted-foreground">
+                    Adding a QR code to your invitation is only necessary and recommended when you are physically printing your invites and sending them in the mail.
+                  </p>
+                </div>
+
                   <Label className="text-sm font-medium">Choose Event</Label>
                   <Select
                     value={currentSettings.qr_config?.event_id || 'none'}
