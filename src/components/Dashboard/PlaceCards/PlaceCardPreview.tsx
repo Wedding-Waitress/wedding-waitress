@@ -438,9 +438,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 currentFontSize={currentSettings.info_font_size}
                 style={{
                   ...tableInfoStyle,
-                  transform: tableTransform,
+                  left: `${tableXPct}%`,
+                  top: `${tableYPct}%`,
+                  transform: `translate(-50%, -50%) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`,
                   transformOrigin: 'center center',
-                  position: 'relative',
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {currentSettings.background_behind_table_seats ? (
