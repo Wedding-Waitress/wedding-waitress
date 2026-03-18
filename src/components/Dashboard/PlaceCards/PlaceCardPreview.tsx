@@ -158,11 +158,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      onSettingsChange({ guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0 });
+      onSettingsChange({ guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 });
     } else {
-      onSettingsChange({ table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0 });
+      onSettingsChange({ table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0, info_font_size: 16 });
     }
-    toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} position reset` });
+    toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} fully reset to default` });
   }, [onSettingsChange, toast]);
 
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
