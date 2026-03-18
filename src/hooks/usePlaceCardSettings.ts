@@ -10,7 +10,7 @@
  * Last completed: 2025-10-04
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -63,10 +63,62 @@ export interface PlaceCardSettings {
   updated_at?: string;
 }
 
+const INSERT_DEFAULTS = {
+  font_family: 'Great Vibes',
+  font_color: '#000000',
+  background_color: '#ffffff',
+  background_image_type: 'none',
+  mass_message: '',
+  individual_messages: {},
+  guest_font_family: 'Great Vibes',
+  info_font_family: 'Beauty Mountains',
+  guest_name_bold: false,
+  guest_name_italic: false,
+  guest_name_underline: false,
+  guest_name_font_size: 40,
+  info_font_size: 16,
+  name_spacing: 0,
+  info_bold: false,
+  info_italic: false,
+  info_underline: false,
+  info_font_color: '#000000',
+  guest_name_offset_x: 0,
+  guest_name_offset_y: 0,
+  table_offset_x: 0,
+  table_offset_y: 0,
+  seat_offset_x: 0,
+  seat_offset_y: 0,
+  guest_name_rotation: 0,
+  table_seat_rotation: 0,
+  message_font_family: 'Beauty Mountains',
+  message_font_size: 16,
+  message_font_color: '#000000',
+  message_bold: false,
+  message_italic: false,
+  message_underline: false,
+};
+
+/** Normalize DB row into typed PlaceCardSettings */
+function normalizeRow(row: any): PlaceCardSettings {
+  return {
+    ...row,
+    background_image_type: row.background_image_type as PlaceCardSettings['background_image_type'],
+    individual_messages: (row.individual_messages as Record<string, string>) ?? {},
+    message_font_family: row.message_font_family || 'Beauty Mountains',
+    message_font_size: row.message_font_size ?? 16,
+    message_font_color: row.message_font_color || '#000000',
+    message_bold: row.message_bold ?? false,
+    message_italic: row.message_italic ?? false,
+    message_underline: row.message_underline ?? false,
+  };
+}
+
 export const usePlaceCardSettings = (eventId: string | null) => {
   const [settings, setSettings] = useState<PlaceCardSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  // Mutex: prevents concurrent insert race conditions during first save
+  const creatingRef = useRef<Promise<PlaceCardSettings | null> | null>(null);
 
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
@@ -92,17 +144,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return;
       }
 
-      setSettings(data ? {
-        ...data,
-        background_image_type: data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
-        individual_messages: data.individual_messages as Record<string, string>,
-        message_font_family: (data as any).message_font_family || 'Beauty Mountains',
-        message_font_size: (data as any).message_font_size || 16,
-        message_font_color: (data as any).message_font_color || '#000000',
-        message_bold: (data as any).message_bold || false,
-        message_italic: (data as any).message_italic || false,
-        message_underline: (data as any).message_underline || false,
-      } : null);
+      setSettings(data ? normalizeRow(data) : null);
     } catch (error) {
       console.error('Error fetching place card settings:', error);
       toast({
@@ -114,6 +156,57 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       setLoading(false);
     }
   }, [eventId, toast]);
+
+  /**
+   * Ensures a settings row exists for the current event.
+   * Uses a ref-based mutex so concurrent callers share the same insert promise.
+   */
+  const ensureSettingsExist = async (userId: string): Promise<PlaceCardSettings | null> => {
+    // Already have a persisted row
+    if (settings?.id) return settings;
+
+    // Another call is already creating — wait for it
+    if (creatingRef.current) return creatingRef.current;
+
+    const promise = (async () => {
+      const { data, error } = await supabase
+        .from('place_card_settings')
+        .insert({
+          event_id: eventId!,
+          user_id: userId,
+          ...INSERT_DEFAULTS,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating place card settings:', error);
+        // Might be a duplicate — try fetching instead
+        const { data: existing } = await supabase
+          .from('place_card_settings')
+          .select('*')
+          .eq('event_id', eventId!)
+          .maybeSingle();
+        if (existing) {
+          const normalized = normalizeRow(existing);
+          setSettings(normalized);
+          return normalized;
+        }
+        return null;
+      }
+
+      const normalized = normalizeRow(data);
+      setSettings(normalized);
+      return normalized;
+    })();
+
+    creatingRef.current = promise;
+    try {
+      return await promise;
+    } finally {
+      creatingRef.current = null;
+    }
+  };
 
   const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
     if (!eventId) return false;
@@ -129,66 +222,9 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return false;
       }
 
-      const settingsData = {
-        event_id: eventId,
-        user_id: user.id,
-        ...(settings?.id ? {} : {
-          font_family: 'Great Vibes',
-          font_color: '#000000',
-          background_color: '#ffffff',
-          background_image_type: 'none',
-          mass_message: '',
-          individual_messages: {},
-          guest_font_family: 'Great Vibes',
-          info_font_family: 'Beauty Mountains',
-          guest_name_bold: false,
-          guest_name_italic: false,
-          guest_name_underline: false,
-          guest_name_font_size: 40,
-          info_font_size: 16,
-          name_spacing: 0,
-          info_bold: false,
-          info_italic: false,
-          info_underline: false,
-          info_font_color: '#000000',
-          guest_name_offset_x: 0,
-          guest_name_offset_y: 0,
-          table_offset_x: 0,
-          table_offset_y: 0,
-          seat_offset_x: 0,
-          seat_offset_y: 0,
-          guest_name_rotation: 0,
-          table_seat_rotation: 0,
-          message_font_family: 'Beauty Mountains',
-          message_font_size: 16,
-          message_font_color: '#000000',
-          message_bold: false,
-          message_italic: false,
-          message_underline: false,
-        }),
-        ...newSettings,
-      };
-
-      let result;
-      if (settings?.id) {
-        // Update existing settings
-        result = await supabase
-          .from('place_card_settings')
-          .update(settingsData)
-          .eq('id', settings.id)
-          .select()
-          .single();
-      } else {
-        // Create new settings
-        result = await supabase
-          .from('place_card_settings')
-          .insert(settingsData)
-          .select()
-          .single();
-      }
-
-      if (result.error) {
-        console.error('Error updating place card settings:', result.error);
+      // Step 1: Ensure a base row exists (handles first-time creation safely)
+      const baseSettings = await ensureSettingsExist(user.id);
+      if (!baseSettings?.id) {
         toast({
           title: "Error",
           description: "Failed to save settings",
@@ -197,17 +233,29 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return false;
       }
 
-      setSettings({
-        ...result.data,
-        background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
-        individual_messages: result.data.individual_messages as Record<string, string>,
-        message_font_family: (result.data as any).message_font_family || 'Beauty Mountains',
-        message_font_size: (result.data as any).message_font_size || 16,
-        message_font_color: (result.data as any).message_font_color || '#000000',
-        message_bold: (result.data as any).message_bold || false,
-        message_italic: (result.data as any).message_italic || false,
-        message_underline: (result.data as any).message_underline || false,
-      });
+      // Step 2: Update the existing row with the caller's changes
+      const { data, error } = await supabase
+        .from('place_card_settings')
+        .update({
+          ...newSettings,
+          event_id: eventId,
+          user_id: user.id,
+        })
+        .eq('id', baseSettings.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating place card settings:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save settings",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      setSettings(normalizeRow(data));
       toast({
         title: "Success",
         description: "Settings saved successfully",
