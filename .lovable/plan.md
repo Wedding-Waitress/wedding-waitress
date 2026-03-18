@@ -1,23 +1,21 @@
 
 
-## Remove Side Resize Handles for Place Card Text Elements
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-### What
-Add a `hideSideHandles` prop to `InteractiveTextOverlay` and use it in `PlaceCardPreview` for both Guest Name and Table/Seat overlays.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-### Changes
+### File Changes
 
-**1. `src/components/ui/InteractiveTextOverlay.tsx`**
-- Add optional prop `hideSideHandles?: boolean` (default `false`)
-- Conditionally skip rendering the two middle-side `<Handle>` elements (lines 330-336: `resize-left` and `resize-right`) when `hideSideHandles` is true
-- No other changes to the locked file
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-**2. `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`**
-- Pass `hideSideHandles={true}` to both `<InteractiveTextOverlay>` instances (Guest Name and Table/Seat)
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
 ### Result
-- 4 corner handles remain (font-size scaling)
-- Drag/move, rotation, toolbar all unchanged
-- Side stretch handles hidden — prevents users from widening text boxes to alter data-driven content
-- Invitations editor unaffected (prop defaults to `false`)
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
