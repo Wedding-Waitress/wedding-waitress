@@ -198,6 +198,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
     const guestNameTransform = `translate(${currentSettings.guest_name_offset_x ?? 0}mm, ${currentSettings.guest_name_offset_y ?? 0}mm) rotate(${(currentSettings as any).guest_name_rotation ?? 0}deg)`;
 
+    // Absolute percentage positions for interactive mode (matches InteractiveTextOverlay expectations)
+    const guestXPct = 50 + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
+    const guestYPct = 30 + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
+    const tableXPct = 50 + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100;
+    const tableYPct = 70 + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100;
+
     const tableInfoStyle: React.CSSProperties = {
       fontFamily: currentSettings.info_font_family,
       fontSize: `${currentSettings.info_font_size}pt`,
