@@ -298,7 +298,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   Guest Name Font
                 </Label>
                 <PlaceCardFontPicker
-                  value={currentSettings.guest_font_family || 'Inter'}
+                  value={currentSettings.guest_font_family || 'Great Vibes'}
                   onValueChange={value => handleSettingChange('guest_font_family', value)}
                 />
               </div>
