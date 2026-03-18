@@ -361,7 +361,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
               {/* Section 2: Table, Seat & Message */}
               <div className="border-[1.5px] border-primary rounded-xl p-3 space-y-3">
-                <h3 className="text-sm font-semibold">Table, Seat & Message</h3>
+                <h3 className="text-sm font-semibold">Table & Seat</h3>
                 
                 {/* Row 1: Font + Font Size */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
