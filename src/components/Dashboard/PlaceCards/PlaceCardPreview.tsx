@@ -19,6 +19,7 @@ import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { useToast } from '@/hooks/use-toast';
 
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
