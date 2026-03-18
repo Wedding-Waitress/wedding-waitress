@@ -1618,7 +1618,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </div>
                 )}
                 {/* Box 4: Add Guest */}
-                <div className="border-2 border-primary rounded-lg p-4 flex flex-col h-full">
+                <div className="border-[3px] border-primary rounded-lg p-4 flex flex-col h-full">
                   <div className="flex items-start gap-2">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
                     <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
