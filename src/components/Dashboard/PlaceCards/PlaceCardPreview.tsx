@@ -204,12 +204,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
+      setCommittedOverrides(prev => ({ ...prev, guest_name_rotation: degrees }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
       onSettingsChange({ guest_name_rotation: degrees });
     } else {
+      setCommittedOverrides(prev => ({ ...prev, table_seat_rotation: degrees }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
       onSettingsChange({ table_seat_rotation: degrees });
     }
-    setDraftOverrides(null);
-  }, [onSettingsChange]);
+  }, [onSettingsChange, clearMasterInlineStyles]);
 
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
