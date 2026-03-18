@@ -115,6 +115,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
   const currentPageGuests = pages[currentPage - 1] || [];
 
+  // Clear selection when edit mode is turned off
+  React.useEffect(() => {
+    if (!textEditMode) setSelectedElement(null);
+  }, [textEditMode]);
+
   if (!guests.length) {
     return (
       <div className="py-8 text-center text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
@@ -123,38 +128,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       </div>
     );
   }
-
-  // Render empty card slot with background and fold line
-  const renderEmptyCard = (index: number) => {
-    return (
-      <div
-        key={`empty-${index}`}
-        className="relative"
-        style={{
-          width: '105mm',
-          height: '99mm',
-          backgroundColor: currentSettings.background_color,
-        }}
-      >
-        {/* CREASE LINE at Y = 49.5mm - same as real cards */}
-        <div 
-          className="absolute left-0 right-0" 
-          style={{ 
-            top: '49.5mm',
-            borderTop: '0.5px solid #d3d3d3',
-            opacity: 0.3,
-            zIndex: 100
-          }}
-        />
-      </div>
-    );
-  };
-
-
-  // Clear selection when edit mode is turned off
-  React.useEffect(() => {
-    if (!textEditMode) setSelectedElement(null);
-  }, [textEditMode]);
 
   // Card dimensions in mm for coordinate conversion
   const CARD_WIDTH_MM = 105;
