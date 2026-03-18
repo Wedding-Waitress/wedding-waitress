@@ -120,7 +120,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-purple-100 border border-purple-700 rounded-md hover:!bg-purple-200' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-purple-100 border-[1.5px] border-purple-700 rounded-md hover:!bg-purple-200' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
                     <span className={`${isGreenItem ? 'text-black' : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>

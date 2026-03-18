@@ -121,7 +121,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
           </div>
 
           {/* Pricing */}
-          <div className="border-2 border-primary rounded-lg p-4 space-y-1 text-center">
+          <div className="border-[3px] border-primary rounded-lg p-4 space-y-1 text-center">
             <p className="text-sm text-muted-foreground">
               Based on your guest list ({pricing.label})
             </p>

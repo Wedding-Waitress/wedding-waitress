@@ -154,7 +154,7 @@ export const TableCard: React.FC<TableCardProps> = ({
             ? 'border-4 border-destructive'
             : isFull 
               ? 'border-4 border-green-500' 
-              : 'border-2 border-primary'
+              : 'border-[3px] border-primary'
         } ${
           isOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
         }`}

@@ -45,7 +45,7 @@ export const BulkMoveBar: React.FC<BulkMoveBarProps> = ({
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200">
-      <div className="flex items-center gap-3 bg-card/95 backdrop-blur-sm border-2 border-primary shadow-xl rounded-xl px-4 py-3">
+      <div className="flex items-center gap-3 bg-card/95 backdrop-blur-sm border-[3px] border-primary shadow-xl rounded-xl px-4 py-3">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Users className="h-4 w-4 text-primary" />
           <span>{selectedCount} guest{selectedCount !== 1 ? 's' : ''} selected</span>
