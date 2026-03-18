@@ -438,6 +438,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               settings={settings}
               onSettingsChange={updateSettings}
               guests={assignedGuests}
+              editMode={editMode}
+              onEditModeChange={setEditMode}
             />
           </div>
 
