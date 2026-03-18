@@ -449,6 +449,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               isExporting={isExporting}
               focusedPage={focusedPage}
               selectedTable={selectedTable}
+              onSettingsChange={updateSettings}
             />
           </div>
         </div>
