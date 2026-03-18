@@ -407,7 +407,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                       value={memberForm.notes}
                       onChange={e => setMemberForm(prev => ({ ...prev, notes: e.target.value }))}
                       placeholder="Add any notes..."
-                      className="rounded-3xl border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none text-sm"
+                      className="rounded-3xl border-[3px] border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none text-sm"
                     />
                   </div>
                   {/* Action buttons */}
