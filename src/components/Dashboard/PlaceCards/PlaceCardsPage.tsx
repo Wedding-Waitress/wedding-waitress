@@ -24,6 +24,7 @@ import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
 import { Loader2, Users, Settings, FileText, Printer, Calendar, Ruler } from 'lucide-react';
+import { useState as useStateReact } from 'react';
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
