@@ -337,16 +337,16 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Text Styling</Label>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
                         <Label htmlFor="guest-bold" className="text-xs">Bold</Label>
                         <Switch id="guest-bold" checked={currentSettings.guest_name_bold} onCheckedChange={value => handleSettingChange('guest_name_bold', value)} />
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-between">
                         <Label htmlFor="guest-italic" className="text-xs">Italic</Label>
                         <Switch id="guest-italic" checked={currentSettings.guest_name_italic} onCheckedChange={value => handleSettingChange('guest_name_italic', value)} />
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-between">
                         <Label htmlFor="guest-underline" className="text-xs">Underline</Label>
                         <Switch id="guest-underline" checked={currentSettings.guest_name_underline} onCheckedChange={value => handleSettingChange('guest_name_underline', value)} />
                       </div>
@@ -399,16 +399,16 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs text-muted-foreground">Text Styling</Label>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
                         <Label htmlFor="info-bold" className="text-xs">Bold</Label>
                         <Switch id="info-bold" checked={currentSettings.info_bold} onCheckedChange={value => handleSettingChange('info_bold', value)} />
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-between">
                         <Label htmlFor="info-italic" className="text-xs">Italic</Label>
                         <Switch id="info-italic" checked={currentSettings.info_italic} onCheckedChange={value => handleSettingChange('info_italic', value)} />
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-between">
                         <Label htmlFor="info-underline" className="text-xs">Underline</Label>
                         <Switch id="info-underline" checked={currentSettings.info_underline} onCheckedChange={value => handleSettingChange('info_underline', value)} />
                       </div>
