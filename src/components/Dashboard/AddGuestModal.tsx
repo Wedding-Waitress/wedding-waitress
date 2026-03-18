@@ -1064,7 +1064,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       handleTableChange(value);
                     }} value={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectTrigger className="w-full border-[3px] border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                           <SelectValue placeholder="Select table" />
                         </SelectTrigger>
                       </FormControl>
