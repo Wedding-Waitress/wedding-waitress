@@ -361,13 +361,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             )}
 
             {/* Guest Name - Interactive */}
-            <InteractiveTextOverlay
+             <InteractiveTextOverlay
               isSelected={selectedElement === 'guest_name'}
               onSelect={() => setSelectedElement('guest_name')}
               onMove={handleGuestNameMove}
               onFontSizeChange={handleGuestNameFontSize}
               onRotate={handleGuestNameRotate}
               onReset={handleGuestNameReset}
+              onDuplicate={() => toast({ title: "Not available", description: "Guest Name is a fixed element and cannot be duplicated" })}
+              onDelete={() => toast({ title: "Not available", description: "Guest Name is a fixed element and cannot be deleted" })}
               containerRef={frontHalfRef as React.RefObject<HTMLElement>}
               rotation={guestNameRotation}
               currentFontSize={currentSettings.guest_name_font_size}
