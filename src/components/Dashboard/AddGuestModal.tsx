@@ -1344,7 +1344,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
                 </Label>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30">
+                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-[3px] border-primary/30 bg-muted/30">
                     {form.watch('relation_partner') && form.watch('relation_role')
                       ? computeRelationDisplay(
                           form.watch('relation_partner') as RelationPartner,
