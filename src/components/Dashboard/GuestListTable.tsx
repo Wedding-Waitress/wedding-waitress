@@ -1416,7 +1416,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   return (
     <>
-      <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+      <Card className="border-[3px] border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
         {/* Header Controls */}
         <div className="px-3 sm:px-6 py-4">
           {/* Page Title with Couple Names Section */}
