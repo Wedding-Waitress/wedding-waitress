@@ -453,6 +453,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               focusedPage={focusedPage}
               selectedTable={selectedTable}
               onSettingsChange={updateSettings}
+              editMode={editMode}
+              onEditModeChange={setEditMode}
             />
           </div>
         </div>
