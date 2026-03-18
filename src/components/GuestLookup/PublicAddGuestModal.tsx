@@ -223,7 +223,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
             <Label className="text-sm font-medium mb-1.5 block">Guest Category <span className="text-destructive">*</span></Label>
-            <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
+            <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-[3px] border-[#7248e6] rounded-full p-1 w-full">
               <button
                 type="button"
                 onClick={() => { setGuestType('individual'); setPartyMembers([]); }}
