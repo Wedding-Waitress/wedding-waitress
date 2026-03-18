@@ -489,8 +489,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               onLiveRotate={handleLiveGuestRotate}
               onLiveFontSize={handleLiveGuestFontSize}
               containerRef={firstCardRef as React.RefObject<HTMLElement>}
-              rotation={Number(currentSettings.guest_name_rotation ?? 0)}
-              currentFontSize={currentSettings.guest_name_font_size}
+              rotation={effGuestRotation}
+              currentFontSize={effGuestFontSize}
               style={buildAbsoluteStyle(guestNameBaseStyle, guestPos)}
             >
               {guestNameContent}
