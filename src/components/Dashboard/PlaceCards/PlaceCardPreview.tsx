@@ -54,7 +54,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
   const [draftOverrides, setDraftOverrides] = useState<DraftOverrides | null>(null);
+  const [committedOverrides, setCommittedOverrides] = useState<Partial<PlaceCardSettings>>({});
   const firstCardRef = useRef<HTMLDivElement>(null);
+  const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
   
   const currentSettings = settings || {
@@ -131,8 +133,37 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     if (!textEditMode) {
       setSelectedElement(null);
       setDraftOverrides(null);
+      setCommittedOverrides({});
     }
   }, [textEditMode]);
+
+  // Clear committed overrides once the settings prop has been updated (optimistic or server)
+  React.useEffect(() => {
+    if (settings !== prevSettingsRef.current) {
+      prevSettingsRef.current = settings;
+      setCommittedOverrides({});
+    }
+  }, [settings]);
+
+  // Helper to clear stale inline styles from the master card's InteractiveTextOverlay elements
+  const clearMasterInlineStyles = useCallback(() => {
+    requestAnimationFrame(() => {
+      const el = firstCardRef.current;
+      if (el) {
+        el.querySelectorAll('[data-text-content]').forEach(node => {
+          const parent = node.parentElement;
+          if (parent) {
+            parent.style.left = '';
+            parent.style.top = '';
+            parent.style.transform = '';
+            parent.style.width = '';
+            parent.style.height = '';
+            parent.style.fontSize = '';
+          }
+        });
+      }
+    });
+  }, []);
 
   // Card dimensions in mm for coordinate conversion
   const CARD_WIDTH_MM = 105;
@@ -150,73 +181,76 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const dyMm = (dyPercent / 100) * FRONT_HEIGHT_MM;
 
     if (element === 'guest-name') {
-      const curX = Number(currentSettings.guest_name_offset_x ?? 0);
-      const curY = Number(currentSettings.guest_name_offset_y ?? 0);
-      onSettingsChange({
-        guest_name_offset_x: Math.round((curX + dxMm) * 10) / 10,
-        guest_name_offset_y: Math.round((curY + dyMm) * 10) / 10,
-      });
+      const curX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
+      const curY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
+      setCommittedOverrides(prev => ({ ...prev, guest_name_offset_x: newX, guest_name_offset_y: newY }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
+      onSettingsChange({ guest_name_offset_x: newX, guest_name_offset_y: newY });
     } else {
-      const curX = Number(currentSettings.table_offset_x ?? 0);
-      const curY = Number(currentSettings.table_offset_y ?? 0);
-      onSettingsChange({
-        table_offset_x: Math.round((curX + dxMm) * 10) / 10,
-        table_offset_y: Math.round((curY + dyMm) * 10) / 10,
-      });
+      const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
+      const curY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
+      setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
+      onSettingsChange({ table_offset_x: newX, table_offset_y: newY });
     }
-    // Clear live draft — optimistic settings update is now authoritative
-    setDraftOverrides(null);
-  }, [onSettingsChange, currentSettings]);
+  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
 
   const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
+      setCommittedOverrides(prev => ({ ...prev, guest_name_rotation: degrees }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
       onSettingsChange({ guest_name_rotation: degrees });
     } else {
+      setCommittedOverrides(prev => ({ ...prev, table_seat_rotation: degrees }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
       onSettingsChange({ table_seat_rotation: degrees });
     }
-    setDraftOverrides(null);
-  }, [onSettingsChange]);
+  }, [onSettingsChange, clearMasterInlineStyles]);
 
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      onSettingsChange({ guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 });
+      const resetValues = { guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 };
+      setCommittedOverrides(prev => ({ ...prev, ...resetValues }));
+      onSettingsChange(resetValues);
     } else {
-      onSettingsChange({ table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0, info_font_size: 16 });
+      const resetValues = { table_offset_x: 0, table_offset_y: 0, table_seat_rotation: 0, info_font_size: 16 };
+      setCommittedOverrides(prev => ({ ...prev, ...resetValues }));
+      onSettingsChange(resetValues);
     }
     setDraftOverrides(null);
-
-    // Force clear any stale inline styles set directly by InteractiveTextOverlay during drag
-    const el = firstCardRef.current;
-    if (el) {
-      el.querySelectorAll('[data-text-content]').forEach(node => {
-        const parent = node.parentElement;
-        if (parent) {
-          parent.style.left = '';
-          parent.style.top = '';
-          parent.style.transform = '';
-          parent.style.width = '';
-          parent.style.height = '';
-          parent.style.fontSize = '';
-        }
-      });
-    }
+    clearMasterInlineStyles();
 
     toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} fully reset to default` });
-  }, [onSettingsChange, toast]);
+  }, [onSettingsChange, toast, clearMasterInlineStyles]);
 
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      const cur = currentSettings.guest_name_font_size || 40;
-      onSettingsChange({ guest_name_font_size: Math.max(8, Math.min(120, cur + deltaPx)) });
+      const cur = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 40);
+      const newSize = Math.max(8, Math.min(120, cur + deltaPx));
+      setCommittedOverrides(prev => ({ ...prev, guest_name_font_size: newSize }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
+      onSettingsChange({ guest_name_font_size: newSize });
     } else {
-      const cur = currentSettings.info_font_size || 16;
-      onSettingsChange({ info_font_size: Math.max(6, Math.min(60, cur + deltaPx)) });
+      const cur = Number(committedOverrides.info_font_size ?? currentSettings.info_font_size ?? 16);
+      const newSize = Math.max(6, Math.min(60, cur + deltaPx));
+      setCommittedOverrides(prev => ({ ...prev, info_font_size: newSize }));
+      setDraftOverrides(null);
+      clearMasterInlineStyles();
+      onSettingsChange({ info_font_size: newSize });
     }
-    setDraftOverrides(null);
-  }, [onSettingsChange, currentSettings]);
+  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
 
   // Live mirroring callbacks — update draft state so passive cards follow in real time
   const handleLiveGuestMove = useCallback((dxPct: number, dyPct: number) => {
@@ -257,18 +291,28 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const useDraft = !isInteractive;
 
     // --- Shared position calculations (one global model) ---
+    // Effective offsets: committed overrides take priority over persisted settings
+    const effGuestOffsetX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
+    const effGuestOffsetY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
+    const effGuestRotation = Number(committedOverrides.guest_name_rotation ?? currentSettings.guest_name_rotation ?? 0);
+    const effGuestFontSize = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 40);
+    const effTableOffsetX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
+    const effTableOffsetY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
+    const effTableRotation = Number(committedOverrides.table_seat_rotation ?? currentSettings.table_seat_rotation ?? 0);
+    const effTableFontSize = Number(committedOverrides.info_font_size ?? currentSettings.info_font_size ?? 16);
+
     const guestPos = {
-      x: GUEST_ANCHOR_X + ((currentSettings.guest_name_offset_x ?? 0) / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.guestDx ?? 0) : 0),
-      y: GUEST_ANCHOR_Y + ((currentSettings.guest_name_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.guestDy ?? 0) : 0),
-      rotation: useDraft && draftOverrides?.guestRotation !== undefined ? draftOverrides.guestRotation : (currentSettings.guest_name_rotation ?? 0),
-      fontSize: useDraft && draftOverrides?.guestFontSize !== undefined ? draftOverrides.guestFontSize : currentSettings.guest_name_font_size,
+      x: GUEST_ANCHOR_X + (effGuestOffsetX / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.guestDx ?? 0) : 0),
+      y: GUEST_ANCHOR_Y + (effGuestOffsetY / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.guestDy ?? 0) : 0),
+      rotation: useDraft && draftOverrides?.guestRotation !== undefined ? draftOverrides.guestRotation : effGuestRotation,
+      fontSize: useDraft && draftOverrides?.guestFontSize !== undefined ? draftOverrides.guestFontSize : effGuestFontSize,
     };
 
     const tablePos = {
-      x: TABLE_ANCHOR_X + ((currentSettings.table_offset_x ?? 0) / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.tableDx ?? 0) : 0),
-      y: TABLE_ANCHOR_Y + ((currentSettings.table_offset_y ?? 0) / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.tableDy ?? 0) : 0),
-      rotation: useDraft && draftOverrides?.tableRotation !== undefined ? draftOverrides.tableRotation : (currentSettings.table_seat_rotation ?? 0),
-      fontSize: useDraft && draftOverrides?.tableFontSize !== undefined ? draftOverrides.tableFontSize : currentSettings.info_font_size,
+      x: TABLE_ANCHOR_X + (effTableOffsetX / CARD_WIDTH_MM) * 100 + (useDraft ? (draftOverrides?.tableDx ?? 0) : 0),
+      y: TABLE_ANCHOR_Y + (effTableOffsetY / FRONT_HEIGHT_MM) * 100 + (useDraft ? (draftOverrides?.tableDy ?? 0) : 0),
+      rotation: useDraft && draftOverrides?.tableRotation !== undefined ? draftOverrides.tableRotation : effTableRotation,
+      fontSize: useDraft && draftOverrides?.tableFontSize !== undefined ? draftOverrides.tableFontSize : effTableFontSize,
     };
 
     // --- Shared base styles ---
@@ -445,8 +489,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               onLiveRotate={handleLiveGuestRotate}
               onLiveFontSize={handleLiveGuestFontSize}
               containerRef={firstCardRef as React.RefObject<HTMLElement>}
-              rotation={Number(currentSettings.guest_name_rotation ?? 0)}
-              currentFontSize={currentSettings.guest_name_font_size}
+              rotation={effGuestRotation}
+              currentFontSize={effGuestFontSize}
               style={buildAbsoluteStyle(guestNameBaseStyle, guestPos)}
             >
               {guestNameContent}
@@ -510,8 +554,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 onLiveRotate={handleLiveTableRotate}
                 onLiveFontSize={handleLiveTableFontSize}
                 containerRef={firstCardRef as React.RefObject<HTMLElement>}
-                rotation={Number((currentSettings as any).table_seat_rotation ?? 0)}
-                currentFontSize={currentSettings.info_font_size}
+                rotation={effTableRotation}
+                currentFontSize={effTableFontSize}
                 style={buildAbsoluteStyle(tableInfoBaseStyle, tablePos)}
               >
                 {tableSeatContent}

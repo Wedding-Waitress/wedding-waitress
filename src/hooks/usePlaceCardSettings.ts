@@ -125,7 +125,11 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
       // Optimistic local state update — ensures React re-renders immediately
       // so DOM reconciler can override any direct style changes from drag
-      setSettings(prev => prev ? { ...prev, ...newSettings } as PlaceCardSettings : null);
+      setSettings(prev => {
+        if (prev) return { ...prev, ...newSettings } as PlaceCardSettings;
+        // First-save path: seed a local object so UI renders from shared state immediately
+        return { event_id: eventId || '', user_id: user.id, font_family: 'Inter', font_color: '#000000', background_color: '#ffffff', background_image_type: 'none' as const, mass_message: '', individual_messages: {}, guest_font_family: 'Great Vibes', info_font_family: 'Beauty Mountains', guest_name_bold: false, guest_name_italic: false, guest_name_underline: false, guest_name_font_size: 40, info_font_size: 16, name_spacing: 4, info_bold: false, info_italic: false, info_underline: false, info_font_color: '#000000', guest_name_offset_x: 0, guest_name_offset_y: 0, table_offset_x: 0, table_offset_y: 0, seat_offset_x: 0, seat_offset_y: 0, guest_name_rotation: 0, table_seat_rotation: 0, ...newSettings } as PlaceCardSettings;
+      });
 
       let result;
       if (settings?.id) {
