@@ -198,15 +198,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     if (element === 'guest-name') {
       setCommittedOverrides(prev => ({ ...prev, guest_name_rotation: degrees }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ guest_name_rotation: degrees });
     } else {
       setCommittedOverrides(prev => ({ ...prev, table_seat_rotation: degrees }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ table_seat_rotation: degrees });
     }
-  }, [onSettingsChange, clearMasterInlineStyles]);
+  }, [onSettingsChange, bumpOverlayKey]);
 
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
