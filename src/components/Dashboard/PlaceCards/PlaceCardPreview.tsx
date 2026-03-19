@@ -19,6 +19,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { useToast } from '@/hooks/use-toast';
 
+// Monotonic counter for re-keying interactive overlays after commit
+let _overlayKeyCounter = 0;
+
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
   guests: Guest[];
