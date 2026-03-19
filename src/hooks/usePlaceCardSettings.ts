@@ -61,6 +61,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
   const [settings, setSettings] = useState<PlaceCardSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const saveSeqRef = React.useRef(0);
 
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
