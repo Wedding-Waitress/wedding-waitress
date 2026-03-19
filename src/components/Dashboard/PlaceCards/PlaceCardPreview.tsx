@@ -7,8 +7,15 @@
  * DO NOT make changes unless explicitly requested by the project owner.
  * Any modifications could break the carefully calibrated 300 DPI export system.
  * 
+ * LOCKED FEATURES (2026-03-19):
+ * - Global text sync / master-slave mirroring architecture
+ * - committedOverrides / draftOverrides state pipeline
+ * - Re-keying strategy (overlayKey) for post-interaction DOM cleanup
+ * - effectiveSettings hierarchy (Saved → Committed → Draft)
+ * 
  * Last completed: 2025-10-04
  * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
+ * Locked: 2026-03-19 - Text positioning & sync feature locked
  */
 
 import React, { forwardRef, useState, useRef, useCallback } from 'react';
