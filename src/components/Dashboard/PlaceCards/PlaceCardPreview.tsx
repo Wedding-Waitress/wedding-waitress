@@ -232,17 +232,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       const newSize = Math.max(8, Math.min(120, cur + deltaPx));
       setCommittedOverrides(prev => ({ ...prev, guest_name_font_size: newSize }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ guest_name_font_size: newSize });
     } else {
       const cur = Number(committedOverrides.info_font_size ?? currentSettings.info_font_size ?? 16);
       const newSize = Math.max(6, Math.min(60, cur + deltaPx));
       setCommittedOverrides(prev => ({ ...prev, info_font_size: newSize }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ info_font_size: newSize });
     }
-  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
+  }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   // Live mirroring callbacks — update draft state so passive cards follow in real time
   const handleLiveGuestMove = useCallback((dxPct: number, dyPct: number) => {
