@@ -58,6 +58,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
   const [draftOverrides, setDraftOverrides] = useState<DraftOverrides | null>(null);
   const [committedOverrides, setCommittedOverrides] = useState<Partial<PlaceCardSettings>>({});
+  const [overlayKey, setOverlayKey] = useState(0);
   const firstCardRef = useRef<HTMLDivElement>(null);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
