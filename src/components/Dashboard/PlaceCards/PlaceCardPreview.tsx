@@ -470,6 +470,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           {/* Guest Name — always absolutely positioned from shared model */}
           {isInteractive ? (
             <InteractiveTextOverlay
+              key={`guest-overlay-${overlayKey}`}
               hideSideHandles
               isSelected={selectedElement === 'guest-name'}
               onSelect={() => setSelectedElement('guest-name')}
