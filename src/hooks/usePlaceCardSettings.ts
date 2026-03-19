@@ -107,6 +107,9 @@ export const usePlaceCardSettings = (eventId: string | null) => {
   const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
     if (!eventId) return false;
 
+    // Increment sequence so stale responses are ignored
+    const seq = ++saveSeqRef.current;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -158,6 +161,12 @@ export const usePlaceCardSettings = (eventId: string | null) => {
           variant: "destructive",
         });
         return false;
+      }
+
+      // Only accept this response if it's still the latest request
+      if (seq !== saveSeqRef.current) {
+        console.log('[PlaceCards] Ignoring stale save response', seq, 'current', saveSeqRef.current);
+        return true; // Still "succeeded" from the caller's perspective
       }
 
       setSettings({
