@@ -7,7 +7,12 @@
  * DO NOT make changes unless explicitly requested by the project owner.
  * Any modifications could break the carefully calibrated 300 DPI export system.
  * 
+ * LOCKED FEATURES (2026-03-19):
+ * - Request-sequencing via saveSeqRef (prevents stale save overwrites)
+ * - Optimistic update pipeline with first-save seeding
+ * 
  * Last completed: 2025-10-04
+ * Locked: 2026-03-19 - Request sequencing & optimistic updates locked
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
