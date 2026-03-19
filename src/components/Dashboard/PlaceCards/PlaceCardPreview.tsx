@@ -220,10 +220,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       onSettingsChange(resetValues);
     }
     setDraftOverrides(null);
-    clearMasterInlineStyles();
+    bumpOverlayKey();
 
     toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} fully reset to default` });
-  }, [onSettingsChange, toast, clearMasterInlineStyles]);
+  }, [onSettingsChange, toast, bumpOverlayKey]);
 
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
