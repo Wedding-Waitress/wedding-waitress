@@ -179,7 +179,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, guest_name_offset_x: newX, guest_name_offset_y: newY }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ guest_name_offset_x: newX, guest_name_offset_y: newY });
     } else {
       const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
@@ -188,10 +188,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ table_offset_x: newX, table_offset_y: newY });
     }
-  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
+  }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
     if (!onSettingsChange) return;
