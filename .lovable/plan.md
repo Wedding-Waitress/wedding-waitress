@@ -1,21 +1,18 @@
 
 
-## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
+## Lock the Place Cards Text Positioning & Sync Feature
 
-### Summary
-Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
+The three core files already have production-lock headers from an earlier lock. The plan is to update those headers with the current date and explicitly mention the text positioning global sync feature as locked.
 
-### File Changes
+### Files to update (header comment only — no logic changes)
 
-#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
-- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
-- Remove `mt-2` from the image class since it will now be inline with the buttons.
-- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
+1. **`src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`** — Update lock header date to 2026-03-19; add note that the global text sync / committed-overrides / re-keying architecture is locked.
 
-#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
-- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
-- Same class adjustment: remove `mt-2`.
+2. **`src/hooks/usePlaceCardSettings.ts`** — Update lock header date to 2026-03-19; add note that the request-sequencing and optimistic update pipeline is locked.
 
-### Result
-All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
+3. **`src/components/ui/InteractiveTextOverlay.tsx`** — Update lock header date to 2026-03-19; confirm the interactive drag/move/resize/rotate system remains locked.
+
+4. **`src/components/Dashboard/PlaceCards/index.ts`** — Update lock header date to 2026-03-19.
+
+No functional code will be changed — only the comment headers to reflect the latest lock date and feature scope.
 
