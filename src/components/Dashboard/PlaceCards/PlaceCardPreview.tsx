@@ -149,24 +149,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     }
   }, [settings]);
 
-  // Helper to clear stale inline styles from the master card's InteractiveTextOverlay elements
-  const clearMasterInlineStyles = useCallback(() => {
-    requestAnimationFrame(() => {
-      const el = firstCardRef.current;
-      if (el) {
-        el.querySelectorAll('[data-text-content]').forEach(node => {
-          const parent = node.parentElement;
-          if (parent) {
-            parent.style.left = '';
-            parent.style.top = '';
-            parent.style.transform = '';
-            parent.style.width = '';
-            parent.style.height = '';
-            parent.style.fontSize = '';
-          }
-        });
-      }
-    });
+  // Force InteractiveTextOverlay to remount with clean state from React props
+  // This replaces the old clearMasterInlineStyles approach which destructively wiped
+  // left/top/transform and caused the jump-to-top-left bug
+  const bumpOverlayKey = useCallback(() => {
+    _overlayKeyCounter += 1;
+    setOverlayKey(_overlayKeyCounter);
   }, []);
 
   // Card dimensions in mm for coordinate conversion
