@@ -10,7 +10,7 @@
  * Last completed: 2025-10-04
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -61,6 +61,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
   const [settings, setSettings] = useState<PlaceCardSettings | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const saveSeqRef = React.useRef(0);
 
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
@@ -105,6 +106,9 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
   const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
     if (!eventId) return false;
+
+    // Increment sequence so stale responses are ignored
+    const seq = ++saveSeqRef.current;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -157,6 +161,12 @@ export const usePlaceCardSettings = (eventId: string | null) => {
           variant: "destructive",
         });
         return false;
+      }
+
+      // Only accept this response if it's still the latest request
+      if (seq !== saveSeqRef.current) {
+        console.log('[PlaceCards] Ignoring stale save response', seq, 'current', saveSeqRef.current);
+        return true; // Still "succeeded" from the caller's perspective
       }
 
       setSettings({

@@ -1,47 +1,21 @@
 
-Investigated the current Name Place Cards Text Edit Mode code and found the main bug.
 
-What is actually going wrong
-- In `PlaceCardPreview.tsx`, `clearMasterInlineStyles()` clears `left`, `top`, and `transform` from the interactive overlays inside the top-left master card.
-- Those overlays are absolutely positioned, so clearing those properties sends them back to the element default: top-left.
-- It also clears both text overlays at once, which explains why moving one text line can make both Guest Name and Table/Seat jump.
-- The live sync logic is partly correct during drag (`draftOverrides`), but the master card still relies on imperative DOM styles at release, so the cleanup step is breaking the final position.
-- `usePlaceCardSettings.ts` still has no request-order protection, so repeated drags can also allow older saves to overwrite newer ones.
+## Plan: Move Edit with Canva banner onto the same row as Choose File and Image Gallery
 
-Fix approach
-1. Fix the master-card release bug in `PlaceCardPreview.tsx`
-- Remove the destructive cleanup of `left/top/transform` after move/rotate/release.
-- Replace it with a safer reset strategy:
-  - only clear temporary resize-only inline styles if needed
-  - remount or re-key the interactive overlay after commit so React re-applies the shared position model cleanly
-- Make sure the master card, like all slave cards, always renders from shared effective values instead of stale DOM state.
+### Summary
+Move the clickable Canva banner image from its own row below the buttons into the same flex row as Choose File and Image Gallery, so all three sit side by side on one line.
 
-2. Keep one true shared model for all cards
-- Continue using `draftOverrides` for live drag/rotate/resize preview.
-- Keep `committedOverrides` active after release until persisted settings catch up.
-- Build both master and passive cards from the same effective values:
-  - Guest Name offsets/rotation/font size
-  - Table/Seat offsets/rotation/font size
+### File Changes
 
-3. Harden persistence in `usePlaceCardSettings.ts`
-- Add request sequencing so older async save responses cannot overwrite newer drag results.
-- Keep the optimistic update path, including first-save seeding, but only accept the latest response.
+#### 1. `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx`
+- **Move lines 428-433** (the `<img>` tag) inside the `</div>` that closes at line 427, placing it after the Image Gallery button (before the closing `</div>`).
+- Remove `mt-2` from the image class since it will now be inline with the buttons.
+- The flex container already has `gap-2`, so the banner will sit naturally next to the buttons.
 
-4. Make cleanup targeted, not global
-- Do not query and wipe every `[data-text-content]` parent in the first card.
-- If cleanup is still needed, scope it to transient properties on the element being edited only.
+#### 2. `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- **Move lines 706-711** (the `<img>` tag) inside the `</div>` that closes at line 703, placing it after the Image Gallery button.
+- Same class adjustment: remove `mt-2`.
 
-Files to update
-- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
-- `src/hooks/usePlaceCardSettings.ts`
-- Possibly `src/components/ui/InteractiveTextOverlay.tsx` if a small remount/reset hook is needed
+### Result
+All three elements — Choose File (green), Image Gallery (purple), Edit with Canva (banner) — appear on a single row in both pages. No other changes.
 
-Expected result
-- While dragging: all cards mirror in real time.
-- On release: the moved text stays exactly where dropped.
-- The master card no longer jumps to the top-left.
-- Guest Name and Table/Seat remain perfectly aligned across every card, with no per-card drift and no stale save overwrites.
-
-Technical notes
-- Root cause is not the shared-position architecture itself; it is the post-release DOM cleanup wiping canonical absolute-position styles.
-- The safest fix is to let React state own final placement, and use remount/reset only to discard temporary imperative drag styles.

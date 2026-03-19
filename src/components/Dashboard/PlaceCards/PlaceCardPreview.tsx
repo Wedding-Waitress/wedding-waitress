@@ -19,6 +19,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { useToast } from '@/hooks/use-toast';
 
+// Monotonic counter for re-keying interactive overlays after commit
+let _overlayKeyCounter = 0;
+
 interface PlaceCardPreviewProps {
   settings: PlaceCardSettings | null;
   guests: Guest[];
@@ -55,6 +58,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
   const [draftOverrides, setDraftOverrides] = useState<DraftOverrides | null>(null);
   const [committedOverrides, setCommittedOverrides] = useState<Partial<PlaceCardSettings>>({});
+  const [overlayKey, setOverlayKey] = useState(0);
   const firstCardRef = useRef<HTMLDivElement>(null);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
@@ -145,24 +149,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     }
   }, [settings]);
 
-  // Helper to clear stale inline styles from the master card's InteractiveTextOverlay elements
-  const clearMasterInlineStyles = useCallback(() => {
-    requestAnimationFrame(() => {
-      const el = firstCardRef.current;
-      if (el) {
-        el.querySelectorAll('[data-text-content]').forEach(node => {
-          const parent = node.parentElement;
-          if (parent) {
-            parent.style.left = '';
-            parent.style.top = '';
-            parent.style.transform = '';
-            parent.style.width = '';
-            parent.style.height = '';
-            parent.style.fontSize = '';
-          }
-        });
-      }
-    });
+  // Force InteractiveTextOverlay to remount with clean state from React props
+  // This replaces the old clearMasterInlineStyles approach which destructively wiped
+  // left/top/transform and caused the jump-to-top-left bug
+  const bumpOverlayKey = useCallback(() => {
+    _overlayKeyCounter += 1;
+    setOverlayKey(_overlayKeyCounter);
   }, []);
 
   // Card dimensions in mm for coordinate conversion
@@ -187,7 +179,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, guest_name_offset_x: newX, guest_name_offset_y: newY }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ guest_name_offset_x: newX, guest_name_offset_y: newY });
     } else {
       const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
@@ -196,25 +188,25 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ table_offset_x: newX, table_offset_y: newY });
     }
-  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
+  }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   const handleInteractiveRotate = useCallback((element: 'guest-name' | 'table-seat', degrees: number) => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
       setCommittedOverrides(prev => ({ ...prev, guest_name_rotation: degrees }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ guest_name_rotation: degrees });
     } else {
       setCommittedOverrides(prev => ({ ...prev, table_seat_rotation: degrees }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ table_seat_rotation: degrees });
     }
-  }, [onSettingsChange, clearMasterInlineStyles]);
+  }, [onSettingsChange, bumpOverlayKey]);
 
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
@@ -228,10 +220,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       onSettingsChange(resetValues);
     }
     setDraftOverrides(null);
-    clearMasterInlineStyles();
+    bumpOverlayKey();
 
     toast({ title: "Reset", description: `${element === 'guest-name' ? 'Guest Name' : 'Table & Seat'} fully reset to default` });
-  }, [onSettingsChange, toast, clearMasterInlineStyles]);
+  }, [onSettingsChange, toast, bumpOverlayKey]);
 
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
@@ -240,17 +232,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       const newSize = Math.max(8, Math.min(120, cur + deltaPx));
       setCommittedOverrides(prev => ({ ...prev, guest_name_font_size: newSize }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ guest_name_font_size: newSize });
     } else {
       const cur = Number(committedOverrides.info_font_size ?? currentSettings.info_font_size ?? 16);
       const newSize = Math.max(6, Math.min(60, cur + deltaPx));
       setCommittedOverrides(prev => ({ ...prev, info_font_size: newSize }));
       setDraftOverrides(null);
-      clearMasterInlineStyles();
+      bumpOverlayKey();
       onSettingsChange({ info_font_size: newSize });
     }
-  }, [onSettingsChange, currentSettings, committedOverrides, clearMasterInlineStyles]);
+  }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   // Live mirroring callbacks — update draft state so passive cards follow in real time
   const handleLiveGuestMove = useCallback((dxPct: number, dyPct: number) => {
@@ -478,6 +470,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           {/* Guest Name — always absolutely positioned from shared model */}
           {isInteractive ? (
             <InteractiveTextOverlay
+              key={`guest-overlay-${overlayKey}`}
               hideSideHandles
               isSelected={selectedElement === 'guest-name'}
               onSelect={() => setSelectedElement('guest-name')}
@@ -543,6 +536,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             /* Standard centered table/seat — always absolutely positioned from shared model */
             isInteractive ? (
               <InteractiveTextOverlay
+                key={`table-overlay-${overlayKey}`}
                 hideSideHandles
                 isSelected={selectedElement === 'table-seat'}
                 onSelect={() => setSelectedElement('table-seat')}
