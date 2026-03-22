@@ -1,49 +1,35 @@
 
 
-## Fix Font Dropdown Rendering — Preload on Scroll, Not Hover
+## Add Visual Guide Labels to Master Place Card
 
-### Problem
-The `PlaceCardFontPicker` only preloads 15 fonts per category on open. Remaining fonts load on hover via `onMouseEnter`, so they initially render in the fallback system font until hovered.
+### Overview
+Add instructional heading above the A4 preview and three labeled arrows (Back / Fold / Front) on the top-left master card only, visible in the editor but not in exports.
 
-### Solution
-Replace the hover-based loading with an `IntersectionObserver` pattern that loads each font's CSS as its `CommandItem` scrolls into view within the `CommandList`. This ensures every visible font renders in its true typeface immediately — no hover needed.
+### Changes — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
 
-### Changes — `src/components/Dashboard/PlaceCards/PlaceCardFontPicker.tsx`
+**1. Instructional heading above top pagination (line ~676)**
 
-1. **Create a `FontItem` wrapper component** that uses a `useRef` + `IntersectionObserver` to call `loadPreviewFont(name)` as soon as the item enters the viewport of the scrollable list. Once loaded, disconnect the observer.
-
-2. **Remove `onMouseEnter={() => loadPreviewFont(font.name)}`** from line 154 — no longer needed.
-
-3. **Remove the `loadVisibleFonts` callback and its `useEffect`** (lines 70-83) — the observer handles all loading automatically.
-
-4. **Keep the selected-font preload** (lines 63-67) so the trigger button always renders correctly.
-
-### FontItem sketch
-```tsx
-const FontItem: React.FC<{name: string; selected: boolean; onSelect: () => void}> = ({name, selected, onSelect}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        loadPreviewFont(name);
-        obs.disconnect();
-      }
-    }, { rootMargin: '100px' });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [name]);
-
-  return (
-    <CommandItem ref={ref} value={name} onSelect={onSelect}>
-      <Check className={cn('mr-2 h-3.5 w-3.5', selected ? 'opacity-100' : 'opacity-0')} />
-      <span style={{ fontFamily: name }} className="text-sm">{name}</span>
-    </CommandItem>
-  );
-};
+Insert a centered text block just above the existing "Previous / Page X of Y / Next" controls:
 ```
+"✏️ Customize this master card to sync with all other cards"
+```
+Styled with `bg-primary/10 text-primary text-sm font-medium rounded-lg px-4 py-2 text-center mb-3`.
+
+**2. Three guide labels on the master card only (index === 0, non-export)**
+
+Inside `renderPlaceCard`, when `isFirstCard && !isExporting`, render an absolutely-positioned overlay on the left edge of the card with three labels + arrows pointing right:
+
+- **"Back of card" →** positioned at ~25% height (middle of top half / back section)
+- **"Fold" →** positioned at ~50% height (the crease line at 49.5mm)  
+- **"Front of card" →** positioned at ~75% height (middle of bottom half / front section)
+
+Each label: small text + a right-pointing arrow (`→`), styled with `text-[10px] text-muted-foreground font-medium bg-white/80 rounded px-1.5 py-0.5 shadow-sm`. Positioned with `left: -28mm` so they sit outside the card content area but inside the grid cell (using negative positioning with overflow visible on the wrapper).
+
+**3. Scope restrictions**
+- Only render when `isFirstCard === true` and `isExporting === false`
+- Does not affect print/export output
+- Does not appear on cards 2-6
 
 ### Files modified
-- `src/components/Dashboard/PlaceCards/PlaceCardFontPicker.tsx` only
+- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` only
 
