@@ -200,6 +200,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
    const TABLE_ANCHOR_X = 50;
    const TABLE_ANCHOR_Y = 62 + spacingHalf;
 
+  // Boundary clamping constants — keep pos.x in [5%, 95%] and pos.y within front half
+  const MAX_OFFSET_X_MM = 47; // (95 - 50) * 105 / 100 ≈ 47.25
+  const MAX_OFFSET_Y_MM = 20; // keeps pos.y within card bounds
+
   const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
     if (!onSettingsChange) return;
     const dxMm = (dxPercent / 100) * CARD_WIDTH_MM;
@@ -208,8 +212,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     if (element === 'guest-name') {
       const curX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
       const curY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
-      const newX = Math.round((curX + dxMm) * 10) / 10;
-      const newY = Math.round((curY + dyMm) * 10) / 10;
+      const newX = Math.max(-MAX_OFFSET_X_MM, Math.min(MAX_OFFSET_X_MM, Math.round((curX + dxMm) * 10) / 10));
+      const newY = Math.max(-MAX_OFFSET_Y_MM, Math.min(MAX_OFFSET_Y_MM, Math.round((curY + dyMm) * 10) / 10));
       setCommittedOverrides(prev => ({ ...prev, guest_name_offset_x: newX, guest_name_offset_y: newY }));
       setDraftOverrides(null);
       bumpOverlayKey();
@@ -217,8 +221,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     } else {
       const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
       const curY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
-      const newX = Math.round((curX + dxMm) * 10) / 10;
-      const newY = Math.round((curY + dyMm) * 10) / 10;
+      const newX = Math.max(-MAX_OFFSET_X_MM, Math.min(MAX_OFFSET_X_MM, Math.round((curX + dxMm) * 10) / 10));
+      const newY = Math.max(-MAX_OFFSET_Y_MM, Math.min(MAX_OFFSET_Y_MM, Math.round((curY + dyMm) * 10) / 10));
       setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
       setDraftOverrides(null);
       bumpOverlayKey();
@@ -278,8 +282,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   // Live mirroring callbacks — update draft state so passive cards follow in real time
+  // Clamp draft percentage offsets to keep pos within [5%, 95%] range
+  const MAX_DRAFT_PCT = 45; // max percentage shift from anchor
+
   const handleLiveGuestMove = useCallback((dxPct: number, dyPct: number) => {
-    setDraftOverrides(prev => ({ ...prev, guestDx: dxPct, guestDy: dyPct }));
+    const clampedDx = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dxPct));
+    const clampedDy = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dyPct));
+    setDraftOverrides(prev => ({ ...prev, guestDx: clampedDx, guestDy: clampedDy }));
   }, []);
 
   const handleLiveGuestRotate = useCallback((deg: number) => {
@@ -291,7 +300,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   }, []);
 
   const handleLiveTableMove = useCallback((dxPct: number, dyPct: number) => {
-    setDraftOverrides(prev => ({ ...prev, tableDx: dxPct, tableDy: dyPct }));
+    const clampedDx = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dxPct));
+    const clampedDy = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dyPct));
+    setDraftOverrides(prev => ({ ...prev, tableDx: clampedDx, tableDy: clampedDy }));
   }, []);
 
   const handleLiveTableRotate = useCallback((deg: number) => {
@@ -508,7 +519,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             position: 'relative',
-            overflow: isInteractive ? 'visible' : 'hidden',
+            overflow: 'hidden',
             border: isInteractive
               ? textOverflowing
                 ? '2px solid hsl(0, 84%, 60%)'
