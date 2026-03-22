@@ -677,10 +677,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     <div className="space-y-6">
           {/* Screen Preview Only */}
           <div className="print:hidden">
-            {/* Instructional heading */}
-            <div className="bg-primary/10 text-primary text-sm font-medium rounded-lg px-4 py-2 text-center mb-3">
-              ✏️ Customize this master card to sync with all other cards
-            </div>
 
             {/* TOP Pagination Controls */}
             <div className="flex items-center justify-center gap-4 mb-6">
@@ -708,7 +704,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </div>
 
             {/* A4 Paper Container */}
-            <div className="flex justify-center relative">
+            <div className="flex justify-center relative" style={{ marginLeft: '40px' }}>
               {/* Guide labels — outside A4, in purple gap */}
               {!isExporting && (
                 <div
@@ -721,23 +717,23 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 >
                   {/* Master Card instruction box */}
                   <div className="absolute flex items-end" style={{ top: '2mm', right: 0 }}>
-                    <div className="text-[9px] leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30" style={{ width: '125px' }}>
+                    <div className="text-xs leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30" style={{ width: '140px' }}>
                       This is the &quot;Master Card&quot;.
                       <br />
                       Customise this to sync with all other cards.
                     </div>
                   </div>
-                  <div className="absolute flex items-center justify-between" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
-                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
-                    <span className="text-muted-foreground text-[10px]">→</span>
+                  <div className="absolute flex items-center justify-between" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0, width: '140px' }}>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
+                    <span className="text-muted-foreground text-sm">→</span>
                   </div>
-                  <div className="absolute flex items-center justify-between" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
-                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
-                    <span className="text-muted-foreground text-[10px]">→</span>
+                  <div className="absolute flex items-center justify-between" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0, width: '140px' }}>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
+                    <span className="text-muted-foreground text-sm">→</span>
                   </div>
-                  <div className="absolute flex items-center justify-between" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
-                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
-                    <span className="text-muted-foreground text-[10px]">→</span>
+                  <div className="absolute flex items-center justify-between" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0, width: '140px' }}>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
+                    <span className="text-muted-foreground text-sm">→</span>
                   </div>
                 </div>
               )}
