@@ -1,25 +1,50 @@
 
 
-## Check All Cards (Master + Slaves) for Text Overflow
+## Fix Right-Edge Overflow Detection on Place Cards
 
-### Problem
-The overflow detection only checks the master card (`firstCardRef`). Slave cards with longer guest names (e.g., "Rebecca Wat..." being clipped) are not checked, so the border stays green even when slave cards overflow.
+### Root Cause
+The front-half container has `overflow: hidden`, which causes the browser to clip overflowing text elements. When `getBoundingClientRect()` is called on clipped children, it returns the **clipped** rectangle, not the actual content extent. So text overflowing the right edge appears to "fit" because the browser reports it as fitting after clipping.
 
-### Approach
-Replace the single `firstCardRef` with a ref that collects all visible card front-half containers, then check every card's text elements against its own container.
+### Fix — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
 
-### Changes — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` only
+**Overflow detection `useEffect` (lines 162-189)**: Instead of relying solely on `getBoundingClientRect()` (which is clipped), also check `scrollWidth` vs `clientWidth` on the container, and use `el.scrollWidth` on individual text elements. Specifically:
 
-1. **Replace `firstCardRef` with `allCardRefs`**: Change from `useRef<HTMLDivElement>(null)` to `useRef<(HTMLDivElement | null)[]>([])`. Assign each card's front-half div into `allCardRefs.current[index]` instead of only the first card.
+1. For each container in `allCardRefs`, compare `container.scrollWidth > container.clientWidth` or `container.scrollHeight > container.clientHeight` — this detects content that overflows even when `overflow: hidden` clips it visually.
+2. Additionally, temporarily set `overflow: visible` on the container, measure text rects, then restore `overflow: hidden`. This allows accurate `getBoundingClientRect()` comparison for all four edges.
 
-2. **Update overflow detection `useEffect`**: Loop over all entries in `allCardRefs.current`. For each non-null container, check all child text elements against that container's bounds. If any element in any card overflows → set `textOverflowing = true`.
+The cleaner approach is option 2: briefly flip overflow to `visible` during measurement inside the `requestAnimationFrame`, measure all text rects against the container rect, then flip back to `hidden`. This is invisible to the user (happens within a single frame before paint) and gives accurate measurements on all four sides.
 
-3. **Update the red warning message**: Change from `'⚠️ Text is outside the card boundary. Please reduce font size or reposition the text.'` to `'⚠️ The text has gone over the border line in one or more cards. Please adjust the text size or position in the Master Card to fix all cards automatically.'`
+```tsx
+const rafId = requestAnimationFrame(() => {
+  let overflowing = false;
+  allCardRefs.current.forEach((container) => {
+    if (!container || overflowing) return;
+    // Temporarily allow overflow so getBoundingClientRect returns true extent
+    const prevOverflow = container.style.overflow;
+    container.style.overflow = 'visible';
+    const containerRect = container.getBoundingClientRect();
+    const textEls = Array.from(container.children);
+    textEls.forEach((el) => {
+      const elRect = el.getBoundingClientRect();
+      if (
+        elRect.left < containerRect.left - 1 ||
+        elRect.right > containerRect.right + 1 ||
+        elRect.top < containerRect.top - 1 ||
+        elRect.bottom > containerRect.bottom + 1
+      ) {
+        overflowing = true;
+      }
+    });
+    container.style.overflow = prevOverflow;
+  });
+  setTextOverflowing(overflowing);
+});
+```
 
-4. **Keep green/red border and pulse animation only on the master card** (index 0) — no visual change to slave cards.
+### Files modified
+- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` — overflow detection `useEffect` only (lines 162-189)
 
 ### What stays untouched
 - InteractiveTextOverlay, positioning math, master-slave sync, persistence pipeline
-- Green message text unchanged
-- Border styling logic stays on master card only
+- Border styling, messages, pulse animation — all unchanged
 
