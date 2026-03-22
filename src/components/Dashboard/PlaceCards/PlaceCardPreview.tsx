@@ -297,13 +297,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   // Live mirroring callbacks — update draft state so passive cards follow in real time
-  // Clamp draft percentage offsets to keep pos within [5%, 95%] range
-  const MAX_DRAFT_PCT = 45; // max percentage shift from anchor
+  // No draft clamping — allow free movement in all directions
 
   const handleLiveGuestMove = useCallback((dxPct: number, dyPct: number) => {
-    const clampedDx = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dxPct));
-    const clampedDy = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dyPct));
-    setDraftOverrides(prev => ({ ...prev, guestDx: clampedDx, guestDy: clampedDy }));
+    setDraftOverrides(prev => ({ ...prev, guestDx: dxPct, guestDy: dyPct }));
   }, []);
 
   const handleLiveGuestRotate = useCallback((deg: number) => {
