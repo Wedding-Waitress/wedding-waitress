@@ -320,7 +320,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     setDraftOverrides(prev => ({ ...prev, tableFontSize: size }));
   }, []);
 
-  const renderPlaceCard = (guest: Guest, isFirstCard: boolean = false) => {
+  const renderPlaceCard = (guest: Guest, isFirstCard: boolean = false, cardIndex: number = 0) => {
     const tableDisplay = getTableDisplay();
     const tableInfo = guest.seat_no
       ? `Table ${tableDisplay}, Seat ${guest.seat_no}`
