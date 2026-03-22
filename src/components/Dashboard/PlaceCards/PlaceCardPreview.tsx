@@ -173,14 +173,20 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         const prevOverflow = container.style.overflow;
         container.style.overflow = 'visible';
         const containerRect = container.getBoundingClientRect();
+        // 2.5mm inner safe margin on all sides
+        const marginPx = (2.5 / 49.5) * containerRect.height;
+        const safeLeft = containerRect.left + marginPx;
+        const safeRight = containerRect.right - marginPx;
+        const safeTop = containerRect.top + marginPx;
+        const safeBottom = containerRect.bottom - marginPx;
         const textEls = Array.from(container.children);
         textEls.forEach((el) => {
           const elRect = el.getBoundingClientRect();
           if (
-            elRect.left < containerRect.left - 1 ||
-            elRect.right > containerRect.right + 1 ||
-            elRect.top < containerRect.top - 1 ||
-            elRect.bottom > containerRect.bottom + 1
+            elRect.left < safeLeft - 1 ||
+            elRect.right > safeRight + 1 ||
+            elRect.top < safeTop - 1 ||
+            elRect.bottom > safeBottom + 1
           ) {
             overflowing = true;
           }
@@ -211,9 +217,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
    const TABLE_ANCHOR_X = 50;
    const TABLE_ANCHOR_Y = 62 + spacingHalf;
 
-  // Boundary clamping constants — keep text within 5mm safe zone on all sides
-  const MAX_OFFSET_X_MM = 42.5; // keeps text center within 5mm–100mm range (safe zone)
-  const MAX_OFFSET_Y_MM = 15; // keeps pos.y within 5mm top/bottom margins of front half
+  // No boundary clamping — allow free movement in all directions
 
   const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
     if (!onSettingsChange) return;
@@ -223,8 +227,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     if (element === 'guest-name') {
       const curX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
       const curY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
-      const newX = Math.max(-MAX_OFFSET_X_MM, Math.min(MAX_OFFSET_X_MM, Math.round((curX + dxMm) * 10) / 10));
-      const newY = Math.max(-MAX_OFFSET_Y_MM, Math.min(MAX_OFFSET_Y_MM, Math.round((curY + dyMm) * 10) / 10));
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, guest_name_offset_x: newX, guest_name_offset_y: newY }));
       setDraftOverrides(null);
       bumpOverlayKey();
@@ -232,8 +236,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     } else {
       const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
       const curY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
-      const newX = Math.max(-MAX_OFFSET_X_MM, Math.min(MAX_OFFSET_X_MM, Math.round((curX + dxMm) * 10) / 10));
-      const newY = Math.max(-MAX_OFFSET_Y_MM, Math.min(MAX_OFFSET_Y_MM, Math.round((curY + dyMm) * 10) / 10));
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
       setDraftOverrides(null);
       bumpOverlayKey();
@@ -293,13 +297,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   }, [onSettingsChange, currentSettings, committedOverrides, bumpOverlayKey]);
 
   // Live mirroring callbacks — update draft state so passive cards follow in real time
-  // Clamp draft percentage offsets to keep pos within [5%, 95%] range
-  const MAX_DRAFT_PCT = 45; // max percentage shift from anchor
+  // No draft clamping — allow free movement in all directions
 
   const handleLiveGuestMove = useCallback((dxPct: number, dyPct: number) => {
-    const clampedDx = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dxPct));
-    const clampedDy = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dyPct));
-    setDraftOverrides(prev => ({ ...prev, guestDx: clampedDx, guestDy: clampedDy }));
+    setDraftOverrides(prev => ({ ...prev, guestDx: dxPct, guestDy: dyPct }));
   }, []);
 
   const handleLiveGuestRotate = useCallback((deg: number) => {
@@ -311,9 +312,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   }, []);
 
   const handleLiveTableMove = useCallback((dxPct: number, dyPct: number) => {
-    const clampedDx = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dxPct));
-    const clampedDy = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dyPct));
-    setDraftOverrides(prev => ({ ...prev, tableDx: clampedDx, tableDy: clampedDy }));
+    setDraftOverrides(prev => ({ ...prev, tableDx: dxPct, tableDy: dyPct }));
   }, []);
 
   const handleLiveTableRotate = useCallback((deg: number) => {
@@ -379,32 +378,23 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     };
 
     // --- Shared absolute positioning style builder ---
-    // Uses centered safe-zone container (95mm wide = 105mm - 5mm margins each side)
-    // positioned at 50% with translateX(-50%) for perfect centering.
-    // Horizontal drag offsets shift the center point via calc().
-    // Text that exceeds the safe zone is truncated with ellipsis.
+    // Centered at 50% with translateX(-50%). No clipping — text remains visible
+    // so overflow detection can measure true bounding boxes.
     const buildAbsoluteStyle = (
       baseStyle: React.CSSProperties,
       pos: { x: number; y: number; rotation: number; fontSize: number },
       unit: string = 'pt'
     ): React.CSSProperties => {
-      // Convert x offset from percentage to mm shift from center
       const xShiftMm = ((pos.x - 50) / 100) * CARD_WIDTH_MM;
-      // Clamp vertical position to respect 5mm top/bottom margins (≈10.1% – 89.9% of 49.5mm)
-      const clampedY = Math.max(10.1, Math.min(89.9, pos.y));
       return {
         ...baseStyle,
         position: 'absolute' as const,
         left: Math.abs(xShiftMm) > 0.01 ? `calc(50% + ${xShiftMm}mm)` : '50%',
-        width: '95mm',
-        maxWidth: '95mm',
-        top: `${clampedY}%`,
+        top: `${pos.y}%`,
         transform: `translateX(-50%) translateY(-50%) rotate(${pos.rotation}deg)`,
         transformOrigin: 'center center',
         textAlign: 'center' as const,
         whiteSpace: 'nowrap' as const,
-        overflow: 'hidden' as const,
-        textOverflow: 'ellipsis' as const,
         fontSize: `${pos.fontSize}${unit}`,
       };
     };
@@ -536,7 +526,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             position: 'relative',
-            overflow: 'hidden',
+            overflow: 'visible',
             border: isInteractive
               ? textOverflowing
                 ? '2px solid hsl(0, 84%, 60%)'
