@@ -1,30 +1,32 @@
 
 
-## Center Guest Name & Table/Seat Text on Place Cards
+## Center Guest Name Text on Place Cards
 
-### What's wrong
-The guest name and table/seat text use absolute positioning with anchor points at **30%** and **70%** of the front half (49.5mm). These anchor points don't account for the actual text height, so the pair appears visually off-center — pushed too high (guest name) and too low (table/seat) rather than being a neatly stacked, centered pair.
+### What's happening
+Both guest name and table/seat text use the same absolute positioning: `left: 50%` with `transform: translate(-50%, -50%)`. This technically centers the element's bounding box, but with `whiteSpace: 'nowrap'`, each element shrinks to its content width. The `textAlign: 'center'` has no visual effect on a content-width box — the box itself is centered, but curly/script fonts create a visual perception of left-shift because their character shapes carry more visual weight on the left.
 
-### What will change
-Adjust the **default rendering** (when offsets are 0,0) so both text lines sit visually centered as a stacked pair on the front half. The locked interactive sync architecture (drag/move/rotate/resize, master-slave mirroring, committedOverrides, overlayKey re-keying) remains completely untouched.
+### Fix
+Make both text containers span the full card width so `textAlign: center` works across the entire card, not just the content bounding box. This means:
 
-### Plan
+1. In `buildAbsoluteStyle`, change `left: 50%` + `translate(-50%, -50%)` to `left: 0` + `width: 100%` + `translate(0, -50%)` — this makes the element span the full card width, and `textAlign: center` does the horizontal centering.
 
-**File: `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`**
+2. Keep `top` percentage-based for vertical positioning. Keep rotation working via the transform.
 
-1. **Adjust anchor points** — Move `GUEST_ANCHOR_Y` from 30 → **42** and `TABLE_ANCHOR_Y` from 70 → **62**. This places the two text lines closer together and vertically centered on the front half (~49.5mm). The 20-percentage-point gap becomes a tighter ~20pt gap that looks like consistent stacking. Horizontal anchors stay at 50%.
+3. This applies to **both** guest name and table/seat elements, so they stay perfectly aligned.
 
-2. **Add a `name_spacing` gap** — The existing `currentSettings.name_spacing` (default 4) isn't currently used in the absolute positioning model. Use it to offset the two anchors symmetrically: guest name shifts up by `name_spacing/2` percent, table/seat shifts down by `name_spacing/2` percent from the center point. This gives consistent, controllable spacing between the two lines.
+### Constraint
+The interactive drag system in InteractiveTextOverlay manipulates `left` and `top` imperatively during drag. Changing to full-width + textAlign centering means horizontal drag would need to adjust a horizontal offset (e.g. `paddingLeft`/`paddingRight` or `text-indent`) instead of `left`. However, since the user only needs vertical + horizontal centering at default, and the drag system already commits percentage deltas via `onMove`, the simplest approach is:
 
-3. **No changes to**:
-   - The interactive overlay system (InteractiveTextOverlay, drag, rotate, resize)
-   - The master-slave sync (committedOverrides, draftOverrides, overlayKey)
-   - The persistence pipeline (usePlaceCardSettings.ts, saveSeqRef)
-   - The buildAbsoluteStyle function or transform logic
+- At **default** (offset 0,0): use `left: 0; width: 100%; textAlign: center; transform: translate(0, -50%)`
+- When **offset is non-zero** (user dragged): revert to the current `left: X%; translate(-50%, -50%)` approach
 
-### Why this works
-The absolute positioning with `translate(-50%, -50%)` already centers each element's bounding box at its anchor point. The problem is purely that 30%/70% are too far apart and not centered on the front half. Moving them to ~42%/62% (symmetrically around 52%, accounting for the fold line visual weight) centers the pair perfectly. The interactive drag system continues to work identically — it just starts from a better default position.
+This preserves drag functionality while fixing the default centering.
 
-### Files modified
-- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` — anchor point constants only (2 lines)
+### Files to update
+- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` — modify `buildAbsoluteStyle` to use full-width centering when x-offset is at 50% (default)
+
+### What won't change (locked)
+- InteractiveTextOverlay drag/move/rotate/resize logic
+- Master-slave mirroring, committedOverrides, draftOverrides
+- Persistence pipeline in usePlaceCardSettings.ts
 
