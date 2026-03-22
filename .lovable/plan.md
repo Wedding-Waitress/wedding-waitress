@@ -1,28 +1,23 @@
 
 
-## Update Master Card Labels Position & Add Instruction Box
+## Improve Place Cards Layout Spacing & Label Positioning
 
-### Changes — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` (lines 712-734)
+### Overview
+Narrow the left customizer panel, widen the right preview area, and reposition the guide labels so they sit vertically stacked below the Master Card instruction box — all in the purple gap between panel and A4.
 
-**1. Shift labels further left**
-Change `right: 'calc(50% + 105mm + 8px)'` to `right: 'calc(50% + 105mm + 20px)'` to push the label column further into the purple workspace area, away from the A4 edge.
+### Changes
 
-**2. Add Master Card instruction box above "Back of card"**
-Insert a new element above the first label (positioned at roughly `top: 2mm`) containing:
-```
-This is the "Master Card".
-Customise this to sync with all other cards.
-```
-Styled with a thin purple border (`border-primary`), white/light background, small padding, `text-[9px]`, and `whitespace-pre-line` to handle line breaks. Same `absolute` positioning pattern as the other labels.
+**1. `PlaceCardsPage.tsx` — Adjust grid ratio (line 435)**
+- Change from `lg:grid-cols-5` with 2/3 split to `lg:grid-cols-7` with 2/5 split
+- Left panel: `lg:col-span-2` (narrower)
+- Right panel: `lg:col-span-5` (wider, more purple gap)
 
-**3. Vertical order**
-- Instruction box: ~2mm from top
-- Back of card: 24.75mm
-- Fold: 49.5mm
-- Front of card: 74.25mm
+**2. `PlaceCardPreview.tsx` — Reposition guide labels (lines 712-742)**
+- Keep the Master Card instruction box at its current position (`top: 2mm`)
+- Move the three labels ("Back of card", "Fold", "Front of card") so they remain at their correct vertical alignment points (24.75mm, 49.5mm, 74.25mm) but shift the entire label column further left: change `right: 'calc(50% + 105mm + 20px)'` to `right: 'calc(50% + 105mm + 30px)'` to ensure labels don't hide behind the A4 edge with the wider preview area
+- Keep all existing styling, arrows, and scope rules unchanged
 
-All existing scope rules remain (non-export, desktop-only, master card only).
-
-### File modified
+### Files modified
+- `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx`
 - `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
 
