@@ -165,7 +165,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     }
     const container = firstCardRef.current;
     const containerRect = container.getBoundingClientRect();
-    const textEls = container.children;
+    const textEls = Array.from(container.children);
     let overflowing = false;
     textEls.forEach((el) => {
       const elRect = el.getBoundingClientRect();
