@@ -332,39 +332,31 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     };
 
     // --- Shared absolute positioning style builder ---
-    // When x is at default (50%), use full-width centering so textAlign: center
-    // works across the entire card width — fixes visual left-shift with script fonts.
-    // When x is non-default (user dragged), revert to point-based positioning.
+    // Always uses full-width centering (left:0, width:100%, textAlign:center)
+    // so script fonts appear visually centered across the entire card width.
+    // Horizontal drag offsets are applied via asymmetric padding to preserve centering.
     const buildAbsoluteStyle = (
       baseStyle: React.CSSProperties,
       pos: { x: number; y: number; rotation: number; fontSize: number },
       unit: string = 'pt'
     ): React.CSSProperties => {
-      const isDefaultX = Math.abs(pos.x - 50) < 0.01;
-      if (isDefaultX && pos.rotation === 0) {
-        return {
-          ...baseStyle,
-          position: 'absolute' as const,
-          left: 0,
-          width: '100%',
-          top: `${pos.y}%`,
-          transform: `translateY(-50%)`,
-          transformOrigin: 'center center',
-          textAlign: 'center' as const,
-          whiteSpace: 'nowrap' as const,
-          fontSize: `${pos.fontSize}${unit}`,
-        };
-      }
+      const xShift = pos.x - 50; // percentage offset from center
       return {
         ...baseStyle,
         position: 'absolute' as const,
-        left: `${pos.x}%`,
+        left: 0,
+        width: '100%',
         top: `${pos.y}%`,
-        transform: `translate(-50%, -50%) rotate(${pos.rotation}deg)`,
+        transform: `translateY(-50%) rotate(${pos.rotation}deg)`,
         transformOrigin: 'center center',
         textAlign: 'center' as const,
         whiteSpace: 'nowrap' as const,
         fontSize: `${pos.fontSize}${unit}`,
+        // Shift text horizontally via asymmetric padding when not at center
+        ...(Math.abs(xShift) > 0.01 ? {
+          paddingLeft: xShift > 0 ? `${xShift * 2}%` : '0',
+          paddingRight: xShift < 0 ? `${Math.abs(xShift) * 2}%` : '0',
+        } : {}),
       };
     };
 
