@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -52,6 +52,48 @@ function loadPreviewFont(name: string) {
   loadGoogleFont(name);
 }
 
+/** Wrapper that lazy-loads font CSS via IntersectionObserver */
+const FontItem: React.FC<{
+  name: string;
+  selected: boolean;
+  onSelect: () => void;
+  isPremium?: boolean;
+}> = ({ name, selected, onSelect, isPremium }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isPremium) return; // premium fonts are bundled, no need to load
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadPreviewFont(name);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [name, isPremium]);
+
+  return (
+    <CommandItem ref={ref} value={name} onSelect={onSelect}>
+      <Check
+        className={cn(
+          'mr-2 h-3.5 w-3.5',
+          selected ? 'opacity-100' : 'opacity-0'
+        )}
+      />
+      <span style={{ fontFamily: name }} className="text-sm">
+        {name}
+        {isPremium ? ' 💎' : ''}
+      </span>
+    </CommandItem>
+  );
+};
+
 export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
   value,
   onValueChange,
@@ -65,22 +107,6 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
       loadPreviewFont(value);
     }
   }, [value]);
-
-  // When picker opens, load fonts for visible items
-  const loadVisibleFonts = useCallback(
-    (fonts: GoogleFontEntry[]) => {
-      // Only load first 15 per group to keep network light
-      fonts.slice(0, 15).forEach((f) => loadPreviewFont(f.name));
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (open) {
-      // Preload a small batch from each category
-      groupedGoogleFonts.forEach((g) => loadVisibleFonts(g.fonts));
-    }
-  }, [open, loadVisibleFonts]);
 
   const handleSelect = (fontName: string) => {
     if (!PREMIUM_FONTS.includes(fontName)) {
@@ -125,21 +151,13 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
             {/* Premium fonts */}
             <CommandGroup heading="Premium 💎">
               {PREMIUM_FONTS.map((name) => (
-                <CommandItem
+                <FontItem
                   key={`premium-${name}`}
-                  value={name}
+                  name={name}
+                  selected={value === name}
                   onSelect={() => handleSelect(name)}
-                >
-                  <Check
-                    className={cn(
-                      'mr-2 h-3.5 w-3.5',
-                      value === name ? 'opacity-100' : 'opacity-0'
-                    )}
-                  />
-                  <span style={{ fontFamily: name }} className="text-sm">
-                    {name} 💎
-                  </span>
-                </CommandItem>
+                  isPremium
+                />
               ))}
             </CommandGroup>
 
@@ -147,25 +165,12 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
             {groupedGoogleFonts.map((group) => (
               <CommandGroup key={group.category} heading={group.label}>
                 {group.fonts.map((font) => (
-                  <CommandItem
+                  <FontItem
                     key={`${group.category}-${font.name}`}
-                    value={font.name}
+                    name={font.name}
+                    selected={value === font.name}
                     onSelect={() => handleSelect(font.name)}
-                    onMouseEnter={() => loadPreviewFont(font.name)}
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 h-3.5 w-3.5',
-                        value === font.name ? 'opacity-100' : 'opacity-0'
-                      )}
-                    />
-                    <span
-                      style={{ fontFamily: font.name }}
-                      className="text-sm"
-                    >
-                      {font.name}
-                    </span>
-                  </CommandItem>
+                  />
                 ))}
               </CommandGroup>
             ))}
