@@ -526,7 +526,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           style={{ 
             height: '49.5mm',
             position: 'relative',
-            overflow: 'hidden',
+            overflow: 'visible',
             border: isInteractive
               ? textOverflowing
                 ? '2px solid hsl(0, 84%, 60%)'
