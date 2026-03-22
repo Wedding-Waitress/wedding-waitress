@@ -708,7 +708,31 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </div>
 
             {/* A4 Paper Container */}
-            <div className="flex justify-center">
+            <div className="flex justify-center relative">
+              {/* Guide labels — outside A4, in purple gap */}
+              {!isExporting && (
+                <div
+                  className="absolute pointer-events-none hidden lg:flex flex-col"
+                  style={{
+                    right: 'calc(50% + 105mm + 8px)',
+                    top: 0,
+                    height: '297mm',
+                  }}
+                >
+                  <div className="absolute flex items-center gap-1.5" style={{ top: '24.75mm', transform: 'translateY(-50%)' }}>
+                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
+                    <span className="text-muted-foreground text-[10px]">→</span>
+                  </div>
+                  <div className="absolute flex items-center gap-1.5" style={{ top: '49.5mm', transform: 'translateY(-50%)' }}>
+                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
+                    <span className="text-muted-foreground text-[10px]">→</span>
+                  </div>
+                  <div className="absolute flex items-center gap-1.5" style={{ top: '74.25mm', transform: 'translateY(-50%)' }}>
+                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
+                    <span className="text-muted-foreground text-[10px]">→</span>
+                  </div>
+                </div>
+              )}
               <div 
                 style={{ 
                   width: '210mm', 
