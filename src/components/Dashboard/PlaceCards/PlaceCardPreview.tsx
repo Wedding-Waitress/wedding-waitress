@@ -61,6 +61,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   selectedTable = null,
   textEditMode = false,
   onSettingsChange,
+  onOverflowChange,
 }, ref) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
