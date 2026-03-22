@@ -211,9 +211,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
    const TABLE_ANCHOR_X = 50;
    const TABLE_ANCHOR_Y = 62 + spacingHalf;
 
-  // Boundary clamping constants — keep pos.x in [5%, 95%] and pos.y within front half
-  const MAX_OFFSET_X_MM = 47; // (95 - 50) * 105 / 100 ≈ 47.25
-  const MAX_OFFSET_Y_MM = 20; // keeps pos.y within card bounds
+  // Boundary clamping constants — keep text within 5mm safe zone on all sides
+  const MAX_OFFSET_X_MM = 42.5; // keeps text center within 5mm–100mm range (safe zone)
+  const MAX_OFFSET_Y_MM = 15; // keeps pos.y within 5mm top/bottom margins of front half
 
   const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
     if (!onSettingsChange) return;
@@ -379,30 +379,33 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     };
 
     // --- Shared absolute positioning style builder ---
-    // Always uses full-width centering (left:0, width:100%, textAlign:center)
-    // so script fonts appear visually centered across the entire card width.
-    // Horizontal drag offsets are applied via asymmetric padding to preserve centering.
+    // Uses centered safe-zone container (95mm wide = 105mm - 5mm margins each side)
+    // positioned at 50% with translateX(-50%) for perfect centering.
+    // Horizontal drag offsets shift the center point via calc().
+    // Text that exceeds the safe zone is truncated with ellipsis.
     const buildAbsoluteStyle = (
       baseStyle: React.CSSProperties,
       pos: { x: number; y: number; rotation: number; fontSize: number },
       unit: string = 'pt'
     ): React.CSSProperties => {
-      const xShift = pos.x - 50;
+      // Convert x offset from percentage to mm shift from center
+      const xShiftMm = ((pos.x - 50) / 100) * CARD_WIDTH_MM;
+      // Clamp vertical position to respect 5mm top/bottom margins (≈10.1% – 89.9% of 49.5mm)
+      const clampedY = Math.max(10.1, Math.min(89.9, pos.y));
       return {
         ...baseStyle,
         position: 'absolute' as const,
-        left: 0,
-        width: '100%',
-        top: `${pos.y}%`,
-        transform: `translateY(-50%) rotate(${pos.rotation}deg)`,
+        left: Math.abs(xShiftMm) > 0.01 ? `calc(50% + ${xShiftMm}mm)` : '50%',
+        width: '95mm',
+        maxWidth: '95mm',
+        top: `${clampedY}%`,
+        transform: `translateX(-50%) translateY(-50%) rotate(${pos.rotation}deg)`,
         transformOrigin: 'center center',
         textAlign: 'center' as const,
         whiteSpace: 'nowrap' as const,
+        overflow: 'hidden' as const,
+        textOverflow: 'ellipsis' as const,
         fontSize: `${pos.fontSize}${unit}`,
-        ...(Math.abs(xShift) > 0.01 ? {
-          paddingLeft: xShift > 0 ? `${xShift * 2}%` : undefined,
-          paddingRight: xShift < 0 ? `${Math.abs(xShift) * 2}%` : undefined,
-        } : {}),
       };
     };
 
