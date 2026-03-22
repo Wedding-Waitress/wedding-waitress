@@ -1,35 +1,23 @@
 
 
-## Add Visual Guide Labels to Master Place Card
+## Fix Missing Guide Labels on Master Card
 
-### Overview
-Add instructional heading above the A4 preview and three labeled arrows (Back / Fold / Front) on the top-left master card only, visible in the editor but not in exports.
+### Root Cause
+The labels are rendered correctly in code (lines 436-453), but they're positioned at `left: -30mm` — outside the card boundary. The A4 page container on line 735 has `overflow-hidden`, which clips everything outside its edges, making the labels invisible.
+
+### Solution
+Instead of positioning labels outside the card with negative offsets, render them **inside** the card on the left edge. This avoids the clipping issue entirely.
 
 ### Changes — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
 
-**1. Instructional heading above top pagination (line ~676)**
+**Lines 436-453** — Reposition the guide labels overlay from `left: -30mm` (outside, clipped) to inside the card at `left: 2mm`, stacking labels vertically with arrows pointing right into the card content:
 
-Insert a centered text block just above the existing "Previous / Page X of Y / Next" controls:
-```
-"✏️ Customize this master card to sync with all other cards"
-```
-Styled with `bg-primary/10 text-primary text-sm font-medium rounded-lg px-4 py-2 text-center mb-3`.
+- Remove `left: '-30mm'` and `width: '28mm'`
+- Set `left: '1mm'` so labels sit on the left interior edge of the master card
+- Keep the same three positions: 25%, 50%, 75%
+- Style labels with slightly more opaque backgrounds so they're readable over card content
+- Keep `pointer-events-none` and `!isExporting` guard
 
-**2. Three guide labels on the master card only (index === 0, non-export)**
-
-Inside `renderPlaceCard`, when `isFirstCard && !isExporting`, render an absolutely-positioned overlay on the left edge of the card with three labels + arrows pointing right:
-
-- **"Back of card" →** positioned at ~25% height (middle of top half / back section)
-- **"Fold" →** positioned at ~50% height (the crease line at 49.5mm)  
-- **"Front of card" →** positioned at ~75% height (middle of bottom half / front section)
-
-Each label: small text + a right-pointing arrow (`→`), styled with `text-[10px] text-muted-foreground font-medium bg-white/80 rounded px-1.5 py-0.5 shadow-sm`. Positioned with `left: -28mm` so they sit outside the card content area but inside the grid cell (using negative positioning with overflow visible on the wrapper).
-
-**3. Scope restrictions**
-- Only render when `isFirstCard === true` and `isExporting === false`
-- Does not affect print/export output
-- Does not appear on cards 2-6
-
-### Files modified
+### File modified
 - `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` only
 
