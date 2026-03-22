@@ -444,7 +444,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       seat_offset_y: 0,
                       guest_name_rotation: 0,
                       table_seat_rotation: 0,
-                      guest_name_font_size: 40,
+                      guest_name_font_size: 30,
                       info_font_size: 16,
                     });
                     toast({
