@@ -43,6 +43,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [textEditMode, setTextEditMode] = useState(false);
+  const [textOverflowing, setTextOverflowing] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return sessionStorage.getItem('ww:place_cards_selected_table') || null;
   });
