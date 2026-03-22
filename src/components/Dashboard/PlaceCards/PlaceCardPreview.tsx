@@ -378,32 +378,23 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     };
 
     // --- Shared absolute positioning style builder ---
-    // Uses centered safe-zone container (95mm wide = 105mm - 5mm margins each side)
-    // positioned at 50% with translateX(-50%) for perfect centering.
-    // Horizontal drag offsets shift the center point via calc().
-    // Text that exceeds the safe zone is truncated with ellipsis.
+    // Centered at 50% with translateX(-50%). No clipping — text remains visible
+    // so overflow detection can measure true bounding boxes.
     const buildAbsoluteStyle = (
       baseStyle: React.CSSProperties,
       pos: { x: number; y: number; rotation: number; fontSize: number },
       unit: string = 'pt'
     ): React.CSSProperties => {
-      // Convert x offset from percentage to mm shift from center
       const xShiftMm = ((pos.x - 50) / 100) * CARD_WIDTH_MM;
-      // Clamp vertical position to respect 5mm top/bottom margins (≈10.1% – 89.9% of 49.5mm)
-      const clampedY = Math.max(10.1, Math.min(89.9, pos.y));
       return {
         ...baseStyle,
         position: 'absolute' as const,
         left: Math.abs(xShiftMm) > 0.01 ? `calc(50% + ${xShiftMm}mm)` : '50%',
-        width: '95mm',
-        maxWidth: '95mm',
-        top: `${clampedY}%`,
+        top: `${pos.y}%`,
         transform: `translateX(-50%) translateY(-50%) rotate(${pos.rotation}deg)`,
         transformOrigin: 'center center',
         textAlign: 'center' as const,
         whiteSpace: 'nowrap' as const,
-        overflow: 'hidden' as const,
-        textOverflow: 'ellipsis' as const,
         fontSize: `${pos.fontSize}${unit}`,
       };
     };
