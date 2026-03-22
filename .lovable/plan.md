@@ -1,36 +1,35 @@
 
 
-## Add Green/Red Border Boundary Indicator on Master Card
+## Fix Right-Edge Boundary Restriction on Master Card
 
-### Approach
-Add an overflow detection system to the master (first) card's front half. After every render triggered by font size, font family, position, or styling changes, measure whether the guest name and table/seat text elements overflow the front half container (49.5mm × 105mm). Display a colored border and status message accordingly.
+### Root cause
+`handleInteractiveMove` and `handleLiveGuestMove`/`handleLiveTableMove` apply no boundary clamping. The left/top/bottom edges appear restricted only as a CSS visual artifact (the `left: 0; width: 100%` layout naturally prevents leftward overflow, and `overflow: hidden` on the card container clips top/bottom). The right edge overflows because `paddingLeft` combined with `whiteSpace: nowrap` pushes text beyond the container's right boundary.
 
-### Detection logic
-- Use `useEffect` + `useLayoutEffect` with refs on the front-half container and text elements
-- After each render, call `getBoundingClientRect()` on the front-half container and each text element
-- If any text element's rect extends beyond the container's rect → overflow detected → red state
-- If all text fits → green state
-- Re-check on every change to: `currentSettings`, `committedOverrides`, `draftOverrides`, `overlayKey`
+### Fix
+**File: `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`**
 
-### Visual treatment
-- **Green state**: 2px solid green border on master card's front half, with a small banner below: "✓ Text is perfectly positioned. Changes will apply to all cards."
-- **Red state**: 2px solid red border with a CSS `pulse` animation (glow effect), banner: "⚠️ Text is outside the card boundary. Please reduce font size or reposition the text."
-- Only shown on the master card (first card on active page), not on slave cards or print view
-- Banner sits just below the master card, outside the card dimensions so it doesn't affect layout
+1. **Add offset clamping in `handleInteractiveMove`** (lines 203-227): After computing `newX` and `newY`, clamp the mm-based offsets so the resulting percentage position stays within 0-100%. The offset is relative to the anchor (50% for X, ~42%/62% for Y), so clamp `newX` to prevent `pos.x` from exceeding ~95% or going below ~5% (allowing some margin), and `newY` similarly.
 
-### Files to modify
-- **`src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`**:
-  - Add `textOverflowing` state (boolean)
-  - Add refs to the two text elements inside `renderPlaceCard` when `isInteractive`
-  - Add a `useEffect` that runs overflow detection after renders
-  - Apply conditional border style to the front-half container (`height: 49.5mm` div) on the master card
-  - Add status banner below the master card in the grid rendering
+   Concrete clamping math:
+   - For X: `pos.x = ANCHOR_X + (offset / CARD_WIDTH_MM) * 100`. To keep `pos.x` in [5, 95]: offset must be in `[(5 - ANCHOR_X) * CARD_WIDTH_MM / 100, (95 - ANCHOR_X) * CARD_WIDTH_MM / 100]` = `[-47.25, 47.25]` mm.
+   - For Y: similar bounds using `FRONT_HEIGHT_MM`.
 
-- **`src/index.css`** (or inline keyframes): Add a subtle red pulse/glow animation for the warning state
+   ```tsx
+   const MAX_OFFSET_X_MM = 47; // keeps pos.x within ~5-95%
+   const MAX_OFFSET_Y_MM = 20; // keeps pos.y within card bounds
+   const clampedX = Math.max(-MAX_OFFSET_X_MM, Math.min(MAX_OFFSET_X_MM, newX));
+   const clampedY = Math.max(-MAX_OFFSET_Y_MM, Math.min(MAX_OFFSET_Y_MM, newY));
+   ```
+
+2. **Add clamping in live move handlers** (lines 281-303): Clamp `dxPct` and `dyPct` draft values using the same percentage bounds so slave cards also respect boundaries during drag.
+
+3. **Add `overflow: hidden`** to the front-half container of the master card to clip any remaining overflow visually, as a safety net.
+
+### Files modified
+- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` only
 
 ### What stays untouched
-- InteractiveTextOverlay internals
-- Master-slave mirroring, positioning math, persistence pipeline
-- Print/export rendering
-- Slave card styling
+- InteractiveTextOverlay internals (locked)
+- buildAbsoluteStyle positioning math
+- Persistence pipeline, master-slave architecture
 
