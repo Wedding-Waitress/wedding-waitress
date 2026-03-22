@@ -196,6 +196,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         container.style.overflow = prevOverflow;
       });
       setTextOverflowing(overflowing);
+      onOverflowChange?.(overflowing);
     });
     return () => cancelAnimationFrame(rafId);
   }, [textEditMode, currentSettings, committedOverrides, draftOverrides, overlayKey]);
