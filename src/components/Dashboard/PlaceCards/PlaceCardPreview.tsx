@@ -168,11 +168,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const CARD_WIDTH_MM = 105;
   const FRONT_HEIGHT_MM = 49.5;
 
-  // Shared anchor points (percentage of front half)
-  const GUEST_ANCHOR_X = 50;
-  const GUEST_ANCHOR_Y = 30;
-  const TABLE_ANCHOR_X = 50;
-  const TABLE_ANCHOR_Y = 70;
+   // Shared anchor points (percentage of front half) — centered pair with spacing
+   const GUEST_ANCHOR_X = 50;
+   const spacingHalf = (currentSettings.name_spacing ?? 4) / 2;
+   const GUEST_ANCHOR_Y = 42 - spacingHalf;
+   const TABLE_ANCHOR_X = 50;
+   const TABLE_ANCHOR_Y = 62 + spacingHalf;
 
   const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
     if (!onSettingsChange) return;
