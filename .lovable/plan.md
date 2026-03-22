@@ -1,50 +1,51 @@
 
 
-## Fix Right-Edge Overflow Detection on Place Cards
+## Enforce 5mm Safe Zone on All Place Cards
 
-### Root Cause
-The front-half container has `overflow: hidden`, which causes the browser to clip overflowing text elements. When `getBoundingClientRect()` is called on clipped children, it returns the **clipped** rectangle, not the actual content extent. So text overflowing the right edge appears to "fit" because the browser reports it as fitting after clipping.
+### Problem
+Text (guest name and table/seat) can overflow past card edges because the current positioning uses `left: 0; width: 100%` with `whiteSpace: nowrap`, allowing long names to extend beyond boundaries.
 
-### Fix — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
+### Approach
+Replace the full-width + asymmetric-padding positioning model with a centered safe-zone container that enforces 5mm margins on all four sides. Text that exceeds the safe zone will be truncated with ellipsis.
 
-**Overflow detection `useEffect` (lines 162-189)**: Instead of relying solely on `getBoundingClientRect()` (which is clipped), also check `scrollWidth` vs `clientWidth` on the container, and use `el.scrollWidth` on individual text elements. Specifically:
+### Changes — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
 
-1. For each container in `allCardRefs`, compare `container.scrollWidth > container.clientWidth` or `container.scrollHeight > container.clientHeight` — this detects content that overflows even when `overflow: hidden` clips it visually.
-2. Additionally, temporarily set `overflow: visible` on the container, measure text rects, then restore `overflow: hidden`. This allows accurate `getBoundingClientRect()` comparison for all four edges.
+**1. Update `buildAbsoluteStyle` (lines 385-407)**
 
-The cleaner approach is option 2: briefly flip overflow to `visible` during measurement inside the `requestAnimationFrame`, measure all text rects against the container rect, then flip back to `hidden`. This is invisible to the user (happens within a single frame before paint) and gives accurate measurements on all four sides.
-
+Replace the current `left: 0; width: 100%` + padding-based offset approach with:
 ```tsx
-const rafId = requestAnimationFrame(() => {
-  let overflowing = false;
-  allCardRefs.current.forEach((container) => {
-    if (!container || overflowing) return;
-    // Temporarily allow overflow so getBoundingClientRect returns true extent
-    const prevOverflow = container.style.overflow;
-    container.style.overflow = 'visible';
-    const containerRect = container.getBoundingClientRect();
-    const textEls = Array.from(container.children);
-    textEls.forEach((el) => {
-      const elRect = el.getBoundingClientRect();
-      if (
-        elRect.left < containerRect.left - 1 ||
-        elRect.right > containerRect.right + 1 ||
-        elRect.top < containerRect.top - 1 ||
-        elRect.bottom > containerRect.bottom + 1
-      ) {
-        overflowing = true;
-      }
-    });
-    container.style.overflow = prevOverflow;
-  });
-  setTextOverflowing(overflowing);
-});
+left: '50%',
+transform: `translateX(-50%) translateY(-50%) rotate(${pos.rotation}deg)`,
+width: '95mm',       // 105mm - 5mm left - 5mm right
+maxWidth: '95mm',
+textAlign: 'center',
+whiteSpace: 'nowrap',
+overflow: 'hidden',
+textOverflow: 'ellipsis',
 ```
 
-### Files modified
-- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` — overflow detection `useEffect` only (lines 162-189)
+Horizontal offsets will shift the `left` percentage rather than using asymmetric padding:
+- `left: calc(50% + ${xShiftMm}mm)` where `xShiftMm = (pos.x - 50) / 100 * CARD_WIDTH_MM`
+
+**2. Clamp vertical positioning**
+
+Ensure `top` percentage keeps text within the 5mm top/bottom margins of the front half (49.5mm). The 5mm margin = ~10.1% of 49.5mm, so clamp `pos.y` to `[10, 90]%` range.
+
+**3. Apply to all cards (master + slaves)**
+
+Since `buildAbsoluteStyle` is shared by both interactive (master) and passive (slave) cards, the change automatically applies everywhere.
+
+**4. Update boundary clamping constants (lines 215-216)**
+
+Tighten `MAX_OFFSET_X_MM` and `MAX_OFFSET_Y_MM` to respect the 5mm margins:
+- `MAX_OFFSET_X_MM`: reduce from 47 to ~42.5mm (keeps text center within 5mm-100mm range)
+- `MAX_OFFSET_Y_MM`: adjust to prevent top/y from going outside 5mm boundaries
 
 ### What stays untouched
-- InteractiveTextOverlay, positioning math, master-slave sync, persistence pipeline
-- Border styling, messages, pulse animation — all unchanged
+- InteractiveTextOverlay internals (locked)
+- Master-slave mirroring architecture
+- Persistence pipeline, committed/draft overrides
+- Back half (message) layout
+- Decorative image layout
+- Print/export rendering
 
