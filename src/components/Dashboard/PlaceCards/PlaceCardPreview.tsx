@@ -451,7 +451,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               <span className="text-muted-foreground text-[10px]">→</span>
             </div>
           </div>
-        )
+        )}
         {/* Full Background Image (if applicable) */}
         {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
           <div
