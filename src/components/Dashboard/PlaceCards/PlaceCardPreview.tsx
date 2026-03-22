@@ -158,28 +158,34 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     }
   }, [settings]);
 
-  // Overflow detection: check if text elements extend beyond the front-half container
+  // Overflow detection: check ALL cards (master + slaves) for text overflow
   useEffect(() => {
-    if (!textEditMode || !firstCardRef.current) {
+    if (!textEditMode) {
       setTextOverflowing(false);
       return;
     }
-    const container = firstCardRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const textEls = Array.from(container.children);
-    let overflowing = false;
-    textEls.forEach((el) => {
-      const elRect = el.getBoundingClientRect();
-      if (
-        elRect.left < containerRect.left - 1 ||
-        elRect.right > containerRect.right + 1 ||
-        elRect.top < containerRect.top - 1 ||
-        elRect.bottom > containerRect.bottom + 1
-      ) {
-        overflowing = true;
-      }
+    // Use requestAnimationFrame to ensure layout is painted before measuring
+    const rafId = requestAnimationFrame(() => {
+      let overflowing = false;
+      allCardRefs.current.forEach((container) => {
+        if (!container || overflowing) return;
+        const containerRect = container.getBoundingClientRect();
+        const textEls = Array.from(container.children);
+        textEls.forEach((el) => {
+          const elRect = el.getBoundingClientRect();
+          if (
+            elRect.left < containerRect.left - 1 ||
+            elRect.right > containerRect.right + 1 ||
+            elRect.top < containerRect.top - 1 ||
+            elRect.bottom > containerRect.bottom + 1
+          ) {
+            overflowing = true;
+          }
+        });
+      });
+      setTextOverflowing(overflowing);
     });
-    setTextOverflowing(overflowing);
+    return () => cancelAnimationFrame(rafId);
   }, [textEditMode, currentSettings, committedOverrides, draftOverrides, overlayKey]);
 
   // Force InteractiveTextOverlay to remount with clean state from React props
