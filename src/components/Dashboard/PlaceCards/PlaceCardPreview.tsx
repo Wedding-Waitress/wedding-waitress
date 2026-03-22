@@ -504,11 +504,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT — unified absolute positioning for all cards */}
         <div 
           ref={isFirstCard ? firstCardRef : undefined}
-          className="relative z-10"
+          className={`relative z-10 ${isInteractive && textOverflowing ? 'boundary-warning-pulse' : ''}`}
           style={{ 
             height: '49.5mm',
             position: 'relative',
             overflow: isInteractive ? 'visible' : 'hidden',
+            border: isInteractive
+              ? textOverflowing
+                ? '2px solid hsl(0, 84%, 60%)'
+                : '2px solid hsl(142, 76%, 36%)'
+              : undefined,
+            borderRadius: isInteractive ? '4px' : undefined,
+            transition: 'border-color 0.2s ease',
           }}
         >
           {/* Guest Name — always absolutely positioned from shared model */}
