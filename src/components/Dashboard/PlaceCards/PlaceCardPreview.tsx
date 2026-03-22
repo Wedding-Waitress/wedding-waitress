@@ -675,6 +675,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     <div className="space-y-6">
           {/* Screen Preview Only */}
           <div className="print:hidden">
+            {/* Instructional heading */}
+            <div className="bg-primary/10 text-primary text-sm font-medium rounded-lg px-4 py-2 text-center mb-3">
+              ✏️ Customize this master card to sync with all other cards
+            </div>
+
             {/* TOP Pagination Controls */}
             <div className="flex items-center justify-center gap-4 mb-6">
               <Button
