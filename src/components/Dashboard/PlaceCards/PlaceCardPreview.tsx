@@ -18,7 +18,7 @@
  * Locked: 2026-03-19 - Text positioning & sync feature locked
  */
 
-import React, { forwardRef, useState, useRef, useCallback } from 'react';
+import React, { forwardRef, useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
@@ -66,6 +66,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [draftOverrides, setDraftOverrides] = useState<DraftOverrides | null>(null);
   const [committedOverrides, setCommittedOverrides] = useState<Partial<PlaceCardSettings>>({});
   const [overlayKey, setOverlayKey] = useState(0);
+  const [textOverflowing, setTextOverflowing] = useState(false);
   const firstCardRef = useRef<HTMLDivElement>(null);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
@@ -155,6 +156,30 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       setCommittedOverrides({});
     }
   }, [settings]);
+
+  // Overflow detection: check if text elements extend beyond the front-half container
+  useEffect(() => {
+    if (!textEditMode || !firstCardRef.current) {
+      setTextOverflowing(false);
+      return;
+    }
+    const container = firstCardRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const textEls = Array.from(container.children);
+    let overflowing = false;
+    textEls.forEach((el) => {
+      const elRect = el.getBoundingClientRect();
+      if (
+        elRect.left < containerRect.left - 1 ||
+        elRect.right > containerRect.right + 1 ||
+        elRect.top < containerRect.top - 1 ||
+        elRect.bottom > containerRect.bottom + 1
+      ) {
+        overflowing = true;
+      }
+    });
+    setTextOverflowing(overflowing);
+  }, [textEditMode, currentSettings, committedOverrides, draftOverrides, overlayKey]);
 
   // Force InteractiveTextOverlay to remount with clean state from React props
   // This replaces the old clearMasterInlineStyles approach which destructively wiped
@@ -479,11 +504,18 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT — unified absolute positioning for all cards */}
         <div 
           ref={isFirstCard ? firstCardRef : undefined}
-          className="relative z-10"
+          className={`relative z-10 ${isInteractive && textOverflowing ? 'boundary-warning-pulse' : ''}`}
           style={{ 
             height: '49.5mm',
             position: 'relative',
             overflow: isInteractive ? 'visible' : 'hidden',
+            border: isInteractive
+              ? textOverflowing
+                ? '2px solid hsl(0, 84%, 60%)'
+                : '2px solid hsl(142, 76%, 36%)'
+              : undefined,
+            borderRadius: isInteractive ? '4px' : undefined,
+            transition: 'border-color 0.2s ease',
           }}
         >
           {/* Guest Name — always absolutely positioned from shared model */}
@@ -703,6 +735,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 </div>
               </div>
             </div>
+
+            {/* Boundary status banner — only shown when text edit mode is active */}
+            {textEditMode && (
+              <div className={`flex items-center justify-center gap-2 mt-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                textOverflowing
+                  ? 'bg-destructive/10 text-destructive border border-destructive/30'
+                  : 'bg-green-50 text-green-700 border border-green-200'
+              }`}>
+                {textOverflowing
+                  ? '⚠️ Text is outside the card boundary. Please reduce font size or reposition the text.'
+                  : '✓ Text is perfectly positioned. Changes will apply to all cards.'}
+              </div>
+            )}
 
             {/* BOTTOM Pagination Controls */}
             <div className="flex items-center justify-center gap-4 mt-6">

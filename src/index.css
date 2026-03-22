@@ -681,3 +681,12 @@
     min-height: 48px;
   }
 }
+
+/* Place card boundary warning pulse */
+@keyframes boundary-pulse {
+  0%, 100% { box-shadow: 0 0 4px 1px hsla(0, 84%, 60%, 0.4); }
+  50% { box-shadow: 0 0 10px 3px hsla(0, 84%, 60%, 0.7); }
+}
+.boundary-warning-pulse {
+  animation: boundary-pulse 2s ease-in-out infinite;
+}
