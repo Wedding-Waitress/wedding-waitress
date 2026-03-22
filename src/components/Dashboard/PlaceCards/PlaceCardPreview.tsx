@@ -714,11 +714,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 <div
                   className="absolute pointer-events-none hidden lg:flex flex-col"
                   style={{
-                    right: 'calc(50% + 105mm + 8px)',
+                    right: 'calc(50% + 105mm + 20px)',
                     top: 0,
                     height: '297mm',
                   }}
                 >
+                  {/* Master Card instruction box */}
+                  <div className="absolute flex items-end" style={{ top: '2mm', right: 0 }}>
+                    <div className="text-[9px] leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30" style={{ width: '125px' }}>
+                      This is the &quot;Master Card&quot;.
+                      <br />
+                      Customise this to sync with all other cards.
+                    </div>
+                  </div>
                   <div className="absolute flex items-center gap-1.5" style={{ top: '24.75mm', transform: 'translateY(-50%)' }}>
                     <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
                     <span className="text-muted-foreground text-[10px]">→</span>
