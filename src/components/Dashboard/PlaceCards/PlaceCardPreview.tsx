@@ -704,7 +704,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </div>
 
             {/* A4 Paper Container */}
-            <div className="flex justify-center relative">
+            <div className="flex justify-center relative" style={{ marginLeft: '40px' }}>
               {/* Guide labels — outside A4, in purple gap */}
               {!isExporting && (
                 <div
