@@ -340,7 +340,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       pos: { x: number; y: number; rotation: number; fontSize: number },
       unit: string = 'pt'
     ): React.CSSProperties => {
-      const xShift = pos.x - 50; // percentage offset from center
       return {
         ...baseStyle,
         position: 'absolute' as const,
@@ -352,11 +351,6 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         textAlign: 'center' as const,
         whiteSpace: 'nowrap' as const,
         fontSize: `${pos.fontSize}${unit}`,
-        // Shift text horizontally via asymmetric padding when not at center
-        ...(Math.abs(xShift) > 0.01 ? {
-          paddingLeft: xShift > 0 ? `${xShift * 2}%` : '0',
-          paddingRight: xShift < 0 ? `${Math.abs(xShift) * 2}%` : '0',
-        } : {}),
       };
     };
 
