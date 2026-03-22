@@ -18,7 +18,7 @@
  * Locked: 2026-03-19 - Text positioning & sync feature locked
  */
 
-import React, { forwardRef, useState, useRef, useCallback } from 'react';
+import React, { forwardRef, useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
