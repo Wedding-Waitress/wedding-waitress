@@ -432,26 +432,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         }}
         onClick={isInteractive ? () => setSelectedElement(null) : undefined}
       >
-        {/* Visual guide labels — master card only, editor view only */}
-        {isFirstCard && !isExporting && (
-          <div
-            className="absolute top-0 h-full flex flex-col pointer-events-none"
-            style={{ left: '-30mm', width: '28mm', zIndex: 300 }}
-          >
-            <div className="absolute flex items-center gap-1" style={{ top: '25%', transform: 'translateY(-50%)' }}>
-              <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
-              <span className="text-muted-foreground text-[10px]">→</span>
-            </div>
-            <div className="absolute flex items-center gap-1" style={{ top: '50%', transform: 'translateY(-50%)' }}>
-              <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
-              <span className="text-muted-foreground text-[10px]">→</span>
-            </div>
-            <div className="absolute flex items-center gap-1" style={{ top: '75%', transform: 'translateY(-50%)' }}>
-              <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
-              <span className="text-muted-foreground text-[10px]">→</span>
-            </div>
-          </div>
-        )}
+
+
         {/* Full Background Image (if applicable) */}
         {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
           <div
