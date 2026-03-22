@@ -67,7 +67,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [committedOverrides, setCommittedOverrides] = useState<Partial<PlaceCardSettings>>({});
   const [overlayKey, setOverlayKey] = useState(0);
   const [textOverflowing, setTextOverflowing] = useState(false);
-  const firstCardRef = useRef<HTMLDivElement>(null);
+  const allCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const firstCardRef = useRef<HTMLDivElement | null>(null);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
   
@@ -157,28 +158,34 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     }
   }, [settings]);
 
-  // Overflow detection: check if text elements extend beyond the front-half container
+  // Overflow detection: check ALL cards (master + slaves) for text overflow
   useEffect(() => {
-    if (!textEditMode || !firstCardRef.current) {
+    if (!textEditMode) {
       setTextOverflowing(false);
       return;
     }
-    const container = firstCardRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const textEls = Array.from(container.children);
-    let overflowing = false;
-    textEls.forEach((el) => {
-      const elRect = el.getBoundingClientRect();
-      if (
-        elRect.left < containerRect.left - 1 ||
-        elRect.right > containerRect.right + 1 ||
-        elRect.top < containerRect.top - 1 ||
-        elRect.bottom > containerRect.bottom + 1
-      ) {
-        overflowing = true;
-      }
+    // Use requestAnimationFrame to ensure layout is painted before measuring
+    const rafId = requestAnimationFrame(() => {
+      let overflowing = false;
+      allCardRefs.current.forEach((container) => {
+        if (!container || overflowing) return;
+        const containerRect = container.getBoundingClientRect();
+        const textEls = Array.from(container.children);
+        textEls.forEach((el) => {
+          const elRect = el.getBoundingClientRect();
+          if (
+            elRect.left < containerRect.left - 1 ||
+            elRect.right > containerRect.right + 1 ||
+            elRect.top < containerRect.top - 1 ||
+            elRect.bottom > containerRect.bottom + 1
+          ) {
+            overflowing = true;
+          }
+        });
+      });
+      setTextOverflowing(overflowing);
     });
-    setTextOverflowing(overflowing);
+    return () => cancelAnimationFrame(rafId);
   }, [textEditMode, currentSettings, committedOverrides, draftOverrides, overlayKey]);
 
   // Force InteractiveTextOverlay to remount with clean state from React props
@@ -313,7 +320,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     setDraftOverrides(prev => ({ ...prev, tableFontSize: size }));
   }, []);
 
-  const renderPlaceCard = (guest: Guest, isFirstCard: boolean = false) => {
+  const renderPlaceCard = (guest: Guest, isFirstCard: boolean = false, cardIndex: number = 0) => {
     const tableDisplay = getTableDisplay();
     const tableInfo = guest.seat_no
       ? `Table ${tableDisplay}, Seat ${guest.seat_no}`
@@ -514,7 +521,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT — unified absolute positioning for all cards */}
         <div 
-          ref={isFirstCard ? firstCardRef : undefined}
+          ref={(el) => {
+            allCardRefs.current[cardIndex] = el;
+            if (isFirstCard) firstCardRef.current = el;
+          }}
           className={`relative z-10 ${isInteractive && textOverflowing ? 'boundary-warning-pulse' : ''}`}
           style={{ 
             height: '49.5mm',
@@ -739,7 +749,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         const guest = currentPageGuests[index];
                         // First card on the active page is always the master/interactive card
                         const isFirstCard = index === 0;
-                        return guest ? renderPlaceCard(guest, isFirstCard) : renderEmptyCard(index);
+                        return guest ? renderPlaceCard(guest, isFirstCard, index) : renderEmptyCard(index);
                       })}
                     </div>
                   </div>
@@ -755,7 +765,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   : 'bg-green-50 text-green-700 border border-green-200'
               }`}>
                 {textOverflowing
-                  ? '⚠️ Text is outside the card boundary. Please reduce font size or reposition the text.'
+                  ? '⚠️ The text has gone over the border line in one or more cards. Please adjust the text size or position in the Master Card to fix all cards automatically.'
                   : '✓ Text is perfectly positioned. Changes will apply to all cards.'}
               </div>
             )}
