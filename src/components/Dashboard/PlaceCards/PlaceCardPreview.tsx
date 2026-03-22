@@ -219,7 +219,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      const resetValues = { guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 };
+      const resetValues = { guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 30 };
       setCommittedOverrides(prev => ({ ...prev, ...resetValues }));
       onSettingsChange(resetValues);
     } else {
