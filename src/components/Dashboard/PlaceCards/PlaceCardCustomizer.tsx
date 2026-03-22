@@ -87,7 +87,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     guest_name_bold: false,
     guest_name_italic: false,
     guest_name_underline: false,
-    guest_name_font_size: 40,
+    guest_name_font_size: 30,
     info_font_size: 16,
     name_spacing: 4,
     background_behind_names: false,
@@ -130,7 +130,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       guest_name_bold: false,
       guest_name_italic: false,
       guest_name_underline: false,
-      guest_name_font_size: 40,
+      guest_name_font_size: 30,
       info_font_size: 16,
       name_spacing: 4,
       font_color: '#000000',
@@ -444,7 +444,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       seat_offset_y: 0,
                       guest_name_rotation: 0,
                       table_seat_rotation: 0,
-                      guest_name_font_size: 40,
+                      guest_name_font_size: 30,
                       info_font_size: 16,
                     });
                     toast({

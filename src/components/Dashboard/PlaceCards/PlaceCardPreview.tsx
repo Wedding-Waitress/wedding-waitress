@@ -85,7 +85,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     guest_name_bold: false,
     guest_name_italic: false,
     guest_name_underline: false,
-    guest_name_font_size: 40,
+    guest_name_font_size: 30,
     info_font_size: 16,
     name_spacing: 4,
     info_bold: false,
@@ -219,7 +219,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleInteractiveReset = useCallback((element: 'guest-name' | 'table-seat') => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      const resetValues = { guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 40 };
+      const resetValues = { guest_name_offset_x: 0, guest_name_offset_y: 0, guest_name_rotation: 0, guest_name_font_size: 30 };
       setCommittedOverrides(prev => ({ ...prev, ...resetValues }));
       onSettingsChange(resetValues);
     } else {
@@ -236,7 +236,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      const cur = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 40);
+      const cur = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 30);
       const newSize = Math.max(8, Math.min(120, cur + deltaPx));
       setCommittedOverrides(prev => ({ ...prev, guest_name_font_size: newSize }));
       setDraftOverrides(null);
@@ -295,7 +295,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const effGuestOffsetX = Number(committedOverrides.guest_name_offset_x ?? currentSettings.guest_name_offset_x ?? 0);
     const effGuestOffsetY = Number(committedOverrides.guest_name_offset_y ?? currentSettings.guest_name_offset_y ?? 0);
     const effGuestRotation = Number(committedOverrides.guest_name_rotation ?? currentSettings.guest_name_rotation ?? 0);
-    const effGuestFontSize = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 40);
+    const effGuestFontSize = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 30);
     const effTableOffsetX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
     const effTableOffsetY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
     const effTableRotation = Number(committedOverrides.table_seat_rotation ?? currentSettings.table_seat_rotation ?? 0);
