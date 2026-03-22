@@ -425,6 +425,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch
                     checked={textEditMode}
                     onCheckedChange={(checked) => onTextEditModeChange?.(checked)}
+                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
