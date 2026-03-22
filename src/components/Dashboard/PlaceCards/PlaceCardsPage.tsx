@@ -43,6 +43,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [textEditMode, setTextEditMode] = useState(false);
+  const [textOverflowing, setTextOverflowing] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return sessionStorage.getItem('ww:place_cards_selected_table') || null;
   });
@@ -441,6 +442,19 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               textEditMode={textEditMode}
               onTextEditModeChange={setTextEditMode}
             />
+
+            {/* Boundary status banner — shown below customizer when text edit mode is active */}
+            {textEditMode && (
+              <div className={`mt-4 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                textOverflowing
+                  ? 'bg-destructive/10 text-destructive border border-destructive/30'
+                  : 'bg-green-50 text-green-700 border border-green-200'
+              }`}>
+                {textOverflowing
+                  ? '⚠️ The text has gone over the border line in one or more cards. Please adjust the text size or position in the Master Card to fix all cards automatically.'
+                  : '✓ Text is perfectly positioned. Changes will apply to all cards.'}
+              </div>
+            )}
           </div>
 
           {/* Right Panel - Preview */}
@@ -454,6 +468,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               selectedTable={selectedTable}
               textEditMode={textEditMode}
               onSettingsChange={updateSettings}
+              onOverflowChange={setTextOverflowing}
             />
           </div>
         </div>
