@@ -236,8 +236,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     } else {
       const curX = Number(committedOverrides.table_offset_x ?? currentSettings.table_offset_x ?? 0);
       const curY = Number(committedOverrides.table_offset_y ?? currentSettings.table_offset_y ?? 0);
-      const newX = Math.max(-MAX_OFFSET_X_MM, Math.min(MAX_OFFSET_X_MM, Math.round((curX + dxMm) * 10) / 10));
-      const newY = Math.max(-MAX_OFFSET_Y_MM, Math.min(MAX_OFFSET_Y_MM, Math.round((curY + dyMm) * 10) / 10));
+      const newX = Math.round((curX + dxMm) * 10) / 10;
+      const newY = Math.round((curY + dyMm) * 10) / 10;
       setCommittedOverrides(prev => ({ ...prev, table_offset_x: newX, table_offset_y: newY }));
       setDraftOverrides(null);
       bumpOverlayKey();
