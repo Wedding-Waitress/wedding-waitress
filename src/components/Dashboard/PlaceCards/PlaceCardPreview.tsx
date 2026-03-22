@@ -765,7 +765,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   : 'bg-green-50 text-green-700 border border-green-200'
               }`}>
                 {textOverflowing
-                  ? '⚠️ Text is outside the card boundary. Please reduce font size or reposition the text.'
+                  ? '⚠️ The text has gone over the border line in one or more cards. Please adjust the text size or position in the Master Card to fix all cards automatically.'
                   : '✓ Text is perfectly positioned. Changes will apply to all cards.'}
               </div>
             )}
