@@ -332,21 +332,41 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     };
 
     // --- Shared absolute positioning style builder ---
+    // When x is at default (50%), use full-width centering so textAlign: center
+    // works across the entire card width — fixes visual left-shift with script fonts.
+    // When x is non-default (user dragged), revert to point-based positioning.
     const buildAbsoluteStyle = (
       baseStyle: React.CSSProperties,
       pos: { x: number; y: number; rotation: number; fontSize: number },
       unit: string = 'pt'
-    ): React.CSSProperties => ({
-      ...baseStyle,
-      position: 'absolute' as const,
-      left: `${pos.x}%`,
-      top: `${pos.y}%`,
-      transform: `translate(-50%, -50%) rotate(${pos.rotation}deg)`,
-      transformOrigin: 'center center',
-      textAlign: 'center' as const,
-      whiteSpace: 'nowrap' as const,
-      fontSize: `${pos.fontSize}${unit}`,
-    });
+    ): React.CSSProperties => {
+      const isDefaultX = Math.abs(pos.x - 50) < 0.01;
+      if (isDefaultX && pos.rotation === 0) {
+        return {
+          ...baseStyle,
+          position: 'absolute' as const,
+          left: 0,
+          width: '100%',
+          top: `${pos.y}%`,
+          transform: `translateY(-50%)`,
+          transformOrigin: 'center center',
+          textAlign: 'center' as const,
+          whiteSpace: 'nowrap' as const,
+          fontSize: `${pos.fontSize}${unit}`,
+        };
+      }
+      return {
+        ...baseStyle,
+        position: 'absolute' as const,
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
+        transform: `translate(-50%, -50%) rotate(${pos.rotation}deg)`,
+        transformOrigin: 'center center',
+        textAlign: 'center' as const,
+        whiteSpace: 'nowrap' as const,
+        fontSize: `${pos.fontSize}${unit}`,
+      };
+    };
 
     // --- Content renderers ---
     const guestNameContent = currentSettings.background_behind_names ? (
