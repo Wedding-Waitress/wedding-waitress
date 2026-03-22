@@ -1,23 +1,33 @@
 
 
-## Improve Place Cards Layout Spacing & Label Positioning
+## Reposition Guide Labels Under Master Card Box
 
-### Overview
-Narrow the left customizer panel, widen the right preview area, and reposition the guide labels so they sit vertically stacked below the Master Card instruction box — all in the purple gap between panel and A4.
+### Problem
+The three labels ("Back of card", "Fold", "Front of card") are anchored to `right: 0` implicitly (default), while the Master Card box uses `right: 0` explicitly. The labels need to shift left to center under the instruction box.
 
-### Changes
+### Change — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx` (lines 730-741)
 
-**1. `PlaceCardsPage.tsx` — Adjust grid ratio (line 435)**
-- Change from `lg:grid-cols-5` with 2/3 split to `lg:grid-cols-7` with 2/5 split
-- Left panel: `lg:col-span-2` (narrower)
-- Right panel: `lg:col-span-5` (wider, more purple gap)
+Add `right: 0` to each of the three label divs so they right-align with the Master Card box (which also uses `right: 0`). Then wrap each label's content in a container that centers it relative to the 125px-wide instruction box above.
 
-**2. `PlaceCardPreview.tsx` — Reposition guide labels (lines 712-742)**
-- Keep the Master Card instruction box at its current position (`top: 2mm`)
-- Move the three labels ("Back of card", "Fold", "Front of card") so they remain at their correct vertical alignment points (24.75mm, 49.5mm, 74.25mm) but shift the entire label column further left: change `right: 'calc(50% + 105mm + 20px)'` to `right: 'calc(50% + 105mm + 30px)'` to ensure labels don't hide behind the A4 edge with the wider preview area
-- Keep all existing styling, arrows, and scope rules unchanged
+Specifically, add `right: 0` and `width: '125px'` plus `justifyContent: 'center'` to each label row, so they match the horizontal extent of the instruction box and their text appears centered beneath it. The arrows stay at the end via a slight layout tweak.
+
+**Simpler approach**: Just add `right: 0` and `width: '125px'` to each label's absolute div, and change from `gap-1.5` to `justify-between` so the text sits left-centered and arrow sits at the right edge pointing into the card.
+
+### Concrete edits (lines 730-741)
+
+For each of the three label divs, change:
+```tsx
+// Before
+<div className="absolute flex items-center gap-1.5" style={{ top: '24.75mm', transform: 'translateY(-50%)' }}>
+```
+To:
+```tsx
+// After
+<div className="absolute flex items-center justify-between" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
+```
+
+Apply the same pattern to all three labels (lines 730, 734, 738). This anchors them to `right: 0` with `width: 125px` — identical to the instruction box — so they center directly below it.
 
 ### Files modified
-- `src/components/Dashboard/PlaceCards/PlaceCardsPage.tsx`
 - `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
 
