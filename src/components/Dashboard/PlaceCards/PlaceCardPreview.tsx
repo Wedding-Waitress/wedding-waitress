@@ -38,6 +38,7 @@ interface PlaceCardPreviewProps {
   selectedTable?: { name: string; table_no?: number | null } | null;
   textEditMode?: boolean;
   onSettingsChange?: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
+  onOverflowChange?: (overflowing: boolean) => void;
 }
 
 interface DraftOverrides {
