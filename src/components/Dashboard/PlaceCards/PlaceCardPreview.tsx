@@ -312,9 +312,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   }, []);
 
   const handleLiveTableMove = useCallback((dxPct: number, dyPct: number) => {
-    const clampedDx = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dxPct));
-    const clampedDy = Math.max(-MAX_DRAFT_PCT, Math.min(MAX_DRAFT_PCT, dyPct));
-    setDraftOverrides(prev => ({ ...prev, tableDx: clampedDx, tableDy: clampedDy }));
+    setDraftOverrides(prev => ({ ...prev, tableDx: dxPct, tableDy: dyPct }));
   }, []);
 
   const handleLiveTableRotate = useCallback((deg: number) => {
