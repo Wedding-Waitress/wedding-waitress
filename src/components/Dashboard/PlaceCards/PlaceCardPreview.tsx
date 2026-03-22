@@ -169,6 +169,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       let overflowing = false;
       allCardRefs.current.forEach((container) => {
         if (!container || overflowing) return;
+        // Temporarily set overflow visible so getBoundingClientRect returns true extent
+        const prevOverflow = container.style.overflow;
+        container.style.overflow = 'visible';
         const containerRect = container.getBoundingClientRect();
         const textEls = Array.from(container.children);
         textEls.forEach((el) => {
@@ -182,6 +185,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             overflowing = true;
           }
         });
+        container.style.overflow = prevOverflow;
       });
       setTextOverflowing(overflowing);
     });
