@@ -723,17 +723,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                       Customise this to sync with all other cards.
                     </div>
                   </div>
-                  <div className="absolute flex items-center justify-between" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
-                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
-                    <span className="text-muted-foreground text-[10px]">→</span>
+                  <div className="absolute flex items-center justify-between" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0, width: '140px' }}>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
+                    <span className="text-muted-foreground text-sm">→</span>
                   </div>
-                  <div className="absolute flex items-center justify-between" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
-                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
-                    <span className="text-muted-foreground text-[10px]">→</span>
+                  <div className="absolute flex items-center justify-between" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0, width: '140px' }}>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
+                    <span className="text-muted-foreground text-sm">→</span>
                   </div>
-                  <div className="absolute flex items-center justify-between" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0, width: '125px' }}>
-                    <span className="text-[9px] text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
-                    <span className="text-muted-foreground text-[10px]">→</span>
+                  <div className="absolute flex items-center justify-between" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0, width: '140px' }}>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
+                    <span className="text-muted-foreground text-sm">→</span>
                   </div>
                 </div>
               )}
