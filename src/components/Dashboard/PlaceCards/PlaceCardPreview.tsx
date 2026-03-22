@@ -236,7 +236,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const handleFontSizeChange = useCallback((element: 'guest-name' | 'table-seat', deltaPx: number) => {
     if (!onSettingsChange) return;
     if (element === 'guest-name') {
-      const cur = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 40);
+      const cur = Number(committedOverrides.guest_name_font_size ?? currentSettings.guest_name_font_size ?? 30);
       const newSize = Math.max(8, Math.min(120, cur + deltaPx));
       setCommittedOverrides(prev => ({ ...prev, guest_name_font_size: newSize }));
       setDraftOverrides(null);
