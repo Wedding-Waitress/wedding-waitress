@@ -173,14 +173,20 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         const prevOverflow = container.style.overflow;
         container.style.overflow = 'visible';
         const containerRect = container.getBoundingClientRect();
+        // 2.5mm inner safe margin on all sides
+        const marginPx = (2.5 / 49.5) * containerRect.height;
+        const safeLeft = containerRect.left + marginPx;
+        const safeRight = containerRect.right - marginPx;
+        const safeTop = containerRect.top + marginPx;
+        const safeBottom = containerRect.bottom - marginPx;
         const textEls = Array.from(container.children);
         textEls.forEach((el) => {
           const elRect = el.getBoundingClientRect();
           if (
-            elRect.left < containerRect.left - 1 ||
-            elRect.right > containerRect.right + 1 ||
-            elRect.top < containerRect.top - 1 ||
-            elRect.bottom > containerRect.bottom + 1
+            elRect.left < safeLeft - 1 ||
+            elRect.right > safeRight + 1 ||
+            elRect.top < safeTop - 1 ||
+            elRect.bottom > safeBottom + 1
           ) {
             overflowing = true;
           }
