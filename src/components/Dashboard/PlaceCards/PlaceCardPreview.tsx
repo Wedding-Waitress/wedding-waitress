@@ -749,7 +749,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                         const guest = currentPageGuests[index];
                         // First card on the active page is always the master/interactive card
                         const isFirstCard = index === 0;
-                        return guest ? renderPlaceCard(guest, isFirstCard) : renderEmptyCard(index);
+                        return guest ? renderPlaceCard(guest, isFirstCard, index) : renderEmptyCard(index);
                       })}
                     </div>
                   </div>
