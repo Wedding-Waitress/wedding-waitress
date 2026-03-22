@@ -521,7 +521,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT — unified absolute positioning for all cards */}
         <div 
-          ref={isFirstCard ? firstCardRef : undefined}
+          ref={(el) => {
+            allCardRefs.current[cardIndex] = el;
+            if (isFirstCard) firstCardRef.current = el;
+          }}
           className={`relative z-10 ${isInteractive && textOverflowing ? 'boundary-warning-pulse' : ''}`}
           style={{ 
             height: '49.5mm',
