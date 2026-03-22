@@ -468,6 +468,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               selectedTable={selectedTable}
               textEditMode={textEditMode}
               onSettingsChange={updateSettings}
+              onOverflowChange={setTextOverflowing}
             />
           </div>
         </div>
