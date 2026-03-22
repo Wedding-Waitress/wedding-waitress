@@ -157,6 +157,30 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     }
   }, [settings]);
 
+  // Overflow detection: check if text elements extend beyond the front-half container
+  useEffect(() => {
+    if (!textEditMode || !firstCardRef.current) {
+      setTextOverflowing(false);
+      return;
+    }
+    const container = firstCardRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const textEls = container.querySelectorAll('[data-place-card-text]');
+    let overflowing = false;
+    textEls.forEach((el) => {
+      const elRect = el.getBoundingClientRect();
+      if (
+        elRect.left < containerRect.left - 1 ||
+        elRect.right > containerRect.right + 1 ||
+        elRect.top < containerRect.top - 1 ||
+        elRect.bottom > containerRect.bottom + 1
+      ) {
+        overflowing = true;
+      }
+    });
+    setTextOverflowing(overflowing);
+  }, [textEditMode, currentSettings, committedOverrides, draftOverrides, overlayKey]);
+
   // Force InteractiveTextOverlay to remount with clean state from React props
   // This replaces the old clearMasterInlineStyles approach which destructively wiped
   // left/top/transform and caused the jump-to-top-left bug
