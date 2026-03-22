@@ -211,9 +211,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
    const TABLE_ANCHOR_X = 50;
    const TABLE_ANCHOR_Y = 62 + spacingHalf;
 
-  // Boundary clamping constants — keep pos.x in [5%, 95%] and pos.y within front half
-  const MAX_OFFSET_X_MM = 47; // (95 - 50) * 105 / 100 ≈ 47.25
-  const MAX_OFFSET_Y_MM = 20; // keeps pos.y within card bounds
+  // Boundary clamping constants — keep text within 5mm safe zone on all sides
+  const MAX_OFFSET_X_MM = 42.5; // keeps text center within 5mm–100mm range (safe zone)
+  const MAX_OFFSET_Y_MM = 15; // keeps pos.y within 5mm top/bottom margins of front half
 
   const handleInteractiveMove = useCallback((element: 'guest-name' | 'table-seat', dxPercent: number, dyPercent: number) => {
     if (!onSettingsChange) return;
