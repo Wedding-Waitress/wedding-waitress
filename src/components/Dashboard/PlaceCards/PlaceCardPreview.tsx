@@ -714,7 +714,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 <div
                   className="absolute pointer-events-none hidden lg:flex flex-col"
                   style={{
-                    right: 'calc(50% + 105mm + 20px)',
+                    right: 'calc(50% + 105mm + 30px)',
                     top: 0,
                     height: '297mm',
                   }}
