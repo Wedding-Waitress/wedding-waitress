@@ -279,7 +279,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
             <div className="space-y-4">
               {/* Box 1 — Guest Name */}
               <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-3">
-                <Label className="text-sm font-semibold">Guest Name</Label>
+                <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Guest Name</span>
                 
                 {/* Row 1: Font + Font Size */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -345,7 +345,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
               {/* Box 2 — Table & Seat */}
               <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-3">
-                <Label className="text-sm font-semibold">Table & Seat</Label>
+                <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Table & Seat</span>
                 
                 {/* Row 1: Font + Font Size */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -427,8 +427,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Type className="h-4 w-4 text-primary" />
-                    <Label className="text-sm font-semibold">Text Edit Mode</Label>
+                    <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
+                      <Type className="h-4 w-4" />
+                      Text Edit Mode
+                    </span>
                   </div>
                   <Switch
                     checked={textEditMode}
@@ -473,10 +475,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           <TabsContent value="background" className="space-y-4">
             <div className="space-y-4">
               <div>
-                <Label className="flex items-center gap-2 mb-3">
+                <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold mb-3">
                   <Image className="h-4 w-4" />
                   Background Image
-                </Label>
+                </span>
                 <RadioGroup value={currentSettings.background_image_type} onValueChange={(value: 'none' | 'decorative' | 'full' | 'full_front' | 'full_back') => handleSettingChange('background_image_type', value)} className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="none" id="none" />
@@ -663,7 +665,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               )}
 
               <div className="space-y-2 pt-4 border-t">
-                <Label>Card Background Color</Label>
+                <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Card Background Color</span>
                 <ColorPickerPopover
                   value={settings?.background_color || '#ffffff'}
                   onChange={(color) => handleSettingChange('background_color', color)}
@@ -685,10 +687,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           <TabsContent value="messages" className="space-y-4">
             <div className="space-y-4">
               <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
-                <Label className="flex items-center gap-2">
+                <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
                   <MessageSquare className="h-4 w-4" />
                   Mass Message (applies to all cards)
-                </Label>
+                </span>
                 <Textarea placeholder="Enter a message for all place cards..." value={localMassMessage} onChange={e => setLocalMassMessage(e.target.value)} rows={3} />
                 <Button onClick={saveMassMessage} variant="success" className="w-full rounded-full">
                   Save Mass Message
@@ -696,7 +698,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               </div>
 
               <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
-                <Label>Individual Messages</Label>
+                <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Individual Messages</span>
                 
                 <Button variant="success" className="w-full rounded-full">
                   Guest Name Search
