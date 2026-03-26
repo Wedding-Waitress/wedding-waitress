@@ -310,8 +310,15 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </div>
                 </div>
 
-                {/* Row 2: Text Styling + Color */}
+                {/* Row 2: Text Color + Text Style */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Text Color</Label>
+                    <ColorPickerPopover
+                      value={currentSettings.font_color}
+                      onChange={(color) => handleSettingChange('font_color', color)}
+                    />
+                  </div>
                   <div>
                     <Label className="text-xs text-muted-foreground mb-1 block">Text Style</Label>
                     <Select
@@ -332,13 +339,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectItem value="underline">Underline</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-1 block">Color</Label>
-                    <ColorPickerPopover
-                      value={currentSettings.font_color}
-                      onChange={(color) => handleSettingChange('font_color', color)}
-                    />
                   </div>
                 </div>
               </div>
@@ -376,8 +376,15 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   </div>
                 </div>
 
-                {/* Row 2: Text Styling + Color */}
+                {/* Row 2: Text Color + Text Style */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Text Color</Label>
+                    <ColorPickerPopover
+                      value={(currentSettings as any).info_font_color || '#000000'}
+                      onChange={(color) => handleSettingChange('info_font_color' as any, color)}
+                    />
+                  </div>
                   <div>
                     <Label className="text-xs text-muted-foreground mb-1 block">Text Style</Label>
                     <Select
@@ -398,13 +405,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectItem value="underline">Underline</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground mb-1 block">Color</Label>
-                    <ColorPickerPopover
-                      value={(currentSettings as any).info_font_color || '#000000'}
-                      onChange={(color) => handleSettingChange('info_font_color' as any, color)}
-                    />
                   </div>
                 </div>
               </div>
