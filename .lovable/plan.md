@@ -1,23 +1,28 @@
 
 
-## Improve Place Cards Layout Spacing & Readability
+## Replace Text Styling Switches with Dropdown Menus
 
-### Changes — `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
+### Problem
+The Place Cards customizer uses three toggle switches (Bold, Italic, Underline) for text styling, while the Invitations page uses a single dropdown with options: Default, Bold, Italic, Underline. The user wants them to match.
 
-**1. Remove purple instruction banner (lines 680-683)**
-Delete the `bg-primary/10` banner that says "✏️ Customize this master card to sync with all other cards".
+### Changes — `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
 
-**2. Shift A4 preview to the right (line 711)**
-Change `<div className="flex justify-center relative">` to `<div className="flex justify-center relative" style={{ marginLeft: '40px' }}>` to push the A4 slightly right, creating more breathing space for the left-side labels.
+**1. Guest Name section (lines 316-330)**
+Replace the three Switch toggles with a single `<Select>` dropdown labeled "Text Style" with options: Default, Bold, Italic, Underline. On change, set the corresponding bold/italic/underline flags (only one active at a time, matching Invitations behavior).
 
-**3. Increase font sizes of guidance elements (lines 722-741)**
-- Master Card instruction box (line 724): Change `text-[9px]` to `text-xs` (~12px)
-- "Back of card" label (line 731): Change `text-[9px]` to `text-xs`
-- "Fold" label (line 735): Change `text-[9px]` to `text-xs`
-- "Front of card" label (line 739): Change `text-[9px]` to `text-xs`
-- Arrow spans: Change `text-[10px]` to `text-sm`
-- Widen container from `width: '125px'` to `width: '140px'` to accommodate larger text
+**2. Table & Seat section (lines 378-391)**
+Same replacement — swap the three Switch toggles for an identical dropdown.
+
+**3. Helper logic**
+Add a helper to derive the current style value from the three boolean flags, and a handler that sets the correct combination when a dropdown option is selected:
+- "Default" → bold=false, italic=false, underline=false
+- "Bold" → bold=true, italic=false, underline=false
+- "Italic" → bold=false, italic=true, underline=false
+- "Underline" → bold=false, italic=false, underline=true
+
+**4. Layout adjustment**
+The "Text Styling" label + dropdown replaces the vertical switch list, sitting side-by-side with "Color" in the existing `grid-cols-2` row — matching the Invitations layout where "Font Color" and "Text Style" sit in a two-column grid.
 
 ### Files modified
-- `src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx`
+- `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
 
