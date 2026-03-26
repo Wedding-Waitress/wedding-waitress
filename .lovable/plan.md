@@ -1,28 +1,48 @@
 
 
-## Replace Text Styling Switches with Dropdown Menus
+## Apply Purple Pill-Border Heading Style to Place Cards Customizer
 
-### Problem
-The Place Cards customizer uses three toggle switches (Bold, Italic, Underline) for text styling, while the Invitations page uses a single dropdown with options: Default, Bold, Italic, Underline. The user wants them to match.
+### What
+Apply the same purple text + thin purple pill-shaped border heading style (as seen on "You Are Invited" in the Invitations page) to specific section headings across all four tabs of the Place Cards customizer.
+
+### Headings to style (8 total)
+
+**Design tab:**
+1. "Guest Name" (line 282) — wrap in purple pill border, purple text
+2. "Table & Seat" (line 348) — same treatment
+
+**Text Position tab:**
+3. "Text Edit Mode" (line 431) — wrap in purple pill border, purple text
+
+**Background tab:**
+4. "Background Image" (line 478) — wrap in purple pill border, purple text
+5. "Card Background Color" (line 666) — wrap in purple pill border, purple text
+
+**Messages tab:**
+6. "Mass Message (applies to all cards)" (line 690) — wrap in purple pill border, purple text
+7. "Individual Messages" (line 699) — wrap in purple pill border, purple text
+
+### Styling pattern
+Each heading gets: `text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold`
+
+This matches the Invitations "You Are Invited" pill style — purple text, thin purple border, rounded-full (pill shape), inline-flex so it hugs content width.
 
 ### Changes — `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
 
-**1. Guest Name section (lines 316-330)**
-Replace the three Switch toggles with a single `<Select>` dropdown labeled "Text Style" with options: Default, Bold, Italic, Underline. On change, set the corresponding bold/italic/underline flags (only one active at a time, matching Invitations behavior).
+1. **Line 282**: Change `<Label className="text-sm font-semibold">Guest Name</Label>` to `<span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Guest Name</span>`
 
-**2. Table & Seat section (lines 378-391)**
-Same replacement — swap the three Switch toggles for an identical dropdown.
+2. **Line 348**: Same for "Table & Seat"
 
-**3. Helper logic**
-Add a helper to derive the current style value from the three boolean flags, and a handler that sets the correct combination when a dropdown option is selected:
-- "Default" → bold=false, italic=false, underline=false
-- "Bold" → bold=true, italic=false, underline=false
-- "Italic" → bold=false, italic=true, underline=false
-- "Underline" → bold=false, italic=false, underline=true
+3. **Line 431**: Change `<Label className="text-sm font-semibold">Text Edit Mode</Label>` to `<span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Text Edit Mode</span>` (keep the Type icon inside)
 
-**4. Layout adjustment**
-The "Text Styling" label + dropdown replaces the vertical switch list, sitting side-by-side with "Color" in the existing `grid-cols-2` row — matching the Invitations layout where "Font Color" and "Text Style" sit in a two-column grid.
+4. **Lines 476-478**: Change the "Background Image" label to use purple pill style
 
-### Files modified
+5. **Line 666**: Change "Card Background Color" label to purple pill style
+
+6. **Lines 688-690**: Change "Mass Message (applies to all cards)" label to purple pill style (keep MessageSquare icon)
+
+7. **Line 699**: Change "Individual Messages" label to purple pill style
+
+### File modified
 - `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
 
