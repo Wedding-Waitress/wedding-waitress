@@ -75,7 +75,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-4 h-4 text-primary" />
-            <Label className="text-sm font-medium">Sort Order</Label>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
           </div>
           
           <div>
@@ -106,7 +106,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-primary" />
-            <Label className="text-sm font-medium">Display Options</Label>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           </div>
           
           <div className="space-y-3">
@@ -140,7 +140,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Type className="w-4 h-4 text-primary" />
-            <Label className="text-sm font-medium">Typography</Label>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
           </div>
           
           <div>
