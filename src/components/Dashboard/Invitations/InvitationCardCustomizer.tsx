@@ -310,7 +310,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <Button
                   onClick={addCustomZone}
                   variant="outline"
-                  className="w-full text-[#7248E6]"
+                  className="w-full text-foreground"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Custom Text Zone
