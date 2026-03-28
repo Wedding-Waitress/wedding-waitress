@@ -33,8 +33,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
   return (
     <Card className="ww-box bg-white mt-8">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
-          <Settings className="w-5 h-5 text-purple-600" />
+        <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
+          <Settings className="w-5 h-5 text-foreground" />
           Chart Settings
         </CardTitle>
       </CardHeader>

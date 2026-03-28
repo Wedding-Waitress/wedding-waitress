@@ -263,8 +263,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     <>
       <Card className="ww-box h-fit sticky top-0 mt-12 bg-white">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-medium text-primary">
-            <Palette className="h-5 w-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-medium text-foreground">
+            <Palette className="h-5 w-5 text-foreground" />
             Invitations, Save the Date & Thank You Cards
           </CardTitle>
         </CardHeader>

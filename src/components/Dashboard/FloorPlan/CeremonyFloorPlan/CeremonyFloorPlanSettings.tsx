@@ -42,7 +42,7 @@ export const CeremonyFloorPlanSettings = ({
   return (
     <Card className="ww-box">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-medium text-[#7248e6]">
+        <CardTitle className="text-2xl font-medium text-foreground">
           Layout Settings
         </CardTitle>
       </CardHeader>
