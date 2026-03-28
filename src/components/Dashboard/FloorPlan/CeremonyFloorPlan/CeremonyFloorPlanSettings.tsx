@@ -50,7 +50,7 @@ export const CeremonyFloorPlanSettings = ({
         {/* Chairs Per Row */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm">Chairs Per Row</Label>
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Chairs Per Row</span>
             <span className="text-sm font-medium text-primary">{floorPlan.chairs_per_row}</span>
           </div>
           <Slider
@@ -67,7 +67,7 @@ export const CeremonyFloorPlanSettings = ({
         {/* Total Rows */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm">Total Rows</Label>
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Total Rows</span>
             <span className="text-sm font-medium text-primary">{floorPlan.total_rows}</span>
           </div>
           <Slider
@@ -84,7 +84,7 @@ export const CeremonyFloorPlanSettings = ({
         {/* Assigned Rows (for family) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm">Family Rows (Assigned)</Label>
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Family Rows (Assigned)</span>
             <span className="text-sm font-medium text-primary">{floorPlan.assigned_rows}</span>
           </div>
           <Slider
@@ -100,7 +100,7 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Couple Side Arrangement */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <h4 className="text-sm font-medium">Couple Arrangement</h4>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Couple Arrangement</span>
           
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Which side is the Groom on?</Label>
@@ -122,7 +122,7 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Couple Names Section */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <h4 className="text-sm font-medium">Couple Names</h4>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Couple Names</span>
           <p className="text-xs text-muted-foreground">These names appear beside the celebrant at the altar</p>
           
           <div className="space-y-2">
@@ -152,7 +152,7 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Bridal Party Section */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <h4 className="text-sm font-medium">Bridal Party (Altar Area)</h4>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Bridal Party (Altar Area)</span>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -193,7 +193,7 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Side Labels */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <h4 className="text-sm font-medium">Labels</h4>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Labels</span>
           
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Left Side</Label>
@@ -219,7 +219,7 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Display Options */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <h4 className="text-sm font-medium">Display Options</h4>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Display Options</span>
           
           <div className="flex items-center justify-between">
             <Label className="text-sm">Show Row Numbers</Label>
