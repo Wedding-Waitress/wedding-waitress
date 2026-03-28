@@ -31,7 +31,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          <CardTitle className="text-2xl font-medium text-[#7248e6]">Chart Settings</CardTitle>
+          <CardTitle className="text-2xl font-medium text-foreground">Chart Settings</CardTitle>
         </div>
         <CardDescription>Customise how your dietary requirements chart is displayed and exported</CardDescription>
       </CardHeader>
