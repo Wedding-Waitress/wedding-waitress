@@ -1,23 +1,26 @@
 
 
-## Swap Text Color & Text Style Positions in Place Cards Customizer
+## Apply Purple Pill-Border Heading Style to Full Seating Chart Customizer
 
-### What changes
-In `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`, swap the order of the two fields in Row 2 of both "Guest Name" and "Table & Seat" boxes, and rename "Color" to "Text Color".
+### What
+Apply the same purple pill-shaped heading style used in Place Cards and Floor Plan to three section headings in the Full Seating Chart customizer. This is a cosmetic-only change — no logic, layout, or functionality is modified.
 
-### Guest Name box (lines 313-343)
-Current Row 2 order: **Text Style** (left) | **Color** (right)
-New Row 2 order: **Text Color** (left) | **Text Style** (right)
+### Changes — `src/components/Dashboard/FullSeatingChart/FullSeatingChartCustomizer.tsx`
 
-- Move the ColorPickerPopover block to be the first child in the grid
-- Move the Text Style Select block to be the second child
-- Rename label from "Color" to "Text Color"
+**1. "Sort Order" heading (line 78)**
+Change `<Label className="text-sm font-medium">Sort Order</Label>` to:
+`<span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>`
 
-### Table & Seat box (lines 379-409)
-Same swap:
-- Move ColorPickerPopover to first position, rename "Color" → "Text Color"
-- Move Text Style Select to second position
+**2. "Display Options" heading (line 109)**
+Change `<Label className="text-sm font-medium">Display Options</Label>` to:
+`<span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>`
+
+**3. "Typography" heading (line 143)**
+Change `<Label className="text-sm font-medium">Typography</Label>` to:
+`<span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>`
+
+Icons remain inside the parent `flex items-center gap-2` div — only the Label element changes to a styled span.
 
 ### Files modified
-- `src/components/Dashboard/PlaceCards/PlaceCardCustomizer.tsx`
+- `src/components/Dashboard/FullSeatingChart/FullSeatingChartCustomizer.tsx`
 
