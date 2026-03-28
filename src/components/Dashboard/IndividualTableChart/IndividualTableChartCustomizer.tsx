@@ -47,7 +47,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="table-shape">Table Shape</Label>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Table Shape</span>
             <Select
               value={settings.tableShape}
               onValueChange={(value: 'round' | 'square' | 'long') => 
@@ -90,7 +90,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         {/* Display Options */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-sm">Display Options</h3>
+          <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           
           <div className="flex items-center justify-between">
             <Label htmlFor="show-names">Show Guest Names</Label>
@@ -143,7 +143,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {/* Text Settings - Hidden for Long Table (auto-scaling) */}
         {settings.tableShape !== 'long' && (
           <div className="space-y-4">
-            <h3 className="font-semibold text-sm">Text Settings</h3>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Text Settings</span>
             
             <div className="space-y-2">
               <Label htmlFor="font-size">Font Size</Label>
