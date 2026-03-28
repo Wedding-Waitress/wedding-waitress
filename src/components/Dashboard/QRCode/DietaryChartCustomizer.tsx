@@ -40,7 +40,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4" />
-            <Label className="font-semibold">Sort Order</Label>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
           </div>
           <Select value={settings.sortBy} onValueChange={value => onSettingsChange({
           sortBy: value as DietaryChartSettings['sortBy']
@@ -61,7 +61,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
 
         {/* Display Options */}
         <div className="space-y-3">
-          <Label className="font-semibold">Display Options</Label>
+          <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-mobile" className="text-sm">Show Mobile</Label>
@@ -90,7 +90,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Type className="h-4 w-4" />
-            <Label className="font-semibold">Typography</Label>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="font-size" className="text-sm">Font Size</Label>
