@@ -433,7 +433,7 @@ export const MyEventsPage: React.FC = () => {
                 <div className={`flex flex-col sm:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
-                    <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left">
+                    <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                       <h4 className="font-semibold text-primary mb-2 text-sm sm:text-base">Ceremony</h4>
                       <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
                         <p><span className="font-medium">Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
