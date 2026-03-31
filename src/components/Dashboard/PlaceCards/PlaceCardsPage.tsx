@@ -254,7 +254,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   return (
     <div className="space-y-6 place-cards-page">
       {/* Combined Header Box */}
-      <Card className="ww-box">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           {/* Title & Subtitle - Full Width */}
           <div className="text-left">
