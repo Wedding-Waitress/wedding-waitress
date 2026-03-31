@@ -488,7 +488,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const updateShapes = (updates: Partial<QRShapeSettings>) => {
     setQrShapes(prev => ({ ...prev, ...updates }));
   };
-  return <Card className="ww-box h-full">
+  return <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
           <QrCodeIcon className="h-5 w-5 text-purple-600" />
@@ -499,7 +499,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
-          <div className="bg-white rounded-lg border-2 border-purple-200 p-4 flex items-center justify-center min-h-[320px]">
+          <div className="bg-white rounded-lg border-2 border-purple-200 p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             <div id="qr-preview" className="w-full max-w-[280px] aspect-square flex items-center justify-center">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
@@ -510,7 +510,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 2: Customization Panel */}
-          <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-3 overflow-y-auto min-h-[320px]">
+          <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-3 overflow-y-auto min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             <div className="bg-primary text-primary-foreground text-center py-2 px-3 rounded-md -mx-3 -mt-3">
               <h3 className="text-base font-semibold">Design Your QR Code</h3>
             </div>
@@ -700,7 +700,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 3: Action Buttons */}
-          <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-border p-4 min-h-[320px]">
+          <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-border p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             {/* Open Live View - Full Width */}
             <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full bg-green-500 hover:bg-green-600 text-white border-0">
               <ExternalLink className="h-4 w-4 mr-2" />
@@ -738,7 +738,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         </div>
 
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
-        <Card className="ww-box w-full">
+        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
           <CardHeader className="pb-3">
             <CardTitle className="text-2xl font-medium text-foreground">Guest Live View Configuration</CardTitle>
           </CardHeader>
@@ -750,7 +750,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* 2x2 Grid for all modules */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* RSVP Invite Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Mail className="h-5 w-5 text-purple-600" />
@@ -963,7 +963,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Welcome Video Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Video className="h-5 w-5 text-purple-600" />
@@ -1100,7 +1100,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Ceremony Floor Plan Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-purple-600" />
@@ -1316,7 +1316,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Reception Floor Plan Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-purple-600" />
@@ -1537,7 +1537,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Menu Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <UtensilsCrossed className="h-5 w-5 text-purple-600" />
@@ -1685,7 +1685,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Hero Image / Logo Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 lg:col-span-2">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 lg:col-span-2 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-3">
                   <ImageIcon className="h-5 w-5 text-purple-600" />
                   <div>
