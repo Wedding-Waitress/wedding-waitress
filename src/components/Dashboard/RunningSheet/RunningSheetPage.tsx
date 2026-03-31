@@ -177,7 +177,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                     className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
                   >
                     <Share2 className="h-3 w-3" />
-                    Share with...
+                    Share
                   </button>
                   <button
                     onClick={handleDownloadEntirePDF}
@@ -185,7 +185,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                     className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50"
                   >
                     {downloadingPDF ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                    Download entire running sheet PDF
+                    Download PDF
                   </button>
                 </div>
               </div>
