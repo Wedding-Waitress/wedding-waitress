@@ -28,6 +28,20 @@ interface Event {
   ceremony_finish_time?: string | null;
 }
 
+const formatPdfFileDate = (dateString: string | null | undefined): string => {
+  if (!dateString) {
+    const now = new Date();
+    return `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+  }
+
+  const date = new Date(dateString + 'T00:00:00');
+  return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
+};
+
+const getRunningSheetPdfFileName = (event: Event): string => {
+  return `${event.name}-Running Sheet-${formatPdfFileDate(event.date)}.pdf`;
+};
+
 const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
   if (!dateString) return 'TBD';
   const date = new Date(dateString + 'T00:00:00');
@@ -82,7 +96,6 @@ const textToHtmlLines = (text: string): string => {
 const generateRunningSheetHTML = (
   items: RunningSheetItem[],
   event: Event,
-  sectionLabel: string,
   sectionNotes: string | null,
   logoDataUrl: string | null
 ): string => {
@@ -190,8 +203,9 @@ export const exportRunningSheetPDF = async (
   sectionLabel: string = 'Running Sheet',
   sectionNotes: string | null = null
 ): Promise<void> => {
+  void sectionLabel;
   const logoDataUrl = await loadLogoAsDataUrl();
-  const htmlContent = generateRunningSheetHTML(items, event, sectionLabel, sectionNotes, logoDataUrl);
+  const htmlContent = generateRunningSheetHTML(items, event, sectionNotes, logoDataUrl);
 
   // Create offscreen container — let it grow to full content height
   const container = document.createElement('div');
@@ -267,11 +281,7 @@ export const exportRunningSheetPDF = async (
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
     }
 
-    const eventDate = event.date ? (() => {
-      const d = new Date(event.date + 'T00:00:00');
-      return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
-    })() : new Date().toISOString().split('T')[0];
-    pdf.save(`${event.name}-Running Sheet-${eventDate}.pdf`);
+    pdf.save(getRunningSheetPdfFileName(event));
   } finally {
     document.body.removeChild(container);
   }
