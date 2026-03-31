@@ -109,7 +109,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="ww-box">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
