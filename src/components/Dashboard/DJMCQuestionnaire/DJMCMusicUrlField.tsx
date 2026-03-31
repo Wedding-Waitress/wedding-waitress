@@ -128,13 +128,13 @@ export function DJMCMusicUrlField({
   const getPlatformButtonClasses = () => {
     switch (platform) {
       case 'youtube':
-        return 'border-[#FF0000]/30 bg-[#FF0000] text-white hover:bg-[#cc0000]';
+        return 'music-platform-button--youtube';
       case 'spotify':
-        return 'border-[#1DB954]/30 bg-[#1DB954] text-white hover:bg-[#169c46]';
+        return 'music-platform-button--spotify';
       case 'apple':
-        return 'border-[#FA57C1]/30 bg-[#FA57C1] text-white hover:bg-[#e73fae]';
+        return 'music-platform-button--apple';
       default:
-        return 'border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90';
+        return 'music-platform-button--default';
     }
   };
 
@@ -143,7 +143,7 @@ export function DJMCMusicUrlField({
 
     const openExternalLink = (
       <div className="mt-4 flex justify-center">
-        <Button asChild className={cn('inline-flex min-w-[220px] items-center gap-2 rounded-md border text-sm font-medium shadow-sm transition-colors', getPlatformButtonClasses())}>
+        <Button asChild className={cn('music-platform-button', getPlatformButtonClasses())}>
           <a href={value} target="_blank" rel="noopener noreferrer">
             {renderPlatformIcon()}
             {getPlatformLabel()}

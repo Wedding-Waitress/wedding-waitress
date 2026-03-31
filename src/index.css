@@ -89,6 +89,15 @@
     --warning-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+
+    /* Music Platform Brand Colors */
+    --music-youtube: 0 100% 50%;
+    --music-youtube-hover: 0 100% 40%;
+    --music-spotify: 141 73% 42%;
+    --music-spotify-hover: 141 73% 34%;
+    --music-apple: 330 95% 66%;
+    --music-apple-hover: 330 82% 58%;
+    --music-platform-foreground: 0 0% 100%;
     
     /* Form Elements */
     --input: 260 30% 92%;
@@ -257,6 +266,44 @@
   .card-elevated:hover {
     box-shadow: var(--shadow-purple-glow);
     transform: translateY(-2px);
+  }
+
+  .music-platform-button {
+    @apply inline-flex min-w-[220px] items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium shadow-card transition-colors;
+  }
+
+  .music-platform-button--youtube {
+    background-color: hsl(var(--music-youtube));
+    border-color: hsl(var(--music-youtube) / 0.3);
+    color: hsl(var(--music-platform-foreground));
+  }
+
+  .music-platform-button--youtube:hover {
+    background-color: hsl(var(--music-youtube-hover));
+  }
+
+  .music-platform-button--spotify {
+    background-color: hsl(var(--music-spotify));
+    border-color: hsl(var(--music-spotify) / 0.3);
+    color: hsl(var(--music-platform-foreground));
+  }
+
+  .music-platform-button--spotify:hover {
+    background-color: hsl(var(--music-spotify-hover));
+  }
+
+  .music-platform-button--apple {
+    background-color: hsl(var(--music-apple));
+    border-color: hsl(var(--music-apple) / 0.3);
+    color: hsl(var(--music-platform-foreground));
+  }
+
+  .music-platform-button--apple:hover {
+    background-color: hsl(var(--music-apple-hover));
+  }
+
+  .music-platform-button--default {
+    @apply border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
   /* Button styles */
