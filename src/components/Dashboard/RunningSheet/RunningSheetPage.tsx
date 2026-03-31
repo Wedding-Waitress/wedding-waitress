@@ -259,7 +259,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
             onDuplicateItem={duplicateItem}
             onReorderItems={reorderItems}
             onResetToDefault={resetToDefault}
-            onDownloadSectionPDF={handleDownloadSectionPDF}
+            onDownloadSectionPDF={handleDownloadEntirePDF}
             onInsertFromDJMC={handleInsertFromDJMC}
             hasDJMCData={hasDJMCData}
           />
