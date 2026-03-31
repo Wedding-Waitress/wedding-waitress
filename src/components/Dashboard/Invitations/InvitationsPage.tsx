@@ -257,7 +257,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   return (
     <div className="space-y-6">
       {/* Combined Header Box */}
-      <Card className="ww-box">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
             <h1 className="text-2xl font-medium text-foreground">Invitations, Save the Date & Thank You Cards</h1>
