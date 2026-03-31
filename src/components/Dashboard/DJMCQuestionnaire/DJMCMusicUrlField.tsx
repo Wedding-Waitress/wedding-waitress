@@ -16,6 +16,7 @@ import { Link, Play, Copy, X, Music, Loader2 } from 'lucide-react';
 import { detectMusicPlatform, extractYouTubeId, extractSpotifyId } from '@/lib/djMCQuestionnaireTemplates';
 import { useToast } from '@/hooks/use-toast';
 import { fetchSongMetadata } from '@/lib/musicMetadataFetcher';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -124,15 +125,30 @@ export function DJMCMusicUrlField({
     }
   };
 
+  const getPlatformButtonClasses = () => {
+    switch (platform) {
+      case 'youtube':
+        return 'border-[#FF0000]/30 bg-[#FF0000] text-white hover:bg-[#cc0000]';
+      case 'spotify':
+        return 'border-[#1DB954]/30 bg-[#1DB954] text-white hover:bg-[#169c46]';
+      case 'apple':
+        return 'border-[#FA57C1]/30 bg-[#FA57C1] text-white hover:bg-[#e73fae]';
+      default:
+        return 'border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90';
+    }
+  };
+
   const renderPreviewContent = () => {
     if (!value) return null;
 
     const openExternalLink = (
-      <div className="mt-3 text-center">
-        <a href={value} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
-          {renderPlatformIcon()}
-          {getPlatformLabel()}
-        </a>
+      <div className="mt-4 flex justify-center">
+        <Button asChild className={cn('inline-flex min-w-[220px] items-center gap-2 rounded-md border text-sm font-medium shadow-sm transition-colors', getPlatformButtonClasses())}>
+          <a href={value} target="_blank" rel="noopener noreferrer">
+            {renderPlatformIcon()}
+            {getPlatformLabel()}
+          </a>
+        </Button>
       </div>
     );
 
