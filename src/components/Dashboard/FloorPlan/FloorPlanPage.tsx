@@ -81,7 +81,7 @@ export const FloorPlanPage = ({
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <Card className="ww-box">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="pt-4 sm:pt-6 space-y-4">
           {/* Title and Description */}
           <div>
