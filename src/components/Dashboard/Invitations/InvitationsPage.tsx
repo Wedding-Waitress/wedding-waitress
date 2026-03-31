@@ -347,7 +347,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {/* Artwork Management Bar */}
       {selectedEventId && selectedEvent && !settingsLoading && (
-        <Card className="ww-box">
+        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
