@@ -192,7 +192,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                 height: previewHeight,
                 backgroundColor: currentSettings.background_color,
               }}
-              className="bg-white shadow-lg overflow-visible relative"
+              className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-visible relative"
               onClick={() => onSelectZone?.(null)}
             >
               {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
