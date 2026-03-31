@@ -499,7 +499,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
-          <div className="bg-white rounded-lg border-2 border-purple-200 p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+          <div className="bg-white rounded-lg border border-primary p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             <div id="qr-preview" className="w-full max-w-[280px] aspect-square flex items-center justify-center">
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
