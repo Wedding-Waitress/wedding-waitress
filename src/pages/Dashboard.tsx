@@ -520,7 +520,7 @@ export const Dashboard = () => {
             </Card>
 
             {/* Tables Grid */}
-            {selectedEventId && <Card className="ww-box">
+            {selectedEventId && <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <CardContent className="p-6">
                   {tablesLoading ? <div className="text-center py-8">
                       <div className="text-muted-foreground">Loading tables...</div>
