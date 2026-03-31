@@ -194,7 +194,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   return (
     <div className="space-y-6 full-seating-chart-dark-purple">
       {/* Header */}
-      <Card className="ww-box print:hidden">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
         <CardHeader className="space-y-4">
           {/* Event Selector */}
           <div className="flex items-center justify-between">
