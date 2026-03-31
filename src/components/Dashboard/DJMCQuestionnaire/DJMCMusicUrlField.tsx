@@ -145,6 +145,7 @@ export function DJMCMusicUrlField({
               src={`https://www.youtube.com/embed/${videoId}`}
               className="w-full aspect-video rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"
               allowFullScreen
             />
             {openExternalLink}
