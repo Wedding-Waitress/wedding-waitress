@@ -203,7 +203,7 @@ export function DJMCQuestionnaireSection({
 
   return (
     <>
-      <Card className="shadow-sm border-border">
+      <Card className="border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <Collapsible open={!section.is_collapsed} onOpenChange={(open) => onUpdateSection({ is_collapsed: !open })}>
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
