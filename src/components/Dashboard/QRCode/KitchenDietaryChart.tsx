@@ -588,7 +588,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {/* A4 Page Container - Screen View */}
                 <div className="flex justify-center">
                   <div 
-                  className="bg-white border border-gray-300 shadow-lg"
+                  className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
                     style={{ 
                       width: '210mm', 
                       height: '297mm',
