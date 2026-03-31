@@ -742,7 +742,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   width: '210mm', 
                   height: '297mm'
                 }} 
-                className="bg-white shadow-lg overflow-hidden"
+                className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden"
               >
                 {/* Place Cards Content */}
                 <div ref={ref} data-page={currentPage - 1}>
