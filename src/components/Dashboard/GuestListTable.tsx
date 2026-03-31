@@ -1416,7 +1416,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   return (
     <>
-      <Card className="border-2 border-primary" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         {/* Header Controls */}
         <div className="px-3 sm:px-6 py-4">
           {/* Page Title with Couple Names Section */}
@@ -1434,7 +1434,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
               <div className="grid grid-cols-1 md:grid-cols-[2fr_2fr_2fr_1fr] gap-4 items-stretch">
-                <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">1</span>
                     <Label htmlFor="event-select" className="whitespace-nowrap text-sm font-semibold text-primary">
@@ -1460,7 +1460,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Box 1: Type of Event */}
                 {selectedEventId && (
-                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">2</span>
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1504,7 +1504,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* Box 2: Guest Relations */}
                 {selectedEventId && (
-                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1">
+                  <div className="border-2 border-[#7248E6] rounded-lg p-4 flex-1 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                     <div className="flex items-start gap-3 mb-2">
                      <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0 mt-0">3</span>
                       <span className="text-sm font-semibold text-primary">Add what relationship each guest is to you. This will help your staff know who is who at your venue.</span>
@@ -1618,7 +1618,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </div>
                 )}
                 {/* Box 4: Add Guest */}
-                <div className="border-2 border-primary rounded-lg p-4 flex flex-col h-full">
+                <div className="border-2 border-primary rounded-lg p-4 flex flex-col h-full shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <div className="flex items-start gap-2">
                     <span className="bg-green-500 text-white font-bold text-sm w-8 h-8 rounded-full inline-flex items-center justify-center shrink-0">4</span>
                     <span className="text-sm font-semibold text-primary">Let the fun begin! Now start adding your guest list here.</span>
@@ -1760,7 +1760,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
