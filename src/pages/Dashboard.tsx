@@ -444,7 +444,7 @@ export const Dashboard = () => {
           );
         }
         return <div className="space-y-6">
-            <Card className="ww-box">
+            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Top row - Title */}
                 <div className="flex items-start gap-3">
