@@ -426,7 +426,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       
       <div className="space-y-6 kitchen-dietary-chart">
         {/* Combined Header Card - Always Visible */}
-        <Card className="ww-box print:hidden">
+        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
           <CardContent className="p-6">
               {/* Title and Description - Left aligned at top */}
               <div className="flex items-center gap-3 mb-4">
