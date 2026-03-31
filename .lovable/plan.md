@@ -1,14 +1,24 @@
 
 
-## Apply Running Sheet Top Card Styling to DJ-MC Questionnaire
+## Problem
 
-### What
-Add the thin purple border and deep shadow to the top card (Choose Event + Export Controls) on the DJ-MC Questionnaire page, matching the Running Sheet page exactly.
+The "Watch on YouTube" link inside the YouTube embedded player (and potentially the external link below it) is blocked because the iframe lacks `sandbox` permissions that allow popups to escape the sandbox environment.
 
-### Change
-**File: `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx`** (line 155)
+## Solution
 
-- Change `<Card>` to `<Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">`
+Add the `sandbox` attribute to the YouTube and Spotify iframes with permissions that allow the built-in platform links to open in new tabs:
 
-That's it -- one line change, no other modifications.
+**File: `src/components/Dashboard/DJMCQuestionnaire/DJMCMusicUrlField.tsx`**
+
+1. **YouTube iframe (line ~144-149)**: Add `sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"` to allow the YouTube player's "Watch on YouTube" link to work.
+
+2. **Spotify iframe (line ~161-165)**: Add the same `sandbox` attribute for consistency.
+
+These sandbox permissions allow:
+- `allow-scripts`: The player JS to run
+- `allow-same-origin`: The player to function correctly
+- `allow-popups`: Links inside the player to open new windows
+- `allow-popups-to-escape-sandbox`: Those new windows to not inherit sandbox restrictions (so YouTube/Spotify actually loads)
+
+No other changes needed.
 
