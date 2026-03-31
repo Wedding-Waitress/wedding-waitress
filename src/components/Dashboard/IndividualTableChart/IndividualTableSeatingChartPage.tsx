@@ -263,7 +263,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         </AlertDialogContent>
       </AlertDialog>
       {/* Event and Table Selection */}
-      <Card className="ww-box">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader className="space-y-4">
           {/* Title and Description */}
           <div>
