@@ -135,7 +135,7 @@ export function RunningSheetSection({
 
   return (
     <>
-      <Card className="shadow-sm border-border">
+      <Card className="border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <Collapsible open={!isCollapsed} onOpenChange={(open) => setIsCollapsed(!open)}>
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
