@@ -177,10 +177,10 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
       {/* Kiosk URL and Controls */}
       {selectedEvent && (
-        <Card className="ww-box">
+        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl font-medium text-[#7248e6]">
-              <ExternalLink className="w-5 h-5 text-[#7248e6]" />
+            <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
+              <ExternalLink className="w-5 h-5 text-foreground" />
               Kiosk URL & Controls
             </CardTitle>
             <CardDescription>
