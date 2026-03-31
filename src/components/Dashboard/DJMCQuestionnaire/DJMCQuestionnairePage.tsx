@@ -152,7 +152,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       </div>
 
       {/* Event Selector */}
-      <Card>
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex-shrink-0">
