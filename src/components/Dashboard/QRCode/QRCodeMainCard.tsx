@@ -963,7 +963,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Welcome Video Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20">
+              <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Video className="h-5 w-5 text-purple-600" />
