@@ -269,8 +269,11 @@ export const exportRunningSheetPDF = async (
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
     }
 
-    const eventName = event.name.replace(/[^a-zA-Z0-9]/g, '_');
-    pdf.save(`${eventName}-Running-Sheet-${new Date().toISOString().split('T')[0]}.pdf`);
+    const eventDate = event.date ? (() => {
+      const d = new Date(event.date + 'T00:00:00');
+      return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+    })() : new Date().toISOString().split('T')[0];
+    pdf.save(`${event.name} - ${eventDate}.pdf`);
   } finally {
     document.body.removeChild(container);
   }
