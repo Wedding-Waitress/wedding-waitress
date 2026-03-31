@@ -31,7 +31,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
   onSettingsChange,
 }) => {
   return (
-    <Card className="ww-box bg-white mt-8">
+    <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] bg-white mt-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
           <Settings className="w-5 h-5 text-foreground" />
