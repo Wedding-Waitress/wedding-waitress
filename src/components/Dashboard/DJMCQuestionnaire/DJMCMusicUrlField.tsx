@@ -16,7 +16,6 @@ import { Link, Play, Copy, X, Music, Loader2 } from 'lucide-react';
 import { detectMusicPlatform, extractYouTubeId, extractSpotifyId } from '@/lib/djMCQuestionnaireTemplates';
 import { useToast } from '@/hooks/use-toast';
 import { fetchSongMetadata } from '@/lib/musicMetadataFetcher';
-import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -125,30 +124,15 @@ export function DJMCMusicUrlField({
     }
   };
 
-  const getPlatformButtonClasses = () => {
-    switch (platform) {
-      case 'youtube':
-        return 'music-platform-button--youtube';
-      case 'spotify':
-        return 'music-platform-button--spotify';
-      case 'apple':
-        return 'music-platform-button--apple';
-      default:
-        return 'music-platform-button--default';
-    }
-  };
-
   const renderPreviewContent = () => {
     if (!value) return null;
 
     const openExternalLink = (
-      <div className="mt-4 flex justify-center">
-        <Button asChild className={cn('music-platform-button', getPlatformButtonClasses())}>
-          <a href={value} target="_blank" rel="noopener noreferrer">
-            {renderPlatformIcon()}
-            {getPlatformLabel()}
-          </a>
-        </Button>
+      <div className="mt-3 text-center">
+        <a href={value} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+          {renderPlatformIcon()}
+          {getPlatformLabel()}
+        </a>
       </div>
     );
 
