@@ -417,7 +417,7 @@ export const MyEventsPage: React.FC = () => {
 
   return <div className="space-y-4 sm:space-y-6">
       {/* Countdown Section */}
-      <Card className="ww-box p-4 sm:p-8 mx-0">
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-4 sm:p-8 mx-0">
         <div className="text-center space-y-6">
 
           {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
