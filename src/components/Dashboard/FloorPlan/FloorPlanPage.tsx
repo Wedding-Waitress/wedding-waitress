@@ -227,7 +227,7 @@ export const FloorPlanPage = ({
 
           {/* Visual Preview */}
           <div className="lg:col-span-3 order-1 lg:order-2">
-            <Card className="ww-box p-3 sm:p-6 overflow-x-auto">
+            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 overflow-x-auto">
               <CeremonyFloorPlanVisual
                 floorPlan={floorPlan}
                 onSeatUpdate={updateSeatAssignment}
