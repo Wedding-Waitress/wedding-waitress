@@ -139,8 +139,6 @@ const generateRunningSheetHTML = (
       </div>
       <!-- Purple divider -->
       <div style="border-top:2px solid #6d28d9;margin:8px 0 14px 0;"></div>
-      <!-- Section label -->
-      <div style="font-size:15px;font-weight:bold;color:#6d28d9;margin-bottom:4px;">${escapeHtml(sectionLabel)}</div>
       ${notesBlock}
       <!-- Table -->
       <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;">
