@@ -115,19 +115,40 @@ export function DJMCMusicUrlField({
     }
   };
 
+  const getPlatformLabel = () => {
+    switch (platform) {
+      case 'youtube': return 'Watch on YouTube';
+      case 'spotify': return 'Listen on Spotify';
+      case 'apple': return 'Listen on Apple Music';
+      default: return 'Open in new tab';
+    }
+  };
+
   const renderPreviewContent = () => {
     if (!value) return null;
+
+    const openExternalLink = (
+      <div className="mt-3 text-center">
+        <a href={value} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+          {renderPlatformIcon()}
+          {getPlatformLabel()}
+        </a>
+      </div>
+    );
 
     if (platform === 'youtube') {
       const videoId = extractYouTubeId(value);
       if (videoId) {
         return (
-          <iframe
-            src={`https://www.youtube.com/embed/${videoId}`}
-            className="w-full aspect-video rounded-lg"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+          <>
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              className="w-full aspect-video rounded-lg"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+            {openExternalLink}
+          </>
         );
       }
     }
@@ -136,11 +157,14 @@ export function DJMCMusicUrlField({
       const spotifyData = extractSpotifyId(value);
       if (spotifyData) {
         return (
-          <iframe
-            src={`https://open.spotify.com/embed/${spotifyData.type}/${spotifyData.id}`}
-            className="w-full h-[152px] rounded-lg"
-            allow="encrypted-media"
-          />
+          <>
+            <iframe
+              src={`https://open.spotify.com/embed/${spotifyData.type}/${spotifyData.id}`}
+              className="w-full h-[152px] rounded-lg"
+              allow="encrypted-media"
+            />
+            {openExternalLink}
+          </>
         );
       }
     }
