@@ -1760,7 +1760,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow>
