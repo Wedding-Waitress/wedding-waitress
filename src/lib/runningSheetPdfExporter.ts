@@ -273,7 +273,7 @@ export const exportRunningSheetPDF = async (
       const d = new Date(event.date + 'T00:00:00');
       return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
     })() : new Date().toISOString().split('T')[0];
-    pdf.save(`${event.name} - ${eventDate}.pdf`);
+    pdf.save(`${event.name}-Running Sheet-${eventDate}.pdf`);
   } finally {
     document.body.removeChild(container);
   }
