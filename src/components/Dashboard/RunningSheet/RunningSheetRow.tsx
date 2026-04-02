@@ -14,7 +14,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
   GripVertical, Copy, Trash, Eraser, ListPlus, Highlighter,
-  MoreVertical, Bold, Italic, Underline,
+  MoreVertical, Bold, Italic, Underline, Undo2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
