@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
+import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText, Check, CloudOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';
@@ -60,8 +60,10 @@ export function RunningSheetPublicView() {
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [sectionLabel, setSectionLabel] = useState('Running Sheet');
   const [sectionNotes, setSectionNotes] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
   const lastSaveRef = useRef<number>(0);
+  const saveStatusTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!token) {
@@ -186,13 +188,20 @@ export function RunningSheetPublicView() {
       if (updates.is_italic !== undefined) params.new_is_italic = updates.is_italic;
       if (updates.is_underline !== undefined) params.new_is_underline = updates.is_underline;
 
+      setSaveStatus('saving');
       lastSaveRef.current = Date.now();
       const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_item_by_token', params);
       if (rpcError) {
         console.error('Error saving item:', rpcError);
+        setSaveStatus('error');
       } else if (success === false) {
         console.error('Save rejected — token may no longer have edit permission');
+        setSaveStatus('error');
         fetchData();
+      } else {
+        setSaveStatus('saved');
+        if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+        saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
       }
     }, 300);
   }, [token, canEdit, fetchData]);
@@ -319,6 +328,18 @@ export function RunningSheetPublicView() {
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
+              {canEdit && saveStatus !== 'idle' && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-opacity ${
+                  saveStatus === 'saving' ? 'text-muted-foreground bg-muted' :
+                  saveStatus === 'saved' ? 'text-green-600 bg-green-50' :
+                  'text-destructive bg-destructive/10'
+                }`}>
+                  {saveStatus === 'saving' && <Loader2 className="h-3 w-3 animate-spin" />}
+                  {saveStatus === 'saved' && <Check className="h-3 w-3" />}
+                  {saveStatus === 'error' && <CloudOff className="h-3 w-3" />}
+                  {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save failed'}
+                </span>
+              )}
               <span className={`inline-flex items-center px-4 py-2 text-sm font-medium border-2 rounded-full ${
                 canEdit
                   ? 'border-amber-500 text-amber-600'
