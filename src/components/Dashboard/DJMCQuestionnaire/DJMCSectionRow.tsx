@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
   GripVertical, Copy, Eraser, Highlighter, MoreVertical,
-  Bold, Italic, Underline, Undo2, Trash,
+  Bold, Italic, Underline, Trash,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
