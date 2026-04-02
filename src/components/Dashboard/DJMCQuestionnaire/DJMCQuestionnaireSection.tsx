@@ -417,10 +417,13 @@ export function DJMCQuestionnaireSection({
                   {/* COLUMNS 2, 3, 4 for traditional: Dedication / Details | Song Title & Artist + Audio | Music with Link */}
                   {section.section_type === 'traditional' && (
                     <>
-                      <div className="flex-1 basis-1/4 min-w-0">Dedication / Details</div>
-                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+                      <div className="flex-1 basis-1/4 min-w-0 pl-3">Dedication / Details</div>
+                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2 pl-3">
                         <span className="flex-1">Song Title & Artist</span>
-                        <span className="w-10 text-center shrink-0">Audio</span>
+                        <span className="w-10 text-center shrink-0 flex flex-col items-center leading-none">
+                          <span className="text-[9px] text-muted-foreground">Pronunciation</span>
+                          <span>Audio</span>
+                        </span>
                       </div>
                     </>
                   )}
