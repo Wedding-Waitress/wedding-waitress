@@ -1,20 +1,26 @@
 
 
-## Plan: Remove Undo from DJ-MC Questionnaire Row Menus
+## Plan: Fix DJ-MC Questionnaire PDF Filenames
 
-### What
-Remove the "Undo" menu item from the 3-dot dropdown in all DJ-MC Questionnaire sections. This applies globally since all sections use the same `DJMCSectionRow` component.
+### What Changes
+Two filename patterns in `src/lib/djMCQuestionnairePdfExporter.ts` need updating to use the event date (DD-MM-YYYY) instead of today's date (YYYY-MM-DD), and preserve readable characters like `&` and `'` in the event name.
 
-### Changes
+### Current vs Desired
 
-**File: `src/components/Dashboard/DJMCQuestionnaire/DJMCSectionRow.tsx`**
-1. Remove the `Undo2` icon import
-2. Remove `onUndo` and `canUndo` props from the interface and destructuring
-3. Remove the two `<DropdownMenuItem>` blocks for Undo (around lines 255-258 and 712-715), plus their following `<DropdownMenuSeparator />`
+**Entire questionnaire (line 491-492):**
+- Current: `Jason___Linda_s_Wedding-DJ-MC-Questionnaire-2026-04-02.pdf`
+- Desired: `Jason & Linda's Wedding-DJ-MC Questionnaire-20-12-2026.pdf`
 
-**File: `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection.tsx`** (if it passes `onUndo`/`canUndo` props)
-- Remove any `onUndo` and `canUndo` prop passing to `DJMCSectionRow`
+**Single section (line 367-369):**
+- Current: `Jason___Linda_s_Wedding-Ceremony_Music-2026-04-02.pdf`
+- Desired: `Jason & Linda's Wedding-Ceremony Music-20-12-2026.pdf`
 
-**File: `src/hooks/useUndoStack.ts`**
-- Can be deleted entirely as it will no longer be used anywhere
+### Changes in `src/lib/djMCQuestionnairePdfExporter.ts`
+
+1. **Line 367-369** (single section export): Replace the sanitization to keep readable chars (`&`, `'`, spaces), use event date formatted as DD-MM-YYYY, and preserve spaces in section name
+2. **Line 491-492** (full questionnaire export): Same sanitization change, use event date, add space in "DJ-MC Questionnaire"
+
+Both will use `event.date` (falling back to current date if null) formatted as DD-MM-YYYY. The filename sanitizer will only strip filesystem-unsafe characters (`/`, `\`, `:`, `*`, `?`, `"`, `<`, `>`, `|`) rather than stripping everything non-alphanumeric.
+
+### No other changes
 
