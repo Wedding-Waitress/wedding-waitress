@@ -6,8 +6,9 @@
  * CRITICAL RULES:
  * - DO NOT modify without explicit owner approval
  * - Changes could break running sheet data, sharing, or PDF export
+ * - Includes in-memory cache for instant tab-switch loading
  *
- * Last locked: 2026-02-19
+ * Last locked: 2026-04-02
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
