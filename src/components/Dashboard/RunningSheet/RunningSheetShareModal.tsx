@@ -179,8 +179,8 @@ export function RunningSheetShareModal({
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className={`px-1.5 py-0.5 rounded ${
                           token.permission === 'can_edit'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-blue-100 text-blue-700'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
                         }`}>
                           {token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
                         </span>
