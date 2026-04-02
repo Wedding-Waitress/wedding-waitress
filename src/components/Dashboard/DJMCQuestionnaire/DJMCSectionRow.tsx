@@ -213,7 +213,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
-              className="px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate"
+              className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {item.row_label || 'Song 1'}
             </div>
