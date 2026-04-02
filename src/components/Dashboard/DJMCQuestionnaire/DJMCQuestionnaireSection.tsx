@@ -430,7 +430,7 @@ export function DJMCQuestionnaireSection({
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) - for cocktail, dinner, dance - 1/3 width */}
                   {(section.section_type === 'cocktail' || section.section_type === 'dinner' || section.section_type === 'dance') && (
-                    <div className="flex-1 basis-1/3 min-w-0">Song Title & Artist</div>
+                    <div className="flex-1 basis-1/3 min-w-0 pl-3">Song Title & Artist</div>
                   )}
                   
                   {/* COLUMN 2 & 3: Speeches - Names/Details + Allowed Time */}
