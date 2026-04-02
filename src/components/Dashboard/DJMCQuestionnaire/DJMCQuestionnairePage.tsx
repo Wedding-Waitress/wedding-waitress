@@ -80,6 +80,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
     deleteSection,
     generateShareToken,
     deleteShareToken,
+    refreshShareTokens,
     calculateProgress,
   } = useDJMCQuestionnaire(selectedEventId);
 
@@ -292,6 +293,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
         shareTokens={shareTokens}
         onGenerateToken={generateShareToken}
         onDeleteToken={deleteShareToken}
+        onTokensUpdated={refreshShareTokens}
         eventSlug={selectedEvent?.slug ?? undefined}
       />
     </div>

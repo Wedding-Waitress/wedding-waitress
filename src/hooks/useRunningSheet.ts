@@ -273,6 +273,16 @@ export function useRunningSheet(eventId: string | null) {
     }
   }, [toast]);
 
+  const refreshShareTokens = useCallback(async () => {
+    if (!sheet) return;
+    const { data: tokens } = await supabase
+      .from('running_sheet_share_tokens')
+      .select('*')
+      .eq('sheet_id', sheet.id)
+      .order('created_at', { ascending: false });
+    setShareTokens((tokens as RunningSheetShareToken[]) || []);
+  }, [sheet]);
+
   return {
     sheet,
     loading,
@@ -290,5 +300,6 @@ export function useRunningSheet(eventId: string | null) {
     resetToDefault,
     generateShareToken,
     deleteShareToken,
+    refreshShareTokens,
   };
 }

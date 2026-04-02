@@ -690,6 +690,11 @@ const deleteSection = useCallback(async (sectionId: string) => {
     fetchQuestionnaire();
   }, [fetchQuestionnaire]);
 
+  const refreshShareTokens = useCallback(async () => {
+    if (!questionnaire) return;
+    await fetchShareTokens(questionnaire.id);
+  }, [questionnaire]);
+
   return {
     questionnaire,
     loading,
@@ -706,6 +711,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
     deleteSection,
     generateShareToken,
     deleteShareToken,
+    refreshShareTokens,
     calculateProgress,
     refetch: fetchQuestionnaire,
   };

@@ -20,12 +20,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Copy, Check, Trash2, ExternalLink, Users } from 'lucide-react';
 import { RunningSheetShareToken } from '@/types/runningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { buildRunningSheetUrl } from '@/lib/urlUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RunningSheetShareModalProps {
   open: boolean;
@@ -33,6 +41,7 @@ interface RunningSheetShareModalProps {
   shareTokens: RunningSheetShareToken[];
   onGenerateToken: (permission: 'view_only' | 'can_edit', recipientName?: string, validityDays?: number) => Promise<string | null>;
   onDeleteToken: (tokenId: string) => void;
+  onTokensUpdated?: () => void;
   eventSlug?: string;
 }
 
@@ -42,16 +51,36 @@ export function RunningSheetShareModal({
   shareTokens,
   onGenerateToken,
   onDeleteToken,
+  onTokensUpdated,
   eventSlug,
 }: RunningSheetShareModalProps) {
+  const [permission, setPermission] = useState<'view_only' | 'can_edit'>('view_only');
   const [recipientName, setRecipientName] = useState('');
   const [generating, setGenerating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // When permission changes, update all existing tokens
+  const handlePermissionChange = useCallback(async (newPermission: 'view_only' | 'can_edit') => {
+    setPermission(newPermission);
+    if (shareTokens.length > 0) {
+      try {
+        const tokenIds = shareTokens.map(t => t.id);
+        await supabase
+          .from('running_sheet_share_tokens')
+          .update({ permission: newPermission })
+          .in('id', tokenIds);
+        onTokensUpdated?.();
+        toast({ title: 'Updated', description: `All existing links set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
+      } catch (error) {
+        console.error('Error updating token permissions:', error);
+      }
+    }
+  }, [shareTokens, onTokensUpdated, toast]);
+
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
-    const token = await onGenerateToken('view_only', recipientName || undefined, 90);
+    const token = await onGenerateToken(permission, recipientName || undefined, 90);
     setGenerating(false);
     if (token) {
       const url = buildRunningSheetUrl(token, eventSlug);
@@ -59,7 +88,7 @@ export function RunningSheetShareModal({
       toast({ title: 'Share Link Created', description: 'Link copied to clipboard' });
       setRecipientName('');
     }
-  }, [recipientName, onGenerateToken, toast]);
+  }, [permission, recipientName, onGenerateToken, toast, eventSlug]);
 
   const copyLink = useCallback(async (token: string) => {
     const url = buildRunningSheetUrl(token, eventSlug);
@@ -67,7 +96,7 @@ export function RunningSheetShareModal({
     setCopiedId(token);
     setTimeout(() => setCopiedId(null), 2000);
     toast({ title: 'Link Copied', description: 'Share link copied to clipboard' });
-  }, [toast]);
+  }, [toast, eventSlug]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -99,6 +128,32 @@ export function RunningSheetShareModal({
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="rs-permission">Permission Level</Label>
+              <Select
+                value={permission}
+                onValueChange={(v) => handlePermissionChange(v as 'view_only' | 'can_edit')}
+              >
+                <SelectTrigger id="rs-permission">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="view_only">
+                    <div className="flex flex-col items-start">
+                      <span>View Only</span>
+                      <span className="text-xs text-muted-foreground">Can see but not edit</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="can_edit">
+                    <div className="flex flex-col items-start">
+                      <span>Can Edit</span>
+                      <span className="text-xs text-muted-foreground">Can modify entries</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <Button onClick={handleGenerate} disabled={generating} className="w-full">
               {generating ? (
                 <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
@@ -119,7 +174,13 @@ export function RunningSheetShareModal({
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{token.recipient_name || 'Unnamed'}</div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">View Only</span>
+                        <span className={`px-1.5 py-0.5 rounded ${
+                          token.permission === 'can_edit'
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
+                        </span>
                         {token.last_accessed_at && (
                           <span>Last used: {format(new Date(token.last_accessed_at), 'MMM d, yyyy')}</span>
                         )}
