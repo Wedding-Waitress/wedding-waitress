@@ -1,74 +1,22 @@
 
 
-## Running Sheet PDF Export — Multi-Page Footer & Padding Fix
+## Running Sheet PDF — Five Layout Adjustments
 
-### Current Problem
+**File:** `src/lib/runningSheetPdfExporter.ts`
 
-The current approach renders ALL content as one tall HTML block, captures it as a single tall canvas, then slices it into page-sized chunks. This means:
+### Changes
 
-1. **Top padding**: 40px exists on the HTML container, but only applies to page 1
-2. **Bottom padding**: Only 30px — content runs to the edge on page breaks
-3. **Logo/footer**: Only rendered once at the very bottom of the full content, not on every page
-4. **No page numbering**: No "1 of 4 pages" indicator exists
+1. **Body font size 11px → 12px** — Match the header detail lines. Change `font-size:11px` to `font-size:12px` in all three `<td>` cells (lines 144-146) and the notes block (line 134).
 
-### Solution: Per-Page Footer Overlay via jsPDF
+2. **Logo height 8mm → 12mm, width scaled proportionally** — Change `FOOTER_LOGO_HEIGHT_MM` from 8 to 12, and `FOOTER_LOGO_WIDTH_MM` from 28 to 42 (maintaining the 3.5:1 aspect ratio).
 
-Rather than restructuring the entire HTML rendering approach (which is locked and proven), we add the footer elements **directly via jsPDF** after each page slice is placed. This is the safest approach.
+3. **Remove gap between logo and page number line** — Currently the logo sits at `FOOTER_LOGO_Y_MM = PDF_HEIGHT_MM - FOOTER_ZONE_MM + 4` (271mm) and text at `FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 5` (292mm), leaving ~13mm gap. Adjust so logo bottom edge is immediately above the text line. With logo height 12mm and text at 292mm, place logo Y at ~278mm (`FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2`). This means `FOOTER_LOGO_Y_MM ≈ 278`.
 
-**File: `src/lib/runningSheetPdfExporter.ts`**
+4. **Column widths: TIME 10%, EVENT 80%, WHO 10%** — Update all `width:18%` → `width:10%`, all `width:52%` → `width:80%`, all `width:30%` → `width:10%` in both `<th>` header cells and `<td>` body cells.
 
-#### 1. Adjust Content Area to Reserve Footer Space
+5. **No other changes.**
 
-- Change the HTML container padding-bottom from `30px` to `0` (footer will be drawn by jsPDF)
-- Define constants for footer zone height (~25mm) containing logo + page number + generated date
-- Adjust `pageHeightPx` calculations to account for a reserved footer zone at the bottom of each page slice, and a reserved top margin zone on pages 2+
-- The content slicing logic needs to subtract the footer reserved area so content doesn't get cut off behind the footer
+### Technical Detail
 
-#### 2. Draw Footer on Every Page via jsPDF
-
-After placing each page's content image, use jsPDF drawing commands to add:
-
-- **White rectangle** at the bottom (~25mm) to cover any content that bleeds into footer zone
-- **Wedding Waitress logo** centered (load as image, add via `pdf.addImage`)
-- **"Generated: DD/MM/YYYY HH:MM"** right-aligned, small grey text
-- **"Page 1 of 4"** left-aligned (or right-aligned next to generated date), small grey text
-- Use `pdf.setFontSize(7)`, `pdf.setTextColor(170,170,170)` for the metadata text
-
-#### 3. Ensure Consistent Top/Bottom Margins on All Pages
-
-- Page 1: keep existing 40px top padding (already in HTML)
-- Pages 2+: the slice starts at an offset that accounts for content already shown, but we need to ensure the content doesn't start at the very top edge. Add a white overlay at the top (~12mm) on pages 2+ OR adjust slice positioning to leave a gap
-- Bottom of every page: footer zone of ~25mm reserved
-
-#### 4. Page Numbering Format
-
-- Text: `"Page 1 of 4"` (matching user's request for "One of four pages" style — will use numeric for clarity)
-- Position: bottom-left, same Y-level as the "Generated:" timestamp
-
-### Technical Details
-
-**Constants to add:**
-```text
-FOOTER_ZONE_MM = 22        // reserved footer height in mm
-TOP_MARGIN_MM  = 12        // top margin for pages 2+
-FOOTER_LOGO_HEIGHT_MM = 8  // logo height
-```
-
-**Slicing adjustment:**
-- Usable content height per page = pageHeightPx - footer zone pixels - (page > 0 ? top margin pixels : 0)
-- Total pages recalculated based on usable height
-- Each slice is placed with appropriate Y offset
-
-**Footer drawing (per page):**
-```text
-1. pdf.setFillColor(255,255,255)
-2. pdf.rect(0, pdfHeight - FOOTER_ZONE_MM, pdfWidth, FOOTER_ZONE_MM, 'F')  // white cover
-3. pdf.addImage(logoData, 'PNG', centerX, logoY, logoW, FOOTER_LOGO_HEIGHT_MM)
-4. pdf.setFontSize(7); pdf.setTextColor(170,170,170)
-5. pdf.text(`Page ${page+1} of ${totalPages}`, leftMargin, textY)
-6. pdf.text(`Generated: ${timestamp}`, pdfWidth - rightMargin, textY, { align: 'right' })
-```
-
-### Files Modified
-- `src/lib/runningSheetPdfExporter.ts` — all changes in the export function and HTML generator
+All changes are in `generateRunningSheetHTML()` (lines 112-181) and the layout constants (lines 34-39). Six string replacements total for column widths (3 header + 3 body), two constant value changes for logo size, one constant recalculation for logo Y position, and four font-size replacements.
 
