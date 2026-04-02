@@ -87,7 +87,7 @@ function useAutoResize(ref: React.RefObject<HTMLTextAreaElement>, value: string)
   }, [ref, value]);
 }
 
-export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, disabled = false, hasDJMCData = false }: RunningSheetRowProps) {
+export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, onUndo, canUndo = false, disabled = false, hasDJMCData = false }: RunningSheetRowProps) {
   const {
     attributes,
     listeners,
