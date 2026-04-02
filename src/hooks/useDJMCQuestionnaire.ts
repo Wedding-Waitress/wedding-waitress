@@ -42,6 +42,15 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   // Per-section debounce timers
   const sectionSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
+  // Helper: update questionnaire state and cache simultaneously
+  const setCachedQuestionnaire = useCallback((updater: React.SetStateAction<DJMCQuestionnaire | null>) => {
+    setQuestionnaire(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (next && eventId) questionnaireCache.set(eventId, next);
+      return next;
+    });
+  }, [eventId]);
+
   // Fetch or create questionnaire for event
   const fetchQuestionnaire = useCallback(async () => {
     if (!eventId) {
