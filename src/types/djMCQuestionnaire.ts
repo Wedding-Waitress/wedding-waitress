@@ -33,6 +33,10 @@ export interface DJMCItem {
   duration: string | null;
   order_index: number;
   is_default: boolean;
+  is_bold?: boolean;
+  is_italic?: boolean;
+  is_underline?: boolean;
+  is_section_header?: boolean;
   created_at: string;
   updated_at: string;
 }
