@@ -182,7 +182,14 @@ export function RunningSheetPublicView() {
         if (field === 'description_rich') params.new_description_rich = value;
         if (field === 'responsible') params.new_responsible = value;
 
-        await supabase.rpc('update_running_sheet_item_by_token', params);
+        const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_item_by_token', params);
+        if (rpcError) {
+          console.error('Error saving item:', rpcError);
+        } else if (success === false) {
+          console.error('Save rejected — token may no longer have edit permission');
+          // Re-fetch to update permission state
+          fetchData();
+        }
       } catch (err) {
         console.error('Error saving item:', err);
       } finally {
