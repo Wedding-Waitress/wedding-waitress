@@ -188,13 +188,20 @@ export function RunningSheetPublicView() {
       if (updates.is_italic !== undefined) params.new_is_italic = updates.is_italic;
       if (updates.is_underline !== undefined) params.new_is_underline = updates.is_underline;
 
+      setSaveStatus('saving');
       lastSaveRef.current = Date.now();
       const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_item_by_token', params);
       if (rpcError) {
         console.error('Error saving item:', rpcError);
+        setSaveStatus('error');
       } else if (success === false) {
         console.error('Save rejected — token may no longer have edit permission');
+        setSaveStatus('error');
         fetchData();
+      } else {
+        setSaveStatus('saved');
+        if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+        saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
       }
     }, 300);
   }, [token, canEdit, fetchData]);
