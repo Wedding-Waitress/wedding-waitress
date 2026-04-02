@@ -84,8 +84,6 @@ export function DJMCQuestionnaireSection({
   onDuplicateSection,
   onDeleteSection,
   onDownloadSectionPDF,
-  onUndo,
-  canUndo = false,
   disabled = false,
 }: DJMCQuestionnaireSectionProps) {
   const [editingLabel, setEditingLabel] = useState(false);
