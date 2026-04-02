@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Check, Trash2, ExternalLink, Users } from 'lucide-react';
+import { Copy, Check, Trash2, ExternalLink, Users, Lock, Unlock } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { DJMCShareToken } from '@/types/djMCQuestionnaire';
 import { useToast } from '@/hooks/use-toast';
@@ -65,24 +65,6 @@ export function DJMCShareModal({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // When permission changes, update all existing tokens
-  const handlePermissionChange = useCallback(async (newPermission: 'view_only' | 'can_edit') => {
-    setPermission(newPermission);
-    if (shareTokens.length > 0) {
-      try {
-        const tokenIds = shareTokens.map(t => t.id);
-        await supabase
-          .from('dj_mc_share_tokens')
-          .update({ permission: newPermission })
-          .in('id', tokenIds);
-        onTokensUpdated?.();
-        toast({ title: 'Updated', description: `All existing links set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
-      } catch (error) {
-        console.error('Error updating token permissions:', error);
-      }
-    }
-  }, [shareTokens, onTokensUpdated, toast]);
-
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
     const token = await onGenerateToken(permission, recipientName || undefined, 90);
@@ -97,7 +79,7 @@ export function DJMCShareModal({
       });
       setRecipientName('');
     }
-  }, [permission, recipientName, onGenerateToken, toast]);
+  }, [permission, recipientName, onGenerateToken, toast, eventSlug]);
 
   const copyLink = useCallback(async (token: string) => {
     const url = buildDJQuestionnaireUrl(token, eventSlug);
@@ -108,7 +90,21 @@ export function DJMCShareModal({
       title: 'Link Copied',
       description: 'Share link copied to clipboard',
     });
-  }, [toast]);
+  }, [toast, eventSlug]);
+
+  const toggleTokenPermission = useCallback(async (tokenId: string, currentPermission: string) => {
+    const newPermission = currentPermission === 'can_edit' ? 'view_only' : 'can_edit';
+    try {
+      await supabase
+        .from('dj_mc_share_tokens')
+        .update({ permission: newPermission })
+        .eq('id', tokenId);
+      onTokensUpdated?.();
+      toast({ title: 'Updated', description: `Link set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
+    } catch (error) {
+      console.error('Error updating token permission:', error);
+    }
+  }, [onTokensUpdated, toast]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -146,7 +142,7 @@ export function DJMCShareModal({
               <Label htmlFor="permission">Permission Level</Label>
               <Select
                 value={permission}
-                onValueChange={(v) => handlePermissionChange(v as 'view_only' | 'can_edit')}
+                onValueChange={(v) => setPermission(v as 'view_only' | 'can_edit')}
               >
                 <SelectTrigger id="permission">
                   <SelectValue />
@@ -219,6 +215,25 @@ export function DJMCShareModal({
                     </div>
                     <TooltipProvider>
                       <div className="flex items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => toggleTokenPermission(token.id, token.permission)}
+                            >
+                              {token.permission === 'can_edit' ? (
+                                <Unlock className="h-4 w-4 text-amber-500" />
+                              ) : (
+                                <Lock className="h-4 w-4 text-blue-500" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {token.permission === 'can_edit' ? 'Switch to View Only' : 'Switch to Can Edit'}
+                          </TooltipContent>
+                        </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button

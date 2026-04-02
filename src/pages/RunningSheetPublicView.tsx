@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';
 
 interface RunningSheetData {
@@ -69,65 +68,123 @@ const buildEventDisplay = (rich: any): string => {
 
 export function RunningSheetPublicView() {
   const params = useParams<{ token: string; eventSlug?: string }>();
-  // When using /running-sheet/:eventSlug/:token, React Router puts eventSlug in first param and token in second.
-  // When using /running-sheet/:token (old links), token is in the first param.
   const token = params.token || params.eventSlug;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<RunningSheetData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [savingItemId, setSavingItemId] = useState<string | null>(null);
+  const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!token) {
-        setError('Invalid share link');
+  const fetchData = useCallback(async () => {
+    if (!token) {
+      setError('Invalid share link');
+      setLoading(false);
+      return;
+    }
+    try {
+      const { data: result, error: fetchError } = await supabase.rpc(
+        'get_running_sheet_by_token',
+        { share_token: token }
+      );
+      if (fetchError) {
+        console.error('Error fetching running sheet:', fetchError);
+        setError('This link is invalid or has expired');
         setLoading(false);
         return;
       }
-      try {
-        const { data: result, error: fetchError } = await supabase.rpc(
-          'get_running_sheet_by_token',
-          { share_token: token }
-        );
-        if (fetchError) {
-          console.error('Error fetching running sheet:', fetchError);
-          setError('This link is invalid or has expired');
-          setLoading(false);
-          return;
-        }
-        if (!result || result.length === 0) {
-          setError('This link is invalid or has expired');
-          setLoading(false);
-          return;
-        }
-        const row = result[0];
-        const parsedItems = (row.items as unknown as RunningSheetItem[]) || [];
-        parsedItems.sort((a, b) => a.order_index - b.order_index);
-
-        setData({
-          sheet_id: row.sheet_id,
-          event_id: row.event_id,
-          event_name: row.event_name,
-          event_date: row.event_date,
-          event_venue: row.event_venue,
-          start_time: row.start_time,
-          finish_time: row.finish_time,
-          ceremony_date: row.ceremony_date,
-          ceremony_venue: row.ceremony_venue,
-          ceremony_start_time: row.ceremony_start_time,
-          ceremony_finish_time: row.ceremony_finish_time,
-          permission: row.permission,
-          items: parsedItems,
-        });
-      } catch (err) {
-        console.error('Error:', err);
-        setError('Failed to load running sheet');
-      } finally {
+      if (!result || result.length === 0) {
+        setError('This link is invalid or has expired');
         setLoading(false);
+        return;
       }
-    };
-    fetchData();
+      const row = result[0];
+      const parsedItems = (row.items as unknown as RunningSheetItem[]) || [];
+      parsedItems.sort((a, b) => a.order_index - b.order_index);
+
+      setData({
+        sheet_id: row.sheet_id,
+        event_id: row.event_id,
+        event_name: row.event_name,
+        event_date: row.event_date,
+        event_venue: row.event_venue,
+        start_time: row.start_time,
+        finish_time: row.finish_time,
+        ceremony_date: row.ceremony_date,
+        ceremony_venue: row.ceremony_venue,
+        ceremony_start_time: row.ceremony_start_time,
+        ceremony_finish_time: row.ceremony_finish_time,
+        permission: row.permission,
+        items: parsedItems,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Failed to load running sheet');
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Realtime subscription for live sync
+  useEffect(() => {
+    if (!data?.sheet_id) return;
+    const channel = supabase
+      .channel(`public-rs-items:${data.sheet_id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'running_sheet_items',
+        filter: `sheet_id=eq.${data.sheet_id}`,
+      }, () => {
+        // Re-fetch on any change to keep in sync
+        fetchData();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [data?.sheet_id, fetchData]);
+
+  const canEdit = data?.permission === 'can_edit';
+
+  const saveItemField = useCallback((itemId: string, field: 'time_text' | 'description_rich' | 'responsible', value: any) => {
+    if (!token) return;
+    // Clear previous timeout for this item+field
+    const key = `${itemId}-${field}`;
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+
+    setSavingItemId(itemId);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      try {
+        const params: any = { share_token: token, item_id: itemId };
+        if (field === 'time_text') params.new_time_text = value;
+        if (field === 'description_rich') params.new_description_rich = value;
+        if (field === 'responsible') params.new_responsible = value;
+
+        await supabase.rpc('update_running_sheet_item_by_token', params);
+      } catch (err) {
+        console.error('Error saving item:', err);
+      } finally {
+        setSavingItemId(null);
+      }
+    }, 800);
+  }, [token]);
+
+  const handleItemChange = useCallback((itemId: string, field: 'time_text' | 'description_rich' | 'responsible', value: any) => {
+    setData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: prev.items.map(item =>
+          item.id === itemId ? { ...item, [field]: value } : item
+        ),
+      };
+    });
+    saveItemField(itemId, field, value);
+  }, [saveItemField]);
 
   if (loading) {
     return (
@@ -261,22 +318,50 @@ export function RunningSheetPublicView() {
                           isSectionHeader ? 'bg-muted/30' : idx % 2 === 0 ? 'bg-background' : 'bg-muted/10'
                         }`}
                       >
-                        <td
-                          className={`px-4 py-3 align-top whitespace-nowrap ${
-                            isSectionHeader ? 'font-bold text-destructive' : 'text-foreground'
-                          }`}
-                        >
-                          {item.time_text}
+                        <td className={`px-4 py-3 align-top whitespace-nowrap ${isSectionHeader ? 'font-bold text-destructive' : 'text-foreground'}`}>
+                          {canEdit ? (
+                            <input
+                              type="text"
+                              value={item.time_text}
+                              onChange={(e) => handleItemChange(item.id, 'time_text', e.target.value)}
+                              className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 transition-colors"
+                            />
+                          ) : (
+                            item.time_text
+                          )}
                         </td>
-                        <td
-                          className={`px-4 py-3 align-top whitespace-pre-wrap ${
-                            isSectionHeader ? 'font-bold text-foreground' : 'text-foreground'
-                          }`}
-                        >
-                          {description}
+                        <td className={`px-4 py-3 align-top whitespace-pre-wrap ${isSectionHeader ? 'font-bold text-foreground' : 'text-foreground'}`}>
+                          {canEdit ? (
+                            <textarea
+                              value={description}
+                              onChange={(e) => {
+                                // Parse back into rich format - preserve simple text
+                                const newRich = { ...item.description_rich, text: e.target.value };
+                                // If original had bullets, clear them since user is editing as plain text
+                                if (typeof item.description_rich === 'object') {
+                                  handleItemChange(item.id, 'description_rich', { text: e.target.value });
+                                } else {
+                                  handleItemChange(item.id, 'description_rich', { text: e.target.value });
+                                }
+                              }}
+                              rows={Math.max(1, description.split('\n').length)}
+                              className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 resize-none transition-colors"
+                            />
+                          ) : (
+                            description
+                          )}
                         </td>
                         <td className="px-4 py-3 align-top text-muted-foreground">
-                          {item.responsible || ''}
+                          {canEdit ? (
+                            <textarea
+                              value={item.responsible || ''}
+                              onChange={(e) => handleItemChange(item.id, 'responsible', e.target.value)}
+                              rows={Math.max(1, (item.responsible || '').split('\n').length)}
+                              className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 resize-none transition-colors"
+                            />
+                          ) : (
+                            item.responsible || ''
+                          )}
                         </td>
                       </tr>
                     );
