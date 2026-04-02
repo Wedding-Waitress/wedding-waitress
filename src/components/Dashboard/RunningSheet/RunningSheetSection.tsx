@@ -252,11 +252,13 @@ export function RunningSheetSection({
                     <RunningSheetRow
                       key={item.id}
                       item={item}
-                      onUpdate={onUpdateItem}
+                      onUpdate={handleUpdateWithUndo}
                       onDuplicate={onDuplicateItem}
                       onDelete={onDeleteItem}
-                      onClearText={(itemId) => onUpdateItem(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
+                      onClearText={(itemId) => handleUpdateWithUndo(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
                       onInsertFromDJMC={onInsertFromDJMC}
+                      onUndo={handleUndo}
+                      canUndo={undoStack.length > 0}
                       hasDJMCData={hasDJMCData}
                       disabled={disabled}
                     />
