@@ -129,10 +129,14 @@ export function DJMCMusicUrlField({
 
     const openExternalLink = (
       <div className="mt-3 text-center">
-        <a href={value} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+        <button
+          type="button"
+          onClick={() => window.open(value, '_blank', 'noopener,noreferrer')}
+          className="inline-flex items-center gap-2 text-sm text-primary hover:underline cursor-pointer bg-transparent border-none"
+        >
           {renderPlatformIcon()}
           {getPlatformLabel()}
-        </a>
+        </button>
       </div>
     );
 
