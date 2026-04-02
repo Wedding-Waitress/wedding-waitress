@@ -364,9 +364,11 @@ export const exportSectionPDF = async (
   pdf.text(`Generated: ${formatGeneratedTimestamp()}`, pageWidth - margin, pageHeight - 5, { align: 'right' });
 
   // Save PDF
-  const sectionName = section.section_label.replace(/[^a-zA-Z0-9]/g, '_');
-  const eventName = event.name.replace(/[^a-zA-Z0-9]/g, '_');
-  const fileName = `${eventName}-${sectionName}-${new Date().toISOString().split('T')[0]}.pdf`;
+  const safeEventName = event.name.replace(/[\\/:*?"<>|]/g, '');
+  const safeSectionName = section.section_label.replace(/[\\/:*?"<>|]/g, '');
+  const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
+  const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
+  const fileName = `${safeEventName}-${safeSectionName}-${formattedDate}.pdf`;
   pdf.save(fileName);
 };
 
