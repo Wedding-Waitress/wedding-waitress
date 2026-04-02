@@ -148,8 +148,8 @@ const generateRunningSheetHTML = (
     return `
       <tr style="background:${bgColor};">
         <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:15%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:70%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:15%;${cellStyle}">${textToHtmlLines(item.responsible || '')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:65%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:20%;${cellStyle}">${textToHtmlLines(item.responsible || '')}</td>
       </tr>
     `;
   }).join('');
