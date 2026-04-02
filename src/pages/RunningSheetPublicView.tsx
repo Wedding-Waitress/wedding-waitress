@@ -328,6 +328,18 @@ export function RunningSheetPublicView() {
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
+              {canEdit && saveStatus !== 'idle' && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-opacity ${
+                  saveStatus === 'saving' ? 'text-muted-foreground bg-muted' :
+                  saveStatus === 'saved' ? 'text-green-600 bg-green-50' :
+                  'text-destructive bg-destructive/10'
+                }`}>
+                  {saveStatus === 'saving' && <Loader2 className="h-3 w-3 animate-spin" />}
+                  {saveStatus === 'saved' && <Check className="h-3 w-3" />}
+                  {saveStatus === 'error' && <CloudOff className="h-3 w-3" />}
+                  {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save failed'}
+                </span>
+              )}
               <span className={`inline-flex items-center px-4 py-2 text-sm font-medium border-2 rounded-full ${
                 canEdit
                   ? 'border-amber-500 text-amber-600'
