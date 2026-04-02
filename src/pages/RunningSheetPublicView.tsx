@@ -60,8 +60,10 @@ export function RunningSheetPublicView() {
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [sectionLabel, setSectionLabel] = useState('Running Sheet');
   const [sectionNotes, setSectionNotes] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
   const lastSaveRef = useRef<number>(0);
+  const saveStatusTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchData = useCallback(async () => {
     if (!token) {
