@@ -320,7 +320,7 @@ export function DJMCSectionRow({
     <div
       ref={setNodeRef}
       style={style}
-        className={`flex items-center gap-2 py-2 px-1 rounded-md hover:bg-purple-200 group ${highlightClass}`}
+        className={`flex items-center gap-2 py-2 px-1 rounded-md hover:bg-purple-200 group`}
     >
       {/* Drag Handle */}
       <div
