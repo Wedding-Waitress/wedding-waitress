@@ -241,8 +241,8 @@ export function DJMCQuestionnaireSection({
                     </h3>
                     {isMusicSection && (
                       <Badge 
-                        variant="default" 
-                        className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
+                        variant="outline" 
+                        className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium"
                       >
                         Total Song Count: {songCount}
                       </Badge>
@@ -250,14 +250,14 @@ export function DJMCQuestionnaireSection({
                     {isSpeechesSection && (
                       <>
                         <Badge 
-                          variant="default" 
-                          className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
+                          variant="outline" 
+                          className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium"
                         >
                           Total Speakers: {speakerCount}
                         </Badge>
                         <Badge 
-                          variant="default" 
-                          className="bg-primary text-primary-foreground border border-primary/20 px-3 py-1 text-xs font-medium"
+                          variant="outline" 
+                          className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium"
                         >
                           Total Time Allocated for Speeches: {totalSpeechTime} min
                         </Badge>
