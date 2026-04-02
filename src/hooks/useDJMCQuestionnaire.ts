@@ -44,7 +44,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
   // Helper: update questionnaire state and cache simultaneously
   const setCachedQuestionnaire = useCallback((updater: React.SetStateAction<DJMCQuestionnaire | null>) => {
-    setCachedQuestionnaire(prev => {
+    setQuestionnaire(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
       if (next && eventId) questionnaireCache.set(eventId, next);
       return next;
