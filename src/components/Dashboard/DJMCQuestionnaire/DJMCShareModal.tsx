@@ -146,7 +146,7 @@ export function DJMCShareModal({
               <Label htmlFor="permission">Permission Level</Label>
               <Select
                 value={permission}
-                onValueChange={(v) => setPermission(v as 'view_only' | 'can_edit')}
+                onValueChange={(v) => handlePermissionChange(v as 'view_only' | 'can_edit')}
               >
                 <SelectTrigger id="permission">
                   <SelectValue />
