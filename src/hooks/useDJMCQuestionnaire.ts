@@ -690,6 +690,29 @@ const deleteSection = useCallback(async (sectionId: string) => {
     fetchQuestionnaire();
   }, [fetchQuestionnaire]);
 
+  // Realtime subscription for dj_mc_items changes (e.g. edits from shared links)
+  useEffect(() => {
+    if (!questionnaire?.id) return;
+    const sectionIds = questionnaire.sections.map(s => s.id);
+    if (sectionIds.length === 0) return;
+
+    const channel = supabase
+      .channel(`dashboard-djmc-items:${questionnaire.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'dj_mc_items',
+      }, (payload) => {
+        const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
+        if (changedSectionId && sectionIds.includes(changedSectionId)) {
+          fetchQuestionnaire();
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [questionnaire?.id, questionnaire?.sections, fetchQuestionnaire]);
+
   const refreshShareTokens = useCallback(async () => {
     if (!questionnaire) return;
     await fetchShareTokens(questionnaire.id);
