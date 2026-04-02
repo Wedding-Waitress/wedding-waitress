@@ -140,6 +140,7 @@ export function DJMCPublicView() {
         schema: 'public',
         table: 'dj_mc_items',
       }, (payload) => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
         if (changedSectionId && sectionIds.includes(changedSectionId)) {
           fetchData();
@@ -150,6 +151,7 @@ export function DJMCPublicView() {
         schema: 'public',
         table: 'dj_mc_sections',
       }, () => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
         fetchData();
       })
       .on('postgres_changes', {
