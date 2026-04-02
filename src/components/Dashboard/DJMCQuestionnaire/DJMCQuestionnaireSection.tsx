@@ -360,7 +360,7 @@ export function DJMCQuestionnaireSection({
                 <>
                   {/* COLUMN 1: Speaker Status for speeches, Event for ceremony, Song Number for cocktail, Bridal Party Intro Order for introductions, Item for others */}
                   {section.section_type === 'speeches' ? (
-                    <div className="basis-1/3 min-w-0 shrink-0 text-center">Speaker Status & Order</div>
+                    <div className="basis-[31%] min-w-0 shrink-0 text-center">Speaker Status & Order</div>
                   ) : section.section_type === 'ceremony' ? (
                     <div className="flex-1 basis-1/4 min-w-0 text-center">Event</div>
                   ) : ['cocktail', 'dinner', 'dance'].includes(section.section_type) ? (
