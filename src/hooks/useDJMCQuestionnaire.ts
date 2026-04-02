@@ -18,11 +18,19 @@ import { DEFAULT_SECTION_TEMPLATES, SECTION_ORDER } from '@/lib/djMCQuestionnair
 // Self-save cooldown: ignore realtime events within this window after a local save
 const SELF_SAVE_COOLDOWN_MS = 2000;
 
+// Module-level cache for instant loading when returning to the page
+const questionnaireCache = new Map<string, DJMCQuestionnaire>();
+const shareTokensCache = new Map<string, DJMCShareToken[]>();
+
 export function useDJMCQuestionnaire(eventId: string | null) {
-  const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(null);
+  const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(
+    eventId ? questionnaireCache.get(eventId) ?? null : null
+  );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [shareTokens, setShareTokens] = useState<DJMCShareToken[]>([]);
+  const [shareTokens, setShareTokens] = useState<DJMCShareToken[]>(
+    eventId ? shareTokensCache.get(eventId) ?? [] : []
+  );
   const { toast } = useToast();
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -34,14 +42,27 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   // Per-section debounce timers
   const sectionSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
+  // Helper: update questionnaire state and cache simultaneously
+  const setCachedQuestionnaire = useCallback((updater: React.SetStateAction<DJMCQuestionnaire | null>) => {
+    setQuestionnaire(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (next && eventId) questionnaireCache.set(eventId, next);
+      return next;
+    });
+  }, [eventId]);
+
   // Fetch or create questionnaire for event
   const fetchQuestionnaire = useCallback(async () => {
     if (!eventId) {
-      setQuestionnaire(null);
+      setCachedQuestionnaire(null);
       return;
     }
 
-    setLoading(true);
+    // Only show loading spinner if we don't have cached data
+    const hasCachedData = questionnaireCache.has(eventId);
+    if (!hasCachedData) {
+      setLoading(true);
+    }
     try {
       // First, try to get existing questionnaire
       const { data: existingQ, error: fetchError } = await supabase
@@ -76,7 +97,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
       // Fetch full questionnaire with sections and items
       const fullQuestionnaire = await fetchFullQuestionnaire(questionnaireId);
-      setQuestionnaire(fullQuestionnaire);
+      setCachedQuestionnaire(fullQuestionnaire);
 
       // Fetch share tokens
       await fetchShareTokens(questionnaireId);
@@ -184,6 +205,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
     if (!error && data) {
       setShareTokens(data as DJMCShareToken[]);
+      if (eventId) shareTokensCache.set(eventId, data as DJMCShareToken[]);
     }
   };
 
@@ -215,7 +237,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   // Update section
   const updateSection = useCallback(async (sectionId: string, updates: Partial<DJMCSection>) => {
     // Optimistic update
-    setQuestionnaire(prev => {
+    setCachedQuestionnaire(prev => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -261,7 +283,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   // Update item
   const updateItem = useCallback(async (itemId: string, updates: Partial<DJMCItem>) => {
     // Optimistic update
-    setQuestionnaire(prev => {
+    setCachedQuestionnaire(prev => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -301,7 +323,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       if (error) throw error;
 
       // Update local state
-      setQuestionnaire(prev => {
+      setCachedQuestionnaire(prev => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -333,7 +355,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       if (error) throw error;
 
       // Update local state
-      setQuestionnaire(prev => {
+      setCachedQuestionnaire(prev => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -379,7 +401,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       if (error) throw error;
 
       // Update local state
-      setQuestionnaire(prev => {
+      setCachedQuestionnaire(prev => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -409,7 +431,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   // Reorder items within section
   const reorderItems = useCallback(async (sectionId: string, items: DJMCItem[]) => {
     // Optimistic update
-    setQuestionnaire(prev => {
+    setCachedQuestionnaire(prev => {
       if (!prev) return prev;
       return {
         ...prev,
@@ -472,7 +494,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         .eq('id', sectionId);
 
       // Update local state
-      setQuestionnaire(prev => {
+      setCachedQuestionnaire(prev => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -559,7 +581,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       }
 
       // Update local state
-      setQuestionnaire(prev => {
+      setCachedQuestionnaire(prev => {
         if (!prev) return prev;
         const newSectionWithItems: DJMCSection = {
           ...newSection,
@@ -615,7 +637,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
     }
 
     // Update local state
-    setQuestionnaire(prev => {
+    setCachedQuestionnaire(prev => {
       if (!prev) return prev;
       return {
         ...prev,
