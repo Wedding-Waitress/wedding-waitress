@@ -37,6 +37,8 @@ interface DJMCSectionRowProps {
   onDelete: () => void;
   onDuplicate: () => void;
   onClearText?: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
   disabled?: boolean;
 }
 
