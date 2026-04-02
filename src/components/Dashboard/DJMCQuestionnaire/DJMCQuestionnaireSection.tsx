@@ -347,7 +347,7 @@ export function DJMCQuestionnaireSection({
             )}
             
             {/* Column headers - 3 equal columns */}
-            <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <div className="flex items-center gap-2 px-1 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
               <div className="w-6 shrink-0" /> {/* Drag handle space */}
               
               {/* Special header for do_not_play - two columns */}
@@ -457,7 +457,7 @@ export function DJMCQuestionnaireSection({
                 </>
               )}
               
-              <div className="w-16 shrink-0" /> {/* Actions space */}
+              <div className="w-7 shrink-0" /> {/* Actions space - matches row's 28px action button */}
             </div>
 
               {/* Items */}
