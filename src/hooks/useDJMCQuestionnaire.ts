@@ -26,6 +26,15 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   const { toast } = useToast();
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Self-save guard: tracks last local save timestamp
+  const lastSaveRef = useRef<number>(0);
+
+  // Per-item debounce timers
+  const itemSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  // Per-section debounce timers
+  const sectionSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Fetch or create questionnaire for event
   const fetchQuestionnaire = useCallback(async () => {
     if (!eventId) {
