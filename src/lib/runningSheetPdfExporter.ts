@@ -8,7 +8,7 @@
  * - Changes could break running sheet data, sharing, or PDF export
  *
  * Last locked: 2026-02-24
- * Last updated: 2026-02-24 — Rewritten to use html2canvas approach (owner-approved)
+ * Last updated: 2026-04-02 — Added per-page footer with logo, page numbering, and consistent margins (owner-approved)
  */
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -28,12 +28,28 @@ interface Event {
   ceremony_finish_time?: string | null;
 }
 
+// --- Layout constants (mm) ---
+const PDF_WIDTH_MM = 210;
+const PDF_HEIGHT_MM = 297;
+const FOOTER_ZONE_MM = 22;
+const TOP_MARGIN_PAGE2_MM = 12;
+const FOOTER_LOGO_HEIGHT_MM = 8;
+const FOOTER_LOGO_WIDTH_MM = 28;
+const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 5; // 5mm from bottom
+const FOOTER_LOGO_Y_MM = PDF_HEIGHT_MM - FOOTER_ZONE_MM + 4;
+const PAGE_WIDTH_PX = 794;
+const PAGE_HEIGHT_PX = 1123; // A4 at 96 DPI
+const SCALE = 3;
+
+// Pixel equivalents for reserving space
+const FOOTER_ZONE_PX = Math.round((FOOTER_ZONE_MM / PDF_HEIGHT_MM) * PAGE_HEIGHT_PX);
+const TOP_MARGIN_PAGE2_PX = Math.round((TOP_MARGIN_PAGE2_MM / PDF_HEIGHT_MM) * PAGE_HEIGHT_PX);
+
 const formatPdfFileDate = (dateString: string | null | undefined): string => {
   if (!dateString) {
     const now = new Date();
     return `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
   }
-
   const date = new Date(dateString + 'T00:00:00');
   return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
 };
@@ -91,19 +107,17 @@ const textToHtmlLines = (text: string): string => {
 
 /**
  * Generate the full HTML for the running sheet page content.
- * This HTML is rendered offscreen and captured by html2canvas.
+ * Footer is now drawn by jsPDF, so we remove the logo and generated timestamp from the HTML.
  */
 const generateRunningSheetHTML = (
   items: RunningSheetItem[],
   event: Event,
-  sectionNotes: string | null,
-  logoDataUrl: string | null
+  sectionNotes: string | null
 ): string => {
   const receptionDate = formatDateWithOrdinal(event.date);
   const receptionVenue = event.venue || 'Venue TBD';
   const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
 
-  // Build compact 2-line event details (Ceremony first, then Reception)
   const detailLines: string[] = [];
   if (event.ceremony_date) {
     const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
@@ -120,7 +134,6 @@ const generateRunningSheetHTML = (
     notesBlock = `<div style="font-style:italic;color:#777;font-size:11px;margin-bottom:6px;">Notes: ${escapeHtml(sectionNotes)}</div>`;
   }
 
-  // Build table rows — section headers get bold red on ALL columns
   const rows = items.map((item, idx) => {
     const bgColor = idx % 2 === 0 ? '#fafafa' : '#ffffff';
     const cellStyle = item.is_section_header
@@ -135,18 +148,15 @@ const generateRunningSheetHTML = (
     `;
   }).join('');
 
-  const logoHtml = logoDataUrl
-    ? `<div style="width:100%;text-align:center;margin-top:20px;"><img src="${logoDataUrl}" style="display:block;margin:0 auto;height:28px;object-fit:contain;" /></div>`
-    : '';
-
+  // No logo or footer in HTML — jsPDF handles that
   return `
-    <div style="width:794px;min-height:1123px;background:#fff;font-family:Arial,Helvetica,sans-serif;padding:40px 48px 30px 48px;box-sizing:border-box;display:flex;flex-direction:column;">
+    <div style="width:794px;background:#fff;font-family:Arial,Helvetica,sans-serif;padding:40px 48px 0 48px;box-sizing:border-box;">
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
         <div style="font-size:22px;font-weight:bold;color:#6d28d9;">${escapeHtml(event.name)}</div>
         <div style="font-size:16px;color:#222;margin-top:4px;">Running Sheet</div>
       </div>
-      <!-- Event details (2 lines max) -->
+      <!-- Event details -->
       <div style="text-align:center;margin-bottom:6px;">
         ${detailsHtml}
       </div>
@@ -166,17 +176,12 @@ const generateRunningSheetHTML = (
           ${rows}
         </tbody>
       </table>
-      <!-- Spacer pushes footer down -->
-      <div style="flex:1;"></div>
-      <!-- Footer -->
-      ${logoHtml}
-      <div style="text-align:right;font-size:8px;color:#aaa;margin-top:8px;">Generated: ${formatGeneratedTimestamp()}</div>
     </div>
   `;
 };
 
 /**
- * Load logo as a data URL for embedding in the HTML.
+ * Load logo as a data URL for embedding via jsPDF.
  */
 const loadLogoAsDataUrl = async (): Promise<string | null> => {
   try {
@@ -194,8 +199,47 @@ const loadLogoAsDataUrl = async (): Promise<string | null> => {
 };
 
 /**
+ * Draw the footer on the current jsPDF page: white zone, logo, page number, generated timestamp.
+ */
+const drawPageFooter = (
+  pdf: jsPDF,
+  logoDataUrl: string | null,
+  pageNum: number,
+  totalPages: number,
+  timestamp: string
+) => {
+  // White rectangle to cover any bleeding content
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, PDF_HEIGHT_MM - FOOTER_ZONE_MM, PDF_WIDTH_MM, FOOTER_ZONE_MM, 'F');
+
+  // Logo centered
+  if (logoDataUrl) {
+    const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
+    try {
+      pdf.addImage(logoDataUrl, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+    } catch {
+      // silently skip if logo fails
+    }
+  }
+
+  // Page number (left) and Generated timestamp (right)
+  pdf.setFontSize(7);
+  pdf.setTextColor(170, 170, 170);
+  pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
+  pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
+};
+
+/**
+ * Draw a white top margin overlay on pages 2+ so content doesn't start at the very edge.
+ */
+const drawTopMarginOverlay = (pdf: jsPDF) => {
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, 0, PDF_WIDTH_MM, TOP_MARGIN_PAGE2_MM, 'F');
+};
+
+/**
  * Render the running sheet HTML offscreen, capture with html2canvas,
- * and produce a multi-page A4 PDF.
+ * and produce a multi-page A4 PDF with per-page footers.
  */
 export const exportRunningSheetPDF = async (
   items: RunningSheetItem[],
@@ -205,35 +249,32 @@ export const exportRunningSheetPDF = async (
 ): Promise<void> => {
   void sectionLabel;
   const logoDataUrl = await loadLogoAsDataUrl();
-  const htmlContent = generateRunningSheetHTML(items, event, sectionNotes, logoDataUrl);
+  const htmlContent = generateRunningSheetHTML(items, event, sectionNotes);
+  const timestamp = formatGeneratedTimestamp();
 
-  // Create offscreen container — let it grow to full content height
+  // Create offscreen container
   const container = document.createElement('div');
   container.innerHTML = htmlContent;
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.top = '0';
-  container.style.width = '794px';
+  container.style.width = `${PAGE_WIDTH_PX}px`;
   container.style.backgroundColor = '#ffffff';
   document.body.appendChild(container);
 
   try {
-    // Wait for rendering + fonts
     await new Promise(resolve => setTimeout(resolve, 500));
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
     }
 
     const contentHeight = container.scrollHeight;
-    const pageHeightPx = 1123; // A4 height at 96 DPI
-    const pageWidthPx = 794;
-    const totalPages = Math.max(1, Math.ceil(contentHeight / pageHeightPx));
 
     // Capture the full content as one tall canvas
     const fullCanvas = await html2canvas(container, {
-      width: pageWidthPx,
+      width: PAGE_WIDTH_PX,
       height: contentHeight,
-      scale: 3,
+      scale: SCALE,
       useCORS: true,
       backgroundColor: '#ffffff',
       foreignObjectRendering: false,
@@ -252,33 +293,68 @@ export const exportRunningSheetPDF = async (
       }
     });
 
+    // Calculate usable content height per page (excluding footer zone)
+    const usableHeightPage1Px = PAGE_HEIGHT_PX - FOOTER_ZONE_PX;
+    const usableHeightPage2PlusPx = PAGE_HEIGHT_PX - FOOTER_ZONE_PX - TOP_MARGIN_PAGE2_PX;
+
+    // Calculate total pages
+    let totalPages = 1;
+    let remaining = contentHeight - usableHeightPage1Px;
+    if (remaining > 0) {
+      totalPages += Math.ceil(remaining / usableHeightPage2PlusPx);
+    }
+
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const pdfWidth = 210;
-    const pdfHeight = 297;
 
     for (let page = 0; page < totalPages; page++) {
       if (page > 0) pdf.addPage();
 
-      // Slice canvas for this page
+      // Calculate source Y offset and slice height in content pixels
+      let srcY: number;
+      let sliceHeight: number;
+      let destY: number; // Y position in mm where the image starts on the PDF page
+
+      if (page === 0) {
+        srcY = 0;
+        sliceHeight = Math.min(usableHeightPage1Px, contentHeight);
+        destY = 0;
+      } else {
+        srcY = usableHeightPage1Px + (page - 1) * usableHeightPage2PlusPx;
+        sliceHeight = Math.min(usableHeightPage2PlusPx, contentHeight - srcY);
+        destY = TOP_MARGIN_PAGE2_MM; // leave top margin on pages 2+
+      }
+
+      // Create slice canvas
       const sliceCanvas = document.createElement('canvas');
-      sliceCanvas.width = pageWidthPx * 3;
-      const sliceHeightPx = Math.min(pageHeightPx, contentHeight - page * pageHeightPx);
-      sliceCanvas.height = sliceHeightPx * 3;
+      sliceCanvas.width = PAGE_WIDTH_PX * SCALE;
+      sliceCanvas.height = sliceHeight * SCALE;
 
       const ctx = sliceCanvas.getContext('2d');
       if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
         ctx.drawImage(
           fullCanvas,
-          0, page * pageHeightPx * 3,
-          pageWidthPx * 3, sliceHeightPx * 3,
+          0, srcY * SCALE,
+          PAGE_WIDTH_PX * SCALE, sliceHeight * SCALE,
           0, 0,
-          pageWidthPx * 3, sliceHeightPx * 3
+          PAGE_WIDTH_PX * SCALE, sliceHeight * SCALE
         );
       }
 
       const imgData = sliceCanvas.toDataURL('image/jpeg', 0.95);
-      const imgHeight = (sliceHeightPx / pageHeightPx) * pdfHeight;
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
+      const imgHeightMm = (sliceHeight / PAGE_HEIGHT_PX) * PDF_HEIGHT_MM;
+      const imgWidthMm = PDF_WIDTH_MM;
+
+      pdf.addImage(imgData, 'JPEG', 0, destY, imgWidthMm, imgHeightMm);
+
+      // Draw top margin overlay on pages 2+
+      if (page > 0) {
+        drawTopMarginOverlay(pdf);
+      }
+
+      // Draw footer on every page
+      drawPageFooter(pdf, logoDataUrl, page + 1, totalPages, timestamp);
     }
 
     pdf.save(getRunningSheetPdfFileName(event));
