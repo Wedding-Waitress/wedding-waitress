@@ -2961,19 +2961,37 @@ export type Database = {
           qr_code_id: string
         }[]
       }
-      update_dj_mc_item_by_token: {
-        Args: {
-          item_id: string
-          new_duration?: string
-          new_music_url?: string
-          new_pronunciation_audio_url?: string
-          new_row_label?: string
-          new_song_title_artist?: string
-          new_value_text?: string
-          share_token: string
-        }
-        Returns: boolean
-      }
+      update_dj_mc_item_by_token:
+        | {
+            Args: {
+              item_id: string
+              new_duration?: string
+              new_music_url?: string
+              new_pronunciation_audio_url?: string
+              new_row_label?: string
+              new_song_title_artist?: string
+              new_value_text?: string
+              share_token: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              item_id: string
+              new_duration?: string
+              new_is_bold?: boolean
+              new_is_italic?: boolean
+              new_is_section_header?: boolean
+              new_is_underline?: boolean
+              new_music_url?: string
+              new_pronunciation_audio_url?: string
+              new_row_label?: string
+              new_song_title_artist?: string
+              new_value_text?: string
+              share_token: string
+            }
+            Returns: boolean
+          }
       update_dj_mc_section_by_token: {
         Args: {
           clear_notes?: boolean
