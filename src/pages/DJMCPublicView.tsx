@@ -9,14 +9,14 @@
  *
  * Last locked: 2026-02-19
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Download, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DJMCSection } from '@/types/djMCQuestionnaire';
+import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { exportEntireQuestionnairePDF } from '@/lib/djMCQuestionnairePdfExporter';
 
 interface PublicQuestionnaireData {
@@ -102,9 +102,40 @@ function MusicLinkButton({ url }: { url: string }) {
   );
 }
 
-// Section Display Component
-function PublicSectionDisplay({ section }: { section: DJMCSection }) {
+// Editable Section Display Component
+function PublicSectionDisplay({ 
+  section, 
+  canEdit, 
+  token,
+  onItemUpdated,
+}: { 
+  section: DJMCSection; 
+  canEdit: boolean;
+  token: string;
+  onItemUpdated: (sectionId: string, itemId: string, updates: Partial<DJMCItem>) => void;
+}) {
   const [isOpen, setIsOpen] = useState(true);
+  const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  const handleFieldChange = useCallback((itemId: string, field: 'value_text' | 'music_url' | 'row_label', value: string) => {
+    // Optimistic local update
+    onItemUpdated(section.id, itemId, { [field]: value });
+
+    // Debounced save
+    const key = `${itemId}-${field}`;
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      try {
+        const params: any = { share_token: token, item_id: itemId };
+        if (field === 'value_text') params.new_value_text = value;
+        if (field === 'music_url') params.new_music_url = value;
+        if (field === 'row_label') params.new_row_label = value;
+        await supabase.rpc('update_dj_mc_item_by_token', params);
+      } catch (err) {
+        console.error('Error saving DJ-MC item:', err);
+      }
+    }, 800);
+  }, [token, section.id, onItemUpdated]);
 
   return (
     <Card className="border-border">
@@ -144,13 +175,32 @@ function PublicSectionDisplay({ section }: { section: DJMCSection }) {
                   <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
                     {/* Row Label */}
                     <div className="font-medium text-primary min-w-[150px]">
-                      {item.row_label}
+                      {canEdit ? (
+                        <input
+                          type="text"
+                          value={item.row_label}
+                          onChange={(e) => handleFieldChange(item.id, 'row_label', e.target.value)}
+                          className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 font-medium text-primary transition-colors"
+                        />
+                      ) : (
+                        item.row_label
+                      )}
                     </div>
                     
                     {/* Content */}
                     <div className="flex-1 space-y-2">
-                      {item.value_text && (
-                        <div className="text-foreground">{item.value_text}</div>
+                      {canEdit ? (
+                        <input
+                          type="text"
+                          value={item.value_text || ''}
+                          onChange={(e) => handleFieldChange(item.id, 'value_text', e.target.value)}
+                          placeholder="Enter value..."
+                          className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 text-foreground transition-colors"
+                        />
+                      ) : (
+                        item.value_text && (
+                          <div className="text-foreground">{item.value_text}</div>
+                        )
                       )}
                       
                       {item.song_title_artist && (
@@ -167,10 +217,25 @@ function PublicSectionDisplay({ section }: { section: DJMCSection }) {
                           {item.duration}
                         </div>
                       )}
+
+                      {canEdit && (
+                        <input
+                          type="text"
+                          value={item.music_url || ''}
+                          onChange={(e) => handleFieldChange(item.id, 'music_url', e.target.value)}
+                          placeholder="Paste music URL..."
+                          className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 text-sm text-muted-foreground transition-colors"
+                        />
+                      )}
                     </div>
                     
-                    {/* Music Link */}
-                    {item.music_url && isValidUrl(item.music_url) && (
+                    {/* Music Link (read-only display) */}
+                    {!canEdit && item.music_url && isValidUrl(item.music_url) && (
+                      <div className="flex-shrink-0">
+                        <MusicLinkButton url={item.music_url} />
+                      </div>
+                    )}
+                    {canEdit && item.music_url && isValidUrl(item.music_url) && (
                       <div className="flex-shrink-0">
                         <MusicLinkButton url={item.music_url} />
                       </div>
@@ -194,71 +259,106 @@ function PublicSectionDisplay({ section }: { section: DJMCSection }) {
 
 export function DJMCPublicView() {
   const params = useParams<{ token: string; eventSlug?: string }>();
-  // When using /dj-mc/:eventSlug/:token, token is in the second param.
-  // When using /dj-mc/:token (old links), token is in the first param.
   const token = params.token || params.eventSlug;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!token) {
-        setError('Invalid share link');
+  const fetchData = useCallback(async () => {
+    if (!token) {
+      setError('Invalid share link');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data: result, error: fetchError } = await supabase.rpc(
+        'get_dj_mc_questionnaire_by_token',
+        { share_token: token }
+      );
+
+      if (fetchError) {
+        console.error('Error fetching questionnaire:', fetchError);
+        setError('This link is invalid or has expired');
         setLoading(false);
         return;
       }
 
-      try {
-        const { data: result, error: fetchError } = await supabase.rpc(
-          'get_dj_mc_questionnaire_by_token',
-          { share_token: token }
-        );
-
-        if (fetchError) {
-          console.error('Error fetching questionnaire:', fetchError);
-          setError('This link is invalid or has expired');
-          setLoading(false);
-          return;
-        }
-
-        if (!result || result.length === 0) {
-          setError('This link is invalid or has expired');
-          setLoading(false);
-          return;
-        }
-
-        const row = result[0];
-        
-        // Parse sections from JSON
-        const parsedSections = (row.sections as unknown as DJMCSection[]) || [];
-        
-        setData({
-          questionnaire_id: row.questionnaire_id,
-          event_id: row.event_id,
-          event_name: row.event_name,
-          event_date: row.event_date,
-          event_venue: row.event_venue,
-          start_time: (row as any).start_time || null,
-          finish_time: (row as any).finish_time || null,
-          ceremony_date: (row as any).ceremony_date || null,
-          ceremony_venue: (row as any).ceremony_venue || null,
-          ceremony_start_time: (row as any).ceremony_start_time || null,
-          ceremony_finish_time: (row as any).ceremony_finish_time || null,
-          permission: row.permission as 'view_only' | 'can_edit',
-          sections: parsedSections,
-        });
-      } catch (err) {
-        console.error('Error:', err);
-        setError('Failed to load questionnaire');
-      } finally {
+      if (!result || result.length === 0) {
+        setError('This link is invalid or has expired');
         setLoading(false);
+        return;
       }
-    };
 
-    fetchData();
+      const row = result[0];
+      const parsedSections = (row.sections as unknown as DJMCSection[]) || [];
+      
+      setData({
+        questionnaire_id: row.questionnaire_id,
+        event_id: row.event_id,
+        event_name: row.event_name,
+        event_date: row.event_date,
+        event_venue: row.event_venue,
+        start_time: (row as any).start_time || null,
+        finish_time: (row as any).finish_time || null,
+        ceremony_date: (row as any).ceremony_date || null,
+        ceremony_venue: (row as any).ceremony_venue || null,
+        ceremony_start_time: (row as any).ceremony_start_time || null,
+        ceremony_finish_time: (row as any).ceremony_finish_time || null,
+        permission: row.permission as 'view_only' | 'can_edit',
+        sections: parsedSections,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Failed to load questionnaire');
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Realtime subscription for live sync
+  useEffect(() => {
+    if (!data?.questionnaire_id) return;
+    // Subscribe to dj_mc_items changes for all sections in this questionnaire
+    const sectionIds = data.sections.map(s => s.id);
+    if (sectionIds.length === 0) return;
+
+    const channel = supabase
+      .channel(`public-djmc-items:${data.questionnaire_id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'dj_mc_items',
+      }, (payload) => {
+        // Only re-fetch if the changed item belongs to one of our sections
+        const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
+        if (changedSectionId && sectionIds.includes(changedSectionId)) {
+          fetchData();
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [data?.questionnaire_id, data?.sections, fetchData]);
+
+  const handleItemUpdated = useCallback((sectionId: string, itemId: string, updates: Partial<DJMCItem>) => {
+    setData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections.map(s =>
+          s.id === sectionId
+            ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, ...updates } : i) }
+            : s
+        ),
+      };
+    });
+  }, []);
 
   const handleDownloadPDF = async () => {
     if (!data) return;
@@ -320,6 +420,8 @@ export function DJMCPublicView() {
     return null;
   }
 
+  const canEdit = data.permission === 'can_edit';
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -338,11 +440,11 @@ export function DJMCPublicView() {
             
             <div className="flex items-center gap-2 print:hidden">
               <span className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 bg-transparent ${
-                data.permission === 'can_edit'
+                canEdit
                   ? 'border-amber-500 text-amber-600'
                   : 'border-red-500 text-red-500'
               }`}>
-                {data.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
+                {canEdit ? 'Can Edit' : 'View Only'}
               </span>
               <button
                 onClick={handleDownloadPDF}
@@ -385,7 +487,13 @@ export function DJMCPublicView() {
       <main className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-4">
           {data.sections.map((section) => (
-            <PublicSectionDisplay key={section.id} section={section} />
+            <PublicSectionDisplay 
+              key={section.id} 
+              section={section} 
+              canEdit={canEdit}
+              token={token || ''}
+              onItemUpdated={handleItemUpdated}
+            />
           ))}
           
           {data.sections.length === 0 && (

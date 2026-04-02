@@ -124,6 +124,25 @@ export function useRunningSheet(eventId: string | null) {
 
   useEffect(() => { fetchSheet(); }, [fetchSheet]);
 
+  // Realtime subscription for running_sheet_items changes (e.g. edits from shared links)
+  useEffect(() => {
+    if (!sheet?.id) return;
+    const channel = supabase
+      .channel(`dashboard-rs-items:${sheet.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'running_sheet_items',
+        filter: `sheet_id=eq.${sheet.id}`,
+      }, () => {
+        // Silently re-fetch items when a vendor edits via shared link
+        fetchSheet();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [sheet?.id, fetchSheet]);
+
   // Debounced item save
   const debouncedItemSave = useRef(
     debounce(async (itemId: string, updates: Partial<RunningSheetItem>) => {

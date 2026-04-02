@@ -28,7 +28,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Check, Trash2, ExternalLink, Users } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Copy, Check, Trash2, ExternalLink, Users, Lock, Unlock } from 'lucide-react';
 import { RunningSheetShareToken } from '@/types/runningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -60,24 +61,6 @@ export function RunningSheetShareModal({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // When permission changes, update all existing tokens
-  const handlePermissionChange = useCallback(async (newPermission: 'view_only' | 'can_edit') => {
-    setPermission(newPermission);
-    if (shareTokens.length > 0) {
-      try {
-        const tokenIds = shareTokens.map(t => t.id);
-        await supabase
-          .from('running_sheet_share_tokens')
-          .update({ permission: newPermission })
-          .in('id', tokenIds);
-        onTokensUpdated?.();
-        toast({ title: 'Updated', description: `All existing links set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
-      } catch (error) {
-        console.error('Error updating token permissions:', error);
-      }
-    }
-  }, [shareTokens, onTokensUpdated, toast]);
-
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
     const token = await onGenerateToken(permission, recipientName || undefined, 90);
@@ -97,6 +80,20 @@ export function RunningSheetShareModal({
     setTimeout(() => setCopiedId(null), 2000);
     toast({ title: 'Link Copied', description: 'Share link copied to clipboard' });
   }, [toast, eventSlug]);
+
+  const toggleTokenPermission = useCallback(async (tokenId: string, currentPermission: string) => {
+    const newPermission = currentPermission === 'can_edit' ? 'view_only' : 'can_edit';
+    try {
+      await supabase
+        .from('running_sheet_share_tokens')
+        .update({ permission: newPermission })
+        .eq('id', tokenId);
+      onTokensUpdated?.();
+      toast({ title: 'Updated', description: `Link set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
+    } catch (error) {
+      console.error('Error updating token permission:', error);
+    }
+  }, [onTokensUpdated, toast]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -132,7 +129,7 @@ export function RunningSheetShareModal({
               <Label htmlFor="rs-permission">Permission Level</Label>
               <Select
                 value={permission}
-                onValueChange={(v) => handlePermissionChange(v as 'view_only' | 'can_edit')}
+                onValueChange={(v) => setPermission(v as 'view_only' | 'can_edit')}
               >
                 <SelectTrigger id="rs-permission">
                   <SelectValue />
@@ -186,19 +183,55 @@ export function RunningSheetShareModal({
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Copy Link" onClick={() => copyLink(token.token)}>
-                        {copiedId === token.token ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Open Link" asChild>
-                        <a href={buildRunningSheetUrl(token.token, eventSlug)} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Delete Link" onClick={() => onDeleteToken(token.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
+                    <TooltipProvider>
+                      <div className="flex items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => toggleTokenPermission(token.id, token.permission)}
+                            >
+                              {token.permission === 'can_edit' ? (
+                                <Unlock className="h-4 w-4 text-amber-500" />
+                              ) : (
+                                <Lock className="h-4 w-4 text-blue-500" />
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {token.permission === 'can_edit' ? 'Switch to View Only' : 'Switch to Can Edit'}
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(token.token)}>
+                              {copiedId === token.token ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Copy Link</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                              <a href={buildRunningSheetUrl(token.token, eventSlug)} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Open Link</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDeleteToken(token.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete Link</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
                   </div>
                 ))}
               </div>
