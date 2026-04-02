@@ -428,9 +428,29 @@ export function RunningSheetPublicView() {
       <main className="max-w-4xl mx-auto px-4 py-6">
         <RunningSheetSection
           label={sectionLabel}
-          onLabelChange={setSectionLabel}
+          onLabelChange={(newLabel) => {
+            setSectionLabel(newLabel);
+            if (canEdit && token) {
+              supabase.rpc('update_running_sheet_meta_by_token', {
+                share_token: token,
+                new_section_label: newLabel,
+              });
+            }
+          }}
           notes={sectionNotes}
-          onNotesChange={setSectionNotes}
+          onNotesChange={(newNotes) => {
+            setSectionNotes(newNotes);
+            if (canEdit && token) {
+              const key = 'meta-notes';
+              if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+              saveTimeoutRef.current[key] = setTimeout(() => {
+                supabase.rpc('update_running_sheet_meta_by_token', {
+                  share_token: token,
+                  new_section_notes: newNotes,
+                });
+              }, 400);
+            }
+          }}
           items={data.items}
           onUpdateItem={handleUpdateItem}
           onAddItem={handleAddItem}
