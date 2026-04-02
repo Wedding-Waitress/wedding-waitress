@@ -362,11 +362,16 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           section_id: item.section_id,
           row_label: item.row_label,
           value_text: item.value_text,
+          song_title_artist: item.song_title_artist,
           music_url: item.music_url,
           pronunciation_audio_url: item.pronunciation_audio_url,
           duration: item.duration,
           order_index: item.order_index + 1,
           is_default: false,
+          is_bold: item.is_bold || false,
+          is_italic: item.is_italic || false,
+          is_underline: item.is_underline || false,
+          is_section_header: item.is_section_header || false,
         })
         .select()
         .single();

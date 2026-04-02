@@ -171,6 +171,16 @@ export function DJMCSectionRow({
   const displayLabel = labelMatch ? labelMatch[1].trim() : item.row_label;
   const parentheticalText = labelMatch ? labelMatch[2] : null;
 
+  // Build formatting classes based on item flags
+  const formatClasses = [
+    item.is_bold ? 'font-bold' : '',
+    item.is_italic ? 'italic' : '',
+    item.is_underline ? 'underline' : '',
+  ].filter(Boolean).join(' ');
+
+  // Highlight row background when is_section_header is true
+  const highlightClass = item.is_section_header ? 'bg-yellow-100 border-l-4 border-yellow-400' : '';
+
   // Special two-column layout for do_not_play section
   if (sectionType === 'do_not_play') {
     return (
