@@ -197,6 +197,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
     if (!error && data) {
       setShareTokens(data as DJMCShareToken[]);
+      if (eventId) shareTokensCache.set(eventId, data as DJMCShareToken[]);
     }
   };
 
