@@ -14,7 +14,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem, DJMCShareToken, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES, SECTION_ORDER } from '@/lib/djMCQuestionnaireTemplates';
-import debounce from 'lodash-es/debounce';
+
+// Self-save cooldown: ignore realtime events within this window after a local save
+const SELF_SAVE_COOLDOWN_MS = 2000;
 
 export function useDJMCQuestionnaire(eventId: string | null) {
   const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(null);
