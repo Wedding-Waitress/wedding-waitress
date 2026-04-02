@@ -70,6 +70,7 @@ export function DJMCPublicView() {
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const lastSaveRef = useRef<number>(0);
 
   const fetchData = useCallback(async () => {
     if (!token) {
