@@ -70,6 +70,7 @@ export function DJMCPublicView() {
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const lastSaveRef = useRef<number>(0);
 
   const fetchData = useCallback(async () => {
     if (!token) {
@@ -139,6 +140,7 @@ export function DJMCPublicView() {
         schema: 'public',
         table: 'dj_mc_items',
       }, (payload) => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
         if (changedSectionId && sectionIds.includes(changedSectionId)) {
           fetchData();
@@ -149,6 +151,7 @@ export function DJMCPublicView() {
         schema: 'public',
         table: 'dj_mc_sections',
       }, () => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
         fetchData();
       })
       .on('postgres_changes', {
@@ -194,6 +197,7 @@ export function DJMCPublicView() {
     if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
+        lastSaveRef.current = Date.now();
         await supabase.rpc('update_dj_mc_section_by_token', {
           share_token: token,
           p_section_id: sectionId,
@@ -205,7 +209,7 @@ export function DJMCPublicView() {
       } catch (err) {
         console.error('Error updating section:', err);
       }
-    }, 600);
+    }, 300);
   }, [token, canEdit]);
 
   const handleUpdateItem = useCallback((itemId: string, updates: Partial<DJMCItem>) => {
@@ -230,6 +234,7 @@ export function DJMCPublicView() {
     if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
+        lastSaveRef.current = Date.now();
         await supabase.rpc('update_dj_mc_item_by_token', {
           share_token: token,
           item_id: itemId,
@@ -243,7 +248,7 @@ export function DJMCPublicView() {
       } catch (err) {
         console.error('Error updating item:', err);
       }
-    }, 600);
+    }, 300);
   }, [token, canEdit]);
 
   const handleAddItem = useCallback(async (sectionId: string) => {

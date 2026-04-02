@@ -61,6 +61,7 @@ export function RunningSheetPublicView() {
   const [sectionLabel, setSectionLabel] = useState('Running Sheet');
   const [sectionNotes, setSectionNotes] = useState<string | null>(null);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const lastSaveRef = useRef<number>(0);
 
   const fetchData = useCallback(async () => {
     if (!token) {
@@ -126,6 +127,8 @@ export function RunningSheetPublicView() {
         table: 'running_sheet_items',
         filter: `sheet_id=eq.${data.sheet_id}`,
       }, () => {
+        // Skip self-triggered refetches to prevent feedback loop
+        if (Date.now() - lastSaveRef.current < 2000) return;
         fetchData();
       })
       .subscribe();
@@ -183,6 +186,7 @@ export function RunningSheetPublicView() {
       if (updates.is_italic !== undefined) params.new_is_italic = updates.is_italic;
       if (updates.is_underline !== undefined) params.new_is_underline = updates.is_underline;
 
+      lastSaveRef.current = Date.now();
       const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_item_by_token', params);
       if (rpcError) {
         console.error('Error saving item:', rpcError);
@@ -190,7 +194,7 @@ export function RunningSheetPublicView() {
         console.error('Save rejected — token may no longer have edit permission');
         fetchData();
       }
-    }, 600);
+    }, 300);
   }, [token, canEdit, fetchData]);
 
   const handleAddItem = useCallback(async () => {
