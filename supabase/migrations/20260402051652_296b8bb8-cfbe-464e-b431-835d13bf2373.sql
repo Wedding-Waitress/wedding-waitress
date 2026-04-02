@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime ADD TABLE running_sheet_items;
+ALTER PUBLICATION supabase_realtime ADD TABLE running_sheet_share_tokens;
