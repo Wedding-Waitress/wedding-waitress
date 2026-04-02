@@ -127,6 +127,8 @@ export function RunningSheetPublicView() {
         table: 'running_sheet_items',
         filter: `sheet_id=eq.${data.sheet_id}`,
       }, () => {
+        // Skip self-triggered refetches to prevent feedback loop
+        if (Date.now() - lastSaveRef.current < 2000) return;
         fetchData();
       })
       .subscribe();
