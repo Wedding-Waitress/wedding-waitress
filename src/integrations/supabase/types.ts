@@ -2595,6 +2595,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_dj_mc_item_by_token: {
+        Args: {
+          at_order_index?: number
+          p_row_label?: string
+          p_section_id: string
+          share_token: string
+        }
+        Returns: Json
+      }
       add_guest_public: {
         Args: {
           _added_by_guest_id?: string
@@ -2626,6 +2635,10 @@ export type Database = {
       }
       cleanup_old_access_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
+      clear_dj_mc_section_items_by_token: {
+        Args: { p_section_id: string; share_token: string }
+        Returns: boolean
+      }
       deduct_communication_credit: {
         Args: {
           _channel: string
@@ -2637,9 +2650,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      delete_dj_mc_item_by_token: {
+        Args: { item_id: string; share_token: string }
+        Returns: boolean
+      }
+      delete_dj_mc_section_by_token: {
+        Args: { p_section_id: string; share_token: string }
+        Returns: boolean
+      }
       delete_running_sheet_item_by_token: {
         Args: { item_id: string; share_token: string }
         Returns: boolean
+      }
+      duplicate_dj_mc_item_by_token: {
+        Args: { item_id: string; share_token: string }
+        Returns: Json
+      }
+      duplicate_dj_mc_section_by_token: {
+        Args: { p_section_id: string; share_token: string }
+        Returns: Json
       }
       duplicate_running_sheet_item_by_token: {
         Args: { item_id: string; share_token: string }
@@ -2894,8 +2923,21 @@ export type Database = {
         }
         Returns: undefined
       }
+      reorder_dj_mc_items_by_token: {
+        Args: { item_ids: string[]; p_section_id: string; share_token: string }
+        Returns: boolean
+      }
       reorder_running_sheet_items_by_token: {
         Args: { item_ids: string[]; share_token: string }
+        Returns: boolean
+      }
+      reset_dj_mc_section_by_token: {
+        Args: {
+          p_default_items: Json
+          p_default_label: string
+          p_section_id: string
+          share_token: string
+        }
         Returns: boolean
       }
       resolve_dynamic_qr: {
@@ -2910,9 +2952,23 @@ export type Database = {
       update_dj_mc_item_by_token: {
         Args: {
           item_id: string
+          new_duration?: string
           new_music_url?: string
+          new_pronunciation_audio_url?: string
           new_row_label?: string
+          new_song_title_artist?: string
           new_value_text?: string
+          share_token: string
+        }
+        Returns: boolean
+      }
+      update_dj_mc_section_by_token: {
+        Args: {
+          clear_notes?: boolean
+          new_is_collapsed?: boolean
+          new_notes?: string
+          new_section_label?: string
+          p_section_id: string
           share_token: string
         }
         Returns: boolean
