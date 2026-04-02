@@ -150,6 +150,13 @@ export function DJMCQuestionnaireSection({
     setLocalLabel(section.section_label);
   }, [section.section_label]);
 
+  // Auto-show notes when they arrive via realtime sync
+  useEffect(() => {
+    if (section.notes && !showNotes) {
+      setShowNotes(true);
+    }
+  }, [section.notes]);
+
   const toggleCollapse = useCallback(() => {
     onUpdateSection({ is_collapsed: !section.is_collapsed });
   }, [section.is_collapsed, onUpdateSection]);
