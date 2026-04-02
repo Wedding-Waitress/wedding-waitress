@@ -667,6 +667,16 @@ export function DJMCSectionRow({
         </div>
       )}
 
+      {/* Pronunciation Audio - for speeches only */}
+      {sectionType === 'speeches' && (
+        <div className="w-10 shrink-0 flex justify-center">
+          <DJMCPronunciationRecorder
+            audioUrl={item.pronunciation_audio_url}
+            onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+          />
+        </div>
+      )}
+
       {/* Duration field - for speeches only */}
       {sectionType === 'speeches' && (
         <div className="w-24 shrink-0">
