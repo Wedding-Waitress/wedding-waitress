@@ -17,6 +17,9 @@ export interface RunningSheetItem {
   description_rich: any;
   responsible: string | null;
   is_section_header: boolean;
+  is_bold?: boolean;
+  is_italic?: boolean;
+  is_underline?: boolean;
   created_at: string;
   updated_at: string;
 }
