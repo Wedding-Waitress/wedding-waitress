@@ -234,6 +234,7 @@ export function DJMCPublicView() {
     if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
+        lastSaveRef.current = Date.now();
         await supabase.rpc('update_dj_mc_item_by_token', {
           share_token: token,
           item_id: itemId,
@@ -247,7 +248,7 @@ export function DJMCPublicView() {
       } catch (err) {
         console.error('Error updating item:', err);
       }
-    }, 600);
+    }, 300);
   }, [token, canEdit]);
 
   const handleAddItem = useCallback(async (sectionId: string) => {
