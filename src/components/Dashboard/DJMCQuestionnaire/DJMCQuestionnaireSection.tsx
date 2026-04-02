@@ -443,10 +443,10 @@ export function DJMCQuestionnaireSection({
                   
                   {/* COLUMN 3/4: Music with Link - 1/3 width (1/4 for introductions, ceremony, traditional) */}
                   {['cocktail', 'main_event', 'dinner', 'dance'].includes(section.section_type) && (
-                    <div className="flex-1 basis-1/3 min-w-0">Music with Link</div>
+                    <div className="flex-1 basis-1/3 min-w-0 pl-3">Music with Link</div>
                   )}
                   {(section.section_type === 'introductions' || section.section_type === 'ceremony' || section.section_type === 'traditional') && (
-                    <div className="flex-1 basis-1/4 min-w-0">Music with Link</div>
+                    <div className="flex-1 basis-1/4 min-w-0 pl-3">Music with Link</div>
                   )}
                   
                   {/* For non-music/non-speeches sections - Names/Details takes remaining space */}
