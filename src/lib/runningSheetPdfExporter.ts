@@ -31,7 +31,7 @@ interface Event {
 // --- Layout constants (mm) ---
 const PDF_WIDTH_MM = 210;
 const PDF_HEIGHT_MM = 297;
-const FOOTER_ZONE_MM = 22;
+const FOOTER_ZONE_MM = 30;
 const TOP_MARGIN_PAGE2_MM = 12;
 const FOOTER_LOGO_HEIGHT_MM = 8;
 const FOOTER_LOGO_WIDTH_MM = 28;
