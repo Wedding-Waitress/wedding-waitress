@@ -1,54 +1,63 @@
 
 
-## Plan: Full Feature Parity for Running Sheet Shared Link
+## Plan: Full Feature Parity for DJ-MC Questionnaire Shared Link
 
 ### Summary
-Replace the simple HTML table in the public Running Sheet view with the same `RunningSheetSection` + `RunningSheetRow` components used on the dashboard, wired to new token-secured RPC functions for all write operations.
+Replace the simple `PublicSectionDisplay` component in `DJMCPublicView.tsx` with the full `DJMCQuestionnaireSection` + `DJMCSectionRow` components used on the dashboard, wired to new token-secured RPC functions. Identical approach to the Running Sheet parity work just completed.
 
-### Features to Add (items 1-12)
-1. **Add Row** -- "Add Row" button at bottom
-2. **Delete Row** -- via 3-dot menu per row
-3. **Duplicate Row** -- via 3-dot menu per row
-4. **Drag-and-drop reorder** -- full dnd-kit support
-5. **Bold / Italic / Underline** -- formatting toggles per row
-6. **Highlight Row** -- section header toggle (red text)
-7. **Clear Text** -- per-row clear via 3-dot menu
-8. **Undo** -- per-row undo stack
-9. **Section label editing** -- click-to-edit section title
-10. **Section notes** -- notes toggle + textarea
-11. **Section-level bulk actions** -- Clear All / Reset to Default / Delete All
-12. **Ceremony + Reception headers** -- event details banner matching dashboard
+### Current Gaps (Public View vs Dashboard)
+The public view currently has only basic inline text editing for `value_text`, `music_url`, and `row_label`. Missing features:
 
-**Excluded**: Insert from DJ-MC Questionnaire (item 13)
+1. **Add Row** -- per-section "Add Row" button
+2. **Delete Row** -- per-row via actions
+3. **Duplicate Row** -- per-row via actions
+4. **Clear Row Text** -- per-row via actions
+5. **Drag-and-drop reorder** -- dnd-kit support
+6. **Section label editing** -- click-to-edit section title
+7. **Section notes** -- notes toggle + textarea
+8. **Section-level actions** -- Duplicate Section, Clear Section, Reset to Default, Delete Section
+9. **Music URL field** -- rich component with metadata fetching (DJMCMusicUrlField)
+10. **Pronunciation recorder** -- audio recording component (DJMCPronunciationRecorder)
+11. **Song count / Speaker count badges** -- computed stats per section
+12. **Column headers** -- section-type-specific column layouts
+13. **Song Title & Artist field** -- editable field with proper column layout
+14. **Duration field** -- for speeches section
+15. **Ceremony + Reception headers** -- event details banner matching dashboard
 
-### Database: 4 New RPC Functions
+### Database: New RPC Functions (Migration)
 
-All follow the same pattern as the existing `update_running_sheet_item_by_token` -- validate token has `can_edit` permission, then perform the operation.
+All follow the same pattern as the existing Running Sheet RPCs -- validate token has `can_edit` permission, then perform the operation.
 
-1. **`add_running_sheet_item_by_token(share_token, order_index)`** -- inserts a new blank row, returns the new row as JSON
-2. **`delete_running_sheet_item_by_token(share_token, item_id)`** -- deletes a row belonging to the sheet
-3. **`duplicate_running_sheet_item_by_token(share_token, item_id)`** -- copies a row, returns the new row as JSON
-4. **`reorder_running_sheet_items_by_token(share_token, item_ids uuid[])`** -- sets order_index based on array position
-
-The existing `update_running_sheet_item_by_token` already handles text fields. It needs two new optional parameters: `new_is_section_header`, `new_is_bold`, `new_is_italic`, `new_is_underline` for formatting toggles.
+1. **`add_dj_mc_item_by_token(share_token, section_id, row_label, at_order_index)`** -- inserts a new row, returns JSON
+2. **`delete_dj_mc_item_by_token(share_token, item_id)`** -- deletes a row
+3. **`duplicate_dj_mc_item_by_token(share_token, item_id)`** -- clones a row, returns JSON
+4. **`reorder_dj_mc_items_by_token(share_token, section_id, item_ids uuid[])`** -- sets order_index by array position
+5. **`update_dj_mc_section_by_token(share_token, section_id, ...)`** -- update section label, notes, is_collapsed
+6. **Extend `update_dj_mc_item_by_token`** -- add `new_song_title_artist`, `new_duration`, `new_pronunciation_audio_url` parameters
+7. **`clear_dj_mc_section_items_by_token(share_token, section_id)`** -- deletes all items in section (for Clear Section)
+8. **`delete_dj_mc_section_by_token(share_token, section_id)`** -- deletes section and its items
+9. **`duplicate_dj_mc_section_by_token(share_token, section_id)`** -- duplicates section with all items, returns JSON
 
 ### Frontend Changes
 
-**`src/pages/RunningSheetPublicView.tsx`** -- Major rewrite:
-- Replace the HTML `<table>` with `RunningSheetSection` + `RunningSheetRow` (same components as dashboard)
-- Wire all callbacks (add, delete, duplicate, reorder, update, undo, clear, reset, formatting) to the new token-based RPCs
+**`src/pages/DJMCPublicView.tsx`** -- Major rewrite:
+- Remove the custom `PublicSectionDisplay` component entirely
+- Import and use `DJMCQuestionnaireSection` + `DJMCSectionRow` (same components as dashboard)
+- Wire all callbacks (add, delete, duplicate, reorder, update items, update sections, clear, reset, download section PDF) to the new token-based RPCs
 - Pass `disabled={!canEdit}` to lock everything when View Only
-- Keep: header, permission badge, Download PDF, footer, realtime subscriptions
-- Keep: ceremony/reception event info banner (already partially present, will match dashboard format)
-- Exclude: `onInsertFromDJMC` and `hasDJMCData` props (always false/undefined)
+- Keep: header, permission badge, Download PDF button, footer, realtime subscriptions
+- Add: Ceremony + Reception event details banner matching the dashboard's `DJMCQuestionnairePage` format
+- Exclude: nothing (full parity)
 
 ### Files to Change
-- **New migration**: 4 new RPC functions + extend `update_running_sheet_item_by_token` with formatting params
-- **`src/pages/RunningSheetPublicView.tsx`**: Rewrite to use dashboard components with token-based RPC wiring
+- **New migration**: ~9 new/updated RPC functions
+- **`src/pages/DJMCPublicView.tsx`**: Rewrite to use dashboard components with token-based RPC wiring
 
-### No Changes To (locked)
-- `RunningSheetSection.tsx` -- already accepts `disabled` prop, reused as-is
-- `RunningSheetRow.tsx` -- already accepts `disabled` prop, reused as-is
-- `useRunningSheet.ts` -- dashboard hook, untouched
-- `RunningSheetPage.tsx` -- dashboard page, untouched
+### No Changes To (locked/untouched)
+- `DJMCQuestionnaireSection.tsx` -- already accepts `disabled` prop, reused as-is
+- `DJMCSectionRow.tsx` -- already accepts `disabled` prop, reused as-is
+- `DJMCMusicUrlField.tsx` -- reused as-is
+- `DJMCPronunciationRecorder.tsx` -- reused as-is
+- `useDJMCQuestionnaire.ts` -- dashboard hook, untouched
+- `DJMCQuestionnairePage.tsx` -- dashboard page, untouched
 
