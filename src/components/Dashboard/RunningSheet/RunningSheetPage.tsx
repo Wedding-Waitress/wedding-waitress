@@ -274,6 +274,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
         shareTokens={shareTokens}
         onGenerateToken={generateShareToken}
         onDeleteToken={deleteShareToken}
+        onTokensUpdated={refreshShareTokens}
         eventSlug={selectedEvent?.slug ?? undefined}
       />
     </div>
