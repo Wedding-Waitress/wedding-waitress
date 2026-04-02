@@ -2923,6 +2923,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_running_sheet_item_by_token: {
+        Args: {
+          item_id: string
+          new_description_rich?: Json
+          new_responsible?: string
+          new_time_text?: string
+          share_token: string
+        }
+        Returns: boolean
+      }
       upsert_notification_settings: {
         Args: {
           _email_enabled?: boolean
