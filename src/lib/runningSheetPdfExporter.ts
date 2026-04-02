@@ -131,7 +131,7 @@ const generateRunningSheetHTML = (
 
   let notesBlock = '';
   if (sectionNotes) {
-    notesBlock = `<div style="font-style:italic;color:#777;font-size:11px;margin-bottom:6px;">Notes: ${escapeHtml(sectionNotes)}</div>`;
+    notesBlock = `<div style="font-style:italic;color:#777;font-size:12px;margin-bottom:6px;">Notes: ${escapeHtml(sectionNotes)}</div>`;
   }
 
   const rows = items.map((item, idx) => {
