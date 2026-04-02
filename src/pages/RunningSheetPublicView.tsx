@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';
+import { RunningSheetSection } from '@/components/Dashboard/RunningSheet/RunningSheetSection';
+import { RunningSheetItem } from '@/types/runningSheet';
 
 interface RunningSheetData {
   sheet_id: string;
@@ -20,18 +21,6 @@ interface RunningSheetData {
   ceremony_finish_time: string | null;
   permission: string;
   items: RunningSheetItem[];
-}
-
-interface RunningSheetItem {
-  id: string;
-  time_text: string;
-  description_rich: any;
-  responsible: string | null;
-  order_index: number;
-  is_section_header: boolean;
-  is_bold?: boolean;
-  is_italic?: boolean;
-  is_underline?: boolean;
 }
 
 const formatFullDate = (dateStr: string | null | undefined): string => {
@@ -53,17 +42,13 @@ const formatFullDate = (dateStr: string | null | undefined): string => {
   return `${dayOfWeek}, ${day}${getOrdinalSuffix(day)} ${month} ${year}`;
 };
 
-/** Build display text from description_rich ({ text, bullets, subText } format) */
-const buildEventDisplay = (rich: any): string => {
-  if (!rich) return '';
-  if (typeof rich === 'string') return rich;
-  const parts: string[] = [];
-  if (rich.text) parts.push(rich.text);
-  if (Array.isArray(rich.bullets)) {
-    rich.bullets.forEach((b: string) => parts.push('• ' + b));
-  }
-  if (rich.subText) parts.push(rich.subText);
-  return parts.join('\n');
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
 };
 
 export function RunningSheetPublicView() {
@@ -73,7 +58,8 @@ export function RunningSheetPublicView() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<RunningSheetData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
-  const [savingItemId, setSavingItemId] = useState<string | null>(null);
+  const [sectionLabel, setSectionLabel] = useState('Running Sheet');
+  const [sectionNotes, setSectionNotes] = useState<string | null>(null);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   const fetchData = useCallback(async () => {
@@ -158,7 +144,6 @@ export function RunningSheetPublicView() {
         table: 'running_sheet_share_tokens',
         filter: `sheet_id=eq.${data.sheet_id}`,
       }, () => {
-        // Re-fetch to pick up permission changes
         fetchData();
       })
       .subscribe();
@@ -168,48 +153,118 @@ export function RunningSheetPublicView() {
 
   const canEdit = data?.permission === 'can_edit';
 
-  const saveItemField = useCallback((itemId: string, field: 'time_text' | 'description_rich' | 'responsible', value: any) => {
-    if (!token) return;
-    // Clear previous timeout for this item+field
-    const key = `${itemId}-${field}`;
-    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+  // --- Token-based write operations ---
 
-    setSavingItemId(itemId);
-    saveTimeoutRef.current[key] = setTimeout(async () => {
-      try {
-        const params: any = { share_token: token, item_id: itemId };
-        if (field === 'time_text') params.new_time_text = value;
-        if (field === 'description_rich') params.new_description_rich = value;
-        if (field === 'responsible') params.new_responsible = value;
+  const handleUpdateItem = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
+    if (!token || !canEdit) return;
 
-        const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_item_by_token', params);
-        if (rpcError) {
-          console.error('Error saving item:', rpcError);
-        } else if (success === false) {
-          console.error('Save rejected — token may no longer have edit permission');
-          // Re-fetch to update permission state
-          fetchData();
-        }
-      } catch (err) {
-        console.error('Error saving item:', err);
-      } finally {
-        setSavingItemId(null);
-      }
-    }, 800);
-  }, [token]);
-
-  const handleItemChange = useCallback((itemId: string, field: 'time_text' | 'description_rich' | 'responsible', value: any) => {
+    // Optimistic update
     setData(prev => {
       if (!prev) return prev;
       return {
         ...prev,
         items: prev.items.map(item =>
-          item.id === itemId ? { ...item, [field]: value } : item
+          item.id === itemId ? { ...item, ...updates } : item
         ),
       };
     });
-    saveItemField(itemId, field, value);
-  }, [saveItemField]);
+
+    // Debounced save
+    const key = `update-${itemId}`;
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      const params: any = { share_token: token, item_id: itemId };
+      if (updates.time_text !== undefined) params.new_time_text = updates.time_text;
+      if (updates.description_rich !== undefined) params.new_description_rich = updates.description_rich;
+      if (updates.responsible !== undefined) params.new_responsible = updates.responsible;
+      if (updates.is_section_header !== undefined) params.new_is_section_header = updates.is_section_header;
+      if (updates.is_bold !== undefined) params.new_is_bold = updates.is_bold;
+      if (updates.is_italic !== undefined) params.new_is_italic = updates.is_italic;
+      if (updates.is_underline !== undefined) params.new_is_underline = updates.is_underline;
+
+      const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_item_by_token', params);
+      if (rpcError) {
+        console.error('Error saving item:', rpcError);
+      } else if (success === false) {
+        console.error('Save rejected — token may no longer have edit permission');
+        fetchData();
+      }
+    }, 600);
+  }, [token, canEdit, fetchData]);
+
+  const handleAddItem = useCallback(async () => {
+    if (!token || !canEdit || !data) return;
+    const nextIndex = data.items.length;
+    const { data: newRow, error: rpcError } = await supabase.rpc('add_running_sheet_item_by_token', {
+      share_token: token,
+      at_order_index: nextIndex,
+    });
+    if (rpcError) {
+      console.error('Error adding item:', rpcError);
+      return;
+    }
+    if (newRow) {
+      // Realtime will pick it up, but also do optimistic add
+      fetchData();
+    }
+  }, [token, canEdit, data, fetchData]);
+
+  const handleDeleteItem = useCallback(async (itemId: string) => {
+    if (!token || !canEdit) return;
+    // Optimistic removal
+    setData(prev => {
+      if (!prev) return prev;
+      return { ...prev, items: prev.items.filter(i => i.id !== itemId) };
+    });
+    const { error: rpcError } = await supabase.rpc('delete_running_sheet_item_by_token', {
+      share_token: token,
+      item_id: itemId,
+    });
+    if (rpcError) {
+      console.error('Error deleting item:', rpcError);
+      fetchData();
+    }
+  }, [token, canEdit, fetchData]);
+
+  const handleDuplicateItem = useCallback(async (item: RunningSheetItem) => {
+    if (!token || !canEdit) return;
+    const { data: newRow, error: rpcError } = await supabase.rpc('duplicate_running_sheet_item_by_token', {
+      share_token: token,
+      item_id: item.id,
+    });
+    if (rpcError) {
+      console.error('Error duplicating item:', rpcError);
+      return;
+    }
+    if (newRow) {
+      fetchData();
+    }
+  }, [token, canEdit, fetchData]);
+
+  const handleReorderItems = useCallback(async (reorderedItems: RunningSheetItem[]) => {
+    if (!token || !canEdit) return;
+    // Optimistic reorder
+    setData(prev => {
+      if (!prev) return prev;
+      return { ...prev, items: reorderedItems };
+    });
+    const itemIds = reorderedItems.map(i => i.id);
+    const { error: rpcError } = await supabase.rpc('reorder_running_sheet_items_by_token', {
+      share_token: token,
+      item_ids: itemIds,
+    });
+    if (rpcError) {
+      console.error('Error reordering items:', rpcError);
+      fetchData();
+    }
+  }, [token, canEdit, fetchData]);
+
+  const handleResetToDefault = useCallback(() => {
+    // In public view, reset = delete all rows (no default template knowledge)
+    if (!data) return;
+    data.items.forEach(item => handleDeleteItem(item.id));
+  }, [data, handleDeleteItem]);
 
   if (loading) {
     return (
@@ -241,6 +296,9 @@ export function RunningSheetPublicView() {
 
   if (!data) return null;
 
+  const hasCeremony = !!(data.ceremony_date || data.ceremony_venue);
+  const hasReception = !!(data.event_date || data.event_venue);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -252,17 +310,17 @@ export function RunningSheetPublicView() {
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">You have been invited to view and download the running sheet of</p>
+                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the running sheet of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
               <span className={`inline-flex items-center px-4 py-2 text-sm font-medium border-2 rounded-full ${
-                data.permission === 'can_edit'
+                canEdit
                   ? 'border-amber-500 text-amber-600'
                   : 'border-red-500 text-red-500'
               }`}>
-                {data.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
+                {canEdit ? 'Can Edit' : 'View Only'}
               </span>
               <button
                 className="inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-transparent hover:bg-green-50 transition-colors disabled:opacity-50"
@@ -282,7 +340,7 @@ export function RunningSheetPublicView() {
                       ceremony_start_time: data.ceremony_start_time,
                       ceremony_finish_time: data.ceremony_finish_time,
                     };
-                    await exportRunningSheetPDF(data.items as any, eventObj, 'Running Sheet', null);
+                    await exportRunningSheetPDF(data.items as any, eventObj, sectionLabel, sectionNotes);
                   } catch (err) {
                     console.error('PDF export error:', err);
                   } finally {
@@ -298,111 +356,62 @@ export function RunningSheetPublicView() {
         </div>
       </header>
 
-      {/* Event Info Banner */}
-      <div className="bg-primary/5 border-b border-primary/10 print:bg-transparent">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-            {data.event_date && (
-              <div className="flex items-center gap-2 text-foreground">
-                <Calendar className="h-4 w-4 text-primary" />
-                {formatFullDate(data.event_date)}
+      {/* Event Info Banner — matching dashboard layout */}
+      {(hasCeremony || hasReception) && (
+        <div className="bg-primary/5 border-b border-primary/10 print:bg-transparent">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="text-center space-y-3">
+              <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
+              <div className={`flex justify-center gap-8 flex-wrap ${
+                hasCeremony && hasReception ? '' : 'max-w-md mx-auto'
+              }`}>
+                {hasCeremony && (
+                  <div className="text-left min-w-[280px]">
+                    <div>
+                      <span className="font-semibold text-primary">Ceremony:</span>
+                      <span className="ml-2 text-muted-foreground">{formatFullDate(data.ceremony_date)}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Start: {formatTimeDisplay(data.ceremony_start_time)} — Finish: {formatTimeDisplay(data.ceremony_finish_time)}
+                    </div>
+                    {data.ceremony_venue && <div className="text-sm text-muted-foreground">{data.ceremony_venue}</div>}
+                  </div>
+                )}
+                {hasReception && (
+                  <div className="text-left min-w-[280px]">
+                    <div>
+                      <span className="font-semibold text-primary">Reception:</span>
+                      <span className="ml-2 text-muted-foreground">{formatFullDate(data.event_date)}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Start: {formatTimeDisplay(data.start_time)} — Finish: {formatTimeDisplay(data.finish_time)}
+                    </div>
+                    {data.event_venue && <div className="text-sm text-muted-foreground">{data.event_venue}</div>}
+                  </div>
+                )}
               </div>
-            )}
-            {data.event_venue && (
-              <div className="flex items-center gap-2 text-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                {data.event_venue}
-              </div>
-            )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Running Sheet Table */}
+      {/* Running Sheet — using same components as dashboard */}
       <main className="max-w-4xl mx-auto px-4 py-6">
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left px-4 py-3 font-semibold text-foreground w-[120px]">Time</th>
-                    <th className="text-left px-4 py-3 font-semibold text-foreground">Event</th>
-                    <th className="text-left px-4 py-3 font-semibold text-foreground w-[150px]">Who</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.items.map((item, idx) => {
-                    const description = buildEventDisplay(item.description_rich);
-                    const isSectionHeader = item.is_section_header;
-
-                    return (
-                      <tr
-                        key={item.id}
-                        className={`border-b border-border last:border-0 ${
-                          isSectionHeader ? 'bg-muted/30' : idx % 2 === 0 ? 'bg-background' : 'bg-muted/10'
-                        }`}
-                      >
-                        <td className={`px-4 py-3 align-top whitespace-nowrap ${isSectionHeader ? 'font-bold text-destructive' : 'text-foreground'}`}>
-                          {canEdit ? (
-                            <input
-                              type="text"
-                              value={item.time_text}
-                              onChange={(e) => handleItemChange(item.id, 'time_text', e.target.value)}
-                              className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 transition-colors"
-                            />
-                          ) : (
-                            item.time_text
-                          )}
-                        </td>
-                        <td className={`px-4 py-3 align-top whitespace-pre-wrap ${isSectionHeader ? 'font-bold text-foreground' : 'text-foreground'}`}>
-                          {canEdit ? (
-                            <textarea
-                              value={description}
-                              onChange={(e) => {
-                                // Parse back into rich format - preserve simple text
-                                const newRich = { ...item.description_rich, text: e.target.value };
-                                // If original had bullets, clear them since user is editing as plain text
-                                if (typeof item.description_rich === 'object') {
-                                  handleItemChange(item.id, 'description_rich', { text: e.target.value });
-                                } else {
-                                  handleItemChange(item.id, 'description_rich', { text: e.target.value });
-                                }
-                              }}
-                              rows={Math.max(1, description.split('\n').length)}
-                              className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 resize-none transition-colors"
-                            />
-                          ) : (
-                            description
-                          )}
-                        </td>
-                        <td className="px-4 py-3 align-top text-muted-foreground">
-                          {canEdit ? (
-                            <textarea
-                              value={item.responsible || ''}
-                              onChange={(e) => handleItemChange(item.id, 'responsible', e.target.value)}
-                              rows={Math.max(1, (item.responsible || '').split('\n').length)}
-                              className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 resize-none transition-colors"
-                            />
-                          ) : (
-                            item.responsible || ''
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {data.items.length === 0 && (
-                    <tr>
-                      <td colSpan={3} className="px-4 py-12 text-center text-muted-foreground">
-                        No items in this running sheet yet.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+        <RunningSheetSection
+          label={sectionLabel}
+          onLabelChange={setSectionLabel}
+          notes={sectionNotes}
+          onNotesChange={setSectionNotes}
+          items={data.items}
+          onUpdateItem={handleUpdateItem}
+          onAddItem={handleAddItem}
+          onDeleteItem={handleDeleteItem}
+          onDuplicateItem={handleDuplicateItem}
+          onReorderItems={handleReorderItems}
+          onResetToDefault={handleResetToDefault}
+          hasDJMCData={false}
+          disabled={!canEdit}
+        />
       </main>
 
       {/* Footer */}
