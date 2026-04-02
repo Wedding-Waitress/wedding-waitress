@@ -14,7 +14,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
   GripVertical, Copy, Trash, Eraser, ListPlus, Highlighter,
-  MoreVertical, Bold, Italic, Underline,
+  MoreVertical, Bold, Italic, Underline, Undo2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
@@ -35,6 +35,8 @@ interface RunningSheetRowProps {
   onDelete: (itemId: string) => void;
   onClearText?: (itemId: string) => void;
   onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
   disabled?: boolean;
   hasDJMCData?: boolean;
 }
@@ -85,7 +87,7 @@ function useAutoResize(ref: React.RefObject<HTMLTextAreaElement>, value: string)
   }, [ref, value]);
 }
 
-export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, disabled = false, hasDJMCData = false }: RunningSheetRowProps) {
+export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, onUndo, canUndo = false, disabled = false, hasDJMCData = false }: RunningSheetRowProps) {
   const {
     attributes,
     listeners,
@@ -154,7 +156,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={item.time_text}
         onChange={handleTimeChange}
         placeholder="Time"
-        className={`basis-1/5 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses} ${formattingClasses}`}
+        className={`w-[15%] shrink-0 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
       />
@@ -191,6 +193,14 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              {/* Undo */}
+              <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
+                <Undo2 className="h-4 w-4 mr-2" />
+                Undo
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               {/* Highlight Row */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_section_header: !item.is_section_header })}>
                 <Highlighter className="h-4 w-4 mr-2" />

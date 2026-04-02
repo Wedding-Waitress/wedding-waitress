@@ -96,7 +96,29 @@ export function RunningSheetSection({
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
+  const [undoStack, setUndoStack] = useState<{ itemId: string; snapshot: Partial<RunningSheetItem> }[]>([]);
   const labelInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpdateWithUndo = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
+    const currentItem = items.find(i => i.id === itemId);
+    if (currentItem) {
+      const snapshot: Partial<RunningSheetItem> = {};
+      for (const key of Object.keys(updates) as (keyof RunningSheetItem)[]) {
+        (snapshot as any)[key] = (currentItem as any)[key];
+      }
+      setUndoStack(prev => [...prev.slice(-19), { itemId, snapshot }]);
+    }
+    onUpdateItem(itemId, updates);
+  }, [items, onUpdateItem]);
+
+  const handleUndo = useCallback(() => {
+    setUndoStack(prev => {
+      if (prev.length === 0) return prev;
+      const last = prev[prev.length - 1];
+      onUpdateItem(last.itemId, last.snapshot);
+      return prev.slice(0, -1);
+    });
+  }, [onUpdateItem]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -230,11 +252,13 @@ export function RunningSheetSection({
                     <RunningSheetRow
                       key={item.id}
                       item={item}
-                      onUpdate={onUpdateItem}
+                      onUpdate={handleUpdateWithUndo}
                       onDuplicate={onDuplicateItem}
                       onDelete={onDeleteItem}
-                      onClearText={(itemId) => onUpdateItem(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
+                      onClearText={(itemId) => handleUpdateWithUndo(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
                       onInsertFromDJMC={onInsertFromDJMC}
+                      onUndo={handleUndo}
+                      canUndo={undoStack.length > 0}
                       hasDJMCData={hasDJMCData}
                       disabled={disabled}
                     />
