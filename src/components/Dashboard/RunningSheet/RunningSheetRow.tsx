@@ -193,6 +193,14 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              {/* Undo */}
+              <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
+                <Undo2 className="h-4 w-4 mr-2" />
+                Undo
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               {/* Highlight Row */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_section_header: !item.is_section_header })}>
                 <Highlighter className="h-4 w-4 mr-2" />
