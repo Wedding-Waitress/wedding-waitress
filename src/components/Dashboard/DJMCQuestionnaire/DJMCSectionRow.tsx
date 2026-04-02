@@ -700,11 +700,6 @@ export function DJMCSectionRow({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
-                <Undo2 className="h-4 w-4 mr-2" />
-                Undo
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                 <Highlighter className="h-4 w-4 mr-2" />
                 Highlight Row
