@@ -200,9 +200,9 @@ export function RunningSheetShareModal({
                               onClick={() => toggleTokenPermission(token.id, token.permission)}
                             >
                               {token.permission === 'can_edit' ? (
-                                <Unlock className="h-4 w-4 text-amber-500" />
+                                <Unlock className="h-4 w-4 text-green-500" />
                               ) : (
-                                <Lock className="h-4 w-4 text-blue-500" />
+                                <Lock className="h-4 w-4 text-red-500" />
                               )}
                             </Button>
                           </TooltipTrigger>
