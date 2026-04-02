@@ -1,23 +1,39 @@
 
 
-## Plan: Align DJ-MC Questionnaire Column Headers with Row Content
+## Plan: Fix Speeches Section Header Alignment
 
-### Problem
-The column header text (Event, Names/Info, Audio, Song Title & Artist, Music with Link) does not visually align with the data content in the rows below. The headers sit at the left edge of their flex containers, while the row content has internal padding (`px-3`), causing a visual offset.
+### Root Cause
+
+The Speeches section header and row both use the same flex structure:
+
+```text
+[drag 24px] [Status 31%] [Speaker Name flex-1] [Audio w-10] [Time w-24] [Actions w-16]
+```
+
+The headers "Pronunciation Audio" and "Time Allowed" sit in `w-10` (40px) and `w-24` (96px) containers respectively — matching the row elements below. However:
+
+1. The `w-10` (40px) container is too narrow for "Pronunciation Audio" text, causing overflow/visual drift to the left
+2. The row's action column uses a dropdown button that may not exactly match the `w-16` spacer in the header, creating an offset
+3. The row also has `px-1` padding and `gap-2` spacing that compounds the misalignment
+
+### Solution
+
+**File: `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection.tsx`** (speeches header block, lines 431-442)
+
+- Keep `w-10` for "Pronunciation Audio" header — it must match the recorder width in the row
+- Keep `w-24` for "Time Allowed" header — it must match the duration input width in the row  
+- Add the same gap/spacing structure as the row to ensure vertical alignment
+- Verify the actions spacer (`w-16`) matches the row's action button area (the row uses a `shrink-0` div with a 28px button inside — effectively less than 64px)
+
+The real fix is to adjust the **actions spacer** in the header from `w-16` to match exactly what the row renders (a single 28px button), and potentially widen the audio header slightly if overflow is causing the visual shift. This ensures the fixed-width columns on the right (Audio + Time) stack directly above their row counterparts.
 
 ### Changes
 
-**File: `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection.tsx`** (lines 349-448, the header row)
+1. **Adjust header actions spacer width** — match the row's actual action button width instead of the generic `w-16`
+2. **Ensure pronunciation audio and time allowed headers have identical width classes** as their row counterparts (`w-10` and `w-24`)
 
-1. **"Names / Info"** (and equivalents like "Names", "Dedication / Details", "Song Title & Artist" in combined columns) — add `pl-3` to match the `px-3` padding of the row input fields below
-2. **"Audio" label** — add "Pronunciation" above it in a smaller font size (`text-[9px]`), keeping "Audio" below. The `w-10 text-center` stays unchanged.
-3. **"Song Title & Artist"** (standalone column) — add `pl-3` to align with the `px-3` content padding in the rows
-4. **"Music with Link"** — add `pl-3` to align with the music URL field content below
-
-These padding adjustments apply to **all section types** (ceremony, cocktail, introductions, speeches, main_event, dinner, dance, traditional, do_not_play) so every section's headers align consistently with their row content.
-
-### What stays the same
-- Column 1 (Event/Song Number/etc.) keeps its current alignment — the `px-2` in the row label div is close enough
-- Row content, row actions, drag handles — no changes
-- No structural/width changes to the flex layout
+### No other changes
+- No changes to row layout
+- No changes to other sections
+- No structural changes
 
