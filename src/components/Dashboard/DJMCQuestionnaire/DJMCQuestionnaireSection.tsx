@@ -435,7 +435,10 @@ export function DJMCQuestionnaireSection({
                         <span className="text-[9px] text-muted-foreground">Pronunciation</span>
                         <span>Audio</span>
                       </div>
-                      <div className="w-24 shrink-0 text-center">Time Allowed</div>
+                      <div className="w-24 shrink-0 flex flex-col items-center leading-none text-center">
+                        <span>Time</span>
+                        <span>Allowed</span>
+                      </div>
                     </>
                   )}
                   
