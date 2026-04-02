@@ -375,17 +375,19 @@ export function DJMCQuestionnaireSection({
                     <div className="flex-1 basis-1/3 min-w-0 text-center">Item</div>
                   )}
                   
-                  {/* COLUMNS 2, 3 for introductions: Names + Audio | Song Title & Artist */}
-                  {section.section_type === 'introductions' && (
-                    <>
-                      <div className="flex-1 basis-1/4 min-w-0 text-center">Names</div>
-                      <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
-                        <span className="text-[9px] text-muted-foreground">Pronunciation</span>
-                        <span>Audio</span>
-                      </div>
-                      <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
-                    </>
-                  )}
+                   {/* COLUMNS 2, 3 for introductions: Names + Audio | Song Title & Artist */}
+                   {section.section_type === 'introductions' && (
+                     <>
+                       <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+                         <div className="flex-1 min-w-0 text-center">Names</div>
+                         <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
+                           <span className="text-[9px] text-muted-foreground">Pronunciation</span>
+                           <span>Audio</span>
+                         </div>
+                       </div>
+                       <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
+                     </>
+                   )}
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) + Audio for main_event */}
                   {section.section_type === 'main_event' && (
@@ -398,17 +400,19 @@ export function DJMCQuestionnaireSection({
                     </>
                   )}
                   
-                  {/* COLUMNS 2, 3 for ceremony: Names / Info + Audio | Song Title & Artist */}
-                  {section.section_type === 'ceremony' && (
-                    <>
-                      <div className="flex-1 basis-1/4 min-w-0 text-center">Names / Info</div>
-                      <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
-                        <span className="text-[9px] text-muted-foreground">Pronunciation</span>
-                        <span>Audio</span>
-                      </div>
-                      <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
-                    </>
-                  )}
+                   {/* COLUMNS 2, 3 for ceremony: Names / Info + Audio | Song Title & Artist */}
+                   {section.section_type === 'ceremony' && (
+                     <>
+                       <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
+                         <div className="flex-1 min-w-0 text-center">Names / Info</div>
+                         <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
+                           <span className="text-[9px] text-muted-foreground">Pronunciation</span>
+                           <span>Audio</span>
+                         </div>
+                       </div>
+                       <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
+                     </>
+                   )}
                   
                   {/* COLUMNS 2, 3, 4 for traditional: Dedication / Details | Song Title & Artist + Audio | Music with Link */}
                   {section.section_type === 'traditional' && (
