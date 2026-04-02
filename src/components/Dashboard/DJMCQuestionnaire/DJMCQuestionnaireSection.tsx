@@ -457,7 +457,7 @@ export function DJMCQuestionnaireSection({
                 </>
               )}
               
-              <div className="w-16 shrink-0" /> {/* Actions space */}
+              <div className="w-7 shrink-0" /> {/* Actions space - matches row's 28px action button */}
             </div>
 
               {/* Items */}
