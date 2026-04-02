@@ -1,23 +1,18 @@
 /**
- * PRODUCTION-READY -- LOCKED FOR PRODUCTION
- *
- * This DJ-MC Questionnaire feature is COMPLETE and APPROVED for production use.
- *
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break questionnaire data, sharing, or PDF export
- *
- * Last locked: 2026-02-19
+ * DJ-MC Questionnaire Public View
+ * Full feature parity with dashboard DJMCQuestionnairePage
+ * Uses same DJMCQuestionnaireSection + DJMCSectionRow components
+ * All mutations go through token-secured RPC functions
  */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Music, ExternalLink, Calendar, MapPin, Clock, AlertCircle, Download, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Music, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
-import { exportEntireQuestionnairePDF } from '@/lib/djMCQuestionnairePdfExporter';
+import { Card, CardContent } from '@/components/ui/card';
+import { DJMCSection, DJMCItem, SectionType } from '@/types/djMCQuestionnaire';
+import { DEFAULT_SECTION_TEMPLATES } from '@/lib/djMCQuestionnaireTemplates';
+import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
+import { DJMCQuestionnaireSection } from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection';
 
 interface PublicQuestionnaireData {
   questionnaire_id: string;
@@ -57,205 +52,15 @@ const formatFullDate = (dateStr: string | null | undefined): string => {
   return `${dayOfWeek}, ${day}${getOrdinalSuffix(day)} ${month} ${year}`;
 };
 
-// Check if a string is a valid URL
-const isValidUrl = (str: string | null | undefined): boolean => {
-  if (!str) return false;
-  try {
-    new URL(str);
-    return true;
-  } catch {
-    return false;
-  }
+// Format time as "3:00 PM"
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
 };
-
-// Music Link Button Component
-function MusicLinkButton({ url }: { url: string }) {
-  const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-  const isSpotify = url.includes('spotify.com');
-  
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-        isYouTube 
-          ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-          : isSpotify 
-          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-          : 'bg-primary/10 text-primary hover:bg-primary/20'
-      }`}
-    >
-      {isYouTube ? (
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-        </svg>
-      ) : isSpotify ? (
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-        </svg>
-      ) : (
-        <ExternalLink className="w-4 h-4" />
-      )}
-      {isYouTube ? 'YouTube' : isSpotify ? 'Spotify' : 'Music Link'}
-    </a>
-  );
-}
-
-// Editable Section Display Component
-function PublicSectionDisplay({ 
-  section, 
-  canEdit, 
-  token,
-  onItemUpdated,
-}: { 
-  section: DJMCSection; 
-  canEdit: boolean;
-  token: string;
-  onItemUpdated: (sectionId: string, itemId: string, updates: Partial<DJMCItem>) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(true);
-  const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
-
-  const handleFieldChange = useCallback((itemId: string, field: 'value_text' | 'music_url' | 'row_label', value: string) => {
-    // Optimistic local update
-    onItemUpdated(section.id, itemId, { [field]: value });
-
-    // Debounced save
-    const key = `${itemId}-${field}`;
-    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
-    saveTimeoutRef.current[key] = setTimeout(async () => {
-      try {
-        const params: any = { share_token: token, item_id: itemId };
-        if (field === 'value_text') params.new_value_text = value;
-        if (field === 'music_url') params.new_music_url = value;
-        if (field === 'row_label') params.new_row_label = value;
-        await supabase.rpc('update_dj_mc_item_by_token', params);
-      } catch (err) {
-        console.error('Error saving DJ-MC item:', err);
-      }
-    }, 800);
-  }, [token, section.id, onItemUpdated]);
-
-  return (
-    <Card className="border-border">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors py-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-primary flex items-center gap-2">
-                <Music className="h-5 w-5" />
-                {section.section_label}
-              </CardTitle>
-              {isOpen ? (
-                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-              )}
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
-        
-        <CollapsibleContent>
-          <CardContent className="pt-0">
-            {section.notes && (
-              <div className="mb-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground italic">
-                Notes: {section.notes}
-              </div>
-            )}
-            
-            <div className="space-y-3">
-              {section.items.map((item, idx) => (
-                <div
-                  key={item.id}
-                  className={`p-3 rounded-lg border ${
-                    idx % 2 === 0 ? 'bg-background' : 'bg-muted/30'
-                  }`}
-                >
-                  <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
-                    {/* Row Label */}
-                    <div className="font-medium text-primary min-w-[150px]">
-                      {canEdit ? (
-                        <input
-                          type="text"
-                          value={item.row_label}
-                          onChange={(e) => handleFieldChange(item.id, 'row_label', e.target.value)}
-                          className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 font-medium text-primary transition-colors"
-                        />
-                      ) : (
-                        item.row_label
-                      )}
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="flex-1 space-y-2">
-                      {canEdit ? (
-                        <input
-                          type="text"
-                          value={item.value_text || ''}
-                          onChange={(e) => handleFieldChange(item.id, 'value_text', e.target.value)}
-                          placeholder="Enter value..."
-                          className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 text-foreground transition-colors"
-                        />
-                      ) : (
-                        item.value_text && (
-                          <div className="text-foreground">{item.value_text}</div>
-                        )
-                      )}
-                      
-                      {item.song_title_artist && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Badge variant="secondary" className="font-normal">
-                            🎵 {item.song_title_artist}
-                          </Badge>
-                        </div>
-                      )}
-                      
-                      {item.duration && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {item.duration}
-                        </div>
-                      )}
-
-                      {canEdit && (
-                        <input
-                          type="text"
-                          value={item.music_url || ''}
-                          onChange={(e) => handleFieldChange(item.id, 'music_url', e.target.value)}
-                          placeholder="Paste music URL..."
-                          className="w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none py-0.5 text-sm text-muted-foreground transition-colors"
-                        />
-                      )}
-                    </div>
-                    
-                    {/* Music Link (read-only display) */}
-                    {!canEdit && item.music_url && isValidUrl(item.music_url) && (
-                      <div className="flex-shrink-0">
-                        <MusicLinkButton url={item.music_url} />
-                      </div>
-                    )}
-                    {canEdit && item.music_url && isValidUrl(item.music_url) && (
-                      <div className="flex-shrink-0">
-                        <MusicLinkButton url={item.music_url} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              
-              {section.items.length === 0 && (
-                <div className="text-center py-4 text-muted-foreground">
-                  No items in this section
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
-  );
-}
 
 export function DJMCPublicView() {
   const params = useParams<{ token: string; eventSlug?: string }>();
@@ -264,6 +69,7 @@ export function DJMCPublicView() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   const fetchData = useCallback(async () => {
     if (!token) {
@@ -324,41 +130,301 @@ export function DJMCPublicView() {
   // Realtime subscription for live sync
   useEffect(() => {
     if (!data?.questionnaire_id) return;
-    // Subscribe to dj_mc_items changes for all sections in this questionnaire
     const sectionIds = data.sections.map(s => s.id);
-    if (sectionIds.length === 0) return;
 
     const channel = supabase
-      .channel(`public-djmc-items:${data.questionnaire_id}`)
+      .channel(`public-djmc:${data.questionnaire_id}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'dj_mc_items',
       }, (payload) => {
-        // Only re-fetch if the changed item belongs to one of our sections
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
         if (changedSectionId && sectionIds.includes(changedSectionId)) {
           fetchData();
         }
       })
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'dj_mc_sections',
+      }, () => {
+        fetchData();
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'dj_mc_share_tokens',
+      }, (payload) => {
+        const updatedToken = payload.new as any;
+        if (updatedToken && data) {
+          const tokenMatches = updatedToken.token === token || 
+            updatedToken.token === token + '=' || 
+            updatedToken.token === token + '==';
+          if (tokenMatches && updatedToken.permission !== data.permission) {
+            setData(prev => prev ? { ...prev, permission: updatedToken.permission } : prev);
+          }
+        }
+      })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [data?.questionnaire_id, data?.sections, fetchData]);
+  }, [data?.questionnaire_id, data?.sections, data?.permission, token, fetchData]);
 
-  const handleItemUpdated = useCallback((sectionId: string, itemId: string, updates: Partial<DJMCItem>) => {
+  const canEdit = data?.permission === 'can_edit';
+
+  // ── Token-secured mutation handlers ──
+
+  const handleUpdateSection = useCallback((sectionId: string, updates: Partial<DJMCSection>) => {
+    if (!token || !canEdit) return;
+    
+    // Optimistic update
     setData(prev => {
       if (!prev) return prev;
       return {
         ...prev,
         sections: prev.sections.map(s =>
-          s.id === sectionId
-            ? { ...s, items: s.items.map(i => i.id === itemId ? { ...i, ...updates } : i) }
-            : s
+          s.id === sectionId ? { ...s, ...updates } : s
         ),
       };
     });
-  }, []);
+
+    // Debounced save
+    const key = `section-${sectionId}`;
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      try {
+        await supabase.rpc('update_dj_mc_section_by_token', {
+          share_token: token,
+          p_section_id: sectionId,
+          new_section_label: updates.section_label ?? null,
+          new_notes: updates.notes ?? null,
+          new_is_collapsed: updates.is_collapsed ?? null,
+          clear_notes: updates.notes === null && 'notes' in updates,
+        });
+      } catch (err) {
+        console.error('Error updating section:', err);
+      }
+    }, 600);
+  }, [token, canEdit]);
+
+  const handleUpdateItem = useCallback((itemId: string, updates: Partial<DJMCItem>) => {
+    if (!token || !canEdit) return;
+
+    // Optimistic update
+    setData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections.map(s => ({
+          ...s,
+          items: s.items.map(i =>
+            i.id === itemId ? { ...i, ...updates } : i
+          ),
+        })),
+      };
+    });
+
+    // Debounced save
+    const key = `item-${itemId}`;
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      try {
+        await supabase.rpc('update_dj_mc_item_by_token', {
+          share_token: token,
+          item_id: itemId,
+          new_value_text: updates.value_text ?? null,
+          new_music_url: updates.music_url ?? null,
+          new_row_label: updates.row_label ?? null,
+          new_song_title_artist: updates.song_title_artist ?? null,
+          new_duration: updates.duration ?? null,
+          new_pronunciation_audio_url: updates.pronunciation_audio_url ?? null,
+        });
+      } catch (err) {
+        console.error('Error updating item:', err);
+      }
+    }, 600);
+  }, [token, canEdit]);
+
+  const handleAddItem = useCallback(async (sectionId: string) => {
+    if (!token || !canEdit || !data) return;
+
+    const section = data.sections.find(s => s.id === sectionId);
+    const orderIndex = section ? section.items.length : 0;
+
+    try {
+      const { data: result } = await supabase.rpc('add_dj_mc_item_by_token', {
+        share_token: token,
+        p_section_id: sectionId,
+        p_row_label: 'New Item',
+        at_order_index: orderIndex,
+      });
+
+      if (result) {
+        const newItem = result as unknown as DJMCItem;
+        setData(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            sections: prev.sections.map(s =>
+              s.id === sectionId ? { ...s, items: [...s.items, newItem] } : s
+            ),
+          };
+        });
+      }
+    } catch (err) {
+      console.error('Error adding item:', err);
+    }
+  }, [token, canEdit, data]);
+
+  const handleDeleteItem = useCallback(async (itemId: string) => {
+    if (!token || !canEdit) return;
+
+    // Optimistic
+    setData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections.map(s => ({
+          ...s,
+          items: s.items.filter(i => i.id !== itemId),
+        })),
+      };
+    });
+
+    try {
+      await supabase.rpc('delete_dj_mc_item_by_token', {
+        share_token: token,
+        item_id: itemId,
+      });
+    } catch (err) {
+      console.error('Error deleting item:', err);
+      fetchData(); // revert on failure
+    }
+  }, [token, canEdit, fetchData]);
+
+  const handleDuplicateItem = useCallback(async (item: DJMCItem) => {
+    if (!token || !canEdit) return;
+
+    try {
+      const { data: result } = await supabase.rpc('duplicate_dj_mc_item_by_token', {
+        share_token: token,
+        item_id: item.id,
+      });
+
+      if (result) {
+        const newItem = result as unknown as DJMCItem;
+        setData(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            sections: prev.sections.map(s =>
+              s.id === item.section_id
+                ? {
+                    ...s,
+                    items: [
+                      ...s.items.slice(0, s.items.findIndex(i => i.id === item.id) + 1),
+                      newItem,
+                      ...s.items.slice(s.items.findIndex(i => i.id === item.id) + 1),
+                    ],
+                  }
+                : s
+            ),
+          };
+        });
+      }
+    } catch (err) {
+      console.error('Error duplicating item:', err);
+    }
+  }, [token, canEdit]);
+
+  const handleReorderItems = useCallback(async (sectionId: string, items: DJMCItem[]) => {
+    if (!token || !canEdit) return;
+
+    // Optimistic
+    setData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections.map(s =>
+          s.id === sectionId ? { ...s, items } : s
+        ),
+      };
+    });
+
+    try {
+      await supabase.rpc('reorder_dj_mc_items_by_token', {
+        share_token: token,
+        p_section_id: sectionId,
+        item_ids: items.map(i => i.id),
+      });
+    } catch (err) {
+      console.error('Error reordering items:', err);
+    }
+  }, [token, canEdit]);
+
+  const handleResetToDefault = useCallback(async (sectionId: string) => {
+    if (!token || !canEdit || !data) return;
+
+    const section = data.sections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    const template = DEFAULT_SECTION_TEMPLATES.find(t => t.section_type === section.section_type);
+    if (!template) return;
+
+    try {
+      const defaultItems = template.items.map(item => ({ row_label: item.row_label }));
+      await supabase.rpc('reset_dj_mc_section_by_token', {
+        share_token: token,
+        p_section_id: sectionId,
+        p_default_label: template.section_label,
+        p_default_items: defaultItems as any,
+      });
+      fetchData();
+    } catch (err) {
+      console.error('Error resetting section:', err);
+    }
+  }, [token, canEdit, data, fetchData]);
+
+  const handleDuplicateSection = useCallback(async (sectionId: string) => {
+    if (!token || !canEdit) return;
+
+    try {
+      const { data: result } = await supabase.rpc('duplicate_dj_mc_section_by_token', {
+        share_token: token,
+        p_section_id: sectionId,
+      });
+
+      if (result) {
+        fetchData(); // Full refetch to get correct ordering
+      }
+    } catch (err) {
+      console.error('Error duplicating section:', err);
+    }
+  }, [token, canEdit, fetchData]);
+
+  const handleDeleteSection = useCallback(async (sectionId: string) => {
+    if (!token || !canEdit) return;
+
+    // Optimistic
+    setData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        sections: prev.sections.filter(s => s.id !== sectionId),
+      };
+    });
+
+    try {
+      await supabase.rpc('delete_dj_mc_section_by_token', {
+        share_token: token,
+        p_section_id: sectionId,
+      });
+    } catch (err) {
+      console.error('Error deleting section:', err);
+      fetchData();
+    }
+  }, [token, canEdit, fetchData]);
 
   const handleDownloadPDF = async () => {
     if (!data) return;
@@ -385,6 +451,27 @@ export function DJMCPublicView() {
       console.error('PDF generation failed:', err);
     } finally {
       setDownloadingPDF(false);
+    }
+  };
+
+  const handleDownloadSectionPDF = async (section: DJMCSection) => {
+    if (!data) return;
+    try {
+      const eventData = {
+        id: data.event_id,
+        name: data.event_name,
+        date: data.event_date,
+        venue: data.event_venue,
+        start_time: data.start_time,
+        finish_time: data.finish_time,
+        ceremony_date: data.ceremony_date,
+        ceremony_venue: data.ceremony_venue,
+        ceremony_start_time: data.ceremony_start_time,
+        ceremony_finish_time: data.ceremony_finish_time,
+      };
+      await exportSectionPDF(section, eventData);
+    } catch (err) {
+      console.error('Section PDF generation failed:', err);
     }
   };
 
@@ -416,11 +503,7 @@ export function DJMCPublicView() {
     );
   }
 
-  if (!data) {
-    return null;
-  }
-
-  const canEdit = data.permission === 'can_edit';
+  if (!data) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -463,36 +546,73 @@ export function DJMCPublicView() {
         </div>
       </header>
 
-      {/* Event Info Banner */}
-      <div className="bg-primary/5 border-b border-primary/10 print:bg-transparent">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-            {data.event_date && (
-              <div className="flex items-center gap-2 text-foreground">
-                <Calendar className="h-4 w-4 text-primary" />
-                {formatFullDate(data.event_date)}
+      {/* Ceremony + Reception Event Details Banner */}
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <div className="text-center py-4 border-b border-border space-y-3">
+          <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
+          
+          <div className="flex justify-center gap-8 flex-wrap">
+            {/* Ceremony Section */}
+            {data.ceremony_date && (
+              <div className="text-left min-w-[280px]">
+                <div>
+                  <span className="font-semibold text-primary">Ceremony:</span>
+                  <span className="ml-2 text-muted-foreground">
+                    {formatFullDate(data.ceremony_date)}
+                  </span>
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Start: {formatTimeDisplay(data.ceremony_start_time)} — Finish: {formatTimeDisplay(data.ceremony_finish_time)}
+                </div>
+                {data.ceremony_venue && (
+                  <div className="text-sm text-muted-foreground">
+                    {data.ceremony_venue}
+                  </div>
+                )}
               </div>
             )}
-            {data.event_venue && (
-              <div className="flex items-center gap-2 text-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                {data.event_venue}
+            
+            {/* Reception Section */}
+            {data.event_date && (
+              <div className="text-left min-w-[280px]">
+                <div>
+                  <span className="font-semibold text-primary">Reception:</span>
+                  <span className="ml-2 text-muted-foreground">
+                    {formatFullDate(data.event_date)}
+                  </span>
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Start: {formatTimeDisplay(data.start_time)} — Finish: {formatTimeDisplay(data.finish_time)}
+                </div>
+                {data.event_venue && (
+                  <div className="text-sm text-muted-foreground">
+                    {data.event_venue}
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content — Uses same DJMCQuestionnaireSection as dashboard */}
       <main className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-4">
           {data.sections.map((section) => (
-            <PublicSectionDisplay 
-              key={section.id} 
-              section={section} 
-              canEdit={canEdit}
-              token={token || ''}
-              onItemUpdated={handleItemUpdated}
+            <DJMCQuestionnaireSection
+              key={section.id}
+              section={section}
+              onUpdateSection={(updates) => handleUpdateSection(section.id, updates)}
+              onUpdateItem={(itemId, updates) => handleUpdateItem(itemId, updates)}
+              onAddItem={() => handleAddItem(section.id)}
+              onDeleteItem={(itemId) => handleDeleteItem(itemId)}
+              onDuplicateItem={(item) => handleDuplicateItem(item)}
+              onReorderItems={(items) => handleReorderItems(section.id, items)}
+              onResetToDefault={() => handleResetToDefault(section.id)}
+              onDuplicateSection={() => handleDuplicateSection(section.id)}
+              onDeleteSection={() => handleDeleteSection(section.id)}
+              onDownloadSectionPDF={() => handleDownloadSectionPDF(section)}
+              disabled={!canEdit}
             />
           ))}
           
