@@ -47,8 +47,6 @@ export function DJMCSectionRow({
   onDelete,
   onDuplicate,
   onClearText,
-  onUndo,
-  canUndo = false,
   disabled = false,
 }: DJMCSectionRowProps) {
   const [editingLabel, setEditingLabel] = useState(false);
