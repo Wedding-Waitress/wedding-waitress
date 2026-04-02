@@ -89,6 +89,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       // Fetch full questionnaire with sections and items
       const fullQuestionnaire = await fetchFullQuestionnaire(questionnaireId);
       setQuestionnaire(fullQuestionnaire);
+      if (eventId) questionnaireCache.set(eventId, fullQuestionnaire);
 
       // Fetch share tokens
       await fetchShareTokens(questionnaireId);
