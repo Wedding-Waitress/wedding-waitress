@@ -1,43 +1,85 @@
 
+Plan: Fix the remaining multiline typing bug in Running Sheet “Who” textboxes
 
-## Plan: Fix Shared Link Save Persistence and Input Lag
+Summary
 
-### Problem Analysis
-Two related bugs, both caused by the same root issue — a **realtime feedback loop**:
+The remaining problem is not in the textarea component itself. It is most likely caused by the dashboard Running Sheet hook re-fetching the whole sheet after its own autosave, which interrupts controlled textarea typing right after Enter/newline. That matches your symptom exactly: first line works, then after pressing Enter the next letters get dropped or the field behaves strangely.
 
-1. **Changes from shared link don't save**: When the DJ types, the optimistic update shows the change locally, the 600ms debounced RPC fires, but the realtime subscription also detects the DB change and calls `fetchData()`. This full re-fetch from the server overwrites the local optimistic state — often reverting the DJ's edits before they've fully persisted, making it appear that changes "don't save."
+What I found
 
-2. **Input lag in "Who" field (and other textareas)**: Same cause. Each keystroke triggers an optimistic update → debounced save → realtime event → full `fetchData()` re-render. The textarea loses its in-progress value and auto-resize recalculates, causing visible lag and lost keystrokes.
+- `RunningSheetRow.tsx` already supports multiline text correctly and is not the main problem.
+- `RunningSheetPublicView.tsx` already has the new `lastSaveRef` guard and 300ms save timing.
+- But `useRunningSheet.ts` still:
+  - uses a dashboard realtime subscription that always calls `fetchSheet()` on every item change
+  - uses one shared debounced saver for all row edits
+  - has no self-save guard
+- `useDJMCQuestionnaire.ts` has the same dashboard-side realtime refetch pattern, so it can suffer from the same interruption issue too.
 
-### Root Cause
-Both `RunningSheetPublicView.tsx` and `DJMCPublicView.tsx` subscribe to realtime changes and call `fetchData()` on every change event — including changes triggered by the user's own saves. The dashboard hook (`useRunningSheet.ts`) has the same pattern but uses direct table `.update()` which is faster, reducing the window for conflict. The public views use RPC calls which are slower, widening the race window.
+Implementation plan
 
-### Fix Strategy
-**Suppress self-triggered refetches** using a "recently saved" guard. When the public view itself saves an item, set a short cooldown flag. During the cooldown, ignore realtime events (they're just echoes of our own save). After the cooldown, resume listening for external changes (from the dashboard owner).
+1. Fix dashboard Running Sheet autosave feedback loop
+- Update `src/hooks/useRunningSheet.ts`
+- Add a `lastSaveRef` timestamp like the public shared view uses
+- Before each local row save, mark `lastSaveRef.current = Date.now()`
+- In the dashboard realtime subscription, ignore `running_sheet_items` events that happen inside a short cooldown window after a local save
+- Keep external vendor edits syncing in normally after that cooldown
 
-### Files to Change
+2. Replace the single shared debounce with per-row debounce
+- Still in `src/hooks/useRunningSheet.ts`
+- Replace the current single lodash debounced function with per-item timeouts keyed by row id
+- This prevents one row edit from cancelling or interfering with another row’s save
+- Reduce debounce to 300ms so multiline typing feels immediate
 
-**`src/pages/RunningSheetPublicView.tsx`**:
-- Add a `lastSaveRef` (timestamp) that gets set whenever a debounced save completes
-- In the realtime subscription callback, skip `fetchData()` if `Date.now() - lastSaveRef.current < 2000` (2-second cooldown)
-- Reduce debounce from 600ms to 300ms for snappier saves
-- This ensures: DJ types → save fires → realtime event ignored (self-echo) → typing uninterrupted. Dashboard owner edits → no recent self-save → refetch fires → DJ sees update.
+3. Keep local textarea state stable during typing
+- Preserve the current optimistic update pattern
+- Prevent full-sheet refetches from interrupting active typing in the “Who” column
+- Only fall back to `fetchSheet()` on real save failures or truly external changes
 
-**`src/pages/DJMCPublicView.tsx`**:
-- Identical fix: add `lastSaveRef` guard to suppress self-triggered realtime refetches
-- Reduce debounce from 600ms to 300ms
-- Apply to both item and section update handlers
+4. Apply the same dashboard-side protection to DJ-MC
+- Update `src/hooks/useDJMCQuestionnaire.ts`
+- Add the same self-save realtime guard for item/section updates
+- Prevent dashboard questionnaire typing from being interrupted by its own realtime echo
+- Keep cross-user sync intact
 
-### No Changes To
-- `RunningSheetRow.tsx` — locked, no changes needed (textarea handling is fine)
-- `RunningSheetSection.tsx` — locked, untouched
-- `useRunningSheet.ts` — dashboard hook, untouched
-- Database RPCs — all working correctly, the issue is frontend-only
+Files to change
 
-### Expected Result After Fix
-- DJ types in any field → instant optimistic update, no lag
-- Save persists to database within 300ms of last keystroke
-- Refreshing the page shows the saved data
-- Dashboard owner sees DJ's changes via their own realtime subscription
-- Dashboard owner's changes still sync to the DJ's shared link (after the 2s cooldown window)
+- `src/hooks/useRunningSheet.ts`
+- `src/hooks/useDJMCQuestionnaire.ts`
 
+No planned changes
+
+- `src/components/Dashboard/RunningSheet/RunningSheetRow.tsx`
+- `src/components/Dashboard/RunningSheet/RunningSheetSection.tsx`
+
+Why this should fix your exact bug
+
+Current flow is effectively:
+
+```text
+type in Who field
+-> optimistic local update
+-> autosave fires
+-> realtime event arrives from that same save
+-> whole sheet re-fetches
+-> textarea re-renders while user is typing
+-> cursor/value gets disrupted, especially after Enter
+```
+
+After the fix:
+
+```text
+type in Who field
+-> optimistic local update
+-> autosave fires
+-> self-triggered realtime event is ignored
+-> textarea keeps its local typing state
+-> external edits from other people still sync in
+```
+
+Expected result
+
+- Pressing Enter in any “Who” textbox will reliably create a new line
+- Typing on the next line will continue normally without dropped letters
+- Autosave will still happen quickly in the background
+- Vendor/shared-link edits will still sync back into the dashboard
+- DJ-MC dashboard editing will be protected by the same fix
