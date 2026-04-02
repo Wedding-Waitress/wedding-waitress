@@ -5,9 +5,9 @@
  *
  * CRITICAL RULES:
  * - DO NOT modify without explicit owner approval
- * - Changes could break running sheet data, sharing, or PDF export
+ * - Changes could break running sheet data, sharing, PDF export, or caching
  *
- * Last locked: 2026-02-19
+ * Last locked: 2026-04-02
  */
 import React, { useState, useCallback } from 'react';
 import { ClipboardList, Loader2, FileText, Share2 } from 'lucide-react';

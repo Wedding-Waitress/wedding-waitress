@@ -8,7 +8,7 @@
  * - Changes could break running sheet data, sharing, or PDF export
  *
  * Last locked: 2026-02-24
- * Last updated: 2026-04-02 — Added per-page footer with logo, page numbering, and consistent margins (owner-approved)
+ * Last locked: 2026-04-02
  */
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
