@@ -129,7 +129,7 @@ export function RunningSheetPublicView() {
     fetchData();
   }, [fetchData]);
 
-  // Realtime subscription for live sync
+  // Realtime subscription for live sync — items
   useEffect(() => {
     if (!data?.sheet_id) return;
     const channel = supabase
@@ -140,7 +140,25 @@ export function RunningSheetPublicView() {
         table: 'running_sheet_items',
         filter: `sheet_id=eq.${data.sheet_id}`,
       }, () => {
-        // Re-fetch on any change to keep in sync
+        fetchData();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [data?.sheet_id, fetchData]);
+
+  // Realtime subscription for permission changes on share tokens
+  useEffect(() => {
+    if (!data?.sheet_id) return;
+    const channel = supabase
+      .channel(`public-rs-tokens:${data.sheet_id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'running_sheet_share_tokens',
+        filter: `sheet_id=eq.${data.sheet_id}`,
+      }, () => {
+        // Re-fetch to pick up permission changes
         fetchData();
       })
       .subscribe();

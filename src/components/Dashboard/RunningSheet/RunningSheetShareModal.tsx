@@ -179,7 +179,7 @@ export function RunningSheetShareModal({
                           {token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
                         </span>
                         {token.last_accessed_at && (
-                          <span>Last used: {format(new Date(token.last_accessed_at), 'MMM d, yyyy')}</span>
+                          <span>Last used: {format(new Date(token.last_accessed_at), 'd MMMM yyyy - h:mm a')}</span>
                         )}
                       </div>
                     </div>
