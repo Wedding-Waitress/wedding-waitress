@@ -679,18 +679,59 @@ export function DJMCSectionRow({
         </div>
       )}
 
-      {/* Action buttons */}
-      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDuplicate} title="Duplicate">
-          <Copy className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowClearDialog(true)} title="Clear Text">
-          <Eraser className="h-3.5 w-3.5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)} title="Delete">
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
-      </div>
+      {/* Row actions - 3-dot menu */}
+      {!disabled && (
+        <div className="shrink-0 mt-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
+                <Undo2 className="h-4 w-4 mr-2" />
+                Undo
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
+                <Highlighter className="h-4 w-4 mr-2" />
+                Highlight Row
+                {item.is_section_header && <span className="ml-auto text-xs text-destructive">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onDuplicate}>
+                <Copy className="h-4 w-4 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
+                <Eraser className="h-4 w-4 mr-2" />
+                Clear Text
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onUpdate({ is_bold: !item.is_bold })}>
+                <Bold className="h-4 w-4 mr-2" />
+                Bold
+                {item.is_bold && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUpdate({ is_italic: !item.is_italic })}>
+                <Italic className="h-4 w-4 mr-2" />
+                Italic
+                {item.is_italic && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUpdate({ is_underline: !item.is_underline })}>
+                <Underline className="h-4 w-4 mr-2" />
+                Underline
+                {item.is_underline && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-destructive" onClick={() => setShowDeleteDialog(true)}>
+                <Trash className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
 
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
         <AlertDialogContent>
