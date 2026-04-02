@@ -18,11 +18,19 @@ import { DEFAULT_SECTION_TEMPLATES, SECTION_ORDER } from '@/lib/djMCQuestionnair
 // Self-save cooldown: ignore realtime events within this window after a local save
 const SELF_SAVE_COOLDOWN_MS = 2000;
 
+// Module-level cache for instant loading when returning to the page
+const questionnaireCache = new Map<string, DJMCQuestionnaire>();
+const shareTokensCache = new Map<string, DJMCShareToken[]>();
+
 export function useDJMCQuestionnaire(eventId: string | null) {
-  const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(null);
+  const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(
+    eventId ? questionnaireCache.get(eventId) ?? null : null
+  );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [shareTokens, setShareTokens] = useState<DJMCShareToken[]>([]);
+  const [shareTokens, setShareTokens] = useState<DJMCShareToken[]>(
+    eventId ? shareTokensCache.get(eventId) ?? [] : []
+  );
   const { toast } = useToast();
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
