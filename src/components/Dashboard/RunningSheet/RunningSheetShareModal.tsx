@@ -84,14 +84,20 @@ export function RunningSheetShareModal({
   const toggleTokenPermission = useCallback(async (tokenId: string, currentPermission: string) => {
     const newPermission = currentPermission === 'can_edit' ? 'view_only' : 'can_edit';
     try {
-      await supabase
+      const { error } = await supabase
         .from('running_sheet_share_tokens')
         .update({ permission: newPermission })
         .eq('id', tokenId);
+      if (error) {
+        console.error('Error updating token permission:', error);
+        toast({ title: 'Error', description: 'Failed to update permission', variant: 'destructive' });
+        return;
+      }
       onTokensUpdated?.();
       toast({ title: 'Updated', description: `Link set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
     } catch (error) {
       console.error('Error updating token permission:', error);
+      toast({ title: 'Error', description: 'Failed to update permission', variant: 'destructive' });
     }
   }, [onTokensUpdated, toast]);
 
