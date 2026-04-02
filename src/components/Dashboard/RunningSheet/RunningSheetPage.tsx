@@ -75,6 +75,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
     resetToDefault,
     generateShareToken,
     deleteShareToken,
+    refreshShareTokens,
   } = useRunningSheet(selectedEventId);
 
   const { questionnaire } = useDJMCQuestionnaire(selectedEventId);

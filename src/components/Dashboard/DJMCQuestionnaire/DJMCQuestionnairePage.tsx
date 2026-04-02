@@ -80,6 +80,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
     deleteSection,
     generateShareToken,
     deleteShareToken,
+    refreshShareTokens,
     calculateProgress,
   } = useDJMCQuestionnaire(selectedEventId);
 
