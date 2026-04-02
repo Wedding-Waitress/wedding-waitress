@@ -46,6 +46,7 @@ interface DJMCShareModalProps {
     validityDays?: number
   ) => Promise<string | null>;
   onDeleteToken: (tokenId: string) => void;
+  onTokensUpdated?: () => void;
   eventSlug?: string;
 }
 
@@ -55,6 +56,7 @@ export function DJMCShareModal({
   shareTokens,
   onGenerateToken,
   onDeleteToken,
+  onTokensUpdated,
   eventSlug,
 }: DJMCShareModalProps) {
   const [permission, setPermission] = useState<'view_only' | 'can_edit'>('view_only');
@@ -62,6 +64,24 @@ export function DJMCShareModal({
   const [generating, setGenerating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // When permission changes, update all existing tokens
+  const handlePermissionChange = useCallback(async (newPermission: 'view_only' | 'can_edit') => {
+    setPermission(newPermission);
+    if (shareTokens.length > 0) {
+      try {
+        const tokenIds = shareTokens.map(t => t.id);
+        await supabase
+          .from('dj_mc_share_tokens')
+          .update({ permission: newPermission })
+          .in('id', tokenIds);
+        onTokensUpdated?.();
+        toast({ title: 'Updated', description: `All existing links set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
+      } catch (error) {
+        console.error('Error updating token permissions:', error);
+      }
+    }
+  }, [shareTokens, onTokensUpdated, toast]);
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
