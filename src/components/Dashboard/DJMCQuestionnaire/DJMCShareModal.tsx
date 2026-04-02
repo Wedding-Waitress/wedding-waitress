@@ -34,6 +34,7 @@ import { DJMCShareToken } from '@/types/djMCQuestionnaire';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { buildDJQuestionnaireUrl } from '@/lib/urlUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DJMCShareModalProps {
   open: boolean;
