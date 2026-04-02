@@ -235,7 +235,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center ${formatClasses}`}
 >
               {item.value_text || <span className="text-muted-foreground">Enter song name...</span>}
             </div>
@@ -356,7 +356,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
-              className="px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate"
+              className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {displayLabel}
               {parentheticalText && (
@@ -380,7 +380,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
-              className="px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate"
+              className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {displayLabel}
               {parentheticalText && (
@@ -403,7 +403,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
-              className="px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate"
+              className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {displayLabel}
               {parentheticalText && (
@@ -430,7 +430,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add speaker name...</span>}
             </div>
@@ -455,7 +455,7 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add names...</span>}
               </div>
@@ -501,7 +501,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={() => !disabled && setEditingSongTitleArtist(true)}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {localSongTitleArtist || <span className="text-muted-foreground">Auto-fills from music link...</span>}
             </div>
@@ -529,7 +529,7 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
             </div>
@@ -549,7 +549,7 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={handleValueClick}
-                className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+                className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
               >
                 {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
               </div>
@@ -585,7 +585,7 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleValueClick}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
             </div>
@@ -625,7 +625,7 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={() => !disabled && setEditingSongTitleArtist(true)}
-              className="px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate"
+              className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {localSongTitleArtist || <span className="text-muted-foreground">Auto-fills from music link...</span>}
             </div>
