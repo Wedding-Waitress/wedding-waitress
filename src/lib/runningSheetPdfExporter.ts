@@ -142,9 +142,11 @@ const generateRunningSheetHTML = (
 
   const rows = items.map((item, idx) => {
     const bgColor = idx % 2 === 0 ? '#fafafa' : '#ffffff';
-    const cellStyle = item.is_section_header
-      ? 'font-weight:bold;color:#dc2626;'
-      : '';
+    let cellStyle = '';
+    if (item.is_section_header) cellStyle += 'font-weight:bold;color:#dc2626;';
+    if (item.is_bold) cellStyle += 'font-weight:bold;';
+    if (item.is_italic) cellStyle += 'font-style:italic;';
+    if (item.is_underline) cellStyle += 'text-decoration:underline;';
     return `
       <tr style="background:${bgColor};">
         <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:15%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
