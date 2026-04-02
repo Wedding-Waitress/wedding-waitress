@@ -378,12 +378,10 @@ export function DJMCQuestionnaireSection({
                   {/* COLUMNS 2, 3 for introductions: Names + Audio | Song Title & Artist */}
                   {section.section_type === 'introductions' && (
                     <>
-                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2 justify-center">
-                        <span>Names</span>
-                        <span className="w-10 text-center shrink-0 flex flex-col items-center leading-none">
-                          <span className="text-[9px] text-muted-foreground">Pronunciation</span>
-                          <span>Audio</span>
-                        </span>
+                      <div className="flex-1 basis-1/4 min-w-0 text-center">Names</div>
+                      <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
+                        <span className="text-[9px] text-muted-foreground">Pronunciation</span>
+                        <span>Audio</span>
                       </div>
                       <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
                     </>
@@ -391,24 +389,22 @@ export function DJMCQuestionnaireSection({
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) + Audio for main_event */}
                   {section.section_type === 'main_event' && (
-                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2 justify-center">
-                      <span>Song Title & Artist</span>
-                      <span className="w-10 text-center shrink-0 flex flex-col items-center leading-none">
+                    <>
+                      <div className="flex-1 basis-1/3 min-w-0 text-center">Song Title & Artist</div>
+                      <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
                         <span className="text-[9px] text-muted-foreground">Pronunciation</span>
                         <span>Audio</span>
-                      </span>
-                    </div>
+                      </div>
+                    </>
                   )}
                   
                   {/* COLUMNS 2, 3 for ceremony: Names / Info + Audio | Song Title & Artist */}
                   {section.section_type === 'ceremony' && (
                     <>
-                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2 justify-center">
-                        <span>Names / Info</span>
-                        <span className="w-10 text-center shrink-0 flex flex-col items-center leading-none">
-                          <span className="text-[9px] text-muted-foreground">Pronunciation</span>
-                          <span>Audio</span>
-                        </span>
+                      <div className="flex-1 basis-1/4 min-w-0 text-center">Names / Info</div>
+                      <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
+                        <span className="text-[9px] text-muted-foreground">Pronunciation</span>
+                        <span>Audio</span>
                       </div>
                       <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
                     </>
@@ -418,12 +414,10 @@ export function DJMCQuestionnaireSection({
                   {section.section_type === 'traditional' && (
                     <>
                       <div className="flex-1 basis-1/4 min-w-0 text-center">Dedication / Details</div>
-                      <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2 justify-center">
-                        <span>Song Title & Artist</span>
-                        <span className="w-10 text-center shrink-0 flex flex-col items-center leading-none">
-                          <span className="text-[9px] text-muted-foreground">Pronunciation</span>
-                          <span>Audio</span>
-                        </span>
+                      <div className="flex-1 basis-1/4 min-w-0 text-center">Song Title & Artist</div>
+                      <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
+                        <span className="text-[9px] text-muted-foreground">Pronunciation</span>
+                        <span>Audio</span>
                       </div>
                     </>
                   )}
