@@ -175,8 +175,12 @@ export function RunningSheetPublicView() {
               </div>
             </div>
             <div className="flex items-center gap-2 print:hidden">
-              <span className="inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-red-500 rounded-full text-red-500">
-                View Only
+              <span className={`inline-flex items-center px-4 py-2 text-sm font-medium border-2 rounded-full ${
+                data.permission === 'can_edit'
+                  ? 'border-amber-500 text-amber-600'
+                  : 'border-red-500 text-red-500'
+              }`}>
+                {data.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
               </span>
               <button
                 className="inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-transparent hover:bg-green-50 transition-colors disabled:opacity-50"

@@ -337,8 +337,12 @@ export function DJMCPublicView() {
             </div>
             
             <div className="flex items-center gap-2 print:hidden">
-              <span className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 border-red-500 text-red-500 bg-transparent">
-                View Only
+              <span className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 bg-transparent ${
+                data.permission === 'can_edit'
+                  ? 'border-amber-500 text-amber-600'
+                  : 'border-red-500 text-red-500'
+              }`}>
+                {data.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
               </span>
               <button
                 onClick={handleDownloadPDF}
