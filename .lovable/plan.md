@@ -1,23 +1,64 @@
 
 
-## Sync Shared Link PDF with Dashboard PDF
+## Plan: Shared Link Permission Sync, Inline Editing, and Per-Token Permission Toggle
 
-**Problem:** The `get_running_sheet_by_token` RPC function explicitly builds a JSON object for each item but omits `is_bold`, `is_italic`, and `is_underline` fields. The dashboard fetches items via `select('*')` and gets all columns, so its PDF includes formatting. The shared link PDF does not.
-
-**Root Cause:** The RPC was written before the formatting fields were added. The `jsonb_build_object` in the SQL function only includes `id`, `time_text`, `description_rich`, `responsible`, `order_index`, and `is_section_header`.
+### Problem Summary
+1. The shared link badge shows "View Only" even when the token is set to "Can Edit" -- the permission change in the Create Link tab updates all tokens globally, but the actual DB update may fail silently (RLS issue) or the public view isn't re-fetching.
+2. When permission is "Can Edit", the public Running Sheet view is read-only -- it needs inline editing capability.
+3. No per-token permission toggle exists in the Manage tab -- the user cannot change a single token's permission without affecting all others.
+4. Same issues exist for DJ-MC Questionnaire.
 
 ### Changes
 
-**1. New Supabase migration** — Update the `get_running_sheet_by_token` function to include the three formatting fields in the items JSON:
-- Add `'is_bold', COALESCE(i.is_bold, false)` to `jsonb_build_object`
-- Add `'is_italic', COALESCE(i.is_italic, false)` to `jsonb_build_object`
-- Add `'is_underline', COALESCE(i.is_underline, false)` to `jsonb_build_object`
+**1. Fix per-token permission toggle in Share Modals (Running Sheet + DJ-MC)**
 
-Note: These columns may not yet exist on the `running_sheet_items` table in the database. If they don't, we also need to add them via the migration (`ALTER TABLE running_sheet_items ADD COLUMN IF NOT EXISTS is_bold boolean DEFAULT false`, same for `is_italic` and `is_underline`).
+In `RunningSheetShareModal.tsx` and `DJMCShareModal.tsx`:
+- Remove the global "update all tokens" behavior from the Create Link permission dropdown -- it should only set the permission for the **next** link created, not change existing ones.
+- In the Manage tab, add a toggle/lock icon button **before** the Copy Link button for each token. Clicking it toggles between `view_only` and `can_edit` for that individual token and updates the DB.
+- Use a `Shield` or `Lock`/`Unlock` icon from lucide-react to indicate the permission state.
 
-**2. Update `src/pages/RunningSheetPublicView.tsx`** — Add `is_bold`, `is_italic`, `is_underline` to the `RunningSheetItem` interface so the data flows through to `exportRunningSheetPDF`.
+**2. Create RPC: `update_running_sheet_item_by_token`**
 
-**3. Update Supabase types** — Regenerate or manually add the three fields to the RPC return type in `src/integrations/supabase/types.ts`.
+New Supabase migration to create a SECURITY DEFINER function similar to the existing `update_dj_mc_item_by_token`:
+- Accepts `share_token`, `item_id`, `new_time_text`, `new_description_rich` (jsonb), `new_responsible`
+- Validates token has `can_edit` permission and is not expired
+- Validates item belongs to the sheet associated with the token
+- Updates the item and returns true/false
 
-**No other changes.** The PDF exporter already handles these fields correctly; the only gap is the data not arriving via the shared link RPC.
+**3. Make Running Sheet Public View editable when `can_edit`**
+
+In `RunningSheetPublicView.tsx`:
+- When `data.permission === 'can_edit'`, render table cells as editable (contentEditable or input fields)
+- On blur/change, call `update_running_sheet_item_by_token` RPC to persist changes
+- Add Supabase Realtime subscription on the `running_sheet_items` table filtered by `sheet_id` so both the dashboard and public view stay in sync automatically
+
+**4. Make DJ-MC Public View editable when `can_edit`**
+
+In `DJMCPublicView.tsx`:
+- When `data.permission === 'can_edit'`, make `value_text`, `music_url`, and `row_label` fields editable
+- On blur, call the existing `update_dj_mc_item_by_token` RPC
+- Add Realtime subscription on `dj_mc_items` for auto-sync back to dashboard
+
+**5. Realtime sync back to dashboard**
+
+The dashboard already uses Realtime subscriptions for guests/tables. The running sheet hook (`useRunningSheet.ts`) and DJ-MC hook (`useDJMCQuestionnaire.ts`) need Realtime channels on `running_sheet_items` and `dj_mc_items` respectively, so that when a vendor edits via the shared link, the dashboard reflects it instantly.
+
+### Files to Edit
+- `src/components/Dashboard/RunningSheet/RunningSheetShareModal.tsx` -- per-token toggle, remove global update
+- `src/components/Dashboard/DJMCQuestionnaire/DJMCShareModal.tsx` -- per-token toggle, remove global update
+- `src/pages/RunningSheetPublicView.tsx` -- inline editing + realtime subscription
+- `src/pages/DJMCPublicView.tsx` -- inline editing + realtime subscription
+- `src/hooks/useRunningSheet.ts` -- add realtime channel for items
+- `src/hooks/useDJMCQuestionnaire.ts` -- add realtime channel for items
+- New migration: `update_running_sheet_item_by_token` RPC function
+
+### Technical Detail: Per-Token Toggle UI
+
+In the Manage tab, each token row will have a new button before Copy:
+```
+[🔓/🔒] [📋 Copy] [🔗 Open] [🗑️ Delete]
+```
+- Unlocked (Shield icon) = Can Edit (amber)
+- Locked (ShieldCheck icon) = View Only (blue)
+- Clicking toggles the individual token's permission via direct DB update
 
