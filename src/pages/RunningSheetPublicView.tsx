@@ -61,6 +61,7 @@ export function RunningSheetPublicView() {
   const [sectionLabel, setSectionLabel] = useState('Running Sheet');
   const [sectionNotes, setSectionNotes] = useState<string | null>(null);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const lastSaveRef = useRef<number>(0);
 
   const fetchData = useCallback(async () => {
     if (!token) {
