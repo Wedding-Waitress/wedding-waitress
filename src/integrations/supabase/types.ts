@@ -2608,6 +2608,10 @@ export type Database = {
         }
         Returns: string
       }
+      add_running_sheet_item_by_token: {
+        Args: { at_order_index?: number; share_token: string }
+        Returns: Json
+      }
       can_access_event: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
@@ -2632,6 +2636,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      delete_running_sheet_item_by_token: {
+        Args: { item_id: string; share_token: string }
+        Returns: boolean
+      }
+      duplicate_running_sheet_item_by_token: {
+        Args: { item_id: string; share_token: string }
+        Returns: Json
       }
       generate_dj_mc_share_token: {
         Args: {
@@ -2882,6 +2894,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      reorder_running_sheet_items_by_token: {
+        Args: { item_ids: string[]; share_token: string }
+        Returns: boolean
+      }
       resolve_dynamic_qr: {
         Args: { _code: string }
         Returns: {
@@ -2923,16 +2939,31 @@ export type Database = {
         }
         Returns: boolean
       }
-      update_running_sheet_item_by_token: {
-        Args: {
-          item_id: string
-          new_description_rich?: Json
-          new_responsible?: string
-          new_time_text?: string
-          share_token: string
-        }
-        Returns: boolean
-      }
+      update_running_sheet_item_by_token:
+        | {
+            Args: {
+              item_id: string
+              new_description_rich?: Json
+              new_responsible?: string
+              new_time_text?: string
+              share_token: string
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              item_id: string
+              new_description_rich?: Json
+              new_is_bold?: boolean
+              new_is_italic?: boolean
+              new_is_section_header?: boolean
+              new_is_underline?: boolean
+              new_responsible?: string
+              new_time_text?: string
+              share_token: string
+            }
+            Returns: boolean
+          }
       upsert_notification_settings: {
         Args: {
           _email_enabled?: boolean
