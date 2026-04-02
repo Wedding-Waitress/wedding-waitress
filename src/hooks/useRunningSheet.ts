@@ -14,7 +14,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { RunningSheetItem, RunningSheetShareToken } from '@/types/runningSheet';
-import debounce from 'lodash-es/debounce';
 
 interface RunningSheetData {
   id: string;
@@ -42,6 +41,9 @@ const DEFAULT_ROWS: Omit<RunningSheetItem, 'id' | 'sheet_id' | 'created_at' | 'u
 // Module-level cache so data persists across tab switches / remounts
 const sheetCache = new Map<string, { sheet: RunningSheetData; sectionLabel: string; sectionNotes: string | null; shareTokens: RunningSheetShareToken[] }>();
 
+// Self-save cooldown: ignore realtime events within this window after a local save
+const SELF_SAVE_COOLDOWN_MS = 2000;
+
 export function useRunningSheet(eventId: string | null) {
   const cached = eventId ? sheetCache.get(eventId) : undefined;
   const [sheet, setSheet] = useState<RunningSheetData | null>(cached?.sheet ?? null);
@@ -52,12 +54,26 @@ export function useRunningSheet(eventId: string | null) {
   const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>(cached?.shareTokens ?? []);
   const { toast } = useToast();
 
+  // Self-save guard: tracks last local save timestamp
+  const lastSaveRef = useRef<number>(0);
+
+  // Per-item debounce timers keyed by item id
+  const itemSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
   // Keep cache in sync whenever state changes
   useEffect(() => {
     if (eventId && sheet) {
       sheetCache.set(eventId, { sheet, sectionLabel, sectionNotes, shareTokens });
     }
   }, [eventId, sheet, sectionLabel, sectionNotes, shareTokens]);
+
+  // Cleanup per-item timers on unmount
+  useEffect(() => {
+    return () => {
+      itemSaveTimers.current.forEach(timer => clearTimeout(timer));
+      itemSaveTimers.current.clear();
+    };
+  }, []);
 
   const fetchSheet = useCallback(async () => {
     if (!eventId) { setSheet(null); return; }
@@ -125,6 +141,7 @@ export function useRunningSheet(eventId: string | null) {
   useEffect(() => { fetchSheet(); }, [fetchSheet]);
 
   // Realtime subscription for running_sheet_items changes (e.g. edits from shared links)
+  // Uses self-save guard to prevent feedback loop when we edit locally
   useEffect(() => {
     if (!sheet?.id) return;
     const channel = supabase
@@ -135,7 +152,11 @@ export function useRunningSheet(eventId: string | null) {
         table: 'running_sheet_items',
         filter: `sheet_id=eq.${sheet.id}`,
       }, () => {
-        // Silently re-fetch items when a vendor edits via shared link
+        // Ignore realtime events caused by our own recent saves
+        if (Date.now() - lastSaveRef.current < SELF_SAVE_COOLDOWN_MS) {
+          return;
+        }
+        // External change (vendor via shared link) — sync it in
         fetchSheet();
       })
       .subscribe();
@@ -143,9 +164,15 @@ export function useRunningSheet(eventId: string | null) {
     return () => { supabase.removeChannel(channel); };
   }, [sheet?.id, fetchSheet]);
 
-  // Debounced item save
-  const debouncedItemSave = useRef(
-    debounce(async (itemId: string, updates: Partial<RunningSheetItem>) => {
+  // Per-item debounced save (300ms, keyed by item id)
+  const saveItemToDb = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
+    // Clear any existing timer for this item
+    const existing = itemSaveTimers.current.get(itemId);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(async () => {
+      itemSaveTimers.current.delete(itemId);
+      lastSaveRef.current = Date.now();
       setSaving(true);
       try {
         const { error } = await supabase.from('running_sheet_items').update(updates).eq('id', itemId);
@@ -155,21 +182,24 @@ export function useRunningSheet(eventId: string | null) {
       } finally {
         setSaving(false);
       }
-    }, 600)
-  ).current;
+    }, 300);
+
+    itemSaveTimers.current.set(itemId, timer);
+  }, []);
 
   const updateItem = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
     setSheet(prev => {
       if (!prev) return prev;
       return { ...prev, items: prev.items.map(i => i.id === itemId ? { ...i, ...updates } : i) };
     });
-    debouncedItemSave(itemId, updates);
-  }, [debouncedItemSave]);
+    saveItemToDb(itemId, updates);
+  }, [saveItemToDb]);
 
   const addItem = useCallback(async () => {
     if (!sheet) return;
     const newOrderIndex = sheet.items.length;
     try {
+      lastSaveRef.current = Date.now();
       const { data: newItem, error } = await supabase
         .from('running_sheet_items')
         .insert({ sheet_id: sheet.id, order_index: newOrderIndex, time_text: '', description_rich: { text: '' }, responsible: '', is_section_header: false })
@@ -185,6 +215,7 @@ export function useRunningSheet(eventId: string | null) {
 
   const deleteItem = useCallback(async (itemId: string) => {
     try {
+      lastSaveRef.current = Date.now();
       const { error } = await supabase.from('running_sheet_items').delete().eq('id', itemId);
       if (error) throw error;
       setSheet(prev => prev ? { ...prev, items: prev.items.filter(i => i.id !== itemId) } : prev);
@@ -197,6 +228,7 @@ export function useRunningSheet(eventId: string | null) {
   const duplicateItem = useCallback(async (item: RunningSheetItem) => {
     if (!sheet) return;
     try {
+      lastSaveRef.current = Date.now();
       const { data: newItem, error } = await supabase
         .from('running_sheet_items')
         .insert({
@@ -227,6 +259,7 @@ export function useRunningSheet(eventId: string | null) {
   const reorderItems = useCallback(async (items: RunningSheetItem[]) => {
     setSheet(prev => prev ? { ...prev, items } : prev);
     try {
+      lastSaveRef.current = Date.now();
       await Promise.all(items.map((item, index) =>
         supabase.from('running_sheet_items').update({ order_index: index }).eq('id', item.id)
       ));
@@ -238,6 +271,7 @@ export function useRunningSheet(eventId: string | null) {
   const resetToDefault = useCallback(async () => {
     if (!sheet) return;
     try {
+      lastSaveRef.current = Date.now();
       await supabase.from('running_sheet_items').delete().eq('sheet_id', sheet.id);
       const rowsToInsert = DEFAULT_ROWS.map(r => ({ ...r, sheet_id: sheet.id }));
       const { data: newItems, error } = await supabase.from('running_sheet_items').insert(rowsToInsert).select();

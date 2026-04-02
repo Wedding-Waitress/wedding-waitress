@@ -14,7 +14,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem, DJMCShareToken, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES, SECTION_ORDER } from '@/lib/djMCQuestionnaireTemplates';
-import debounce from 'lodash-es/debounce';
+
+// Self-save cooldown: ignore realtime events within this window after a local save
+const SELF_SAVE_COOLDOWN_MS = 2000;
 
 export function useDJMCQuestionnaire(eventId: string | null) {
   const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(null);
@@ -23,6 +25,14 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   const [shareTokens, setShareTokens] = useState<DJMCShareToken[]>([]);
   const { toast } = useToast();
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Self-save guard: tracks last local save timestamp
+  const lastSaveRef = useRef<number>(0);
+
+  // Per-item debounce timers
+  const itemSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  // Per-section debounce timers
+  const sectionSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Fetch or create questionnaire for event
   const fetchQuestionnaire = useCallback(async () => {
@@ -177,24 +187,30 @@ export function useDJMCQuestionnaire(eventId: string | null) {
     }
   };
 
-  // Debounced save for auto-save
-  const debouncedSave = useRef(
-    debounce(async (sectionId: string, updates: Partial<DJMCSection>) => {
+  // Per-section debounced save (300ms)
+  const saveSectionToDb = useCallback((sectionId: string, updates: Partial<DJMCSection>) => {
+    const existing = sectionSaveTimers.current.get(sectionId);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(async () => {
+      sectionSaveTimers.current.delete(sectionId);
+      lastSaveRef.current = Date.now();
       setSaving(true);
       try {
         const { error } = await supabase
           .from('dj_mc_sections')
           .update(updates)
           .eq('id', sectionId);
-
         if (error) throw error;
       } catch (error) {
         console.error('Error saving section:', error);
       } finally {
         setSaving(false);
       }
-    }, 600)
-  ).current;
+    }, 300);
+
+    sectionSaveTimers.current.set(sectionId, timer);
+  }, []);
 
   // Update section
   const updateSection = useCallback(async (sectionId: string, updates: Partial<DJMCSection>) => {
@@ -209,9 +225,38 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       };
     });
 
-    // Debounced save
-    debouncedSave(sectionId, updates);
-  }, [debouncedSave]);
+    saveSectionToDb(sectionId, updates);
+  }, [saveSectionToDb]);
+
+  // Per-item debounced save (300ms)
+  const saveItemToDb = useCallback((itemId: string, updates: Partial<DJMCItem>) => {
+    const existing = itemSaveTimers.current.get(itemId);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(async () => {
+      itemSaveTimers.current.delete(itemId);
+      lastSaveRef.current = Date.now();
+      setSaving(true);
+      try {
+        const { error } = await supabase
+          .from('dj_mc_items')
+          .update(updates)
+          .eq('id', itemId);
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error updating item:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to save changes',
+          variant: 'destructive',
+        });
+      } finally {
+        setSaving(false);
+      }
+    }, 300);
+
+    itemSaveTimers.current.set(itemId, timer);
+  }, [toast]);
 
   // Update item
   const updateItem = useCallback(async (itemId: string, updates: Partial<DJMCItem>) => {
@@ -229,26 +274,8 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       };
     });
 
-    // Save to database
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('dj_mc_items')
-        .update(updates)
-        .eq('id', itemId);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating item:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save changes',
-        variant: 'destructive',
-      });
-    } finally {
-      setSaving(false);
-    }
-  }, [toast]);
+    saveItemToDb(itemId, updates);
+  }, [saveItemToDb]);
 
   // Add new item to section
   const addItem = useCallback(async (sectionId: string, rowLabel: string = 'New Item') => {
@@ -691,6 +718,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
   }, [fetchQuestionnaire]);
 
   // Realtime subscription for dj_mc_items changes (e.g. edits from shared links)
+  // Uses self-save guard to prevent feedback loop when we edit locally
   useEffect(() => {
     if (!questionnaire?.id) return;
     const sectionIds = questionnaire.sections.map(s => s.id);
@@ -703,6 +731,10 @@ const deleteSection = useCallback(async (sectionId: string) => {
         schema: 'public',
         table: 'dj_mc_items',
       }, (payload) => {
+        // Ignore realtime events caused by our own recent saves
+        if (Date.now() - lastSaveRef.current < SELF_SAVE_COOLDOWN_MS) {
+          return;
+        }
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
         if (changedSectionId && sectionIds.includes(changedSectionId)) {
           fetchQuestionnaire();
