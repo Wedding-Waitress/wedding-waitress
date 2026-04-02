@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
+import { Calendar, MapPin, AlertCircle, Download, Loader2, FileText, Check, CloudOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';

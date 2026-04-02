@@ -2995,31 +2995,20 @@ export type Database = {
         }
         Returns: boolean
       }
-      update_running_sheet_item_by_token:
-        | {
-            Args: {
-              item_id: string
-              new_description_rich?: Json
-              new_responsible?: string
-              new_time_text?: string
-              share_token: string
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              item_id: string
-              new_description_rich?: Json
-              new_is_bold?: boolean
-              new_is_italic?: boolean
-              new_is_section_header?: boolean
-              new_is_underline?: boolean
-              new_responsible?: string
-              new_time_text?: string
-              share_token: string
-            }
-            Returns: boolean
-          }
+      update_running_sheet_item_by_token: {
+        Args: {
+          item_id: string
+          new_description_rich?: Json
+          new_is_bold?: boolean
+          new_is_italic?: boolean
+          new_is_section_header?: boolean
+          new_is_underline?: boolean
+          new_responsible?: string
+          new_time_text?: string
+          share_token: string
+        }
+        Returns: boolean
+      }
       upsert_notification_settings: {
         Args: {
           _email_enabled?: boolean
