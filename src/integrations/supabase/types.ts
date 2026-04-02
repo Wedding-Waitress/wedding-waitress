@@ -292,7 +292,11 @@ export type Database = {
           created_at: string
           duration: string | null
           id: string
+          is_bold: boolean
           is_default: boolean
+          is_italic: boolean
+          is_section_header: boolean
+          is_underline: boolean
           music_url: string | null
           order_index: number
           pronunciation_audio_url: string | null
@@ -306,7 +310,11 @@ export type Database = {
           created_at?: string
           duration?: string | null
           id?: string
+          is_bold?: boolean
           is_default?: boolean
+          is_italic?: boolean
+          is_section_header?: boolean
+          is_underline?: boolean
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
@@ -320,7 +328,11 @@ export type Database = {
           created_at?: string
           duration?: string | null
           id?: string
+          is_bold?: boolean
           is_default?: boolean
+          is_italic?: boolean
+          is_section_header?: boolean
+          is_underline?: boolean
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
