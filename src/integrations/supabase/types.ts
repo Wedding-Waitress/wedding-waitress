@@ -2175,7 +2175,10 @@ export type Database = {
           created_at: string | null
           description_rich: Json
           id: string
+          is_bold: boolean | null
+          is_italic: boolean | null
           is_section_header: boolean | null
+          is_underline: boolean | null
           order_index: number
           responsible: string | null
           sheet_id: string
@@ -2186,7 +2189,10 @@ export type Database = {
           created_at?: string | null
           description_rich?: Json
           id?: string
+          is_bold?: boolean | null
+          is_italic?: boolean | null
           is_section_header?: boolean | null
+          is_underline?: boolean | null
           order_index: number
           responsible?: string | null
           sheet_id: string
@@ -2197,7 +2203,10 @@ export type Database = {
           created_at?: string | null
           description_rich?: Json
           id?: string
+          is_bold?: boolean | null
+          is_italic?: boolean | null
           is_section_header?: boolean | null
+          is_underline?: boolean | null
           order_index?: number
           responsible?: string | null
           sheet_id?: string

@@ -30,6 +30,9 @@ interface RunningSheetItem {
   responsible: string | null;
   order_index: number;
   is_section_header: boolean;
+  is_bold?: boolean;
+  is_italic?: boolean;
+  is_underline?: boolean;
 }
 
 const formatFullDate = (dateStr: string | null | undefined): string => {
