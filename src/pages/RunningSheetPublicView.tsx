@@ -91,6 +91,10 @@ export function RunningSheetPublicView() {
       const parsedItems = (row.items as unknown as RunningSheetItem[]) || [];
       parsedItems.sort((a, b) => a.order_index - b.order_index);
 
+      // Initialize section notes and label from DB
+      setSectionLabel((row as any).section_label || 'Running Sheet');
+      setSectionNotes((row as any).section_notes || null);
+
       setData({
         sheet_id: row.sheet_id,
         event_id: row.event_id,
