@@ -179,8 +179,8 @@ export function RunningSheetShareModal({
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className={`px-1.5 py-0.5 rounded ${
                           token.permission === 'can_edit'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-blue-100 text-blue-700'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
                         }`}>
                           {token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
                         </span>
@@ -200,9 +200,9 @@ export function RunningSheetShareModal({
                               onClick={() => toggleTokenPermission(token.id, token.permission)}
                             >
                               {token.permission === 'can_edit' ? (
-                                <Unlock className="h-4 w-4 text-amber-500" />
+                                <Unlock className="h-4 w-4 text-green-500" />
                               ) : (
-                                <Lock className="h-4 w-4 text-blue-500" />
+                                <Lock className="h-4 w-4 text-red-500" />
                               )}
                             </Button>
                           </TooltipTrigger>
