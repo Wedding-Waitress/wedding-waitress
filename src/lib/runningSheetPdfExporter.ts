@@ -87,9 +87,15 @@ const formatGeneratedTimestamp = (): string => {
 };
 
 const getEventText = (item: RunningSheetItem): string => {
-  if (typeof item.description_rich === 'object' && item.description_rich?.text !== undefined) return item.description_rich.text;
-  if (typeof item.description_rich === 'string') return item.description_rich;
-  return '';
+  const rich = item.description_rich;
+  if (!rich || typeof rich === 'string') return rich || '';
+  const parts: string[] = [];
+  if (rich.text) parts.push(rich.text);
+  if (Array.isArray(rich.bullets)) {
+    rich.bullets.forEach((b: string) => parts.push(`• ${b}`));
+  }
+  if (rich.subText) parts.push(rich.subText);
+  return parts.join('\n');
 };
 
 const escapeHtml = (text: string): string => {
