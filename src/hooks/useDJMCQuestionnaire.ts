@@ -718,6 +718,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
   }, [fetchQuestionnaire]);
 
   // Realtime subscription for dj_mc_items changes (e.g. edits from shared links)
+  // Uses self-save guard to prevent feedback loop when we edit locally
   useEffect(() => {
     if (!questionnaire?.id) return;
     const sectionIds = questionnaire.sections.map(s => s.id);
@@ -730,6 +731,10 @@ const deleteSection = useCallback(async (sectionId: string) => {
         schema: 'public',
         table: 'dj_mc_items',
       }, (payload) => {
+        // Ignore realtime events caused by our own recent saves
+        if (Date.now() - lastSaveRef.current < SELF_SAVE_COOLDOWN_MS) {
+          return;
+        }
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
         if (changedSectionId && sectionIds.includes(changedSectionId)) {
           fetchQuestionnaire();
