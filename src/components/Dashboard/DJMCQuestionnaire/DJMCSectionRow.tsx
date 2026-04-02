@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
   GripVertical, Copy, Eraser, Highlighter, MoreVertical,
-  Bold, Italic, Underline, Undo2, Trash,
+  Bold, Italic, Underline, Trash,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -37,8 +37,6 @@ interface DJMCSectionRowProps {
   onDelete: () => void;
   onDuplicate: () => void;
   onClearText?: () => void;
-  onUndo?: () => void;
-  canUndo?: boolean;
   disabled?: boolean;
 }
 
@@ -49,8 +47,6 @@ export function DJMCSectionRow({
   onDelete,
   onDuplicate,
   onClearText,
-  onUndo,
-  canUndo = false,
   disabled = false,
 }: DJMCSectionRowProps) {
   const [editingLabel, setEditingLabel] = useState(false);
@@ -252,11 +248,6 @@ export function DJMCSectionRow({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
-                  <Undo2 className="h-4 w-4 mr-2" />
-                  Undo
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                   <Highlighter className="h-4 w-4 mr-2" />
                   Highlight Row
@@ -709,11 +700,6 @@ export function DJMCSectionRow({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
-                <Undo2 className="h-4 w-4 mr-2" />
-                Undo
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                 <Highlighter className="h-4 w-4 mr-2" />
                 Highlight Row

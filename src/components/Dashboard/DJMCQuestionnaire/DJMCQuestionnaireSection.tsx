@@ -69,8 +69,6 @@ interface DJMCQuestionnaireSectionProps {
   onDuplicateSection: () => void;
   onDeleteSection: () => void;
   onDownloadSectionPDF?: () => void;
-  onUndo?: () => void;
-  canUndo?: boolean;
   disabled?: boolean;
 }
 
@@ -86,8 +84,6 @@ export function DJMCQuestionnaireSection({
   onDuplicateSection,
   onDeleteSection,
   onDownloadSectionPDF,
-  onUndo,
-  canUndo = false,
   disabled = false,
 }: DJMCQuestionnaireSectionProps) {
   const [editingLabel, setEditingLabel] = useState(false);
@@ -483,8 +479,6 @@ export function DJMCQuestionnaireSection({
                       onDelete={() => onDeleteItem(item.id)}
                       onDuplicate={() => onDuplicateItem(item)}
                       onClearText={() => onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null })}
-                      onUndo={onUndo}
-                      canUndo={canUndo}
                       disabled={disabled}
                     />
                   ))}
