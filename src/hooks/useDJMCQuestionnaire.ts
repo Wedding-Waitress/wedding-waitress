@@ -49,14 +49,11 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       return;
     }
 
-    setLoading(true);
-    try {
-      // First, try to get existing questionnaire
-      const { data: existingQ, error: fetchError } = await supabase
-        .from('dj_mc_questionnaires')
-        .select('*')
-        .eq('event_id', eventId)
-        .maybeSingle();
+    // Only show loading spinner if we don't have cached data
+    const hasCachedData = questionnaireCache.has(eventId);
+    if (!hasCachedData) {
+      setLoading(true);
+    }
 
       if (fetchError) throw fetchError;
 
