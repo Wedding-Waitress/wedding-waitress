@@ -38,18 +38,31 @@ const DEFAULT_ROWS: Omit<RunningSheetItem, 'id' | 'sheet_id' | 'created_at' | 'u
   { order_index: 12, time_text: '11.00 PM', description_rich: { text: 'Conclusion' }, responsible: '', is_section_header: true },
 ];
 
+// Module-level cache so data persists across tab switches / remounts
+const sheetCache = new Map<string, { sheet: RunningSheetData; sectionLabel: string; sectionNotes: string | null; shareTokens: RunningSheetShareToken[] }>();
+
 export function useRunningSheet(eventId: string | null) {
-  const [sheet, setSheet] = useState<RunningSheetData | null>(null);
+  const cached = eventId ? sheetCache.get(eventId) : undefined;
+  const [sheet, setSheet] = useState<RunningSheetData | null>(cached?.sheet ?? null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [sectionLabel, setSectionLabel] = useState('Running Sheet');
-  const [sectionNotes, setSectionNotes] = useState<string | null>(null);
-  const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>([]);
+  const [sectionLabel, setSectionLabel] = useState(cached?.sectionLabel ?? 'Running Sheet');
+  const [sectionNotes, setSectionNotes] = useState<string | null>(cached?.sectionNotes ?? null);
+  const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>(cached?.shareTokens ?? []);
   const { toast } = useToast();
+
+  // Keep cache in sync whenever state changes
+  useEffect(() => {
+    if (eventId && sheet) {
+      sheetCache.set(eventId, { sheet, sectionLabel, sectionNotes, shareTokens });
+    }
+  }, [eventId, sheet, sectionLabel, sectionNotes, shareTokens]);
 
   const fetchSheet = useCallback(async () => {
     if (!eventId) { setSheet(null); return; }
-    setLoading(true);
+    // Only show loading spinner if we have NO cached data
+    const hasCached = sheetCache.has(eventId);
+    if (!hasCached) setLoading(true);
     try {
       const { data: existing, error: fetchErr } = await supabase
         .from('running_sheets')
