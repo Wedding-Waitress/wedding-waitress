@@ -167,9 +167,9 @@ const generateRunningSheetHTML = (
       <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;">
         <thead>
           <tr style="background:#f3f3f3;">
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:10%;text-transform:uppercase;">Time</th>
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:80%;text-transform:uppercase;">Event</th>
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:10%;text-transform:uppercase;">Who</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:15%;text-transform:uppercase;">Time</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:70%;text-transform:uppercase;">Event</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:15%;text-transform:uppercase;">Who</th>
           </tr>
         </thead>
         <tbody>
