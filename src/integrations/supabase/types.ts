@@ -2890,6 +2890,8 @@ export type Database = {
           finish_time: string
           items: Json
           permission: string
+          section_label: string
+          section_notes: string
           sheet_id: string
           start_time: string
         }[]
@@ -3035,6 +3037,14 @@ export type Database = {
           new_is_underline?: boolean
           new_responsible?: string
           new_time_text?: string
+          share_token: string
+        }
+        Returns: boolean
+      }
+      update_running_sheet_meta_by_token: {
+        Args: {
+          new_section_label?: string
+          new_section_notes?: string
           share_token: string
         }
         Returns: boolean
