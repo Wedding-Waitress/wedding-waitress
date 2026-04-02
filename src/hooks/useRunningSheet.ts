@@ -75,6 +75,34 @@ export function useRunningSheet(eventId: string | null) {
     };
   }, []);
 
+  // Debounced save for section meta (notes/label)
+  const metaSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  const saveMetaToDb = useCallback((notes: string | null, label: string) => {
+    if (!sheet) return;
+    if (metaSaveTimer.current) clearTimeout(metaSaveTimer.current);
+    metaSaveTimer.current = setTimeout(async () => {
+      lastSaveRef.current = Date.now();
+      try {
+        await supabase.from('running_sheets').update({
+          section_notes: notes,
+          section_label: label,
+        } as any).eq('id', sheet.id);
+      } catch (error) {
+        console.error('Error saving section meta:', error);
+      }
+    }, 400);
+  }, [sheet]);
+
+  const setSectionLabelAndSave = useCallback((label: string) => {
+    setSectionLabel(label);
+    saveMetaToDb(sectionNotes, label);
+  }, [saveMetaToDb, sectionNotes]);
+
+  const setSectionNotesAndSave = useCallback((notes: string | null) => {
+    setSectionNotes(notes);
+    saveMetaToDb(notes, sectionLabel);
+  }, [saveMetaToDb, sectionLabel]);
+
   const fetchSheet = useCallback(async () => {
     if (!eventId) { setSheet(null); return; }
     // Only show loading spinner if we have NO cached data
@@ -91,6 +119,9 @@ export function useRunningSheet(eventId: string | null) {
       let sheetId: string;
       if (existing) {
         sheetId = existing.id;
+        // Load persisted section meta
+        setSectionLabel((existing as any).section_label || 'Running Sheet');
+        setSectionNotes((existing as any).section_notes || null);
       } else {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
