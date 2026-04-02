@@ -69,8 +69,6 @@ interface DJMCQuestionnaireSectionProps {
   onDuplicateSection: () => void;
   onDeleteSection: () => void;
   onDownloadSectionPDF?: () => void;
-  onUndo?: () => void;
-  canUndo?: boolean;
   disabled?: boolean;
 }
 
