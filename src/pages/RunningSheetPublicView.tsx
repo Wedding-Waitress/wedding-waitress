@@ -91,10 +91,6 @@ export function RunningSheetPublicView() {
       const parsedItems = (row.items as unknown as RunningSheetItem[]) || [];
       parsedItems.sort((a, b) => a.order_index - b.order_index);
 
-      // Initialize section notes and label from DB
-      setSectionLabel((row as any).section_label || 'Running Sheet');
-      setSectionNotes((row as any).section_notes || null);
-
       setData({
         sheet_id: row.sheet_id,
         event_id: row.event_id,
@@ -428,29 +424,9 @@ export function RunningSheetPublicView() {
       <main className="max-w-4xl mx-auto px-4 py-6">
         <RunningSheetSection
           label={sectionLabel}
-          onLabelChange={(newLabel) => {
-            setSectionLabel(newLabel);
-            if (canEdit && token) {
-              supabase.rpc('update_running_sheet_meta_by_token', {
-                share_token: token,
-                new_section_label: newLabel,
-              });
-            }
-          }}
+          onLabelChange={setSectionLabel}
           notes={sectionNotes}
-          onNotesChange={(newNotes) => {
-            setSectionNotes(newNotes);
-            if (canEdit && token) {
-              const key = 'meta-notes';
-              if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
-              saveTimeoutRef.current[key] = setTimeout(() => {
-                supabase.rpc('update_running_sheet_meta_by_token', {
-                  share_token: token,
-                  new_section_notes: newNotes,
-                });
-              }, 400);
-            }
-          }}
+          onNotesChange={setSectionNotes}
           items={data.items}
           onUpdateItem={handleUpdateItem}
           onAddItem={handleAddItem}
