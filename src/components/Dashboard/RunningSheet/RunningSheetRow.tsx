@@ -35,6 +35,8 @@ interface RunningSheetRowProps {
   onDelete: (itemId: string) => void;
   onClearText?: (itemId: string) => void;
   onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
   disabled?: boolean;
   hasDJMCData?: boolean;
 }
