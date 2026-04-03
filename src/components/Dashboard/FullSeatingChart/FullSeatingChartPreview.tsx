@@ -122,6 +122,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const col1Guests = currentGuests.slice(0, currentPageInfo.col1Count);
   const col2Guests = currentGuests.slice(currentPageInfo.col1Count);
 
+  // Format table display - use name from map if available
+  const formatTableDisplay = (tableNo: number | null) => {
+    if (!tableNo) return 'Unassigned';
+    return tableNameMap[tableNo] || `Table ${tableNo}`;
+  };
+
   // Format guest name - first name only for two-line display
   const formatGuestName = (guest: Guest) => {
     return guest.first_name;
