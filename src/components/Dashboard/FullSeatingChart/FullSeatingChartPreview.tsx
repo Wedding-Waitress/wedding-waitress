@@ -282,7 +282,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   // Print version guest row - two-line format matching screen
-  const PrintGuestRow = ({ guest, index }: { guest: Guest; index: number }) => {
+  const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const isUnassigned = !guest.table_no;
     const showBorder = index % 2 === 0;
