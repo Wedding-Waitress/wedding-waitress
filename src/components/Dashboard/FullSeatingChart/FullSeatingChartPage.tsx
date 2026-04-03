@@ -226,7 +226,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         return tableA - tableB;
       }
     });
-  }, [guests, settings.sortBy]);
+  }, [guests, settings.sortBy, tableNameMap]);
 
   const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
 
