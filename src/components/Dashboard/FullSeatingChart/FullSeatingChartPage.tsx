@@ -326,8 +326,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   </div>
                 </div>
               )}
-            </div>
-          )}
+          </div>
         </CardHeader>
       </Card>
 
