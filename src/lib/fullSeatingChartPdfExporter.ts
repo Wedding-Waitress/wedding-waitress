@@ -5,6 +5,7 @@ interface Guest {
   id: string;
   first_name: string;
   last_name: string | null;
+  table_id: string | null;
   table_no: number | null;
   dietary: string | null;
   relation_display: string | null;
@@ -99,12 +100,17 @@ const formatGuestName = (guest: Guest): string => {
   return `${guest.first_name} ${guest.last_name || ''}`.trim();
 };
 
-// Format table assignment using name map
-const formatTableAssignment = (tableNo: number | null, tableNameMap?: Record<number, string>): string => {
-  if (!tableNo) return 'Unassigned';
-  if (tableNameMap && tableNameMap[tableNo]) return tableNameMap[tableNo];
-  return `Table ${tableNo}`;
+// Format table assignment using name maps
+const formatTableAssignment = (guest: Guest, tableNameMap?: Record<number, string>, tableIdNameMap?: Record<string, string>): string => {
+  if (guest.table_no) {
+    if (tableNameMap && tableNameMap[guest.table_no]) return tableNameMap[guest.table_no];
+    return `Table ${guest.table_no}`;
+  }
+  if (guest.table_id && tableIdNameMap && tableIdNameMap[guest.table_id]) return tableIdNameMap[guest.table_id];
+  return 'Unassigned';
 };
+
+const isGuestUnassigned = (guest: Guest): boolean => !guest.table_no && !guest.table_id;
 
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
@@ -159,7 +165,8 @@ export const exportFullSeatingChartToPdf = async (
   settings: FullSeatingChartSettings,
   pageNum?: number,
   totalPagesOverride?: number,
-  tableNameMap?: Record<number, string>
+  tableNameMap?: Record<number, string>,
+  tableIdNameMap?: Record<string, string>
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -318,10 +325,10 @@ export const exportFullSeatingChartToPdf = async (
         }
         
         // Table assignment (right-aligned)
-        const tableText = formatTableAssignment(guest.table_no, tableNameMap);
+        const tableText = formatTableAssignment(guest, tableNameMap, tableIdNameMap);
         pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
-        if (!guest.table_no) {
+        if (isGuestUnassigned(guest)) {
           pdf.setTextColor(147, 51, 234); // purple for unassigned
         } else {
           pdf.setTextColor(0, 0, 0); // black for assigned

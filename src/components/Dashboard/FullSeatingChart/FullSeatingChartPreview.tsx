@@ -53,6 +53,7 @@ interface FullSeatingChartPreviewProps {
   guests: Guest[];
   settings: FullSeatingChartSettings;
   tableNameMap?: Record<number, string>;
+  tableIdNameMap?: Record<string, string>;
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
@@ -60,6 +61,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   guests,
   settings,
   tableNameMap = {},
+  tableIdNameMap = {},
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -122,10 +124,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const col2Guests = currentGuests.slice(currentPageInfo.col1Count);
 
   // Format table display - use name from map if available
-  const formatTableDisplay = (tableNo: number | null) => {
-    if (!tableNo) return 'Unassigned';
-    return tableNameMap[tableNo] || `Table ${tableNo}`;
+  const formatTableDisplay = (guest: Guest) => {
+    if (guest.table_no) return tableNameMap[guest.table_no] || `Table ${guest.table_no}`;
+    if (guest.table_id && tableIdNameMap[guest.table_id]) return tableIdNameMap[guest.table_id];
+    return 'Unassigned';
   };
+
+  const isGuestUnassigned = (guest: Guest) => !guest.table_no && !guest.table_id;
 
   // Format guest name - full name (first + last)
   const formatGuestName = (guest: Guest) => {
@@ -248,8 +253,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Screen version guest row - matches PDF layout exactly
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
-    const tableText = formatTableDisplay(guest.table_no);
-    const isUnassigned = !guest.table_no;
+    const tableText = formatTableDisplay(guest);
+    const isUnassigned = isGuestUnassigned(guest);
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
@@ -292,7 +297,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Print version guest row - two-line format matching screen
   const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
-    const isUnassigned = !guest.table_no;
+    const isUnassigned = isGuestUnassigned(guest);
     return (
       <div className="print-guest-item print-guest-two-line" style={{ borderBottom: '1px solid #e5e5e5' }}>
         <span className="print-checkbox">☐</span>
@@ -301,7 +306,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
         </div>
         <span className={`print-table ${isUnassigned ? 'print-table-unassigned' : ''}`}>
-          {formatTableDisplay(guest.table_no)}
+          {formatTableDisplay(guest)}
         </span>
       </div>
     );

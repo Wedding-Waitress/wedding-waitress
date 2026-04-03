@@ -19,6 +19,7 @@ interface Guest {
   id: string;
   first_name: string;
   last_name: string | null;
+  table_id: string | null;
   table_no: number | null;
   dietary: string | null;
   relation_display: string | null;
@@ -86,9 +87,13 @@ const formatGuestName = (guest: Guest, sortBy: 'firstName' | 'lastName' | 'table
 };
 
 // Format table assignment
-const formatTableAssignment = (tableNo: number | null): string => {
-  if (!tableNo) return 'Unassigned';
-  return `Table ${tableNo}`;
+const formatTableAssignment = (guest: Guest, tableNameMap?: Record<number, string>, tableIdNameMap?: Record<string, string>): string => {
+  if (guest.table_no) {
+    if (tableNameMap && tableNameMap[guest.table_no]) return tableNameMap[guest.table_no];
+    return `Table ${guest.table_no}`;
+  }
+  if (guest.table_id && tableIdNameMap && tableIdNameMap[guest.table_id]) return tableIdNameMap[guest.table_id];
+  return 'Unassigned';
 };
 
 // Load logo image as buffer
@@ -272,7 +277,7 @@ export const exportFullSeatingChartToDocx = async (
       }
       
       children.push(new TextRun({ text: '    ', size: fontSize }));
-      children.push(new TextRun({ text: formatTableAssignment(guest.table_no), bold: true, size: fontSize }));
+      children.push(new TextRun({ text: formatTableAssignment(guest), bold: true, size: fontSize }));
       
       return [
         new Paragraph({

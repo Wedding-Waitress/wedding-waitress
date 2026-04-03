@@ -79,6 +79,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     });
     return map;
   }, [tables]);
+
+  // Build a map of table_id -> table display name for guests with table_id but no table_no
+  const tableIdNameMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    tables.forEach(t => {
+      const isNamedTable = t.name && isNaN(Number(t.name));
+      map[t.id] = isNamedTable ? t.name : `Table ${t.table_no}`;
+    });
+    return map;
+  }, [tables]);
   
   const { toast } = useToast();
 
@@ -126,7 +136,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       const endIdx = Math.min(startIdx + guestsPerPage, sortedGuests.length);
       const currentPageGuests = sortedGuests.slice(startIdx, endIdx);
 
-      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1, tableNameMap);
+      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1, tableNameMap, tableIdNameMap);
 
       toast({
         title: 'PDF Downloaded',
@@ -154,7 +164,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         description: 'Creating your full seating chart...',
       });
 
-      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings, undefined, undefined, tableNameMap);
+      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings, undefined, undefined, tableNameMap, tableIdNameMap);
 
       toast({
         title: 'PDF Downloaded',
@@ -188,12 +198,12 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         return lastNameA.localeCompare(lastNameB);
       } else {
         // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
-        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : null;
-        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : null;
+        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : (a.table_id ? tableIdNameMap[a.table_id] : null);
+        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : (b.table_id ? tableIdNameMap[b.table_id] : null);
         const isNamedA = tableNameA ? !tableNameA.startsWith('Table ') : false;
         const isNamedB = tableNameB ? !tableNameB.startsWith('Table ') : false;
-        const hasTableA = a.table_no != null;
-        const hasTableB = b.table_no != null;
+        const hasTableA = a.table_no != null || a.table_id != null;
+        const hasTableB = b.table_no != null || b.table_id != null;
 
         // Unassigned goes last
         if (!hasTableA && hasTableB) return 1;
@@ -220,7 +230,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         return tableA - tableB;
       }
     });
-  }, [guests, settings.sortBy, tableNameMap]);
+  }, [guests, settings.sortBy, tableNameMap, tableIdNameMap]);
 
   const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
 
@@ -349,6 +359,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 guests={sortedGuests}
                 settings={settings}
                 tableNameMap={tableNameMap}
+                tableIdNameMap={tableIdNameMap}
               />
             </div>
           </div>
