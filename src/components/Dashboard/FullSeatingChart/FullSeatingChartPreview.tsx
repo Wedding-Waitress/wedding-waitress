@@ -116,7 +116,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
     
     return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_PAGE };
-  }, [guests, settings.fontSize]);
+  }, [guests, settings.fontSize, settings.showDietary, settings.showRelation]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };

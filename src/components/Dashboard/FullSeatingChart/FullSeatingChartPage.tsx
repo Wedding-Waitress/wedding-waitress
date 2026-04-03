@@ -113,12 +113,13 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     };
     
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
-    const availableHeight = 210; // mm for guest rows - matches preview and PDF exporter
+    // When both display options are off, more vertical space is available
+    const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
     return guestsPerColumn * 2; // Two columns
-  }, [settings.fontSize]);
+  }, [settings.fontSize, settings.showDietary, settings.showRelation]);
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent) return;

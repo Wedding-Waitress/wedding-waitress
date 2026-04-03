@@ -184,7 +184,8 @@ export const exportFullSeatingChartToPdf = async (
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  const availableHeight = 210;
+  // When both display options are off, more vertical space is available
+  const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
