@@ -359,6 +359,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 guests={sortedGuests}
                 settings={settings}
                 tableNameMap={tableNameMap}
+                tableIdNameMap={tableIdNameMap}
               />
             </div>
           </div>
