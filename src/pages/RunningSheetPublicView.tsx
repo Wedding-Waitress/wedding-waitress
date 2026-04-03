@@ -106,6 +106,8 @@ export function RunningSheetPublicView() {
         permission: row.permission,
         items: parsedItems,
       });
+      setSectionLabel(row.section_label || 'Running Sheet');
+      setSectionNotes(row.section_notes || null);
     } catch (err) {
       console.error('Error:', err);
       setError('Failed to load running sheet');
@@ -153,6 +155,24 @@ export function RunningSheetPublicView() {
       })
       .subscribe();
 
+    return () => { supabase.removeChannel(channel); };
+  }, [data?.sheet_id, fetchData]);
+
+  // Realtime subscription for running_sheets meta changes (notes, label)
+  useEffect(() => {
+    if (!data?.sheet_id) return;
+    const channel = supabase
+      .channel(`public-rs-meta:${data.sheet_id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'running_sheets',
+        filter: `id=eq.${data.sheet_id}`,
+      }, () => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
+        fetchData();
+      })
+      .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [data?.sheet_id, fetchData]);
 
@@ -272,6 +292,51 @@ export function RunningSheetPublicView() {
       fetchData();
     }
   }, [token, canEdit, fetchData]);
+
+  // Save section label/notes via token-based RPC
+  const handleLabelChange = useCallback((label: string) => {
+    setSectionLabel(label);
+    if (!token || !canEdit) return;
+    const key = 'meta-label';
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      setSaveStatus('saving');
+      lastSaveRef.current = Date.now();
+      const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_meta_by_token', {
+        share_token: token,
+        new_section_label: label,
+      });
+      if (rpcError || success === false) {
+        setSaveStatus('error');
+      } else {
+        setSaveStatus('saved');
+        if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+        saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
+      }
+    }, 500);
+  }, [token, canEdit]);
+
+  const handleNotesChange = useCallback((notes: string | null) => {
+    setSectionNotes(notes);
+    if (!token || !canEdit) return;
+    const key = 'meta-notes';
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      setSaveStatus('saving');
+      lastSaveRef.current = Date.now();
+      const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_meta_by_token', {
+        share_token: token,
+        new_section_notes: notes || '',
+      });
+      if (rpcError || success === false) {
+        setSaveStatus('error');
+      } else {
+        setSaveStatus('saved');
+        if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+        saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
+      }
+    }, 500);
+  }, [token, canEdit]);
 
   const handleResetToDefault = useCallback(() => {
     // In public view, reset = delete all rows (no default template knowledge)
@@ -424,9 +489,9 @@ export function RunningSheetPublicView() {
       <main className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6">
         <RunningSheetSection
           label={sectionLabel}
-          onLabelChange={setSectionLabel}
+          onLabelChange={handleLabelChange}
           notes={sectionNotes}
-          onNotesChange={setSectionNotes}
+          onNotesChange={handleNotesChange}
           items={data.items}
           onUpdateItem={handleUpdateItem}
           onAddItem={handleAddItem}
