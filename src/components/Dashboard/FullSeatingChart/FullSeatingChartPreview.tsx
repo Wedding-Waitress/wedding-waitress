@@ -550,13 +550,23 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   marginBottom: '1mm',
                 }}
               >
-                <h3 className="font-bold text-gray-500 uppercase tracking-wide px-1" style={{ fontSize: '8pt' }}>
-                  Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
-                </h3>
-                {col2Guests.length > 0 && (
-                  <h3 className="font-bold text-gray-500 uppercase tracking-wide px-1" style={{ fontSize: '8pt' }}>
-                    Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                <div className="flex justify-between items-center px-1">
+                  <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                    Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
                   </h3>
+                  <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                    Table
+                  </h3>
+                </div>
+                {col2Guests.length > 0 && (
+                  <div className="flex justify-between items-center px-1">
+                    <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                      Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                    </h3>
+                    <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                      Table
+                    </h3>
+                  </div>
                 )}
               </div>
 
