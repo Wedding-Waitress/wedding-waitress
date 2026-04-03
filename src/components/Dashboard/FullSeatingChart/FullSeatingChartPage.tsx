@@ -193,9 +193,33 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         }
         return lastNameA.localeCompare(lastNameB);
       } else {
-        // sortBy === 'tableNo'
-        const tableA = a.table_no || Number.MAX_SAFE_INTEGER;
-        const tableB = b.table_no || Number.MAX_SAFE_INTEGER;
+        // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
+        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : null;
+        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : null;
+        const isNamedA = tableNameA ? !tableNameA.startsWith('Table ') : false;
+        const isNamedB = tableNameB ? !tableNameB.startsWith('Table ') : false;
+        const hasTableA = a.table_no != null;
+        const hasTableB = b.table_no != null;
+
+        // Unassigned goes last
+        if (!hasTableA && hasTableB) return 1;
+        if (hasTableA && !hasTableB) return -1;
+        if (!hasTableA && !hasTableB) return a.first_name.localeCompare(b.first_name);
+
+        // Named tables come before numbered tables
+        if (isNamedA && !isNamedB) return -1;
+        if (!isNamedA && isNamedB) return 1;
+
+        // Both named: alphabetical
+        if (isNamedA && isNamedB) {
+          const cmp = tableNameA!.localeCompare(tableNameB!);
+          if (cmp !== 0) return cmp;
+          return a.first_name.localeCompare(b.first_name);
+        }
+
+        // Both numbered: numeric
+        const tableA = a.table_no || 0;
+        const tableB = b.table_no || 0;
         if (tableA === tableB) {
           return a.first_name.localeCompare(b.first_name);
         }
