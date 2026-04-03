@@ -83,7 +83,10 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 const formatGeneratedTimestamp = (): string => {
   const now = new Date();
-  return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const hours = now.getHours();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  return `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${displayHour}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`;
 };
 
 const getEventText = (item: RunningSheetItem): string => {

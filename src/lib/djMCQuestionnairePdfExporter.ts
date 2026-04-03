@@ -8,9 +8,11 @@
  * - Changes could break questionnaire data, sharing, or PDF export
  *
  * Last locked: 2026-02-19
+ * Last locked: 2026-04-03
  */
 import jsPDF from 'jspdf';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
+import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface Event {
   id: string;
@@ -27,6 +29,18 @@ interface Event {
 
 // Purple color for branding
 const PURPLE = { r: 109, g: 40, b: 217 }; // #6D28D9
+
+// --- Layout constants (mm) matching running sheet ---
+const PDF_WIDTH_MM = 210;
+const PDF_HEIGHT_MM = 297;
+const FOOTER_ZONE_MM = 30;
+const TOP_MARGIN_PAGE2_MM = 12;
+const FOOTER_LOGO_HEIGHT_MM = 12;
+const FOOTER_LOGO_WIDTH_MM = 42;
+const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 5; // 5mm from bottom
+const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
+const MARGIN = 15;
+const CONTENT_WIDTH = PDF_WIDTH_MM - (2 * MARGIN);
 
 // Format date with ordinal suffix
 const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
@@ -54,21 +68,22 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
   return `${displayHour}:${minutes} ${ampm}`;
 };
 
-// Format current timestamp
+// Format current timestamp with AM/PM
 const formatGeneratedTimestamp = (): string => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const year = now.getFullYear();
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
+  const hours = now.getHours();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  return `${day}/${month}/${year} ${displayHour}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`;
 };
 
-// Load logo image as base64
-const loadLogoAsBase64 = async (): Promise<string | null> => {
+// Load logo image as data URL for jsPDF
+const loadLogoAsDataUrl = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/wedding-waitress-share-logo.png');
+    const response = await fetch(weddingWaitressLogo);
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -76,10 +91,41 @@ const loadLogoAsBase64 = async (): Promise<string | null> => {
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
-  } catch (error) {
-    console.error('Failed to load logo:', error);
+  } catch {
     return null;
   }
+};
+
+/**
+ * Draw the footer on the current jsPDF page: white zone, logo, page number, generated timestamp.
+ * Matches the running sheet footer exactly.
+ */
+const drawPageFooter = (
+  pdf: jsPDF,
+  logoDataUrl: string | null,
+  pageNum: number,
+  totalPages: number,
+  timestamp: string
+) => {
+  // White rectangle to cover any bleeding content
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, PDF_HEIGHT_MM - FOOTER_ZONE_MM, PDF_WIDTH_MM, FOOTER_ZONE_MM, 'F');
+
+  // Logo centered
+  if (logoDataUrl) {
+    const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
+    try {
+      pdf.addImage(logoDataUrl, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+    } catch {
+      // silently skip if logo fails
+    }
+  }
+
+  // Page number (left) and Generated timestamp (right)
+  pdf.setFontSize(7);
+  pdf.setTextColor(170, 170, 170);
+  pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
+  pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
 };
 
 // Get column configuration based on section type
@@ -189,14 +235,18 @@ const truncateText = (pdf: jsPDF, text: string, maxWidth: number): string => {
   return truncated;
 };
 
-// Draw a section table
+// Usable content height (excluding footer zone)
+const usableHeightPage1 = PDF_HEIGHT_MM - FOOTER_ZONE_MM;
+const usableHeightPage2Plus = PDF_HEIGHT_MM - FOOTER_ZONE_MM - TOP_MARGIN_PAGE2_MM;
+
+// Draw a section table (returns new yPos)
 const drawSectionTable = (
   pdf: jsPDF,
   section: DJMCSection,
   startY: number,
-  pageWidth: number,
-  margin: number,
-  contentWidth: number
+  addNewPage: () => void,
+  getYPos: () => number,
+  isFirstPage: () => boolean
 ): number => {
   const config = getSectionColumnConfig(section.section_type);
   const rowHeight = 7;
@@ -204,11 +254,21 @@ const drawSectionTable = (
   const fontSize = 9;
   let yPos = startY;
 
+  const getUsableBottom = () => isFirstPage() ? usableHeightPage1 : usableHeightPage2Plus + TOP_MARGIN_PAGE2_MM;
+
+  const checkPageBreak = (neededHeight: number) => {
+    if (yPos + neededHeight > getUsableBottom()) {
+      addNewPage();
+      yPos = getYPos();
+    }
+  };
+
   // Section title
+  checkPageBreak(20);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(14);
   pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
-  pdf.text(section.section_label, margin, yPos);
+  pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
 
   // Section notes if present
@@ -216,22 +276,24 @@ const drawSectionTable = (
     pdf.setFont('helvetica', 'italic');
     pdf.setFontSize(9);
     pdf.setTextColor(100, 100, 100);
-    const noteLines = pdf.splitTextToSize(`Notes: ${section.notes}`, contentWidth);
-    pdf.text(noteLines, margin, yPos);
+    const noteLines = pdf.splitTextToSize(`Notes: ${section.notes}`, CONTENT_WIDTH);
+    checkPageBreak(noteLines.length * 4 + 2);
+    pdf.text(noteLines, MARGIN, yPos);
     yPos += noteLines.length * 4 + 2;
   }
 
   // Draw header row
+  checkPageBreak(headerHeight + 2);
   pdf.setFillColor(245, 245, 245);
-  pdf.rect(margin, yPos, contentWidth, headerHeight, 'F');
+  pdf.rect(MARGIN, yPos, CONTENT_WIDTH, headerHeight, 'F');
   
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(8);
   pdf.setTextColor(80, 80, 80);
   
-  let xPos = margin + 2;
+  let xPos = MARGIN + 2;
   config.headers.forEach((header, idx) => {
-    const colWidth = contentWidth * config.widths[idx];
+    const colWidth = CONTENT_WIDTH * config.widths[idx];
     const truncatedHeader = truncateText(pdf, header, colWidth - 4);
     pdf.text(truncatedHeader, xPos, yPos + 5);
     xPos += colWidth;
@@ -241,7 +303,7 @@ const drawSectionTable = (
   // Draw border under header
   pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(0.3);
-  pdf.line(margin, yPos, margin + contentWidth, yPos);
+  pdf.line(MARGIN, yPos, MARGIN + CONTENT_WIDTH, yPos);
 
   // Draw item rows
   pdf.setFont('helvetica', 'normal');
@@ -249,17 +311,19 @@ const drawSectionTable = (
   pdf.setTextColor(0, 0, 0);
 
   section.items.forEach((item, idx) => {
+    checkPageBreak(rowHeight + 1);
+
     // Alternate row background
     if (idx % 2 === 0) {
       pdf.setFillColor(252, 252, 252);
-      pdf.rect(margin, yPos, contentWidth, rowHeight, 'F');
+      pdf.rect(MARGIN, yPos, CONTENT_WIDTH, rowHeight, 'F');
     }
 
     const cellValues = getItemCellValues(item, section.section_type);
-    xPos = margin + 2;
+    xPos = MARGIN + 2;
     
     cellValues.forEach((value, colIdx) => {
-      const colWidth = contentWidth * config.widths[colIdx];
+      const colWidth = CONTENT_WIDTH * config.widths[colIdx];
       
       // Check if this is a music URL column (last column for sections with music links)
       const isMusicUrlColumn = 
@@ -286,10 +350,63 @@ const drawSectionTable = (
     // Draw light border between rows
     pdf.setDrawColor(230, 230, 230);
     pdf.setLineWidth(0.1);
-    pdf.line(margin, yPos, margin + contentWidth, yPos);
+    pdf.line(MARGIN, yPos, MARGIN + CONTENT_WIDTH, yPos);
   });
 
   return yPos + 8; // Add some spacing after the section
+};
+
+/**
+ * Draw the header matching the running sheet layout:
+ * - Large purple event name
+ * - "DJ-MC Questionnaire" subtitle
+ * - Ceremony line (if exists)
+ * - Reception line
+ * - Purple divider
+ */
+const drawHeader = (pdf: jsPDF, event: Event): number => {
+  let yPos = MARGIN;
+
+  // Event name - large purple
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(22);
+  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+  yPos += 8;
+
+  // Subtitle
+  pdf.setFontSize(16);
+  pdf.setTextColor(34, 34, 34);
+  pdf.text('DJ-MC Questionnaire', PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+  yPos += 7;
+
+  // Event details - matching running sheet format
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(12);
+  pdf.setTextColor(85, 85, 85);
+
+  if (event.ceremony_date) {
+    const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
+    const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
+    const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
+    pdf.text(`Ceremony: ${ceremonyDate} | ${ceremonyVenue} | ${ceremonyTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    yPos += 5;
+  }
+
+  const receptionDate = formatDateWithOrdinal(event.date);
+  const receptionVenue = event.venue || 'Venue TBD';
+  const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
+  pdf.text(`Reception: ${receptionDate} | ${receptionVenue} | ${receptionTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+  yPos += 5;
+
+  // Purple divider
+  yPos += 2;
+  pdf.setDrawColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.setLineWidth(0.5);
+  pdf.line(MARGIN, yPos, PDF_WIDTH_MM - MARGIN, yPos);
+  yPos += 10;
+
+  return yPos;
 };
 
 // Export a single section to PDF
@@ -303,65 +420,31 @@ export const exportSectionPDF = async (
     format: 'a4'
   });
 
-  const pageWidth = 210;
-  const pageHeight = 297;
-  const margin = 15;
-  const contentWidth = pageWidth - (2 * margin);
+  const logoDataUrl = await loadLogoAsDataUrl();
+  const timestamp = formatGeneratedTimestamp();
 
-  // Load logo
-  const logoBase64 = await loadLogoAsBase64();
+  let currentPage = 1;
+  let onFirstPage = true;
 
-  let yPos = margin;
+  // Draw header on first page
+  let yPos = drawHeader(pdf, event);
 
-  // Header - Event Name
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(16);
-  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
-  pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 6;
-
-  // Subtitle
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(10);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text('DJ-MC Questionnaire', pageWidth / 2, yPos, { align: 'center' });
-  yPos += 5;
-
-  // Date and venue
-  const dateVenueText = `${formatDateWithOrdinal(event.date)} | ${event.venue || 'Venue TBD'}`;
-  pdf.setFontSize(9);
-  pdf.setTextColor(100, 100, 100);
-  pdf.text(dateVenueText, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 3;
-
-  // Draw border line
-  pdf.setDrawColor(PURPLE.r, PURPLE.g, PURPLE.b);
-  pdf.setLineWidth(0.5);
-  pdf.line(margin, yPos, pageWidth - margin, yPos);
-  yPos += 8;
+  const addNewPage = () => {
+    pdf.addPage();
+    currentPage++;
+    onFirstPage = false;
+    yPos = TOP_MARGIN_PAGE2_MM;
+  };
 
   // Draw section table
-  yPos = drawSectionTable(pdf, section, yPos, pageWidth, margin, contentWidth);
+  yPos = drawSectionTable(pdf, section, yPos, addNewPage, () => yPos, () => onFirstPage);
 
-  // Footer with logo
-  if (logoBase64) {
-    const logoHeight = 10;
-    const logoWidth = 35;
-    const logoX = (pageWidth - logoWidth) / 2;
-    const logoY = pageHeight - margin - logoHeight;
-    
-    try {
-      pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
-    } catch (error) {
-      console.error('Failed to add logo to PDF:', error);
-    }
+  // Stamp footers on all pages
+  const totalPages = pdf.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    drawPageFooter(pdf, logoDataUrl, i, totalPages, timestamp);
   }
-
-  // Generated timestamp
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(7);
-  pdf.setTextColor(150, 150, 150);
-  pdf.text(`Generated: ${formatGeneratedTimestamp()}`, pageWidth - margin, pageHeight - 5, { align: 'right' });
 
   // Save PDF
   const safeEventName = event.name.replace(/[\\/:*?"<>|]/g, '');
@@ -383,111 +466,42 @@ export const exportEntireQuestionnairePDF = async (
     format: 'a4'
   });
 
-  const pageWidth = 210;
-  const pageHeight = 297;
-  const margin = 15;
-  const contentWidth = pageWidth - (2 * margin);
+  const logoDataUrl = await loadLogoAsDataUrl();
+  const timestamp = formatGeneratedTimestamp();
 
-  // Load logo
-  const logoBase64 = await loadLogoAsBase64();
-
-  let yPos = margin;
   let currentPage = 1;
+  let onFirstPage = true;
+
+  // Draw header on first page
+  let yPos = drawHeader(pdf, event);
 
   const addNewPage = () => {
     pdf.addPage();
     currentPage++;
-    yPos = margin;
-    
-    // Add page header
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(10);
-    pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
-    pdf.text(`${event.name} - DJ-MC Questionnaire`, margin, yPos);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(8);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text(`Page ${currentPage}`, pageWidth - margin, yPos, { align: 'right' });
-    yPos += 8;
+    onFirstPage = false;
+    yPos = TOP_MARGIN_PAGE2_MM;
   };
-
-  // First page header
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(18);
-  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
-  pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 7;
-
-  // Subtitle
-  pdf.setFontSize(14);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text('DJ-MC Questionnaire', pageWidth / 2, yPos, { align: 'center' });
-  yPos += 6;
-
-  // Event details
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(10);
-  pdf.setTextColor(80, 80, 80);
-  
-  const receptionDate = formatDateWithOrdinal(event.date);
-  const receptionVenue = event.venue || 'Venue TBD';
-  const receptionTime = `${formatTimeDisplay(event.start_time)} - ${formatTimeDisplay(event.finish_time)}`;
-  
-  pdf.text(`Reception: ${receptionDate}`, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 4;
-  pdf.text(`${receptionVenue} | ${receptionTime}`, pageWidth / 2, yPos, { align: 'center' });
-  yPos += 4;
-
-  if (event.ceremony_date) {
-    const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
-    const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
-    const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} - ${formatTimeDisplay(event.ceremony_finish_time)}`;
-    
-    pdf.text(`Ceremony: ${ceremonyDate}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 4;
-    pdf.text(`${ceremonyVenue} | ${ceremonyTime}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 4;
-  }
-
-  // Draw border line
-  yPos += 2;
-  pdf.setDrawColor(PURPLE.r, PURPLE.g, PURPLE.b);
-  pdf.setLineWidth(0.5);
-  pdf.line(margin, yPos, pageWidth - margin, yPos);
-  yPos += 10;
 
   // Draw each section
   for (const section of questionnaire.sections) {
     // Estimate section height
     const estimatedHeight = 20 + (section.items.length * 7) + (section.notes ? 15 : 0);
+    const usableBottom = onFirstPage ? usableHeightPage1 : usableHeightPage2Plus + TOP_MARGIN_PAGE2_MM;
     
     // Check if we need a new page
-    if (yPos + estimatedHeight > pageHeight - 30) {
+    if (yPos + estimatedHeight > usableBottom) {
       addNewPage();
     }
 
-    yPos = drawSectionTable(pdf, section, yPos, pageWidth, margin, contentWidth);
+    yPos = drawSectionTable(pdf, section, yPos, addNewPage, () => yPos, () => onFirstPage);
   }
 
-  // Add logo to the last page footer
-  if (logoBase64) {
-    const logoHeight = 10;
-    const logoWidth = 35;
-    const logoX = (pageWidth - logoWidth) / 2;
-    const logoY = pageHeight - margin - logoHeight;
-    
-    try {
-      pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
-    } catch (error) {
-      console.error('Failed to add logo to PDF:', error);
-    }
+  // Stamp footers on all pages
+  const totalPages = pdf.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
+    drawPageFooter(pdf, logoDataUrl, i, totalPages, timestamp);
   }
-
-  // Generated timestamp
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(7);
-  pdf.setTextColor(150, 150, 150);
-  pdf.text(`Generated: ${formatGeneratedTimestamp()}`, pageWidth - margin, pageHeight - 5, { align: 'right' });
 
   // Save PDF
   const safeEventName = event.name.replace(/[\\/:*?"<>|]/g, '');
