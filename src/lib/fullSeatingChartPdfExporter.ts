@@ -100,12 +100,17 @@ const formatGuestName = (guest: Guest): string => {
   return `${guest.first_name} ${guest.last_name || ''}`.trim();
 };
 
-// Format table assignment using name map
-const formatTableAssignment = (tableNo: number | null, tableNameMap?: Record<number, string>): string => {
-  if (!tableNo) return 'Unassigned';
-  if (tableNameMap && tableNameMap[tableNo]) return tableNameMap[tableNo];
-  return `Table ${tableNo}`;
+// Format table assignment using name maps
+const formatTableAssignment = (guest: Guest, tableNameMap?: Record<number, string>, tableIdNameMap?: Record<string, string>): string => {
+  if (guest.table_no) {
+    if (tableNameMap && tableNameMap[guest.table_no]) return tableNameMap[guest.table_no];
+    return `Table ${guest.table_no}`;
+  }
+  if (guest.table_id && tableIdNameMap && tableIdNameMap[guest.table_id]) return tableIdNameMap[guest.table_id];
+  return 'Unassigned';
 };
+
+const isGuestUnassigned = (guest: Guest): boolean => !guest.table_no && !guest.table_id;
 
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
