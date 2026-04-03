@@ -52,12 +52,14 @@ interface FullSeatingChartPreviewProps {
   event: any;
   guests: Guest[];
   settings: FullSeatingChartSettings;
+  tableNameMap?: Record<number, string>;
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
   event,
   guests,
   settings,
+  tableNameMap = {},
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,6 +121,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const currentGuests = currentPageInfo.guests;
   const col1Guests = currentGuests.slice(0, currentPageInfo.col1Count);
   const col2Guests = currentGuests.slice(currentPageInfo.col1Count);
+
+  // Format table display - use name from map if available
+  const formatTableDisplay = (tableNo: number | null) => {
+    if (!tableNo) return 'Unassigned';
+    return tableNameMap[tableNo] || `Table ${tableNo}`;
+  };
 
   // Format guest name - first name only for two-line display
   const formatGuestName = (guest: Guest) => {
@@ -250,7 +258,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           )}
         </div>
         <span className="text-xs font-medium px-1.5 py-0.5 bg-muted rounded flex-shrink-0 whitespace-nowrap mt-0.5">
-          {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+          {formatTableDisplay(guest.table_no)}
         </span>
       </div>
     );
@@ -267,7 +275,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
         </div>
         <span className="print-table">
-          {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+          {formatTableDisplay(guest.table_no)}
         </span>
       </div>
     );

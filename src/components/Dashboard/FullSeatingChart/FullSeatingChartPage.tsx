@@ -43,6 +43,7 @@ import { FileText, Users, Layout, Calendar } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
+import { useTables } from '@/hooks/useTables';
 
 import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
@@ -64,6 +65,20 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
+  const { tables } = useTables(selectedEventId);
+
+  // Build a map of table_no -> table name for display
+  const tableNameMap = React.useMemo(() => {
+    const map: Record<number, string> = {};
+    tables.forEach(t => {
+      if (t.table_no != null) {
+        // Check if the table has a text name (not just a number)
+        const isNamedTable = t.name && isNaN(Number(t.name));
+        map[t.table_no] = isNamedTable ? t.name : `Table ${t.table_no}`;
+      }
+    });
+    return map;
+  }, [tables]);
   
   const { toast } = useToast();
 
@@ -117,7 +132,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       const endIdx = Math.min(startIdx + guestsPerPage, sortedGuests.length);
       const currentPageGuests = sortedGuests.slice(startIdx, endIdx);
 
-      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1);
+      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1, tableNameMap);
 
       toast({
         title: 'PDF Downloaded',
@@ -145,7 +160,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         description: 'Creating your full seating chart...',
       });
 
-      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings);
+      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings, undefined, undefined, tableNameMap);
 
       toast({
         title: 'PDF Downloaded',
@@ -178,16 +193,40 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         }
         return lastNameA.localeCompare(lastNameB);
       } else {
-        // sortBy === 'tableNo'
-        const tableA = a.table_no || Number.MAX_SAFE_INTEGER;
-        const tableB = b.table_no || Number.MAX_SAFE_INTEGER;
+        // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
+        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : null;
+        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : null;
+        const isNamedA = tableNameA ? !tableNameA.startsWith('Table ') : false;
+        const isNamedB = tableNameB ? !tableNameB.startsWith('Table ') : false;
+        const hasTableA = a.table_no != null;
+        const hasTableB = b.table_no != null;
+
+        // Unassigned goes last
+        if (!hasTableA && hasTableB) return 1;
+        if (hasTableA && !hasTableB) return -1;
+        if (!hasTableA && !hasTableB) return a.first_name.localeCompare(b.first_name);
+
+        // Named tables come before numbered tables
+        if (isNamedA && !isNamedB) return -1;
+        if (!isNamedA && isNamedB) return 1;
+
+        // Both named: alphabetical
+        if (isNamedA && isNamedB) {
+          const cmp = tableNameA!.localeCompare(tableNameB!);
+          if (cmp !== 0) return cmp;
+          return a.first_name.localeCompare(b.first_name);
+        }
+
+        // Both numbered: numeric
+        const tableA = a.table_no || 0;
+        const tableB = b.table_no || 0;
         if (tableA === tableB) {
           return a.first_name.localeCompare(b.first_name);
         }
         return tableA - tableB;
       }
     });
-  }, [guests, settings.sortBy]);
+  }, [guests, settings.sortBy, tableNameMap]);
 
   const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
 
@@ -311,6 +350,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 event={selectedEvent!} 
                 guests={sortedGuests}
                 settings={settings}
+                tableNameMap={tableNameMap}
               />
             </div>
           </div>

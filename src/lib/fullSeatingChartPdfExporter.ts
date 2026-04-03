@@ -66,9 +66,10 @@ const formatGuestName = (guest: Guest): string => {
   return guest.first_name;
 };
 
-// Format table assignment
-const formatTableAssignment = (tableNo: number | null): string => {
+// Format table assignment using name map
+const formatTableAssignment = (tableNo: number | null, tableNameMap?: Record<number, string>): string => {
   if (!tableNo) return 'Unassigned';
+  if (tableNameMap && tableNameMap[tableNo]) return tableNameMap[tableNo];
   return `Table ${tableNo}`;
 };
 
@@ -94,7 +95,8 @@ export const exportFullSeatingChartToPdf = async (
   guests: Guest[],
   settings: FullSeatingChartSettings,
   pageNum?: number,
-  totalPagesOverride?: number
+  totalPagesOverride?: number,
+  tableNameMap?: Record<number, string>
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -233,7 +235,7 @@ export const exportFullSeatingChartToPdf = async (
         pdf.text(guestName, xPos + 5, yPos);
         
         // Table assignment text (right-aligned, same line as name)
-        const tableText = formatTableAssignment(guest.table_no);
+        const tableText = formatTableAssignment(guest.table_no, tableNameMap);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize - 1);
         const tableWidth = pdf.getTextWidth(tableText);
