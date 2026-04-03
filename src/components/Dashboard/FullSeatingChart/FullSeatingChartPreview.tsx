@@ -135,7 +135,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Get font size class based on settings
   const getFontSizeClass = () => {
     switch (settings.fontSize) {
-      case 'small': return 'text-sm';
+      case 'small': return 'text-[13px]';
       case 'large': return 'text-lg';
       default: return 'text-base';
     }
