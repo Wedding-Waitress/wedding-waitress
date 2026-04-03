@@ -59,6 +59,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   event,
   guests,
   settings,
+  tableNameMap = {},
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
