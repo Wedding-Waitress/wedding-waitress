@@ -198,12 +198,12 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         return lastNameA.localeCompare(lastNameB);
       } else {
         // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
-        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : null;
-        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : null;
+        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : (a.table_id ? tableIdNameMap[a.table_id] : null);
+        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : (b.table_id ? tableIdNameMap[b.table_id] : null);
         const isNamedA = tableNameA ? !tableNameA.startsWith('Table ') : false;
         const isNamedB = tableNameB ? !tableNameB.startsWith('Table ') : false;
-        const hasTableA = a.table_no != null;
-        const hasTableB = b.table_no != null;
+        const hasTableA = a.table_no != null || a.table_id != null;
+        const hasTableB = b.table_no != null || b.table_id != null;
 
         // Unassigned goes last
         if (!hasTableA && hasTableB) return 1;
