@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface Guest {
   id: string;
@@ -24,7 +25,22 @@ interface Event {
   name: string;
   date: string;
   venue: string;
+  start_time?: string | null;
+  finish_time?: string | null;
+  ceremony_date?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
 }
+
+// Layout constants matching Running Sheet
+const PDF_WIDTH_MM = 210;
+const PDF_HEIGHT_MM = 297;
+const FOOTER_ZONE_MM = 30;
+const FOOTER_LOGO_HEIGHT_MM = 12;
+const FOOTER_LOGO_WIDTH_MM = 42;
+const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 5;
+const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
 
 // Convert font size setting to points
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
@@ -36,8 +52,9 @@ const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
 };
 
 // Format date with ordinal suffix
-const formatDateWithOrdinal = (dateString: string): string => {
-  const date = new Date(dateString);
+const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'TBD';
+  const date = new Date(dateString + 'T00:00:00');
   const day = date.getDate();
   const ordinal = (n: number) => {
     const s = ['th', 'st', 'nd', 'rd'];
@@ -50,18 +67,30 @@ const formatDateWithOrdinal = (dateString: string): string => {
   return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-// Format current timestamp
+// Format time to 12-hour AM/PM
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
+// Format current timestamp with AM/PM
 const formatGeneratedTimestamp = (): string => {
   const now = new Date();
   const day = String(now.getDate()).padStart(2, '0');
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const year = now.getFullYear();
-  const hours = String(now.getHours()).padStart(2, '0');
+  const hours = now.getHours();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
   const minutes = String(now.getMinutes()).padStart(2, '0');
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
+  return `${day}/${month}/${year} ${displayHour}:${minutes} ${ampm}`;
 };
 
-// Format guest name - first name only for two-line display
+// Format guest name - first name only
 const formatGuestName = (guest: Guest): string => {
   return guest.first_name;
 };
@@ -76,7 +105,7 @@ const formatTableAssignment = (tableNo: number | null, tableNameMap?: Record<num
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/jpeg-2.jpg');
+    const response = await fetch(weddingWaitressLogo);
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -88,6 +117,36 @@ const loadLogoAsBase64 = async (): Promise<string | null> => {
     console.error('Failed to load logo:', error);
     return null;
   }
+};
+
+// Draw footer matching Running Sheet style
+const drawPageFooter = (
+  pdf: jsPDF,
+  logoBase64: string | null,
+  pageNum: number,
+  totalPages: number,
+  timestamp: string,
+  showLogo: boolean
+) => {
+  // White rectangle to cover any bleeding content
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, PDF_HEIGHT_MM - FOOTER_ZONE_MM, PDF_WIDTH_MM, FOOTER_ZONE_MM, 'F');
+
+  // Logo centered
+  if (showLogo && logoBase64) {
+    const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
+    try {
+      pdf.addImage(logoBase64, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+    } catch {
+      // silently skip
+    }
+  }
+
+  // Page number (left) and Generated timestamp (right)
+  pdf.setFontSize(7);
+  pdf.setTextColor(170, 170, 170);
+  pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
+  pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
 };
 
 export const exportFullSeatingChartToPdf = async (
@@ -104,30 +163,19 @@ export const exportFullSeatingChartToPdf = async (
     format: 'a4'
   });
 
-  const pageWidth = 210; // A4 width in mm
-  const pageHeight = 297; // A4 height in mm
-  const margin = 12.7; // 1.27cm margins
-  const contentWidth = pageWidth - (2 * margin);
+  const margin = 12.7;
+  const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
-  /**
-   * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
-   * Must match the calculation in FullSeatingChartPreview and FullSeatingChartPage
-   * Increased heights for two-line format
-   */
   const baseRowHeight: Record<string, number> = {
     'small': 10,
     'medium': 11,
     'large': 13
   };
   
-  // Row height is now fixed per font size (dietary/relation displayed inline)
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  
-  // Available height for guest rows - reduced to 155mm to ensure 2-3 line gap above footer
-  const availableHeight = 155; // mm for guest rows - must match preview calculation
+  const availableHeight = 155;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
-  // Clamp to minimum 1 guest per column
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
   const guestsPerPage = guestsPerColumn * 2;
   
@@ -135,20 +183,17 @@ export const exportFullSeatingChartToPdf = async (
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
 
-  // Load logo if needed
+  // Load logo
   let logoBase64: string | null = null;
   if (settings.showLogo) {
     logoBase64 = await loadLogoAsBase64();
   }
 
-  // Purple color for event name and checkboxes
-  const purple = { r: 109, g: 40, b: 217 }; // #6D28D9
+  const purple = { r: 109, g: 40, b: 217 };
 
-  // Determine actual pages to generate
   const startPage = pageNum || 1;
   const endPage = pageNum || totalPages;
 
-  // Generate each page
   for (let currentPageNum = startPage; currentPageNum <= endPage; currentPageNum++) {
     if (currentPageNum > startPage) pdf.addPage();
 
@@ -156,36 +201,43 @@ export const exportFullSeatingChartToPdf = async (
     const endIdx = Math.min(startIdx + guestsPerPage, guests.length);
     const pageGuests = guests.slice(startIdx, endIdx);
 
-    // Split into two columns based on auto-fit
     const col1Guests = pageGuests.slice(0, guestsPerColumn);
     const col2Guests = pageGuests.slice(guestsPerColumn);
 
     let yPos = margin;
 
-    // Header - Event Name (16pt, bold, purple)
+    // Header - Event Name (22px equivalent ~16pt, bold, purple)
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(16);
+    pdf.setFontSize(18);
     pdf.setTextColor(purple.r, purple.g, purple.b);
-    pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 5;
+    pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    yPos += 6;
 
-    // Header - Chart Title + Date (12pt, bold, black)
+    // Subtitle - "Full Seating Chart - Total Guests: X" (not bold, 12pt)
+    pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
-    pdf.text(`Full Seating Chart - ${formatDateWithOrdinal(event.date)}`, pageWidth / 2, yPos, { align: 'center' });
+    pdf.text(`Full Seating Chart - Total Guests: ${guests.length}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Header - Venue/Stats Line (10pt, black)
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(10);
-    const statsLine = `${event.venue} - Total Guests: ${guests.length} - Page ${currentPageNum} of ${totalPages} - Generated on: ${timestamp}`;
-    pdf.text(statsLine, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
+    // Ceremony info line (if available)
+    pdf.setFontSize(9);
+    pdf.setTextColor(85, 85, 85);
+    if (event.ceremony_date) {
+      const ceremonyLine = `Ceremony: ${formatDateWithOrdinal(event.ceremony_date)} | ${event.ceremony_venue || 'Venue TBD'} | ${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
+      pdf.text(ceremonyLine, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+      yPos += 4;
+    }
 
-    // Draw border line
-    pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.25);
-    pdf.line(margin, yPos, pageWidth - margin, yPos);
+    // Reception info line
+    const receptionLine = `Reception: ${formatDateWithOrdinal(event.date)} | ${event.venue || 'Venue TBD'} | ${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
+    pdf.text(receptionLine, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    yPos += 4;
+
+    // Purple divider line (matching Running Sheet)
+    pdf.setDrawColor(purple.r, purple.g, purple.b);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPos, PDF_WIDTH_MM - margin, yPos);
     yPos += 6;
 
     // Column calculations
@@ -193,48 +245,44 @@ export const exportFullSeatingChartToPdf = async (
     const leftColumnX = margin;
     const rightColumnX = margin + columnWidth + 12;
 
-    // Calculate guest ranges for column headers
     const col1Start = startIdx + 1;
     const col1End = startIdx + col1Guests.length;
     const col2Start = startIdx + col1Guests.length + 1;
     const col2End = endIdx;
 
-    // Column headers (11pt, bold)
+    // Column headers
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(11);
+    pdf.setTextColor(0, 0, 0);
     pdf.text(`GUESTS ${col1Start}-${col1End}`, leftColumnX, yPos);
     if (col2Guests.length > 0) {
       pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX, yPos);
     }
     yPos += 5;
 
-    // Draw guests in both columns
+    // Draw guests
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
     
     for (let i = 0; i < maxRows; i++) {
       const guest1 = col1Guests[i];
       const guest2 = col2Guests[i];
 
-      // Helper function to draw a guest with two-line format
       const drawGuest = (guest: Guest | undefined, xPos: number, yPos: number): number => {
         if (!guest) return yPos;
 
         const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
         const hasRelation = settings.showRelation && guest.relation_display;
 
-        // Draw purple circle checkbox
         pdf.setDrawColor(purple.r, purple.g, purple.b);
         pdf.setLineWidth(0.4);
         pdf.circle(xPos + 1.5, yPos - 1.5, 1.5, 'S');
         
-        // Line 1: Guest first name (bold, black)
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize);
         pdf.setTextColor(0, 0, 0);
         const guestName = formatGuestName(guest);
         pdf.text(guestName, xPos + 5, yPos);
         
-        // Table assignment text (right-aligned, same line as name)
         const tableText = formatTableAssignment(guest.table_no, tableNameMap);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize - 1);
@@ -242,20 +290,17 @@ export const exportFullSeatingChartToPdf = async (
         const tableX = xPos + columnWidth - tableWidth;
         pdf.text(tableText, tableX, yPos);
         
-        // Line 2: Build info string (dietary/relation)
         const infoParts: string[] = [];
         if (hasDietary) infoParts.push(guest.dietary!);
         if (hasRelation) infoParts.push(guest.relation_display!.replace(' — ', ' / '));
         const inlineInfo = infoParts.join('/');
         
-        // Draw info on second line if present
         if (inlineInfo) {
           const line2Y = yPos + (fontSize * 0.4);
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(fontSize - 2);
           pdf.setTextColor(102, 102, 102);
           
-          // Truncate if too long
           const maxInfoWidth = columnWidth - 10;
           let truncatedInfo = inlineInfo;
           while (pdf.getTextWidth(truncatedInfo) > maxInfoWidth && truncatedInfo.length > 3) {
@@ -264,41 +309,25 @@ export const exportFullSeatingChartToPdf = async (
           pdf.text(truncatedInfo, xPos + 5, line2Y);
         }
 
-        // Return position for next row (account for two lines)
         return yPos + rowHeight * 1.5;
       };
 
-      // Draw both guests in parallel
       const leftY = drawGuest(guest1, leftColumnX, yPos);
       const rightY = drawGuest(guest2, rightColumnX, yPos);
       
-      // Move to the lower of the two positions
       yPos = Math.max(leftY, rightY);
 
-      // Check if we need more space for the next guest - increased safety margin
-      if (yPos > pageHeight - margin - 35) {
-        break; // Stop if we're running out of space
+      if (yPos > PDF_HEIGHT_MM - margin - 35) {
+        break;
       }
     }
 
-    // Footer - Logo (if enabled) with reserved space
-    if (logoBase64) {
-      const logoHeight = 10.5; // mm
-      const logoWidth = 35; // mm (approximate)
-      const logoX = (pageWidth - logoWidth) / 2;
-      const footerReservedSpace = 15; // mm reserved for footer
-      const logoY = pageHeight - margin - footerReservedSpace + ((footerReservedSpace - logoHeight) / 2);
-      
-      try {
-        pdf.addImage(logoBase64, 'JPEG', logoX, logoY, logoWidth, logoHeight);
-      } catch (error) {
-        console.error('Failed to add logo to PDF:', error);
-      }
-    }
+    // Draw footer (logo centered, page left, generated right)
+    drawPageFooter(pdf, logoBase64, currentPageNum, totalPages, timestamp, settings.showLogo);
   }
 
-  // Save PDF - use event date formatted as DD-MM-YYYY
-  const eventDate = event.date ? new Date(event.date) : new Date();
+  // Save PDF
+  const eventDate = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const dd = String(eventDate.getDate()).padStart(2, '0');
   const mm = String(eventDate.getMonth() + 1).padStart(2, '0');
   const yyyy = eventDate.getFullYear();
