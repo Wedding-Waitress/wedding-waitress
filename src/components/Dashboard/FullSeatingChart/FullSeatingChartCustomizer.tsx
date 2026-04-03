@@ -157,7 +157,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="small">Small (14px)</SelectItem>
+                <SelectItem value="small">Small (13px)</SelectItem>
                 <SelectItem value="medium">Medium (16px)</SelectItem>
                 <SelectItem value="large">Large (18px)</SelectItem>
               </SelectContent>

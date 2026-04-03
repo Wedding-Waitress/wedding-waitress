@@ -135,7 +135,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Get font size class based on settings
   const getFontSizeClass = () => {
     switch (settings.fontSize) {
-      case 'small': return 'text-sm';
+      case 'small': return 'text-[13px]';
       case 'large': return 'text-lg';
       default: return 'text-base';
     }
@@ -505,7 +505,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: '210mm', 
-              minHeight: '314mm',
+              minHeight: '325mm',
               minWidth: '210mm',
               maxWidth: '210mm'
             }}
@@ -575,14 +575,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Guest List */}
               <div 
                 style={{ 
-                  height: '213mm',
+                  height: '225mm',
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
                 }}
               >
                 {/* Left Column */}
-                <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
+                <div style={{ paddingTop: '3mm' }}>
                   {col1Guests.length > 0 && (
                     <div>
                       {col1Guests.map((guest) => (
@@ -593,7 +593,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
 
                 {/* Right Column */}
-                <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
+                <div style={{ paddingTop: '3mm' }}>
                   {col2Guests.length > 0 && (
                     <div>
                       {col2Guests.map((guest) => (
