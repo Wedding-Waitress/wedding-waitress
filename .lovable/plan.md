@@ -1,33 +1,41 @@
 
 
-## Plan: Align Full Seating Chart A4 Preview to Match PDF Download
+## Plan: Add Gap After Column Headers + Alternating Row Borders
 
-### Problem
-The A4 preview on the dashboard has more padding/spacing than the actual PDF download, particularly in the footer area where the Wedding Waitress logo sits higher with more padding than in the PDF. The screen preview should be a pixel-perfect representation of what the PDF looks like.
+### What We're Doing
+
+1. **Add one line of gap** between the column headers bar ("GUESTS 1-19 / TABLE") and the first row of guests (Adam Saad / Garry Wentworth). Applied to both the dashboard preview and PDF export.
+
+2. **Add subtle bottom border lines** on alternating guest rows for easy reading. Every other row (1st, 3rd, 5th...) gets a very light gray bottom border line spanning the full width of the column. This keeps it clean without covering any text or clashing with the light gray relation info text.
+
+### Why Borders, Not Background
+
+A background fill risks clashing with the light gray sub-text (relation/dietary info). A subtle bottom border line cleanly separates rows without obscuring any content. It's the approach used in professional seating charts and table layouts.
 
 ### Changes
 
 **File: `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`**
 
-Adjust the screen version (lines 500-617) to match the PDF's tighter layout:
+1. **ScreenGuestRow** (~line 241): Accept an `index` prop. On even-indexed rows (0, 2, 4...), add `borderBottom: '1px solid #e5e5e5'` to the row container. This gives a light separator line every other row.
 
-1. **Footer section** (lines 598-613): Reduce the `minHeight` from `25mm` to match the PDF's `FOOTER_ZONE_MM` (30mm total from bottom, but the logo sits at ~PDF_HEIGHT_MM - 5 - 12 - 2 = ~278mm). Remove extra `pt-2` padding on the logo container and `mt-1` on the meta line. Position the logo and metadata closer to the absolute bottom of the page, mirroring the PDF's `FOOTER_LOGO_Y_MM` and `FOOTER_TEXT_Y_MM` placement.
+2. **Guest list columns** (~lines 584-601): Pass the row index to ScreenGuestRow. Add `paddingTop: '3mm'` (one line gap) to the guest list container to separate it from the column headers bar. Change `marginBottom: '1mm'` on the column headers bar to `marginBottom: '0'` since the gap will be on the guest list side.
 
-2. **Header spacing** (lines 514-539): Tighten `mb-2` on the header container and adjust margins on the event name, subtitle, and info lines to match the PDF's exact vertical positions (6mm between event name and subtitle, 5mm to ceremony line, 4mm between lines, 2mm after divider).
+3. **PrintGuestRow** (~line 282): Same alternating border treatment for print consistency.
 
-3. **Guest list area** (lines 563-595): Adjust `maxHeight` calculation to account for the tighter header and footer, ensuring the guest rows fill the same proportion of the page as in the PDF.
+**File: `src/lib/fullSeatingChartPdfExporter.ts`**
 
-4. **Content padding** (line 512): The PDF uses 12.7mm margins. The screen uses `padding: '1.27cm'` which is equivalent -- this stays the same.
+1. **Gap after header bar** (~line 272): Change `yPos = headerBarY + headerBarHeight + 4` to `+ rowHeight` (approximately one row height gap).
+
+2. **Alternating row borders** (~line 277 loop): After drawing each even-indexed guest row, draw a light gray line (`pdf.setDrawColor(229, 229, 229)`) spanning the full column width at the bottom of that row.
+
+**File: `src/lib/fullSeatingChartDocxExporter.ts`**
+
+1. Apply matching bottom border on alternating rows in the DOCX table cells.
 
 ### Technical Details
 
-The PDF exporter uses these exact positions:
-- Margin: 12.7mm
-- Footer zone: 30mm from bottom
-- Logo Y: ~278mm (PDF_HEIGHT - 5 - 12 - 2)
-- Footer text Y: ~292mm (PDF_HEIGHT - 5)
-- Purple divider: 2mm gap after last info line
-- Column header bar: 6mm height, 4mm gap after
-
-The screen preview will be updated to use equivalent CSS values (converting mm to the same units) so both outputs look identical. The key fix is making the footer sit at the very bottom with minimal gap, matching the PDF's tight positioning.
+- Border color: `#e5e5e5` (very light gray) - won't clash with `#666` sub-text
+- Border thickness: 0.3mm in PDF, 1px on screen
+- Pattern: even index rows (0, 2, 4...) get the border; odd rows stay clean
+- Gap after headers: ~1 row height worth of space (~10mm for small font)
 
