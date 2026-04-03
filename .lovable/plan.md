@@ -1,26 +1,54 @@
 
 
-## Plan: Fix DJ-MC Questionnaire PDF Filenames
+## Plan: Align DJ-MC Questionnaire PDF Layout with Running Sheet PDF
 
-### What Changes
-Two filename patterns in `src/lib/djMCQuestionnairePdfExporter.ts` need updating to use the event date (DD-MM-YYYY) instead of today's date (YYYY-MM-DD), and preserve readable characters like `&` and `'` in the event name.
+### Summary
+Update the DJ-MC Questionnaire PDF export to match the Running Sheet PDF's header, footer, and timestamp format. Also update the Running Sheet's timestamp to use AM/PM format.
 
-### Current vs Desired
+### Changes
 
-**Entire questionnaire (line 491-492):**
-- Current: `Jason___Linda_s_Wedding-DJ-MC-Questionnaire-2026-04-02.pdf`
-- Desired: `Jason & Linda's Wedding-DJ-MC Questionnaire-20-12-2026.pdf`
+---
 
-**Single section (line 367-369):**
-- Current: `Jason___Linda_s_Wedding-Ceremony_Music-2026-04-02.pdf`
-- Desired: `Jason & Linda's Wedding-Ceremony Music-20-12-2026.pdf`
+**File: `src/lib/runningSheetPdfExporter.ts`**
 
-### Changes in `src/lib/djMCQuestionnairePdfExporter.ts`
+1. **Change `formatGeneratedTimestamp()` (line 84-87)** to use AM/PM instead of 24-hour time.
+   - Current: `03/04/2026 11:21`
+   - New: `03/04/2026 11:21 AM`
 
-1. **Line 367-369** (single section export): Replace the sanitization to keep readable chars (`&`, `'`, spaces), use event date formatted as DD-MM-YYYY, and preserve spaces in section name
-2. **Line 491-492** (full questionnaire export): Same sanitization change, use event date, add space in "DJ-MC Questionnaire"
+---
 
-Both will use `event.date` (falling back to current date if null) formatted as DD-MM-YYYY. The filename sanitizer will only strip filesystem-unsafe characters (`/`, `\`, `:`, `*`, `?`, `"`, `<`, `>`, `|`) rather than stripping everything non-alphanumeric.
+**File: `src/lib/djMCQuestionnairePdfExporter.ts`** — Major overhaul to match running sheet approach
 
-### No other changes
+1. **Change logo source** (line 69-83): Import from `@/assets/wedding-waitress-new-logo.png` (same as running sheet) instead of fetching `/wedding-waitress-share-logo.png`.
+
+2. **Change `formatGeneratedTimestamp()` (line 58-66)**: Add AM/PM format (same as running sheet update).
+
+3. **Rewrite `exportEntireQuestionnairePDF` header (lines 414-457)** to match running sheet layout exactly:
+   - Large purple event name (22px equivalent → font size 18)
+   - "DJ-MC Questionnaire" subtitle below in black (16px equivalent → font size 14)
+   - Ceremony line: `Ceremony: [date] | [venue] | [times]` (if ceremony exists)
+   - Reception line: `Reception: [date] | [venue] | [times]` (if reception exists)
+   - Purple divider line
+   - Text sizes matching running sheet (12px body equivalent → font size 10)
+
+4. **Rewrite `exportSectionPDF` header (lines 314-341)** to use the same header layout as the full questionnaire export.
+
+5. **Add proper footer on EVERY page** (not just the last page):
+   - Centered Wedding Waitress logo (same dimensions as running sheet: 42mm × 12mm)
+   - Left: `Page X of Y`
+   - Right: `Generated: DD/MM/YYYY H:MM AM/PM`
+   - White rectangle behind footer to prevent content bleeding
+
+6. **Add page counting**: After generating all content, go back and stamp footers on every page with correct `Page X of Y` (currently only stamps the last page).
+
+### What stays the same
+- All section table rendering (`drawSectionTable`, column configs, cell values)
+- PDF filename format (already fixed previously)
+- Section notes rendering
+
+### Technical details
+- The running sheet uses html2canvas approach; the DJ-MC exporter uses direct jsPDF drawing. We keep the jsPDF approach for the questionnaire but replicate the same visual header/footer structure.
+- Footer constants will match running sheet: `FOOTER_ZONE_MM = 30`, logo at `42mm × 12mm`, page number at `y = 292mm`, font size 7.
+- The `addNewPage` function will be updated to not add headers on subsequent pages (the running sheet doesn't repeat headers on page 2+, it just has a top margin).
+- After all content is drawn, loop through all pages to stamp the footer with the correct total page count.
 
