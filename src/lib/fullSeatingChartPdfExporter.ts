@@ -95,7 +95,8 @@ export const exportFullSeatingChartToPdf = async (
   guests: Guest[],
   settings: FullSeatingChartSettings,
   pageNum?: number,
-  totalPagesOverride?: number
+  totalPagesOverride?: number,
+  tableNameMap?: Record<number, string>
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
