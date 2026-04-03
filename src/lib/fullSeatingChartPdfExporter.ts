@@ -269,7 +269,8 @@ export const exportFullSeatingChartToPdf = async (
       pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX + 2, headerBarY + 4);
       pdf.text('TABLE', rightColumnX + columnWidth - pdf.getTextWidth('TABLE'), headerBarY + 4);
     }
-    yPos = headerBarY + headerBarHeight + rowHeight;
+    // Small gap after header bar (3mm) matching the preview paddingTop
+    yPos = headerBarY + headerBarHeight + 3;
 
     // Draw guests
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
@@ -278,43 +279,50 @@ export const exportFullSeatingChartToPdf = async (
       const guest1 = col1Guests[i];
       const guest2 = col2Guests[i];
 
-      const drawGuest = (guest: Guest | undefined, xPos: number, yPos: number): number => {
-        if (!guest) return yPos;
+      // Each guest row occupies [yPos .. yPos + rowHeight]
+      // Name text baseline is at yPos + 3.5mm (vertically centered in top portion)
+      const nameBaselineY = yPos + 3.5;
+      
+      const drawGuest = (guest: Guest | undefined, xPos: number, baselineY: number) => {
+        if (!guest) return;
 
         const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
         const hasRelation = settings.showRelation && guest.relation_display;
 
+        // Purple circle checkbox - vertically aligned with name
         pdf.setDrawColor(purple.r, purple.g, purple.b);
         pdf.setLineWidth(0.4);
-        pdf.circle(xPos + 1.5, yPos - 1.5, 1.5, 'S');
+        pdf.circle(xPos + 1.5, baselineY - 1.2, 1.5, 'S');
         
+        // Guest name
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize);
         pdf.setTextColor(0, 0, 0);
         const guestName = formatGuestName(guest);
-        pdf.text(guestName, xPos + 5, yPos);
+        pdf.text(guestName, xPos + 5, baselineY);
         
+        // Table assignment (right-aligned)
         const tableText = formatTableAssignment(guest.table_no, tableNameMap);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize - 1);
-        // Color: purple for unassigned, blue for assigned
         if (!guest.table_no) {
-          pdf.setTextColor(147, 51, 234); // purple
+          pdf.setTextColor(147, 51, 234); // purple for unassigned
         } else {
-          pdf.setTextColor(29, 78, 216); // blue
+          pdf.setTextColor(29, 78, 216); // blue for assigned
         }
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;
-        pdf.text(tableText, tableX, yPos);
-        pdf.setTextColor(0, 0, 0); // reset
+        pdf.text(tableText, tableX, baselineY);
+        pdf.setTextColor(0, 0, 0);
         
+        // Info line (dietary/relation) below name
         const infoParts: string[] = [];
         if (hasDietary) infoParts.push(guest.dietary!);
         if (hasRelation) infoParts.push(guest.relation_display!.replace(' — ', ' / '));
-        const inlineInfo = infoParts.join('/');
+        const inlineInfo = infoParts.join(' / ');
         
         if (inlineInfo) {
-          const line2Y = yPos + (fontSize * 0.4);
+          const line2Y = baselineY + (fontSize * 0.35);
           pdf.setFont('helvetica', 'normal');
           pdf.setFontSize(fontSize - 2);
           pdf.setTextColor(102, 102, 102);
@@ -326,21 +334,20 @@ export const exportFullSeatingChartToPdf = async (
           }
           pdf.text(truncatedInfo, xPos + 5, line2Y);
         }
-
-        return yPos + rowHeight;
       };
 
-      const leftY = drawGuest(guest1, leftColumnX, yPos);
-      const rightY = drawGuest(guest2, rightColumnX, yPos);
+      drawGuest(guest1, leftColumnX, nameBaselineY);
+      drawGuest(guest2, rightColumnX, nameBaselineY);
       
-      // Row border for readability under every guest
+      // Row border at the bottom of this row
+      const borderY = yPos + rowHeight - 0.5;
       pdf.setDrawColor(229, 229, 229);
       pdf.setLineWidth(0.3);
-      const borderY = Math.max(leftY, rightY) - (rowHeight * 0.15);
       if (guest1) pdf.line(leftColumnX, borderY, leftColumnX + columnWidth, borderY);
       if (guest2) pdf.line(rightColumnX, borderY, rightColumnX + columnWidth, borderY);
       
-      yPos = Math.max(leftY, rightY);
+      // Move to next row
+      yPos += rowHeight;
 
       if (yPos > PDF_HEIGHT_MM - margin - 35) {
         break;
