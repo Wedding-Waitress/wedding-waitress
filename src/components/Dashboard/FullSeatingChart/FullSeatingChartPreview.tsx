@@ -84,8 +84,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
     
     // Available height for guest rows (after header, footer, margins)
-    // Reduced to 155mm to ensure 2-3 line gap above footer logo
-    const availableHeight = 155; // mm for guest rows - ensures no cut-off at bottom
+    // Maximized to fill page with exactly 2 empty lines above footer logo
+    const availableHeight = 195; // mm for guest rows - leaves 2 lines above logo
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
