@@ -195,18 +195,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   const formatGeneratedTimestamp = () => {
     const now = new Date();
-    
-    // Format date in DD/MM/YYYY format
     const dateStr = now.toLocaleDateString('en-GB');
-    
-    // Format time in 12-hour format with AM/PM
     const timeStr = now.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit', 
       hour12: true 
     });
-    
-    return `${dateStr} Time: ${timeStr}`;
+    return `${dateStr} ${timeStr}`;
+  };
+
+  const formatTimeDisplay = (time: string | null | undefined): string => {
+    if (!time) return 'TBD';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   // Calculate the minimum row height in mm based on current settings (two-line format)
@@ -318,41 +322,53 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           margin-bottom: 3mm;
         }
 
-        .print-footer {
+        .print-footer-section {
           flex-shrink: 0;
-          min-height: 15mm;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          min-height: 25mm;
           margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
-        .print-footer img {
-          height: 10.5mm;
+        .print-footer-section img {
+          height: 12mm;
           width: auto;
           object-fit: contain;
         }
 
-        .print-event-name {
-          font-size: 20px;
-          font-weight: bold;
-          margin: 0 0 4px 0;
-          color: #7C3AED;
+        .print-footer-meta {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          font-size: 7pt;
+          color: #aaa;
+          margin-top: 2mm;
         }
 
-        .print-chart-date {
-          font-size: 15px;
-          font-weight: 600;
+        .print-event-name {
+          font-size: 22px;
+          font-weight: bold;
+          margin: 0 0 4px 0;
+          color: #6d28d9;
+        }
+
+        .print-chart-subtitle {
+          font-size: 16px;
+          font-weight: normal;
           margin: 0 0 4px 0;
           color: #000;
         }
+
+        .print-detail-line {
+          font-size: 12px;
+          color: #555;
+          margin: 2px 0;
+        }
           
-          .print-subtitle {
-            font-size: 13px;
-            margin: 0 0 8px 0;
-            color: #000;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #000;
+          .print-divider {
+            border-top: 2px solid #6d28d9;
+            margin: 8px 0 14px 0;
           }
 
           .print-column-header {
@@ -471,21 +487,28 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             {/* Content with 1.27cm margins all around (narrow margins) */}
             <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
-              {/* Header */}
-              <div className="text-center mb-4">
-                {/* Line 1: Event Name */}
-                <h1 className="text-base font-bold mb-0.5" style={{ color: '#6D28D9' }}>
+              {/* Header - matching Running Sheet layout */}
+              <div className="text-center mb-2">
+                {/* Line 1: Event Name (purple, larger) */}
+                <h1 className="text-lg font-bold mb-0.5" style={{ color: '#6D28D9' }}>
                   {event.name}
                 </h1>
                 
-                {/* Line 2: Chart Type + Date */}
-                <p className="text-xs font-bold text-foreground mb-0.5">
-                  Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
+                {/* Line 2: Full Seating Chart - Total Guests: X */}
+                <p className="text-sm text-foreground mb-0.5">
+                  Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
-                {/* Line 3: Venue + Stats + Page + Generated */}
-                <p className="text-sm text-foreground pb-2 mb-2 border-b border-black">
-                  {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
+                {/* Ceremony info line */}
+                {event.ceremony_date && (
+                  <p className="text-xs text-muted-foreground mb-0.5">
+                    Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
+                  </p>
+                )}
+                
+                {/* Reception info line */}
+                <p className="text-xs text-muted-foreground pb-2 mb-2 border-b border-black">
+                  Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
               </div>
 
@@ -533,18 +556,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
-              {/* Footer Logo - Reserved space to prevent cut-off */}
-              <div className="flex-shrink-0" style={{ minHeight: '15mm', marginTop: 'auto' }}>
+              {/* Footer - matching Running Sheet layout */}
+              <div className="flex-shrink-0" style={{ minHeight: '25mm', marginTop: 'auto' }}>
                 {settings.showLogo && (
                   <div className="flex justify-center pt-2">
                     <img 
-                      src="/jpeg-2.jpg" 
+                      src={weddingWaitressLogoFull}
                       alt="Wedding Waitress" 
-                      style={{ height: '10.5mm', width: 'auto' }}
+                      style={{ height: '12mm', width: 'auto' }}
                       className="object-contain"
                     />
                   </div>
                 )}
+                <div className="flex justify-between items-center mt-1 px-1" style={{ fontSize: '7pt', color: '#aaa' }}>
+                  <span>Page {currentPage} of {totalPages}</span>
+                  <span>Generated: {formatGeneratedTimestamp()}</span>
+                </div>
               </div>
 
             </div>
@@ -588,20 +615,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
             <div className="print-header">
-              {/* Line 1: Event Name */}
-              <h1 className="print-event-name">
-                {event.name}
-              </h1>
-              
-              {/* Line 2: Chart Type + Date */}
-              <p className="print-chart-date">
-                Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
+              <h1 className="print-event-name">{event.name}</h1>
+              <p className="print-chart-subtitle">Full Seating Chart - Total Guests: {guests.length}</p>
+              {event.ceremony_date && (
+                <p className="print-detail-line">
+                  Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
+                </p>
+              )}
+              <p className="print-detail-line">
+                Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
               </p>
-              
-              {/* Line 3: Venue + Stats + Page + Generated */}
-              <p className="print-subtitle">
-                {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {formatGeneratedTimestamp()}
-              </p>
+              <div className="print-divider"></div>
             </div>
             
             <div className="print-guest-list">
@@ -627,12 +651,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
             </div>
             
-            {/* Print Footer Logo */}
-            {settings.showLogo && (
-              <div className="print-footer">
+            {/* Print Footer */}
+            <div className="print-footer-section">
+              {settings.showLogo && (
                 <img src="/wedding-waitress-print-footer.png?v=1" alt="Wedding Waitress" />
+              )}
+              <div className="print-footer-meta">
+                <span>Page {pageIndex + 1} of {paginationInfo.pages.length}</span>
+                <span>Generated: {formatGeneratedTimestamp()}</span>
               </div>
-            )}
+            </div>
             
           </div>
         ))}
