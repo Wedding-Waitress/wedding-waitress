@@ -213,8 +213,8 @@ export const exportFullSeatingChartToPdf = async (
     pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 6;
 
-    // Subtitle - "Full Seating Chart - Total Guests: X" (not bold, 12pt)
-    pdf.setFont('helvetica', 'normal');
+    // Subtitle - "Full Seating Chart - Total Guests: X" (bold, 12pt)
+    pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
     pdf.text(`Full Seating Chart - Total Guests: ${guests.length}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
