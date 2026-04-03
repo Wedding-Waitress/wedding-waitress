@@ -696,15 +696,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             <div className="print-guest-list">
               <div className="print-guest-column">
-                {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
-                  <PrintGuestRow key={guest.id} guest={guest} />
+                {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest, idx) => (
+                  <PrintGuestRow key={guest.id} guest={guest} index={idx} />
                 ))}
               </div>
               <div className="print-guest-column">
                 {pageInfo.guests.length > pageInfo.col1Count && (
                   <>
-                    {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
-                      <PrintGuestRow key={guest.id} guest={guest} />
+                    {pageInfo.guests.slice(pageInfo.col1Count).map((guest, idx) => (
+                      <PrintGuestRow key={guest.id} guest={guest} index={idx} />
                     ))}
                   </>
                 )}
