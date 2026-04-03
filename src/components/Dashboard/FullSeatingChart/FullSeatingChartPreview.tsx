@@ -511,50 +511,50 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {/* Content with 1.27cm margins all around (narrow margins) */}
             <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
               {/* Header - matching Running Sheet layout */}
-              <div className="text-center mb-2">
+              <div className="text-center" style={{ marginBottom: '2mm' }}>
                 {/* Line 1: Event Name (purple, larger) */}
-                <h1 className="text-lg font-bold mb-0.5" style={{ color: '#6D28D9' }}>
+                <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '18pt', marginBottom: '1.5mm' }}>
                   {event.name}
                 </h1>
                 
                 {/* Line 2: Full Seating Chart - Total Guests: X */}
-                <p className="text-sm text-foreground mb-0.5">
+                <p style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
                 {/* Ceremony info line */}
                 {event.ceremony_date && (
-                  <p className="text-xs text-muted-foreground mb-0.5">
+                  <p className="text-muted-foreground" style={{ fontSize: '9pt', marginBottom: '1mm' }}>
                     Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
                   </p>
                 )}
                 
                 {/* Reception info line */}
-                <p className="text-xs text-muted-foreground mb-0">
+                <p className="text-muted-foreground" style={{ fontSize: '9pt', marginBottom: '0' }}>
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
                 
                 {/* Purple divider */}
-                <div className="mt-2 mb-0" style={{ borderTop: '2px solid #6D28D9' }}></div>
+                <div style={{ borderTop: '2px solid #6D28D9', marginTop: '2mm' }}></div>
               </div>
 
               {/* Column Headers Bar - matching Running Sheet TIME/EVENT/WHO style */}
               <div 
-                className="mb-1"
                 style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
                   backgroundColor: '#f3f3f3',
                   borderBottom: '2px solid #ccc',
-                  padding: '4px 2px',
+                  padding: '3px 2px',
+                  marginBottom: '1mm',
                 }}
               >
-                <h3 className="font-bold text-[10px] text-gray-500 uppercase tracking-wide px-1">
+                <h3 className="font-bold text-gray-500 uppercase tracking-wide px-1" style={{ fontSize: '8pt' }}>
                   Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
                 </h3>
                 {col2Guests.length > 0 && (
-                  <h3 className="font-bold text-[10px] text-gray-500 uppercase tracking-wide px-1">
+                  <h3 className="font-bold text-gray-500 uppercase tracking-wide px-1" style={{ fontSize: '8pt' }}>
                     Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
                   </h3>
                 )}
@@ -568,7 +568,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
                   overflow: 'hidden',
-                  maxHeight: 'calc(100% - 100px - 20mm)'
                 }}
               >
                 {/* Left Column */}
@@ -594,10 +593,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
-              {/* Footer - matching Running Sheet layout */}
-              <div className="flex-shrink-0" style={{ minHeight: '25mm', marginTop: 'auto' }}>
+              {/* Footer - tight to bottom matching PDF */}
+              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingBottom: '0' }}>
                 {settings.showLogo && (
-                  <div className="flex justify-center pt-2">
+                  <div className="flex justify-center" style={{ paddingTop: '0' }}>
                     <img 
                       src={weddingWaitressLogoFull}
                       alt="Wedding Waitress" 
@@ -606,7 +605,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                     />
                   </div>
                 )}
-                <div className="flex justify-between items-center mt-1 px-1" style={{ fontSize: '7pt', color: '#aaa' }}>
+                <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
                   <span>Page {currentPage} of {totalPages}</span>
                   <span>Generated: {formatGeneratedTimestamp()}</span>
                 </div>
