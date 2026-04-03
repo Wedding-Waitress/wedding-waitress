@@ -260,9 +260,10 @@ export const exportFullSeatingChartToDocx = async (
       const hasRelation = settings.showRelation && guest.relation_role;
       
       // Build inline info string
+      const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
       const infoParts: string[] = [];
-      if (hasDietary) infoParts.push(guest.dietary!);
-      if (hasRelation) infoParts.push(guest.relation_role!);
+      if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
+      if (hasRelation) infoParts.push(capitalizeWords(guest.relation_role!));
       const inlineInfo = infoParts.join(' / ');
       
       // Single row: checkbox + name + inline info + table

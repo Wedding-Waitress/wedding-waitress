@@ -347,9 +347,10 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setTextColor(0, 0, 0);
         
         // Info line (dietary/relation) below name
+        const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
         const infoParts: string[] = [];
-        if (hasDietary) infoParts.push(guest.dietary!);
-        if (hasRelation) infoParts.push(guest.relation_role || '');
+        if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
+        if (hasRelation) infoParts.push(capitalizeWords(guest.relation_role || ''));
         const inlineInfo = infoParts.join(' / ');
         
         if (inlineInfo) {
