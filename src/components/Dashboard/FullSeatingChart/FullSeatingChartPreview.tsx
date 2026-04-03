@@ -248,7 +248,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
         style={{ 
           minHeight: `${rowHeightMm * 2}px`,
-          borderBottom: showBorder ? '1px solid #e5e5e5' : 'none',
+          borderBottom: '1px solid #e5e5e5',
         }}
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
