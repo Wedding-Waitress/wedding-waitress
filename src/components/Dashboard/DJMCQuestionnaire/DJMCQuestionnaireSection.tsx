@@ -394,7 +394,7 @@ export function DJMCQuestionnaireSection({
                         <span>Audio</span>
                       </div>
                     </div>
-                  )
+                  )}
                   
                    {/* COLUMNS 2, 3 for ceremony: Names / Info + Audio | Song Title & Artist */}
                    {section.section_type === 'ceremony' && (
