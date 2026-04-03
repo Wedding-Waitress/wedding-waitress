@@ -242,7 +242,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const inlineInfo = buildInlineInfo(guest);
     const tableText = formatTableDisplay(guest.table_no);
     const isUnassigned = !guest.table_no;
-    const showBorder = index % 2 === 0;
     return (
       <div 
         className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
