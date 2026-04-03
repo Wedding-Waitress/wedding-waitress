@@ -258,7 +258,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           )}
         </div>
         <span className="text-xs font-medium px-1.5 py-0.5 bg-muted rounded flex-shrink-0 whitespace-nowrap mt-0.5">
-          {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+          {formatTableDisplay(guest.table_no)}
         </span>
       </div>
     );
