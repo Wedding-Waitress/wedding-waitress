@@ -102,6 +102,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 id="show-dietary"
                 checked={settings.showDietary}
                 onCheckedChange={(checked) => onSettingsChange({ showDietary: checked })}
+                className={!settings.showDietary ? 'data-[state=unchecked]:bg-destructive' : ''}
               />
             </div>
             
