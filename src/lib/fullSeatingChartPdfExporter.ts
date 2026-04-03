@@ -325,7 +325,7 @@ export const exportFullSeatingChartToPdf = async (
         if (inlineInfo) {
           const line2Y = baselineY + (fontSize * 0.35);
           pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 2);
+          pdf.setFontSize(fontSize - 1);
           pdf.setTextColor(102, 102, 102);
           
           const maxInfoWidth = columnWidth - 10;

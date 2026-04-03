@@ -268,9 +268,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           )}
         </div>
         <span 
-          className="font-bold flex-shrink-0 whitespace-nowrap mt-0.5"
+          className={`font-bold flex-shrink-0 whitespace-nowrap mt-0.5 ${getFontSizeClass()}`}
           style={{ 
-            fontSize: settings.fontSize === 'small' ? '10px' : settings.fontSize === 'large' ? '13px' : '11px',
             color: isUnassigned ? '#9333ea' : '#000000'
           }}
         >
