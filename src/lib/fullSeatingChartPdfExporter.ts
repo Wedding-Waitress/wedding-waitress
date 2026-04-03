@@ -349,10 +349,6 @@ export const exportFullSeatingChartToPdf = async (
       
       // Move to next row
       yPos += rowHeight;
-
-      if (yPos > PDF_HEIGHT_MM - margin - 35) {
-        break;
-      }
     }
 
     // Draw footer (logo centered, page left, generated right)
