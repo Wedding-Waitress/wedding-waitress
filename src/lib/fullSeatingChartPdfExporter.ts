@@ -66,9 +66,10 @@ const formatGuestName = (guest: Guest): string => {
   return guest.first_name;
 };
 
-// Format table assignment
-const formatTableAssignment = (tableNo: number | null): string => {
+// Format table assignment using name map
+const formatTableAssignment = (tableNo: number | null, tableNameMap?: Record<number, string>): string => {
   if (!tableNo) return 'Unassigned';
+  if (tableNameMap && tableNameMap[tableNo]) return tableNameMap[tableNo];
   return `Table ${tableNo}`;
 };
 
