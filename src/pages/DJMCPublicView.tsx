@@ -521,8 +521,8 @@ export function DJMCPublicView() {
                 <Music className="h-6 w-6 text-primary" />
               </div>
               <div>
+                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the DJ-MC questionnaire of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
-                <p className="text-sm text-muted-foreground">DJ-MC Questionnaire</p>
               </div>
             </div>
             
