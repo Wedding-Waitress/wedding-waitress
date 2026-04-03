@@ -1,54 +1,35 @@
 
 
-## Plan: Align DJ-MC Questionnaire PDF Layout with Running Sheet PDF
+## Plan: Match DJ-MC Questionnaire PDF Font Sizes to Running Sheet PDF
 
-### Summary
-Update the DJ-MC Questionnaire PDF export to match the Running Sheet PDF's header, footer, and timestamp format. Also update the Running Sheet's timestamp to use AM/PM format.
+### Problem
+The DJ-MC Questionnaire PDF uses jsPDF point sizes that are significantly larger than the Running Sheet's HTML pixel-based rendering. Since jsPDF uses typographic points (1pt = 1/72 inch) and the Running Sheet HTML renders at 96 DPI (1px = 1/96 inch), the conversion is: **HTML px × 0.75 = jsPDF pt**.
 
-### Changes
+### Current vs Target Sizes
 
----
+| Element | Running Sheet (HTML px) | Questionnaire Current (jsPDF pt) | Questionnaire Target (jsPDF pt) |
+|---------|------------------------|----------------------------------|--------------------------------|
+| Event name | 22px | 22pt | **16pt** |
+| Subtitle | 16px | 16pt | **12pt** |
+| Detail lines | 12px | 12pt | **9pt** |
+| Section headings | N/A (red bold in rows) | 14pt | **11pt** |
+| Body/row text | 12px | 9pt | **9pt** (no change) |
 
-**File: `src/lib/runningSheetPdfExporter.ts`**
+### File: `src/lib/djMCQuestionnairePdfExporter.ts`
 
-1. **Change `formatGeneratedTimestamp()` (line 84-87)** to use AM/PM instead of 24-hour time.
-   - Current: `03/04/2026 11:21`
-   - New: `03/04/2026 11:21 AM`
+**Change 1 — Header event name (line 372):** `setFontSize(22)` → `setFontSize(16)`
 
----
+**Change 2 — Subtitle (line 378):** `setFontSize(16)` → `setFontSize(12)`. Also remove bold — Running Sheet subtitle is not bold. Change font to `'helvetica', 'normal'`.
 
-**File: `src/lib/djMCQuestionnairePdfExporter.ts`** — Major overhaul to match running sheet approach
+**Change 3 — Detail lines (line 385):** `setFontSize(12)` → `setFontSize(9)`
 
-1. **Change logo source** (line 69-83): Import from `@/assets/wedding-waitress-new-logo.png` (same as running sheet) instead of fetching `/wedding-waitress-share-logo.png`.
+**Change 4 — Adjust vertical spacing after header elements** to match the tighter Running Sheet layout:
+- After event name: `yPos += 8` → `yPos += 6`
+- After subtitle: `yPos += 7` → `yPos += 5`
+- After detail lines: `yPos += 5` → `yPos += 4`
+- After divider: `yPos += 10` → `yPos += 8`
 
-2. **Change `formatGeneratedTimestamp()` (line 58-66)**: Add AM/PM format (same as running sheet update).
+**Change 5 — Section headings (line 269):** `setFontSize(14)` → `setFontSize(11)`
 
-3. **Rewrite `exportEntireQuestionnairePDF` header (lines 414-457)** to match running sheet layout exactly:
-   - Large purple event name (22px equivalent → font size 18)
-   - "DJ-MC Questionnaire" subtitle below in black (16px equivalent → font size 14)
-   - Ceremony line: `Ceremony: [date] | [venue] | [times]` (if ceremony exists)
-   - Reception line: `Reception: [date] | [venue] | [times]` (if reception exists)
-   - Purple divider line
-   - Text sizes matching running sheet (12px body equivalent → font size 10)
-
-4. **Rewrite `exportSectionPDF` header (lines 314-341)** to use the same header layout as the full questionnaire export.
-
-5. **Add proper footer on EVERY page** (not just the last page):
-   - Centered Wedding Waitress logo (same dimensions as running sheet: 42mm × 12mm)
-   - Left: `Page X of Y`
-   - Right: `Generated: DD/MM/YYYY H:MM AM/PM`
-   - White rectangle behind footer to prevent content bleeding
-
-6. **Add page counting**: After generating all content, go back and stamp footers on every page with correct `Page X of Y` (currently only stamps the last page).
-
-### What stays the same
-- All section table rendering (`drawSectionTable`, column configs, cell values)
-- PDF filename format (already fixed previously)
-- Section notes rendering
-
-### Technical details
-- The running sheet uses html2canvas approach; the DJ-MC exporter uses direct jsPDF drawing. We keep the jsPDF approach for the questionnaire but replicate the same visual header/footer structure.
-- Footer constants will match running sheet: `FOOTER_ZONE_MM = 30`, logo at `42mm × 12mm`, page number at `y = 292mm`, font size 7.
-- The `addNewPage` function will be updated to not add headers on subsequent pages (the running sheet doesn't repeat headers on page 2+, it just has a top margin).
-- After all content is drawn, loop through all pages to stamp the footer with the correct total page count.
+No other changes. Body text (9pt), column headers (8pt), row heights, footer, and all other layout remain untouched.
 
