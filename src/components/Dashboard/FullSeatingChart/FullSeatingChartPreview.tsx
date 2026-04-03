@@ -395,7 +395,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           .print-column-header {
             font-size: 10pt;
             font-weight: bold;
-            color: #555;
+            color: #000;
             text-transform: uppercase;
             padding: 0 2px;
           }

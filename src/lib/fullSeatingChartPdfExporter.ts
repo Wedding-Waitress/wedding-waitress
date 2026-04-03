@@ -262,10 +262,12 @@ export const exportFullSeatingChartToPdf = async (
 
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(8);
-    pdf.setTextColor(85, 85, 85); // #555
+    pdf.setTextColor(0, 0, 0); // black
     pdf.text(`GUESTS ${col1Start}-${col1End}`, leftColumnX + 2, headerBarY + 4);
+    pdf.text('TABLE', leftColumnX + columnWidth - pdf.getTextWidth('TABLE'), headerBarY + 4);
     if (col2Guests.length > 0) {
       pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX + 2, headerBarY + 4);
+      pdf.text('TABLE', rightColumnX + columnWidth - pdf.getTextWidth('TABLE'), headerBarY + 4);
     }
     yPos = headerBarY + headerBarHeight + 4;
 
