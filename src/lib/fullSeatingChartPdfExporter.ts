@@ -327,7 +327,7 @@ export const exportFullSeatingChartToPdf = async (
           pdf.text(truncatedInfo, xPos + 5, line2Y);
         }
 
-        return yPos + rowHeight * 1.5;
+        return yPos + rowHeight;
       };
 
       const leftY = drawGuest(guest1, leftColumnX, yPos);
