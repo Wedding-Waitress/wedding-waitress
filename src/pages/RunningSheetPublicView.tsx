@@ -384,7 +384,7 @@ export function RunningSheetPublicView() {
       {/* Event Info Banner — matching dashboard layout */}
       {(hasCeremony || hasReception) && (
         <div className="bg-primary/5 border-b border-primary/10 print:bg-transparent">
-          <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
             <div className="text-center space-y-3">
               <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
               <div className={`flex justify-center gap-8 flex-wrap ${
