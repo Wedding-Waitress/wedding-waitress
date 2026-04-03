@@ -606,10 +606,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
-              {/* Footer - tight to bottom matching PDF */}
-              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingBottom: '0' }}>
+              {/* Footer - matching PDF's 30mm footer zone from page bottom */}
+              <div className="flex-shrink-0 flex flex-col items-center justify-end" style={{ marginTop: 'auto', height: '30mm' }}>
                 {settings.showLogo && (
-                  <div className="flex justify-center" style={{ paddingTop: '0' }}>
+                  <div className="flex justify-center" style={{ marginBottom: '2mm' }}>
                     <img 
                       src={weddingWaitressLogoFull}
                       alt="Wedding Waitress" 
@@ -618,7 +618,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                     />
                   </div>
                 )}
-                <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
+                <div className="flex justify-between items-center px-1 w-full" style={{ fontSize: '7pt', color: '#aaa' }}>
                   <span>Page {currentPage} of {totalPages}</span>
                   <span>Generated: {formatGeneratedTimestamp()}</span>
                 </div>
