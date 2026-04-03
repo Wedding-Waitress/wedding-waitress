@@ -575,7 +575,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Guest List */}
               <div 
                 style={{ 
-                  height: '205mm',
+                  height: '213mm',
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
