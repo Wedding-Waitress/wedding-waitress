@@ -677,12 +677,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             {/* Column Headers Bar */}
             <div className="print-column-header-bar">
-              <div className="print-column-header">
-                GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
+              <div className="print-column-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}</span>
+                <span>TABLE</span>
               </div>
               {pageInfo.guests.length > pageInfo.col1Count && (
-                <div className="print-column-header">
-                  GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
+                <div className="print-column-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}</span>
+                  <span>TABLE</span>
                 </div>
               )}
             </div>
