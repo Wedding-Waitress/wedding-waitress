@@ -43,6 +43,7 @@ import { FileText, Users, Layout, Calendar } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
+import { useTables } from '@/hooks/useTables';
 
 import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
