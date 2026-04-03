@@ -173,7 +173,7 @@ export const exportFullSeatingChartToPdf = async (
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  const availableHeight = 155;
+  const availableHeight = 195;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
