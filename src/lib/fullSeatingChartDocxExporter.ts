@@ -108,8 +108,10 @@ export const exportFullSeatingChartToDocx = async (
   guests: Guest[],
   settings: FullSeatingChartSettings
 ): Promise<void> => {
-  const guestsPerColumn = 15;
-  const guestsPerPage = 30;
+  const baseRowHeight: Record<string, number> = { 'small': 10, 'medium': 11, 'large': 13 };
+  const rowHeight = baseRowHeight[settings.fontSize] || 11;
+  const guestsPerColumn = Math.max(1, Math.floor(195 / rowHeight));
+  const guestsPerPage = guestsPerColumn * 2;
   const totalPages = Math.ceil(guests.length / guestsPerPage);
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
