@@ -251,7 +251,7 @@ export const exportFullSeatingChartToDocx = async (
     const buildGuestParagraphs = (guest: Guest | undefined): Paragraph[] => {
       if (!guest) return [new Paragraph({ text: '' })];
       
-      const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
+      const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none';
       const hasRelation = settings.showRelation && guest.relation_role;
       
       // Build inline info string

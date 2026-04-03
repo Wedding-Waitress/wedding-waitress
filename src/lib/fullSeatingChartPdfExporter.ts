@@ -287,7 +287,7 @@ export const exportFullSeatingChartToPdf = async (
       const drawGuest = (guest: Guest | undefined, xPos: number, baselineY: number) => {
         if (!guest) return;
 
-        const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
+        const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none';
         const hasRelation = settings.showRelation && guest.relation_display;
 
         // Purple circle checkbox - vertically aligned with name
@@ -309,7 +309,7 @@ export const exportFullSeatingChartToPdf = async (
         if (!guest.table_no) {
           pdf.setTextColor(147, 51, 234); // purple for unassigned
         } else {
-          pdf.setTextColor(29, 78, 216); // blue for assigned
+          pdf.setTextColor(0, 0, 0); // black for assigned
         }
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;

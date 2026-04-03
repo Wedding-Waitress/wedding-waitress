@@ -228,7 +228,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Build inline info string for dietary and relation
   const buildInlineInfo = (guest: Guest) => {
     const parts: string[] = [];
-    if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
+    if (settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none') {
       parts.push(guest.dietary);
     }
     if (settings.showRelation && guest.relation_role) {
@@ -272,7 +272,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           className="font-bold flex-shrink-0 whitespace-nowrap mt-0.5"
           style={{ 
             fontSize: settings.fontSize === 'small' ? '10px' : settings.fontSize === 'large' ? '13px' : '11px',
-            color: isUnassigned ? '#9333ea' : '#1d4ed8'
+            color: isUnassigned ? '#9333ea' : '#000000'
           }}
         >
           {tableText}
@@ -461,7 +461,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             font-weight: 700;
             white-space: nowrap;
             flex-shrink: 0;
-            color: #1d4ed8;
+            color: #000000;
           }
           
           .print-table-unassigned {
