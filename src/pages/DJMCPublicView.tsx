@@ -514,7 +514,7 @@ export function DJMCPublicView() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-10 print:static">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -552,7 +552,7 @@ export function DJMCPublicView() {
       </header>
 
       {/* Ceremony + Reception Event Details Banner */}
-      <div className="max-w-4xl mx-auto px-4 pt-6">
+      <div className="max-w-7xl mx-auto px-4 pt-6">
         <div className="text-center py-4 border-b border-border space-y-3">
           <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
           
@@ -601,7 +601,7 @@ export function DJMCPublicView() {
       </div>
 
       {/* Main Content — Uses same DJMCQuestionnaireSection as dashboard */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="space-y-4">
           {data.sections.map((section) => (
             <DJMCQuestionnaireSection
@@ -634,7 +634,7 @@ export function DJMCPublicView() {
 
       {/* Footer */}
       <footer className="border-t border-border mt-12 print:border-0">
-        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
+        <div className="max-w-7xl mx-auto px-4 py-6 text-center">
           <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
             <img 
               src="/wedding-waitress-share-logo.png" 
