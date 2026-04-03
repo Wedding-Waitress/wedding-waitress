@@ -271,16 +271,7 @@ const drawSectionTable = (
   pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
 
-  // Section notes if present
-  if (section.notes) {
-    pdf.setFont('helvetica', 'italic');
-    pdf.setFontSize(9);
-    pdf.setTextColor(100, 100, 100);
-    const noteLines = pdf.splitTextToSize(`Notes: ${section.notes}`, CONTENT_WIDTH);
-    checkPageBreak(noteLines.length * 4 + 2);
-    pdf.text(noteLines, MARGIN, yPos);
-    yPos += noteLines.length * 4 + 2;
-  }
+  // Notes are intentionally excluded from PDF exports — they are only visible on screen/links
 
   // Draw header row
   checkPageBreak(headerHeight + 2);
@@ -486,7 +477,7 @@ export const exportEntireQuestionnairePDF = async (
   // Draw each section
   for (const section of questionnaire.sections) {
     // Estimate section height
-    const estimatedHeight = 20 + (section.items.length * 7) + (section.notes ? 15 : 0);
+    const estimatedHeight = 20 + (section.items.length * 7);
     const usableBottom = onFirstPage ? usableHeightPage1 : usableHeightPage2Plus + TOP_MARGIN_PAGE2_MM;
     
     // Check if we need a new page
