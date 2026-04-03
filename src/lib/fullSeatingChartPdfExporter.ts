@@ -269,7 +269,7 @@ export const exportFullSeatingChartToPdf = async (
       pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX + 2, headerBarY + 4);
       pdf.text('TABLE', rightColumnX + columnWidth - pdf.getTextWidth('TABLE'), headerBarY + 4);
     }
-    yPos = headerBarY + headerBarHeight + 4;
+    yPos = headerBarY + headerBarHeight + rowHeight;
 
     // Draw guests
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
