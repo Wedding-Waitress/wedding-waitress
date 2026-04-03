@@ -283,11 +283,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   // Print version guest row - two-line format matching screen
-  const PrintGuestRow = ({ guest }: { guest: Guest }) => {
+  const PrintGuestRow = ({ guest, index }: { guest: Guest; index: number }) => {
     const inlineInfo = buildInlineInfo(guest);
     const isUnassigned = !guest.table_no;
+    const showBorder = index % 2 === 0;
     return (
-      <div className="print-guest-item print-guest-two-line">
+      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: showBorder ? '1px solid #e5e5e5' : 'none' }}>
         <span className="print-checkbox">☐</span>
         <div className="print-guest-content">
           <span className="print-guest-name">{formatGuestName(guest)}</span>
