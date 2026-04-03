@@ -114,6 +114,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 id="show-relation"
                 checked={settings.showRelation}
                 onCheckedChange={(checked) => onSettingsChange({ showRelation: checked })}
+                className={!settings.showRelation ? 'data-[state=unchecked]:bg-destructive' : ''}
               />
             </div>
           </div>
