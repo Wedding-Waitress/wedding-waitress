@@ -275,7 +275,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
         </div>
         <span className="print-table">
-          {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+          {formatTableDisplay(guest.table_no)}
         </span>
       </div>
     );
