@@ -52,6 +52,7 @@ interface FullSeatingChartPreviewProps {
   event: any;
   guests: Guest[];
   settings: FullSeatingChartSettings;
+  tableNameMap?: Record<number, string>;
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
