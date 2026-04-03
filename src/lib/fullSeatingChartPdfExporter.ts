@@ -167,7 +167,7 @@ export const exportFullSeatingChartToPdf = async (
   const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
   const baseRowHeight: Record<string, number> = {
-    'small': 10,
+    'small': 8.4,   // 195/8.4 = 23 guests per column
     'medium': 11,
     'large': 13
   };
