@@ -552,7 +552,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   backgroundColor: '#f3f3f3',
                   borderBottom: '2px solid #ccc',
                   padding: '3px 2px',
-                  marginBottom: '1mm',
+                  marginBottom: '0',
                 }}
               >
                 <div className="flex justify-between items-center px-1">
