@@ -663,7 +663,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             <div className="print-header">
               <h1 className="print-event-name">{event.name}</h1>
-              <p className="print-chart-subtitle">Full Seating Chart - Total Guests: {guests.length}</p>
+              <p className="print-chart-subtitle" style={{ fontWeight: 'bold' }}>Full Seating Chart - Total Guests: {guests.length}</p>
               {event.ceremony_date && (
                 <p className="print-detail-line">
                   Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
