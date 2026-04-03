@@ -475,21 +475,28 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             {/* Content with 1.27cm margins all around (narrow margins) */}
             <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
-              {/* Header */}
-              <div className="text-center mb-4">
-                {/* Line 1: Event Name */}
-                <h1 className="text-base font-bold mb-0.5" style={{ color: '#6D28D9' }}>
+              {/* Header - matching Running Sheet layout */}
+              <div className="text-center mb-2">
+                {/* Line 1: Event Name (purple, larger) */}
+                <h1 className="text-lg font-bold mb-0.5" style={{ color: '#6D28D9' }}>
                   {event.name}
                 </h1>
                 
-                {/* Line 2: Chart Type + Date */}
-                <p className="text-xs font-bold text-foreground mb-0.5">
-                  Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
+                {/* Line 2: Full Seating Chart - Total Guests: X */}
+                <p className="text-sm text-foreground mb-0.5">
+                  Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
-                {/* Line 3: Venue + Stats + Page + Generated */}
-                <p className="text-sm text-foreground pb-2 mb-2 border-b border-black">
-                  {event.venue} - Total Guests: {guests.length} - Page {currentPage} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
+                {/* Ceremony info line */}
+                {event.ceremony_date && (
+                  <p className="text-xs text-muted-foreground mb-0.5">
+                    Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
+                  </p>
+                )}
+                
+                {/* Reception info line */}
+                <p className="text-xs text-muted-foreground pb-2 mb-2 border-b border-black">
+                  Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
               </div>
 
