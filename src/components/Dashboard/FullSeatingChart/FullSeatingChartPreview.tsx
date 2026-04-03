@@ -229,14 +229,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   const rowHeightMm = getRowHeightMm();
 
+  // Capitalize each word in a string
+  const capitalizeWords = (text: string) => text.replace(/\b\w/g, c => c.toUpperCase());
+
   // Build inline info string for dietary and relation
   const buildInlineInfo = (guest: Guest) => {
     const parts: string[] = [];
     if (settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none') {
-      parts.push(guest.dietary);
+      parts.push(capitalizeWords(guest.dietary));
     }
     if (settings.showRelation && guest.relation_role) {
-      parts.push(guest.relation_role);
+      parts.push(capitalizeWords(guest.relation_role));
     }
     return parts.join(' / ');
   };
