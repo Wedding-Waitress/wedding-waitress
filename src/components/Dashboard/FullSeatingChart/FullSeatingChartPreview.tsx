@@ -238,17 +238,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   // Screen version guest row - matches PDF layout exactly
-  const ScreenGuestRow = ({ guest, index }: { guest: Guest; index: number }) => {
+  const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const tableText = formatTableDisplay(guest.table_no);
     const isUnassigned = !guest.table_no;
-    const showBorder = index % 2 === 0;
     return (
       <div 
         className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
         style={{ 
           minHeight: `${rowHeightMm * 2}px`,
-          borderBottom: showBorder ? '1px solid #e5e5e5' : 'none',
+          borderBottom: '1px solid #e5e5e5',
         }}
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
@@ -283,12 +282,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   // Print version guest row - two-line format matching screen
-  const PrintGuestRow = ({ guest, index }: { guest: Guest; index: number }) => {
+  const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const isUnassigned = !guest.table_no;
-    const showBorder = index % 2 === 0;
     return (
-      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: showBorder ? '1px solid #e5e5e5' : 'none' }}>
+      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: '1px solid #e5e5e5' }}>
         <span className="print-checkbox">☐</span>
         <div className="print-guest-content">
           <span className="print-guest-name">{formatGuestName(guest)}</span>
@@ -589,8 +587,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
                   {col1Guests.length > 0 && (
                     <div>
-                      {col1Guests.map((guest, idx) => (
-                        <ScreenGuestRow key={guest.id} guest={guest} index={idx} />
+                      {col1Guests.map((guest) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} />
                       ))}
                     </div>
                   )}
@@ -600,8 +598,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
                   {col2Guests.length > 0 && (
                     <div>
-                      {col2Guests.map((guest, idx) => (
-                        <ScreenGuestRow key={guest.id} guest={guest} index={idx} />
+                      {col2Guests.map((guest) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} />
                       ))}
                     </div>
                   )}
@@ -696,15 +694,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             <div className="print-guest-list">
               <div className="print-guest-column">
-                {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest, idx) => (
-                  <PrintGuestRow key={guest.id} guest={guest} index={idx} />
+                {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
+                  <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               <div className="print-guest-column">
                 {pageInfo.guests.length > pageInfo.col1Count && (
                   <>
-                    {pageInfo.guests.slice(pageInfo.col1Count).map((guest, idx) => (
-                      <PrintGuestRow key={guest.id} guest={guest} index={idx} />
+                    {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
+                      <PrintGuestRow key={guest.id} guest={guest} />
                     ))}
                   </>
                 )}

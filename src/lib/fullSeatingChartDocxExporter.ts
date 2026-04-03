@@ -291,19 +291,12 @@ export const exportFullSeatingChartToDocx = async (
       const leftParagraphs = buildGuestParagraphs(guest1);
       const rightParagraphs = buildGuestParagraphs(guest2);
 
-      const rowBorders = i % 2 === 0
-        ? {
-            top: { style: BorderStyle.NONE },
-            bottom: { style: BorderStyle.SINGLE, size: 4, color: 'E5E5E5' },
-            left: { style: BorderStyle.NONE },
-            right: { style: BorderStyle.NONE },
-          }
-        : {
-            top: { style: BorderStyle.NONE },
-            bottom: { style: BorderStyle.NONE },
-            left: { style: BorderStyle.NONE },
-            right: { style: BorderStyle.NONE },
-          };
+      const rowBorders = {
+        top: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.SINGLE, size: 4, color: 'E5E5E5' },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+      };
 
       guestTableRows.push(
         new TableRow({
