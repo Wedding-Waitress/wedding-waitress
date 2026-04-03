@@ -593,7 +593,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
 
                 {/* Right Column */}
-                <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
+                <div style={{ paddingTop: '3mm' }}>
                   {col2Guests.length > 0 && (
                     <div>
                       {col2Guests.map((guest) => (
