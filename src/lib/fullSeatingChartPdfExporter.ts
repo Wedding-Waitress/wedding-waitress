@@ -37,10 +37,10 @@ interface Event {
 // Layout constants matching Running Sheet
 const PDF_WIDTH_MM = 210;
 const PDF_HEIGHT_MM = 297;
-const FOOTER_ZONE_MM = 30;
+const FOOTER_ZONE_MM = 25;
 const FOOTER_LOGO_HEIGHT_MM = 12;
 const FOOTER_LOGO_WIDTH_MM = 42;
-const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 5;
+const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 3;
 const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
 
 // Convert font size setting to points
@@ -349,10 +349,6 @@ export const exportFullSeatingChartToPdf = async (
       
       // Move to next row
       yPos += rowHeight;
-
-      if (yPos > PDF_HEIGHT_MM - margin - 35) {
-        break;
-      }
     }
 
     // Draw footer (logo centered, page left, generated right)
