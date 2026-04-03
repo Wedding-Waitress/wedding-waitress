@@ -59,6 +59,8 @@ export function useRunningSheet(eventId: string | null) {
 
   // Per-item debounce timers keyed by item id
   const itemSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  // Meta (label/notes) debounce timer
+  const metaSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Keep cache in sync whenever state changes
   useEffect(() => {
