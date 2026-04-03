@@ -316,7 +316,7 @@ export function RunningSheetPublicView() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-10 print:static">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -384,7 +384,7 @@ export function RunningSheetPublicView() {
       {/* Event Info Banner — matching dashboard layout */}
       {(hasCeremony || hasReception) && (
         <div className="bg-primary/5 border-b border-primary/10 print:bg-transparent">
-          <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
             <div className="text-center space-y-3">
               <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
               <div className={`flex justify-center gap-8 flex-wrap ${
@@ -421,7 +421,7 @@ export function RunningSheetPublicView() {
       )}
 
       {/* Running Sheet — using same components as dashboard */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6">
         <RunningSheetSection
           label={sectionLabel}
           onLabelChange={setSectionLabel}
@@ -441,7 +441,7 @@ export function RunningSheetPublicView() {
 
       {/* Footer */}
       <footer className="border-t border-border mt-12 print:border-0">
-        <div className="max-w-4xl mx-auto px-4 py-6 text-center">
+        <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
           <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
             <img
               src="/wedding-waitress-share-logo.png"
