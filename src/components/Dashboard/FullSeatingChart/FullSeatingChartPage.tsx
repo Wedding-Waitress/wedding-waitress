@@ -97,13 +97,13 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const guestsPerPage = React.useMemo(() => {
     // Must match FullSeatingChartPreview and fullSeatingChartPdfExporter exactly
     const baseRowHeight: Record<string, number> = {
-      'small': 8.4,   // 195/8.4 = 23 guests per column
+      'small': 8.4,   // 210/8.4 = 25 guests per column
       'medium': 11,
       'large': 13
     };
     
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
-    const availableHeight = 195; // mm for guest rows - matches preview
+    const availableHeight = 210; // mm for guest rows - matches preview and PDF exporter
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
