@@ -130,7 +130,14 @@ export function SeatingChartPublicView() {
         showLogo: true,
         paperSize: 'A4' as const,
       };
-      await exportFullSeatingChartToPdf(fakeEvent, data.guests as any, defaultSettings);
+      // Build tableNameMap from guest data
+      const tnMap: Record<number, string> = {};
+      data.guests.forEach(g => {
+        if (g.table_no != null && g.table_name && isNaN(Number(g.table_name))) {
+          tnMap[g.table_no] = g.table_name;
+        }
+      });
+      await exportFullSeatingChartToPdf(fakeEvent, data.guests as any, defaultSettings, undefined, undefined, tnMap);
     } catch (e) {
       console.error('PDF export error:', e);
     } finally {
