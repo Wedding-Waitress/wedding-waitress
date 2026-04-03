@@ -262,7 +262,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {formatGuestName(guest)}
           </span>
           {inlineInfo && (
-            <span className="text-[9px] leading-tight truncate" style={{ color: '#666' }}>
+            <span className="text-[11px] leading-tight truncate" style={{ color: '#666' }}>
               {inlineInfo}
             </span>
           )}
