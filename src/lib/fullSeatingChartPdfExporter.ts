@@ -90,9 +90,9 @@ const formatGeneratedTimestamp = (): string => {
   return `${day}/${month}/${year} ${displayHour}:${minutes} ${ampm}`;
 };
 
-// Format guest name - first name only
+// Format guest name - full name
 const formatGuestName = (guest: Guest): string => {
-  return guest.first_name;
+  return `${guest.first_name} ${guest.last_name || ''}`.trim();
 };
 
 // Format table assignment using name map
