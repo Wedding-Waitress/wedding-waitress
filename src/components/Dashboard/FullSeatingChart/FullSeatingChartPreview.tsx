@@ -195,18 +195,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   const formatGeneratedTimestamp = () => {
     const now = new Date();
-    
-    // Format date in DD/MM/YYYY format
     const dateStr = now.toLocaleDateString('en-GB');
-    
-    // Format time in 12-hour format with AM/PM
     const timeStr = now.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit', 
       hour12: true 
     });
-    
-    return `${dateStr} Time: ${timeStr}`;
+    return `${dateStr} ${timeStr}`;
+  };
+
+  const formatTimeDisplay = (time: string | null | undefined): string => {
+    if (!time) return 'TBD';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   // Calculate the minimum row height in mm based on current settings (two-line format)
