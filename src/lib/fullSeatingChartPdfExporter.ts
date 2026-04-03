@@ -235,7 +235,7 @@ export const exportFullSeatingChartToPdf = async (
         pdf.text(guestName, xPos + 5, yPos);
         
         // Table assignment text (right-aligned, same line as name)
-        const tableText = formatTableAssignment(guest.table_no);
+        const tableText = formatTableAssignment(guest.table_no, tableNameMap);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize - 1);
         const tableWidth = pdf.getTextWidth(tableText);
