@@ -503,10 +503,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         {/* A4 Paper Container - True A4 size: 210mm × 297mm */}
         <div className="flex justify-center">
           <div 
-            className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden"
+            className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: '210mm', 
-              height: '297mm',
+              minHeight: '297mm',
               minWidth: '210mm',
               maxWidth: '210mm'
             }}
@@ -576,11 +576,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Guest List */}
               <div 
                 style={{ 
-                  height: '199mm',
+                  height: '205mm',
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
-                  overflow: 'hidden',
                 }}
               >
                 {/* Left Column */}
