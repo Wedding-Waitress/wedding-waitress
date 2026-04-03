@@ -65,6 +65,20 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
+  const { tables } = useTables(selectedEventId);
+
+  // Build a map of table_no -> table name for display
+  const tableNameMap = React.useMemo(() => {
+    const map: Record<number, string> = {};
+    tables.forEach(t => {
+      if (t.table_no != null) {
+        // Check if the table has a text name (not just a number)
+        const isNamedTable = t.name && isNaN(Number(t.name));
+        map[t.table_no] = isNamedTable ? t.name : `Table ${t.table_no}`;
+      }
+    });
+    return map;
+  }, [tables]);
   
   const { toast } = useToast();
 

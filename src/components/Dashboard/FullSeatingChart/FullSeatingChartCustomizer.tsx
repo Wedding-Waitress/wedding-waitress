@@ -94,7 +94,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               <SelectContent className="bg-popover border-border z-50">
                 <SelectItem value="firstName">First Name</SelectItem>
                 <SelectItem value="lastName">Last Name</SelectItem>
-                <SelectItem value="tableNo">Table Number</SelectItem>
+                <SelectItem value="tableNo">Table Number - Names</SelectItem>
               </SelectContent>
             </Select>
           </div>
