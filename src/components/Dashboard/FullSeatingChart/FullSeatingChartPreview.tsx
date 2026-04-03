@@ -253,8 +253,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Screen version guest row - matches PDF layout exactly
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
-    const tableText = formatTableDisplay(guest.table_no);
-    const isUnassigned = !guest.table_no;
+    const tableText = formatTableDisplay(guest);
+    const isUnassigned = isGuestUnassigned(guest);
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
