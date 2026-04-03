@@ -76,7 +76,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const paginationInfo = useMemo(() => {
     // Calculate row height based on font size - increased for two-line format
     const baseRowHeight: Record<string, number> = {
-      'small': 10,
+      'small': 8.4,   // 195/8.4 = 23 guests per column
       'medium': 11,
       'large': 13
     };
@@ -216,7 +216,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Calculate the minimum row height in mm based on current settings (two-line format)
   const getRowHeightMm = () => {
     const baseRowHeight: Record<string, number> = {
-      'small': 10,
+      'small': 8.4,
       'medium': 11,
       'large': 13
     };
