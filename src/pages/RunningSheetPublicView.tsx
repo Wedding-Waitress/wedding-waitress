@@ -471,9 +471,9 @@ export function RunningSheetPublicView() {
       <main className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6">
         <RunningSheetSection
           label={sectionLabel}
-          onLabelChange={setSectionLabel}
+          onLabelChange={handleLabelChange}
           notes={sectionNotes}
-          onNotesChange={setSectionNotes}
+          onNotesChange={handleNotesChange}
           items={data.items}
           onUpdateItem={handleUpdateItem}
           onAddItem={handleAddItem}
