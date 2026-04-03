@@ -518,7 +518,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </h1>
                 
                 {/* Line 2: Full Seating Chart - Total Guests: X */}
-                <p className="font-bold" style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
+                <p style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
