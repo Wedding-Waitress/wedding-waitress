@@ -272,7 +272,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           className="font-bold flex-shrink-0 whitespace-nowrap mt-0.5"
           style={{ 
             fontSize: settings.fontSize === 'small' ? '10px' : settings.fontSize === 'large' ? '13px' : '11px',
-            color: isUnassigned ? '#9333ea' : '#1d4ed8'
+            color: isUnassigned ? '#9333ea' : '#000000'
           }}
         >
           {tableText}
