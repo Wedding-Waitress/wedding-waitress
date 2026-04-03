@@ -86,7 +86,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
     
     // Available height for guest rows (after header, footer, margins)
-    const availableHeight = 210; // mm for guest rows - fits 25 rows at small font
+    // When both display options are off, more vertical space is available
+    const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
