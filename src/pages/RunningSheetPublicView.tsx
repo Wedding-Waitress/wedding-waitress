@@ -275,6 +275,51 @@ export function RunningSheetPublicView() {
     }
   }, [token, canEdit, fetchData]);
 
+  // Save section label/notes via token-based RPC
+  const handleLabelChange = useCallback((label: string) => {
+    setSectionLabel(label);
+    if (!token || !canEdit) return;
+    const key = 'meta-label';
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      setSaveStatus('saving');
+      lastSaveRef.current = Date.now();
+      const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_meta_by_token', {
+        share_token: token,
+        new_section_label: label,
+      });
+      if (rpcError || success === false) {
+        setSaveStatus('error');
+      } else {
+        setSaveStatus('saved');
+        if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+        saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
+      }
+    }, 500);
+  }, [token, canEdit]);
+
+  const handleNotesChange = useCallback((notes: string | null) => {
+    setSectionNotes(notes);
+    if (!token || !canEdit) return;
+    const key = 'meta-notes';
+    if (saveTimeoutRef.current[key]) clearTimeout(saveTimeoutRef.current[key]);
+    saveTimeoutRef.current[key] = setTimeout(async () => {
+      setSaveStatus('saving');
+      lastSaveRef.current = Date.now();
+      const { data: success, error: rpcError } = await supabase.rpc('update_running_sheet_meta_by_token', {
+        share_token: token,
+        new_section_notes: notes || '',
+      });
+      if (rpcError || success === false) {
+        setSaveStatus('error');
+      } else {
+        setSaveStatus('saved');
+        if (saveStatusTimerRef.current) clearTimeout(saveStatusTimerRef.current);
+        saveStatusTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
+      }
+    }, 500);
+  }, [token, canEdit]);
+
   const handleResetToDefault = useCallback(() => {
     // In public view, reset = delete all rows (no default template knowledge)
     if (!data) return;
