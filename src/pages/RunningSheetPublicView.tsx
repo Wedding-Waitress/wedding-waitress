@@ -421,7 +421,7 @@ export function RunningSheetPublicView() {
       )}
 
       {/* Running Sheet — using same components as dashboard */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6">
         <RunningSheetSection
           label={sectionLabel}
           onLabelChange={setSectionLabel}
