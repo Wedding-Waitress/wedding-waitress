@@ -237,32 +237,42 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return parts.join(' / ');
   };
 
-  // Screen version guest row - two-line format: Name on line 1, info on line 2
+  // Screen version guest row - matches PDF layout exactly
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
+    const tableText = formatTableDisplay(guest.table_no);
+    const isUnassigned = !guest.table_no;
     return (
       <div 
-        className="flex items-start gap-2 py-0.5 px-1 hover:bg-muted/30 rounded-sm"
-        style={{ minHeight: `${rowHeightMm * 2}mm` }}
+        className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
+        style={{ minHeight: `${rowHeightMm * 2}px` }}
+        onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
-        <Checkbox
-          id={`guest-${guest.id}`}
-          checked={checkedGuests.has(guest.id)}
-          onCheckedChange={(checked) => handleGuestCheck(guest.id, checked === true)}
-          className="w-4 h-4 flex-shrink-0 mt-0.5"
-        />
+        {/* Purple circle checkbox matching PDF */}
+        <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0 mt-0.5">
+          <circle cx="7" cy="7" r="5.5" fill={checkedGuests.has(guest.id) ? '#6D28D9' : 'none'} stroke="#6D28D9" strokeWidth="1.2" />
+          {checkedGuests.has(guest.id) && (
+            <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          )}
+        </svg>
         <div className="flex flex-col flex-1 min-w-0">
-          <span className={`font-bold ${getFontSizeClass()} text-foreground`}>
+          <span className={`font-bold ${getFontSizeClass()} text-foreground leading-tight`}>
             {formatGuestName(guest)}
           </span>
           {inlineInfo && (
-            <span className="text-xs text-muted-foreground truncate">
+            <span className="text-[9px] leading-tight truncate" style={{ color: '#666' }}>
               {inlineInfo}
             </span>
           )}
         </div>
-        <span className="text-xs font-medium px-1.5 py-0.5 bg-muted rounded flex-shrink-0 whitespace-nowrap mt-0.5">
-          {formatTableDisplay(guest.table_no)}
+        <span 
+          className="font-bold flex-shrink-0 whitespace-nowrap mt-0.5"
+          style={{ 
+            fontSize: settings.fontSize === 'small' ? '10px' : settings.fontSize === 'large' ? '13px' : '11px',
+            color: isUnassigned ? '#9333ea' : '#1d4ed8'
+          }}
+        >
+          {tableText}
         </span>
       </div>
     );
