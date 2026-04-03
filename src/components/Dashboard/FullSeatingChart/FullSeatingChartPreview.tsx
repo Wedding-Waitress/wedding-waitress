@@ -395,7 +395,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           .print-column-header {
             font-size: 10pt;
             font-weight: bold;
-            color: #555;
+            color: #000;
             text-transform: uppercase;
             padding: 0 2px;
           }
@@ -518,7 +518,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </h1>
                 
                 {/* Line 2: Full Seating Chart - Total Guests: X */}
-                <p style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
+                <p className="font-bold" style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
@@ -550,13 +550,23 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   marginBottom: '1mm',
                 }}
               >
-                <h3 className="font-bold text-gray-500 uppercase tracking-wide px-1" style={{ fontSize: '8pt' }}>
-                  Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
-                </h3>
-                {col2Guests.length > 0 && (
-                  <h3 className="font-bold text-gray-500 uppercase tracking-wide px-1" style={{ fontSize: '8pt' }}>
-                    Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                <div className="flex justify-between items-center px-1">
+                  <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                    Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
                   </h3>
+                  <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                    Table
+                  </h3>
+                </div>
+                {col2Guests.length > 0 && (
+                  <div className="flex justify-between items-center px-1">
+                    <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                      Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                    </h3>
+                    <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>
+                      Table
+                    </h3>
+                  </div>
                 )}
               </div>
 
@@ -653,7 +663,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             <div className="print-header">
               <h1 className="print-event-name">{event.name}</h1>
-              <p className="print-chart-subtitle">Full Seating Chart - Total Guests: {guests.length}</p>
+              <p className="print-chart-subtitle" style={{ fontWeight: 'bold' }}>Full Seating Chart - Total Guests: {guests.length}</p>
               {event.ceremony_date && (
                 <p className="print-detail-line">
                   Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
@@ -667,12 +677,14 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             {/* Column Headers Bar */}
             <div className="print-column-header-bar">
-              <div className="print-column-header">
-                GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
+              <div className="print-column-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}</span>
+                <span>TABLE</span>
               </div>
               {pageInfo.guests.length > pageInfo.col1Count && (
-                <div className="print-column-header">
-                  GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
+                <div className="print-column-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}</span>
+                  <span>TABLE</span>
                 </div>
               )}
             </div>
