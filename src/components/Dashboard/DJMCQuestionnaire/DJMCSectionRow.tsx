@@ -690,7 +690,7 @@ export function DJMCSectionRow({
       )}
 
       {/* Row actions - 3-dot menu */}
-      {!disabled && (
+      {(
         <div className="shrink-0 mt-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

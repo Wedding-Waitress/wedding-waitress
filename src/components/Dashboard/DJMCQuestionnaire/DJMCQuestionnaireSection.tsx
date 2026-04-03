@@ -375,7 +375,7 @@ export function DJMCQuestionnaireSection({
                    {section.section_type === 'introductions' && (
                      <>
                        <div className="flex-1 basis-1/4 min-w-0 flex items-center gap-2">
-                         <div className="flex-1 min-w-0 text-center">Names</div>
+                         <div className="flex-1 min-w-0 text-center">(names & order)</div>
                          <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
                            <span className="text-[9px] text-muted-foreground">Pronunciation</span>
                            <span>Audio</span>
