@@ -161,7 +161,7 @@ const generateRunningSheetHTML = (
 
   // No logo or footer in HTML — jsPDF handles that
   return `
-    <div style="width:794px;background:#fff;font-family:Arial,Helvetica,sans-serif;padding:40px 44px 0 44px;box-sizing:border-box;">
+    <div style="width:794px;background:#fff;font-family:Arial,Helvetica,sans-serif;padding:40px 48px 0 48px;box-sizing:border-box;">
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
         <div style="font-size:22px;font-weight:bold;color:#6d28d9;">${escapeHtml(event.name)}</div>
