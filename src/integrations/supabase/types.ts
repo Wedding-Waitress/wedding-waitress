@@ -939,6 +939,9 @@ export type Database = {
           event_id: string
           font_size: string
           id: string
+          is_bold: boolean
+          is_italic: boolean
+          is_underline: boolean
           paper_size: string
           show_dietary: boolean
           show_logo: boolean | null
@@ -953,6 +956,9 @@ export type Database = {
           event_id: string
           font_size?: string
           id?: string
+          is_bold?: boolean
+          is_italic?: boolean
+          is_underline?: boolean
           paper_size?: string
           show_dietary?: boolean
           show_logo?: boolean | null
@@ -967,6 +973,9 @@ export type Database = {
           event_id?: string
           font_size?: string
           id?: string
+          is_bold?: boolean
+          is_italic?: boolean
+          is_underline?: boolean
           paper_size?: string
           show_dietary?: boolean
           show_logo?: boolean | null

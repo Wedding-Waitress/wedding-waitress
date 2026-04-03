@@ -468,7 +468,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-table {
-            font-weight: 700;
+            font-weight: ${settings.isBold ? '700' : '400'};
+            font-style: ${settings.isItalic ? 'italic' : 'normal'};
+            text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
             white-space: nowrap;
             flex-shrink: 0;
             color: #000000;
