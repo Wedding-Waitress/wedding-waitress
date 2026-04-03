@@ -371,12 +371,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             margin: 8px 0 14px 0;
           }
 
+          .print-column-header-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 12mm;
+            background: #f3f3f3;
+            border-bottom: 2px solid #ccc;
+            padding: 4px 2px;
+            margin-bottom: 4px;
+          }
+
           .print-column-header {
-            font-size: 11pt;
+            font-size: 10pt;
             font-weight: bold;
-            color: #000;
+            color: #555;
             text-transform: uppercase;
-            margin-bottom: 8px;
+            padding: 0 2px;
           }
           
           .print-guest-list {
@@ -507,12 +517,37 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 )}
                 
                 {/* Reception info line */}
-                <p className="text-xs text-muted-foreground pb-2 mb-2 border-b border-black">
+                <p className="text-xs text-muted-foreground mb-0">
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
+                
+                {/* Purple divider */}
+                <div className="mt-2 mb-0" style={{ borderTop: '2px solid #6D28D9' }}></div>
               </div>
 
-              {/* Guest List - Constrained height to prevent overflow into footer */}
+              {/* Column Headers Bar - matching Running Sheet TIME/EVENT/WHO style */}
+              <div 
+                className="mb-1"
+                style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 1fr', 
+                  columnGap: '12mm',
+                  backgroundColor: '#f3f3f3',
+                  borderBottom: '2px solid #ccc',
+                  padding: '4px 2px',
+                }}
+              >
+                <h3 className="font-bold text-[10px] text-gray-500 uppercase tracking-wide px-1">
+                  Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
+                </h3>
+                {col2Guests.length > 0 && (
+                  <h3 className="font-bold text-[10px] text-gray-500 uppercase tracking-wide px-1">
+                    Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                  </h3>
+                )}
+              </div>
+
+              {/* Guest List */}
               <div 
                 style={{ 
                   flex: 1, 
@@ -520,38 +555,28 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
                   overflow: 'hidden',
-                  maxHeight: 'calc(100% - 80px - 20mm)' // Subtract header (~80px) and footer (20mm) - increased safety margin
+                  maxHeight: 'calc(100% - 100px - 20mm)'
                 }}
               >
                 {/* Left Column */}
                 <div className="space-y-0.5 overflow-hidden">
                   {col1Guests.length > 0 && (
-                    <>
-                      <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
-                        Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
-                      </h3>
-                      <div className="space-y-0.5">
-                        {col1Guests.map((guest) => (
-                          <ScreenGuestRow key={guest.id} guest={guest} />
-                        ))}
-                      </div>
-                    </>
+                    <div className="space-y-0.5">
+                      {col1Guests.map((guest) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} />
+                      ))}
+                    </div>
                   )}
                 </div>
 
                 {/* Right Column */}
                 <div className="space-y-0.5 overflow-hidden">
                   {col2Guests.length > 0 && (
-                    <>
-                      <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
-                        Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
-                      </h3>
-                      <div className="space-y-0.5">
-                        {col2Guests.map((guest) => (
-                          <ScreenGuestRow key={guest.id} guest={guest} />
-                        ))}
-                      </div>
-                    </>
+                    <div className="space-y-0.5">
+                      {col2Guests.map((guest) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} />
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
@@ -628,11 +653,20 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <div className="print-divider"></div>
             </div>
             
+            {/* Column Headers Bar */}
+            <div className="print-column-header-bar">
+              <div className="print-column-header">
+                GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
+              </div>
+              {pageInfo.guests.length > pageInfo.col1Count && (
+                <div className="print-column-header">
+                  GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
+                </div>
+              )}
+            </div>
+            
             <div className="print-guest-list">
               <div className="print-guest-column">
-                <div className="print-column-header">
-                  GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
-                </div>
                 {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
@@ -640,9 +674,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <div className="print-guest-column">
                 {pageInfo.guests.length > pageInfo.col1Count && (
                   <>
-                    <div className="print-column-header">
-                      GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
-                    </div>
                     {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
                       <PrintGuestRow key={guest.id} guest={guest} />
                     ))}

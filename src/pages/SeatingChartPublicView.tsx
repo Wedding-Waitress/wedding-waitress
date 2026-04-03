@@ -227,37 +227,36 @@ export function SeatingChartPublicView() {
                     <div className="border-t-2 mt-2 mb-2" style={{ borderColor: '#6D28D9' }}></div>
                   </div>
 
+                  {/* Column Headers Bar */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm', backgroundColor: '#f3f3f3', borderBottom: '2px solid #ccc', padding: '4px 2px', marginBottom: '4px' }}>
+                    <h3 className="font-bold text-[10px] uppercase tracking-wide px-1" style={{ color: '#555' }}>
+                      GUESTS {leftStart}-{leftEnd}
+                    </h3>
+                    {col2.length > 0 && (
+                      <h3 className="font-bold text-[10px] uppercase tracking-wide px-1" style={{ color: '#555' }}>
+                        GUESTS {rightStart}-{rightEnd}
+                      </h3>
+                    )}
+                  </div>
+
                   {/* Two-column guest list */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '12mm' }}>
-                    {/* Left Column */}
                     <div>
                       {col1.length > 0 && (
-                        <>
-                          <h3 className="font-bold text-xs text-black uppercase tracking-wide mb-2">
-                            GUESTS {leftStart}-{leftEnd}
-                          </h3>
-                          <div className="space-y-1">
-                            {col1.map((guest) => (
-                              <GuestRow key={guest.id} guest={guest} />
-                            ))}
-                          </div>
-                        </>
+                        <div className="space-y-1">
+                          {col1.map((guest) => (
+                            <GuestRow key={guest.id} guest={guest} />
+                          ))}
+                        </div>
                       )}
                     </div>
-
-                    {/* Right Column */}
                     <div>
                       {col2.length > 0 && (
-                        <>
-                          <h3 className="font-bold text-xs text-black uppercase tracking-wide mb-2">
-                            GUESTS {rightStart}-{rightEnd}
-                          </h3>
-                          <div className="space-y-1">
-                            {col2.map((guest) => (
-                              <GuestRow key={guest.id} guest={guest} />
-                            ))}
-                          </div>
-                        </>
+                        <div className="space-y-1">
+                          {col2.map((guest) => (
+                            <GuestRow key={guest.id} guest={guest} />
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
