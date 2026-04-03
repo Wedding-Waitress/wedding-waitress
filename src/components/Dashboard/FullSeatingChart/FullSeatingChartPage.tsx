@@ -132,7 +132,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       const endIdx = Math.min(startIdx + guestsPerPage, sortedGuests.length);
       const currentPageGuests = sortedGuests.slice(startIdx, endIdx);
 
-      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1);
+      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1, tableNameMap);
 
       toast({
         title: 'PDF Downloaded',
