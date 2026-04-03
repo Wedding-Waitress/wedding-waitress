@@ -305,7 +305,7 @@ export const exportFullSeatingChartToPdf = async (
         // Table assignment (right-aligned)
         const tableText = formatTableAssignment(guest.table_no, tableNameMap);
         pdf.setFont('helvetica', 'bold');
-        pdf.setFontSize(fontSize - 1);
+        pdf.setFontSize(fontSize);
         if (!guest.table_no) {
           pdf.setTextColor(147, 51, 234); // purple for unassigned
         } else {
@@ -325,7 +325,7 @@ export const exportFullSeatingChartToPdf = async (
         if (inlineInfo) {
           const line2Y = baselineY + (fontSize * 0.35);
           pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 2);
+          pdf.setFontSize(fontSize - 1);
           pdf.setTextColor(102, 102, 102);
           
           const maxInfoWidth = columnWidth - 10;
