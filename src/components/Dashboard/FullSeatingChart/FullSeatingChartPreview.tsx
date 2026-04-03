@@ -507,12 +507,37 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 )}
                 
                 {/* Reception info line */}
-                <p className="text-xs text-muted-foreground pb-2 mb-2 border-b border-black">
+                <p className="text-xs text-muted-foreground mb-0">
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
+                
+                {/* Purple divider */}
+                <div className="mt-2 mb-0" style={{ borderTop: '2px solid #6D28D9' }}></div>
               </div>
 
-              {/* Guest List - Constrained height to prevent overflow into footer */}
+              {/* Column Headers Bar - matching Running Sheet TIME/EVENT/WHO style */}
+              <div 
+                className="mb-1"
+                style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 1fr', 
+                  columnGap: '12mm',
+                  backgroundColor: '#f3f3f3',
+                  borderBottom: '2px solid #ccc',
+                  padding: '4px 2px',
+                }}
+              >
+                <h3 className="font-bold text-[10px] text-gray-500 uppercase tracking-wide px-1">
+                  Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
+                </h3>
+                {col2Guests.length > 0 && (
+                  <h3 className="font-bold text-[10px] text-gray-500 uppercase tracking-wide px-1">
+                    Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
+                  </h3>
+                )}
+              </div>
+
+              {/* Guest List */}
               <div 
                 style={{ 
                   flex: 1, 
@@ -520,38 +545,28 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
                   overflow: 'hidden',
-                  maxHeight: 'calc(100% - 80px - 20mm)' // Subtract header (~80px) and footer (20mm) - increased safety margin
+                  maxHeight: 'calc(100% - 100px - 20mm)'
                 }}
               >
                 {/* Left Column */}
                 <div className="space-y-0.5 overflow-hidden">
                   {col1Guests.length > 0 && (
-                    <>
-                      <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
-                        Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length}
-                      </h3>
-                      <div className="space-y-0.5">
-                        {col1Guests.map((guest) => (
-                          <ScreenGuestRow key={guest.id} guest={guest} />
-                        ))}
-                      </div>
-                    </>
+                    <div className="space-y-0.5">
+                      {col1Guests.map((guest) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} />
+                      ))}
+                    </div>
                   )}
                 </div>
 
                 {/* Right Column */}
                 <div className="space-y-0.5 overflow-hidden">
                   {col2Guests.length > 0 && (
-                    <>
-                      <h3 className="font-semibold text-xs text-muted-foreground mb-2 uppercase tracking-wide">
-                        Guests {paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + col1Guests.length + 1}-{paginationInfo.pages.slice(0, currentPage - 1).reduce((sum, p) => sum + p.guests.length, 0) + currentGuests.length}
-                      </h3>
-                      <div className="space-y-0.5">
-                        {col2Guests.map((guest) => (
-                          <ScreenGuestRow key={guest.id} guest={guest} />
-                        ))}
-                      </div>
-                    </>
+                    <div className="space-y-0.5">
+                      {col2Guests.map((guest) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} />
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
