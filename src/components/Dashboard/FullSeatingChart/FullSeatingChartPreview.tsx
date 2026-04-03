@@ -228,7 +228,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Build inline info string for dietary and relation
   const buildInlineInfo = (guest: Guest) => {
     const parts: string[] = [];
-    if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
+    if (settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none') {
       parts.push(guest.dietary);
     }
     if (settings.showRelation && guest.relation_role) {
