@@ -586,22 +586,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 }}
               >
                 {/* Left Column */}
-                <div className="space-y-0.5 overflow-hidden">
+                <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
                   {col1Guests.length > 0 && (
-                    <div className="space-y-0.5">
-                      {col1Guests.map((guest) => (
-                        <ScreenGuestRow key={guest.id} guest={guest} />
+                    <div>
+                      {col1Guests.map((guest, idx) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} index={idx} />
                       ))}
                     </div>
                   )}
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-0.5 overflow-hidden">
+                <div className="overflow-hidden" style={{ paddingTop: '3mm' }}>
                   {col2Guests.length > 0 && (
-                    <div className="space-y-0.5">
-                      {col2Guests.map((guest) => (
-                        <ScreenGuestRow key={guest.id} guest={guest} />
+                    <div>
+                      {col2Guests.map((guest, idx) => (
+                        <ScreenGuestRow key={guest.id} guest={guest} index={idx} />
                       ))}
                     </div>
                   )}

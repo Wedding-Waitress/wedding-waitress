@@ -333,6 +333,15 @@ export const exportFullSeatingChartToPdf = async (
       const leftY = drawGuest(guest1, leftColumnX, yPos);
       const rightY = drawGuest(guest2, rightColumnX, yPos);
       
+      // Alternating row border for readability
+      if (i % 2 === 0) {
+        pdf.setDrawColor(229, 229, 229);
+        pdf.setLineWidth(0.3);
+        const borderY = Math.max(leftY, rightY) - (rowHeight * 0.15);
+        if (guest1) pdf.line(leftColumnX, borderY, leftColumnX + columnWidth, borderY);
+        if (guest2) pdf.line(rightColumnX, borderY, rightColumnX + columnWidth, borderY);
+      }
+      
       yPos = Math.max(leftY, rightY);
 
       if (yPos > PDF_HEIGHT_MM - margin - 35) {

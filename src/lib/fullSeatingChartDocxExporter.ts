@@ -291,29 +291,33 @@ export const exportFullSeatingChartToDocx = async (
       const leftParagraphs = buildGuestParagraphs(guest1);
       const rightParagraphs = buildGuestParagraphs(guest2);
 
+      const rowBorders = i % 2 === 0
+        ? {
+            top: { style: BorderStyle.NONE },
+            bottom: { style: BorderStyle.SINGLE, size: 4, color: 'E5E5E5' },
+            left: { style: BorderStyle.NONE },
+            right: { style: BorderStyle.NONE },
+          }
+        : {
+            top: { style: BorderStyle.NONE },
+            bottom: { style: BorderStyle.NONE },
+            left: { style: BorderStyle.NONE },
+            right: { style: BorderStyle.NONE },
+          };
+
       guestTableRows.push(
         new TableRow({
           children: [
             new TableCell({
               width: { size: 48, type: WidthType.PERCENTAGE },
               children: leftParagraphs,
-              borders: {
-                top: { style: BorderStyle.NONE },
-                bottom: { style: BorderStyle.NONE },
-                left: { style: BorderStyle.NONE },
-                right: { style: BorderStyle.NONE },
-              },
+              borders: rowBorders,
               verticalAlign: VerticalAlign.TOP,
             }),
             new TableCell({
               width: { size: 48, type: WidthType.PERCENTAGE },
               children: rightParagraphs,
-              borders: {
-                top: { style: BorderStyle.NONE },
-                bottom: { style: BorderStyle.NONE },
-                left: { style: BorderStyle.NONE },
-                right: { style: BorderStyle.NONE },
-              },
+              borders: rowBorders,
               verticalAlign: VerticalAlign.TOP,
             }),
           ],
