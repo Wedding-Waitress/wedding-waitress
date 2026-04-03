@@ -58,7 +58,7 @@ const formatGeneratedTimestamp = () => {
     minute: '2-digit',
     hour12: true,
   });
-  return `${dateStr} Time: ${timeStr}`;
+  return `${dateStr} ${timeStr}`;
 };
 
 // Format table display - use table_name if it's a text name, otherwise show Table #
