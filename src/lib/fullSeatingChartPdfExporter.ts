@@ -287,7 +287,7 @@ export const exportFullSeatingChartToPdf = async (
       const drawGuest = (guest: Guest | undefined, xPos: number, baselineY: number) => {
         if (!guest) return;
 
-        const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
+        const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none';
         const hasRelation = settings.showRelation && guest.relation_display;
 
         // Purple circle checkbox - vertically aligned with name
