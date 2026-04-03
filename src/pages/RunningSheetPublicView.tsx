@@ -158,6 +158,24 @@ export function RunningSheetPublicView() {
     return () => { supabase.removeChannel(channel); };
   }, [data?.sheet_id, fetchData]);
 
+  // Realtime subscription for running_sheets meta changes (notes, label)
+  useEffect(() => {
+    if (!data?.sheet_id) return;
+    const channel = supabase
+      .channel(`public-rs-meta:${data.sheet_id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'running_sheets',
+        filter: `id=eq.${data.sheet_id}`,
+      }, () => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
+        fetchData();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [data?.sheet_id, fetchData]);
+
   const canEdit = data?.permission === 'can_edit';
 
   // --- Token-based write operations ---
