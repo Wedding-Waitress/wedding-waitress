@@ -168,6 +168,51 @@ export function useRunningSheet(eventId: string | null) {
     return () => { supabase.removeChannel(channel); };
   }, [sheet?.id, fetchSheet]);
 
+  // Realtime subscription for running_sheets meta changes (label, notes)
+  useEffect(() => {
+    if (!sheet?.id) return;
+    const channel = supabase
+      .channel(`dashboard-rs-meta:${sheet.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'running_sheets',
+        filter: `id=eq.${sheet.id}`,
+      }, () => {
+        if (Date.now() - lastSaveRef.current < SELF_SAVE_COOLDOWN_MS) return;
+        fetchSheet();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [sheet?.id, fetchSheet]);
+
+  // Debounced save for section meta (label + notes)
+  const saveMetaToDb = useCallback((label: string, notes: string | null) => {
+    if (!sheet) return;
+    if (metaSaveTimerRef.current) clearTimeout(metaSaveTimerRef.current);
+    metaSaveTimerRef.current = setTimeout(async () => {
+      lastSaveRef.current = Date.now();
+      try {
+        await supabase.from('running_sheets').update({
+          section_label: label,
+          section_notes: notes,
+        }).eq('id', sheet.id);
+      } catch (error) {
+        console.error('Error saving section meta:', error);
+      }
+    }, 500);
+  }, [sheet]);
+
+  const handleSetSectionLabel = useCallback((label: string) => {
+    setSectionLabel(label);
+    saveMetaToDb(label, sectionNotes);
+  }, [saveMetaToDb, sectionNotes]);
+
+  const handleSetSectionNotes = useCallback((notes: string | null) => {
+    setSectionNotes(notes);
+    saveMetaToDb(sectionLabel, notes);
+  }, [saveMetaToDb, sectionLabel]);
+
   // Per-item debounced save (300ms, keyed by item id)
   const saveItemToDb = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
     // Clear any existing timer for this item
