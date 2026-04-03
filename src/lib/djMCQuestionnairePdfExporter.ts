@@ -391,21 +391,21 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
     const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
     const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
     pdf.text(`Ceremony: ${ceremonyDate} | ${ceremonyVenue} | ${ceremonyTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-    yPos += 5;
+    yPos += 4;
   }
 
   const receptionDate = formatDateWithOrdinal(event.date);
   const receptionVenue = event.venue || 'Venue TBD';
   const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
   pdf.text(`Reception: ${receptionDate} | ${receptionVenue} | ${receptionTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-  yPos += 5;
+  yPos += 4;
 
   // Purple divider
   yPos += 2;
   pdf.setDrawColor(PURPLE.r, PURPLE.g, PURPLE.b);
   pdf.setLineWidth(0.5);
   pdf.line(MARGIN, yPos, PDF_WIDTH_MM - MARGIN, yPos);
-  yPos += 10;
+  yPos += 8;
 
   return yPos;
 };
