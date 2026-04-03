@@ -309,7 +309,7 @@ export const exportFullSeatingChartToPdf = async (
         if (!guest.table_no) {
           pdf.setTextColor(147, 51, 234); // purple for unassigned
         } else {
-          pdf.setTextColor(29, 78, 216); // blue for assigned
+          pdf.setTextColor(0, 0, 0); // black for assigned
         }
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;
