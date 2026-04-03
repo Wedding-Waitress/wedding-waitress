@@ -79,6 +79,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     });
     return map;
   }, [tables]);
+
+  // Build a map of table_id -> table display name for guests with table_id but no table_no
+  const tableIdNameMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    tables.forEach(t => {
+      const isNamedTable = t.name && isNaN(Number(t.name));
+      map[t.id] = isNamedTable ? t.name : `Table ${t.table_no}`;
+    });
+    return map;
+  }, [tables]);
   
   const { toast } = useToast();
 
