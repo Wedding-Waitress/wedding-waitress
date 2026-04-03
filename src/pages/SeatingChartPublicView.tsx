@@ -262,14 +262,20 @@ export function SeatingChartPublicView() {
                     </div>
                   </div>
 
-                  {/* Page Footer Logo */}
-                  <div className="flex justify-center mt-auto pt-6">
-                    <img
-                      src="/wedding-waitress-share-logo.png"
-                      alt="Wedding Waitress"
-                      style={{ height: '10.5mm', width: 'auto' }}
-                      className="object-contain"
-                    />
+                  {/* Page Footer */}
+                  <div className="mt-auto pt-4">
+                    <div className="flex justify-center">
+                      <img
+                        src="/wedding-waitress-share-logo.png"
+                        alt="Wedding Waitress"
+                        style={{ height: '12mm', width: 'auto' }}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center mt-1 px-1" style={{ fontSize: '7pt', color: '#aaa' }}>
+                      <span>Page {pageIndex + 1} of {totalPages}</span>
+                      <span>Generated: {formatGeneratedTimestamp()}</span>
+                    </div>
                   </div>
                 </div>
               </div>
