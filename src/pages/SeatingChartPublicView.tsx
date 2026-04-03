@@ -9,6 +9,7 @@ interface SharedGuest {
   first_name: string;
   last_name: string | null;
   table_no: number | null;
+  table_name: string | null;
   seat_no: number | null;
   dietary: string | null;
   relation_display: string;
@@ -58,6 +59,13 @@ const formatGeneratedTimestamp = () => {
     hour12: true,
   });
   return `${dateStr} Time: ${timeStr}`;
+};
+
+// Format table display - use table_name if it's a text name, otherwise show Table #
+const formatTableDisplay = (guest: SharedGuest): string => {
+  if (!guest.table_no) return 'Unassigned';
+  if (guest.table_name && isNaN(Number(guest.table_name))) return guest.table_name;
+  return `Table ${guest.table_no}`;
 };
 
 export function SeatingChartPublicView() {
@@ -122,7 +130,14 @@ export function SeatingChartPublicView() {
         showLogo: true,
         paperSize: 'A4' as const,
       };
-      await exportFullSeatingChartToPdf(fakeEvent, data.guests as any, defaultSettings);
+      // Build tableNameMap from guest data
+      const tnMap: Record<number, string> = {};
+      data.guests.forEach(g => {
+        if (g.table_no != null && g.table_name && isNaN(Number(g.table_name))) {
+          tnMap[g.table_no] = g.table_name;
+        }
+      });
+      await exportFullSeatingChartToPdf(fakeEvent, data.guests as any, defaultSettings, undefined, undefined, tnMap);
     } catch (e) {
       console.error('PDF export error:', e);
     } finally {
@@ -288,7 +303,7 @@ function GuestRow({ guest }: { guest: SharedGuest }) {
         className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0 whitespace-nowrap"
         style={{ backgroundColor: '#f3f4f6', color: '#000' }}
       >
-        {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+        {formatTableDisplay(guest)}
       </span>
     </div>
   );
