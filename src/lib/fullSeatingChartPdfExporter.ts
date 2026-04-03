@@ -325,10 +325,10 @@ export const exportFullSeatingChartToPdf = async (
         }
         
         // Table assignment (right-aligned)
-        const tableText = formatTableAssignment(guest.table_no, tableNameMap);
+        const tableText = formatTableAssignment(guest, tableNameMap, tableIdNameMap);
         pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
-        if (!guest.table_no) {
+        if (isGuestUnassigned(guest)) {
           pdf.setTextColor(147, 51, 234); // purple for unassigned
         } else {
           pdf.setTextColor(0, 0, 0); // black for assigned
