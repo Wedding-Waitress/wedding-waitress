@@ -19,6 +19,7 @@ interface Guest {
   id: string;
   first_name: string;
   last_name: string | null;
+  table_id: string | null;
   table_no: number | null;
   dietary: string | null;
   relation_display: string | null;
