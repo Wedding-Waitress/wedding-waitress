@@ -152,8 +152,8 @@ const generateRunningSheetHTML = (
     if (item.is_underline) cellStyle += 'text-decoration:underline;';
     return `
       <tr style="background:${bgColor};">
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:15%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:65%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:13.4%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:66.6%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:20%;${cellStyle}">${textToHtmlLines(item.responsible || '')}</td>
       </tr>
     `;
@@ -178,8 +178,8 @@ const generateRunningSheetHTML = (
       <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;">
         <thead>
           <tr style="background:#f3f3f3;">
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:15%;text-transform:uppercase;">Time</th>
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:65%;text-transform:uppercase;">Event</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:13.4%;text-transform:uppercase;">Time</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:66.6%;text-transform:uppercase;">Event</th>
             <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:20%;text-transform:uppercase;">Who</th>
           </tr>
         </thead>
