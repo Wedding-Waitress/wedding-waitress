@@ -461,7 +461,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             font-weight: 700;
             white-space: nowrap;
             flex-shrink: 0;
-            color: #1d4ed8;
+            color: #000000;
           }
           
           .print-table-unassigned {
