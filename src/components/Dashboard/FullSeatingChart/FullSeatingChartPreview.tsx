@@ -615,20 +615,17 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
           >
             <div className="print-header">
-              {/* Line 1: Event Name */}
-              <h1 className="print-event-name">
-                {event.name}
-              </h1>
-              
-              {/* Line 2: Chart Type + Date */}
-              <p className="print-chart-date">
-                Full Seating Chart - {event.date && formatDateWithOrdinal(event.date)}
+              <h1 className="print-event-name">{event.name}</h1>
+              <p className="print-chart-subtitle">Full Seating Chart - Total Guests: {guests.length}</p>
+              {event.ceremony_date && (
+                <p className="print-detail-line">
+                  Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
+                </p>
+              )}
+              <p className="print-detail-line">
+                Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
               </p>
-              
-              {/* Line 3: Venue + Stats + Page + Generated */}
-              <p className="print-subtitle">
-                {event.venue} - Total Guests: {guests.length} - Page {pageIndex + 1} of {paginationInfo.pages.length} - Generated on: {formatGeneratedTimestamp()}
-              </p>
+              <div className="print-divider"></div>
             </div>
             
             <div className="print-guest-list">
@@ -654,12 +651,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
             </div>
             
-            {/* Print Footer Logo */}
-            {settings.showLogo && (
-              <div className="print-footer">
+            {/* Print Footer */}
+            <div className="print-footer-section">
+              {settings.showLogo && (
                 <img src="/wedding-waitress-print-footer.png?v=1" alt="Wedding Waitress" />
+              )}
+              <div className="print-footer-meta">
+                <span>Page {pageIndex + 1} of {paginationInfo.pages.length}</span>
+                <span>Generated: {formatGeneratedTimestamp()}</span>
               </div>
-            )}
+            </div>
             
           </div>
         ))}
