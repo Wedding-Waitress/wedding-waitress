@@ -112,7 +112,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-dietary" className="text-xs text-muted-foreground">
-                Show Dietary Info
+                Show Dietary Requirements
               </Label>
               <Switch
                 id="show-dietary"

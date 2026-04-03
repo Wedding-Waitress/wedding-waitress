@@ -22,6 +22,7 @@ interface Guest {
   table_no: number | null;
   dietary: string | null;
   relation_display: string | null;
+  relation_role?: string;
 }
 
 interface FullSeatingChartSettings {
@@ -251,13 +252,13 @@ export const exportFullSeatingChartToDocx = async (
       if (!guest) return [new Paragraph({ text: '' })];
       
       const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
-      const hasRelation = settings.showRelation && guest.relation_display;
+      const hasRelation = settings.showRelation && guest.relation_role;
       
       // Build inline info string
       const infoParts: string[] = [];
-      if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
-      if (hasRelation) infoParts.push(guest.relation_display!);
-      const inlineInfo = infoParts.join(' — ');
+      if (hasDietary) infoParts.push(guest.dietary!);
+      if (hasRelation) infoParts.push(guest.relation_role!);
+      const inlineInfo = infoParts.join(' / ');
       
       // Single row: checkbox + name + inline info + table
       const children: TextRun[] = [

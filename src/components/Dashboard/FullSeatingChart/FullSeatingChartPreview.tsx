@@ -231,8 +231,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showDietary && guest.dietary && guest.dietary !== 'NA') {
       parts.push(guest.dietary);
     }
-    if (settings.showRelation && guest.relation_display) {
-      parts.push(guest.relation_display.replace(' — ', ' / '));
+    if (settings.showRelation && guest.relation_role) {
+      parts.push(guest.relation_role);
     }
     return parts.join(' / ');
   };
