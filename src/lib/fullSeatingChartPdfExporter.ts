@@ -295,7 +295,14 @@ export const exportFullSeatingChartToPdf = async (
     }
   }
 
-  // Save PDF
-  const fileName = `${event.name.replace(/[^a-zA-Z0-9]/g, '_')}-Full-Seating-Chart-${new Date().toISOString().split('T')[0]}.pdf`;
+  // Save PDF - use event date formatted as DD-MM-YYYY
+  const eventDate = event.date ? new Date(event.date) : new Date();
+  const dd = String(eventDate.getDate()).padStart(2, '0');
+  const mm = String(eventDate.getMonth() + 1).padStart(2, '0');
+  const yyyy = eventDate.getFullYear();
+  const formattedDate = `${dd}-${mm}-${yyyy}`;
+  const pageLabel = pageNum ? 'Single Page' : 'All Pages';
+  const safeName = event.name.replace(/[\/:*?"<>|]/g, '');
+  const fileName = `${safeName}-Full Seating Chart-${pageLabel}-${formattedDate}.pdf`;
   pdf.save(fileName);
 };
