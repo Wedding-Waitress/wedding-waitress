@@ -322,41 +322,53 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           margin-bottom: 3mm;
         }
 
-        .print-footer {
+        .print-footer-section {
           flex-shrink: 0;
-          min-height: 15mm;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          min-height: 25mm;
           margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
-        .print-footer img {
-          height: 10.5mm;
+        .print-footer-section img {
+          height: 12mm;
           width: auto;
           object-fit: contain;
         }
 
-        .print-event-name {
-          font-size: 20px;
-          font-weight: bold;
-          margin: 0 0 4px 0;
-          color: #7C3AED;
+        .print-footer-meta {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          font-size: 7pt;
+          color: #aaa;
+          margin-top: 2mm;
         }
 
-        .print-chart-date {
-          font-size: 15px;
-          font-weight: 600;
+        .print-event-name {
+          font-size: 22px;
+          font-weight: bold;
+          margin: 0 0 4px 0;
+          color: #6d28d9;
+        }
+
+        .print-chart-subtitle {
+          font-size: 16px;
+          font-weight: normal;
           margin: 0 0 4px 0;
           color: #000;
         }
+
+        .print-detail-line {
+          font-size: 12px;
+          color: #555;
+          margin: 2px 0;
+        }
           
-          .print-subtitle {
-            font-size: 13px;
-            margin: 0 0 8px 0;
-            color: #000;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #000;
+          .print-divider {
+            border-top: 2px solid #6d28d9;
+            margin: 8px 0 14px 0;
           }
 
           .print-column-header {
