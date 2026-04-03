@@ -371,12 +371,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             margin: 8px 0 14px 0;
           }
 
+          .print-column-header-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 12mm;
+            background: #f3f3f3;
+            border-bottom: 2px solid #ccc;
+            padding: 4px 2px;
+            margin-bottom: 4px;
+          }
+
           .print-column-header {
-            font-size: 11pt;
+            font-size: 10pt;
             font-weight: bold;
-            color: #000;
+            color: #555;
             text-transform: uppercase;
-            margin-bottom: 8px;
+            padding: 0 2px;
           }
           
           .print-guest-list {
