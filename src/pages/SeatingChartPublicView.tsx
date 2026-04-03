@@ -61,6 +61,13 @@ const formatGeneratedTimestamp = () => {
   return `${dateStr} Time: ${timeStr}`;
 };
 
+// Format table display - use table_name if it's a text name, otherwise show Table #
+const formatTableDisplay = (guest: SharedGuest): string => {
+  if (!guest.table_no) return 'Unassigned';
+  if (guest.table_name && isNaN(Number(guest.table_name))) return guest.table_name;
+  return `Table ${guest.table_no}`;
+};
+
 export function SeatingChartPublicView() {
   const { token } = useParams<{ token: string }>();
   const [data, setData] = useState<SharedData | null>(null);
