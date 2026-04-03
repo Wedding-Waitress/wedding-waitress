@@ -387,14 +387,14 @@ export function DJMCQuestionnaireSection({
                   
                   {/* COLUMN 2: Song Title & Artist (Optional) + Audio for main_event */}
                   {section.section_type === 'main_event' && (
-                    <>
-                      <div className="flex-1 basis-1/3 min-w-0 text-center">Song Title & Artist</div>
+                    <div className="flex-1 basis-1/3 min-w-0 flex items-center gap-2">
+                      <div className="flex-1 min-w-0 text-center">Song Title & Artist</div>
                       <div className="w-10 shrink-0 flex flex-col items-center leading-none text-center">
                         <span className="text-[9px] text-muted-foreground">Pronunciation</span>
                         <span>Audio</span>
                       </div>
-                    </>
-                  )}
+                    </div>
+                  )
                   
                    {/* COLUMNS 2, 3 for ceremony: Names / Info + Audio | Song Title & Artist */}
                    {section.section_type === 'ceremony' && (
