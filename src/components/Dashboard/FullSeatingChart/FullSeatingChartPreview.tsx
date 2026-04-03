@@ -285,9 +285,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const isUnassigned = !guest.table_no;
-    const showBorder = index % 2 === 0;
     return (
-      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: showBorder ? '1px solid #e5e5e5' : 'none' }}>
+      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: '1px solid #e5e5e5' }}>
         <span className="print-checkbox">☐</span>
         <div className="print-guest-content">
           <span className="print-guest-name">{formatGuestName(guest)}</span>
