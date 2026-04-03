@@ -35,7 +35,7 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
   },
   {
     section_type: 'introductions',
-    section_label: 'Bridal Party Introductions (Names & Order)',
+    section_label: 'Bridal Party Introductions (names & order)',
     items: [
       { row_label: "Groom's Parents (Full Names)", has_pronunciation: true, has_music_url: true },
       { row_label: "Bride's Parents (Full Names)", has_pronunciation: true, has_music_url: true },
