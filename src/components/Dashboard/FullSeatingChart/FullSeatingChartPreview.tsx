@@ -53,6 +53,7 @@ interface FullSeatingChartPreviewProps {
   guests: Guest[];
   settings: FullSeatingChartSettings;
   tableNameMap?: Record<number, string>;
+  tableIdNameMap?: Record<string, string>;
 }
 
 export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
@@ -60,6 +61,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   guests,
   settings,
   tableNameMap = {},
+  tableIdNameMap = {},
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
