@@ -505,7 +505,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: '210mm', 
-              minHeight: '314mm',
+              minHeight: '325mm',
               minWidth: '210mm',
               maxWidth: '210mm'
             }}
