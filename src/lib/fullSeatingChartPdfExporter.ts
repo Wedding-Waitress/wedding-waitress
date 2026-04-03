@@ -295,9 +295,16 @@ export const exportFullSeatingChartToPdf = async (
         const tableText = formatTableAssignment(guest.table_no, tableNameMap);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(fontSize - 1);
+        // Color: purple for unassigned, blue for assigned
+        if (!guest.table_no) {
+          pdf.setTextColor(147, 51, 234); // purple
+        } else {
+          pdf.setTextColor(29, 78, 216); // blue
+        }
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;
         pdf.text(tableText, tableX, yPos);
+        pdf.setTextColor(0, 0, 0); // reset
         
         const infoParts: string[] = [];
         if (hasDietary) infoParts.push(guest.dietary!);
