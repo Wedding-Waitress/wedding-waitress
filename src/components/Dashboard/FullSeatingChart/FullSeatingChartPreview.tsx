@@ -238,14 +238,18 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   // Screen version guest row - matches PDF layout exactly
-  const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
+  const ScreenGuestRow = ({ guest, index }: { guest: Guest; index: number }) => {
     const inlineInfo = buildInlineInfo(guest);
     const tableText = formatTableDisplay(guest.table_no);
     const isUnassigned = !guest.table_no;
+    const showBorder = index % 2 === 0;
     return (
       <div 
         className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
-        style={{ minHeight: `${rowHeightMm * 2}px` }}
+        style={{ 
+          minHeight: `${rowHeightMm * 2}px`,
+          borderBottom: showBorder ? '1px solid #e5e5e5' : 'none',
+        }}
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
         {/* Purple circle checkbox matching PDF */}
