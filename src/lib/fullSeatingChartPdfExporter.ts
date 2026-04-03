@@ -165,7 +165,8 @@ export const exportFullSeatingChartToPdf = async (
   settings: FullSeatingChartSettings,
   pageNum?: number,
   totalPagesOverride?: number,
-  tableNameMap?: Record<number, string>
+  tableNameMap?: Record<number, string>,
+  tableIdNameMap?: Record<string, string>
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
