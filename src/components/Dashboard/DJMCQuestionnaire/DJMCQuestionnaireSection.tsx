@@ -318,7 +318,7 @@ export function DJMCQuestionnaireSection({
             {/* Notes field */}
             {showNotes && (
               <div className="mt-3">
-                <div className="border border-input rounded-md bg-background px-3 py-2">
+                <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
                   <div className="text-sm font-medium text-primary mb-1">Notes for DJ-MC</div>
                   <Textarea
                     value={section.notes || ''}
