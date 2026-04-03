@@ -229,7 +229,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       {/* Header */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
         <CardHeader className="space-y-4">
-          {/* Event Selector */}
+          {/* Top row: Icon, Title, and Event Name */}
           <div className="flex items-center justify-between">
             {/* Header Icon & Info */}
             <div className="flex items-center gap-4">
@@ -242,55 +242,60 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
-              </label>
-              <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
-                  <SelectValue placeholder="Choose Event" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
-                  {events.length > 0 ? (
-                    events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-events" disabled>
-                      {eventsLoading ? "Loading events..." : "No events found"}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
+            {selectedEvent && (
+              <span className="text-lg font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                Full Seating Chart for {selectedEvent.name}
+              </span>
+            )}
           </div>
 
-          {/* Event Details with Status & Actions */}
-          {selectedEvent && (
-            <div className="flex items-center justify-between pt-2 border-t">
-              <div className="flex items-center gap-4">
-                <span className="text-lg font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
-                  Full Seating Chart for {selectedEvent.name}
-                </span>
-                <Badge 
-                  variant="outline"
-                  className="ml-4 bg-white border-primary text-primary rounded-full"
-                >
-                  <Users className="w-4 h-4 mr-1.5" />
-                  {guestsLoading ? "Loading..." : `${guests.length} guests`}
-                </Badge>
-                <Badge 
-                  variant="outline"
-                  className="bg-white border-primary text-primary rounded-full"
-                >
-                  {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
-                </Badge>
+          {/* Bottom row: Choose Event dropdown, badges, and export controls */}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  Choose Event:
+                </label>
+                <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
+                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                    <SelectValue placeholder="Choose Event" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    {events.length > 0 ? (
+                      events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-events" disabled>
+                        {eventsLoading ? "Loading events..." : "No events found"}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
+              {selectedEvent && (
+                <>
+                  <Badge 
+                    variant="outline"
+                    className="ml-4 bg-white border-primary text-primary rounded-full"
+                  >
+                    <Users className="w-4 h-4 mr-1.5" />
+                    {guestsLoading ? "Loading..." : `${guests.length} guests`}
+                  </Badge>
+                  <Badge 
+                    variant="outline"
+                    className="bg-white border-primary text-primary rounded-full"
+                  >
+                    {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                  </Badge>
+                </>
+              )}
+            </div>
 
               {/* Export Controls */}
               {isDataReady && (
@@ -321,8 +326,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   </div>
                 </div>
               )}
-            </div>
-          )}
+          </div>
         </CardHeader>
       </Card>
 
