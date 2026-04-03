@@ -303,7 +303,7 @@ function GuestRow({ guest }: { guest: SharedGuest }) {
         className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0 whitespace-nowrap"
         style={{ backgroundColor: '#f3f4f6', color: '#000' }}
       >
-        {guest.table_no ? `Table ${guest.table_no}` : 'Unassigned'}
+        {formatTableDisplay(guest)}
       </span>
     </div>
   );
