@@ -128,9 +128,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return tableNameMap[tableNo] || `Table ${tableNo}`;
   };
 
-  // Format guest name - first name only for two-line display
+  // Format guest name - full name (first + last)
   const formatGuestName = (guest: Guest) => {
-    return guest.first_name;
+    return `${guest.first_name} ${guest.last_name || ''}`.trim();
   };
 
   // Get font size class based on settings
@@ -518,7 +518,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </h1>
                 
                 {/* Line 2: Full Seating Chart - Total Guests: X */}
-                <p className="font-bold" style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
+                <p style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
@@ -663,7 +663,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           >
             <div className="print-header">
               <h1 className="print-event-name">{event.name}</h1>
-              <p className="print-chart-subtitle" style={{ fontWeight: 'bold' }}>Full Seating Chart - Total Guests: {guests.length}</p>
+              <p className="print-chart-subtitle">Full Seating Chart - Total Guests: {guests.length}</p>
               {event.ceremony_date && (
                 <p className="print-detail-line">
                   Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}

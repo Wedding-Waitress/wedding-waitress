@@ -90,9 +90,9 @@ const formatGeneratedTimestamp = (): string => {
   return `${day}/${month}/${year} ${displayHour}:${minutes} ${ampm}`;
 };
 
-// Format guest name - first name only
+// Format guest name - full name
 const formatGuestName = (guest: Guest): string => {
-  return guest.first_name;
+  return `${guest.first_name} ${guest.last_name || ''}`.trim();
 };
 
 // Format table assignment using name map
@@ -213,8 +213,8 @@ export const exportFullSeatingChartToPdf = async (
     pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 6;
 
-    // Subtitle - "Full Seating Chart - Total Guests: X" (bold, 12pt)
-    pdf.setFont('helvetica', 'bold');
+    // Subtitle - "Full Seating Chart - Total Guests: X" (normal weight, 12pt)
+    pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
     pdf.text(`Full Seating Chart - Total Guests: ${guests.length}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
