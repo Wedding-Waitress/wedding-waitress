@@ -160,7 +160,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         description: 'Creating your full seating chart...',
       });
 
-      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings);
+      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings, undefined, undefined, tableNameMap);
 
       toast({
         title: 'PDF Downloaded',
