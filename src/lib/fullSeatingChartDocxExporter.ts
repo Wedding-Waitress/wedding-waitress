@@ -277,7 +277,7 @@ export const exportFullSeatingChartToDocx = async (
       }
       
       children.push(new TextRun({ text: '    ', size: fontSize }));
-      children.push(new TextRun({ text: formatTableAssignment(guest.table_no), bold: true, size: fontSize }));
+      children.push(new TextRun({ text: formatTableAssignment(guest), bold: true, size: fontSize }));
       
       return [
         new Paragraph({
