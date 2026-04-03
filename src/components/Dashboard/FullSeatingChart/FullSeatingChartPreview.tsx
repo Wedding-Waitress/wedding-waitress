@@ -544,18 +544,22 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 </div>
               </div>
 
-              {/* Footer Logo - Reserved space to prevent cut-off */}
-              <div className="flex-shrink-0" style={{ minHeight: '15mm', marginTop: 'auto' }}>
+              {/* Footer - matching Running Sheet layout */}
+              <div className="flex-shrink-0" style={{ minHeight: '25mm', marginTop: 'auto' }}>
                 {settings.showLogo && (
                   <div className="flex justify-center pt-2">
                     <img 
-                      src="/jpeg-2.jpg" 
+                      src={weddingWaitressLogoFull}
                       alt="Wedding Waitress" 
-                      style={{ height: '10.5mm', width: 'auto' }}
+                      style={{ height: '12mm', width: 'auto' }}
                       className="object-contain"
                     />
                   </div>
                 )}
+                <div className="flex justify-between items-center mt-1 px-1" style={{ fontSize: '7pt', color: '#aaa' }}>
+                  <span>Page {currentPage} of {totalPages}</span>
+                  <span>Generated: {formatGeneratedTimestamp()}</span>
+                </div>
               </div>
 
             </div>
