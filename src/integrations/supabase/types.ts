@@ -2291,6 +2291,8 @@ export type Database = {
           header_italic: boolean | null
           header_size: string | null
           id: string
+          section_label: string | null
+          section_notes: string | null
           show_responsible: boolean | null
           updated_at: string | null
           updated_by: string | null
@@ -2311,6 +2313,8 @@ export type Database = {
           header_italic?: boolean | null
           header_size?: string | null
           id?: string
+          section_label?: string | null
+          section_notes?: string | null
           show_responsible?: boolean | null
           updated_at?: string | null
           updated_by?: string | null
@@ -2331,6 +2335,8 @@ export type Database = {
           header_italic?: boolean | null
           header_size?: string | null
           id?: string
+          section_label?: string | null
+          section_notes?: string | null
           show_responsible?: boolean | null
           updated_at?: string | null
           updated_by?: string | null
