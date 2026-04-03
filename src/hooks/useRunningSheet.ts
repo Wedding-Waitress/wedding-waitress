@@ -122,6 +122,8 @@ export function useRunningSheet(eventId: string | null) {
         .single();
 
       setSheet({ id: sheetId, event_id: eventId, user_id: sheetData?.user_id || '', items: items || [] });
+      if (sheetData?.section_label != null) setSectionLabel(sheetData.section_label || 'Running Sheet');
+      if (sheetData?.section_notes !== undefined) setSectionNotes(sheetData.section_notes);
 
       // Fetch share tokens
       const { data: tokens } = await supabase
