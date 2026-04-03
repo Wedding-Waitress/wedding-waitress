@@ -238,7 +238,7 @@ export const exportFullSeatingChartToPdf = async (
     pdf.setDrawColor(purple.r, purple.g, purple.b);
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos, PDF_WIDTH_MM - margin, yPos);
-    yPos += 6;
+    yPos += 2;
 
     // Column calculations
     const columnWidth = (contentWidth - 12) / 2;
@@ -250,15 +250,24 @@ export const exportFullSeatingChartToPdf = async (
     const col2Start = startIdx + col1Guests.length + 1;
     const col2End = endIdx;
 
-    // Column headers
+    // Column headers bar (gray background, matching Running Sheet style)
+    const headerBarHeight = 6;
+    const headerBarY = yPos;
+    pdf.setFillColor(243, 243, 243); // #f3f3f3
+    pdf.rect(margin, headerBarY, contentWidth, headerBarHeight, 'F');
+    // Bottom border of header bar
+    pdf.setDrawColor(204, 204, 204); // #ccc
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, headerBarY + headerBarHeight, PDF_WIDTH_MM - margin, headerBarY + headerBarHeight);
+
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(11);
-    pdf.setTextColor(0, 0, 0);
-    pdf.text(`GUESTS ${col1Start}-${col1End}`, leftColumnX, yPos);
+    pdf.setFontSize(8);
+    pdf.setTextColor(85, 85, 85); // #555
+    pdf.text(`GUESTS ${col1Start}-${col1End}`, leftColumnX + 2, headerBarY + 4);
     if (col2Guests.length > 0) {
-      pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX, yPos);
+      pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX + 2, headerBarY + 4);
     }
-    yPos += 5;
+    yPos = headerBarY + headerBarHeight + 4;
 
     // Draw guests
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
