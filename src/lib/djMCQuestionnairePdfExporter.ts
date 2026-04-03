@@ -266,7 +266,7 @@ const drawSectionTable = (
   // Section title
   checkPageBreak(20);
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
+  pdf.setFontSize(11);
   pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
   pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
@@ -369,20 +369,21 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
 
   // Event name - large purple
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(22);
+  pdf.setFontSize(16);
   pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
   pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-  yPos += 8;
+  yPos += 6;
 
   // Subtitle
-  pdf.setFontSize(16);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(12);
   pdf.setTextColor(34, 34, 34);
   pdf.text('DJ-MC Questionnaire', PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-  yPos += 7;
+  yPos += 5;
 
   // Event details - matching running sheet format
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(12);
+  pdf.setFontSize(9);
   pdf.setTextColor(85, 85, 85);
 
   if (event.ceremony_date) {
@@ -390,21 +391,21 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
     const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
     const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
     pdf.text(`Ceremony: ${ceremonyDate} | ${ceremonyVenue} | ${ceremonyTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-    yPos += 5;
+    yPos += 4;
   }
 
   const receptionDate = formatDateWithOrdinal(event.date);
   const receptionVenue = event.venue || 'Venue TBD';
   const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
   pdf.text(`Reception: ${receptionDate} | ${receptionVenue} | ${receptionTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-  yPos += 5;
+  yPos += 4;
 
   // Purple divider
   yPos += 2;
   pdf.setDrawColor(PURPLE.r, PURPLE.g, PURPLE.b);
   pdf.setLineWidth(0.5);
   pdf.line(MARGIN, yPos, PDF_WIDTH_MM - MARGIN, yPos);
-  yPos += 10;
+  yPos += 8;
 
   return yPos;
 };
