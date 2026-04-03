@@ -271,16 +271,7 @@ const drawSectionTable = (
   pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
 
-  // Section notes if present
-  if (section.notes) {
-    pdf.setFont('helvetica', 'italic');
-    pdf.setFontSize(9);
-    pdf.setTextColor(100, 100, 100);
-    const noteLines = pdf.splitTextToSize(`Notes: ${section.notes}`, CONTENT_WIDTH);
-    checkPageBreak(noteLines.length * 4 + 2);
-    pdf.text(noteLines, MARGIN, yPos);
-    yPos += noteLines.length * 4 + 2;
-  }
+  // Notes are intentionally excluded from PDF exports — they are only visible on screen/links
 
   // Draw header row
   checkPageBreak(headerHeight + 2);

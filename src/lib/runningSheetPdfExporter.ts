@@ -138,10 +138,8 @@ const generateRunningSheetHTML = (
 
   const detailsHtml = detailLines.map(line => `<div style="color:#555;font-size:12px;margin-top:2px;">${line}</div>`).join('');
 
-  let notesBlock = '';
-  if (sectionNotes) {
-    notesBlock = `<div style="font-style:italic;color:#777;font-size:12px;margin-bottom:6px;">Notes: ${escapeHtml(sectionNotes)}</div>`;
-  }
+  // Notes are intentionally excluded from PDF exports — they are only visible on screen/links
+  const notesBlock = '';
 
   const rows = items.map((item, idx) => {
     const bgColor = idx % 2 === 0 ? '#fafafa' : '#ffffff';
