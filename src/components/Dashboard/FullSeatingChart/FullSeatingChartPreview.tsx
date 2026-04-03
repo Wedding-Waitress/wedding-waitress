@@ -124,10 +124,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const col2Guests = currentGuests.slice(currentPageInfo.col1Count);
 
   // Format table display - use name from map if available
-  const formatTableDisplay = (tableNo: number | null) => {
-    if (!tableNo) return 'Unassigned';
-    return tableNameMap[tableNo] || `Table ${tableNo}`;
+  const formatTableDisplay = (guest: Guest) => {
+    if (guest.table_no) return tableNameMap[guest.table_no] || `Table ${guest.table_no}`;
+    if (guest.table_id && tableIdNameMap[guest.table_id]) return tableIdNameMap[guest.table_id];
+    return 'Unassigned';
   };
+
+  const isGuestUnassigned = (guest: Guest) => !guest.table_no && !guest.table_id;
 
   // Format guest name - full name (first + last)
   const formatGuestName = (guest: Guest) => {
