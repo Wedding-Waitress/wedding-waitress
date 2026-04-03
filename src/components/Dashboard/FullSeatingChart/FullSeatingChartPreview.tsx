@@ -128,9 +128,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return tableNameMap[tableNo] || `Table ${tableNo}`;
   };
 
-  // Format guest name - first name only for two-line display
+  // Format guest name - full name (first + last)
   const formatGuestName = (guest: Guest) => {
-    return guest.first_name;
+    return `${guest.first_name} ${guest.last_name || ''}`.trim();
   };
 
   // Get font size class based on settings
