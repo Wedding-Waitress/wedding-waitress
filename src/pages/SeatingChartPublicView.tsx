@@ -9,6 +9,7 @@ interface SharedGuest {
   first_name: string;
   last_name: string | null;
   table_no: number | null;
+  table_name: string | null;
   seat_no: number | null;
   dietary: string | null;
   relation_display: string;
