@@ -643,11 +643,20 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <div className="print-divider"></div>
             </div>
             
+            {/* Column Headers Bar */}
+            <div className="print-column-header-bar">
+              <div className="print-column-header">
+                GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
+              </div>
+              {pageInfo.guests.length > pageInfo.col1Count && (
+                <div className="print-column-header">
+                  GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
+                </div>
+              )}
+            </div>
+            
             <div className="print-guest-list">
               <div className="print-guest-column">
-                <div className="print-column-header">
-                  GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}
-                </div>
                 {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
@@ -655,9 +664,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               <div className="print-guest-column">
                 {pageInfo.guests.length > pageInfo.col1Count && (
                   <>
-                    <div className="print-column-header">
-                      GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}
-                    </div>
                     {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
                       <PrintGuestRow key={guest.id} guest={guest} />
                     ))}
