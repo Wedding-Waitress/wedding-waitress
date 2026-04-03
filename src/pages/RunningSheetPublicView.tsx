@@ -316,7 +316,7 @@ export function RunningSheetPublicView() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-10 print:static">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
