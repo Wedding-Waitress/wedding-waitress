@@ -22,6 +22,7 @@ interface Guest {
   table_no: number | null;
   dietary: string | null;
   relation_display: string | null;
+  relation_role?: string;
 }
 
 interface FullSeatingChartSettings {
