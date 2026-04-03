@@ -511,33 +511,33 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             }}
           >
             {/* Content with 1.27cm margins all around (narrow margins) */}
-            <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
-              {/* Header - matching Running Sheet layout */}
-              <div className="text-center" style={{ marginBottom: '2mm' }}>
+            <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm' }} className="h-full flex flex-col">
+              {/* Header - compact for screen display */}
+              <div className="text-center" style={{ marginBottom: '1mm' }}>
                 {/* Line 1: Event Name (purple, larger) */}
-                <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '18pt', marginBottom: '1.5mm' }}>
+                <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   {event.name}
                 </h1>
                 
                 {/* Line 2: Full Seating Chart - Total Guests: X */}
-                <p style={{ fontSize: '12pt', marginBottom: '1.5mm' }}>
+                <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 
                 {/* Ceremony info line */}
                 {event.ceremony_date && (
-                  <p className="text-muted-foreground" style={{ fontSize: '9pt', marginBottom: '1mm' }}>
+                  <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                     Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
                   </p>
                 )}
                 
                 {/* Reception info line */}
-                <p className="text-muted-foreground" style={{ fontSize: '9pt', marginBottom: '0' }}>
+                <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
                 
                 {/* Purple divider */}
-                <div style={{ borderTop: '2px solid #6D28D9', marginTop: '2mm' }}></div>
+                <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
               </div>
 
               {/* Column Headers Bar - matching Running Sheet TIME/EVENT/WHO style */}
