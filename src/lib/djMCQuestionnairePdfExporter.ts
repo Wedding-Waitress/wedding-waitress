@@ -266,7 +266,7 @@ const drawSectionTable = (
   // Section title
   checkPageBreak(20);
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
+  pdf.setFontSize(11);
   pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
   pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
