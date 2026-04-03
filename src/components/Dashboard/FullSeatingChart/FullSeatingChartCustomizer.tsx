@@ -1,40 +1,3 @@
-/**
- * ============================================================================
- * 🔒 PRODUCTION LOCKED - DO NOT MODIFY 🔒
- * ============================================================================
- * 
- * ⚠️ THIS COMPONENT IS LOCKED FOR PRODUCTION USE ⚠️
- * 
- * ANY MODIFICATIONS TO THIS FILE REQUIRE EXPLICIT WRITTEN APPROVAL FROM OWNER
- * Settings structure is tied to database schema and export logic.
- * 
- * Settings panel for Full Seating Chart customization. Provides controls for
- * sorting, display options, typography, and export settings.
- * 
- * AVAILABLE SETTINGS:
- * 
- * Sort Order:
- * - firstName: First name, then last name
- * - lastName: Last name, then first name
- * - tableNo: Table number, then first name
- * 
- * Display Options:
- * - showDietary: Display dietary requirements
- * - showRelation: Display guest relationships
- * 
- * Typography:
- * - small: 14px (10.5pt PDF)
- * - medium: 16px (12pt PDF)
- * - large: 18px (13.5pt PDF)
- * 
- * Export Settings:
- * - paperSize: A4, A3, A2, A1
- * 
- * Last locked: 2025-10-19
- * Status: PRODUCTION READY - NO CHANGES ALLOWED
- * ============================================================================
- */
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -43,10 +6,22 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { 
   ArrowUpDown,
   Type,
   FileText,
-  Settings
+  Settings,
+  Bold,
+  Italic,
+  Underline,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 
 interface FullSeatingChartCustomizerProps {
@@ -58,6 +33,15 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
   settings,
   onSettingsChange,
 }) => {
+  // Build label showing active styles
+  const getTextStyleLabel = () => {
+    const active: string[] = [];
+    if (settings.isBold) active.push('Bold');
+    if (settings.isItalic) active.push('Italic');
+    if (settings.isUnderline) active.push('Underline');
+    return active.length > 0 ? active.join(', ') : 'None';
+  };
+
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
       <CardHeader>
@@ -144,24 +128,52 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
           </div>
           
           <div>
-            <Label htmlFor="font-size" className="text-xs text-muted-foreground">
-              Font Size
+            <Label className="text-xs text-muted-foreground">
+              Text Style
             </Label>
-            <Select
-              value={settings.fontSize}
-              onValueChange={(value: 'small' | 'medium' | 'large') => 
-                onSettingsChange({ fontSize: value })
-              }
-            >
-              <SelectTrigger id="font-size" className="border-primary focus:ring-primary">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="small">Small (13px)</SelectItem>
-                <SelectItem value="medium">Medium (16px)</SelectItem>
-                <SelectItem value="large">Large (18px)</SelectItem>
-              </SelectContent>
-            </Select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between border-primary focus:ring-primary mt-1"
+                >
+                  <span className="text-sm">{getTextStyleLabel()}</span>
+                  <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
+                <DropdownMenuItem 
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  onClick={() => onSettingsChange({ isBold: !settings.isBold })}
+                >
+                  <div className="flex items-center gap-2">
+                    <Bold className="w-4 h-4" />
+                    <span>Bold</span>
+                  </div>
+                  {settings.isBold && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
+                >
+                  <div className="flex items-center gap-2">
+                    <Italic className="w-4 h-4" />
+                    <span>Italic</span>
+                  </div>
+                  {settings.isItalic && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
+                >
+                  <div className="flex items-center gap-2">
+                    <Underline className="w-4 h-4" />
+                    <span>Underline</span>
+                  </div>
+                  {settings.isUnderline && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardContent>

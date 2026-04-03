@@ -19,6 +19,9 @@ interface FullSeatingChartSettings {
   showRelation: boolean;
   showLogo: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
 }
 
 interface Event {
@@ -295,16 +298,28 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setLineWidth(0.4);
         pdf.circle(xPos + 1.5, baselineY - 1.2, 1.5, 'S');
         
-        // Guest name
-        pdf.setFont('helvetica', 'bold');
+        // Guest name - apply text style settings
+        const fontStyle = settings.isBold && settings.isItalic ? 'bolditalic' 
+          : settings.isBold ? 'bold' 
+          : settings.isItalic ? 'italic' 
+          : 'normal';
+        pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
         pdf.setTextColor(0, 0, 0);
         const guestName = formatGuestName(guest);
         pdf.text(guestName, xPos + 5, baselineY);
         
+        // Underline for guest name
+        if (settings.isUnderline) {
+          const nameWidth = pdf.getTextWidth(guestName);
+          pdf.setDrawColor(0, 0, 0);
+          pdf.setLineWidth(0.2);
+          pdf.line(xPos + 5, baselineY + 0.5, xPos + 5 + nameWidth, baselineY + 0.5);
+        }
+        
         // Table assignment (right-aligned)
         const tableText = formatTableAssignment(guest.table_no, tableNameMap);
-        pdf.setFont('helvetica', 'bold');
+        pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
         if (!guest.table_no) {
           pdf.setTextColor(147, 51, 234); // purple for unassigned
@@ -314,6 +329,14 @@ export const exportFullSeatingChartToPdf = async (
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;
         pdf.text(tableText, tableX, baselineY);
+        
+        // Underline for table text
+        if (settings.isUnderline) {
+          pdf.setDrawColor(!guest.table_no ? 147 : 0, !guest.table_no ? 51 : 0, !guest.table_no ? 234 : 0);
+          pdf.setLineWidth(0.2);
+          pdf.line(tableX, baselineY + 0.5, tableX + tableWidth, baselineY + 0.5);
+        }
+        
         pdf.setTextColor(0, 0, 0);
         
         // Info line (dietary/relation) below name

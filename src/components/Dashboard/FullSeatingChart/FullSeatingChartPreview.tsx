@@ -236,11 +236,21 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return parts.join(' / ');
   };
 
+  // Build text style classes based on settings
+  const getTextStyleClasses = () => {
+    const classes: string[] = [];
+    if (settings.isBold) classes.push('font-bold');
+    if (settings.isItalic) classes.push('italic');
+    if (settings.isUnderline) classes.push('underline');
+    return classes.join(' ');
+  };
+
   // Screen version guest row - matches PDF layout exactly
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const tableText = formatTableDisplay(guest.table_no);
     const isUnassigned = !guest.table_no;
+    const textStyleClasses = getTextStyleClasses();
     return (
       <div 
         className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
@@ -258,7 +268,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           )}
         </svg>
         <div className="flex flex-col flex-1 min-w-0">
-          <span className={`font-bold ${getFontSizeClass()} text-foreground leading-tight`}>
+          <span className={`${textStyleClasses} ${getFontSizeClass()} text-foreground leading-tight`}>
             {formatGuestName(guest)}
           </span>
           {inlineInfo && (
@@ -268,7 +278,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           )}
         </div>
         <span 
-          className={`font-bold flex-shrink-0 whitespace-nowrap mt-0.5 ${getFontSizeClass()}`}
+          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap mt-0.5 ${getFontSizeClass()}`}
           style={{ 
             color: isUnassigned ? '#9333ea' : '#000000'
           }}
@@ -443,7 +453,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-guest-name {
-            font-weight: 700;
+            font-weight: ${settings.isBold ? '700' : '400'};
+            font-style: ${settings.isItalic ? 'italic' : 'normal'};
+            text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
             color: #000;
           }
           
@@ -456,7 +468,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-table {
-            font-weight: 700;
+            font-weight: ${settings.isBold ? '700' : '400'};
+            font-style: ${settings.isItalic ? 'italic' : 'normal'};
+            text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
             white-space: nowrap;
             flex-shrink: 0;
             color: #000000;

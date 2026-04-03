@@ -10,16 +10,22 @@ export interface FullSeatingChartSettings {
   showRelation: boolean;
   showLogo: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
 }
 
 const DEFAULT_SETTINGS: FullSeatingChartSettings = {
   sortBy: 'firstName',
-  fontSize: 'medium',
+  fontSize: 'small', // Hardcoded to small (13px) - no longer user-configurable
   showDietary: false,
   showRsvp: false,
   showRelation: false,
-  showLogo: true, // Always show logo (hardcoded)
-  paperSize: 'A4', // Always use A4 (hardcoded)
+  showLogo: true,
+  paperSize: 'A4',
+  isBold: true,
+  isItalic: false,
+  isUnderline: false,
 };
 
 export const useFullSeatingChartSettings = (eventId: string | null) => {
@@ -49,12 +55,15 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
         if (data) {
           setSettings({
             sortBy: data.sort_by as 'firstName' | 'lastName' | 'tableNo',
-            fontSize: data.font_size as 'small' | 'medium' | 'large',
+            fontSize: 'small', // Always small - hardcoded
             showDietary: data.show_dietary,
             showRsvp: data.show_rsvp,
             showRelation: data.show_relation,
             showLogo: data.show_logo ?? true,
             paperSize: data.paper_size as 'A4' | 'A3' | 'A2' | 'A1',
+            isBold: (data as any).is_bold ?? true,
+            isItalic: (data as any).is_italic ?? false,
+            isUnderline: (data as any).is_underline ?? false,
           });
         }
       } catch (error) {
@@ -90,7 +99,10 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
           show_relation: updatedSettings.showRelation,
           show_logo: updatedSettings.showLogo,
           paper_size: updatedSettings.paperSize,
-        }, {
+          is_bold: updatedSettings.isBold,
+          is_italic: updatedSettings.isItalic,
+          is_underline: updatedSettings.isUnderline,
+        } as any, {
           onConflict: 'event_id,user_id'
         });
 

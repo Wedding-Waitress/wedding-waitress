@@ -129,6 +129,9 @@ export function SeatingChartPublicView() {
         showRsvp: false,
         showLogo: true,
         paperSize: 'A4' as const,
+        isBold: true,
+        isItalic: false,
+        isUnderline: false,
       };
       // Build tableNameMap from guest data
       const tnMap: Record<number, string> = {};
