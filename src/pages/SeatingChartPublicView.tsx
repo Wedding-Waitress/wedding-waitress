@@ -211,17 +211,20 @@ export function SeatingChartPublicView() {
                 style={{ width: '210mm', minHeight: '297mm', maxWidth: '100%' }}
               >
                 <div style={{ padding: '12mm' }} className="flex flex-col" >
-                  {/* Page Header */}
+                  {/* Page Header - matching Running Sheet layout */}
                   <div className="text-center mb-3">
-                    <h2 className="text-lg font-bold mb-0.5" style={{ color: '#7C3AED' }}>
+                    <h2 className="text-lg font-bold mb-0.5" style={{ color: '#6D28D9' }}>
                       {data.event_name}
                     </h2>
-                    <p className="text-sm font-bold text-black mb-0.5">
-                      Full Seating Chart - {data.event_date && formatDateWithOrdinal(data.event_date)}
+                    <p className="text-sm text-black mb-0.5">
+                      Full Seating Chart - Total Guests: {data.guests.length}
                     </p>
-                    <p className="text-xs text-black pb-2 mb-2 border-b border-black">
-                      {data.event_venue} - Total Guests: {data.guests.length} - Page {pageIndex + 1} of {totalPages} - Generated on: {formatGeneratedTimestamp()}
-                    </p>
+                    {data.event_date && (
+                      <p className="text-xs text-gray-500 mb-0.5">
+                        Reception: {formatDateWithOrdinal(data.event_date)} | {data.event_venue || 'Venue TBD'}
+                      </p>
+                    )}
+                    <div className="border-t-2 mt-2 mb-2" style={{ borderColor: '#6D28D9' }}></div>
                   </div>
 
                   {/* Two-column guest list */}
