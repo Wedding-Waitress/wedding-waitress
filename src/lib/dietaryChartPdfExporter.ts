@@ -242,11 +242,15 @@ export const exportDietaryChartToPdf = async (
     pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
     yPos += 6;
 
-    // Subtitle - "Kitchen Dietary Requirements - Total Dietary Guests: X" (normal, 12pt)
+    // Subtitle - "Kitchen Dietary Requirements" (normal, 12pt)
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
-    pdf.text(`Kitchen Dietary Requirements - Total Dietary Guests: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
+    pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 5;
+
+    // Total Dietary Guests count on separate line
+    pdf.text(`Total Dietary Guests: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
     // Ceremony info line (if available)
