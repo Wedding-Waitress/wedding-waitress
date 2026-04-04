@@ -673,14 +673,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                   <div className="flex flex-col items-center gap-y-0.5">
                                     <div className="flex flex-nowrap justify-center gap-x-3">
                                       {dietarySummary.filter(item => ['Kids Meal','Pescatarian','Vegetarian','Vegan','Seafood Free','Gluten Free'].includes(item.label)).map(item => (
-                                        <span key={item.label} style={{ fontSize: '9pt', fontWeight: 'normal', whiteSpace: 'nowrap' }}>
+                                        <span key={item.label} style={{ fontWeight: 'normal', whiteSpace: 'nowrap' }}>
                                           {item.label}: <strong>{item.count}</strong>
                                         </span>
                                       ))}
                                     </div>
                                     <div className="flex flex-nowrap justify-center gap-x-3">
                                       {dietarySummary.filter(item => ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'].includes(item.label)).map(item => (
-                                        <span key={item.label} style={{ fontSize: '9pt', fontWeight: 'normal', whiteSpace: 'nowrap' }}>
+                                        <span key={item.label} style={{ fontWeight: 'normal', whiteSpace: 'nowrap' }}>
                                           {item.label}: <strong>{item.count}</strong>
                                         </span>
                                       ))}
