@@ -157,7 +157,7 @@ export const CeremonyFloorPlanVisual = ({
           onChange={(e) => setEditingValue(e.target.value)}
           onBlur={handleSeatSave}
           onKeyDown={handleKeyDown}
-          className="w-16 h-12 text-xs p-1 text-center"
+          className="w-[72px] h-14 text-xs p-1 text-center"
           placeholder="Name"
         />
       );
