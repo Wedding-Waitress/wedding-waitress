@@ -227,14 +227,14 @@ export const generateCeremonyFloorPlanPDF = async (
       // Draw name
       if (name) {
         pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(5.5);
+        pdf.setFontSize(6);
         pdf.setTextColor(0, 0, 0);
         const parts = name.split(' ');
         if (parts.length > 1) {
-          pdf.text(parts[0], boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 2.5, { align: 'center' });
-          pdf.text(parts.slice(1).join(' ').substring(0, 6), boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 5, { align: 'center' });
+          pdf.text(parts[0], boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 3, { align: 'center' });
+          pdf.text(parts.slice(1).join(' ').substring(0, 8), boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 6, { align: 'center' });
         } else {
-          pdf.text(name.substring(0, 8), boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 3.5, { align: 'center' });
+          pdf.text(name.substring(0, 10), boxX + (bridalBoxWidth / 2), yPos + rowYOffset + 4.5, { align: 'center' });
         }
       }
       
