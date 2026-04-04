@@ -11,7 +11,7 @@
 
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
-import { format } from 'date-fns';
+
 
 
 // Define the event type inline to avoid circular dependency with hooks
