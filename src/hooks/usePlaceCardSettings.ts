@@ -62,11 +62,20 @@ export interface PlaceCardSettings {
   updated_at?: string;
 }
 
+// Module-level cache for instant loading on tab switches
+const placeCardCache = new Map<string, PlaceCardSettings>();
+
 export const usePlaceCardSettings = (eventId: string | null) => {
-  const [settings, setSettings] = useState<PlaceCardSettings | null>(null);
+  const cached = eventId ? placeCardCache.get(eventId) : undefined;
+  const [settings, setSettings] = useState<PlaceCardSettings | null>(cached ?? null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const saveSeqRef = React.useRef(0);
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && settings) placeCardCache.set(eventId, settings);
+  }, [eventId, settings]);
 
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
@@ -74,7 +83,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       return;
     }
 
-    setLoading(true);
+    if (!placeCardCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('place_card_settings')

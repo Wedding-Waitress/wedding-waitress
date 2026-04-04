@@ -42,10 +42,19 @@ export interface Guest {
   allow_plus_one?: boolean;
 }
 
+// Module-level cache for instant loading on tab switches
+const guestDataCache = new Map<string, Guest[]>();
+
 export const useGuests = (eventId: string | null) => {
-  const [guests, setGuests] = useState<Guest[]>([]);
+  const cached = eventId ? guestDataCache.get(eventId) : undefined;
+  const [guests, setGuests] = useState<Guest[]>(cached ?? []);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && guests.length > 0) guestDataCache.set(eventId, guests);
+  }, [eventId, guests]);
 
   const fetchGuests = async () => {
     if (!eventId) {
@@ -53,7 +62,7 @@ export const useGuests = (eventId: string | null) => {
       return;
     }
 
-    setLoading(true);
+    if (!guestDataCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('guests')

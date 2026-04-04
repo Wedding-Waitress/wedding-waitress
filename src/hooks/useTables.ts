@@ -38,10 +38,19 @@ export interface TableWithGuestCount extends Table {
   guest_count: number;
 }
 
+// Module-level cache for instant loading on tab switches
+const tablesCache = new Map<string, TableWithGuestCount[]>();
+
 export const useTables = (eventId: string | null) => {
-  const [tables, setTables] = useState<TableWithGuestCount[]>([]);
+  const cached = eventId ? tablesCache.get(eventId) : undefined;
+  const [tables, setTables] = useState<TableWithGuestCount[]>(cached ?? []);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && tables.length > 0) tablesCache.set(eventId, tables);
+  }, [eventId, tables]);
 
   // Single source of truth for table guest counts
   const getCurrentCount = async (tableId: string): Promise<number> => {
@@ -62,7 +71,7 @@ export const useTables = (eventId: string | null) => {
       return;
     }
 
-    setLoading(true);
+    if (!tablesCache.has(eventId)) setLoading(true);
     try {
       // Fetch tables with guest counts
       const { data: tablesData, error: tablesError } = await supabase

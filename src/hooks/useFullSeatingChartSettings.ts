@@ -28,17 +28,26 @@ const DEFAULT_SETTINGS: FullSeatingChartSettings = {
   isUnderline: false,
 };
 
+// Module-level cache for instant loading on tab switches
+const settingsCache = new Map<string, FullSeatingChartSettings>();
+
 export const useFullSeatingChartSettings = (eventId: string | null) => {
-  const [settings, setSettings] = useState<FullSeatingChartSettings>(DEFAULT_SETTINGS);
+  const cached = eventId ? settingsCache.get(eventId) : undefined;
+  const [settings, setSettings] = useState<FullSeatingChartSettings>(cached ?? DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && settings) settingsCache.set(eventId, settings);
+  }, [eventId, settings]);
 
   // Load settings from database
   useEffect(() => {
     if (!eventId) return;
 
     const loadSettings = async () => {
-      setLoading(true);
+      if (!settingsCache.has(eventId)) setLoading(true);
       try {
         const { data: session } = await supabase.auth.getSession();
         if (!session.session) return;

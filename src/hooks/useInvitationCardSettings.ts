@@ -72,15 +72,24 @@ const parseRow = (d: any): InvitationCardSettings => ({
   qr_config: (d.qr_config || { ...DEFAULT_QR_CONFIG }) as QrConfig,
 });
 
+// Module-level cache for instant loading on tab switches
+const invitationCache = new Map<string, { artworks: InvitationCardSettings[]; activeId: string | null }>();
+
 export const useInvitationCardSettings = (eventId: string | null) => {
-  const [artworks, setArtworks] = useState<InvitationCardSettings[]>([]);
-  const [activeArtworkId, setActiveArtworkId] = useState<string | null>(null);
+  const cached = eventId ? invitationCache.get(eventId) : undefined;
+  const [artworks, setArtworks] = useState<InvitationCardSettings[]>(cached?.artworks ?? []);
+  const [activeArtworkId, setActiveArtworkId] = useState<string | null>(cached?.activeId ?? null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Cleanup debounce timer on unmount
   useEffect(() => () => { clearTimeout(saveTimerRef.current); }, []);
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && artworks.length > 0) invitationCache.set(eventId, { artworks, activeId: activeArtworkId });
+  }, [eventId, artworks, activeArtworkId]);
 
   const activeArtwork = useMemo(
     () => artworks.find(a => a.id === activeArtworkId) || null,
@@ -94,7 +103,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
       return;
     }
 
-    setLoading(true);
+    if (!invitationCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('invitation_card_settings' as any)
