@@ -878,14 +878,25 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       <div key={seat.number}>
                         {/* Seat Circle with thin black border - 44px (w-11 h-11) for tight spacing */}
                         <div
-                          className="absolute w-11 h-11 border border-black rounded-full bg-white flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 shadow-md"
+                          className="absolute w-11 h-11 border border-black rounded-full bg-white relative transform -translate-x-1/2 -translate-y-1/2 shadow-md"
                           style={{
+                            position: 'absolute',
                             left: `${seat.x}%`,
                             top: `${seat.y}%`,
                           }}
                         >
                           {settings.showSeatNumbers && (
-                            <span className="font-bold text-xs leading-none">{seat.number}</span>
+                            <span
+                              className="font-bold text-xs"
+                              style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                              }}
+                            >
+                              {seat.number}
+                            </span>
                           )}
                         </div>
 

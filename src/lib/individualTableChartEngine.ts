@@ -1164,21 +1164,23 @@ export const generateIndividualTableSVG = (
             <div style="
               position: absolute;
               left: ${seat.x}px;
-              top: ${seat.y + 2}px;
+              top: ${seat.y}px;
               transform: translate(-50%, -50%);
               width: 44px;
               height: 44px;
               border: 1px solid #000;
               border-radius: 50%;
               background: white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-weight: bold;
-              font-size: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             ">
-              ${settings.showSeatNumbers ? `<span style="line-height: 1; display: block;">${seat.number}</span>` : ''}
+              ${settings.showSeatNumbers ? `<span style="
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-weight: bold;
+                font-size: 12px;
+              ">${seat.number}</span>` : ''}
             </div>
 
             <!-- Guest Name - Side-aware positioning with auto-scale for top/bottom -->
