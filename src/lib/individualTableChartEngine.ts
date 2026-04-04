@@ -1222,8 +1222,8 @@ export const generateIndividualTableSVG = (
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
-                    <span style="word-wrap: break-word; text-align: left; ${textStyleStr}">
-                      <span>${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}${relationText}
+                    <span style="word-wrap: break-word; text-align: left;">
+                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;

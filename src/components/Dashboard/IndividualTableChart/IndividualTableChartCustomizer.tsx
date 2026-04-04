@@ -135,7 +135,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-dietary">Show Dietary Info</Label>
+            <Label htmlFor="show-dietary">Show Dietary Requirements</Label>
             <Switch
               id="show-dietary"
               checked={settings.includeDietary}
