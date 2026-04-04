@@ -262,7 +262,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
-        className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
+        className="flex items-center gap-1.5 py-0.5 px-0.5 cursor-pointer"
         style={{ 
           minHeight: `${rowHeightMm * 2}px`,
           borderBottom: '1px solid #e5e5e5',
@@ -270,24 +270,24 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
         {/* Purple circle checkbox matching PDF */}
-        <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0 mt-0.5">
+        <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
           <circle cx="7" cy="7" r="5.5" fill={checkedGuests.has(guest.id) ? '#6D28D9' : 'none'} stroke="#6D28D9" strokeWidth="1.2" />
           {checkedGuests.has(guest.id) && (
             <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           )}
         </svg>
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex-1 min-w-0 truncate">
           <span className={`${textStyleClasses} ${getFontSizeClass()} text-foreground leading-tight`}>
             {formatGuestName(guest)}
           </span>
           {inlineInfo && (
-            <span className="text-[11px] leading-tight truncate" style={{ color: '#666' }}>
-              {inlineInfo}
+            <span className="text-[11px] leading-tight" style={{ color: '#666' }}>
+              {' '}({inlineInfo})
             </span>
           )}
         </div>
         <span 
-          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap mt-0.5 ${getFontSizeClass()}`}
+          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap ${getFontSizeClass()}`}
           style={{ 
             color: isUnassigned ? '#9333ea' : '#000000'
           }}
