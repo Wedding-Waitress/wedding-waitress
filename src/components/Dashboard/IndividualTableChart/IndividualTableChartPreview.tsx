@@ -888,7 +888,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className={`absolute font-bold ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
+                                className={`absolute ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
                                 style={{
                                   left: `${seat.labelX}%`,
                                   top: `${seat.labelY}%`,
@@ -901,6 +901,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   maxHeight: '2.4em',
                                   overflow: 'hidden',
                                   whiteSpace: 'nowrap',
+                                  fontWeight: settings.textStyle === 'bold' ? 700 : 700,
+                                  fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
+                                  textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
                                   ...getAutoScaledNameStyle(),
                                 }}
                               >
