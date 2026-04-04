@@ -668,14 +668,23 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
-                              <th colSpan={99} className="py-[3px] px-[4pt]" style={{ fontSize: '8pt' }}>
+                              <th colSpan={99} className="py-[3px] px-[4pt]">
                                 {dietarySummary.length > 0 ? (
-                                  <div className="flex flex-nowrap justify-center gap-x-3">
-                                    {dietarySummary.map(item => (
-                                      <span key={item.label} style={{ fontSize: '9pt', fontWeight: 'normal', whiteSpace: 'nowrap' }}>
-                                        {item.label}: <strong>{item.count}</strong>
-                                      </span>
-                                    ))}
+                                  <div className="flex flex-col items-center gap-y-0.5">
+                                    <div className="flex flex-nowrap justify-center gap-x-3">
+                                      {dietarySummary.filter(item => ['Kids Meal','Pescatarian','Vegetarian','Vegan','Seafood Free','Gluten Free'].includes(item.label)).map(item => (
+                                        <span key={item.label} style={{ fontSize: '9pt', fontWeight: 'normal', whiteSpace: 'nowrap' }}>
+                                          {item.label}: <strong>{item.count}</strong>
+                                        </span>
+                                      ))}
+                                    </div>
+                                    <div className="flex flex-nowrap justify-center gap-x-3">
+                                      {dietarySummary.filter(item => ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'].includes(item.label)).map(item => (
+                                        <span key={item.label} style={{ fontSize: '9pt', fontWeight: 'normal', whiteSpace: 'nowrap' }}>
+                                          {item.label}: <strong>{item.count}</strong>
+                                        </span>
+                                      ))}
+                                    </div>
                                   </div>
                                 ) : (
                                   <span>&nbsp;</span>
