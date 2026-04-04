@@ -1164,7 +1164,7 @@ export const generateIndividualTableSVG = (
             <div style="
               position: absolute;
               left: ${seat.x}px;
-              top: ${seat.y}px;
+              top: ${seat.y + 2}px;
               transform: translate(-50%, -50%);
               width: 44px;
               height: 44px;
