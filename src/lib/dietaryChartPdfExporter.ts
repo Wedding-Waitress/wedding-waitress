@@ -360,12 +360,18 @@ export const exportDietaryChartToPdf = async (
       yPos += rowHeight; // Dynamic row spacing based on font size
     });
 
-    // Footer - Logo (if enabled) - FIXED position at bottom of page
+    // Footer - matching FSC style with white zone, logo, page/timestamp
+    // White rectangle to cover any bleeding content
+    const footerZone = 25;
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(0, pageHeight - footerZone, pageWidth, footerZone, 'F');
+
+    // Logo centered
     if (logoBase64) {
-      const logoHeight = 10.5; // mm
-      const logoWidth = 35; // mm (approximate)
+      const logoHeight = 12; // mm - matching FSC
+      const logoWidth = 42; // mm - matching FSC
       const logoX = (pageWidth - logoWidth) / 2;
-      const logoY = pageHeight - margin - logoHeight; // Fixed at bottom
+      const logoY = pageHeight - 3 - logoHeight - 2;
       
       try {
         pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
@@ -373,6 +379,12 @@ export const exportDietaryChartToPdf = async (
         console.error('Failed to add logo to PDF:', error);
       }
     }
+
+    // Page number (left) and Generated timestamp (right)
+    pdf.setFontSize(7);
+    pdf.setTextColor(170, 170, 170);
+    pdf.text(`Page ${pageNum} of ${totalPages}`, margin, pageHeight - 3);
+    pdf.text(`Generated: ${timestamp}`, pageWidth - margin, pageHeight - 3, { align: 'right' });
   }
 
   // Save PDF
