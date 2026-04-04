@@ -1,23 +1,25 @@
 
 
-# Plan: Increase Preview Guest Row Height
+# Plan: Reduce A4 Preview Container Height
 
 ## Summary
-Increase the vertical height of each guest row in the Full Seating Chart **preview only** to close the gap between the last guest row and the Wedding Waitress logo. PDF export is untouched.
+Shrink the white A4 preview container from 310mm to ~300mm (closer to true A4 297mm) and reduce the footer offset accordingly. This closes the visible gap between the last guest row and the Wedding Waitress logo.
 
 ## What Changes
 
 ### `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`
 
-1. **ScreenGuestRow minHeight**: Currently uses `rowHeightMm * 2 - 1` pixels. Increase this multiplier so each row is taller on screen. Target: rows visually fill more of the content zone, reducing the empty gap above the logo.
+1. **Container height**: Change from `310mm` to `300mm`
+2. **Footer offset**: Reduce from `FOOTER_START_MM + FOOTER_GAP_MM + 13` to `FOOTER_START_MM + FOOTER_GAP_MM + 3` (drop the extra 13mm down to 3mm)
 
-2. **Only the preview row rendering is affected** — the `rowHeightMm` value from the shared layout constants is not changed, and no PDF code is modified.
+These two changes together bring the bottom of the white page closer to the footer content, eliminating the large white gap shown in the screenshot.
 
 ## What Does NOT Change
 - `src/lib/fullSeatingChartLayout.ts` — no constants modified
 - `src/lib/fullSeatingChartPdfExporter.ts` — completely untouched
-- PDF download (single page and all pages) — completely untouched
-- Number of guests per column (30) and per page (60) — unchanged
-- Font sizes — unchanged
-- Footer position — unchanged
+- Download Single Page PDF — untouched
+- Download All Pages PDF — untouched
+- Guest rows, fonts, spacing, count (30 per column) — unchanged
+- Wedding Waitress logo position relative to page bottom — unchanged
+- Header zone — unchanged
 
