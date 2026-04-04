@@ -243,13 +243,13 @@ export const exportDietaryChartToPdf = async (
   
   const totalPages = Math.ceil(guests.length / guestsPerPage);
 
-  // Dietary summary counts
-  const trackedTypes = [
-    'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-    'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
-  ];
-  const summaryCounts = trackedTypes
-    .map(type => {
+  // Dietary summary counts - use external counts if provided (synced from display page)
+  const summaryCounts = externalSummaryCounts ?? (() => {
+    const trackedTypes = [
+      'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+    ];
+    return trackedTypes.map(type => {
       const typeLower = type.toLowerCase();
       return { label: type, count: guests.filter(g => {
         if (!g.dietary) return false;
@@ -264,6 +264,7 @@ export const exportDietaryChartToPdf = async (
         return false;
       }).length };
     });
+  })();
 
   // Calculate column positions
   const colWidths: number[] = [];
