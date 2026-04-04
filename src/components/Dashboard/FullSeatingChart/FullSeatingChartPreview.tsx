@@ -221,7 +221,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       <div 
         className="flex items-center gap-1.5 py-0 px-0.5 cursor-pointer"
         style={{ 
-          minHeight: `${rowHeightMm * 2.4}px`,
+          minHeight: `${rowHeightMm * 2.65}px`,
           borderBottom: '1px solid #e5e5e5',
         }}
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
@@ -488,7 +488,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: `${PAGE_WIDTH_MM}mm`, 
-              height: '300mm',
+              height: '305mm',
               minWidth: `${PAGE_WIDTH_MM}mm`,
               maxWidth: `${PAGE_WIDTH_MM}mm`,
               overflow: 'hidden',
