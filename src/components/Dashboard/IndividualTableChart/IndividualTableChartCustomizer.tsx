@@ -17,7 +17,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Type, Bold, Italic, Underline } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Settings, Type, Bold, Italic, Underline, ChevronDown, Check } from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 
 interface IndividualTableChartCustomizerProps {
@@ -158,48 +165,62 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {/* Typography - Hidden for Long Table (auto-scaling) */}
         {settings.tableShape !== 'long' && (
           <div className="space-y-4">
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
+           <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
               <Type className="w-4 h-4" />
               Typography
             </span>
             
             <div className="space-y-2">
-              <Label htmlFor="text-style">Text Style</Label>
-              <Select
-                value={settings.textStyle === 'default' ? '' : settings.textStyle}
-                onValueChange={(value: 'bold' | 'italic' | 'underline') => {
-                  // Toggle behavior: if already selected, revert to default
-                  if (value === settings.textStyle) {
-                    onSettingsChange({ textStyle: 'default' });
-                  } else {
-                    onSettingsChange({ textStyle: value });
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Default" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bold">
-                    <span className="flex items-center gap-2">
+              <Label className="text-xs text-muted-foreground">Text Style</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between border-primary focus:ring-primary mt-1"
+                  >
+                    <span className="text-sm">{(() => {
+                      const active: string[] = [];
+                      if (settings.isBold) active.push('Bold');
+                      if (settings.isItalic) active.push('Italic');
+                      if (settings.isUnderline) active.push('Underline');
+                      return active.length > 0 ? active.join(', ') : 'None';
+                    })()}</span>
+                    <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
+                  <DropdownMenuItem 
+                    className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                    onClick={() => onSettingsChange({ isBold: !settings.isBold })}
+                  >
+                    <div className="flex items-center gap-2">
                       <Bold className="w-4 h-4" />
-                      Bold
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="italic">
-                    <span className="flex items-center gap-2">
+                      <span>Bold</span>
+                    </div>
+                    {settings.isBold && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                    onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
+                  >
+                    <div className="flex items-center gap-2">
                       <Italic className="w-4 h-4" />
-                      Italic
-                    </span>
-                  </SelectItem>
-                  <SelectItem value="underline">
-                    <span className="flex items-center gap-2">
+                      <span>Italic</span>
+                    </div>
+                    {settings.isItalic && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                    onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
+                  >
+                    <div className="flex items-center gap-2">
                       <Underline className="w-4 h-4" />
-                      Underline
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                      <span>Underline</span>
+                    </div>
+                    {settings.isUnderline && <Check className="w-4 h-4" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
           </div>
