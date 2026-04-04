@@ -214,7 +214,7 @@ export const CeremonyFloorPlanVisual = ({
           <div
             onClick={() => handleBridalPartyClick(side, index)}
             className={cn(
-              "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
+              "w-[72px] h-14 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
               name 
                 ? "bg-transparent border-primary font-medium" 
                 : "bg-muted/30 border-border text-muted-foreground"
