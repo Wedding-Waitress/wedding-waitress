@@ -224,7 +224,7 @@ export const CeremonyFloorPlanVisual = ({
             {name ? (
               renderName(name)
             ) : (
-              <span className="text-[10px]">{index + 1}</span>
+              <span className="text-[11px]">{index + 1}</span>
             )}
           </div>
         )}
