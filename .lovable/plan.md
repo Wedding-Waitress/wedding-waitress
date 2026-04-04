@@ -1,27 +1,39 @@
 
 
-# Plan: Fit 35 Guests Per Column in PDF Export
+# Plan: Change to 30 Guests Per Column (60 Per Page)
 
-## Problem
-The screen preview fits 35 guests per column perfectly, but the PDF download is cutting off guests because the font size (10.5pt) and row height (8.4mm) are too large — only fitting ~30 per column.
+## Summary
+
+Reduce from 35 guests per column to 30 guests per column (60 per page) in both the screen preview and the PDF download. This gives each row more vertical space, ensuring guests never overlap the footer logo.
 
 ## Changes
 
-### 1. `src/lib/fullSeatingChartPdfExporter.ts`
+### 1. `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`
 
-**Row height** (line 180-184): Change `'small'` from `8.4` to `7.2` (252 / 35 = 7.2mm per row)
+**Pagination calculation (~line 80-89):**
+- Change `availableHeight` from `252` to `252` (keep same available space)
+- Change small row height from `7.2` to `8.4` (252 / 30 = 8.4mm per row)
+- This yields exactly 30 guests per column
 
-**Font size** (line 51-57): Reduce `'small'` from `10.5` to `8.5pt` — proportionally smaller to fit within 7.2mm rows. Both guest names and table names will use this same reduced size.
+**Screen guest list container (~line 603):**
+- Keep `height: '225mm'` — 30 rows at 8.4mm = 252mm fits comfortably within this
 
-**Available height** stays at `252mm` — this now yields `252 / 7.2 = 35` guests per column, 70 per page.
+### 2. `src/lib/fullSeatingChartPdfExporter.ts`
 
-### 2. `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`
+**Row height and pagination (~line 180-192):**
+- Change small row height from `7.2` to `8.4`
+- `availableHeight` stays at `252`, giving `252 / 8.4 = 30` guests per column
+- This ensures all 30 rows finish well above the footer zone
 
-**Row height** (line 80-84): Change `'small'` from `8.4` to `7.2` to match the PDF and fit 35 per column on screen as well.
+### 3. `FULL_SEATING_CHART_SPECS.md` / `.lovable/plan.md`
 
-### What stays the same
-- All header, footer, logo, margin measurements
-- Inline brackets for dietary/relationship
+- Update specs to reflect 30 guests per column, 60 per page
+
+## What Stays the Same
+
+- All header, footer, margin, logo measurements
+- Font sizes (13px screen / 10.5pt PDF for small)
+- Inline brackets for dietary/relation display
 - Bold/italic/underline settings
-- All other pages and components
+- All other components and pages
 
