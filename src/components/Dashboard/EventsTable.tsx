@@ -513,8 +513,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     </TableRow>;
                   })}
                   {/* Purple footer row - matching header background */}
-                  <TableRow className="bg-primary hover:bg-primary border-t border-card-border rounded-b-2xl">
-                    <TableCell colSpan={11} className="h-12 rounded-b-2xl">
+                  <TableRow className="bg-primary hover:bg-primary border-t-0">
+                    <TableCell colSpan={11} className="h-12">
                       {/* Empty footer row with same height as data rows */}
                     </TableCell>
                   </TableRow>
