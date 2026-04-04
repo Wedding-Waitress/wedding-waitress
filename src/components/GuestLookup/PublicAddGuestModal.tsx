@@ -234,7 +234,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
-                Single
+                Individual
               </button>
               <button
                 type="button"

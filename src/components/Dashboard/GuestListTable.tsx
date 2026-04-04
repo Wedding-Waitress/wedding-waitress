@@ -1496,7 +1496,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
                          )}
                       >
-                        🎂 Birthday, Single Person Event Or Corporate Party
+                        🎂 Birthday, Individual Person Event Or Corporate Party
                       </Button>
                     </div>
                   </div>
