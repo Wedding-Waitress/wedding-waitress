@@ -1178,7 +1178,7 @@ export const generateIndividualTableSVG = (
               font-size: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             ">
-              ${settings.showSeatNumbers ? `<span style="margin-top: -1px; display: block;">${seat.number}</span>` : ''}
+              ${settings.showSeatNumbers ? `<span style="line-height: 1; display: block;">${seat.number}</span>` : ''}
             </div>
 
             <!-- Guest Name - Side-aware positioning with auto-scale for top/bottom -->

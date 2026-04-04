@@ -885,7 +885,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                           }}
                         >
                           {settings.showSeatNumbers && (
-                            <span className="font-bold text-xs" style={{ marginTop: '-1px' }}>{seat.number}</span>
+                            <span className="font-bold text-xs leading-none">{seat.number}</span>
                           )}
                         </div>
 
