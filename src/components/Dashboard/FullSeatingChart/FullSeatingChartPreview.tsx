@@ -78,7 +78,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const paginationInfo = useMemo(() => {
     // Calculate row height based on font size - increased for two-line format
     const baseRowHeight: Record<string, number> = {
-      'small': 8.4,   // 210/8.4 = 25 guests per column
+      'small': 8.4,   // 294/8.4 = 35 guests per column
       'medium': 11,
       'large': 13
     };
@@ -86,8 +86,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
     
     // Available height for guest rows (after header, footer, margins)
-    // When both display options are off, more vertical space is available
-    const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
+    // Always 35 per column since metadata is now inline in brackets
+    const availableHeight = 294;
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
@@ -116,7 +116,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     }
     
     return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_PAGE };
-  }, [guests, settings.fontSize, settings.showDietary, settings.showRelation]);
+  }, [guests, settings.fontSize]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
@@ -262,7 +262,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
-        className="flex items-start gap-1.5 py-0.5 px-0.5 cursor-pointer"
+        className="flex items-center gap-1.5 py-0.5 px-0.5 cursor-pointer"
         style={{ 
           minHeight: `${rowHeightMm * 2}px`,
           borderBottom: '1px solid #e5e5e5',
@@ -270,24 +270,24 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
         {/* Purple circle checkbox matching PDF */}
-        <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0 mt-0.5">
+        <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
           <circle cx="7" cy="7" r="5.5" fill={checkedGuests.has(guest.id) ? '#6D28D9' : 'none'} stroke="#6D28D9" strokeWidth="1.2" />
           {checkedGuests.has(guest.id) && (
             <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           )}
         </svg>
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex-1 min-w-0 truncate">
           <span className={`${textStyleClasses} ${getFontSizeClass()} text-foreground leading-tight`}>
             {formatGuestName(guest)}
           </span>
           {inlineInfo && (
-            <span className="text-[11px] leading-tight truncate" style={{ color: '#666' }}>
-              {inlineInfo}
+            <span className="text-[11px] leading-tight" style={{ color: '#666' }}>
+              {' '}({inlineInfo})
             </span>
           )}
         </div>
         <span 
-          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap mt-0.5 ${getFontSizeClass()}`}
+          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap ${getFontSizeClass()}`}
           style={{ 
             color: isUnassigned ? '#9333ea' : '#000000'
           }}
@@ -298,16 +298,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     );
   };
 
-  // Print version guest row - two-line format matching screen
+  // Print version guest row - single-line with inline brackets
   const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const isUnassigned = isGuestUnassigned(guest);
     return (
-      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: '1px solid #e5e5e5' }}>
+      <div className="print-guest-item" style={{ borderBottom: '1px solid #e5e5e5' }}>
         <span className="print-checkbox">☐</span>
-        <div className="print-guest-content">
+        <div className="print-guest-content" style={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline', flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
           <span className="print-guest-name">{formatGuestName(guest)}</span>
-          {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
+          {inlineInfo && <span className="print-guest-info" style={{ display: 'inline' }}>&nbsp;({inlineInfo})</span>}
         </div>
         <span className={`print-table ${isUnassigned ? 'print-table-unassigned' : ''}`}>
           {formatTableDisplay(guest)}
@@ -437,7 +437,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             display: flex;
-            align-items: flex-start;
+            align-items: baseline;
             gap: 6px;
             break-inside: avoid;
             font-size: ${printFontSizes.main};
@@ -447,11 +447,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             padding: 2px 2px;
           }
           
-          .print-guest-two-line .print-guest-content {
+          .print-guest-content {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            align-items: baseline;
             flex: 1;
             min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
           }
           
           .print-checkbox {

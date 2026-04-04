@@ -178,14 +178,14 @@ export const exportFullSeatingChartToPdf = async (
   const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
   const baseRowHeight: Record<string, number> = {
-    'small': 8.4,   // 210/8.4 = 25 guests per column
+    'small': 8.4,   // 294/8.4 = 35 guests per column
     'medium': 11,
     'large': 13
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // When both display options are off, more vertical space is available
-  const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
+  // Always 35 per column since metadata is now inline in brackets
+  const availableHeight = 294;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
@@ -306,7 +306,14 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setLineWidth(0.4);
         pdf.circle(xPos + 1.5, baselineY - 1.2, 1.5, 'S');
         
-        // Guest name - apply text style settings
+        // Build inline info string for brackets
+        const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
+        const infoParts: string[] = [];
+        if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
+        if (hasRelation) infoParts.push(capitalizeWords(guest.relation_role || ''));
+        const inlineInfo = infoParts.join(' / ');
+
+        // Guest name + inline info in brackets on the same line
         const fontStyle = settings.isBold && settings.isItalic ? 'bolditalic' 
           : settings.isBold ? 'bold' 
           : settings.isItalic ? 'italic' 
@@ -317,8 +324,33 @@ export const exportFullSeatingChartToPdf = async (
         const guestName = formatGuestName(guest);
         pdf.text(guestName, xPos + 5, baselineY);
         
+        // Draw inline info in brackets after name
+        if (inlineInfo) {
+          const nameWidth = pdf.getTextWidth(guestName);
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(fontSize - 1);
+          pdf.setTextColor(102, 102, 102);
+          
+          // Table text width for max available space
+          const tableText = formatTableAssignment(guest, tableNameMap, tableIdNameMap);
+          pdf.setFont('helvetica', fontStyle);
+          pdf.setFontSize(fontSize);
+          const tableWidth = pdf.getTextWidth(tableText);
+          const maxInfoWidth = columnWidth - 5 - nameWidth - 2 - tableWidth - 2;
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(fontSize - 1);
+          let bracketText = ` (${inlineInfo})`;
+          while (pdf.getTextWidth(bracketText) > maxInfoWidth && bracketText.length > 5) {
+            bracketText = bracketText.slice(0, -5) + '...)';
+          }
+          pdf.text(bracketText, xPos + 5 + nameWidth, baselineY);
+        }
+        
         // Underline for guest name
         if (settings.isUnderline) {
+          pdf.setFont('helvetica', fontStyle);
+          pdf.setFontSize(fontSize);
           const nameWidth = pdf.getTextWidth(guestName);
           pdf.setDrawColor(0, 0, 0);
           pdf.setLineWidth(0.2);
@@ -330,9 +362,9 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
         if (isGuestUnassigned(guest)) {
-          pdf.setTextColor(147, 51, 234); // purple for unassigned
+          pdf.setTextColor(147, 51, 234);
         } else {
-          pdf.setTextColor(0, 0, 0); // black for assigned
+          pdf.setTextColor(0, 0, 0);
         }
         const tableWidth = pdf.getTextWidth(tableText);
         const tableX = xPos + columnWidth - tableWidth;
@@ -346,27 +378,6 @@ export const exportFullSeatingChartToPdf = async (
         }
         
         pdf.setTextColor(0, 0, 0);
-        
-        // Info line (dietary/relation) below name
-        const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
-        const infoParts: string[] = [];
-        if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
-        if (hasRelation) infoParts.push(capitalizeWords(guest.relation_role || ''));
-        const inlineInfo = infoParts.join(' / ');
-        
-        if (inlineInfo) {
-          const line2Y = baselineY + (fontSize * 0.35);
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 1);
-          pdf.setTextColor(102, 102, 102);
-          
-          const maxInfoWidth = columnWidth - 10;
-          let truncatedInfo = inlineInfo;
-          while (pdf.getTextWidth(truncatedInfo) > maxInfoWidth && truncatedInfo.length > 3) {
-            truncatedInfo = truncatedInfo.slice(0, -4) + '...';
-          }
-          pdf.text(truncatedInfo, xPos + 5, line2Y);
-        }
       };
 
       drawGuest(guest1, leftColumnX, nameBaselineY);
