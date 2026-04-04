@@ -173,7 +173,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         return a.first_name.localeCompare(b.first_name);
       }
     });
-  }, [guests, settings.sortBy]);
+  }, [guests, tables, settings.sortBy]);
 
   // Compute dietary summary counts for the 11 tracked dietary types
    const dietarySummary = useMemo(() => {
