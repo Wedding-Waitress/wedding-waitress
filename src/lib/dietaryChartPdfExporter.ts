@@ -57,14 +57,25 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
-const formatDateWithOrdinal = (dateString: string): string => {
-  const date = new Date(dateString);
+const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'TBD';
+  const date = new Date(dateString + 'T00:00:00');
   const day = date.getDate();
   const ordinal = getOrdinalSuffix(day);
   const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
   const month = date.toLocaleDateString('en-US', { month: 'long' });
   const year = date.getFullYear();
-  return `${weekday}, ${day}${ordinal}, ${month} ${year}`;
+  return `${weekday} ${day}${ordinal}, ${month} ${year}`;
+};
+
+// Format time to 12-hour AM/PM
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
 };
 
 // Format current timestamp
