@@ -397,26 +397,52 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             }}
           >
             <div style={{ padding: '1.27cm', boxSizing: 'border-box' }} className="h-full flex flex-col relative">
-            {/* Header Section */}  
+            {/* Header Section - Running Sheet Style */}  
             <div className="text-center mb-2">
-              {/* Event Name - Purple and Bold */}
-              <div className="text-center font-bold text-base mb-1" style={{ color: '#6D28D9' }}>
+              {/* Event Name - Large Purple Bold */}
+              <div className="text-center font-bold" style={{ color: '#6d28d9', fontSize: '22px' }}>
                 {event?.name || 'Event'}
               </div>
 
-              {/* Title and Date with Day of Week */}
-              <div className="text-center text-xs font-bold text-foreground mb-1">
-                Table Seating Arrangements – {event?.date ? new Date(event.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).replace(/^(\w+) (\d+) (\w+) (\d+)$/, (_, day, date, month, year) => {
-                  const d = parseInt(date);
-                  const suffix = d > 3 && d < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][d % 10] || 'th';
-                  return `${day} ${d}${suffix}, ${month} ${year}`;
-                }) : ''}
+              {/* Subtitle */}
+              <div className="text-center font-normal" style={{ fontSize: '16px', color: '#222', marginTop: '4px' }}>
+                Table Seating Arrangements
               </div>
 
-              {/* Venue, Tables, Page Info and Timestamp */}
-              <div className="text-center text-sm text-foreground pb-3 mb-3 border-b border-black">
-                {event?.venue || 'Venue'} – Total Tables: {totalTables} – Page {currentTableIndex} of {totalTables} – Generated on: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: {new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
+              {/* Ceremony & Reception Details */}
+              <div className="text-center" style={{ marginTop: '4px', marginBottom: '6px' }}>
+                {event?.ceremony_date && (
+                  <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>
+                    Ceremony: {(() => {
+                      const date = new Date(event.ceremony_date + 'T00:00:00');
+                      const day = date.getDate();
+                      const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
+                      const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                      const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                      return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                    })()} | {event?.ceremony_venue || 'Venue TBD'} | {(() => {
+                      const fmt = (t: string | null) => { if (!t) return 'TBD'; const [h,m] = t.split(':'); const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM'; const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return `${dh}:${m} ${ampm}`; };
+                      return `${fmt(event?.ceremony_start_time)} – ${fmt(event?.ceremony_finish_time)}`;
+                    })()}
+                  </div>
+                )}
+                <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>
+                  Reception: {event?.date ? (() => {
+                    const date = new Date(event.date + 'T00:00:00');
+                    const day = date.getDate();
+                    const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
+                    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                    return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                  })() : 'TBD'} | {event?.venue || 'Venue TBD'} | {(() => {
+                    const fmt = (t: string | null) => { if (!t) return 'TBD'; const [h,m] = t.split(':'); const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM'; const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return `${dh}:${m} ${ampm}`; };
+                    return `${fmt(event?.start_time)} – ${fmt(event?.finish_time)}`;
+                  })()}
+                </div>
               </div>
+
+              {/* Purple Divider */}
+              <div style={{ borderTop: '2px solid #6d28d9', margin: '8px 0 14px 0' }}></div>
             </div>
 
 
@@ -945,14 +971,26 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               </div>
             )}
 
-            {/* Footer Section with Logo */}
+            {/* Footer Section - Running Sheet Style */}
             {settings.showLogo && (
-              <div className="mt-auto pt-4 flex justify-center">
+              <div className="mt-auto pt-4 flex items-end justify-between" style={{ paddingBottom: '4px' }}>
+                <span style={{ fontSize: '7pt', color: '#aaa' }}>
+                  Page {currentTableIndex} of {totalTables}
+                </span>
                 <img 
                   src={weddingWaitressLogo} 
                   alt="Wedding Waitress" 
-                  className="h-12 object-contain"
+                  style={{ width: '42mm', height: '12mm', objectFit: 'contain' }}
                 />
+                <span style={{ fontSize: '7pt', color: '#aaa' }}>
+                  Generated: {(() => {
+                    const now = new Date();
+                    const hours = now.getHours();
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                    return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${displayHour}:${String(now.getMinutes()).padStart(2,'0')} ${ampm}`;
+                  })()}
+                </span>
               </div>
             )}
 

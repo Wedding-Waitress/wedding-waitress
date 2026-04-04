@@ -743,48 +743,64 @@ export const generateIndividualTableSVG = (
 
   const eventName = event?.name || 'Event';
 
+  // Pre-compute header details for Running Sheet style
+  const fmtOrdinalDate = (dateStr: string | null) => {
+    if (!dateStr) return 'TBD';
+    const date = new Date(dateStr + 'T00:00:00');
+    const day = date.getDate();
+    const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+  };
+  const fmtTimeDisplay = (t: string | null | undefined) => {
+    if (!t) return 'TBD';
+    const [h, m] = t.split(':');
+    const hr = parseInt(h);
+    const ampm = hr >= 12 ? 'PM' : 'AM';
+    const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr;
+    return `${dh}:${m} ${ampm}`;
+  };
+
+  const ceremonyDetailLine = event?.ceremony_date
+    ? `Ceremony: ${fmtOrdinalDate(event.ceremony_date)} | ${event?.ceremony_venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.ceremony_start_time)} – ${fmtTimeDisplay(event?.ceremony_finish_time)}`
+    : '';
+  const receptionDetailLine = `Reception: ${fmtOrdinalDate(event?.date)} | ${event?.venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.start_time)} – ${fmtTimeDisplay(event?.finish_time)}`;
+
+  // Pre-compute footer timestamp
+  const footerTimestamp = (() => {
+    const now = new Date();
+    const hours = now.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${displayHour}:${String(now.getMinutes()).padStart(2,'0')} ${ampm}`;
+  })();
+
   /**
-   * FIXED LAYOUT SIZES - DO NOT MODIFY
-   * ===================================
-   * Header Section:
-   *   - Event Name: 14pt (fixed, purple, bold)
-   *   - Date/Title Line: 11pt (fixed, black, bold)
-   *   - Venue/Info Line: 12pt (fixed, black)
-   * 
-   * Footer Section:
-   *   - Wedding Waitress Logo: 48px height (fixed)
-   * 
+   * Layout sizes for header/footer match Running Sheet style.
    * The font size setting from the customizer ONLY affects:
    *   - Table name inside the circular table
    *   - Guest names in the guest list
-   * 
-   * Header and footer sizes remain constant regardless of font size setting
-   * to ensure consistent branding and professional appearance.
    */
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 48px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
-      <!-- Header Section - FIXED SIZES: 14pt, 11pt, 12pt (do not change) -->
+      <!-- Header Section - Running Sheet Style -->
       <div style="text-align: center; margin-bottom: 10px; padding: 10px 0;">
-        <!-- Event Name - Purple and Bold - FIXED 14pt -->
-        <div style="font-size: 14pt; font-weight: 700; color: #6D28D9; text-align: center; margin-bottom: 8px; line-height: 1.5;">
+        <!-- Event Name - Large Purple Bold -->
+        <div style="font-size: 22px; font-weight: 700; color: #6d28d9; text-align: center; margin-bottom: 4px; line-height: 1.5;">
           ${eventName}
         </div>
-        <!-- Title and Date with Day of Week - FIXED 11pt -->
-        <div style="font-size: 11pt; font-weight: 700; color: #000000; text-align: center; margin-bottom: 8px; line-height: 1.3;">
-          Table Seating Arrangements – ${event?.date ? (() => {
-            const d = new Date(event.date);
-            const day = d.getDate();
-            const suffix = day > 3 && day < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][day % 10] || 'th';
-            const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
-            const month = d.toLocaleDateString('en-GB', { month: 'long' });
-            const year = d.getFullYear();
-            return `${weekday} ${day}${suffix}, ${month} ${year}`;
-          })() : ''}
+        <!-- Subtitle -->
+        <div style="font-size: 16px; font-weight: 400; color: #222; text-align: center; margin-top: 4px;">
+          Table Seating Arrangements
         </div>
-        <!-- Venue, Tables, Page Info and Timestamp - FIXED 12pt -->
-        <div style="font-size: 12pt; color: #000000; text-align: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #000000;">
-          ${event?.venue || 'Venue'} – Total Tables: ${settings.totalTables || 1} – Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1} – Generated on: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
+        <!-- Ceremony & Reception Details -->
+        <div style="text-align: center; margin-top: 4px; margin-bottom: 6px;">
+          ${ceremonyDetailLine ? `<div style="color:#555;font-size:12px;margin-top:2px;">${ceremonyDetailLine}</div>` : ''}
+          <div style="color:#555;font-size:12px;margin-top:2px;">${receptionDetailLine}</div>
         </div>
+        <!-- Purple Divider -->
+        <div style="border-top: 2px solid #6d28d9; margin: 8px 0 14px 0;"></div>
       </div>
 
       <!-- Table Visualization -->
@@ -1220,14 +1236,16 @@ export const generateIndividualTableSVG = (
         </div>
       ` : ''}
 
-      <!-- Logo - FIXED 48px height (do not change) -->
+      <!-- Footer - Running Sheet Style -->
       ${settings.showLogo ? `
-        <div style="display: flex; justify-content: center; margin-top: auto; padding: 16px 0;">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; padding: 16px 0 4px 0;">
+          <span style="font-size: 7pt; color: #aaa;">Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1}</span>
           <img 
             src="${weddingWaitressLogoFull}" 
             alt="Wedding Waitress" 
-            style="height: 48px; object-fit: contain;"
+            style="width: 159px; height: 45px; object-fit: contain;"
           />
+          <span style="font-size: 7pt; color: #aaa;">Generated: ${footerTimestamp}</span>
         </div>
       ` : ''}
     </div>
