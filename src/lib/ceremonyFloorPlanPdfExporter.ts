@@ -239,9 +239,9 @@ export const generateCeremonyFloorPlanPDF = async (
       }
       
       // Draw role label below the box
-      pdf.setFont('helvetica', 'italic');
+      pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(4.5);
-      pdf.setTextColor(120, 120, 120);
+      pdf.setTextColor(0, 0, 0);
       const truncatedRole = role.length > 12 ? role.substring(0, 11) + '.' : role;
       pdf.text(truncatedRole, boxX + (bridalBoxWidth / 2), yPos + rowYOffset + bridalBoxHeight + 2.5, { align: 'center' });
     }
@@ -300,8 +300,8 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(180, 180, 180);
   pdf.setLineWidth(0.2);
   pdf.circle(celebrantX, coupleCircleY, celebrantRadius, 'FD');
-  pdf.setFontSize(5);
-  pdf.setTextColor(100, 100, 100);
+  pdf.setFontSize(6);
+  pdf.setTextColor(0, 0, 0);
   pdf.text('Celebrant', celebrantX, coupleCircleY + 1, { align: 'center' });
   
   // Right person circle (beside celebrant)
@@ -461,7 +461,16 @@ export const generateCeremonyFloorPlanPDF = async (
 
   }
 
-  // Draw "Bride's Walkway - Aisle" text in the walkway area above all seats
+  // Add "General Seating" at the very bottom of each side (after last row)
+  if (floorPlan.assigned_rows < floorPlan.total_rows) {
+    const bottomY = yPos + (floorPlan.total_rows * (seatHeight + rowGap)) + 1;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(6);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text('General Seating', leftSideCenter, bottomY, { align: 'center' });
+    pdf.text('General Seating', rightSideCenter, bottomY, { align: 'center' });
+  }
+
   const walkwayText = "Bride's Walkway - Aisle";
   const walkwayTextY = aisleStartY + 20;
   const trueCenterX = (PAGE_WIDTH / 2) + 20;

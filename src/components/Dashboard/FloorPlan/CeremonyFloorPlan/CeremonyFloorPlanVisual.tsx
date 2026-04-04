@@ -243,7 +243,7 @@ export const CeremonyFloorPlanVisual = ({
         ) : (
           <span
             onClick={() => handleRoleClick(side, index)}
-            className="text-[10px] text-muted-foreground italic mt-0.5 cursor-pointer hover:text-primary transition-colors truncate max-w-[72px] text-center"
+            className="text-[10px] text-foreground mt-0.5 cursor-pointer hover:text-primary transition-colors truncate max-w-[72px] text-center"
             title="Click to edit role"
           >
             {role}
