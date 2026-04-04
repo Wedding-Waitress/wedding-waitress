@@ -299,7 +299,7 @@ export const exportDietaryChartToPdf = async (
       .filter(item => item.count > 0);
 
     // Gray summary bar
-    const summaryBarHeight = 5;
+    const summaryBarHeight = 6;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
     pdf.setLineWidth(0.5);
