@@ -1259,16 +1259,18 @@ export const generateIndividualTableSVG = (
         </div>
       `; })() : ''}
 
-      <!-- Footer - Running Sheet Style -->
+      <!-- Footer - Logo centered, page/date below -->
       ${settings.showLogo ? `
-        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; padding: 16px 0 4px 0;">
-          <span style="font-size: 7pt; color: #000;">Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1}</span>
+        <div style="display: flex; flex-direction: column; align-items: center; margin-top: auto; padding: 8px 0 4px 0;">
           <img 
             src="${weddingWaitressLogoFull}" 
             alt="Wedding Waitress" 
             style="width: 159px; height: 45px; object-fit: contain;"
           />
-          <span style="font-size: 7pt; color: #000;">Generated: ${footerTimestamp}</span>
+          <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 2px;">
+            <span style="font-size: 7pt; color: #000;">Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1}</span>
+            <span style="font-size: 7pt; color: #000;">Generated: ${footerTimestamp}</span>
+          </div>
         </div>
       ` : ''}
     </div>
