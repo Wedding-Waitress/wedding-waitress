@@ -1781,7 +1781,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-primary text-primary-foreground rounded-tl-lg px-2">
+                <TableHead className="bg-primary text-primary-foreground px-2">
                   <Checkbox
                     checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
                     onCheckedChange={handleSelectAll}
