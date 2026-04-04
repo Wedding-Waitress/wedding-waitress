@@ -1202,7 +1202,7 @@ export const generateIndividualTableSVG = (
 
       <!-- Guest List - Auto-scaled font size: ${autoFitGuestListFontPt.toFixed(1)}pt -->
       ${settings.includeGuestList && settings.tableShape !== 'long' ? (() => {
-        const isBold = settings.textStyle === 'bold' || settings.textStyle === 'default';
+        const isBold = settings.textStyle === 'bold';
         const isItalic = settings.textStyle === 'italic';
         const isUnderline = settings.textStyle === 'underline';
         const nameWeight = isBold ? '700' : '400';

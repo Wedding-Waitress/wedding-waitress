@@ -324,11 +324,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
   };
 
   const getGuestListSize = (size: string) => {
-    switch (size) {
-      case 'small': return 'text-sm print:text-[10.5pt]';
-      case 'large': return 'text-lg print:text-[13.5pt]';
-      default: return 'text-base print:text-[12pt]'; // medium
-    }
+    // Match PDF export sizing - use smaller fonts to prevent line wrapping
+    return 'text-sm print:text-[11pt]';
   };
 
   // Auto-fit font scaling for guest list to ensure logo is always visible
@@ -937,7 +934,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                   {sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       const nameStyle: React.CSSProperties = {
-                        fontWeight: settings.textStyle === 'bold' || settings.textStyle === 'default' ? 700 : 400,
+                        fontWeight: settings.textStyle === 'bold' ? 700 : 400,
                         fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
                         textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
                       };
@@ -963,7 +960,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     {sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       const nameStyle: React.CSSProperties = {
-                        fontWeight: settings.textStyle === 'bold' || settings.textStyle === 'default' ? 700 : 400,
+                        fontWeight: settings.textStyle === 'bold' ? 700 : 400,
                         fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
                         textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
                       };
