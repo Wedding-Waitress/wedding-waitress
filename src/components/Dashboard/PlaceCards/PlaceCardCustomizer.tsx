@@ -509,7 +509,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch 
                     id="bg-names-toggle"
                     checked={currentSettings.background_behind_names || false} 
-                    onCheckedChange={value => handleSettingChange('background_behind_names', value)} 
+                    onCheckedChange={value => handleSettingChange('background_behind_names', value)}
+                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
 
