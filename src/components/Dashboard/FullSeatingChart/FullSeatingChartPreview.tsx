@@ -186,18 +186,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  // Calculate the minimum row height in mm based on current settings (two-line format)
-  const getRowHeightMm = () => {
-    const baseRowHeight: Record<string, number> = {
-      'small': 7.5,
-      'medium': 11,
-      'large': 13
-    };
-    return baseRowHeight[settings.fontSize] || 11;
-  };
-
-  const rowHeightMm = getRowHeightMm();
-
+  const rowHeightMm = ROW_HEIGHT_MM;
   // Capitalize each word in a string
   const capitalizeWords = (text: string) => text.replace(/\b\w/g, c => c.toUpperCase());
 
