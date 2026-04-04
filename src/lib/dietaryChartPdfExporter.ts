@@ -334,7 +334,7 @@ export const exportDietaryChartToPdf = async (
     yPos += 5;
 
     // Dietary summary bar (gray background with counts) - two rows
-    const summaryBarHeight = 10;
+    const summaryBarHeight = 14;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
     pdf.setLineWidth(0.5);
@@ -382,13 +382,13 @@ export const exportDietaryChartToPdf = async (
         });
       };
 
-      renderSummaryRow(row1, yPos + 4);
-      renderSummaryRow(row2, yPos + 8);
+      renderSummaryRow(row1, yPos + 5);
+      renderSummaryRow(row2, yPos + 11);
     }
     yPos += summaryBarHeight;
 
-    // Draw table column headers (normal weight, gray background with borders)
-    const headerBarHeight = 5;
+    // Draw table column headers (bold, gray background with top and bottom borders)
+    const headerBarHeight = 7;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
     pdf.setLineWidth(0.5);
@@ -402,11 +402,11 @@ export const exportDietaryChartToPdf = async (
     
     let xPos = margin;
     columns.forEach((col, i) => {
-      pdf.text(col.header, xPos + 1, yPos + 3.5);
+      pdf.text(col.header, xPos + 1, yPos + 4.5);
       xPos += colWidths[i];
     });
     
-    yPos += headerBarHeight + 2; // single gap after header
+    yPos += headerBarHeight + 3; // gap after header before first guest row
 
     // Determine font style from settings
     const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
