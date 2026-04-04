@@ -82,46 +82,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
    * Available for guests: 297 - 25.4 - 22 - 15 = 234.6mm ≈ 234mm
    */
   const paginationInfo = useMemo(() => {
-    // Calculate row height based on font size - increased for two-line format
-    const baseRowHeight: Record<string, number> = {
-      'small': 7.5,   // 225/7.5 = 30 guests per column (60 per page)
-      'medium': 11,
-      'large': 13
-    };
-    
-    const rowHeight = baseRowHeight[settings.fontSize] || 11;
-    
-    // Available height for guest rows after header (~33mm) and footer (~25mm) within A4
-    const availableHeight = 225;
-    
-    const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
-    // Clamp to minimum 1 guest per column
-    const GUESTS_PER_COLUMN = Math.max(1, calculatedGuestsPerColumn);
-    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // Two columns
-    
-    interface PageInfo {
-      guests: Guest[];
-      col1Count: number;
-      startIndex: number;
-      endIndex: number;
-    }
-    
-    const pages: PageInfo[] = [];
-    
-    for (let i = 0; i < guests.length; i += GUESTS_PER_PAGE) {
-      const pageGuests = guests.slice(i, i + GUESTS_PER_PAGE);
-      const col1Count = Math.min(GUESTS_PER_COLUMN, pageGuests.length);
-      
-      pages.push({
-        guests: pageGuests,
-        col1Count,
-        startIndex: i,
-        endIndex: i + pageGuests.length
-      });
-    }
-    
-    return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_PAGE };
-  }, [guests, settings.fontSize]);
+    const pages = paginateGuests(guests);
+    return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_COLUMN * 2 };
+  }, [guests]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
