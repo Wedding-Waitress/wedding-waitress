@@ -1,33 +1,39 @@
 
 
-# Plan: Dynamic Guest Capacity When Display Options Are Off
+# Plan: Change to 30 Guests Per Column (60 Per Page)
 
-## What Changes
+## Summary
 
-When **both** Show Dietary Requirements and Show Relationships are turned off, increase capacity from 25 guests per column (50/page) to 35 guests per column (70/page). When either or both are on, keep the current 25/column (50/page). This applies to the preview, single-page PDF download, and all-pages PDF download.
+Reduce from 35 guests per column to 30 guests per column (60 per page) in both the screen preview and the PDF download. This gives each row more vertical space, ensuring guests never overlap the footer logo.
 
-## How It Works
+## Changes
 
-The current code uses `availableHeight = 210` which at row height `8.4` gives `210/8.4 = 25` guests per column. When both display options are off, we change this to `availableHeight = 294` which gives `294/8.4 = 35` guests per column. The extra space comes from not needing room for dietary/relationship text lines under each guest.
+### 1. `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`
 
-## Files to Change (3 files, same logic in each)
+**Pagination calculation (~line 80-89):**
+- Change `availableHeight` from `252` to `252` (keep same available space)
+- Change small row height from `7.2` to `8.4` (252 / 30 = 8.4mm per row)
+- This yields exactly 30 guests per column
 
-### 1. `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx` (~line 89)
-- Change `availableHeight` from hardcoded `210` to conditional:
-  - Both `showDietary` and `showRelation` off → `294`
-  - Otherwise → `210`
-- Add `settings.showDietary` and `settings.showRelation` to the `useMemo` dependency array
+**Screen guest list container (~line 603):**
+- Keep `height: '225mm'` — 30 rows at 8.4mm = 252mm fits comfortably within this
 
-### 2. `src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.tsx` (~line 116)
-- Same conditional `availableHeight` logic in the `guestsPerPage` calculation
-- Add `settings.showDietary` and `settings.showRelation` to the `useMemo` dependency array
+### 2. `src/lib/fullSeatingChartPdfExporter.ts`
 
-### 3. `src/lib/fullSeatingChartPdfExporter.ts` (~line 187)
-- Same conditional `availableHeight` logic in the pagination calculation
+**Row height and pagination (~line 180-192):**
+- Change small row height from `7.2` to `8.4`
+- `availableHeight` stays at `252`, giving `252 / 8.4 = 30` guests per column
+- This ensures all 30 rows finish well above the footer zone
+
+### 3. `FULL_SEATING_CHART_SPECS.md` / `.lovable/plan.md`
+
+- Update specs to reflect 30 guests per column, 60 per page
 
 ## What Stays the Same
-- Row height remains `8.4` for small font
-- All header, footer, margin measurements unchanged
-- When display options are on, capacity stays at 25/column (50/page)
-- Font sizes, styling, bold/italic/underline -- all unchanged
+
+- All header, footer, margin, logo measurements
+- Font sizes (13px screen / 10.5pt PDF for small)
+- Inline brackets for dietary/relation display
+- Bold/italic/underline settings
+- All other components and pages
 
