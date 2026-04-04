@@ -390,7 +390,7 @@ export const exportDietaryChartToPdf = async (
     pdf.rect(margin, yPos, contentWidth, headerBarHeight, 'F');
     pdf.line(margin, yPos + headerBarHeight, pageWidth - margin, yPos + headerBarHeight); // bottom border
 
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(fontSize);
     pdf.setTextColor(0, 0, 0);
     
