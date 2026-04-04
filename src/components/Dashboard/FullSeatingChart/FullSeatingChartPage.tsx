@@ -107,19 +107,18 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const guestsPerPage = React.useMemo(() => {
     // Must match FullSeatingChartPreview and fullSeatingChartPdfExporter exactly
     const baseRowHeight: Record<string, number> = {
-      'small': 8.4,   // 210/8.4 = 25 guests per column
+      'small': 7.5,   // 225/7.5 = 30 guests per column
       'medium': 11,
       'large': 13
     };
     
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
-    // When both display options are off, more vertical space is available
-    const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
+    const availableHeight = 225; // Fixed content zone height in mm
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
     return guestsPerColumn * 2; // Two columns
-  }, [settings.fontSize, settings.showDietary, settings.showRelation]);
+  }, [settings.fontSize]);
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent) return;
