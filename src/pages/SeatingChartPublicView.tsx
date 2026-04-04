@@ -2,6 +2,12 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
+import {
+  PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_TOP_MM, MARGIN_LEFT_MM,
+  HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
+  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, FOOTER_START_MM, FOOTER_GAP_MM,
+  paginateGuests, type PageSlice,
+} from '@/lib/fullSeatingChartLayout';
 import { FileText, Eye } from 'lucide-react';
 
 interface SharedGuest {
