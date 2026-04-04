@@ -288,7 +288,14 @@ export const exportDietaryChartToPdf = async (
       'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
     ];
     const summaryCounts = trackedTypes
-      .map(type => ({ label: type, count: guests.filter(g => g.dietary && g.dietary.toLowerCase().trim() === type.toLowerCase()).length }))
+      .map(type => {
+        const typeLower = type.toLowerCase();
+        return { label: type, count: guests.filter(g => {
+          if (!g.dietary) return false;
+          const val = g.dietary.toLowerCase().trim();
+          return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
+        }).length };
+      })
       .filter(item => item.count > 0);
 
     // Gray summary bar
