@@ -901,9 +901,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   maxHeight: '2.4em',
                                   overflow: 'hidden',
                                   whiteSpace: 'nowrap',
-                                  fontWeight: settings.textStyle === 'bold' ? 700 : 700,
-                                  fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
-                                  textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
+                                  fontWeight: settings.isBold ? 700 : 700,
+                                  fontStyle: settings.isItalic ? 'italic' : 'normal',
+                                  textDecoration: settings.isUnderline ? 'underline' : 'none',
                                   ...getAutoScaledNameStyle(),
                                 }}
                               >
@@ -937,9 +937,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                   {sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       const nameStyle: React.CSSProperties = {
-                        fontWeight: settings.textStyle === 'bold' ? 700 : 400,
-                        fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
-                        textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
+                        fontWeight: settings.isBold ? 700 : 400,
+                        fontStyle: settings.isItalic ? 'italic' : 'normal',
+                        textDecoration: settings.isUnderline ? 'underline' : 'none',
                       };
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
@@ -963,9 +963,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     {sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       const nameStyle: React.CSSProperties = {
-                        fontWeight: settings.textStyle === 'bold' ? 700 : 400,
-                        fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
-                        textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
+                        fontWeight: settings.isBold ? 700 : 400,
+                        fontStyle: settings.isItalic ? 'italic' : 'normal',
+                        textDecoration: settings.isUnderline ? 'underline' : 'none',
                       };
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">

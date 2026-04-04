@@ -1179,9 +1179,9 @@ export const generateIndividualTableSVG = (
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
                 font-size: ${scaledFontPt}pt;
-                font-weight: ${settings.textStyle === 'bold' ? '700' : '700'};
-                font-style: ${settings.textStyle === 'italic' ? 'italic' : 'normal'};
-                text-decoration: ${settings.textStyle === 'underline' ? 'underline' : 'none'};
+                font-weight: ${settings.isBold ? '700' : '700'};
+                font-style: ${settings.isItalic ? 'italic' : 'normal'};
+                text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
                 color: #000000;
                 line-height: 1.4;
                 white-space: nowrap;
@@ -1204,9 +1204,9 @@ export const generateIndividualTableSVG = (
 
       <!-- Guest List - Auto-scaled font size: ${autoFitGuestListFontPt.toFixed(1)}pt -->
       ${settings.includeGuestList && settings.tableShape !== 'long' ? (() => {
-        const isBold = settings.textStyle === 'bold';
-        const isItalic = settings.textStyle === 'italic';
-        const isUnderline = settings.textStyle === 'underline';
+        const isBold = settings.isBold;
+        const isItalic = settings.isItalic;
+        const isUnderline = settings.isUnderline;
         const nameWeight = isBold ? '700' : '400';
         const nameItalic = isItalic ? 'italic' : 'normal';
         const nameDecoration = isUnderline ? 'underline' : 'none';
