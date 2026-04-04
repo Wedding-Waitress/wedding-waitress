@@ -298,16 +298,16 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     );
   };
 
-  // Print version guest row - two-line format matching screen
+  // Print version guest row - single-line with inline brackets
   const PrintGuestRow = ({ guest }: { guest: Guest }) => {
     const inlineInfo = buildInlineInfo(guest);
     const isUnassigned = isGuestUnassigned(guest);
     return (
-      <div className="print-guest-item print-guest-two-line" style={{ borderBottom: '1px solid #e5e5e5' }}>
+      <div className="print-guest-item" style={{ borderBottom: '1px solid #e5e5e5' }}>
         <span className="print-checkbox">☐</span>
-        <div className="print-guest-content">
+        <div className="print-guest-content" style={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline', flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
           <span className="print-guest-name">{formatGuestName(guest)}</span>
-          {inlineInfo && <span className="print-guest-info">{inlineInfo}</span>}
+          {inlineInfo && <span className="print-guest-info" style={{ display: 'inline' }}>&nbsp;({inlineInfo})</span>}
         </div>
         <span className={`print-table ${isUnassigned ? 'print-table-unassigned' : ''}`}>
           {formatTableDisplay(guest)}
