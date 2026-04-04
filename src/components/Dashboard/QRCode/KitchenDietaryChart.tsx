@@ -165,16 +165,19 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   }, [guests, settings.sortBy]);
 
   // Compute dietary summary counts for the 11 tracked dietary types
-  const dietarySummary = useMemo(() => {
+   const dietarySummary = useMemo(() => {
     const trackedTypes = [
       'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
       'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
     ];
     const counts: { label: string; count: number }[] = [];
     for (const type of trackedTypes) {
-      const count = dietaryGuests.filter(g => 
-        g.dietary && g.dietary.toLowerCase().trim() === type.toLowerCase()
-      ).length;
+      const typeLower = type.toLowerCase();
+      const count = dietaryGuests.filter(g => {
+        if (!g.dietary) return false;
+        const val = g.dietary.toLowerCase().trim();
+        return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
+      }).length;
       if (count > 0) {
         counts.push({ label: type, count });
       }
@@ -667,9 +670,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
                               <th colSpan={99} className="py-[3px] px-[4pt]" style={{ fontSize: '8pt' }}>
                                 {dietarySummary.length > 0 ? (
-                                  <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5">
+                                  <div className="flex flex-nowrap justify-center gap-x-3">
                                     {dietarySummary.map(item => (
-                                      <span key={item.label} style={{ fontSize: '8pt', fontWeight: 'normal' }}>
+                                      <span key={item.label} style={{ fontSize: '9pt', fontWeight: 'normal', whiteSpace: 'nowrap' }}>
                                         {item.label}: <strong>{item.count}</strong>
                                       </span>
                                     ))}

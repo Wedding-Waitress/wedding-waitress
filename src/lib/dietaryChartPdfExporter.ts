@@ -288,11 +288,18 @@ export const exportDietaryChartToPdf = async (
       'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
     ];
     const summaryCounts = trackedTypes
-      .map(type => ({ label: type, count: guests.filter(g => g.dietary && g.dietary.toLowerCase().trim() === type.toLowerCase()).length }))
+      .map(type => {
+        const typeLower = type.toLowerCase();
+        return { label: type, count: guests.filter(g => {
+          if (!g.dietary) return false;
+          const val = g.dietary.toLowerCase().trim();
+          return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
+        }).length };
+      })
       .filter(item => item.count > 0);
 
     // Gray summary bar
-    const summaryBarHeight = 5;
+    const summaryBarHeight = 6;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
     pdf.setLineWidth(0.5);
@@ -302,7 +309,7 @@ export const exportDietaryChartToPdf = async (
 
     if (summaryCounts.length > 0) {
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7);
+      pdf.setFontSize(9);
       pdf.setTextColor(0, 0, 0);
       const summaryText = summaryCounts.map(item => `${item.label}: ${item.count}`).join('    ');
       pdf.text(summaryText, pageWidth / 2, yPos + 3.5, { align: 'center' });
