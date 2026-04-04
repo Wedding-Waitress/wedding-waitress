@@ -134,13 +134,13 @@ export const CeremonyFloorPlanVisual = ({
     const parts = name.trim().split(' ');
     if (parts.length > 1) {
       return (
-        <span className="text-[11px] leading-tight text-center px-0.5 flex flex-col items-center justify-center text-foreground">
+        <span className="text-xs leading-tight text-center px-0.5 flex flex-col items-center justify-center text-foreground">
           <span>{parts[0]}</span>
           <span>{parts.slice(1).join(' ')}</span>
         </span>
       );
     }
-    return <span className="text-[11px] leading-tight text-center px-0.5 text-foreground">{name}</span>;
+    return <span className="text-xs leading-tight text-center px-0.5 text-foreground">{name}</span>;
   };
 
   const renderSeat = (side: 'left' | 'right', row: number, seat: number) => {
