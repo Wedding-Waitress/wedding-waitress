@@ -918,7 +918,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   maxHeight: '2.4em',
                                   overflow: 'hidden',
                                   whiteSpace: 'nowrap',
-                                  fontWeight: settings.isBold ? 700 : 700,
+                                  fontWeight: settings.isBold ? 700 : 400,
                                   fontStyle: settings.isItalic ? 'italic' : 'normal',
                                   textDecoration: settings.isUnderline ? 'underline' : 'none',
                                   ...getAutoScaledNameStyle(),
