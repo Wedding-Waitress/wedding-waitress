@@ -517,7 +517,7 @@ export const exportDietaryChartToPdf = async (
         pdf.text(relationTextWrapped, xPos, yPos);
         if (settings.isUnderline) {
           const tw = pdf.getTextWidth(relationText);
-          pdf.setDrawColor(gray.r, gray.g, gray.b);
+          pdf.setDrawColor(0, 0, 0);
           pdf.setLineWidth(0.2);
           pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
         }
