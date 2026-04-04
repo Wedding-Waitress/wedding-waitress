@@ -509,7 +509,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch 
                     id="bg-names-toggle"
                     checked={currentSettings.background_behind_names || false} 
-                    onCheckedChange={value => handleSettingChange('background_behind_names', value)} 
+                    onCheckedChange={value => handleSettingChange('background_behind_names', value)}
+                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
 
@@ -518,7 +519,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch 
                     id="bg-table-seats-toggle"
                     checked={currentSettings.background_behind_table_seats || false} 
-                    onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)} 
+                    onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)}
+                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
               </div>
@@ -538,7 +540,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     />
                     
                     {/* Side-by-side buttons */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 justify-center">
                       {/* Green "Choose File" button */}
                       <Button
                         type="button"
@@ -561,6 +563,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <Images className="h-4 w-4" />
                         Image Gallery
                       </Button>
+                    </div>
+                    <div className="flex justify-center mt-2">
                       <img
                         src={canvaEditBanner}
                         alt="Edit with Canva"
@@ -568,7 +572,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         onClick={() => window.open('https://www.canva.com', '_blank')}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 text-center">
                       Want more design freedom? Click 'Edit with Canva' to customise your place card using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
                     </p>
                     
