@@ -291,9 +291,9 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(114, 72, 230);
   pdf.setLineWidth(0.4);
   pdf.circle(leftPersonX, coupleCircleY, coupleCircleRadius, 'FD');
-  pdf.setFontSize(7);
+  pdf.setFontSize(8);
   pdf.setTextColor(0, 0, 0);
-  pdf.text(leftPersonName.substring(0, 8), leftPersonX, coupleCircleY + 0.5, { align: 'center' });
+  pdf.text(leftPersonName.substring(0, 10), leftPersonX, coupleCircleY + 1, { align: 'center' });
   
   // Celebrant circle (center)
   pdf.setFillColor(255, 255, 255);
