@@ -508,10 +508,10 @@ export const exportDietaryChartToPdf = async (
         colIdx++;
       }
 
-      // Relation (if shown, gray)
+      // Relation (if shown, black to match display page)
       if (settings.showRelation) {
         pdf.setFont('helvetica', textFontStyle);
-        pdf.setTextColor(gray.r, gray.g, gray.b);
+        pdf.setTextColor(0, 0, 0);
         const relationText = computeRelationDisplay(guest, event);
         const relationTextWrapped = pdf.splitTextToSize(relationText, colWidths[colIdx] - 2);
         pdf.text(relationTextWrapped, xPos, yPos);
