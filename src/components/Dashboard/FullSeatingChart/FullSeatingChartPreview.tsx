@@ -437,7 +437,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             display: flex;
-            align-items: flex-start;
+            align-items: baseline;
             gap: 6px;
             break-inside: avoid;
             font-size: ${printFontSizes.main};
@@ -447,11 +447,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             padding: 2px 2px;
           }
           
-          .print-guest-two-line .print-guest-content {
+          .print-guest-content {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            align-items: baseline;
             flex: 1;
             min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
           }
           
           .print-checkbox {
