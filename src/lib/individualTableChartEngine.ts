@@ -675,24 +675,25 @@ export const generateIndividualTableSVG = (
         // Seat circle = 44px, radius = 22px, gap = 4px from edge
         const angleDegrees = (angle * 180) / Math.PI;
         const circleGapY = 32; // larger gap for top/bottom names
+        const circleGapX = 26; // gap for left/right names
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
           labelX = x;
-          labelY = y - circleGap;
+          labelY = y - circleGapY;
           textAlign = 'center';
           transform = 'translate(-50%, -50%)';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
           labelX = x;
-          labelY = y + circleGap;
+          labelY = y + circleGapY;
           textAlign = 'center';
           transform = 'translate(-50%, -50%)';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
-          labelX = x + circleGap;
+          labelX = x + circleGapX;
           labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
-          labelX = x - circleGap;
+          labelX = x - circleGapX;
           labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
