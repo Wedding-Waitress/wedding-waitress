@@ -47,12 +47,20 @@ export interface Event {
   reception_enabled?: boolean;
 }
 
+// Module-level cache for instant loading on return visits
+let eventsCache: Event[] | null = null;
+
 export const useEvents = () => {
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>(eventsCache ?? []);
+  const [loading, setLoading] = useState(!eventsCache);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const { toast } = useToast();
   const { profile, updateDisplayCountdownEvent } = useProfile();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (events.length > 0) eventsCache = events;
+  }, [events]);
 
   const setActiveEventIdWithPersistence = async (eventId: string | null) => {
     setActiveEventId(eventId);
@@ -61,7 +69,7 @@ export const useEvents = () => {
 
   const fetchEvents = async () => {
     try {
-      setLoading(true);
+      if (!eventsCache) setLoading(true);
       
       // Fetch events with guest count AND additional fields in parallel
       const [{ data, error }, { data: fullEvents, error: fullErr }] = await Promise.all([
