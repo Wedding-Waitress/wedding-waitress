@@ -109,18 +109,9 @@ export function SeatingChartPublicView() {
     })();
   }, [token]);
 
-  // Pagination: match the PDF exporter (25 per column, 50 per page)
   const pages = useMemo(() => {
     if (!data) return [];
-    const GUESTS_PER_COLUMN = 25;
-    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2;
-    const result: { guests: SharedGuest[]; col1Count: number; startIndex: number; endIndex: number }[] = [];
-    for (let i = 0; i < data.guests.length; i += GUESTS_PER_PAGE) {
-      const pageGuests = data.guests.slice(i, i + GUESTS_PER_PAGE);
-      const col1Count = Math.min(GUESTS_PER_COLUMN, pageGuests.length);
-      result.push({ guests: pageGuests, col1Count, startIndex: i, endIndex: i + pageGuests.length });
-    }
-    return result;
+    return paginateGuests(data.guests);
   }, [data]);
 
   const handleDownloadPdf = async () => {
