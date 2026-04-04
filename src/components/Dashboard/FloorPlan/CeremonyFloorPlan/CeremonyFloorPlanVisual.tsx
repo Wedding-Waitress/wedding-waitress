@@ -237,7 +237,7 @@ export const CeremonyFloorPlanVisual = ({
             onChange={(e) => setEditingRoleValue(e.target.value)}
             onBlur={handleRoleSave}
             onKeyDown={handleRoleKeyDown}
-            className="w-16 h-5 text-[9px] p-0.5 text-center mt-0.5"
+            className="w-[72px] h-5 text-[10px] p-0.5 text-center mt-0.5"
             placeholder="Role"
           />
         ) : (
