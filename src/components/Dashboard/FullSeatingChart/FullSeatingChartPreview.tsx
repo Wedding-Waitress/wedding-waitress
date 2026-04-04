@@ -219,9 +219,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
-        className="flex items-center gap-1.5 py-0.5 px-0.5 cursor-pointer"
+        className="flex items-center gap-1.5 py-0 px-0.5 cursor-pointer"
         style={{ 
-          minHeight: `${rowHeightMm * 2}px`,
+          minHeight: `${rowHeightMm * 2 - 1}px`,
           borderBottom: '1px solid #e5e5e5',
         }}
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
