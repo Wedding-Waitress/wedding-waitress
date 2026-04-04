@@ -390,12 +390,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           </div>
         ) : (
           /* Desktop Table View */
-          <div className="overflow-x-auto border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-4 mb-4">
+          <div className="overflow-hidden border-2 border-primary rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-4 mb-4">
             <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
               <Table>
-              <TableHeader className="rounded-t-2xl">
-                <TableRow className="rounded-t-2xl">
-                  <TableHead className="w-20 rounded-tl-2xl">Countdown</TableHead>
+              <TableHeader>
+                <TableRow className="border-b-0">
+                  <TableHead className="w-20">Countdown</TableHead>
                   <TableHead className="w-32">Event Name</TableHead>
                   <TableHead className="w-24">Event Date</TableHead>
                   <TableHead className="w-28">Venue</TableHead>
@@ -405,7 +405,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   <TableHead className="w-24">RSVP Deadline</TableHead>
                   <TableHead className="w-24">Created Date</TableHead>
                   <TableHead className="w-24">Expiry Date</TableHead>
-                  <TableHead className="w-20 rounded-tr-2xl">Actions</TableHead>
+                  <TableHead className="w-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
