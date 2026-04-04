@@ -165,16 +165,19 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   }, [guests, settings.sortBy]);
 
   // Compute dietary summary counts for the 11 tracked dietary types
-  const dietarySummary = useMemo(() => {
+   const dietarySummary = useMemo(() => {
     const trackedTypes = [
       'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
       'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
     ];
     const counts: { label: string; count: number }[] = [];
     for (const type of trackedTypes) {
-      const count = dietaryGuests.filter(g => 
-        g.dietary && g.dietary.toLowerCase().trim() === type.toLowerCase()
-      ).length;
+      const typeLower = type.toLowerCase();
+      const count = dietaryGuests.filter(g => {
+        if (!g.dietary) return false;
+        const val = g.dietary.toLowerCase().trim();
+        return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
+      }).length;
       if (count > 0) {
         counts.push({ label: type, count });
       }
