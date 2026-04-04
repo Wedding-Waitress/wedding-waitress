@@ -164,6 +164,24 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     });
   }, [guests, settings.sortBy]);
 
+  // Compute dietary summary counts for the 11 tracked dietary types
+  const dietarySummary = useMemo(() => {
+    const trackedTypes = [
+      'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+    ];
+    const counts: { label: string; count: number }[] = [];
+    for (const type of trackedTypes) {
+      const count = dietaryGuests.filter(g => 
+        g.dietary && g.dietary.toLowerCase().trim() === type.toLowerCase()
+      ).length;
+      if (count > 0) {
+        counts.push({ label: type, count });
+      }
+    }
+    return counts;
+  }, [dietaryGuests]);
+
   // AUTOFIT: Dynamic guests per page based on font size
   const guestsPerPage = useMemo(() => {
     const availableHeight = 228;
