@@ -960,7 +960,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     {sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
                       const nameStyle: React.CSSProperties = {
-                        fontWeight: settings.textStyle === 'bold' || settings.textStyle === 'default' ? 700 : 400,
+                        fontWeight: settings.textStyle === 'bold' ? 700 : 400,
                         fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
                         textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
                       };
