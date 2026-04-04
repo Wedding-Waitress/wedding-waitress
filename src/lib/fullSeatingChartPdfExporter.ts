@@ -184,8 +184,8 @@ export const exportFullSeatingChartToPdf = async (
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // Always 35 per column since metadata is now inline in brackets
-  const availableHeight = 294;
+  // Always 35 per column - compact rows to fit with header/footer
+  const availableHeight = 252;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);

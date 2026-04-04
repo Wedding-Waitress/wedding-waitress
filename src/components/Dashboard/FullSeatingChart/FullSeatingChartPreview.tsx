@@ -85,9 +85,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
     
-    // Available height for guest rows (after header, footer, margins)
-    // Always 35 per column since metadata is now inline in brackets
-    const availableHeight = 294;
+    // Available height for guest rows (compact to fit 35 per column with header/footer)
+    const availableHeight = 252;
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
