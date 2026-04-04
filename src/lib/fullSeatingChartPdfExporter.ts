@@ -50,7 +50,7 @@ const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
 // Convert font size setting to points
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
   switch (setting) {
-    case 'small': return 10.5;
+    case 'small': return 8.5;
     case 'medium': return 12;
     case 'large': return 13.5;
   }
@@ -178,13 +178,13 @@ export const exportFullSeatingChartToPdf = async (
   const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
   const baseRowHeight: Record<string, number> = {
-    'small': 8.4,   // 252/8.4 = 30 guests per column (60 per page)
+    'small': 7.2,   // 252/7.2 = 35 guests per column (70 per page)
     'medium': 11,
     'large': 13
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // 30 guests per column with header/footer clearance
+  // 35 guests per column with header/footer clearance
   const availableHeight = 252;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
