@@ -78,15 +78,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const paginationInfo = useMemo(() => {
     // Calculate row height based on font size - increased for two-line format
     const baseRowHeight: Record<string, number> = {
-      'small': 8.4,   // 252/8.4 = 30 guests per column (60 per page)
+      'small': 7.5,   // 225/7.5 = 30 guests per column (60 per page)
       'medium': 11,
       'large': 13
     };
     
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
     
-    // Available height for guest rows (30 per column with header/footer clearance)
-    const availableHeight = 252;
+    // Available height for guest rows after header (~33mm) and footer (~25mm) within A4
+    const availableHeight = 225;
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
