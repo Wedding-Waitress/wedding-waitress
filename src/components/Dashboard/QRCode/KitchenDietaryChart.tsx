@@ -668,10 +668,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                 key={guest.id}
                                 className={index % 2 === 0 ? 'bg-[#f9fafb]' : 'bg-white'}
                               >
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, fontWeight: settings.isBold ? 'bold' : 'bold' }}>
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
                                   {guest.first_name}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, fontWeight: settings.isBold ? 'bold' : 'bold' }}>
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
                                   {guest.last_name || '-'}
                                 </td>
                                 <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
