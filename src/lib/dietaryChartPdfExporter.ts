@@ -289,23 +289,6 @@ export const exportDietaryChartToPdf = async (
     pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Total Dietary Guest Requirements - use correct total count
-    const totalLabel = 'Total Dietary Guest Requirements: ';
-    const totalCount = String(displayTotalCount);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(12);
-    const labelWidth = pdf.getTextWidth(totalLabel);
-    pdf.setFont('helvetica', 'bold');
-    const countWidth = pdf.getTextWidth(totalCount);
-    const totalTextWidth = labelWidth + countWidth;
-    const startX = (pageWidth - totalTextWidth) / 2;
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(totalLabel, startX, yPos);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(totalCount, startX + labelWidth, yPos);
-    pdf.setFont('helvetica', 'normal');
-    yPos += 5;
-
     // Ceremony info line (if available)
     pdf.setFontSize(9);
     pdf.setTextColor(85, 85, 85);
@@ -324,7 +307,25 @@ export const exportDietaryChartToPdf = async (
     pdf.setDrawColor(purple.r, purple.g, purple.b);
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 6;
+    yPos += 5;
+
+    // Total Dietary Guest Requirements - below purple line, above summary bar
+    const totalLabel = 'Total Dietary Guest Requirements: ';
+    const totalCount = String(displayTotalCount);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(fontSize);
+    pdf.setTextColor(0, 0, 0);
+    const labelWidth = pdf.getTextWidth(totalLabel);
+    pdf.setFont('helvetica', 'bold');
+    const countWidth = pdf.getTextWidth(totalCount);
+    const totalTextWidth = labelWidth + countWidth;
+    const startX = (pageWidth - totalTextWidth) / 2;
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(totalLabel, startX, yPos);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(totalCount, startX + labelWidth, yPos);
+    pdf.setFont('helvetica', 'normal');
+    yPos += 5;
 
     // Dietary summary bar (gray background with counts) - two rows
     const summaryBarHeight = 10;
