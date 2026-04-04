@@ -1172,6 +1172,7 @@ export const generateIndividualTableSVG = (
               border-radius: 50%;
               background: white;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              position: relative;
             ">
               ${settings.showSeatNumbers ? `<span style="
                 position: absolute;
@@ -1180,6 +1181,8 @@ export const generateIndividualTableSVG = (
                 transform: translate(-50%, -50%);
                 font-weight: bold;
                 font-size: 12px;
+                line-height: 1;
+                display: block;
               ">${seat.number}</span>` : ''}
             </div>
 
