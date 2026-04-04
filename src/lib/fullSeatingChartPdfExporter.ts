@@ -50,7 +50,7 @@ const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
 // Convert font size setting to points
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
   switch (setting) {
-    case 'small': return 10.5;
+    case 'small': return 8.5;
     case 'medium': return 12;
     case 'large': return 13.5;
   }
