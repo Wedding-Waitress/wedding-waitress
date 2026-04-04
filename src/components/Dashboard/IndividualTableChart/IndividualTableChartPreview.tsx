@@ -235,28 +235,40 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         x = (xPixels / containerWidth) * 100;
         y = (yPixels / containerHeight) * 100;
         
-        // Position labels further outward (+6mm additional gap from seat edge)
-        const labelOffsetPercent = 8; // Additional offset as percentage
-        const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
-        
-        const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
-        const labelYPixels = centerY + labelRadiusPixels * Math.sin(angle);
-        
-        labelX = (labelXPixels / containerWidth) * 100;
-        labelY = (labelYPixels / containerHeight) * 100;
-        
         // Determine text alignment based on angle (hemisphere)
         const angleDegrees = (angle * 180) / Math.PI;
-        // Top and bottom seats should be centered
+        
+        // Position labels: for left/right seats, keep label at same Y as seat (vertically centered)
+        // Only push label outward on X axis. For top/bottom seats, push outward on Y axis.
+        const labelOffsetPercent = 8;
+        
         if (angleDegrees >= -100 && angleDegrees <= -80) {
+          // Top seat - push label above
+          labelX = x;
+          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
+          const labelYPixels = centerY + labelRadiusPixels * Math.sin(angle);
+          labelY = (labelYPixels / containerHeight) * 100;
           textAlign = 'center';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
+          // Bottom seat - push label below
+          labelX = x;
+          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
+          const labelYPixels = centerY + labelRadiusPixels * Math.sin(angle);
+          labelY = (labelYPixels / containerHeight) * 100;
           textAlign = 'center';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
-          // Right hemisphere - left align text
+          // Right hemisphere - keep Y same as seat, push X outward
+          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
+          const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
+          labelX = (labelXPixels / containerWidth) * 100;
+          labelY = y; // Vertically centered with seat
           textAlign = 'left';
         } else {
-          // Left hemisphere - right align text
+          // Left hemisphere - keep Y same as seat, push X outward
+          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
+          const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
+          labelX = (labelXPixels / containerWidth) * 100;
+          labelY = y; // Vertically centered with seat
           textAlign = 'right';
         }
       }

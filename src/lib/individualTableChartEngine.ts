@@ -671,27 +671,33 @@ export const generateIndividualTableSVG = (
         x = centerX + radiusPixels * Math.cos(angle);
         y = centerY + radiusPixels * Math.sin(angle);
         
-        // Position labels further outward - match preview offset
-        const labelOffsetPercent = 8; // Match preview exactly
+        // Determine text alignment and label positioning based on angle
+        const angleDegrees = (angle * 180) / Math.PI;
+        const labelOffsetPercent = 8;
         const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
         
-        labelX = centerX + labelRadiusPixels * Math.cos(angle);
-        labelY = centerY + labelRadiusPixels * Math.sin(angle);
-        
-        // Determine text alignment based on angle (hemisphere)
-        const angleDegrees = (angle * 180) / Math.PI;
         if (angleDegrees >= -100 && angleDegrees <= -80) {
-          // Top seat - center align
+          // Top seat - push label above
+          labelX = x;
+          labelY = centerY + labelRadiusPixels * Math.sin(angle);
           textAlign = 'center';
           transform = 'translate(-50%, -50%)';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
-          // Bottom seat - center align
+          // Bottom seat - push label below
+          labelX = x;
+          labelY = centerY + labelRadiusPixels * Math.sin(angle);
           textAlign = 'center';
           transform = 'translate(-50%, -50%)';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
+          // Right hemisphere - keep Y same as seat, push X outward
+          labelX = centerX + labelRadiusPixels * Math.cos(angle);
+          labelY = y; // Vertically centered with seat
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
+          // Left hemisphere - keep Y same as seat, push X outward
+          labelX = centerX + labelRadiusPixels * Math.cos(angle);
+          labelY = y; // Vertically centered with seat
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
         }
