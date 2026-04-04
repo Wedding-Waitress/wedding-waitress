@@ -358,7 +358,7 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 100);
-      const rightRowNumberX = startX + sideWidth + aisleWidth + (floorPlan.chairs_per_row * (seatWidth + seatGap)) + 2;
+      const rightRowNumberX = startX + sideWidth + aisleWidth + (floorPlan.chairs_per_row * (seatWidth + seatGap));
       pdf.text(String(row), rightRowNumberX, rowY + (seatHeight / 2) + 1, { align: 'left' });
     }
 
