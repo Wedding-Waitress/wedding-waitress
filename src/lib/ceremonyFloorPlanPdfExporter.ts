@@ -239,9 +239,9 @@ export const generateCeremonyFloorPlanPDF = async (
       }
       
       // Draw role label below the box
-      pdf.setFont('helvetica', 'italic');
+      pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(4.5);
-      pdf.setTextColor(120, 120, 120);
+      pdf.setTextColor(0, 0, 0);
       const truncatedRole = role.length > 12 ? role.substring(0, 11) + '.' : role;
       pdf.text(truncatedRole, boxX + (bridalBoxWidth / 2), yPos + rowYOffset + bridalBoxHeight + 2.5, { align: 'center' });
     }
