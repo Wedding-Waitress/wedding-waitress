@@ -27,6 +27,16 @@ interface EventData {
   finish_time?: string | null;
 }
 
+// Constants matching Individual Table Charts
+const PAGE_WIDTH = 210; // A4 width in mm
+const PAGE_HEIGHT = 297; // A4 height in mm
+const MARGIN_LEFT = 15;
+const MARGIN_RIGHT = 15;
+const MARGIN_TOP = 15;
+const MARGIN_BOTTOM = 20;
+
+const PRIMARY_COLOR = '#7248e6';
+
 const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
   if (!dateString) return 'TBD';
   const date = new Date(dateString + 'T00:00:00');
