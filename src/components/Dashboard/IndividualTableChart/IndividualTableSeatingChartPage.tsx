@@ -41,8 +41,10 @@ export interface IndividualChartSettings {
   fontSize: 'small' | 'medium' | 'large';
   includeNames: boolean;
   includeDietary: boolean;
+  includeRelation: boolean;
   includeGuestList: boolean;
   showSeatNumbers: boolean;
+  textStyle: 'default' | 'bold' | 'italic' | 'underline';
   paperSize: 'A4';
   title: string;
   showLogo: boolean;
