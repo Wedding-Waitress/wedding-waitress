@@ -408,7 +408,7 @@ export const exportDietaryChartToPdf = async (
       xPos += colWidths[i];
     });
     
-    yPos += headerBarHeight + 3; // gap after header before first guest row
+    yPos += headerBarHeight + 5; // gap after header before first guest row
 
     // Determine font style from settings
     const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
