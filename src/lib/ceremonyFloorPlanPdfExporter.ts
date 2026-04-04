@@ -19,92 +19,36 @@ interface EventData {
   name: string;
   date: string | null;
   venue: string | null;
+  ceremony_date?: string | null;
   ceremony_venue?: string | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
 }
 
-
-// Constants matching Individual Table Charts
-const PAGE_WIDTH = 210; // A4 width in mm
-const PAGE_HEIGHT = 297; // A4 height in mm
-const MARGIN_LEFT = 15;
-const MARGIN_RIGHT = 15;
-const MARGIN_TOP = 15;
-const MARGIN_BOTTOM = 20;
-
-const PRIMARY_COLOR = '#7248e6';
-
-// Helper to format time
-const formatTime = (time: string | null | undefined): string => {
-  if (!time) return '';
-  const [hours, mins] = time.split(':');
-  const h = parseInt(hours);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const hour12 = h % 12 || 12;
-  return `${hour12}:${mins} ${ampm}`;
+const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'TBD';
+  const date = new Date(dateString + 'T00:00:00');
+  const day = date.getDate();
+  const ordinal = (n: number) => {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+  return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-export const generateCeremonyFloorPlanPDF = async (
-  floorPlan: CeremonyFloorPlan,
-  event: EventData
-): Promise<void> => {
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-  });
-
-  let yPos = MARGIN_TOP;
-  const contentWidth = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT;
-
-  // === HEADER ===
-  // Event Name - Purple, Bold, 14pt, centered
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
-  pdf.setTextColor(114, 72, 230); // Primary purple
-  pdf.text(event.name, PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 8;
-
-  // "Ceremony Seating Arrangement – [Full Date with Weekday] – [Start Time] to [Finish Time]"
-  pdf.setFontSize(9); // Slightly smaller to fit times
-  pdf.setTextColor(0, 0, 0);
-  const eventDate = event.date ? format(new Date(event.date), 'EEEE, do MMMM yyyy') : 'Date TBD';
-  
-  let dateTimeString = `Ceremony Seating Arrangement – ${eventDate}`;
-  if (event.ceremony_start_time && event.ceremony_finish_time) {
-    dateTimeString += ` – ${formatTime(event.ceremony_start_time)} to ${formatTime(event.ceremony_finish_time)}`;
-  }
-  pdf.text(dateTimeString, PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 6;
-
-  // "[Venue]" - no generated date/time in header anymore
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(10);
-  const venue = event.ceremony_venue || event.venue || 'Venue TBD';
-  pdf.text(venue, PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 5;
-
-  // Total Attending Ceremony line
-  const leftBridalCount = floorPlan.bridal_party_count_left || 0;
-  const rightBridalCount = floorPlan.bridal_party_count_right || 0;
-  const familySeatsTotal = floorPlan.total_rows * floorPlan.chairs_per_row * 2;
-  const totalAttendingCeremony = 3 + leftBridalCount + rightBridalCount + familySeatsTotal;
-  pdf.setFontSize(8);
-  pdf.setTextColor(0, 0, 0);
-  pdf.text(
-    `Total Attending Ceremony: ${totalAttendingCeremony} (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends)`,
-    PAGE_WIDTH / 2,
-    yPos,
-    { align: 'center' }
-  );
-  yPos += 5;
-
-  // Separator line
-  pdf.setDrawColor(0, 0, 0);
-  pdf.setLineWidth(0.3);
-  pdf.line(MARGIN_LEFT, yPos, PAGE_WIDTH - MARGIN_RIGHT, yPos);
-  yPos += 10;
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
 
   // === FLOOR PLAN VISUAL ===
   
