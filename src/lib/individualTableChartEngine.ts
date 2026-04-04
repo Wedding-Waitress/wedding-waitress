@@ -671,33 +671,29 @@ export const generateIndividualTableSVG = (
         x = centerX + radiusPixels * Math.cos(angle);
         y = centerY + radiusPixels * Math.sin(angle);
         
-        // Determine text alignment and label positioning based on angle
+        // Consistent gap from seat circle edge to name label
+        // Seat circle = 44px, radius = 22px, gap = 4px from edge
         const angleDegrees = (angle * 180) / Math.PI;
-        const labelOffsetPercent = 8;
-        const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * circleBaseDimension;
+        const circleGap = 26; // 22px radius + 4px gap
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
-          // Top seat - push label above
           labelX = x;
-          labelY = centerY + labelRadiusPixels * Math.sin(angle);
+          labelY = y - circleGap;
           textAlign = 'center';
           transform = 'translate(-50%, -50%)';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
-          // Bottom seat - push label below
           labelX = x;
-          labelY = centerY + labelRadiusPixels * Math.sin(angle);
+          labelY = y + circleGap;
           textAlign = 'center';
           transform = 'translate(-50%, -50%)';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
-          // Right hemisphere - keep Y same as seat, push X outward
-          labelX = centerX + labelRadiusPixels * Math.cos(angle);
-          labelY = y; // Vertically centered with seat
+          labelX = x + circleGap;
+          labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
-          // Left hemisphere - keep Y same as seat, push X outward
-          labelX = centerX + labelRadiusPixels * Math.cos(angle);
-          labelY = y; // Vertically centered with seat
+          labelX = x - circleGap;
+          labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
         }
@@ -1193,7 +1189,7 @@ export const generateIndividualTableSVG = (
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
                 font-size: ${scaledFontPt}pt;
-                font-weight: ${settings.isBold ? '700' : '700'};
+                font-weight: ${settings.isBold ? '700' : '400'};
                 font-style: ${settings.isItalic ? 'italic' : 'normal'};
                 text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
                 color: #000000;

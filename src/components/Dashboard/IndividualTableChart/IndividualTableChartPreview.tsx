@@ -235,40 +235,29 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         x = (xPixels / containerWidth) * 100;
         y = (yPixels / containerHeight) * 100;
         
-        // Determine text alignment based on angle (hemisphere)
+        // Determine text alignment and label positioning based on angle
         const angleDegrees = (angle * 180) / Math.PI;
         
-        // Position labels: for left/right seats, keep label at same Y as seat (vertically centered)
-        // Only push label outward on X axis. For top/bottom seats, push outward on Y axis.
-        const labelOffsetPercent = 8;
+        // Consistent gap from seat circle edge to name label
+        // Seat circle = 44px (w-11), radius = 22px, gap = 4px
+        const gapFromCircleX = 5.2; // (22+4)/500 * 100
+        const gapFromCircleY = 6;   // (22+5)/450 * 100
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
-          // Top seat - push label above
           labelX = x;
-          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
-          const labelYPixels = centerY + labelRadiusPixels * Math.sin(angle);
-          labelY = (labelYPixels / containerHeight) * 100;
+          labelY = y - gapFromCircleY;
           textAlign = 'center';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
-          // Bottom seat - push label below
           labelX = x;
-          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
-          const labelYPixels = centerY + labelRadiusPixels * Math.sin(angle);
-          labelY = (labelYPixels / containerHeight) * 100;
+          labelY = y + gapFromCircleY;
           textAlign = 'center';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
-          // Right hemisphere - keep Y same as seat, push X outward
-          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
-          const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
-          labelX = (labelXPixels / containerWidth) * 100;
-          labelY = y; // Vertically centered with seat
+          labelX = x + gapFromCircleX;
+          labelY = y;
           textAlign = 'left';
         } else {
-          // Left hemisphere - keep Y same as seat, push X outward
-          const labelRadiusPixels = ((37 + labelOffsetPercent) / 100) * containerHeight;
-          const labelXPixels = centerX + labelRadiusPixels * Math.cos(angle);
-          labelX = (labelXPixels / containerWidth) * 100;
-          labelY = y; // Vertically centered with seat
+          labelX = x - gapFromCircleX;
+          labelY = y;
           textAlign = 'right';
         }
       }
@@ -918,7 +907,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   maxHeight: '2.4em',
                                   overflow: 'hidden',
                                   whiteSpace: 'nowrap',
-                                  fontWeight: settings.isBold ? 700 : 700,
+                                  fontWeight: settings.isBold ? 700 : 400,
                                   fontStyle: settings.isItalic ? 'italic' : 'normal',
                                   textDecoration: settings.isUnderline ? 'underline' : 'none',
                                   ...getAutoScaledNameStyle(),
