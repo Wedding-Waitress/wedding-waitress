@@ -184,7 +184,8 @@ const getRowHeight = (fontSize: 'small' | 'medium' | 'large'): number => {
 export const exportDietaryChartToPdf = async (
   event: Event,
   guests: DietaryGuest[],
-  settings: DietaryChartSettings
+  settings: DietaryChartSettings,
+  mode: 'single' | 'all' = 'all'
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
