@@ -665,7 +665,19 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
-                              <th colSpan={99} className="py-[3px] px-[4pt]" style={{ fontSize: '8pt' }}>&nbsp;</th>
+                              <th colSpan={99} className="py-[3px] px-[4pt]" style={{ fontSize: '8pt' }}>
+                                {dietarySummary.length > 0 ? (
+                                  <div className="flex flex-wrap justify-center gap-x-3 gap-y-0.5">
+                                    {dietarySummary.map(item => (
+                                      <span key={item.label} style={{ fontSize: '8pt', fontWeight: 'normal' }}>
+                                        {item.label}: <strong>{item.count}</strong>
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <span>&nbsp;</span>
+                                )}
+                              </th>
                             </tr>
                             <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
                               <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>First Name</th>
