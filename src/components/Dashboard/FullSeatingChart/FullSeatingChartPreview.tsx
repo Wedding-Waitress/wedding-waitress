@@ -78,15 +78,15 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   const paginationInfo = useMemo(() => {
     // Calculate row height based on font size - increased for two-line format
     const baseRowHeight: Record<string, number> = {
-      'small': 8.4,   // 252/8.4 = 30 guests per column (60 per page)
+      'small': 7.5,   // 225/7.5 = 30 guests per column (60 per page)
       'medium': 11,
       'large': 13
     };
     
     const rowHeight = baseRowHeight[settings.fontSize] || 11;
     
-    // Available height for guest rows (30 per column with header/footer clearance)
-    const availableHeight = 252;
+    // Available height for guest rows after header (~33mm) and footer (~25mm) within A4
+    const availableHeight = 225;
     
     const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
     // Clamp to minimum 1 guest per column
@@ -220,7 +220,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Calculate the minimum row height in mm based on current settings (two-line format)
   const getRowHeightMm = () => {
     const baseRowHeight: Record<string, number> = {
-      'small': 7.2,
+      'small': 7.5,
       'medium': 11,
       'large': 13
     };
@@ -530,9 +530,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: '210mm', 
-              minHeight: '325mm',
+              height: '297mm',
               minWidth: '210mm',
-              maxWidth: '210mm'
+              maxWidth: '210mm',
+              overflow: 'hidden'
             }}
           >
             {/* Content with 1.27cm margins all around (narrow margins) */}
