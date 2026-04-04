@@ -680,7 +680,15 @@ export const generateIndividualTableSVG = (
         
         // Determine text alignment based on angle (hemisphere)
         const angleDegrees = (angle * 180) / Math.PI;
-        if (angleDegrees >= -90 && angleDegrees <= 90) {
+        if (angleDegrees >= -100 && angleDegrees <= -80) {
+          // Top seat - center align
+          textAlign = 'center';
+          transform = 'translate(-50%, -50%)';
+        } else if (angleDegrees >= 80 && angleDegrees <= 100) {
+          // Bottom seat - center align
+          textAlign = 'center';
+          transform = 'translate(-50%, -50%)';
+        } else if (angleDegrees > -80 && angleDegrees < 80) {
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
