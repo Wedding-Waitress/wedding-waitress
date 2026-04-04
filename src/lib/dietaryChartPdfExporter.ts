@@ -292,6 +292,10 @@ export const exportDietaryChartToPdf = async (
     pdf.line(margin, yPos + 1, pageWidth - margin, yPos + 1);
     yPos += rowHeight;
 
+    // Determine font style from settings
+    const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
+    const nameFontStyle = settings.isItalic ? 'bolditalic' : 'bold'; // names always bold
+
     // Draw guest rows
     pageGuests.forEach((guest, index) => {
       xPos = margin;
@@ -304,31 +308,58 @@ export const exportDietaryChartToPdf = async (
 
       let colIdx = 0;
 
-      // First Name (bold)
-      pdf.setFont('helvetica', 'bold');
+      // First Name (always bold + text style)
+      pdf.setFont('helvetica', nameFontStyle);
       pdf.setFontSize(fontSize);
       pdf.setTextColor(0, 0, 0);
       const firstNameText = pdf.splitTextToSize(guest.first_name, colWidths[colIdx] - 2);
       pdf.text(firstNameText, xPos, yPos);
+      if (settings.isUnderline) {
+        const tw = pdf.getTextWidth(guest.first_name);
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.2);
+        pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
+      }
       xPos += colWidths[colIdx];
       colIdx++;
 
-      // Last Name (bold)
-      pdf.setFont('helvetica', 'bold');
-      const lastNameText = pdf.splitTextToSize(guest.last_name || '-', colWidths[colIdx] - 2);
+      // Last Name (always bold + text style)
+      pdf.setFont('helvetica', nameFontStyle);
+      const lastNameVal = guest.last_name || '-';
+      const lastNameText = pdf.splitTextToSize(lastNameVal, colWidths[colIdx] - 2);
       pdf.text(lastNameText, xPos, yPos);
+      if (settings.isUnderline) {
+        const tw = pdf.getTextWidth(lastNameVal);
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.2);
+        pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
+      }
       xPos += colWidths[colIdx];
       colIdx++;
 
-      // Table (normal)
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(guest.table_no ? String(guest.table_no) : '-', xPos, yPos);
+      // Table
+      pdf.setFont('helvetica', textFontStyle);
+      const tableVal = guest.table_no ? String(guest.table_no) : '-';
+      pdf.text(tableVal, xPos, yPos);
+      if (settings.isUnderline) {
+        const tw = pdf.getTextWidth(tableVal);
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.2);
+        pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
+      }
       xPos += colWidths[colIdx];
       colIdx++;
 
       // Seat (if shown)
       if (settings.showSeatNo) {
-        pdf.text(guest.seat_no ? String(guest.seat_no) : '-', xPos, yPos);
+        const seatVal = guest.seat_no ? String(guest.seat_no) : '-';
+        pdf.text(seatVal, xPos, yPos);
+        if (settings.isUnderline) {
+          const tw = pdf.getTextWidth(seatVal);
+          pdf.setDrawColor(0, 0, 0);
+          pdf.setLineWidth(0.2);
+          pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
+        }
         xPos += colWidths[colIdx];
         colIdx++;
       }
@@ -343,21 +374,34 @@ export const exportDietaryChartToPdf = async (
 
       // Mobile (if shown)
       if (settings.showMobile) {
-        pdf.setFont('helvetica', 'normal');
+        pdf.setFont('helvetica', textFontStyle);
         pdf.setTextColor(0, 0, 0);
-        const mobileText = pdf.splitTextToSize(guest.mobile || '-', colWidths[colIdx] - 2);
+        const mobileVal = guest.mobile || '-';
+        const mobileText = pdf.splitTextToSize(mobileVal, colWidths[colIdx] - 2);
         pdf.text(mobileText, xPos, yPos);
+        if (settings.isUnderline) {
+          const tw = pdf.getTextWidth(mobileVal);
+          pdf.setDrawColor(0, 0, 0);
+          pdf.setLineWidth(0.2);
+          pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
+        }
         xPos += colWidths[colIdx];
         colIdx++;
       }
 
       // Relation (if shown, gray)
       if (settings.showRelation) {
-        pdf.setFont('helvetica', 'normal');
+        pdf.setFont('helvetica', textFontStyle);
         pdf.setTextColor(gray.r, gray.g, gray.b);
         const relationText = computeRelationDisplay(guest, event);
         const relationTextWrapped = pdf.splitTextToSize(relationText, colWidths[colIdx] - 2);
         pdf.text(relationTextWrapped, xPos, yPos);
+        if (settings.isUnderline) {
+          const tw = pdf.getTextWidth(relationText);
+          pdf.setDrawColor(gray.r, gray.g, gray.b);
+          pdf.setLineWidth(0.2);
+          pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
+        }
       }
 
       yPos += rowHeight; // Dynamic row spacing based on font size
