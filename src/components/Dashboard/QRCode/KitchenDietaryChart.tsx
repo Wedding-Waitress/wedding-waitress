@@ -126,17 +126,26 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         guest.dietary.toLowerCase() !== 'na' &&
         guest.dietary.toLowerCase() !== 'none'
       )
-      .map(guest => ({
-        id: guest.id,
-        first_name: guest.first_name,
-        last_name: guest.last_name,
-        table_no: guest.table_no,
-        seat_no: guest.seat_no,
-        dietary: guest.dietary,
-        relation_partner: guest.relation_partner,
-        relation_role: guest.relation_role,
-        mobile: guest.mobile
-      }));
+      .map(guest => {
+        // Look up table name from tables array
+        const matchedTable = guest.table_id ? tables.find(t => t.id === guest.table_id) : null;
+        const tableDisplay = matchedTable
+          ? (matchedTable.table_no ? String(matchedTable.table_no) : matchedTable.name)
+          : (guest.table_no ? String(guest.table_no) : '-');
+        return {
+          id: guest.id,
+          first_name: guest.first_name,
+          last_name: guest.last_name,
+          table_no: guest.table_no,
+          table_id: guest.table_id || null,
+          table_display: tableDisplay,
+          seat_no: guest.seat_no,
+          dietary: guest.dietary,
+          relation_partner: guest.relation_partner,
+          relation_role: guest.relation_role,
+          mobile: guest.mobile
+        };
+      });
 
     // Apply sorting based on settings
     return filtered.sort((a, b) => {
