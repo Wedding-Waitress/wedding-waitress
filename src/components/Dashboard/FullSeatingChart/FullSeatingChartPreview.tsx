@@ -488,7 +488,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: `${PAGE_WIDTH_MM}mm`, 
-              height: `${PAGE_HEIGHT_MM}mm`,
+              height: '302mm',
               minWidth: `${PAGE_WIDTH_MM}mm`,
               maxWidth: `${PAGE_WIDTH_MM}mm`,
               overflow: 'hidden',
