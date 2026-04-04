@@ -247,7 +247,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         
         // Determine text alignment based on angle (hemisphere)
         const angleDegrees = (angle * 180) / Math.PI;
-        if (angleDegrees >= -90 && angleDegrees <= 90) {
+        // Top and bottom seats should be centered
+        if (angleDegrees >= -100 && angleDegrees <= -80) {
+          textAlign = 'center';
+        } else if (angleDegrees >= 80 && angleDegrees <= 100) {
+          textAlign = 'center';
+        } else if (angleDegrees > -80 && angleDegrees < 80) {
           // Right hemisphere - left align text
           textAlign = 'left';
         } else {
