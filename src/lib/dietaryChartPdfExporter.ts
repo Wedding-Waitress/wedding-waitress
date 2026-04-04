@@ -179,7 +179,8 @@ export const exportDietaryChartToPdf = async (
   guests: DietaryGuest[],
   settings: DietaryChartSettings,
   mode: 'single' | 'all' = 'all',
-  totalDietaryCount?: number
+  totalDietaryCount?: number,
+  externalSummaryCounts?: { label: string; count: number }[]
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
