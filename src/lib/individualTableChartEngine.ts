@@ -790,9 +790,9 @@ export const generateIndividualTableSVG = (
         <div style="font-size: 22px; font-weight: 700; color: #6d28d9; text-align: center; margin-bottom: 4px; line-height: 1.5;">
           ${eventName}
         </div>
-        <!-- Subtitle -->
+        <!-- Subtitle with guest count -->
         <div style="font-size: 16px; font-weight: 400; color: #222; text-align: center; margin-top: 4px;">
-          Table Seating Arrangements
+          Individual Table Charts – ${sortedGuests.length} ${sortedGuests.length === 1 ? 'Guest' : 'Guests'}
         </div>
         <!-- Ceremony & Reception Details -->
         <div style="text-align: center; margin-top: 4px; margin-bottom: 6px;">
