@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
