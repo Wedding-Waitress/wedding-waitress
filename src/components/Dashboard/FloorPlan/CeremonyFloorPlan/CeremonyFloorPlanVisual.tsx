@@ -370,8 +370,8 @@ export const CeremonyFloorPlanVisual = ({
           </div>
           
           {/* Celebrant (center, stationary) */}
-          <div className="w-14 h-14 rounded-full bg-transparent border border-border flex items-center justify-center">
-            <span className="text-[11px] text-muted-foreground text-center">Celebrant</span>
+          <div className="w-16 h-16 rounded-full bg-transparent border border-border flex items-center justify-center">
+            <span className="text-xs text-muted-foreground text-center">Celebrant</span>
           </div>
           
           {/* Right person (Bride or Groom depending on arrangement) */}
