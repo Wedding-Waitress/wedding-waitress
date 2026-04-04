@@ -220,9 +220,9 @@ export const exportDietaryChartToPdf = async (
     h += 4;  // reception line
     h += 5;  // purple divider + gap
     h += 5;  // total count line
-    h += 10; // summary bar
-    h += 5;  // column headers
-    h += 2;  // gap after header
+    h += 14; // summary bar (increased from 10)
+    h += 7;  // column headers (increased from 5)
+    h += 3;  // gap after header (increased from 2)
     return h;
   };
 
