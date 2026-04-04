@@ -256,7 +256,7 @@ export const exportDietaryChartToPdf = async (
         return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
       }).length };
     })
-    .filter(item => item.count > 0);
+    ;
 
   // Calculate column positions
   const colWidths: number[] = [];
