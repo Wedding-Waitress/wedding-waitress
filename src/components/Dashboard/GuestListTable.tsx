@@ -2059,6 +2059,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               )}
             </TableBody>
           </Table>
+          <div className="h-12 bg-primary rounded-b-lg" />
         </div>
       </Card>
 
