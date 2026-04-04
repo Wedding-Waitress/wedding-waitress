@@ -295,7 +295,7 @@ export const exportDietaryChartToPdf = async (
 
     // Determine font style from settings
     const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
-    const nameFontStyle = settings.isItalic ? 'bolditalic' : 'bold'; // names always bold
+    const nameFontStyle = textFontStyle; // names follow text style setting
 
     // Draw guest rows
     pageGuests.forEach((guest, index) => {
