@@ -888,7 +888,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div
-                                className={`absolute font-bold ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
+                                className={`absolute ${getGuestNameSize(settings.fontSize)} max-w-24 cursor-help`}
                                 style={{
                                   left: `${seat.labelX}%`,
                                   top: `${seat.labelY}%`,
@@ -901,6 +901,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   maxHeight: '2.4em',
                                   overflow: 'hidden',
                                   whiteSpace: 'nowrap',
+                                  fontWeight: settings.textStyle === 'bold' ? 700 : 700,
+                                  fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
+                                  textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
                                   ...getAutoScaledNameStyle(),
                                 }}
                               >
@@ -941,13 +944,13 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
-                          <span className="break-words text-left">
-                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
+                          <span className="break-words text-left" style={nameStyle}>
+                            <span>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
                             )}
                             {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
-                              <span className="text-muted-foreground"> ({guest.relation_display})</span>
+                              <span className="text-muted-foreground"> ({guest.relation_display.replace(/ \/ /g, '/')})</span>
                             )}
                           </span>
                         </div>
@@ -967,13 +970,13 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
-                          <span className="break-words text-left">
-                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
+                          <span className="break-words text-left" style={nameStyle}>
+                            <span>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
                             )}
                             {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
-                              <span className="text-muted-foreground"> ({guest.relation_display})</span>
+                              <span className="text-muted-foreground"> ({guest.relation_display.replace(/ \/ /g, '/')})</span>
                             )}
                           </span>
                         </div>
@@ -987,7 +990,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Footer Section - Running Sheet Style */}
             {settings.showLogo && (
               <div className="mt-auto pt-4 flex items-end justify-between" style={{ paddingBottom: '4px' }}>
-                <span style={{ fontSize: '7pt', color: '#aaa' }}>
+                <span style={{ fontSize: '7pt', color: '#000' }}>
                   Page {currentTableIndex} of {totalTables}
                 </span>
                 <img 
@@ -995,7 +998,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                   alt="Wedding Waitress" 
                   style={{ width: '42mm', height: '12mm', objectFit: 'contain' }}
                 />
-                <span style={{ fontSize: '7pt', color: '#aaa' }}>
+                <span style={{ fontSize: '7pt', color: '#000' }}>
                   Generated: {(() => {
                     const now = new Date();
                     const hours = now.getHours();
