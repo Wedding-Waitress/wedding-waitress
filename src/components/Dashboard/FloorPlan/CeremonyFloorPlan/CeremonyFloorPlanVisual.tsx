@@ -134,13 +134,13 @@ export const CeremonyFloorPlanVisual = ({
     const parts = name.trim().split(' ');
     if (parts.length > 1) {
       return (
-        <span className="text-[11px] leading-tight text-center px-0.5 flex flex-col items-center justify-center text-foreground">
+        <span className="text-xs leading-tight text-center px-0.5 flex flex-col items-center justify-center text-foreground">
           <span>{parts[0]}</span>
           <span>{parts.slice(1).join(' ')}</span>
         </span>
       );
     }
-    return <span className="text-[11px] leading-tight text-center px-0.5 text-foreground">{name}</span>;
+    return <span className="text-xs leading-tight text-center px-0.5 text-foreground">{name}</span>;
   };
 
   const renderSeat = (side: 'left' | 'right', row: number, seat: number) => {
@@ -157,7 +157,7 @@ export const CeremonyFloorPlanVisual = ({
           onChange={(e) => setEditingValue(e.target.value)}
           onBlur={handleSeatSave}
           onKeyDown={handleKeyDown}
-          className="w-16 h-12 text-xs p-1 text-center"
+          className="w-[72px] h-14 text-xs p-1 text-center"
           placeholder="Name"
         />
       );
@@ -168,7 +168,7 @@ export const CeremonyFloorPlanVisual = ({
         key={`${side}-${row}-${seat}`}
         onClick={() => handleSeatClick(side, row, seat)}
         className={cn(
-          "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all",
+          "w-[72px] h-14 rounded border text-xs flex items-center justify-center transition-all",
           isAssignedRow 
             ? "cursor-pointer hover:border-primary hover:bg-primary/5"
             : "cursor-not-allowed",
@@ -183,7 +183,7 @@ export const CeremonyFloorPlanVisual = ({
         {name ? (
           renderName(name)
         ) : (
-          <span className="text-[10px]">
+          <span className="text-[11px]">
             {floorPlan.show_seat_numbers ? seat : '—'}
           </span>
         )}
@@ -207,14 +207,14 @@ export const CeremonyFloorPlanVisual = ({
             onChange={(e) => setEditingBridalValue(e.target.value)}
             onBlur={handleBridalPartySave}
             onKeyDown={handleBridalPartyKeyDown}
-            className="w-16 h-12 text-xs p-1 text-center"
+          className="w-[72px] h-14 text-xs p-1 text-center"
             placeholder="Name"
           />
         ) : (
           <div
             onClick={() => handleBridalPartyClick(side, index)}
             className={cn(
-              "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
+              "w-[72px] h-14 rounded border text-xs flex items-center justify-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5",
               name 
                 ? "bg-transparent border-primary font-medium" 
                 : "bg-muted/30 border-border text-muted-foreground"
@@ -224,7 +224,7 @@ export const CeremonyFloorPlanVisual = ({
             {name ? (
               renderName(name)
             ) : (
-              <span className="text-[10px]">{index + 1}</span>
+              <span className="text-[11px]">{index + 1}</span>
             )}
           </div>
         )}
@@ -237,13 +237,13 @@ export const CeremonyFloorPlanVisual = ({
             onChange={(e) => setEditingRoleValue(e.target.value)}
             onBlur={handleRoleSave}
             onKeyDown={handleRoleKeyDown}
-            className="w-16 h-5 text-[9px] p-0.5 text-center mt-0.5"
+            className="w-[72px] h-5 text-[10px] p-0.5 text-center mt-0.5"
             placeholder="Role"
           />
         ) : (
           <span
             onClick={() => handleRoleClick(side, index)}
-            className="text-[9px] text-muted-foreground italic mt-0.5 cursor-pointer hover:text-primary transition-colors truncate max-w-16 text-center"
+            className="text-[10px] text-muted-foreground italic mt-0.5 cursor-pointer hover:text-primary transition-colors truncate max-w-[72px] text-center"
             title="Click to edit role"
           >
             {role}
@@ -362,22 +362,22 @@ export const CeremonyFloorPlanVisual = ({
         <div className="flex items-center justify-center gap-3 px-2">
           {/* Left person (Groom or Bride depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
-              <span className="text-[14px] text-foreground font-medium text-center leading-tight px-1">
+            <div className="w-[72px] h-[72px] rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-[15px] text-foreground font-medium text-center leading-tight px-1">
                 {leftPersonName}
               </span>
             </div>
           </div>
           
           {/* Celebrant (center, stationary) */}
-          <div className="w-14 h-14 rounded-full bg-transparent border border-border flex items-center justify-center">
-            <span className="text-[11px] text-muted-foreground text-center">Celebrant</span>
+          <div className="w-16 h-16 rounded-full bg-transparent border border-border flex items-center justify-center">
+            <span className="text-xs text-muted-foreground text-center">Celebrant</span>
           </div>
           
           {/* Right person (Bride or Groom depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
-              <span className="text-[14px] text-foreground font-medium text-center leading-tight px-1">
+            <div className="w-[72px] h-[72px] rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-[15px] text-foreground font-medium text-center leading-tight px-1">
                 {rightPersonName}
               </span>
             </div>

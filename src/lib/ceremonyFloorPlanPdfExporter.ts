@@ -78,13 +78,11 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.text(dateTimeString, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 6;
 
-  // "[Venue] – Generated on: DD/MM/YY Time: HH:MM"
+  // "[Venue]" - no generated date/time in header anymore
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(10);
   const venue = event.ceremony_venue || event.venue || 'Venue TBD';
-  const generatedDate = format(new Date(), 'dd/MM/yy');
-  const generatedTime = format(new Date(), 'h:mm a');
-  pdf.text(`${venue} – Generated on: ${generatedDate} Time: ${generatedTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  pdf.text(venue, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 5;
 
   // Total Attending Ceremony line
@@ -456,6 +454,17 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.text(walkwayText, trueCenterX, walkwayTextY, { align: 'center', angle: -90 });
 
   // === FOOTER ===
+  // Page info on left, Generated date on right
+  const footerY = PAGE_HEIGHT - 8;
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.setTextColor(150, 150, 150);
+  pdf.text('Page 1 of 1', MARGIN_LEFT, footerY);
+  
+  const generatedDate = format(new Date(), 'dd/MM/yyyy');
+  const generatedTime = format(new Date(), 'h:mm a');
+  pdf.text(`Generated: ${generatedDate} ${generatedTime}`, PAGE_WIDTH - MARGIN_RIGHT, footerY, { align: 'right' });
+
   // Wedding Waitress logo
   try {
     const logoImg = new Image();
@@ -470,27 +479,24 @@ export const generateCeremonyFloorPlanPDF = async (
     const logoHeight = 12;
     const logoWidth = (logoImg.width / logoImg.height) * logoHeight;
     const logoX = (PAGE_WIDTH - logoWidth) / 2;
-    const logoY = PAGE_HEIGHT - MARGIN_BOTTOM;
+    const logoY = PAGE_HEIGHT - MARGIN_BOTTOM - 2;
 
     pdf.addImage(logoImg, 'PNG', logoX, logoY, logoWidth, logoHeight);
   } catch (error) {
     console.warn('Failed to load logo for PDF:', error);
-    // Fallback: text footer
     pdf.setFont('helvetica', 'italic');
     pdf.setFontSize(8);
     pdf.setTextColor(150, 150, 150);
     pdf.text('Wedding Waitress', PAGE_WIDTH / 2, PAGE_HEIGHT - MARGIN_BOTTOM + 6, { align: 'center' });
   }
 
-  // Generate filename
-  const eventName = event.name
-    .split(/[^a-zA-Z0-9]+/)
-    .filter(word => word.length > 0)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join('-');
-
-  const date = format(new Date(), 'dd-MM-yyyy');
-  const fileName = `${eventName}-Ceremony-Floor-Plan-${date}.pdf`;
+  // Generate filename using event date (not generated date)
+  // Preserve readable characters like & and '
+  const eventName = event.name.replace(/[<>:"/\\|?*]/g, '');
+  const eventDateForFilename = event.date 
+    ? format(new Date(event.date), 'dd-MM-yyyy') 
+    : format(new Date(), 'dd-MM-yyyy');
+  const fileName = `${eventName}-Ceremony-Floor Plan-${eventDateForFilename}.pdf`;
 
   pdf.save(fileName);
 };
