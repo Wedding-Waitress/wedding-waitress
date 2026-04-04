@@ -47,9 +47,16 @@ import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner'
 
 
 export const Dashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTabState] = useState(() => searchParams.get('tab') || 'dashboard');
+  
+  // Wrap setActiveTab to persist in URL
+  const setActiveTab = useCallback((tab: string) => {
+    setActiveTabState(tab);
+    setSearchParams({ tab }, { replace: true });
+  }, [setSearchParams]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [globalSelectedEventId, setGlobalSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
