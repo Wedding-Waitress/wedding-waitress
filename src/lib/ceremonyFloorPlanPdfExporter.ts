@@ -135,7 +135,7 @@ export const generateCeremonyFloorPlanPDF = async (
   const rowGap = 2;
   
   const sideWidth = (floorPlan.chairs_per_row * seatWidth) + ((floorPlan.chairs_per_row - 1) * seatGap);
-  const aisleWidth = 18;
+  const aisleWidth = 14;
   const totalWidth = (sideWidth * 2) + aisleWidth;
   const startX = (PAGE_WIDTH - totalWidth) / 2;
 
