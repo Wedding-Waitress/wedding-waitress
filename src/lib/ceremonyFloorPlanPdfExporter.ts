@@ -461,7 +461,16 @@ export const generateCeremonyFloorPlanPDF = async (
 
   }
 
-  // Draw "Bride's Walkway - Aisle" text in the walkway area above all seats
+  // Add "General Seating" at the very bottom of each side (after last row)
+  if (floorPlan.assigned_rows < floorPlan.total_rows) {
+    const bottomY = yPos + (floorPlan.total_rows * (seatHeight + rowGap)) + 1;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(6);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text('General Seating', leftSideCenter, bottomY, { align: 'center' });
+    pdf.text('General Seating', rightSideCenter, bottomY, { align: 'center' });
+  }
+
   const walkwayText = "Bride's Walkway - Aisle";
   const walkwayTextY = aisleStartY + 20;
   const trueCenterX = (PAGE_WIDTH / 2) + 20;
