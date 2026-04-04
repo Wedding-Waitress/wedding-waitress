@@ -737,7 +737,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                   {guest.last_name || '-'}
                                 </td>
                                 <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                  {guest.table_no || '-'}
+                                  {guest.table_display}
                                 </td>
                                 {settings.showSeatNo && (
                                   <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>

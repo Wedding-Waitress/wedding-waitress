@@ -407,8 +407,9 @@ export const exportDietaryChartToPdf = async (
 
       // Table
       pdf.setFont('helvetica', textFontStyle);
-      const tableVal = guest.table_no ? String(guest.table_no) : '-';
-      pdf.text(tableVal, xPos, yPos);
+      const tableVal = guest.table_display || '-';
+      const tableText = pdf.splitTextToSize(tableVal, colWidths[colIdx] - 2);
+      pdf.text(tableText, xPos, yPos);
       if (settings.isUnderline) {
         const tw = pdf.getTextWidth(tableVal);
         pdf.setDrawColor(0, 0, 0);
