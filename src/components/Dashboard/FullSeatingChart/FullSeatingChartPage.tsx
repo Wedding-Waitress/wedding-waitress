@@ -310,7 +310,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
 
               {/* Export Controls */}
-              {isDataReady && (
+              {isDataReady && hasGuests && (
                 <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
                   <div className="flex items-center">
                     <span className="font-bold text-sm">Export Controls</span>
