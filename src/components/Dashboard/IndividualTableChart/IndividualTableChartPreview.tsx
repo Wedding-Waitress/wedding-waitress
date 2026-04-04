@@ -910,6 +910,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                                   fontWeight: settings.isBold ? 700 : 400,
                                   fontStyle: settings.isItalic ? 'italic' : 'normal',
                                   textDecoration: settings.isUnderline ? 'underline' : 'none',
+                                  fontSize: settings.largerTableNames ? '1.1em' : undefined,
                                   ...getAutoScaledNameStyle(),
                                 }}
                               >
