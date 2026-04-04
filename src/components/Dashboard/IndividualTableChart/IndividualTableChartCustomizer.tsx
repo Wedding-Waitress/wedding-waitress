@@ -166,8 +166,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             <div className="space-y-2">
               <Label htmlFor="text-style">Text Style</Label>
               <Select
-                value={settings.textStyle}
-                onValueChange={(value: 'default' | 'bold' | 'italic' | 'underline') => {
+                value={settings.textStyle === 'default' ? '' : settings.textStyle}
+                onValueChange={(value: 'bold' | 'italic' | 'underline') => {
                   // Toggle behavior: if already selected, revert to default
                   if (value === settings.textStyle) {
                     onSettingsChange({ textStyle: 'default' });
@@ -180,7 +180,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                   <SelectValue placeholder="Default" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">Default</SelectItem>
                   <SelectItem value="bold">
                     <span className="flex items-center gap-2">
                       <Bold className="w-4 h-4" />

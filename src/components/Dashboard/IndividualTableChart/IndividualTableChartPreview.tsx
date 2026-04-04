@@ -990,7 +990,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Footer Section - Running Sheet Style */}
             {settings.showLogo && (
               <div className="mt-auto pt-4 flex items-end justify-between" style={{ paddingBottom: '4px' }}>
-                <span style={{ fontSize: '7pt', color: '#aaa' }}>
+                <span style={{ fontSize: '7pt', color: '#000' }}>
                   Page {currentTableIndex} of {totalTables}
                 </span>
                 <img 
@@ -998,7 +998,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                   alt="Wedding Waitress" 
                   style={{ width: '42mm', height: '12mm', objectFit: 'contain' }}
                 />
-                <span style={{ fontSize: '7pt', color: '#aaa' }}>
+                <span style={{ fontSize: '7pt', color: '#000' }}>
                   Generated: {(() => {
                     const now = new Date();
                     const hours = now.getHours();
