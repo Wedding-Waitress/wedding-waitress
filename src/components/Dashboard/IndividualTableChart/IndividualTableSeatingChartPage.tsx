@@ -44,7 +44,9 @@ export interface IndividualChartSettings {
   includeRelation: boolean;
   includeGuestList: boolean;
   showSeatNumbers: boolean;
-  textStyle: 'default' | 'bold' | 'italic' | 'underline';
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
   paperSize: 'A4';
   title: string;
   showLogo: boolean;
@@ -68,7 +70,9 @@ const defaultSettings: IndividualChartSettings = {
   includeRelation: true,
   includeGuestList: true,
   showSeatNumbers: true,
-  textStyle: 'default',
+  isBold: false,
+  isItalic: false,
+  isUnderline: false,
   paperSize: 'A4',
   title: '',
   showLogo: true,

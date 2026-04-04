@@ -17,7 +17,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Settings, Type, Bold, Italic, Underline } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Settings, Type, Bold, Italic, Underline, ChevronDown, Check } from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 
 interface IndividualTableChartCustomizerProps {
