@@ -404,9 +404,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 {event?.name || 'Event'}
               </div>
 
-              {/* Subtitle */}
+              {/* Subtitle with guest count */}
               <div className="text-center font-normal" style={{ fontSize: '16px', color: '#222', marginTop: '4px' }}>
-                Table Seating Arrangements
+                Individual Table Charts – {sortedGuests.length} {sortedGuests.length === 1 ? 'Guest' : 'Guests'}
               </div>
 
               {/* Ceremony & Reception Details */}
