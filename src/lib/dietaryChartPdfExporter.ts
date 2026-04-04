@@ -368,8 +368,9 @@ export const exportDietaryChartToPdf = async (
         colIdx++;
       }
 
-      // Dietary (bold, purple)
-      pdf.setFont('helvetica', 'bold');
+      // Dietary (purple, follows text style for bold)
+      const dietaryFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
+      pdf.setFont('helvetica', dietaryFontStyle);
       pdf.setTextColor(purple.r, purple.g, purple.b);
       const dietaryText = pdf.splitTextToSize(guest.dietary || '-', colWidths[colIdx] - 2);
       pdf.text(dietaryText, xPos, yPos);
