@@ -601,7 +601,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {/* Guest List */}
               <div 
                 style={{ 
-                  height: '225mm',
+                  flex: '1 1 auto',
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: '12mm',
@@ -631,7 +631,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
 
               {/* Footer - tight to bottom matching PDF */}
-              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingBottom: '0' }}>
+              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingTop: '4mm', paddingBottom: '0' }}>
                 {settings.showLogo && (
                   <div className="flex justify-center" style={{ paddingTop: '0' }}>
                     <img 
