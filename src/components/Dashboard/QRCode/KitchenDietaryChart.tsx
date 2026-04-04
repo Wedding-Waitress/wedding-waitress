@@ -189,9 +189,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         const val = g.dietary.toLowerCase().trim();
         return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
       }).length;
-      if (count > 0) {
-        counts.push({ label: type, count });
-      }
+      counts.push({ label: type, count });
     }
     return counts;
   }, [dietaryGuests]);
