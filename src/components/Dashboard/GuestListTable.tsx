@@ -1760,22 +1760,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-x-auto border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
-          <Table className="table-fixed w-full">
+        <div className="overflow-hidden border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
+          <Table className="w-full" style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '3%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '4%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '7%' }} />
+            </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12 bg-primary text-primary-foreground rounded-tl-lg">
+                <TableHead className="bg-primary text-primary-foreground rounded-tl-lg px-2">
                   <Checkbox
                     checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="w-28">First Name</TableHead>
-                <TableHead className="w-28">Last Name</TableHead>
-                <TableHead className="w-24">Mobile</TableHead>
-                <TableHead className="w-36">Email</TableHead>
+                <TableHead className="px-2 text-xs">First Name</TableHead>
+                <TableHead className="px-2 text-xs">Last Name</TableHead>
+                <TableHead className="px-2 text-xs">Mobile</TableHead>
+                <TableHead className="px-2 text-xs">Email</TableHead>
                 <TableHead 
-                  className="w-24 text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
+                  className="px-2 text-xs text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
                   onClick={async () => {
                     if (!selectedEventId || sortedGuests.length === 0) return;
                     const allOn = sortedGuests.every(g => g.allow_plus_one !== false);
@@ -1811,15 +1828,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </TableHead>
-                <TableHead className="w-32 text-center">RSVP Invite</TableHead>
-                <TableHead className="w-24">RSVP Status</TableHead>
-                <TableHead className="w-20">Table No</TableHead>
-                <TableHead className="w-20">Seat No.</TableHead>
-                <TableHead className="w-32">Relation</TableHead>
-                <TableHead className="w-24">Dietary Requirements</TableHead>
-                <TableHead className="w-28">Family/Group</TableHead>
-                <TableHead className="w-20">Notes</TableHead>
-                <TableHead className="w-24 rounded-tr-lg">Actions</TableHead>
+                <TableHead className="px-2 text-xs text-center">RSVP Invite</TableHead>
+                <TableHead className="px-2 text-xs">RSVP Status</TableHead>
+                <TableHead className="px-2 text-xs">Table No</TableHead>
+                <TableHead className="px-2 text-xs">Seat No.</TableHead>
+                <TableHead className="px-2 text-xs">Relation</TableHead>
+                <TableHead className="px-2 text-xs">Dietary Requirements</TableHead>
+                <TableHead className="px-2 text-xs">Family/Group</TableHead>
+                <TableHead className="px-2 text-xs">Notes</TableHead>
+                <TableHead className="px-2 text-xs rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1868,22 +1885,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]"
                           )}
                         >
-                          <TableCell className="py-1 w-12">
+                          <TableCell className="py-1 px-2">
                             <Checkbox
                               checked={selectedGuestIds.has(guest.id)}
                               onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
                             />
                           </TableCell>
-                          <TableCell className="py-1 font-medium w-28">
+                          <TableCell className="py-1 px-2 font-medium truncate">
                             {group.type !== 'individual' && (
                               <span className="inline-block w-2 h-2 rounded-full bg-[#7248e6] mr-2 align-middle" />
                             )}
                             {guest.first_name}
                           </TableCell>
-                          <TableCell className="py-1 font-medium w-28">{guest.last_name}</TableCell>
-                          <TableCell className="py-1 w-24">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                          <TableCell className="py-1 w-36">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
-                          <TableCell className="py-1 w-24">
+                          <TableCell className="py-1 px-2 font-medium truncate">{guest.last_name}</TableCell>
+                          <TableCell className="py-1 px-2">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 px-2">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell className="py-1 px-2">
                             <Badge 
                               className={`text-white cursor-pointer ${guest.allow_plus_one !== false ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
                               onClick={async () => {
@@ -1903,7 +1920,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               {guest.allow_plus_one !== false ? "YES" : "NO"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="py-1 w-32">
+                          <TableCell className="py-1 px-2">
                             <div className="flex items-center justify-center">
                               {(() => {
                                 const status = guest.rsvp_invite_status || 'not_sent';
@@ -1922,7 +1939,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               })()}
                             </div>
                           </TableCell>
-                          <TableCell className="py-1 w-24">
+                          <TableCell className="py-1 px-2">
                             <Badge 
                               variant={getRsvpBadgeVariant(guest.rsvp)} 
                               className="text-xs text-white"
@@ -1930,8 +1947,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               {getRsvpDisplayLabel(guest.rsvp)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="py-1 w-20">{getTableName(guest) || '—'}</TableCell>
-                          <TableCell className="py-1 w-20">
+                          <TableCell className="py-1 px-2">{getTableName(guest) || '—'}</TableCell>
+                          <TableCell className="py-1 px-2">
                             {guest.seat_no ? (
                               isDuplicateSeat(guest) ? (
                                 <TooltipProvider>
@@ -1953,7 +1970,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               '—'
                             )}
                           </TableCell>
-                          <TableCell className="py-1 w-32">
+                          <TableCell className="py-1 px-2">
                             <RelationBadge
                               display={guest.relation_display || ''}
                               partner={guest.relation_partner || ''}
@@ -1963,12 +1980,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               isEmpty={!guest.relation_display}
                             />
                           </TableCell>
-                    <TableCell className="py-1 w-24">
+                    <TableCell className="py-1 px-2">
                       <span className="text-sm text-foreground">
                         {guest.dietary || '—'}
                       </span>
                     </TableCell>
-                          <TableCell className="py-1 w-28">
+                          <TableCell className="py-1 px-2">
                             {(() => {
                               const typeLabel = getGuestTypeLabel(guest);
                               let colorClasses = 'bg-[#ff1493] text-white';
@@ -1986,7 +2003,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               );
                             })()}
                           </TableCell>
-                          <TableCell className="py-1 w-20">
+                          <TableCell className="py-1 px-2">
                             {guest.notes && guest.notes.trim() !== '' ? (
                               <TooltipProvider delayDuration={100}>
                                 <Tooltip>
@@ -2002,7 +2019,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               <Badge className="text-white bg-red-500">No</Badge>
                             )}
                           </TableCell>
-                          <TableCell className="py-1 w-28">
+                          <TableCell className="py-1 px-2">
                             <div className="flex items-center space-x-1">
                               <TooltipProvider>
                                 <Tooltip>
