@@ -78,13 +78,11 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.text(dateTimeString, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 6;
 
-  // "[Venue] – Generated on: DD/MM/YY Time: HH:MM"
+  // "[Venue]" - no generated date/time in header anymore
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(10);
   const venue = event.ceremony_venue || event.venue || 'Venue TBD';
-  const generatedDate = format(new Date(), 'dd/MM/yy');
-  const generatedTime = format(new Date(), 'h:mm a');
-  pdf.text(`${venue} – Generated on: ${generatedDate} Time: ${generatedTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  pdf.text(venue, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 5;
 
   // Total Attending Ceremony line
