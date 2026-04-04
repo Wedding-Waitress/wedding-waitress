@@ -170,6 +170,18 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               Typography
             </span>
             
+            <div className="flex items-center justify-between">
+              <Label htmlFor="larger-table-names" className="text-sm font-medium text-foreground">Guest Table Names Larger</Label>
+              <Switch
+                id="larger-table-names"
+                checked={settings.largerTableNames}
+                onCheckedChange={(checked) => 
+                  onSettingsChange({ largerTableNames: checked })
+                }
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-destructive"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label className="text-xs text-muted-foreground">Text Style</Label>
               <DropdownMenu>

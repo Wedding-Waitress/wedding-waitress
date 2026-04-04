@@ -674,7 +674,7 @@ export const generateIndividualTableSVG = (
         // Consistent gap from seat circle edge to name label
         // Seat circle = 44px, radius = 22px, gap = 4px from edge
         const angleDegrees = (angle * 180) / Math.PI;
-        const circleGapY = 32; // larger gap for top/bottom names
+        const circleGapY = 38; // larger gap for top/bottom names
         const circleGapX = 26; // gap for left/right names
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
@@ -1189,7 +1189,7 @@ export const generateIndividualTableSVG = (
                 top: ${seat.labelY}px;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
-                font-size: ${scaledFontPt}pt;
+                font-size: ${settings.largerTableNames ? scaledFontPt * 1.25 : scaledFontPt}pt;
                 font-weight: ${settings.isBold ? '700' : '400'};
                 font-style: ${settings.isItalic ? 'italic' : 'normal'};
                 text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
