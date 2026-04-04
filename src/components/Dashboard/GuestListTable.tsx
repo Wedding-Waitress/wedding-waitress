@@ -782,7 +782,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Helper function to get the type label for a guest
   const getGuestTypeLabel = (guest: any): string => {
     if (!guest.family_group) {
-      return 'Single';
+      return 'Individual';
     }
     
     const groupType = familyGroupTypeMap.get(guest.family_group);
@@ -793,7 +793,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       return 'Family';
     }
     
-    return 'Single'; // Fallback
+    return 'Individual'; // Fallback
   };
 
   const sortedGuests = useMemo(() => {
