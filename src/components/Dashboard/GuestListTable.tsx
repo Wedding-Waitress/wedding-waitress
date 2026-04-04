@@ -116,9 +116,9 @@ const SORT_OPTIONS = [
   { value: 'first_name', label: 'First Name', icon: UserRound },
   { value: 'last_name', label: 'Last Name', icon: UserRound },
   { value: 'table_name', label: 'Table No.', icon: Hash },
-  { value: 'individuals_first', label: 'Individuals', icon: User },
-  { value: 'couples_first', label: 'Couples', icon: Heart },
-  { value: 'families_first', label: 'Families', icon: Users },
+  { value: 'individuals_first', label: 'Individual', icon: User },
+  { value: 'couples_first', label: 'Couple', icon: Heart },
+  { value: 'families_first', label: 'Family', icon: Users },
   { value: 'default', label: 'Default', icon: ListOrdered },
 ] as const;
 
