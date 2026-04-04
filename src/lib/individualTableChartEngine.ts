@@ -674,7 +674,7 @@ export const generateIndividualTableSVG = (
         // Consistent gap from seat circle edge to name label
         // Seat circle = 44px, radius = 22px, gap = 4px from edge
         const angleDegrees = (angle * 180) / Math.PI;
-        const circleGap = 26; // 22px radius + 4px gap
+        const circleGapY = 32; // larger gap for top/bottom names
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
           labelX = x;

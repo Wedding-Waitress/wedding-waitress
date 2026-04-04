@@ -241,7 +241,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         // Consistent gap from seat circle edge to name label
         // Seat circle = 44px (w-11), radius = 22px, gap = 4px
         const gapFromCircleX = 5.2; // (22+4)/500 * 100
-        const gapFromCircleY = 6;   // (22+5)/450 * 100
+        const gapFromCircleY = 8;   // larger gap for top/bottom names
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
           labelX = x;
