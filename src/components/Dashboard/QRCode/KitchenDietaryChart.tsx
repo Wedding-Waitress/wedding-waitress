@@ -645,7 +645,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       <div className={`flex-1 overflow-hidden ${getFontSizeClass()} mt-2`}>
                         <table className="w-full border-collapse mt-0">
                           <thead>
-                            <tr style={{ backgroundColor: '#f3f3f3', borderBottom: '2px solid #ccc' }}>
+                            <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
+                              <th colSpan={99} className="py-[3px] px-[4pt]" style={{ fontSize: '8pt' }}>&nbsp;</th>
+                            </tr>
+                            <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
                               <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>First Name</th>
                               <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Last Name</th>
                               <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Table</th>
