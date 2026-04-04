@@ -1,5 +1,13 @@
 import jsPDF from 'jspdf';
 import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
+import {
+  PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_LEFT_MM, MARGIN_TOP_MM,
+  HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
+  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, GUESTS_PER_PAGE, COLUMN_WIDTH_MM,
+  CONTENT_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM, FOOTER_LOGO_WIDTH_MM,
+  FOOTER_META_Y_MM, FOOTER_LOGO_Y_MM, FOOTER_START_MM,
+  paginateGuests,
+} from '@/lib/fullSeatingChartLayout';
 
 interface Guest {
   id: string;
@@ -37,15 +45,6 @@ interface Event {
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
 }
-
-// Layout constants matching Running Sheet
-const PDF_WIDTH_MM = 210;
-const PDF_HEIGHT_MM = 297;
-const FOOTER_ZONE_MM = 25;
-const FOOTER_LOGO_HEIGHT_MM = 12;
-const FOOTER_LOGO_WIDTH_MM = 42;
-const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 3;
-const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
 
 // Convert font size setting to points
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
