@@ -1251,13 +1251,13 @@ export const generateIndividualTableSVG = (
       <!-- Footer - Running Sheet Style -->
       ${settings.showLogo ? `
         <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; padding: 16px 0 4px 0;">
-          <span style="font-size: 7pt; color: #aaa;">Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1}</span>
+          <span style="font-size: 7pt; color: #000;">Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1}</span>
           <img 
             src="${weddingWaitressLogoFull}" 
             alt="Wedding Waitress" 
             style="width: 159px; height: 45px; object-fit: contain;"
           />
-          <span style="font-size: 7pt; color: #aaa;">Generated: ${footerTimestamp}</span>
+          <span style="font-size: 7pt; color: #000;">Generated: ${footerTimestamp}</span>
         </div>
       ` : ''}
     </div>
