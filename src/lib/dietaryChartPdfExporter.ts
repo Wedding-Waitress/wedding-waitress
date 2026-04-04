@@ -436,6 +436,15 @@ export const exportDietaryChartToPdf = async (
   }
 
   // Save PDF
-  const fileName = `kitchen-dietary-requirements-${event.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+  const pageLabel = mode === 'single' ? 'Single Page' : 'All Pages';
+  const safeName = event.name.replace(/[\/:*?"<>|]/g, '');
+  const eventDate = event.date ? (() => {
+    const d = new Date(event.date + 'T00:00:00');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  })() : new Date().toISOString().split('T')[0];
+  const fileName = `${safeName}-Dietary Requirements-${pageLabel}-${eventDate}.pdf`;
   pdf.save(fileName);
 };
