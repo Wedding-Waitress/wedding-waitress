@@ -152,13 +152,13 @@ export const generateCeremonyFloorPlanPDF = async (
   const leftCount = floorPlan.bridal_party_count_left || 0;
   const rightCount = floorPlan.bridal_party_count_right || 0;
   
-  const bridalBoxWidth = 12;
-  const bridalBoxHeight = 9;
+  const bridalBoxWidth = 14;
+  const bridalBoxHeight = 10.5;
   const bridalGap = 1;
   const bridalRowGap = 2;
-  const roleHeight = 3; // Height for role label below each box
-  const celebrantRadius = 4.5;
-  const coupleCircleRadius = 5.5;
+  const roleHeight = 3;
+  const celebrantRadius = 6;
+  const coupleCircleRadius = 7;
   const celebrantX = PAGE_WIDTH / 2;
   
   // Max 6 per row
