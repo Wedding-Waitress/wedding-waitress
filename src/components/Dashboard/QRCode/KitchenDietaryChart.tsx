@@ -620,10 +620,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           Kitchen Dietary Requirements
                         </p>
                         
-                        {/* Line 3: Total Dietary Guests count */}
-                        <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
-                          Total Dietary Guests: {dietaryGuests.length}
-                        </p>
                         
                         {/* Ceremony info line */}
                         {currentEvent.ceremony_date && (
