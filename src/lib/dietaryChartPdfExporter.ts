@@ -231,28 +231,36 @@ export const exportDietaryChartToPdf = async (
 
     let yPos = margin;
 
-    // Header - Event Name (16pt, bold, purple, centered)
+    // Header - Event Name (18pt, bold, purple, centered) - matching FSC
     pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(16);
+    pdf.setFontSize(18);
     pdf.setTextColor(purple.r, purple.g, purple.b);
     pdf.text(event.name, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 5;
+    yPos += 6;
 
-    // Header - Chart Title + Date (12pt, bold, black, centered)
+    // Subtitle - "Kitchen Dietary Requirements - Total Dietary Guests: X" (normal, 12pt)
+    pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
-    pdf.text(`Kitchen Dietary Requirements - ${formatDateWithOrdinal(event.date)}`, pageWidth / 2, yPos, { align: 'center' });
+    pdf.text(`Kitchen Dietary Requirements - Total Dietary Guests: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Header - Venue/Stats Line (10pt, black, centered)
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(10);
-    const statsLine = `${event.venue || 'No Venue Set'} - Total Dietary Guests: ${guests.length} - Page ${pageNum} of ${totalPages} - Generated on: ${timestamp}`;
-    pdf.text(statsLine, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 3;
+    // Ceremony info line (if available)
+    pdf.setFontSize(9);
+    pdf.setTextColor(85, 85, 85);
+    if (event.ceremony_date) {
+      const ceremonyLine = `Ceremony: ${formatDateWithOrdinal(event.ceremony_date)} | ${event.ceremony_venue || 'Venue TBD'} | ${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
+      pdf.text(ceremonyLine, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 4;
+    }
 
-    // Draw border line
-    pdf.setDrawColor(0, 0, 0);
+    // Reception info line
+    const receptionLine = `Reception: ${formatDateWithOrdinal(event.date)} | ${event.venue || 'Venue TBD'} | ${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
+    pdf.text(receptionLine, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 4;
+
+    // Purple divider line - matching FSC
+    pdf.setDrawColor(purple.r, purple.g, purple.b);
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 6;
