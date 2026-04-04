@@ -128,7 +128,7 @@ const loadLogoAsBase64 = async (): Promise<string | null> => {
   }
 };
 
-// Draw footer matching Running Sheet style
+// Draw footer at fixed position
 const drawPageFooter = (
   pdf: jsPDF,
   logoBase64: string | null,
@@ -137,13 +137,13 @@ const drawPageFooter = (
   timestamp: string,
   showLogo: boolean
 ) => {
-  // White rectangle to cover any bleeding content
+  // White rectangle to cover any bleeding content in footer zone
   pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, PDF_HEIGHT_MM - FOOTER_ZONE_MM, PDF_WIDTH_MM, FOOTER_ZONE_MM, 'F');
+  pdf.rect(0, FOOTER_START_MM, PAGE_WIDTH_MM, PAGE_HEIGHT_MM - FOOTER_START_MM, 'F');
 
   // Logo centered
   if (showLogo && logoBase64) {
-    const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
+    const logoX = (PAGE_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
     try {
       pdf.addImage(logoBase64, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
     } catch {
@@ -154,8 +154,8 @@ const drawPageFooter = (
   // Page number (left) and Generated timestamp (right)
   pdf.setFontSize(7);
   pdf.setTextColor(170, 170, 170);
-  pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
-  pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
+  pdf.text(`Page ${pageNum} of ${totalPages}`, MARGIN_LEFT_MM, FOOTER_META_Y_MM);
+  pdf.text(`Generated: ${timestamp}`, PAGE_WIDTH_MM - MARGIN_LEFT_MM, FOOTER_META_Y_MM, { align: 'right' });
 };
 
 export const exportFullSeatingChartToPdf = async (
