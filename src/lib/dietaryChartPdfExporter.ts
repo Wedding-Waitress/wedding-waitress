@@ -309,7 +309,7 @@ export const exportDietaryChartToPdf = async (
 
     if (summaryCounts.length > 0) {
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(9);
+      pdf.setFontSize(fontSize);
       pdf.setTextColor(0, 0, 0);
       const row1Types = ['Kids Meal','Pescatarian','Vegetarian','Vegan','Seafood Free','Gluten Free'];
       const row2Types = ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'];
@@ -333,7 +333,7 @@ export const exportDietaryChartToPdf = async (
     pdf.rect(margin, yPos, contentWidth, headerBarHeight, 'F');
     pdf.line(margin, yPos + headerBarHeight, pageWidth - margin, yPos + headerBarHeight); // bottom border
 
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(fontSize);
     pdf.setTextColor(0, 0, 0);
     
