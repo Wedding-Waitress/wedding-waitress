@@ -1190,7 +1190,7 @@ export const generateIndividualTableSVG = (
               <div style="
                 position: absolute;
                 left: ${seat.labelX}px;
-                top: ${seat.labelY + 2}px;
+                top: ${seat.labelY}px;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
                 font-size: ${settings.largerTableNames ? scaledFontPt * 1.25 : scaledFontPt}pt;
