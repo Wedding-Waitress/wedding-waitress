@@ -41,14 +41,23 @@ interface UseRealtimeGuestsReturn {
   reorderGuestsWithSeats: (tableId: string, orderedGuestIds: string[]) => Promise<boolean>;
 }
 
+// Module-level cache for instant loading on tab switches
+const guestsCache = new Map<string, Guest[]>();
+
 export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsReturn => {
-  const [guests, setGuests] = useState<Guest[]>([]);
+  const cached = eventId ? guestsCache.get(eventId) : undefined;
+  const [guests, setGuests] = useState<Guest[]>(cached ?? []);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const channelRef = useRef<any>(null);
   const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Flag to prevent realtime updates from interfering with active drag operations
   const isOperationInProgress = useRef(false);
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && guests.length > 0) guestsCache.set(eventId, guests);
+  }, [eventId, guests]);
 
   // Fetch guests from database
   const fetchGuests = useCallback(async () => {
@@ -57,7 +66,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return;
     }
 
-    setLoading(true);
+    if (!guestsCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('guests')

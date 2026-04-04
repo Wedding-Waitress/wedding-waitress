@@ -97,11 +97,20 @@ const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 
   person_right_name: 'Bride',
 };
 
+// Module-level cache for instant loading on tab switches
+const floorPlanCache = new Map<string, CeremonyFloorPlan>();
+
 export const useCeremonyFloorPlan = (eventId: string | null) => {
-  const [floorPlan, setFloorPlan] = useState<CeremonyFloorPlan | null>(null);
-  const [loading, setLoading] = useState(true); // Start as true to prevent premature creation
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const cached = eventId ? floorPlanCache.get(eventId) : undefined;
+  const [floorPlan, setFloorPlan] = useState<CeremonyFloorPlan | null>(cached ?? null);
+  const [loading, setLoading] = useState(!cached); // Start as true only if no cache
+  const [initialLoadComplete, setInitialLoadComplete] = useState(!!cached);
   const { toast } = useToast();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && floorPlan) floorPlanCache.set(eventId, floorPlan);
+  }, [eventId, floorPlan]);
 
   const fetchFloorPlan = useCallback(async () => {
     if (!eventId) {
@@ -109,7 +118,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
       return;
     }
 
-    setLoading(true);
+    if (!floorPlanCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('ceremony_floor_plans')

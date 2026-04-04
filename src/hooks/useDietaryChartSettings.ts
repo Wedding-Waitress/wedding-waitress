@@ -22,10 +22,19 @@ const DEFAULT_SETTINGS: DietaryChartSettings = {
   paperSize: 'A4',
 };
 
+// Module-level cache for instant loading on tab switches
+const settingsCache = new Map<string, DietaryChartSettings>();
+
 export const useDietaryChartSettings = (eventId: string | null) => {
-  const [settings, setSettings] = useState<DietaryChartSettings>(DEFAULT_SETTINGS);
-  const [loading, setLoading] = useState(true);
+  const cached = eventId ? settingsCache.get(eventId) : undefined;
+  const [settings, setSettings] = useState<DietaryChartSettings>(cached ?? DEFAULT_SETTINGS);
+  const [loading, setLoading] = useState(!cached);
   const { toast } = useToast();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && settings) settingsCache.set(eventId, settings);
+  }, [eventId, settings]);
 
   useEffect(() => {
     if (!eventId) {

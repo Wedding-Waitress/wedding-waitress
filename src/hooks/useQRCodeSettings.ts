@@ -86,10 +86,19 @@ export const DEFAULT_QR_SETTINGS: Partial<QRCodeSettings> = {
   marker_center_shape: 'square',
 };
 
+// Module-level cache for instant loading on tab switches
+const qrSettingsCache = new Map<string, QRCodeSettings>();
+
 export const useQRCodeSettings = (eventId: string | null) => {
-  const [settings, setSettings] = useState<QRCodeSettings | null>(null);
+  const cached = eventId ? qrSettingsCache.get(eventId) : undefined;
+  const [settings, setSettings] = useState<QRCodeSettings | null>(cached ?? null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (eventId && settings) qrSettingsCache.set(eventId, settings);
+  }, [eventId, settings]);
 
   const fetchSettings = async () => {
     if (!eventId) {
@@ -97,7 +106,7 @@ export const useQRCodeSettings = (eventId: string | null) => {
       return;
     }
 
-    setLoading(true);
+    if (!qrSettingsCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('qr_code_settings')
