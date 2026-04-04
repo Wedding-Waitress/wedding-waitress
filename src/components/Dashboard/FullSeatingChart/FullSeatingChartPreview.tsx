@@ -220,7 +220,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   // Calculate the minimum row height in mm based on current settings (two-line format)
   const getRowHeightMm = () => {
     const baseRowHeight: Record<string, number> = {
-      'small': 7.2,
+      'small': 7.5,
       'medium': 11,
       'large': 13
     };
