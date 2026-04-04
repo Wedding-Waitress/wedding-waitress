@@ -763,28 +763,42 @@ export const generateIndividualTableSVG = (
    */
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 48px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
-      <!-- Header Section - FIXED SIZES: 14pt, 11pt, 12pt (do not change) -->
+      <!-- Header Section - Running Sheet Style -->
       <div style="text-align: center; margin-bottom: 10px; padding: 10px 0;">
-        <!-- Event Name - Purple and Bold - FIXED 14pt -->
-        <div style="font-size: 14pt; font-weight: 700; color: #6D28D9; text-align: center; margin-bottom: 8px; line-height: 1.5;">
+        <!-- Event Name - Large Purple Bold -->
+        <div style="font-size: 22px; font-weight: 700; color: #6d28d9; text-align: center; margin-bottom: 4px; line-height: 1.5;">
           ${eventName}
         </div>
-        <!-- Title and Date with Day of Week - FIXED 11pt -->
-        <div style="font-size: 11pt; font-weight: 700; color: #000000; text-align: center; margin-bottom: 8px; line-height: 1.3;">
-          Table Seating Arrangements – ${event?.date ? (() => {
-            const d = new Date(event.date);
-            const day = d.getDate();
-            const suffix = day > 3 && day < 21 ? 'th' : ['th', 'st', 'nd', 'rd'][day % 10] || 'th';
-            const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
-            const month = d.toLocaleDateString('en-GB', { month: 'long' });
-            const year = d.getFullYear();
-            return `${weekday} ${day}${suffix}, ${month} ${year}`;
-          })() : ''}
+        <!-- Subtitle -->
+        <div style="font-size: 16px; font-weight: 400; color: #222; text-align: center; margin-top: 4px;">
+          Table Seating Arrangements
         </div>
-        <!-- Venue, Tables, Page Info and Timestamp - FIXED 12pt -->
-        <div style="font-size: 12pt; color: #000000; text-align: center; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #000000;">
-          ${event?.venue || 'Venue'} – Total Tables: ${settings.totalTables || 1} – Page ${settings.currentTableIndex || 1} of ${settings.totalTables || 1} – Generated on: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })} Time: ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })}
+        <!-- Ceremony & Reception Details -->
+        <div style="text-align: center; margin-top: 4px; margin-bottom: 6px;">
+          ${event?.ceremony_date ? `
+            <div style="color:#555;font-size:12px;margin-top:2px;">Ceremony: ${(() => {
+              const date = new Date(event.ceremony_date + 'T00:00:00');
+              const day = date.getDate();
+              const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
+              const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+              const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+              const fmtTime = (t: string | null) => { if (!t) return 'TBD'; const [h,m] = t.split(':'); const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM'; const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return \`\${dh}:\${m} \${ampm}\`; };
+              return \`\${dayName} \${ordinal(day)}, \${monthNames[date.getMonth()]} \${date.getFullYear()} | \${event?.ceremony_venue || 'Venue TBD'} | \${fmtTime(event?.ceremony_start_time)} – \${fmtTime(event?.ceremony_finish_time)}\`;
+            })()}</div>
+          ` : ''}
+          <div style="color:#555;font-size:12px;margin-top:2px;">Reception: ${(() => {
+            if (!event?.date) return 'TBD';
+            const date = new Date(event.date + 'T00:00:00');
+            const day = date.getDate();
+            const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const fmtTime = (t: string | null) => { if (!t) return 'TBD'; const [h,m] = t.split(':'); const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM'; const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return \`\${dh}:\${m} \${ampm}\`; };
+            return \`\${dayName} \${ordinal(day)}, \${monthNames[date.getMonth()]} \${date.getFullYear()} | \${event?.venue || 'Venue TBD'} | \${fmtTime(event?.start_time)} – \${fmtTime(event?.finish_time)}\`;
+          })()}</div>
         </div>
+        <!-- Purple Divider -->
+        <div style="border-top: 2px solid #6d28d9; margin: 8px 0 14px 0;"></div>
       </div>
 
       <!-- Table Visualization -->
