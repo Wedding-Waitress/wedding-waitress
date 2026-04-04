@@ -300,9 +300,9 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(180, 180, 180);
   pdf.setLineWidth(0.2);
   pdf.circle(celebrantX, coupleCircleY, celebrantRadius, 'FD');
-  pdf.setFontSize(4);
+  pdf.setFontSize(5);
   pdf.setTextColor(100, 100, 100);
-  pdf.text('Celebrant', celebrantX, coupleCircleY + 0.5, { align: 'center' });
+  pdf.text('Celebrant', celebrantX, coupleCircleY + 1, { align: 'center' });
   
   // Right person circle (beside celebrant)
   const rightPersonX = celebrantX + celebrantRadius + coupleCircleRadius + 2;
