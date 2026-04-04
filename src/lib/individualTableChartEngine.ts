@@ -1104,118 +1104,68 @@ export const generateIndividualTableSVG = (
           `;
         })()}
       ` : `
-        <!-- ROUND/SQUARE TABLE LAYOUT -->
+        <!-- ROUND/SQUARE TABLE LAYOUT as inline SVG -->
       <div style="flex: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
-        <div style="position: relative; width: 500px; height: 450px;">
-          <!-- Table -->
-          <div style="
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
-            border: 1px solid #333;
-            background: #f9f9f9;
-            ${settings.tableShape === 'round' ? 'border-radius: 50%;' : 'border-radius: 8px;'}
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: #000000;
-            flex-direction: column;
-            line-height: 1.2;
-            text-rendering: optimizeLegibility;
-            ">
-            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline; font-size: ${getTitleSize(settings.fontSize)}px;">TABLE</div>
-            <div style="padding: 2px 0; display: inline-block; vertical-align: baseline; font-size: ${getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250)}px;">${table.table_no ?? table.name}</div>
-          </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="500" height="450" viewBox="0 0 500 450" style="overflow: visible;">
+          <!-- Table shape -->
+          ${settings.tableShape === 'round' 
+            ? `<circle cx="250" cy="225" r="140" fill="#f9f9f9" stroke="#333" stroke-width="1"/>`
+            : `<rect x="110" y="85" width="280" height="280" rx="8" ry="8" fill="#f9f9f9" stroke="#333" stroke-width="1"/>`
+          }
+          <!-- Table label -->
+          <text x="250" y="210" text-anchor="middle" dominant-baseline="auto" font-weight="700" font-size="${getTitleSize(settings.fontSize)}px" fill="#000000" style="font-family: Arial, Helvetica, sans-serif;">TABLE</text>
+          <text x="250" y="${210 + getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250) + 4}" text-anchor="middle" dominant-baseline="auto" font-weight="700" font-size="${getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250)}px" fill="#000000" style="font-family: Arial, Helvetica, sans-serif;">${table.table_no ?? table.name}</text>
 
           <!-- Seats -->
           ${seats.map(seat => {
+            // Convert percentage coordinates to pixels
+            const seatPxX = (seat.x / 100) * 500;
+            const seatPxY = (seat.y / 100) * 450;
+            const labelPxX = (seat.labelX / 100) * 500;
+            const labelPxY = (seat.labelY / 100) * 450;
+
             // Auto-scale font for top/bottom sides to prevent overlap
             const getAutoScaledFontSize = () => {
               if (settings.tableShape !== 'square') return 11;
-              
-              // Check if this is a top or bottom side (textAlign === 'center')
               if (seat.textAlign !== 'center') return 11;
-              
               const guestCount = sortedGuests.length;
               const guestsPerSide = Math.ceil(guestCount / 4);
-              
-              // Calculate available width per name on horizontal sides
-              const containerWidth = 500; // px
-              const usableWidth = containerWidth * 0.85; // 85% usable
+              const containerWidth = 500;
+              const usableWidth = containerWidth * 0.85;
               const widthPerName = usableWidth / guestsPerSide;
-              
-              // Estimate name width (first name only)
               const firstName = seat.guest?.first_name || '';
               const baseFontPt = 11;
               const charWidthRatio = 0.6;
               const estimatedWidth = firstName.length * baseFontPt * charWidthRatio;
-              
               if (estimatedWidth <= widthPerName) return baseFontPt;
-              
-              // Scale down the font
               const scaleFactor = Math.min(widthPerName / estimatedWidth, 1);
               return Math.max(baseFontPt * scaleFactor, 8);
             };
-            
             const scaledFontPt = getAutoScaledFontSize();
-            
-            return `
-            <!-- Seat Circle with table-based centering for html2canvas -->
-            <div style="
-              position: absolute;
-              left: ${seat.x}%;
-              top: ${seat.y}%;
-              width: 44px;
-              height: 44px;
-              margin-left: -22px;
-              margin-top: -22px;
-              border: 1px solid #000;
-              border-radius: 50%;
-              background: white;
-              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            ">
-              <table width="44" height="44" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" valign="middle" style="font-weight: bold; font-size: 12px;">
-                    ${settings.showSeatNumbers ? seat.number : ''}
-                  </td>
-                </tr>
-              </table>
-            </div>
 
-            <!-- Guest Name - Side-aware positioning -->
+            // Determine SVG text-anchor from textAlign
+            const svgAnchor = seat.textAlign === 'center' ? 'middle' : seat.textAlign === 'right' ? 'end' : 'start';
+
+            return `
+            <!-- Seat circle -->
+            <circle cx="${seatPxX}" cy="${seatPxY}" r="22" fill="white" stroke="#000" stroke-width="1"/>
+            ${settings.showSeatNumbers ? `
+              <text x="${seatPxX}" y="${seatPxY}" text-anchor="middle" dominant-baseline="central" font-weight="bold" font-size="12px" fill="#000000" style="font-family: Arial, Helvetica, sans-serif;">${seat.number}</text>
+            ` : ''}
+
+            <!-- Guest Name -->
             ${seat.guest && settings.includeNames ? `
-              <div style="
-                position: absolute;
-                left: ${seat.labelX}%;
-                top: ${seat.labelY}%;
-                transform: ${seat.transform};
-                text-align: ${seat.textAlign};
-                font-size: ${settings.largerTableNames ? scaledFontPt * 1.25 : scaledFontPt}pt;
-                font-weight: ${settings.isBold ? '700' : '400'};
-                font-style: ${settings.isItalic ? 'italic' : 'normal'};
-                text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
-                color: #000000;
-                line-height: 1.4;
-                white-space: nowrap;
-                overflow: hidden;
-                max-width: 95px;
-                padding: 4px;
-                display: inline-block;
-                vertical-align: baseline;
-                text-rendering: optimizeLegibility;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-              " title="${seat.guest.first_name} ${seat.guest.last_name}">
-                ${seat.guest.first_name}
-              </div>
+              <text x="${labelPxX}" y="${labelPxY}" text-anchor="${svgAnchor}" dominant-baseline="central"
+                font-size="${settings.largerTableNames ? scaledFontPt * 1.25 : scaledFontPt}pt"
+                font-weight="${settings.isBold ? '700' : '400'}"
+                font-style="${settings.isItalic ? 'italic' : 'normal'}"
+                ${settings.isUnderline ? 'text-decoration="underline"' : ''}
+                fill="#000000"
+                style="font-family: Arial, Helvetica, sans-serif;"
+              >${seat.guest.first_name}</text>
             ` : ''}
           `}).join('')}
-        </div>
+        </svg>
       </div>
       `}
 
