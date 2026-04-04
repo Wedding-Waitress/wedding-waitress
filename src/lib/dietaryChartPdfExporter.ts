@@ -29,6 +29,12 @@ interface Event {
   venue: string;
   partner1_name?: string | null;
   partner2_name?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
+  ceremony_date?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
 }
 
 // Convert font size setting to points
