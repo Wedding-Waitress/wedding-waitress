@@ -743,23 +743,44 @@ export const generateIndividualTableSVG = (
 
   const eventName = event?.name || 'Event';
 
+  // Pre-compute header details for Running Sheet style
+  const fmtOrdinalDate = (dateStr: string | null) => {
+    if (!dateStr) return 'TBD';
+    const date = new Date(dateStr + 'T00:00:00');
+    const day = date.getDate();
+    const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+    return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+  };
+  const fmtTimeDisplay = (t: string | null | undefined) => {
+    if (!t) return 'TBD';
+    const [h, m] = t.split(':');
+    const hr = parseInt(h);
+    const ampm = hr >= 12 ? 'PM' : 'AM';
+    const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr;
+    return `${dh}:${m} ${ampm}`;
+  };
+
+  const ceremonyDetailLine = event?.ceremony_date
+    ? `Ceremony: ${fmtOrdinalDate(event.ceremony_date)} | ${event?.ceremony_venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.ceremony_start_time)} – ${fmtTimeDisplay(event?.ceremony_finish_time)}`
+    : '';
+  const receptionDetailLine = `Reception: ${fmtOrdinalDate(event?.date)} | ${event?.venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.start_time)} – ${fmtTimeDisplay(event?.finish_time)}`;
+
+  // Pre-compute footer timestamp
+  const footerTimestamp = (() => {
+    const now = new Date();
+    const hours = now.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${displayHour}:${String(now.getMinutes()).padStart(2,'0')} ${ampm}`;
+  })();
+
   /**
-   * FIXED LAYOUT SIZES - DO NOT MODIFY
-   * ===================================
-   * Header Section:
-   *   - Event Name: 14pt (fixed, purple, bold)
-   *   - Date/Title Line: 11pt (fixed, black, bold)
-   *   - Venue/Info Line: 12pt (fixed, black)
-   * 
-   * Footer Section:
-   *   - Wedding Waitress Logo: 48px height (fixed)
-   * 
+   * Layout sizes for header/footer match Running Sheet style.
    * The font size setting from the customizer ONLY affects:
    *   - Table name inside the circular table
    *   - Guest names in the guest list
-   * 
-   * Header and footer sizes remain constant regardless of font size setting
-   * to ensure consistent branding and professional appearance.
    */
   return `
     <div style="width: 794px; height: 1123px; background: white; font-family: Arial, sans-serif; padding: 48px; box-sizing: border-box; display: flex; flex-direction: column; line-height: 1.4;">
@@ -775,27 +796,8 @@ export const generateIndividualTableSVG = (
         </div>
         <!-- Ceremony & Reception Details -->
         <div style="text-align: center; margin-top: 4px; margin-bottom: 6px;">
-          ${event?.ceremony_date ? `
-            <div style="color:#555;font-size:12px;margin-top:2px;">Ceremony: ${(() => {
-              const date = new Date(event.ceremony_date + 'T00:00:00');
-              const day = date.getDate();
-              const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
-              const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-              const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-              const fmtTime = (t: string | null) => { if (!t) return 'TBD'; const [h,m] = t.split(':'); const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM'; const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return \`\${dh}:\${m} \${ampm}\`; };
-              return \`\${dayName} \${ordinal(day)}, \${monthNames[date.getMonth()]} \${date.getFullYear()} | \${event?.ceremony_venue || 'Venue TBD'} | \${fmtTime(event?.ceremony_start_time)} – \${fmtTime(event?.ceremony_finish_time)}\`;
-            })()}</div>
-          ` : ''}
-          <div style="color:#555;font-size:12px;margin-top:2px;">Reception: ${(() => {
-            if (!event?.date) return 'TBD';
-            const date = new Date(event.date + 'T00:00:00');
-            const day = date.getDate();
-            const ordinal = (n: number) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
-            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-            const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
-            const fmtTime = (t: string | null) => { if (!t) return 'TBD'; const [h,m] = t.split(':'); const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM'; const dh = hr === 0 ? 12 : hr > 12 ? hr - 12 : hr; return \`\${dh}:\${m} \${ampm}\`; };
-            return \`\${dayName} \${ordinal(day)}, \${monthNames[date.getMonth()]} \${date.getFullYear()} | \${event?.venue || 'Venue TBD'} | \${fmtTime(event?.start_time)} – \${fmtTime(event?.finish_time)}\`;
-          })()}</div>
+          ${ceremonyDetailLine ? `<div style="color:#555;font-size:12px;margin-top:2px;">${ceremonyDetailLine}</div>` : ''}
+          <div style="color:#555;font-size:12px;margin-top:2px;">${receptionDetailLine}</div>
         </div>
         <!-- Purple Divider -->
         <div style="border-top: 2px solid #6d28d9; margin: 8px 0 14px 0;"></div>
