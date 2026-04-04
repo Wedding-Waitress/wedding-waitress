@@ -50,6 +50,7 @@ import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
+import { GUESTS_PER_PAGE } from '@/lib/fullSeatingChartLayout';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
