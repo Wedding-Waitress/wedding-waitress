@@ -482,58 +482,55 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           </div>
         )}
 
-        {/* A4 Paper Container - True A4 size: 210mm × 297mm */}
+        {/* A4 Paper Container - Fixed zone layout: Header | Content | Footer */}
         <div className="flex justify-center">
           <div 
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
-              width: '210mm', 
-              height: '297mm',
-              minWidth: '210mm',
-              maxWidth: '210mm',
-              overflow: 'hidden'
+              width: `${PAGE_WIDTH_MM}mm`, 
+              height: `${PAGE_HEIGHT_MM}mm`,
+              minWidth: `${PAGE_WIDTH_MM}mm`,
+              maxWidth: `${PAGE_WIDTH_MM}mm`,
+              overflow: 'hidden',
+              position: 'relative',
             }}
           >
-            {/* Content with 1.27cm margins all around (narrow margins) */}
-            <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm' }} className="h-full flex flex-col">
-              {/* Header - compact for screen display */}
-              <div className="text-center" style={{ marginBottom: '1mm' }}>
-                {/* Line 1: Event Name (purple, larger) */}
+            {/* ── ZONE 1: HEADER (fixed position & height) ── */}
+            <div style={{
+              position: 'absolute',
+              top: `${MARGIN_TOP_MM}mm`,
+              left: `${MARGIN_LEFT_MM}mm`,
+              right: `${MARGIN_LEFT_MM}mm`,
+              height: `${HEADER_HEIGHT_MM}mm`,
+              overflow: 'hidden',
+            }}>
+              <div className="text-center">
                 <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   {event.name}
                 </h1>
-                
-                {/* Line 2: Full Seating Chart - Total Guests: X */}
                 <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
-                
-                {/* Ceremony info line */}
                 {event.ceremony_date && (
                   <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                     Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
                   </p>
                 )}
-                
-                {/* Reception info line */}
                 <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
-                
-                {/* Purple divider */}
                 <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
               </div>
 
-              {/* Column Headers Bar - matching Running Sheet TIME/EVENT/WHO style */}
+              {/* Column Headers Bar */}
               <div 
                 style={{ 
                   display: 'grid', 
                   gridTemplateColumns: '1fr 1fr', 
-                  columnGap: '12mm',
+                  columnGap: `${COLUMN_GAP_MM}mm`,
                   backgroundColor: '#f3f3f3',
                   borderBottom: '2px solid #ccc',
                   padding: '3px 2px',
-                  marginBottom: '0',
                 }}
               >
                 <div className="flex justify-between items-center px-1">
@@ -555,59 +552,61 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   </div>
                 )}
               </div>
-
-              {/* Guest List */}
-              <div 
-                style={{ 
-                  flex: '1 1 auto',
-                  display: 'grid', 
-                  gridTemplateColumns: '1fr 1fr', 
-                  columnGap: '12mm',
-                }}
-              >
-                {/* Left Column */}
-                <div style={{ paddingTop: '3mm' }}>
-                  {col1Guests.length > 0 && (
-                    <div>
-                      {col1Guests.map((guest) => (
-                        <ScreenGuestRow key={guest.id} guest={guest} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Column */}
-                <div style={{ paddingTop: '3mm' }}>
-                  {col2Guests.length > 0 && (
-                    <div>
-                      {col2Guests.map((guest) => (
-                        <ScreenGuestRow key={guest.id} guest={guest} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Footer - tight to bottom matching PDF */}
-              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingTop: '4mm', paddingBottom: '0' }}>
-                {settings.showLogo && (
-                  <div className="flex justify-center" style={{ paddingTop: '0' }}>
-                    <img 
-                      src={weddingWaitressLogoFull}
-                      alt="Wedding Waitress" 
-                      style={{ height: '12mm', width: 'auto' }}
-                      className="object-contain"
-                    />
-                  </div>
-                )}
-                <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
-                  <span>Page {currentPage} of {totalPages}</span>
-                  <span>Generated: {formatGeneratedTimestamp()}</span>
-                </div>
-              </div>
-
             </div>
+
+            {/* ── ZONE 2: CONTENT (fixed position & height — 30 rows × 7.5mm) ── */}
+            <div style={{
+              position: 'absolute',
+              top: `${CONTENT_START_MM}mm`,
+              left: `${MARGIN_LEFT_MM}mm`,
+              right: `${MARGIN_LEFT_MM}mm`,
+              height: `${CONTENT_HEIGHT_MM}mm`,
+              overflow: 'hidden',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              columnGap: `${COLUMN_GAP_MM}mm`,
+            }}>
+              {/* Left Column */}
+              <div>
+                {col1Guests.map((guest) => (
+                  <ScreenGuestRow key={guest.id} guest={guest} />
+                ))}
+              </div>
+              {/* Right Column */}
+              <div>
+                {col2Guests.map((guest) => (
+                  <ScreenGuestRow key={guest.id} guest={guest} />
+                ))}
+              </div>
+            </div>
+
+            {/* ── ZONE 3: FOOTER (fixed position at bottom) ── */}
+            <div style={{
+              position: 'absolute',
+              top: `${FOOTER_START_MM + FOOTER_GAP_MM}mm`,
+              left: `${MARGIN_LEFT_MM}mm`,
+              right: `${MARGIN_LEFT_MM}mm`,
+              bottom: '5mm',
+              overflow: 'hidden',
+            }}>
+              {settings.showLogo && (
+                <div className="flex justify-center">
+                  <img 
+                    src={weddingWaitressLogoFull}
+                    alt="Wedding Waitress" 
+                    style={{ height: '12mm', width: 'auto' }}
+                    className="object-contain"
+                  />
+                </div>
+              )}
+              <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
+                <span>Page {currentPage} of {totalPages}</span>
+                <span>Generated: {formatGeneratedTimestamp()}</span>
+              </div>
+            </div>
+
           </div>
+        </div>
         </div>
 
         {/* Bottom Page Navigation */}
