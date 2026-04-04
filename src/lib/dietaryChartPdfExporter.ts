@@ -20,6 +20,9 @@ interface DietaryChartSettings {
   showSeatNo: boolean;
   showLogo: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
 }
 
 interface Event {
