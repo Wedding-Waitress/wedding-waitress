@@ -174,20 +174,12 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   return columns;
 };
 
-// Calculate row height based on font size (in mm)
-const getRowHeight = (fontSize: 'small' | 'medium' | 'large'): number => {
-  switch (fontSize) {
-    case 'small': return 5;
-    case 'medium': return 5.5;
-    case 'large': return 6;
-  }
-};
-
 export const exportDietaryChartToPdf = async (
   event: Event,
   guests: DietaryGuest[],
   settings: DietaryChartSettings,
-  mode: 'single' | 'all' = 'all'
+  mode: 'single' | 'all' = 'all',
+  totalDietaryCount?: number
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -202,23 +194,8 @@ export const exportDietaryChartToPdf = async (
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
 
-  // AUTOFIT CALCULATION - Dynamic guests per page based on font size
-  const headerHeight = 22; // mm for header section (title, date, meta line)
-  const tableHeaderHeight = 6; // mm for table column headers
-  const footerHeight = settings.showLogo ? 15 : 5; // mm for footer (logo or spacing)
-  const rowHeight = getRowHeight(settings.fontSize);
-  
-  // Calculate available height for guest rows
-  const availableContentHeight = pageHeight - (2 * margin) - headerHeight - tableHeaderHeight - footerHeight;
-  const guestsPerPage = Math.floor(availableContentHeight / rowHeight);
-  
-  const totalPages = Math.ceil(guests.length / guestsPerPage);
-
-  // Load logo if needed
-  let logoBase64: string | null = null;
-  if (settings.showLogo) {
-    logoBase64 = await loadLogoAsBase64();
-  }
+  // Use the actual total dietary count (for single page, this is passed separately)
+  const displayTotalCount = totalDietaryCount ?? guests.length;
 
   // Purple color for event name and dietary info
   const purple = { r: 109, g: 40, b: 217 }; // #6D28D9
@@ -226,6 +203,67 @@ export const exportDietaryChartToPdf = async (
 
   // Get table columns
   const columns = getTableColumns(settings);
+
+  // Load logo if needed
+  let logoBase64: string | null = null;
+  if (settings.showLogo) {
+    logoBase64 = await loadLogoAsBase64();
+  }
+
+  // Calculate header height by doing a dry run
+  // This ensures guestsPerPage matches the display exactly
+  const calcHeaderHeight = (): number => {
+    let h = 0;
+    h += 6;  // event name
+    h += 5;  // subtitle
+    h += 5;  // total count
+    if (event.ceremony_date) h += 4; // ceremony line
+    h += 4;  // reception line
+    h += 6;  // purple divider + gap
+    h += 10; // summary bar
+    h += 5;  // column headers
+    h += 2;  // gap after header
+    return h;
+  };
+
+  const headerContentHeight = calcHeaderHeight();
+  const footerHeight = settings.showLogo ? 20 : 8;
+  const availableForRows = pageHeight - (2 * margin) - headerContentHeight - footerHeight;
+  
+  // Match display: 25 rows for small, scale for others
+  // Display uses availableHeight=228mm with rowHeight 9/10/11.5
+  const rowHeightBySize: Record<string, number> = {
+    'small': availableForRows / 25,
+    'medium': availableForRows / 22,
+    'large': availableForRows / 20
+  };
+  const rowHeight = rowHeightBySize[settings.fontSize] || availableForRows / 25;
+  const guestsPerPage = Math.floor(availableForRows / rowHeight);
+  
+  const totalPages = Math.ceil(guests.length / guestsPerPage);
+
+  // Dietary summary counts
+  const trackedTypes = [
+    'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
+    'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+  ];
+  const summaryCounts = trackedTypes
+    .map(type => {
+      const typeLower = type.toLowerCase();
+      return { label: type, count: guests.filter(g => {
+        if (!g.dietary) return false;
+        const val = g.dietary.toLowerCase().trim();
+        return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
+      }).length };
+    })
+    .filter(item => item.count > 0);
+
+  // Calculate column positions
+  const colWidths: number[] = [];
+  const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
+  columns.forEach(col => {
+    colWidths.push((col.width / totalWidth) * contentWidth);
+  });
 
   // Generate each page
   for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
@@ -237,7 +275,7 @@ export const exportDietaryChartToPdf = async (
 
     let yPos = margin;
 
-    // Header - Event Name (18pt, bold, purple, centered) - matching FSC
+    // Header - Event Name (18pt, bold, purple, centered)
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(18);
     pdf.setTextColor(purple.r, purple.g, purple.b);
@@ -251,13 +289,17 @@ export const exportDietaryChartToPdf = async (
     pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Total Dietary Guest Requirements count on separate line (number bold)
+    // Total Dietary Guest Requirements - use correct total count
     const totalLabel = 'Total Dietary Guest Requirements: ';
-    const totalCount = String(guests.length);
+    const totalCount = String(displayTotalCount);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(12);
     const labelWidth = pdf.getTextWidth(totalLabel);
+    pdf.setFont('helvetica', 'bold');
     const countWidth = pdf.getTextWidth(totalCount);
     const totalTextWidth = labelWidth + countWidth;
     const startX = (pageWidth - totalTextWidth) / 2;
+    pdf.setFont('helvetica', 'normal');
     pdf.text(totalLabel, startX, yPos);
     pdf.setFont('helvetica', 'bold');
     pdf.text(totalCount, startX + labelWidth, yPos);
@@ -278,38 +320,13 @@ export const exportDietaryChartToPdf = async (
     pdf.text(receptionLine, pageWidth / 2, yPos, { align: 'center' });
     yPos += 4;
 
-    // Purple divider line - matching FSC
+    // Purple divider line
     pdf.setDrawColor(purple.r, purple.g, purple.b);
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos, pageWidth - margin, yPos);
     yPos += 6;
 
-    // Calculate column positions
-    const colWidths: number[] = [];
-    const totalWidth = columns.reduce((sum, col) => sum + col.width, 0);
-    columns.forEach(col => {
-      colWidths.push((col.width / totalWidth) * contentWidth);
-    });
-
-    let xPos = margin;
-
-    // Dietary summary bar (gray background with counts)
-    const trackedTypes = [
-      'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
-    ];
-    const summaryCounts = trackedTypes
-      .map(type => {
-        const typeLower = type.toLowerCase();
-        return { label: type, count: guests.filter(g => {
-          if (!g.dietary) return false;
-          const val = g.dietary.toLowerCase().trim();
-          return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
-        }).length };
-      })
-      .filter(item => item.count > 0);
-
-    // Gray summary bar - two lines
+    // Dietary summary bar (gray background with counts) - two rows
     const summaryBarHeight = 10;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
@@ -326,16 +343,44 @@ export const exportDietaryChartToPdf = async (
       const row2Types = ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'];
       const row1 = summaryCounts.filter(item => row1Types.includes(item.label));
       const row2 = summaryCounts.filter(item => row2Types.includes(item.label));
-      if (row1.length > 0) {
-        pdf.text(row1.map(item => `${item.label}: ${item.count}`).join('    '), pageWidth / 2, yPos + 4, { align: 'center' });
-      }
-      if (row2.length > 0) {
-        pdf.text(row2.map(item => `${item.label}: ${item.count}`).join('    '), pageWidth / 2, yPos + 8, { align: 'center' });
-      }
+
+      // Build text with bold counts
+      const renderSummaryRow = (items: {label: string; count: number}[], yOffset: number) => {
+        if (items.length === 0) return;
+        // Calculate total width first
+        let totalW = 0;
+        const spacing = '    ';
+        items.forEach((item, i) => {
+          pdf.setFont('helvetica', 'normal');
+          totalW += pdf.getTextWidth(`${item.label}: `);
+          pdf.setFont('helvetica', 'bold');
+          totalW += pdf.getTextWidth(String(item.count));
+          if (i < items.length - 1) {
+            pdf.setFont('helvetica', 'normal');
+            totalW += pdf.getTextWidth(spacing);
+          }
+        });
+        let x = (pageWidth - totalW) / 2;
+        items.forEach((item, i) => {
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`${item.label}: `, x, yOffset);
+          x += pdf.getTextWidth(`${item.label}: `);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(String(item.count), x, yOffset);
+          x += pdf.getTextWidth(String(item.count));
+          if (i < items.length - 1) {
+            pdf.setFont('helvetica', 'normal');
+            x += pdf.getTextWidth(spacing);
+          }
+        });
+      };
+
+      renderSummaryRow(row1, yPos + 4);
+      renderSummaryRow(row2, yPos + 8);
     }
     yPos += summaryBarHeight;
 
-    // Draw table headers (bold, with gray background and borders)
+    // Draw table column headers (normal weight, gray background with borders)
     const headerBarHeight = 5;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
@@ -348,36 +393,31 @@ export const exportDietaryChartToPdf = async (
     pdf.setFontSize(fontSize);
     pdf.setTextColor(0, 0, 0);
     
-    xPos = margin;
+    let xPos = margin;
     columns.forEach((col, i) => {
       pdf.text(col.header, xPos + 1, yPos + 3.5);
       xPos += colWidths[i];
     });
     
-    yPos += headerBarHeight + 1;
-    yPos += rowHeight; // gap after header
-    
-    // Empty line gap between header and first guest
-    yPos += rowHeight;
+    yPos += headerBarHeight + 2; // single gap after header
 
     // Determine font style from settings
     const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
-    const nameFontStyle = textFontStyle; // names follow text style setting
 
-    // Draw guest rows
+    // Draw guest rows - matching display row height and alternating colors
     pageGuests.forEach((guest, index) => {
       xPos = margin;
       
-      // Alternating row backgrounds
-      if (index % 2 === 1) {
+      // Alternating row backgrounds - even index = gray (matching display)
+      if (index % 2 === 0) {
         pdf.setFillColor(249, 250, 251); // #F9FAFB
         pdf.rect(margin, yPos - 3, contentWidth, rowHeight, 'F');
       }
 
       let colIdx = 0;
 
-      // First Name (always bold + text style)
-      pdf.setFont('helvetica', nameFontStyle);
+      // First Name
+      pdf.setFont('helvetica', textFontStyle);
       pdf.setFontSize(fontSize);
       pdf.setTextColor(0, 0, 0);
       const firstNameText = pdf.splitTextToSize(guest.first_name, colWidths[colIdx] - 2);
@@ -391,8 +431,8 @@ export const exportDietaryChartToPdf = async (
       xPos += colWidths[colIdx];
       colIdx++;
 
-      // Last Name (always bold + text style)
-      pdf.setFont('helvetica', nameFontStyle);
+      // Last Name
+      pdf.setFont('helvetica', textFontStyle);
       const lastNameVal = guest.last_name || '-';
       const lastNameText = pdf.splitTextToSize(lastNameVal, colWidths[colIdx] - 2);
       pdf.text(lastNameText, xPos, yPos);
@@ -433,7 +473,7 @@ export const exportDietaryChartToPdf = async (
         colIdx++;
       }
 
-      // Dietary (purple, follows text style for bold)
+      // Dietary (purple)
       const dietaryFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
       pdf.setFont('helvetica', dietaryFontStyle);
       pdf.setTextColor(purple.r, purple.g, purple.b);
@@ -474,19 +514,18 @@ export const exportDietaryChartToPdf = async (
         }
       }
 
-      yPos += rowHeight; // Dynamic row spacing based on font size
+      yPos += rowHeight;
     });
 
-    // Footer - matching FSC style with white zone, logo, page/timestamp
-    // White rectangle to cover any bleeding content
+    // Footer
     const footerZone = 25;
     pdf.setFillColor(255, 255, 255);
     pdf.rect(0, pageHeight - footerZone, pageWidth, footerZone, 'F');
 
     // Logo centered
     if (logoBase64) {
-      const logoHeight = 12; // mm - matching FSC
-      const logoWidth = 42; // mm - matching FSC
+      const logoHeight = 12;
+      const logoWidth = 42;
       const logoX = (pageWidth - logoWidth) / 2;
       const logoY = pageHeight - 3 - logoHeight - 2;
       

@@ -239,7 +239,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         description: 'Creating your dietary chart (current page)...',
       });
 
-      await exportDietaryChartToPdf(currentEvent, paginatedGuests, settings, 'single');
+      await exportDietaryChartToPdf(currentEvent, paginatedGuests, settings, 'single', dietaryGuests.length);
 
       toast({
         title: 'PDF Downloaded',
