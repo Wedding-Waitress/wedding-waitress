@@ -631,7 +631,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
 
               {/* Footer - tight to bottom matching PDF */}
-              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingBottom: '0' }}>
+              <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingTop: '4mm', paddingBottom: '0' }}>
                 {settings.showLogo && (
                   <div className="flex justify-center" style={{ paddingTop: '0' }}>
                     <img 
