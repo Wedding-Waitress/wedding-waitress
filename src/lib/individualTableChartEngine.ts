@@ -660,40 +660,44 @@ export const generateIndividualTableSVG = (
         }
         
       } else {
-        // ROUND TABLE: Use pixel-based positioning for perfect circle
+        // ROUND TABLE: Use percentage-based positioning matching preview exactly
         angle = (i / guestCount) * 2 * Math.PI - Math.PI / 2; // Start from top, evenly distributed
         
-        // Use smaller dimension to ensure perfect circle (not ellipse)
-        const circleBaseDimension = Math.min(containerWidth, containerHeight);
-        const radiusPixels = (37 / 100) * circleBaseDimension;
+        // Use height (smaller dimension) to ensure perfect circle
+        const radiusPixels = (37 / 100) * containerHeight;
         
-        // Calculate position directly in pixels using true circular geometry
-        x = centerX + radiusPixels * Math.cos(angle);
-        y = centerY + radiusPixels * Math.sin(angle);
+        // Calculate position in pixels for perfect circle
+        const xPixels = centerX + radiusPixels * Math.cos(angle);
+        const yPixels = centerY + radiusPixels * Math.sin(angle);
         
-        // Consistent gap from seat circle edge to name label
-        // Seat circle = 44px, radius = 22px, gap = 4px from edge
+        // Convert to percentage for CSS positioning (matches preview)
+        x = (xPixels / containerWidth) * 100;
+        y = (yPixels / containerHeight) * 100;
+        
+        // Determine text alignment and label positioning based on angle
         const angleDegrees = (angle * 180) / Math.PI;
-        const circleGapY = 46; // larger gap for top/bottom names in PDF
-        const circleGapX = 26; // gap for left/right names
+        
+        // Consistent gap from seat circle edge to name label (matches preview)
+        const gapFromCircleX = 5.2; // (22+4)/500 * 100
+        const gapFromCircleY = 8;   // larger gap for top/bottom names
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
           labelX = x;
-          labelY = y - circleGapY;
+          labelY = y - gapFromCircleY;
           textAlign = 'center';
-          transform = 'translate(-50%, -50%)';
+          transform = 'translate(-50%, -100%)';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
           labelX = x;
-          labelY = y + circleGapY;
+          labelY = y + gapFromCircleY;
           textAlign = 'center';
-          transform = 'translate(-50%, -50%)';
+          transform = 'translate(-50%, 0)';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
-          labelX = x + circleGapX;
+          labelX = x + gapFromCircleX;
           labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
-          labelX = x - circleGapX;
+          labelX = x - gapFromCircleX;
           labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
