@@ -233,7 +233,8 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     });
   }, [guests, settings.sortBy, tableNameMap, tableIdNameMap]);
 
-  const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
+  const isDataReady = selectedEventId && !guestsLoading;
+  const hasGuests = guests.length > 0;
 
   return (
     <div className="space-y-6 full-seating-chart-dark-purple">
@@ -302,14 +303,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     variant="outline"
                     className="bg-white border-primary text-primary rounded-full"
                   >
-                    {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                    {isDataReady ? (hasGuests ? 'Ready to Generate' : 'No Guests') : 'Loading Data...'}
                   </Badge>
                 </>
               )}
             </div>
 
               {/* Export Controls */}
-              {isDataReady && (
+              {isDataReady && hasGuests && (
                 <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
                   <div className="flex items-center">
                     <span className="font-bold text-sm">Export Controls</span>
@@ -343,7 +344,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
       {/* Main Content */}
       {selectedEventId ? (
-        isDataReady ? (
+        isDataReady && hasGuests ? (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Customization Panel */}
             <div className="lg:col-span-1">
@@ -364,16 +365,23 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               />
             </div>
           </div>
+        ) : isDataReady && !hasGuests ? (
+          <Card className="ww-box print:hidden">
+            <CardContent className="p-8 text-center">
+              <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <CardTitle className="mb-2">No Guests Found</CardTitle>
+              <CardDescription>
+                Add some guests to generate your seating chart.
+              </CardDescription>
+            </CardContent>
+          </Card>
         ) : (
           <Card className="ww-box print:hidden">
             <CardContent className="p-8 text-center">
               <Layout className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <CardTitle className="mb-2">Loading Event Data</CardTitle>
               <CardDescription>
-                {guestsLoading 
-                  ? "Please wait while we load your guest information."
-                  : "Add some guests to generate your seating chart."
-                }
+                Please wait while we load your guest information.
               </CardDescription>
             </CardContent>
           </Card>
