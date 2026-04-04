@@ -4,13 +4,21 @@ import { Users, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+// Module-level cache for instant loading
+let statsCache: { totalUsers: number; totalEvents: number } | null = null;
+
 export const AdminOverview = () => {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState(statsCache ?? {
     totalUsers: 0,
     totalEvents: 0,
   });
   const [chartData, setChartData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!statsCache);
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (stats.totalUsers > 0 || stats.totalEvents > 0) statsCache = stats;
+  }, [stats]);
 
   useEffect(() => {
     fetchStats();
