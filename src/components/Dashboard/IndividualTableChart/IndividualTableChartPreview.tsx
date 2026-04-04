@@ -324,11 +324,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
   };
 
   const getGuestListSize = (size: string) => {
-    switch (size) {
-      case 'small': return 'text-sm print:text-[10.5pt]';
-      case 'large': return 'text-lg print:text-[13.5pt]';
-      default: return 'text-base print:text-[12pt]'; // medium
-    }
+    // Match PDF export sizing - use smaller fonts to prevent line wrapping
+    return 'text-sm print:text-[11pt]';
   };
 
   // Auto-fit font scaling for guest list to ensure logo is always visible
