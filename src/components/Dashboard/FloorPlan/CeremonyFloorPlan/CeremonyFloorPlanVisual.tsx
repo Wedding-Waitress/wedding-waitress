@@ -168,7 +168,7 @@ export const CeremonyFloorPlanVisual = ({
         key={`${side}-${row}-${seat}`}
         onClick={() => handleSeatClick(side, row, seat)}
         className={cn(
-          "w-16 h-12 rounded border text-xs flex items-center justify-center transition-all",
+          "w-[72px] h-14 rounded border text-xs flex items-center justify-center transition-all",
           isAssignedRow 
             ? "cursor-pointer hover:border-primary hover:bg-primary/5"
             : "cursor-not-allowed",
