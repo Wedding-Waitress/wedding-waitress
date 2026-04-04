@@ -141,7 +141,7 @@ const computeRelationDisplay = (
   const roleLabel = roleMap[guest.relation_role] || 'Guest';
   
   if (partnerName) {
-    return `${partnerName} — ${roleLabel}`;
+    return `${partnerName} / ${roleLabel}`;
   }
   
   return roleLabel;
@@ -166,7 +166,7 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   }
   
   if (settings.showRelation) {
-    columns.push({ header: 'Relation', width: 30 });
+    columns.push({ header: 'Relation', width: 40 });
   }
   
   return columns;
@@ -291,11 +291,14 @@ export const exportDietaryChartToPdf = async (
     // Underline headers
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos + 1, pageWidth - margin, yPos + 1);
+    yPos += rowHeight; // header row height
+    
+    // Empty line gap between header and first guest
     yPos += rowHeight;
 
     // Determine font style from settings
     const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
-    const nameFontStyle = settings.isItalic ? 'bolditalic' : 'bold'; // names always bold
+    const nameFontStyle = textFontStyle; // names follow text style setting
 
     // Draw guest rows
     pageGuests.forEach((guest, index) => {
@@ -365,8 +368,9 @@ export const exportDietaryChartToPdf = async (
         colIdx++;
       }
 
-      // Dietary (bold, purple)
-      pdf.setFont('helvetica', 'bold');
+      // Dietary (purple, follows text style for bold)
+      const dietaryFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
+      pdf.setFont('helvetica', dietaryFontStyle);
       pdf.setTextColor(purple.r, purple.g, purple.b);
       const dietaryText = pdf.splitTextToSize(guest.dietary || '-', colWidths[colIdx] - 2);
       pdf.text(dietaryText, xPos, yPos);
