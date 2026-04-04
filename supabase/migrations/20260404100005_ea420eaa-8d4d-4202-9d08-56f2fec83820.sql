@@ -1,0 +1,1 @@
+UPDATE public.guests SET dietary = 'Vendor' WHERE dietary = 'Vendor Meal';
