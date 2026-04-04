@@ -519,7 +519,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch 
                     id="bg-table-seats-toggle"
                     checked={currentSettings.background_behind_table_seats || false} 
-                    onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)} 
+                    onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)}
+                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
               </div>
