@@ -298,8 +298,8 @@ export const exportDietaryChartToPdf = async (
       })
       .filter(item => item.count > 0);
 
-    // Gray summary bar
-    const summaryBarHeight = 6;
+    // Gray summary bar - two lines
+    const summaryBarHeight = 10;
     pdf.setFillColor(243, 243, 243);
     pdf.setDrawColor(204, 204, 204);
     pdf.setLineWidth(0.5);
@@ -311,8 +311,16 @@ export const exportDietaryChartToPdf = async (
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(9);
       pdf.setTextColor(0, 0, 0);
-      const summaryText = summaryCounts.map(item => `${item.label}: ${item.count}`).join('    ');
-      pdf.text(summaryText, pageWidth / 2, yPos + 3.5, { align: 'center' });
+      const row1Types = ['Kids Meal','Pescatarian','Vegetarian','Vegan','Seafood Free','Gluten Free'];
+      const row2Types = ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'];
+      const row1 = summaryCounts.filter(item => row1Types.includes(item.label));
+      const row2 = summaryCounts.filter(item => row2Types.includes(item.label));
+      if (row1.length > 0) {
+        pdf.text(row1.map(item => `${item.label}: ${item.count}`).join('    '), pageWidth / 2, yPos + 4, { align: 'center' });
+      }
+      if (row2.length > 0) {
+        pdf.text(row2.map(item => `${item.label}: ${item.count}`).join('    '), pageWidth / 2, yPos + 8, { align: 'center' });
+      }
     }
     yPos += summaryBarHeight;
 
