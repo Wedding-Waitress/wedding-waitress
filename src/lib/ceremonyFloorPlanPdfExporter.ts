@@ -135,7 +135,7 @@ export const generateCeremonyFloorPlanPDF = async (
   const rowGap = 2;
   
   const sideWidth = (floorPlan.chairs_per_row * seatWidth) + ((floorPlan.chairs_per_row - 1) * seatGap);
-  const aisleWidth = 18;
+  const aisleWidth = 14;
   const totalWidth = (sideWidth * 2) + aisleWidth;
   const startX = (PAGE_WIDTH - totalWidth) / 2;
 
@@ -350,7 +350,7 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 100);
-      pdf.text(String(row), startX - 4, rowY + (seatHeight / 2) + 1, { align: 'right' });
+      pdf.text(String(row), startX - 2, rowY + (seatHeight / 2) + 1, { align: 'right' });
     }
 
     // Row number on right (for Bride's Family)
@@ -358,7 +358,7 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 100);
-      const rightRowNumberX = startX + sideWidth + aisleWidth + (floorPlan.chairs_per_row * (seatWidth + seatGap)) + 2;
+      const rightRowNumberX = startX + sideWidth + aisleWidth + (floorPlan.chairs_per_row * (seatWidth + seatGap));
       pdf.text(String(row), rightRowNumberX, rowY + (seatHeight / 2) + 1, { align: 'left' });
     }
 
