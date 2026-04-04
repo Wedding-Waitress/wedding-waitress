@@ -141,7 +141,7 @@ const computeRelationDisplay = (
   const roleLabel = roleMap[guest.relation_role] || 'Guest';
   
   if (partnerName) {
-    return `${partnerName} — ${roleLabel}`;
+    return `${partnerName} / ${roleLabel}`;
   }
   
   return roleLabel;
