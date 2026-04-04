@@ -255,8 +255,7 @@ export const exportDietaryChartToPdf = async (
         const val = g.dietary.toLowerCase().trim();
         return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
       }).length };
-    })
-    .filter(item => item.count > 0);
+    });
 
   // Calculate column positions
   const colWidths: number[] = [];
@@ -390,7 +389,7 @@ export const exportDietaryChartToPdf = async (
     pdf.rect(margin, yPos, contentWidth, headerBarHeight, 'F');
     pdf.line(margin, yPos + headerBarHeight, pageWidth - margin, yPos + headerBarHeight); // bottom border
 
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(fontSize);
     pdf.setTextColor(0, 0, 0);
     
