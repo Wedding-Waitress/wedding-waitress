@@ -251,8 +251,17 @@ export const exportDietaryChartToPdf = async (
     pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Total Dietary Guest Requirements count on separate line
-    pdf.text(`Total Dietary Guest Requirements: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
+    // Total Dietary Guest Requirements count on separate line (number bold)
+    const totalLabel = 'Total Dietary Guest Requirements: ';
+    const totalCount = String(guests.length);
+    const labelWidth = pdf.getTextWidth(totalLabel);
+    const countWidth = pdf.getTextWidth(totalCount);
+    const totalTextWidth = labelWidth + countWidth;
+    const startX = (pageWidth - totalTextWidth) / 2;
+    pdf.text(totalLabel, startX, yPos);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(totalCount, startX + labelWidth, yPos);
+    pdf.setFont('helvetica', 'normal');
     yPos += 5;
 
     // Ceremony info line (if available)
