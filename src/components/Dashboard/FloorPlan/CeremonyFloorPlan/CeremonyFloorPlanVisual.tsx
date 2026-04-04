@@ -183,7 +183,7 @@ export const CeremonyFloorPlanVisual = ({
         {name ? (
           renderName(name)
         ) : (
-          <span className="text-[10px]">
+          <span className="text-[11px]">
             {floorPlan.show_seat_numbers ? seat : '—'}
           </span>
         )}
