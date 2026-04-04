@@ -179,7 +179,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
    const dietarySummary = useMemo(() => {
     const trackedTypes = [
       'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor'
     ];
     const counts: { label: string; count: number }[] = [];
     for (const type of trackedTypes) {
@@ -696,7 +696,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                       ))}
                                     </div>
                                     <div className="flex flex-nowrap justify-center gap-x-3">
-                                      {dietarySummary.filter(item => ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'].includes(item.label)).map(item => (
+                                      {dietarySummary.filter(item => ['Dairy Free','Nut Free','Halal','Kosher','Vendor'].includes(item.label)).map(item => (
                                         <span key={item.label} style={{ fontWeight: 'normal', whiteSpace: 'nowrap' }}>
                                           {item.label}: <strong>{item.count}</strong>
                                         </span>

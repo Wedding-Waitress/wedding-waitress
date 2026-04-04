@@ -145,7 +145,7 @@ const DISPLAY_EXPORT_HEADERS = [
 
 const DIETARY_OPTIONS = [
   'None', 'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free', 'Gluten Free', 
-  'Dairy Free', 'Nut Free', 'Halal', 'Kosha', 'Vendor Meal'
+  'Dairy Free', 'Nut Free', 'Halal', 'Kosha', 'Vendor'
 ];
 
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];

@@ -395,7 +395,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                           <SelectItem value="Nut Free">Nut Free</SelectItem>
                           <SelectItem value="Halal">Halal</SelectItem>
                           <SelectItem value="Kosher">Kosher</SelectItem>
-                          <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
+                          <SelectItem value="Vendor">Vendor</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -575,7 +575,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                       <SelectItem value="Nut Free">Nut Free</SelectItem>
                       <SelectItem value="Halal">Halal</SelectItem>
                       <SelectItem value="Kosher">Kosher</SelectItem>
-                      <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
+                      <SelectItem value="Vendor">Vendor</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

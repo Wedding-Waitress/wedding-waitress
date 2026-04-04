@@ -247,7 +247,7 @@ export const exportDietaryChartToPdf = async (
   const summaryCounts = externalSummaryCounts ?? (() => {
     const trackedTypes = [
       'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor'
     ];
     return trackedTypes.map(type => {
       const typeLower = type.toLowerCase();
@@ -349,7 +349,7 @@ export const exportDietaryChartToPdf = async (
       pdf.setFontSize(fontSize);
       pdf.setTextColor(0, 0, 0);
       const row1Types = ['Kids Meal','Pescatarian','Vegetarian','Vegan','Seafood Free','Gluten Free'];
-      const row2Types = ['Dairy Free','Nut Free','Halal','Kosher','Vendor Meal'];
+      const row2Types = ['Dairy Free','Nut Free','Halal','Kosher','Vendor'];
       const row1 = summaryCounts.filter(item => row1Types.includes(item.label));
       const row2 = summaryCounts.filter(item => row2Types.includes(item.label));
 
