@@ -669,8 +669,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
                         
                         {/* Total Dietary Guest Requirements - between purple line and gray header */}
-                        <p className="text-center" style={{ fontSize: '9pt', marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
-                          Total Dietary Guest Requirements: {dietaryGuests.length}
+                        <p className="text-center" style={{ marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
+                          Total Dietary Guest Requirements: <strong>{dietaryGuests.length}</strong>
                         </p>
                       </div>
 
