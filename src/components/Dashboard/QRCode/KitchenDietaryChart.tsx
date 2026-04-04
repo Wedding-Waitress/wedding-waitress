@@ -179,7 +179,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
    const dietarySummary = useMemo(() => {
     const trackedTypes = [
       'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor'
     ];
     const counts: { label: string; count: number }[] = [];
     for (const type of trackedTypes) {
