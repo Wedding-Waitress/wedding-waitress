@@ -622,38 +622,38 @@ export const generateIndividualTableSVG = (
         const positionPercent = startOffset + (positionInSide * chairSpacing);
         
         if (side === 0) {
-          // Top side - horizontal line, chairs ~10% from table edge
-          x = (positionPercent / 100) * containerWidth;
-          y = (10 / 100) * containerHeight; // Equal distance from table (~10% clearance)
-          labelX = x;
-          labelY = y - 20; // Labels above chairs
+          // Top side
+          x = positionPercent;
+          y = 10;
+          labelX = positionPercent;
+          labelY = 0;
           textAlign = 'center';
           transform = 'translate(-50%, -100%)';
           angle = -Math.PI / 2;
         } else if (side === 1) {
-          // Right side - vertical line, chairs ~10% from table edge
-          x = (88 / 100) * containerWidth; // Equal distance from table (~10% clearance)
-          y = (positionPercent / 100) * containerHeight;
-          labelX = x + 12; // Labels right of chairs (closer)
-          labelY = y;
+          // Right side
+          x = 88;
+          y = positionPercent;
+          labelX = 93;
+          labelY = positionPercent;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
           angle = 0;
         } else if (side === 2) {
-          // Bottom side - horizontal line (reverse order for natural reading)
-          x = ((100 - positionPercent) / 100) * containerWidth;
-          y = (90 / 100) * containerHeight; // Equal distance from table (~10% clearance)
-          labelX = x;
-          labelY = y + 20; // Labels below chairs
+          // Bottom side (reverse order)
+          x = 100 - positionPercent;
+          y = 90;
+          labelX = 100 - positionPercent;
+          labelY = 100;
           textAlign = 'center';
           transform = 'translate(-50%, 0)';
           angle = Math.PI / 2;
         } else {
-          // Left side - vertical line (reverse order), chairs ~10% from table edge
-          x = (12 / 100) * containerWidth; // Equal distance from table (~10% clearance)
-          y = ((100 - positionPercent) / 100) * containerHeight;
-          labelX = x - 12; // Labels left of chairs (closer)
-          labelY = y;
+          // Left side (reverse order)
+          x = 12;
+          y = 100 - positionPercent;
+          labelX = 7;
+          labelY = 100 - positionPercent;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
           angle = Math.PI;
