@@ -607,7 +607,6 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
           </div>
         </div>
-        </div>
 
         {/* Bottom Page Navigation */}
         {totalPages > 1 && (
