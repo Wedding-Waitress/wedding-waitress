@@ -10,16 +10,22 @@ export interface DietaryChartSettings {
   showSeatNo: boolean;
   showLogo: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
 }
 
 const DEFAULT_SETTINGS: DietaryChartSettings = {
   sortBy: 'firstName',
-  fontSize: 'medium',
+  fontSize: 'small',
   showMobile: true,
   showRelation: true,
   showSeatNo: true,
   showLogo: true,
   paperSize: 'A4',
+  isBold: false,
+  isItalic: false,
+  isUnderline: false,
 };
 
 // Module-level cache for instant loading on tab switches
@@ -61,14 +67,18 @@ export const useDietaryChartSettings = (eventId: string | null) => {
         if (error) throw error;
 
         if (data) {
+          const row = data as any;
           setSettings({
-            sortBy: data.sort_by as DietaryChartSettings['sortBy'],
-            fontSize: data.font_size as DietaryChartSettings['fontSize'],
-            showMobile: data.show_mobile,
-            showRelation: data.show_relation,
-            showSeatNo: data.show_seat_no,
-            showLogo: data.show_logo,
-            paperSize: data.paper_size as DietaryChartSettings['paperSize'],
+            sortBy: row.sort_by as DietaryChartSettings['sortBy'],
+            fontSize: 'small',
+            showMobile: row.show_mobile,
+            showRelation: row.show_relation,
+            showSeatNo: row.show_seat_no,
+            showLogo: row.show_logo,
+            paperSize: row.paper_size as DietaryChartSettings['paperSize'],
+            isBold: row.is_bold ?? false,
+            isItalic: row.is_italic ?? false,
+            isUnderline: row.is_underline ?? false,
           });
         } else {
           setSettings(DEFAULT_SETTINGS);
@@ -106,7 +116,10 @@ export const useDietaryChartSettings = (eventId: string | null) => {
           show_seat_no: updatedSettings.showSeatNo,
           show_logo: updatedSettings.showLogo,
           paper_size: updatedSettings.paperSize,
-        }, {
+          is_bold: updatedSettings.isBold,
+          is_italic: updatedSettings.isItalic,
+          is_underline: updatedSettings.isUnderline,
+        } as any, {
           onConflict: 'event_id,user_id'
         });
 

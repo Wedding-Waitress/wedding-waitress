@@ -17,7 +17,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Settings, ArrowUpDown, FileText, Type } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Settings, ArrowUpDown, FileText, Type, Bold, Italic, Underline, ChevronDown, Check } from 'lucide-react';
 import { DietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 
 interface DietaryChartCustomizerProps {
@@ -29,6 +36,14 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   settings,
   onSettingsChange
 }) => {
+  const getTextStyleLabel = () => {
+    const active: string[] = [];
+    if (settings.isBold) active.push('Bold');
+    if (settings.isItalic) active.push('Italic');
+    if (settings.isUnderline) active.push('Underline');
+    return active.length > 0 ? active.join(', ') : 'None';
+  };
+
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
       <CardHeader>
@@ -58,8 +73,8 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               <SelectContent className="bg-popover border-border z-50">
                 <SelectItem value="firstName">First Name</SelectItem>
                 <SelectItem value="lastName">Last Name</SelectItem>
-                <SelectItem value="tableNo">Table Number</SelectItem>
-                <SelectItem value="dietary">Dietary</SelectItem>
+                <SelectItem value="tableNo">Table Number - Name</SelectItem>
+                <SelectItem value="dietary">Dietary Requirements</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -76,21 +91,30 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-mobile" className="text-xs text-muted-foreground">Show Mobile</Label>
-              <Switch id="show-mobile" checked={settings.showMobile} onCheckedChange={checked => onSettingsChange({
-                showMobile: checked
-              })} />
+              <Switch
+                id="show-mobile"
+                checked={settings.showMobile}
+                onCheckedChange={checked => onSettingsChange({ showMobile: checked })}
+                className={!settings.showMobile ? 'data-[state=unchecked]:bg-destructive' : ''}
+              />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="show-relation" className="text-xs text-muted-foreground">Show Relationship</Label>
-              <Switch id="show-relation" checked={settings.showRelation} onCheckedChange={checked => onSettingsChange({
-                showRelation: checked
-              })} />
+              <Switch
+                id="show-relation"
+                checked={settings.showRelation}
+                onCheckedChange={checked => onSettingsChange({ showRelation: checked })}
+                className={!settings.showRelation ? 'data-[state=unchecked]:bg-destructive' : ''}
+              />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="show-seat-no" className="text-xs text-muted-foreground">Show Seat Number</Label>
-              <Switch id="show-seat-no" checked={settings.showSeatNo} onCheckedChange={checked => onSettingsChange({
-                showSeatNo: checked
-              })} />
+              <Switch
+                id="show-seat-no"
+                checked={settings.showSeatNo}
+                onCheckedChange={checked => onSettingsChange({ showSeatNo: checked })}
+                className={!settings.showSeatNo ? 'data-[state=unchecked]:bg-destructive' : ''}
+              />
             </div>
           </div>
         </div>
@@ -104,19 +128,52 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
           </div>
           <div>
-            <Label htmlFor="font-size" className="text-xs text-muted-foreground">Font Size</Label>
-            <Select value={settings.fontSize} onValueChange={value => onSettingsChange({
-              fontSize: value as DietaryChartSettings['fontSize']
-            })}>
-              <SelectTrigger id="font-size" className="border-primary focus:ring-primary">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="small">Small (14px)</SelectItem>
-                <SelectItem value="medium">Medium (16px)</SelectItem>
-                <SelectItem value="large">Large (18px)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label className="text-xs text-muted-foreground">
+              Text Style
+            </Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between border-primary focus:ring-primary mt-1"
+                >
+                  <span className="text-sm">{getTextStyleLabel()}</span>
+                  <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
+                <DropdownMenuItem
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  onClick={() => onSettingsChange({ isBold: !settings.isBold })}
+                >
+                  <div className="flex items-center gap-2">
+                    <Bold className="w-4 h-4" />
+                    <span>Bold</span>
+                  </div>
+                  {settings.isBold && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
+                >
+                  <div className="flex items-center gap-2">
+                    <Italic className="w-4 h-4" />
+                    <span>Italic</span>
+                  </div>
+                  {settings.isItalic && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
+                >
+                  <div className="flex items-center gap-2">
+                    <Underline className="w-4 h-4" />
+                    <span>Underline</span>
+                  </div>
+                  {settings.isUnderline && <Check className="w-4 h-4" />}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
