@@ -233,7 +233,8 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     });
   }, [guests, settings.sortBy, tableNameMap, tableIdNameMap]);
 
-  const isDataReady = selectedEventId && !guestsLoading && guests.length > 0;
+  const isDataReady = selectedEventId && !guestsLoading;
+  const hasGuests = guests.length > 0;
 
   return (
     <div className="space-y-6 full-seating-chart-dark-purple">
