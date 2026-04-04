@@ -1197,7 +1197,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         <SelectItem value="Nut Free">Nut Free</SelectItem>
                         <SelectItem value="Halal">Halal</SelectItem>
                         <SelectItem value="Kosha">Kosha</SelectItem>
-                        <SelectItem value="Vendor Meal">Vendor Meal</SelectItem>
+                        <SelectItem value="Vendor">Vendor</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
