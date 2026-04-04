@@ -622,78 +622,82 @@ export const generateIndividualTableSVG = (
         const positionPercent = startOffset + (positionInSide * chairSpacing);
         
         if (side === 0) {
-          // Top side - horizontal line, chairs ~10% from table edge
-          x = (positionPercent / 100) * containerWidth;
-          y = (10 / 100) * containerHeight; // Equal distance from table (~10% clearance)
-          labelX = x;
-          labelY = y - 20; // Labels above chairs
+          // Top side
+          x = positionPercent;
+          y = 10;
+          labelX = positionPercent;
+          labelY = 0;
           textAlign = 'center';
           transform = 'translate(-50%, -100%)';
           angle = -Math.PI / 2;
         } else if (side === 1) {
-          // Right side - vertical line, chairs ~10% from table edge
-          x = (88 / 100) * containerWidth; // Equal distance from table (~10% clearance)
-          y = (positionPercent / 100) * containerHeight;
-          labelX = x + 12; // Labels right of chairs (closer)
-          labelY = y;
+          // Right side
+          x = 88;
+          y = positionPercent;
+          labelX = 93;
+          labelY = positionPercent;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
           angle = 0;
         } else if (side === 2) {
-          // Bottom side - horizontal line (reverse order for natural reading)
-          x = ((100 - positionPercent) / 100) * containerWidth;
-          y = (90 / 100) * containerHeight; // Equal distance from table (~10% clearance)
-          labelX = x;
-          labelY = y + 20; // Labels below chairs
+          // Bottom side (reverse order)
+          x = 100 - positionPercent;
+          y = 90;
+          labelX = 100 - positionPercent;
+          labelY = 100;
           textAlign = 'center';
           transform = 'translate(-50%, 0)';
           angle = Math.PI / 2;
         } else {
-          // Left side - vertical line (reverse order), chairs ~10% from table edge
-          x = (12 / 100) * containerWidth; // Equal distance from table (~10% clearance)
-          y = ((100 - positionPercent) / 100) * containerHeight;
-          labelX = x - 12; // Labels left of chairs (closer)
-          labelY = y;
+          // Left side (reverse order)
+          x = 12;
+          y = 100 - positionPercent;
+          labelX = 7;
+          labelY = 100 - positionPercent;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
           angle = Math.PI;
         }
         
       } else {
-        // ROUND TABLE: Use pixel-based positioning for perfect circle
+        // ROUND TABLE: Use percentage-based positioning matching preview exactly
         angle = (i / guestCount) * 2 * Math.PI - Math.PI / 2; // Start from top, evenly distributed
         
-        // Use smaller dimension to ensure perfect circle (not ellipse)
-        const circleBaseDimension = Math.min(containerWidth, containerHeight);
-        const radiusPixels = (37 / 100) * circleBaseDimension;
+        // Use height (smaller dimension) to ensure perfect circle
+        const radiusPixels = (37 / 100) * containerHeight;
         
-        // Calculate position directly in pixels using true circular geometry
-        x = centerX + radiusPixels * Math.cos(angle);
-        y = centerY + radiusPixels * Math.sin(angle);
+        // Calculate position in pixels for perfect circle
+        const xPixels = centerX + radiusPixels * Math.cos(angle);
+        const yPixels = centerY + radiusPixels * Math.sin(angle);
         
-        // Consistent gap from seat circle edge to name label
-        // Seat circle = 44px, radius = 22px, gap = 4px from edge
+        // Convert to percentage for CSS positioning (matches preview)
+        x = (xPixels / containerWidth) * 100;
+        y = (yPixels / containerHeight) * 100;
+        
+        // Determine text alignment and label positioning based on angle
         const angleDegrees = (angle * 180) / Math.PI;
-        const circleGapY = 46; // larger gap for top/bottom names in PDF
-        const circleGapX = 26; // gap for left/right names
+        
+        // Consistent gap from seat circle edge to name label (matches preview)
+        const gapFromCircleX = 5.2; // (22+4)/500 * 100
+        const gapFromCircleY = 8;   // larger gap for top/bottom names
         
         if (angleDegrees >= -100 && angleDegrees <= -80) {
           labelX = x;
-          labelY = y - circleGapY;
+          labelY = y - gapFromCircleY;
           textAlign = 'center';
-          transform = 'translate(-50%, -50%)';
+          transform = 'translate(-50%, -100%)';
         } else if (angleDegrees >= 80 && angleDegrees <= 100) {
           labelX = x;
-          labelY = y + circleGapY;
+          labelY = y + gapFromCircleY;
           textAlign = 'center';
-          transform = 'translate(-50%, -50%)';
+          transform = 'translate(-50%, 0)';
         } else if (angleDegrees > -80 && angleDegrees < 80) {
-          labelX = x + circleGapX;
+          labelX = x + gapFromCircleX;
           labelY = y;
           textAlign = 'left';
           transform = 'translate(0, -50%)';
         } else {
-          labelX = x - circleGapX;
+          labelX = x - gapFromCircleX;
           labelY = y;
           textAlign = 'right';
           transform = 'translate(-100%, -50%)';
@@ -1160,11 +1164,11 @@ export const generateIndividualTableSVG = (
             const scaledFontPt = getAutoScaledFontSize();
             
             return `
-            <!-- Seat Circle with line-height centering for html2canvas -->
+            <!-- Seat Circle with table-based centering for html2canvas -->
             <div style="
               position: absolute;
-              left: ${seat.x}px;
-              top: ${seat.y}px;
+              left: ${seat.x}%;
+              top: ${seat.y}%;
               width: 44px;
               height: 44px;
               margin-left: -22px;
@@ -1172,21 +1176,23 @@ export const generateIndividualTableSVG = (
               border: 1px solid #000;
               border-radius: 50%;
               background: white;
-              text-align: center;
-              line-height: 44px;
-              font-weight: bold;
-              font-size: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             ">
-              ${settings.showSeatNumbers ? seat.number : ''}
+              <table width="44" height="44" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" valign="middle" style="font-weight: bold; font-size: 12px;">
+                    ${settings.showSeatNumbers ? seat.number : ''}
+                  </td>
+                </tr>
+              </table>
             </div>
 
-            <!-- Guest Name - Side-aware positioning with auto-scale for top/bottom -->
+            <!-- Guest Name - Side-aware positioning -->
             ${seat.guest && settings.includeNames ? `
               <div style="
                 position: absolute;
-                left: ${seat.labelX}px;
-                top: ${seat.labelY}px;
+                left: ${seat.labelX}%;
+                top: ${seat.labelY}%;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
                 font-size: ${settings.largerTableNames ? scaledFontPt * 1.25 : scaledFontPt}pt;
