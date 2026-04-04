@@ -178,14 +178,14 @@ export const exportFullSeatingChartToPdf = async (
   const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
   const baseRowHeight: Record<string, number> = {
-    'small': 8.4,   // 210/8.4 = 25 guests per column
+    'small': 8.4,   // 294/8.4 = 35 guests per column
     'medium': 11,
     'large': 13
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // When both display options are off, more vertical space is available
-  const availableHeight = (!settings.showDietary && !settings.showRelation) ? 294 : 210;
+  // Always 35 per column since metadata is now inline in brackets
+  const availableHeight = 294;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
