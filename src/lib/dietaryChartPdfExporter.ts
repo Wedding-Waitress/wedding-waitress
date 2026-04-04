@@ -166,7 +166,7 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   }
   
   if (settings.showRelation) {
-    columns.push({ header: 'Relation', width: 30 });
+    columns.push({ header: 'Relation', width: 40 });
   }
   
   return columns;
