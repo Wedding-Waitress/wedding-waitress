@@ -5,6 +5,8 @@ interface DietaryGuest {
   first_name: string;
   last_name: string;
   table_no: number | null;
+  table_id: string | null;
+  table_display: string;
   seat_no: number | null;
   dietary: string;
   mobile: string | null;
