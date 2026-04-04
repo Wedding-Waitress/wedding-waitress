@@ -178,13 +178,13 @@ export const exportFullSeatingChartToPdf = async (
   const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
   const baseRowHeight: Record<string, number> = {
-    'small': 7.2,   // 252/7.2 = 35 guests per column (compact rows)
+    'small': 8.4,   // 252/8.4 = 30 guests per column (60 per page)
     'medium': 11,
     'large': 13
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // Always 35 per column - compact rows to fit with header/footer
+  // 30 guests per column with header/footer clearance
   const availableHeight = 252;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
