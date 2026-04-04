@@ -530,9 +530,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: '210mm', 
-              minHeight: '325mm',
+              height: '297mm',
               minWidth: '210mm',
-              maxWidth: '210mm'
+              maxWidth: '210mm',
+              overflow: 'hidden'
             }}
           >
             {/* Content with 1.27cm margins all around (narrow margins) */}
