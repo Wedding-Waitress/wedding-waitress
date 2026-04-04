@@ -1,39 +1,23 @@
 
 
-# Plan: Change to 30 Guests Per Column (60 Per Page)
+# Plan: Increase Preview Guest Row Height
 
 ## Summary
+Increase the vertical height of each guest row in the Full Seating Chart **preview only** to close the gap between the last guest row and the Wedding Waitress logo. PDF export is untouched.
 
-Reduce from 35 guests per column to 30 guests per column (60 per page) in both the screen preview and the PDF download. This gives each row more vertical space, ensuring guests never overlap the footer logo.
+## What Changes
 
-## Changes
+### `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`
 
-### 1. `src/components/Dashboard/FullSeatingChart/FullSeatingChartPreview.tsx`
+1. **ScreenGuestRow minHeight**: Currently uses `rowHeightMm * 2 - 1` pixels. Increase this multiplier so each row is taller on screen. Target: rows visually fill more of the content zone, reducing the empty gap above the logo.
 
-**Pagination calculation (~line 80-89):**
-- Change `availableHeight` from `252` to `252` (keep same available space)
-- Change small row height from `7.2` to `8.4` (252 / 30 = 8.4mm per row)
-- This yields exactly 30 guests per column
+2. **Only the preview row rendering is affected** — the `rowHeightMm` value from the shared layout constants is not changed, and no PDF code is modified.
 
-**Screen guest list container (~line 603):**
-- Keep `height: '225mm'` — 30 rows at 8.4mm = 252mm fits comfortably within this
-
-### 2. `src/lib/fullSeatingChartPdfExporter.ts`
-
-**Row height and pagination (~line 180-192):**
-- Change small row height from `7.2` to `8.4`
-- `availableHeight` stays at `252`, giving `252 / 8.4 = 30` guests per column
-- This ensures all 30 rows finish well above the footer zone
-
-### 3. `FULL_SEATING_CHART_SPECS.md` / `.lovable/plan.md`
-
-- Update specs to reflect 30 guests per column, 60 per page
-
-## What Stays the Same
-
-- All header, footer, margin, logo measurements
-- Font sizes (13px screen / 10.5pt PDF for small)
-- Inline brackets for dietary/relation display
-- Bold/italic/underline settings
-- All other components and pages
+## What Does NOT Change
+- `src/lib/fullSeatingChartLayout.ts` — no constants modified
+- `src/lib/fullSeatingChartPdfExporter.ts` — completely untouched
+- PDF download (single page and all pages) — completely untouched
+- Number of guests per column (30) and per page (60) — unchanged
+- Font sizes — unchanged
+- Footer position — unchanged
 
