@@ -2,6 +2,12 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
+import {
+  PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_TOP_MM, MARGIN_LEFT_MM,
+  HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
+  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, FOOTER_START_MM, FOOTER_GAP_MM,
+  paginateGuests, type PageSlice,
+} from '@/lib/fullSeatingChartLayout';
 import { FileText, Eye } from 'lucide-react';
 
 interface SharedGuest {
@@ -103,18 +109,9 @@ export function SeatingChartPublicView() {
     })();
   }, [token]);
 
-  // Pagination: match the PDF exporter (25 per column, 50 per page)
   const pages = useMemo(() => {
     if (!data) return [];
-    const GUESTS_PER_COLUMN = 25;
-    const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2;
-    const result: { guests: SharedGuest[]; col1Count: number; startIndex: number; endIndex: number }[] = [];
-    for (let i = 0; i < data.guests.length; i += GUESTS_PER_PAGE) {
-      const pageGuests = data.guests.slice(i, i + GUESTS_PER_PAGE);
-      const col1Count = Math.min(GUESTS_PER_COLUMN, pageGuests.length);
-      result.push({ guests: pageGuests, col1Count, startIndex: i, endIndex: i + pageGuests.length });
-    }
-    return result;
+    return paginateGuests(data.guests);
   }, [data]);
 
   const handleDownloadPdf = async () => {

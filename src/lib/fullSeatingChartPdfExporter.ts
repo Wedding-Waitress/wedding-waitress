@@ -1,5 +1,13 @@
 import jsPDF from 'jspdf';
 import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
+import {
+  PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_LEFT_MM, MARGIN_TOP_MM,
+  HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
+  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, GUESTS_PER_PAGE, COLUMN_WIDTH_MM,
+  CONTENT_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM, FOOTER_LOGO_WIDTH_MM,
+  FOOTER_META_Y_MM, FOOTER_LOGO_Y_MM, FOOTER_START_MM,
+  paginateGuests,
+} from '@/lib/fullSeatingChartLayout';
 
 interface Guest {
   id: string;
@@ -37,15 +45,6 @@ interface Event {
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
 }
-
-// Layout constants matching Running Sheet
-const PDF_WIDTH_MM = 210;
-const PDF_HEIGHT_MM = 297;
-const FOOTER_ZONE_MM = 25;
-const FOOTER_LOGO_HEIGHT_MM = 12;
-const FOOTER_LOGO_WIDTH_MM = 42;
-const FOOTER_TEXT_Y_MM = PDF_HEIGHT_MM - 3;
-const FOOTER_LOGO_Y_MM = FOOTER_TEXT_Y_MM - FOOTER_LOGO_HEIGHT_MM - 2;
 
 // Convert font size setting to points
 const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
@@ -129,7 +128,7 @@ const loadLogoAsBase64 = async (): Promise<string | null> => {
   }
 };
 
-// Draw footer matching Running Sheet style
+// Draw footer at fixed position
 const drawPageFooter = (
   pdf: jsPDF,
   logoBase64: string | null,
@@ -138,13 +137,13 @@ const drawPageFooter = (
   timestamp: string,
   showLogo: boolean
 ) => {
-  // White rectangle to cover any bleeding content
+  // White rectangle to cover any bleeding content in footer zone
   pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, PDF_HEIGHT_MM - FOOTER_ZONE_MM, PDF_WIDTH_MM, FOOTER_ZONE_MM, 'F');
+  pdf.rect(0, FOOTER_START_MM, PAGE_WIDTH_MM, PAGE_HEIGHT_MM - FOOTER_START_MM, 'F');
 
   // Logo centered
   if (showLogo && logoBase64) {
-    const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
+    const logoX = (PAGE_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
     try {
       pdf.addImage(logoBase64, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
     } catch {
@@ -155,8 +154,8 @@ const drawPageFooter = (
   // Page number (left) and Generated timestamp (right)
   pdf.setFontSize(7);
   pdf.setTextColor(170, 170, 170);
-  pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
-  pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
+  pdf.text(`Page ${pageNum} of ${totalPages}`, MARGIN_LEFT_MM, FOOTER_META_Y_MM);
+  pdf.text(`Generated: ${timestamp}`, PAGE_WIDTH_MM - MARGIN_LEFT_MM, FOOTER_META_Y_MM, { align: 'right' });
 };
 
 export const exportFullSeatingChartToPdf = async (
@@ -174,24 +173,14 @@ export const exportFullSeatingChartToPdf = async (
     format: 'a4'
   });
 
-  const margin = 12.7;
-  const contentWidth = PDF_WIDTH_MM - (2 * margin);
+  const margin = MARGIN_LEFT_MM;
+  const contentWidth = CONTENT_WIDTH_MM;
+  const rowHeight = ROW_HEIGHT_MM;
+  const guestsPerColumn = GUESTS_PER_COLUMN;
+  const guestsPerPage = GUESTS_PER_PAGE;
   
-  const baseRowHeight: Record<string, number> = {
-    'small': 7.5,   // 225/7.5 = 30 guests per column (60 per page)
-    'medium': 11,
-    'large': 13
-  };
-  
-  const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // Available height for guest rows after header (~33mm) and footer (~25mm) within A4
-  const availableHeight = 225;
-  
-  const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
-  const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
-  const guestsPerPage = guestsPerColumn * 2;
-  
-  const totalPages = totalPagesOverride || Math.ceil(guests.length / guestsPerPage);
+  const pages = paginateGuests(guests);
+  const totalPages = totalPagesOverride || pages.length;
   const fontSize = getFontSize(settings.fontSize);
   const timestamp = formatGeneratedTimestamp();
 
@@ -216,73 +205,69 @@ export const exportFullSeatingChartToPdf = async (
     const col1Guests = pageGuests.slice(0, guestsPerColumn);
     const col2Guests = pageGuests.slice(guestsPerColumn);
 
-    let yPos = margin;
+    // ── ZONE 1: HEADER (fixed Y positions) ──
+    let yPos = MARGIN_TOP_MM;
 
-    // Header - Event Name (22px equivalent ~16pt, bold, purple)
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(18);
     pdf.setTextColor(purple.r, purple.g, purple.b);
-    pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    pdf.text(event.name, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 6;
 
-    // Subtitle - "Full Seating Chart - Total Guests: X" (normal weight, 12pt)
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(12);
     pdf.setTextColor(0, 0, 0);
-    pdf.text(`Full Seating Chart - Total Guests: ${guests.length}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    pdf.text(`Full Seating Chart - Total Guests: ${guests.length}`, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Ceremony info line (if available)
     pdf.setFontSize(9);
     pdf.setTextColor(85, 85, 85);
     if (event.ceremony_date) {
       const ceremonyLine = `Ceremony: ${formatDateWithOrdinal(event.ceremony_date)} | ${event.ceremony_venue || 'Venue TBD'} | ${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
-      pdf.text(ceremonyLine, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+      pdf.text(ceremonyLine, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
       yPos += 4;
     }
 
-    // Reception info line
     const receptionLine = `Reception: ${formatDateWithOrdinal(event.date)} | ${event.venue || 'Venue TBD'} | ${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
-    pdf.text(receptionLine, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    pdf.text(receptionLine, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 4;
 
-    // Purple divider line (matching Running Sheet)
     pdf.setDrawColor(purple.r, purple.g, purple.b);
     pdf.setLineWidth(0.5);
-    pdf.line(margin, yPos, PDF_WIDTH_MM - margin, yPos);
+    pdf.line(margin, yPos, PAGE_WIDTH_MM - margin, yPos);
     yPos += 2;
 
     // Column calculations
-    const columnWidth = (contentWidth - 12) / 2;
+    const columnWidth = COLUMN_WIDTH_MM;
     const leftColumnX = margin;
-    const rightColumnX = margin + columnWidth + 12;
+    const rightColumnX = margin + columnWidth + COLUMN_GAP_MM;
 
     const col1Start = startIdx + 1;
     const col1End = startIdx + col1Guests.length;
     const col2Start = startIdx + col1Guests.length + 1;
     const col2End = endIdx;
 
-    // Column headers bar (gray background, matching Running Sheet style)
+    // Column headers bar
     const headerBarHeight = 6;
     const headerBarY = yPos;
-    pdf.setFillColor(243, 243, 243); // #f3f3f3
+    pdf.setFillColor(243, 243, 243);
     pdf.rect(margin, headerBarY, contentWidth, headerBarHeight, 'F');
-    // Bottom border of header bar
-    pdf.setDrawColor(204, 204, 204); // #ccc
+    pdf.setDrawColor(204, 204, 204);
     pdf.setLineWidth(0.5);
-    pdf.line(margin, headerBarY + headerBarHeight, PDF_WIDTH_MM - margin, headerBarY + headerBarHeight);
+    pdf.line(margin, headerBarY + headerBarHeight, PAGE_WIDTH_MM - margin, headerBarY + headerBarHeight);
 
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(8);
-    pdf.setTextColor(0, 0, 0); // black
+    pdf.setTextColor(0, 0, 0);
     pdf.text(`GUESTS ${col1Start}-${col1End}`, leftColumnX + 2, headerBarY + 4);
     pdf.text('TABLE', leftColumnX + columnWidth - pdf.getTextWidth('TABLE'), headerBarY + 4);
     if (col2Guests.length > 0) {
       pdf.text(`GUESTS ${col2Start}-${col2End}`, rightColumnX + 2, headerBarY + 4);
       pdf.text('TABLE', rightColumnX + columnWidth - pdf.getTextWidth('TABLE'), headerBarY + 4);
     }
-    // Small gap after header bar (3mm) matching the preview paddingTop
-    yPos = headerBarY + headerBarHeight + 3;
+
+    // ── ZONE 2: CONTENT (starts at fixed CONTENT_START_MM) ──
+    yPos = CONTENT_START_MM;
 
     // Draw guests
     const maxRows = Math.max(col1Guests.length, col2Guests.length);
