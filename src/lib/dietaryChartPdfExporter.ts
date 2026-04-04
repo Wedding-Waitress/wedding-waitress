@@ -179,7 +179,8 @@ export const exportDietaryChartToPdf = async (
   guests: DietaryGuest[],
   settings: DietaryChartSettings,
   mode: 'single' | 'all' = 'all',
-  totalDietaryCount?: number
+  totalDietaryCount?: number,
+  externalSummaryCounts?: { label: string; count: number }[]
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -242,13 +243,13 @@ export const exportDietaryChartToPdf = async (
   
   const totalPages = Math.ceil(guests.length / guestsPerPage);
 
-  // Dietary summary counts
-  const trackedTypes = [
-    'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-    'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
-  ];
-  const summaryCounts = trackedTypes
-    .map(type => {
+  // Dietary summary counts - use external counts if provided (synced from display page)
+  const summaryCounts = externalSummaryCounts ?? (() => {
+    const trackedTypes = [
+      'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+    ];
+    return trackedTypes.map(type => {
       const typeLower = type.toLowerCase();
       return { label: type, count: guests.filter(g => {
         if (!g.dietary) return false;
@@ -263,6 +264,7 @@ export const exportDietaryChartToPdf = async (
         return false;
       }).length };
     });
+  })();
 
   // Calculate column positions
   const colWidths: number[] = [];
@@ -406,7 +408,7 @@ export const exportDietaryChartToPdf = async (
       xPos += colWidths[i];
     });
     
-    yPos += headerBarHeight + 3; // gap after header before first guest row
+    yPos += headerBarHeight + 5; // gap after header before first guest row
 
     // Determine font style from settings
     const textFontStyle = settings.isBold && settings.isItalic ? 'bolditalic' : settings.isBold ? 'bold' : settings.isItalic ? 'italic' : 'normal';
@@ -506,16 +508,16 @@ export const exportDietaryChartToPdf = async (
         colIdx++;
       }
 
-      // Relation (if shown, gray)
+      // Relation (if shown, black to match display page)
       if (settings.showRelation) {
         pdf.setFont('helvetica', textFontStyle);
-        pdf.setTextColor(gray.r, gray.g, gray.b);
+        pdf.setTextColor(0, 0, 0);
         const relationText = computeRelationDisplay(guest, event);
         const relationTextWrapped = pdf.splitTextToSize(relationText, colWidths[colIdx] - 2);
         pdf.text(relationTextWrapped, xPos, yPos);
         if (settings.isUnderline) {
           const tw = pdf.getTextWidth(relationText);
-          pdf.setDrawColor(gray.r, gray.g, gray.b);
+          pdf.setDrawColor(0, 0, 0);
           pdf.setLineWidth(0.2);
           pdf.line(xPos, yPos + 0.5, xPos + Math.min(tw, colWidths[colIdx] - 2), yPos + 0.5);
         }
