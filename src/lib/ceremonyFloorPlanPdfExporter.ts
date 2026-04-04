@@ -19,11 +19,13 @@ interface EventData {
   name: string;
   date: string | null;
   venue: string | null;
+  ceremony_date?: string | null;
   ceremony_venue?: string | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
 }
-
 
 // Constants matching Individual Table Charts
 const PAGE_WIDTH = 210; // A4 width in mm
@@ -35,14 +37,27 @@ const MARGIN_BOTTOM = 20;
 
 const PRIMARY_COLOR = '#7248e6';
 
-// Helper to format time
-const formatTime = (time: string | null | undefined): string => {
-  if (!time) return '';
-  const [hours, mins] = time.split(':');
-  const h = parseInt(hours);
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const hour12 = h % 12 || 12;
-  return `${hour12}:${mins} ${ampm}`;
+const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'TBD';
+  const date = new Date(dateString + 'T00:00:00');
+  const day = date.getDate();
+  const ordinal = (n: number) => {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+  return `${dayName} ${ordinal(day)}, ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+};
+
+const formatTimeDisplay = (time: string | null | undefined): string => {
+  if (!time) return 'TBD';
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${displayHour}:${minutes} ${ampm}`;
 };
 
 export const generateCeremonyFloorPlanPDF = async (
@@ -58,32 +73,37 @@ export const generateCeremonyFloorPlanPDF = async (
   let yPos = MARGIN_TOP;
   const contentWidth = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT;
 
-  // === HEADER ===
-  // Event Name - Purple, Bold, 14pt, centered
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
-  pdf.setTextColor(114, 72, 230); // Primary purple
-  pdf.text(event.name, PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 8;
-
-  // "Ceremony Seating Arrangement – [Full Date with Weekday] – [Start Time] to [Finish Time]"
-  pdf.setFontSize(9); // Slightly smaller to fit times
-  pdf.setTextColor(0, 0, 0);
-  const eventDate = event.date ? format(new Date(event.date), 'EEEE, do MMMM yyyy') : 'Date TBD';
+  // === HEADER (matching Running Sheet style) ===
   
-  let dateTimeString = `Ceremony Seating Arrangement – ${eventDate}`;
-  if (event.ceremony_start_time && event.ceremony_finish_time) {
-    dateTimeString += ` – ${formatTime(event.ceremony_start_time)} to ${formatTime(event.ceremony_finish_time)}`;
-  }
-  pdf.text(dateTimeString, PAGE_WIDTH / 2, yPos, { align: 'center' });
-  yPos += 6;
+  // Event Name - Purple, Bold, ~22px = ~16.5pt
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(16.5);
+  pdf.setTextColor(109, 40, 217); // #6d28d9
+  pdf.text(event.name, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 7;
 
-  // "[Venue]" - no generated date/time in header anymore
+  // "Floor Plan – Ceremony" - ~16px = ~12pt
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(10);
-  const venue = event.ceremony_venue || event.venue || 'Venue TBD';
-  pdf.text(venue, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  pdf.setFontSize(12);
+  pdf.setTextColor(34, 34, 34);
+  pdf.text('Floor Plan – Ceremony', PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 7;
+
+  // Ceremony detail line
+  pdf.setFontSize(9);
+  pdf.setTextColor(85, 85, 85);
+  const ceremonyDateStr = formatDateWithOrdinal(event.ceremony_date || event.date);
+  const ceremonyVenue = event.ceremony_venue || event.venue || 'Venue TBD';
+  const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
+  pdf.text(`Ceremony: ${ceremonyDateStr} | ${ceremonyVenue} | ${ceremonyTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 5;
+
+  // Reception detail line
+  const receptionDateStr = formatDateWithOrdinal(event.date);
+  const receptionVenue = event.venue || 'Venue TBD';
+  const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
+  pdf.text(`Reception: ${receptionDateStr} | ${receptionVenue} | ${receptionTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 6;
 
   // Total Attending Ceremony line
   const leftBridalCount = floorPlan.bridal_party_count_left || 0;
@@ -98,13 +118,13 @@ export const generateCeremonyFloorPlanPDF = async (
     yPos,
     { align: 'center' }
   );
-  yPos += 5;
+  yPos += 4;
 
-  // Separator line
-  pdf.setDrawColor(0, 0, 0);
-  pdf.setLineWidth(0.3);
+  // Purple divider line
+  pdf.setDrawColor(109, 40, 217);
+  pdf.setLineWidth(0.5);
   pdf.line(MARGIN_LEFT, yPos, PAGE_WIDTH - MARGIN_RIGHT, yPos);
-  yPos += 10;
+  yPos += 8;
 
   // === FLOOR PLAN VISUAL ===
   
