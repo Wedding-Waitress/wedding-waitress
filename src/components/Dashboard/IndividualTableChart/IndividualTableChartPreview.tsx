@@ -995,24 +995,26 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
             {/* Footer Section - Running Sheet Style */}
             {settings.showLogo && (
-              <div className="mt-auto pt-4 flex items-end justify-between" style={{ paddingBottom: '4px' }}>
-                <span style={{ fontSize: '7pt', color: '#000' }}>
-                  Page {currentTableIndex} of {totalTables}
-                </span>
+              <div className="mt-auto pt-2 flex flex-col items-center" style={{ paddingBottom: '4px' }}>
                 <img 
                   src={weddingWaitressLogo} 
                   alt="Wedding Waitress" 
                   style={{ width: '42mm', height: '12mm', objectFit: 'contain' }}
                 />
-                <span style={{ fontSize: '7pt', color: '#000' }}>
-                  Generated: {(() => {
-                    const now = new Date();
-                    const hours = now.getHours();
-                    const ampm = hours >= 12 ? 'PM' : 'AM';
-                    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                    return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${displayHour}:${String(now.getMinutes()).padStart(2,'0')} ${ampm}`;
-                  })()}
-                </span>
+                <div className="flex items-center justify-between w-full" style={{ marginTop: '2px' }}>
+                  <span style={{ fontSize: '7pt', color: '#000' }}>
+                    Page {currentTableIndex} of {totalTables}
+                  </span>
+                  <span style={{ fontSize: '7pt', color: '#000' }}>
+                    Generated: {(() => {
+                      const now = new Date();
+                      const hours = now.getHours();
+                      const ampm = hours >= 12 ? 'PM' : 'AM';
+                      const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                      return `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${displayHour}:${String(now.getMinutes()).padStart(2,'0')} ${ampm}`;
+                    })()}
+                  </span>
+                </div>
               </div>
             )}
 
