@@ -291,6 +291,9 @@ export const exportDietaryChartToPdf = async (
     // Underline headers
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos + 1, pageWidth - margin, yPos + 1);
+    yPos += rowHeight; // header row height
+    
+    // Empty line gap between header and first guest
     yPos += rowHeight;
 
     // Determine font style from settings
