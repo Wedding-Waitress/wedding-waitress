@@ -178,14 +178,14 @@ export const exportFullSeatingChartToPdf = async (
   const contentWidth = PDF_WIDTH_MM - (2 * margin);
   
   const baseRowHeight: Record<string, number> = {
-    'small': 8.4,   // 294/8.4 = 35 guests per column
+    'small': 7.2,   // 252/7.2 = 35 guests per column (compact rows)
     'medium': 11,
     'large': 13
   };
   
   const rowHeight = baseRowHeight[settings.fontSize] || 11;
-  // Always 35 per column since metadata is now inline in brackets
-  const availableHeight = 294;
+  // Always 35 per column - compact rows to fit with header/footer
+  const availableHeight = 252;
   
   const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
   const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
@@ -292,8 +292,8 @@ export const exportFullSeatingChartToPdf = async (
       const guest2 = col2Guests[i];
 
       // Each guest row occupies [yPos .. yPos + rowHeight]
-      // Name text baseline is at yPos + 3.5mm (vertically centered in top portion)
-      const nameBaselineY = yPos + 3.5;
+      // Name text baseline vertically centered in compact row
+      const nameBaselineY = yPos + (rowHeight * 0.55);
       
       const drawGuest = (guest: Guest | undefined, xPos: number, baselineY: number) => {
         if (!guest) return;
