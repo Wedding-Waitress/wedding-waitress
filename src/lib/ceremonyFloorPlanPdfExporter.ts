@@ -50,6 +50,72 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
   return `${displayHour}:${minutes} ${ampm}`;
 };
 
+export const generateCeremonyFloorPlanPDF = async (
+  floorPlan: CeremonyFloorPlan,
+  event: EventData
+): Promise<void> => {
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  let yPos = MARGIN_TOP;
+  const contentWidth = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT;
+
+  // === HEADER (matching Running Sheet style) ===
+  
+  // Event Name - Purple, Bold, ~22px = ~16.5pt
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(16.5);
+  pdf.setTextColor(109, 40, 217); // #6d28d9
+  pdf.text(event.name, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 7;
+
+  // "Floor Plan – Ceremony" - ~16px = ~12pt
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(12);
+  pdf.setTextColor(34, 34, 34);
+  pdf.text('Floor Plan – Ceremony', PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 7;
+
+  // Ceremony detail line
+  pdf.setFontSize(9);
+  pdf.setTextColor(85, 85, 85);
+  const ceremonyDateStr = formatDateWithOrdinal(event.ceremony_date || event.date);
+  const ceremonyVenue = event.ceremony_venue || event.venue || 'Venue TBD';
+  const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
+  pdf.text(`Ceremony: ${ceremonyDateStr} | ${ceremonyVenue} | ${ceremonyTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 5;
+
+  // Reception detail line
+  const receptionDateStr = formatDateWithOrdinal(event.date);
+  const receptionVenue = event.venue || 'Venue TBD';
+  const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
+  pdf.text(`Reception: ${receptionDateStr} | ${receptionVenue} | ${receptionTime}`, PAGE_WIDTH / 2, yPos, { align: 'center' });
+  yPos += 6;
+
+  // Total Attending Ceremony line
+  const leftBridalCount = floorPlan.bridal_party_count_left || 0;
+  const rightBridalCount = floorPlan.bridal_party_count_right || 0;
+  const familySeatsTotal = floorPlan.total_rows * floorPlan.chairs_per_row * 2;
+  const totalAttendingCeremony = 3 + leftBridalCount + rightBridalCount + familySeatsTotal;
+  pdf.setFontSize(8);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(
+    `Total Attending Ceremony: ${totalAttendingCeremony} (This includes Bride & Groom + Celebrant + Bridal Party + all Family & Friends)`,
+    PAGE_WIDTH / 2,
+    yPos,
+    { align: 'center' }
+  );
+  yPos += 4;
+
+  // Purple divider line
+  pdf.setDrawColor(109, 40, 217);
+  pdf.setLineWidth(0.5);
+  pdf.line(MARGIN_LEFT, yPos, PAGE_WIDTH - MARGIN_RIGHT, yPos);
+  yPos += 8;
+
   // === FLOOR PLAN VISUAL ===
   
   // Calculate dimensions - wider rectangles
