@@ -155,7 +155,7 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   
   columns.push({ header: 'First Name', width: 30 });
   columns.push({ header: 'Last Name', width: 30 });
-  columns.push({ header: 'Table', width: 15 });
+  columns.push({ header: 'Table', width: 25 });
   
   if (settings.showSeatNo) {
     columns.push({ header: 'Seat', width: 15 });
