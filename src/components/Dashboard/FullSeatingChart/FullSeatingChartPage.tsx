@@ -105,21 +105,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
    * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
    * Must match the calculation in FullSeatingChartPreview and fullSeatingChartPdfExporter
    */
-  const guestsPerPage = React.useMemo(() => {
-    // Must match FullSeatingChartPreview and fullSeatingChartPdfExporter exactly
-    const baseRowHeight: Record<string, number> = {
-      'small': 7.5,   // 225/7.5 = 30 guests per column
-      'medium': 11,
-      'large': 13
-    };
-    
-    const rowHeight = baseRowHeight[settings.fontSize] || 11;
-    const availableHeight = 225; // Fixed content zone height in mm
-    
-    const calculatedGuestsPerColumn = Math.floor(availableHeight / rowHeight);
-    const guestsPerColumn = Math.max(1, calculatedGuestsPerColumn);
-    return guestsPerColumn * 2; // Two columns
-  }, [settings.fontSize]);
+  const guestsPerPage = GUESTS_PER_PAGE;
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent) return;
