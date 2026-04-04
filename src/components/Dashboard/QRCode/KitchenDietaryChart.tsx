@@ -47,6 +47,8 @@ interface DietaryGuest {
   first_name: string;
   last_name: string;
   table_no: number | null;
+  table_id: string | null;
+  table_display: string;
   seat_no: number | null;
   dietary: string;
   relation_partner: string;
@@ -124,17 +126,26 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         guest.dietary.toLowerCase() !== 'na' &&
         guest.dietary.toLowerCase() !== 'none'
       )
-      .map(guest => ({
-        id: guest.id,
-        first_name: guest.first_name,
-        last_name: guest.last_name,
-        table_no: guest.table_no,
-        seat_no: guest.seat_no,
-        dietary: guest.dietary,
-        relation_partner: guest.relation_partner,
-        relation_role: guest.relation_role,
-        mobile: guest.mobile
-      }));
+      .map(guest => {
+        // Look up table name from tables array
+        const matchedTable = guest.table_id ? tables.find(t => t.id === guest.table_id) : null;
+        const tableDisplay = matchedTable
+          ? (matchedTable.table_no ? String(matchedTable.table_no) : matchedTable.name)
+          : (guest.table_no ? String(guest.table_no) : '-');
+        return {
+          id: guest.id,
+          first_name: guest.first_name,
+          last_name: guest.last_name,
+          table_no: guest.table_no,
+          table_id: guest.table_id || null,
+          table_display: tableDisplay,
+          seat_no: guest.seat_no,
+          dietary: guest.dietary,
+          relation_partner: guest.relation_partner,
+          relation_role: guest.relation_role,
+          mobile: guest.mobile
+        };
+      });
 
     // Apply sorting based on settings
     return filtered.sort((a, b) => {
@@ -162,7 +173,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         return a.first_name.localeCompare(b.first_name);
       }
     });
-  }, [guests, settings.sortBy]);
+  }, [guests, tables, settings.sortBy]);
 
   // Compute dietary summary counts for the 11 tracked dietary types
    const dietarySummary = useMemo(() => {
@@ -658,8 +669,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
                         
                         {/* Total Dietary Guest Requirements - between purple line and gray header */}
-                        <p className="text-center" style={{ fontSize: '9pt', marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
-                          Total Dietary Guest Requirements: {dietaryGuests.length}
+                        <p className="text-center" style={{ marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
+                          Total Dietary Guest Requirements: <strong>{dietaryGuests.length}</strong>
                         </p>
                       </div>
 
@@ -726,7 +737,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                   {guest.last_name || '-'}
                                 </td>
                                 <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                  {guest.table_no || '-'}
+                                  {guest.table_display}
                                 </td>
                                 {settings.showSeatNo && (
                                   <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>

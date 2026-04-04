@@ -5,6 +5,8 @@ interface DietaryGuest {
   first_name: string;
   last_name: string;
   table_no: number | null;
+  table_id: string | null;
+  table_display: string;
   seat_no: number | null;
   dietary: string;
   mobile: string | null;
@@ -153,7 +155,7 @@ const getTableColumns = (settings: DietaryChartSettings) => {
   
   columns.push({ header: 'First Name', width: 30 });
   columns.push({ header: 'Last Name', width: 30 });
-  columns.push({ header: 'Table', width: 15 });
+  columns.push({ header: 'Table', width: 25 });
   
   if (settings.showSeatNo) {
     columns.push({ header: 'Seat', width: 15 });
@@ -249,8 +251,17 @@ export const exportDietaryChartToPdf = async (
     pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Total Dietary Guest Requirements count on separate line
-    pdf.text(`Total Dietary Guest Requirements: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
+    // Total Dietary Guest Requirements count on separate line (number bold)
+    const totalLabel = 'Total Dietary Guest Requirements: ';
+    const totalCount = String(guests.length);
+    const labelWidth = pdf.getTextWidth(totalLabel);
+    const countWidth = pdf.getTextWidth(totalCount);
+    const totalTextWidth = labelWidth + countWidth;
+    const startX = (pageWidth - totalTextWidth) / 2;
+    pdf.text(totalLabel, startX, yPos);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(totalCount, startX + labelWidth, yPos);
+    pdf.setFont('helvetica', 'normal');
     yPos += 5;
 
     // Ceremony info line (if available)
@@ -396,8 +407,9 @@ export const exportDietaryChartToPdf = async (
 
       // Table
       pdf.setFont('helvetica', textFontStyle);
-      const tableVal = guest.table_no ? String(guest.table_no) : '-';
-      pdf.text(tableVal, xPos, yPos);
+      const tableVal = guest.table_display || '-';
+      const tableText = pdf.splitTextToSize(tableVal, colWidths[colIdx] - 2);
+      pdf.text(tableText, xPos, yPos);
       if (settings.isUnderline) {
         const tw = pdf.getTextWidth(tableVal);
         pdf.setDrawColor(0, 0, 0);
