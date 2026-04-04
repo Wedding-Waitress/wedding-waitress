@@ -934,15 +934,23 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                 >
                   {/* Left Column */}
                   <div className="flex-1 space-y-0.5">
-                    {sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
+                  {sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                      const nameStyle: React.CSSProperties = {
+                        fontWeight: settings.textStyle === 'bold' || settings.textStyle === 'default' ? 700 : 400,
+                        fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
+                        textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
+                      };
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
                           <span className="break-words text-left">
-                            <span className="font-bold">{guest.first_name} {guest.last_name}</span>
+                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
+                            )}
+                            {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
+                              <span className="text-muted-foreground"> ({guest.relation_display})</span>
                             )}
                           </span>
                         </div>
@@ -954,13 +962,21 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                   <div className="flex-1 space-y-0.5 ml-4">
                     {sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                       const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                      const nameStyle: React.CSSProperties = {
+                        fontWeight: settings.textStyle === 'bold' || settings.textStyle === 'default' ? 700 : 400,
+                        fontStyle: settings.textStyle === 'italic' ? 'italic' : 'normal',
+                        textDecoration: settings.textStyle === 'underline' ? 'underline' : 'none',
+                      };
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
                           <span className="break-words text-left">
-                            <span className="font-bold">{guest.first_name} {guest.last_name}</span>
+                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
+                            )}
+                            {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
+                              <span className="text-muted-foreground"> ({guest.relation_display})</span>
                             )}
                           </span>
                         </div>

@@ -16,9 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Settings } from 'lucide-react';
+import { Settings, Type, Bold, Italic, Underline } from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 
 interface IndividualTableChartCustomizerProps {
@@ -100,6 +99,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeNames: checked })
               }
+              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -111,6 +111,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ showSeatNumbers: checked })
               }
+              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -122,6 +123,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeGuestList: checked })
               }
+              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -133,6 +135,19 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeDietary: checked })
               }
+              className="data-[state=unchecked]:bg-destructive"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="show-relation">Show Relationship</Label>
+            <Switch
+              id="show-relation"
+              checked={settings.includeRelation}
+              onCheckedChange={(checked) => 
+                onSettingsChange({ includeRelation: checked })
+              }
+              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -140,26 +155,45 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         <Separator />
 
-        {/* Text Settings - Hidden for Long Table (auto-scaling) */}
+        {/* Typography - Hidden for Long Table (auto-scaling) */}
         {settings.tableShape !== 'long' && (
           <div className="space-y-4">
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Text Settings</span>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
+              <Type className="w-4 h-4" />
+              Typography
+            </span>
             
             <div className="space-y-2">
-              <Label htmlFor="font-size">Font Size</Label>
+              <Label htmlFor="text-style">Text Style</Label>
               <Select
-                value={settings.fontSize}
-                onValueChange={(value: 'small' | 'medium' | 'large') => 
-                  onSettingsChange({ fontSize: value })
+                value={settings.textStyle}
+                onValueChange={(value: 'default' | 'bold' | 'italic' | 'underline') => 
+                  onSettingsChange({ textStyle: value })
                 }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="small">Small</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="large">Large</SelectItem>
+                  <SelectItem value="default">Default</SelectItem>
+                  <SelectItem value="bold">
+                    <span className="flex items-center gap-2">
+                      <Bold className="w-4 h-4" />
+                      Bold
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="italic">
+                    <span className="flex items-center gap-2">
+                      <Italic className="w-4 h-4" />
+                      Italic
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="underline">
+                    <span className="flex items-center gap-2">
+                      <Underline className="w-4 h-4" />
+                      Underline
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -182,6 +216,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                   onCheckedChange={(checked) => 
                     onSettingsChange({ enableEndSeats: checked })
                   }
+                  className="data-[state=unchecked]:bg-destructive"
                 />
               </div>
 
