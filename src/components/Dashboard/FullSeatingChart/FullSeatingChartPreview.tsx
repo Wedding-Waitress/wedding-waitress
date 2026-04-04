@@ -47,6 +47,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import weddingWaitressLogoFull from '@/assets/wedding-waitress-logo-full.png';
+import {
+  PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_TOP_MM, MARGIN_LEFT_MM,
+  HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
+  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, FOOTER_START_MM, FOOTER_GAP_MM,
+  paginateGuests,
+} from '@/lib/fullSeatingChartLayout';
 
 interface FullSeatingChartPreviewProps {
   event: any;
