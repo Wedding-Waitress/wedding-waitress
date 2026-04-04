@@ -620,10 +620,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                           Kitchen Dietary Requirements
                         </p>
                         
-                        {/* Line 3: Total Dietary Guests count */}
-                        <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
-                          Total Dietary Guests: {dietaryGuests.length}
-                        </p>
                         
                         {/* Ceremony info line */}
                         {currentEvent.ceremony_date && (
@@ -639,6 +635,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         
                         {/* Purple divider */}
                         <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
+                        
+                        {/* Total Dietary Guests - between purple line and gray header */}
+                        <p className="text-center" style={{ fontSize: '9pt', marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
+                          Total Dietary Guests: {dietaryGuests.length}
+                        </p>
                       </div>
 
                       {/* Guest Table */}
