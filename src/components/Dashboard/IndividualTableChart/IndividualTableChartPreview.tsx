@@ -247,7 +247,12 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
         
         // Determine text alignment based on angle (hemisphere)
         const angleDegrees = (angle * 180) / Math.PI;
-        if (angleDegrees >= -90 && angleDegrees <= 90) {
+        // Top and bottom seats should be centered
+        if (angleDegrees >= -100 && angleDegrees <= -80) {
+          textAlign = 'center';
+        } else if (angleDegrees >= 80 && angleDegrees <= 100) {
+          textAlign = 'center';
+        } else if (angleDegrees > -80 && angleDegrees < 80) {
           // Right hemisphere - left align text
           textAlign = 'left';
         } else {
@@ -944,10 +949,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
-                          <span className="break-words text-left" style={nameStyle}>
-                            <span>{guest.first_name} {guest.last_name}</span>
+                          <span className="break-words text-left">
+                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                              <span className="text-primary font-bold"> - {guest.dietary}</span>
+                              <span className="text-primary font-bold" style={nameStyle}> - {guest.dietary}</span>
                             )}
                             {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
                               <span className="text-muted-foreground"> ({guest.relation_display.replace(/ \/ /g, '/')})</span>
@@ -970,10 +975,10 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
-                          <span className="break-words text-left" style={nameStyle}>
-                            <span>{guest.first_name} {guest.last_name}</span>
+                          <span className="break-words text-left">
+                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
-                              <span className="text-primary font-bold"> - {guest.dietary}</span>
+                              <span className="text-primary font-bold" style={nameStyle}> - {guest.dietary}</span>
                             )}
                             {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
                               <span className="text-muted-foreground"> ({guest.relation_display.replace(/ \/ /g, '/')})</span>
