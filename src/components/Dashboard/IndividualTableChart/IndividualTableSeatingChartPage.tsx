@@ -317,7 +317,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             {/* Table Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Table:
+                Choose Table:
               </label>
               <Select 
                 value={selectedTableId || ''} 
@@ -330,7 +330,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 <SelectContent className="bg-popover border-border z-50">
                   {tables.map((table) => (
                     <SelectItem key={table.id} value={table.id}>
-                      Table {table.table_no ? `Table ${table.table_no}` : table.name} ({table.guest_count} of {table.limit_seats} guests)
+                      {table.name} ({table.guest_count} of {table.limit_seats} guests)
                     </SelectItem>
                   ))}
                 </SelectContent>
