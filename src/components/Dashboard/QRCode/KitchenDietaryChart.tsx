@@ -657,35 +657,41 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             </tr>
                           </thead>
                           <tbody>
-                            {paginatedGuests.map((guest, index) => (
+                            {paginatedGuests.map((guest, index) => {
+                              const textStyle: React.CSSProperties = {
+                                fontWeight: settings.isBold ? 'bold' : undefined,
+                                fontStyle: settings.isItalic ? 'italic' : undefined,
+                                textDecoration: settings.isUnderline ? 'underline' : undefined,
+                              };
+                              return (
                               <tr 
                                 key={guest.id}
                                 className={index % 2 === 0 ? 'bg-[#f9fafb]' : 'bg-white'}
                               >
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-bold">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, fontWeight: settings.isBold ? 'bold' : 'bold' }}>
                                   {guest.first_name}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-bold">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, fontWeight: settings.isBold ? 'bold' : 'bold' }}>
                                   {guest.last_name || '-'}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
                                   {guest.table_no || '-'}
                                 </td>
                                 {settings.showSeatNo && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
                                     {guest.seat_no || '-'}
                                   </td>
                                 )}
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-semibold text-accent-foreground">
+                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 font-semibold text-accent-foreground" style={{ fontStyle: settings.isItalic ? 'italic' : undefined, textDecoration: settings.isUnderline ? 'underline' : undefined }}>
                                   {guest.dietary}
                                 </td>
                                 {settings.showMobile && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
                                     {guest.mobile || '-'}
                                   </td>
                                 )}
                                 {settings.showRelation && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200">
+                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
                                     {computeRelationDisplay(
                                       guest.relation_partner as any,
                                       guest.relation_role as any,
@@ -696,7 +702,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                   </td>
                                 )}
                               </tr>
-                            ))}
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
