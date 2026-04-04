@@ -47,6 +47,7 @@ export interface IndividualChartSettings {
   isBold: boolean;
   isItalic: boolean;
   isUnderline: boolean;
+  largerTableNames: boolean;
   paperSize: 'A4';
   title: string;
   showLogo: boolean;
