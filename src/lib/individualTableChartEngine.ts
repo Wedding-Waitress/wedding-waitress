@@ -1201,18 +1201,26 @@ export const generateIndividualTableSVG = (
       `}
 
       <!-- Guest List - Auto-scaled font size: ${autoFitGuestListFontPt.toFixed(1)}pt -->
-      ${settings.includeGuestList && settings.tableShape !== 'long' ? `
+      ${settings.includeGuestList && settings.tableShape !== 'long' ? (() => {
+        const isBold = settings.textStyle === 'bold' || settings.textStyle === 'default';
+        const isItalic = settings.textStyle === 'italic';
+        const isUnderline = settings.textStyle === 'underline';
+        const nameWeight = isBold ? '700' : '400';
+        const nameItalic = isItalic ? 'italic' : 'normal';
+        const nameDecoration = isUnderline ? 'underline' : 'none';
+        return `
         <div style="margin-bottom: 20px;">
           <div style="display: flex; font-size: ${autoFitGuestListFontPt}pt; line-height: 1.35;">
             <!-- Left Column (odd indices: 0, 2, 4...) -->
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
               ${sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${guest.relation_display})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="font-weight: 700;">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}
+                      <span style="font-weight: ${nameWeight}; font-style: ${nameItalic}; text-decoration: ${nameDecoration};">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;
@@ -1222,11 +1230,12 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; margin-left: 16px;">
               ${sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
+                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${guest.relation_display})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="font-weight: 700;">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}
+                      <span style="font-weight: ${nameWeight}; font-style: ${nameItalic}; text-decoration: ${nameDecoration};">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700;">- ${guest.dietary}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;
@@ -1234,7 +1243,7 @@ export const generateIndividualTableSVG = (
             </div>
           </div>
         </div>
-      ` : ''}
+      `; })() : ''}
 
       <!-- Footer - Running Sheet Style -->
       ${settings.showLogo ? `
