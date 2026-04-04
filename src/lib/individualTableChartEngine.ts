@@ -1171,12 +1171,12 @@ export const generateIndividualTableSVG = (
               border: 1px solid #000;
               border-radius: 50%;
               background: white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              text-align: center;
+              line-height: 44px;
               font-weight: bold;
               font-size: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              overflow: hidden;
             ">
               ${settings.showSeatNumbers ? seat.number : ''}
             </div>
