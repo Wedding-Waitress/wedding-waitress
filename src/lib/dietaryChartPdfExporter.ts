@@ -255,8 +255,7 @@ export const exportDietaryChartToPdf = async (
         const val = g.dietary.toLowerCase().trim();
         return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
       }).length };
-    })
-    ;
+    });
 
   // Calculate column positions
   const colWidths: number[] = [];
