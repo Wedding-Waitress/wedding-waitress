@@ -1189,7 +1189,7 @@ export const generateIndividualTableSVG = (
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
                 font-size: ${scaledFontPt}pt;
-                font-weight: ${settings.isBold ? '700' : '700'};
+                font-weight: ${settings.isBold ? '700' : '400'};
                 font-style: ${settings.isItalic ? 'italic' : 'normal'};
                 text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
                 color: #000000;
