@@ -303,7 +303,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     variant="outline"
                     className="bg-white border-primary text-primary rounded-full"
                   >
-                    {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                    {isDataReady ? (hasGuests ? 'Ready to Generate' : 'No Guests') : 'Loading Data...'}
                   </Badge>
                 </>
               )}
