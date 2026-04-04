@@ -188,14 +188,13 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         selectedEvent
       );
       
-      const eventName = formatEventNameForFile(selectedEvent.name);
-      const tableIdentifier = selectedTable.table_no ?? selectedTable.name;
+      const eventName = selectedEvent.name.replace(/[<>:"/\\|?*]/g, '');
       const date = new Date().toLocaleDateString('en-GB', { 
         day: '2-digit', 
         month: '2-digit', 
         year: 'numeric' 
       }).replace(/\//g, '-');
-      const fileName = `${eventName}-Table-${tableIdentifier}-Seating-Chart-${date}.pdf`;
+      const fileName = `${eventName}-Download Single Page-${date}.pdf`;
       
       saveAs(pdfBlob, fileName);
       toast.success('PDF downloaded successfully!');
@@ -221,13 +220,13 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         selectedEvent
       );
       
-      const eventName = formatEventNameForFile(selectedEvent.name);
+      const eventName = selectedEvent.name.replace(/[<>:"/\\|?*]/g, '');
       const date = new Date().toLocaleDateString('en-GB', { 
         day: '2-digit', 
         month: '2-digit', 
         year: 'numeric' 
       }).replace(/\//g, '-');
-      const fileName = `${eventName}-All-Tables-Seating-Charts-${date}.pdf`;
+      const fileName = `${eventName}-Download All Pages-${date}.pdf`;
       
       saveAs(pdfBlob, fileName);
       toast.success(`Successfully exported ${tables.length} tables to PDF!`);
