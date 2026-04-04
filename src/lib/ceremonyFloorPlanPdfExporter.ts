@@ -128,14 +128,14 @@ export const generateCeremonyFloorPlanPDF = async (
 
   // === FLOOR PLAN VISUAL ===
   
-  // Calculate dimensions - wider rectangles
-  const seatWidth = 12;
-  const seatHeight = 9;
+  // Calculate dimensions - larger rectangles for readability
+  const seatWidth = 14;
+  const seatHeight = 10.5;
   const seatGap = 1.5;
   const rowGap = 2;
   
   const sideWidth = (floorPlan.chairs_per_row * seatWidth) + ((floorPlan.chairs_per_row - 1) * seatGap);
-  const aisleWidth = 20;
+  const aisleWidth = 18;
   const totalWidth = (sideWidth * 2) + aisleWidth;
   const startX = (PAGE_WIDTH - totalWidth) / 2;
 
