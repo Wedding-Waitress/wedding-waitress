@@ -350,7 +350,7 @@ export const generateCeremonyFloorPlanPDF = async (
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(7);
       pdf.setTextColor(100, 100, 100);
-      pdf.text(String(row), startX - 4, rowY + (seatHeight / 2) + 1, { align: 'right' });
+      pdf.text(String(row), startX - 2, rowY + (seatHeight / 2) + 1, { align: 'right' });
     }
 
     // Row number on right (for Bride's Family)
