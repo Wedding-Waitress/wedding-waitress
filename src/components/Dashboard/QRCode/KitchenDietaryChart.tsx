@@ -640,19 +640,19 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       <div className={`flex-1 overflow-hidden ${getFontSizeClass()} mt-2`}>
                         <table className="w-full border-collapse mt-0">
                           <thead>
-                            <tr className="border-b-2 border-foreground">
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">First Name</th>
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Last Name</th>
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Table</th>
+                            <tr style={{ backgroundColor: '#f3f3f3', borderBottom: '2px solid #ccc' }}>
+                              <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>First Name</th>
+                              <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Last Name</th>
+                              <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Table</th>
                               {settings.showSeatNo && (
-                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Seat</th>
+                                <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Seat</th>
                               )}
-                              <th className="text-left py-[1pt] px-[4pt] font-semibold">Dietary</th>
+                              <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Dietary</th>
                               {settings.showMobile && (
-                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Mobile</th>
+                                <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Mobile</th>
                               )}
                               {settings.showRelation && (
-                                <th className="text-left py-[1pt] px-[4pt] font-semibold">Relation</th>
+                                <th className="text-left py-[3px] px-[4pt] font-bold uppercase tracking-wide" style={{ fontSize: '8pt', color: '#000' }}>Relation</th>
                               )}
                             </tr>
                           </thead>
