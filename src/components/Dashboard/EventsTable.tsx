@@ -390,7 +390,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           </div>
         ) : (
           /* Desktop Table View */
-          <div className="overflow-hidden border-2 border-primary rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-4 mb-4">
+          <div className="overflow-hidden border-4 border-primary rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-4 mb-4">
             <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
               <Table>
               <TableHeader>
