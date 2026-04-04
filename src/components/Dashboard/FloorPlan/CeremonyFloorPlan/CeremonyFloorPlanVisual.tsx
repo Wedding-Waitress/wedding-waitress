@@ -173,9 +173,9 @@ export const CeremonyFloorPlanVisual = ({
             ? "cursor-pointer hover:border-primary hover:bg-primary/5"
             : "cursor-not-allowed",
           name 
-            ? "bg-transparent border-primary font-medium" 
+            ? "bg-primary/5 border-primary font-medium" 
             : isAssignedRow 
-              ? "bg-muted/30 border-border text-muted-foreground"
+              ? "bg-primary/10 border-primary/30 text-muted-foreground"
               : "bg-muted/10 border-border/50 text-muted-foreground/50"
         )}
         title={isAssignedRow ? (name || 'Click to assign') : 'General seating'}

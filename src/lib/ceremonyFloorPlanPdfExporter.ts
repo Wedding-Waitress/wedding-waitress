@@ -371,11 +371,11 @@ export const generateCeremonyFloorPlanPDF = async (
 
       // Seat box
       if (seatName) {
-        pdf.setFillColor(255, 255, 255); // White background
-        pdf.setDrawColor(114, 72, 230);
+        pdf.setFillColor(240, 235, 250); // Light purple bg
+        pdf.setDrawColor(114, 72, 230);  // Purple border
       } else if (isAssignedRow) {
-        pdf.setFillColor(245, 245, 245);
-        pdf.setDrawColor(180, 180, 180);
+        pdf.setFillColor(240, 235, 250); // Light purple bg
+        pdf.setDrawColor(196, 181, 253); // Light purple border
       } else {
         pdf.setFillColor(250, 250, 250);
         pdf.setDrawColor(220, 220, 220);
@@ -411,11 +411,11 @@ export const generateCeremonyFloorPlanPDF = async (
 
       // Seat box
       if (seatName) {
-        pdf.setFillColor(255, 255, 255); // White background
-        pdf.setDrawColor(114, 72, 230);
+        pdf.setFillColor(240, 235, 250); // Light purple bg
+        pdf.setDrawColor(114, 72, 230);  // Purple border
       } else if (isAssignedRow) {
-        pdf.setFillColor(245, 245, 245);
-        pdf.setDrawColor(180, 180, 180);
+        pdf.setFillColor(240, 235, 250); // Light purple bg
+        pdf.setDrawColor(196, 181, 253); // Light purple border
       } else {
         pdf.setFillColor(250, 250, 250);
         pdf.setDrawColor(220, 220, 220);
