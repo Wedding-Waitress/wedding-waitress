@@ -309,7 +309,7 @@ export const exportDietaryChartToPdf = async (
 
     if (summaryCounts.length > 0) {
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7);
+      pdf.setFontSize(9);
       pdf.setTextColor(0, 0, 0);
       const summaryText = summaryCounts.map(item => `${item.label}: ${item.count}`).join('    ');
       pdf.text(summaryText, pageWidth / 2, yPos + 3.5, { align: 'center' });
