@@ -1164,11 +1164,11 @@ export const generateIndividualTableSVG = (
             const scaledFontPt = getAutoScaledFontSize();
             
             return `
-            <!-- Seat Circle with line-height centering for html2canvas -->
+            <!-- Seat Circle with table-based centering for html2canvas -->
             <div style="
               position: absolute;
-              left: ${seat.x}px;
-              top: ${seat.y}px;
+              left: ${seat.x}%;
+              top: ${seat.y}%;
               width: 44px;
               height: 44px;
               margin-left: -22px;
@@ -1176,21 +1176,23 @@ export const generateIndividualTableSVG = (
               border: 1px solid #000;
               border-radius: 50%;
               background: white;
-              text-align: center;
-              line-height: 44px;
-              font-weight: bold;
-              font-size: 12px;
               box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             ">
-              ${settings.showSeatNumbers ? seat.number : ''}
+              <table width="44" height="44" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" valign="middle" style="font-weight: bold; font-size: 12px;">
+                    ${settings.showSeatNumbers ? seat.number : ''}
+                  </td>
+                </tr>
+              </table>
             </div>
 
-            <!-- Guest Name - Side-aware positioning with auto-scale for top/bottom -->
+            <!-- Guest Name - Side-aware positioning -->
             ${seat.guest && settings.includeNames ? `
               <div style="
                 position: absolute;
-                left: ${seat.labelX}px;
-                top: ${seat.labelY}px;
+                left: ${seat.labelX}%;
+                top: ${seat.labelY}%;
                 transform: ${seat.transform};
                 text-align: ${seat.textAlign};
                 font-size: ${settings.largerTableNames ? scaledFontPt * 1.25 : scaledFontPt}pt;
