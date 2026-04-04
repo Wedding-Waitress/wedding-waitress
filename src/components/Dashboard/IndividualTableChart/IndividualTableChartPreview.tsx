@@ -970,13 +970,13 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                       return (
                         <div key={guest.id} className="flex items-start py-0.5">
                           <span className="w-5 text-left flex-shrink-0">{actualIndex + 1}.</span>
-                          <span className="break-words text-left">
-                            <span style={nameStyle}>{guest.first_name} {guest.last_name}</span>
+                          <span className="break-words text-left" style={nameStyle}>
+                            <span>{guest.first_name} {guest.last_name}</span>
                             {settings.includeDietary && guest.dietary && guest.dietary !== 'NA' && (
                               <span className="text-primary font-bold"> - {guest.dietary}</span>
                             )}
                             {settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' && (
-                              <span className="text-muted-foreground"> ({guest.relation_display})</span>
+                              <span className="text-muted-foreground"> ({guest.relation_display.replace(/ \/ /g, '/')})</span>
                             )}
                           </span>
                         </div>
