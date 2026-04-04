@@ -580,10 +580,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
             </div>
 
-            {/* ── ZONE 3: FOOTER (fixed position at bottom) ── */}
+            {/* ── ZONE 3: FOOTER (fixed position at bottom of preview) ── */}
             <div style={{
               position: 'absolute',
-              top: `${FOOTER_START_MM + FOOTER_GAP_MM}mm`,
+              top: `${FOOTER_START_MM + FOOTER_GAP_MM + 5}mm`,
               left: `${MARGIN_LEFT_MM}mm`,
               right: `${MARGIN_LEFT_MM}mm`,
               bottom: '5mm',
