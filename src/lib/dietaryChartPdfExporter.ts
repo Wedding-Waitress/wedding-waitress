@@ -249,8 +249,8 @@ export const exportDietaryChartToPdf = async (
     pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Total Dietary Guests count on separate line
-    pdf.text(`Total Dietary Guests: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
+    // Total Dietary Guest Requirements count on separate line
+    pdf.text(`Total Dietary Guest Requirements: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
     // Ceremony info line (if available)
