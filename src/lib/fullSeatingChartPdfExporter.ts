@@ -292,8 +292,8 @@ export const exportFullSeatingChartToPdf = async (
       const guest2 = col2Guests[i];
 
       // Each guest row occupies [yPos .. yPos + rowHeight]
-      // Name text baseline is at yPos + 3.5mm (vertically centered in top portion)
-      const nameBaselineY = yPos + 3.5;
+      // Name text baseline vertically centered in compact row
+      const nameBaselineY = yPos + (rowHeight * 0.55);
       
       const drawGuest = (guest: Guest | undefined, xPos: number, baselineY: number) => {
         if (!guest) return;
