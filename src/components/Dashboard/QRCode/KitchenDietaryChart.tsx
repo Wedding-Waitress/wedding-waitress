@@ -187,7 +187,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       const count = dietaryGuests.filter(g => {
         if (!g.dietary) return false;
         const val = g.dietary.toLowerCase().trim();
-        return val === typeLower || val.startsWith(typeLower) || typeLower.startsWith(val);
+        if (val === typeLower) return true;
+        if (val.startsWith(typeLower) || typeLower.startsWith(val)) return true;
+        // Flexible prefix match: match if first 4+ chars are the same (handles Kosha→Kosher etc.)
+        const minLen = Math.min(val.length, typeLower.length);
+        if (minLen >= 4) {
+          const prefixLen = Math.max(4, minLen - 1);
+          if (val.substring(0, prefixLen) === typeLower.substring(0, prefixLen)) return true;
+        }
+        return false;
       }).length;
       counts.push({ label: type, count });
     }
