@@ -310,9 +310,9 @@ export const generateCeremonyFloorPlanPDF = async (
   pdf.setDrawColor(114, 72, 230);
   pdf.setLineWidth(0.4);
   pdf.circle(rightPersonX, coupleCircleY, coupleCircleRadius, 'FD');
-  pdf.setFontSize(7);
+  pdf.setFontSize(8);
   pdf.setTextColor(0, 0, 0);
-  pdf.text(rightPersonName.substring(0, 8), rightPersonX, coupleCircleY + 0.5, { align: 'center' });
+  pdf.text(rightPersonName.substring(0, 10), rightPersonX, coupleCircleY + 1, { align: 'center' });
   
   // Adjust yPos based on whether we have a second row - add extra gap before guest seating
   // Include roleHeight for the role labels below each bridal party box
