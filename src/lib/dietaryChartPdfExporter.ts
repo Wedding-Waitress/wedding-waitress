@@ -247,7 +247,7 @@ export const exportDietaryChartToPdf = async (
   const summaryCounts = externalSummaryCounts ?? (() => {
     const trackedTypes = [
       'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
-      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor'
     ];
     return trackedTypes.map(type => {
       const typeLower = type.toLowerCase();
