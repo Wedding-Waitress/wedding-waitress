@@ -1760,22 +1760,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-x-auto border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
-          <Table className="table-fixed w-full">
+        <div className="overflow-hidden border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
+          <Table className="w-full" style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '3%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '9%' }} />
+              <col style={{ width: '6%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '4%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '7%' }} />
+            </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12 bg-primary text-primary-foreground rounded-tl-lg">
+                <TableHead className="bg-primary text-primary-foreground rounded-tl-lg px-2">
                   <Checkbox
                     checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead className="w-28">First Name</TableHead>
-                <TableHead className="w-28">Last Name</TableHead>
-                <TableHead className="w-24">Mobile</TableHead>
-                <TableHead className="w-36">Email</TableHead>
+                <TableHead className="px-2 text-xs">First Name</TableHead>
+                <TableHead className="px-2 text-xs">Last Name</TableHead>
+                <TableHead className="px-2 text-xs">Mobile</TableHead>
+                <TableHead className="px-2 text-xs">Email</TableHead>
                 <TableHead 
-                  className="w-24 text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
+                  className="px-2 text-xs text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
                   onClick={async () => {
                     if (!selectedEventId || sortedGuests.length === 0) return;
                     const allOn = sortedGuests.every(g => g.allow_plus_one !== false);
@@ -1811,15 +1828,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </TableHead>
-                <TableHead className="w-32 text-center">RSVP Invite</TableHead>
-                <TableHead className="w-24">RSVP Status</TableHead>
-                <TableHead className="w-20">Table No</TableHead>
-                <TableHead className="w-20">Seat No.</TableHead>
-                <TableHead className="w-32">Relation</TableHead>
-                <TableHead className="w-24">Dietary Requirements</TableHead>
-                <TableHead className="w-28">Family/Group</TableHead>
-                <TableHead className="w-20">Notes</TableHead>
-                <TableHead className="w-24 rounded-tr-lg">Actions</TableHead>
+                <TableHead className="px-2 text-xs text-center">RSVP Invite</TableHead>
+                <TableHead className="px-2 text-xs">RSVP Status</TableHead>
+                <TableHead className="px-2 text-xs">Table No</TableHead>
+                <TableHead className="px-2 text-xs">Seat No.</TableHead>
+                <TableHead className="px-2 text-xs">Relation</TableHead>
+                <TableHead className="px-2 text-xs">Dietary Requirements</TableHead>
+                <TableHead className="px-2 text-xs">Family/Group</TableHead>
+                <TableHead className="px-2 text-xs">Notes</TableHead>
+                <TableHead className="px-2 text-xs rounded-tr-lg">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
