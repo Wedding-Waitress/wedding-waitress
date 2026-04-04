@@ -249,8 +249,8 @@ export const exportDietaryChartToPdf = async (
     pdf.text('Kitchen Dietary Requirements', pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
-    // Total Dietary Guests count on separate line
-    pdf.text(`Total Dietary Guests: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
+    // Total Dietary Guest Requirements count on separate line
+    pdf.text(`Total Dietary Guest Requirements: ${guests.length}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 5;
 
     // Ceremony info line (if available)
@@ -282,20 +282,54 @@ export const exportDietaryChartToPdf = async (
 
     let xPos = margin;
 
-    // Draw table headers (bold, with underline)
+    // Dietary summary bar (gray background with counts)
+    const trackedTypes = [
+      'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free',
+      'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosher', 'Vendor Meal'
+    ];
+    const summaryCounts = trackedTypes
+      .map(type => ({ label: type, count: guests.filter(g => g.dietary && g.dietary.toLowerCase().trim() === type.toLowerCase()).length }))
+      .filter(item => item.count > 0);
+
+    // Gray summary bar
+    const summaryBarHeight = 5;
+    pdf.setFillColor(243, 243, 243);
+    pdf.setDrawColor(204, 204, 204);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPos, pageWidth - margin, yPos); // top border
+    pdf.rect(margin, yPos, contentWidth, summaryBarHeight, 'F');
+    pdf.line(margin, yPos + summaryBarHeight, pageWidth - margin, yPos + summaryBarHeight); // bottom border
+
+    if (summaryCounts.length > 0) {
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7);
+      pdf.setTextColor(0, 0, 0);
+      const summaryText = summaryCounts.map(item => `${item.label}: ${item.count}`).join('    ');
+      pdf.text(summaryText, pageWidth / 2, yPos + 3.5, { align: 'center' });
+    }
+    yPos += summaryBarHeight;
+
+    // Draw table headers (bold, with gray background and borders)
+    const headerBarHeight = 5;
+    pdf.setFillColor(243, 243, 243);
+    pdf.setDrawColor(204, 204, 204);
+    pdf.setLineWidth(0.5);
+    pdf.line(margin, yPos, pageWidth - margin, yPos); // top border
+    pdf.rect(margin, yPos, contentWidth, headerBarHeight, 'F');
+    pdf.line(margin, yPos + headerBarHeight, pageWidth - margin, yPos + headerBarHeight); // bottom border
+
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(fontSize);
     pdf.setTextColor(0, 0, 0);
     
+    xPos = margin;
     columns.forEach((col, i) => {
-      pdf.text(col.header, xPos, yPos);
+      pdf.text(col.header, xPos + 1, yPos + 3.5);
       xPos += colWidths[i];
     });
     
-    // Underline headers
-    pdf.setLineWidth(0.5);
-    pdf.line(margin, yPos + 1, pageWidth - margin, yPos + 1);
-    yPos += rowHeight; // header row height
+    yPos += headerBarHeight + 1;
+    yPos += rowHeight; // gap after header
     
     // Empty line gap between header and first guest
     yPos += rowHeight;
