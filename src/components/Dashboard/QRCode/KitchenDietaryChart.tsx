@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight, Users, Calendar, Layout } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
@@ -35,7 +35,6 @@ import { format } from 'date-fns';
 import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
 import { Event } from '@/hooks/useEvents';
-import { Calendar } from 'lucide-react';
 
 interface KitchenDietaryChartProps {
   eventId: string | null;
@@ -82,29 +81,38 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   };
 
   const formatDateWithOrdinal = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const ordinal = getOrdinalSuffix(day);
-    const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
-    const month = date.toLocaleDateString('en-US', { month: 'long' });
-    const year = date.getFullYear();
-    return `${weekday}, ${day}${ordinal}, ${month} ${year}`;
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const day = date.getDate();
+      const ordinal = getOrdinalSuffix(day);
+      const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+      const month = date.toLocaleDateString('en-US', { month: 'long' });
+      const year = date.getFullYear();
+      return `${weekday} ${day}${ordinal}, ${month} ${year}`;
+    } catch {
+      return dateString;
+    }
   };
 
   const formatGeneratedTimestamp = () => {
     const now = new Date();
-    
-    // Format date in DD/MM/YYYY format
     const dateStr = now.toLocaleDateString('en-GB');
-    
-    // Format time in 12-hour format with AM/PM
     const timeStr = now.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit', 
       hour12: true 
     });
-    
-    return `${dateStr} Time: ${timeStr}`;
+    return `${dateStr} ${timeStr}`;
+  };
+
+  const formatTimeDisplay = (time: string | null | undefined): string => {
+    if (!time) return 'TBD';
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
   };
 
   // Filter guests with dietary requirements (not 'NA', not empty, and not null)
@@ -157,18 +165,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   }, [guests, settings.sortBy]);
 
   // AUTOFIT: Dynamic guests per page based on font size
-  // A4 = 297mm height, margins = 12.7mm each, header ~22mm, table header ~6mm, footer ~15mm
-  // Available height = 297 - 25.4 - 22 - 6 - 15 = ~228.6mm for guest rows
   const guestsPerPage = useMemo(() => {
-    const availableHeight = 228; // mm for guest rows (after header, footer, margins)
-    
-    // Row height varies by font size (matching PDF exporter)
+    const availableHeight = 228;
     const rowHeightByFontSize: Record<string, number> = {
-      'small': 9,    // Smaller text = more rows fit
-      'medium': 10,  // Medium text
-      'large': 11.5  // Larger text = fewer rows
+      'small': 9,
+      'medium': 10,
+      'large': 11.5
     };
-    
     const rowHeight = rowHeightByFontSize[settings.fontSize] || 10;
     return Math.floor(availableHeight / rowHeight);
   }, [settings.fontSize]);
@@ -250,6 +253,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       setIsExporting(false);
     }
   };
+
+  const isDataReady = eventId && !guestsLoading && dietaryGuests.length >= 0;
 
   if (guestsLoading) {
     return (
@@ -350,14 +355,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             background-color: white !important;
           }
           
-          .print-page table tbody tr:nth-child(even) {
-            background-color: #f9fafb !important;
-          }
-          
-          .print-page table tbody tr:nth-child(odd) {
-            background-color: white !important;
-          }
-          
           /* Font size variants for print */
           .print-font-small {
             font-size: 10.5pt;
@@ -425,76 +422,89 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       `}</style>
       
       <div className="space-y-6 kitchen-dietary-chart">
-        {/* Combined Header Card - Always Visible */}
+        {/* Header Card - Matching Full Seating Chart layout */}
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
-          <CardContent className="p-6">
-              {/* Title and Description - Left aligned at top */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <ChefHat className="w-5 h-5 text-primary" />
-                </div>
+          <CardHeader className="space-y-4">
+            {/* Top row: Icon, Title, and Event Name */}
+            <div className="flex items-center justify-between">
+              {/* Header Icon & Info */}
+              <div className="flex items-center gap-4">
+                <ChefHat className="w-12 h-12 text-primary" />
                 <div>
-                  <h2 className="text-2xl font-medium text-foreground">Kitchen Dietary Requirements</h2>
-                  <p className="text-muted-foreground text-sm">
+                  <CardTitle className="text-left text-2xl font-medium text-foreground">Kitchen Dietary Requirements</CardTitle>
+                  <CardDescription className="text-left">
                     Staff reference sheet for guests with dietary requirements and allergies
-                  </p>
+                  </CardDescription>
                 </div>
-              </div>
-
-              {/* Event Selector */}
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium whitespace-nowrap">Choose Event:</span>
-                <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
-                    <SelectValue placeholder="Choose Event" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
-                    {events.map(event => (
-                      <SelectItem key={event.id} value={event.id}>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          <span>{event.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               {currentEvent && (
-                <>
-                  <Separator className="my-4" />
+                <span className="text-lg font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                  Dietary Requirements for {currentEvent.name}
+                </span>
+              )}
+            </div>
 
-                  {/* Bottom Row: Single line with Event Info + Buttons */}
-                  <div className="flex items-center justify-between gap-4">
-                {/* Left Side: Event Info on one line */}
-                <div className="flex items-center gap-2 text-sm flex-wrap">
-                  <span className="font-semibold text-primary text-base">
-                    {currentEvent.name}
-                  </span>
-                  {currentEvent.date && (
-                    <>
-                      <span className="text-muted-foreground">-</span>
-                      <span className="text-muted-foreground">
-                        {format(new Date(currentEvent.date), 'EEEE, MMMM do, yyyy')}
-                      </span>
-                    </>
-                  )}
-                  <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/50 bg-white text-sm">
-                    <span>🍽️</span>
-                    <span className="text-muted-foreground">
-                      {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
-                    </span>
-                  </span>
+            {/* Bottom row: Choose Event dropdown, badges, and export controls */}
+            <div className="flex items-center justify-between pt-2 border-t">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-4">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                    Choose Event:
+                  </label>
+                  <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
+                    <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                      <SelectValue placeholder="Choose Event" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border z-50">
+                      {events.length > 0 ? (
+                        events.map(event => (
+                          <SelectItem key={event.id} value={event.id}>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>{event.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-events" disabled>
+                          No events found
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
+                {currentEvent && (
+                  <>
+                    <Badge 
+                      variant="outline"
+                      className="ml-4 bg-white border-primary text-primary rounded-full"
+                    >
+                      🍽️
+                      <span className="ml-1.5">
+                        {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
+                      </span>
+                    </Badge>
+                    <Badge 
+                      variant="outline"
+                      className="bg-white border-primary text-primary rounded-full"
+                    >
+                      {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
+                    </Badge>
+                  </>
+                )}
+              </div>
 
-                {/* Right Side: Export Controls */}
-                <div className="border border-primary rounded-xl p-4 space-y-3 flex-shrink-0">
-                  <p className="text-sm">
-                    <span className="font-bold">Export Controls</span>
-                    {' '}Download & share your dietary requirement guests with your venue / Kitchen.
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
+              {/* Export Controls */}
+              {currentEvent && dietaryGuests.length > 0 && (
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0">
+                  <div className="flex items-center">
+                    <span className="font-bold text-sm">Export Controls</span>
+                    <span className="text-muted-foreground ml-2 text-sm">
+                      Download & share your dietary requirement guests with your venue / Kitchen.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button 
                       className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
@@ -513,20 +523,21 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     </button>
                   </div>
                 </div>
-              </div>
-                </>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </CardHeader>
+        </Card>
 
         {/* Placeholder when no event selected */}
         {!currentEvent && (
-          <Card className="ww-box p-12 text-center">
-            <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
-            <CardDescription className="text-base">
-              Choose an event above to view dietary requirements
-            </CardDescription>
+          <Card className="ww-box print:hidden">
+            <CardContent className="p-8 text-center">
+              <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <CardTitle className="mb-2">Select an Event</CardTitle>
+              <CardDescription>
+                Choose an event from the dropdown above to view dietary requirements
+              </CardDescription>
+            </CardContent>
           </Card>
         )}
 
@@ -588,39 +599,41 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {/* A4 Page Container - Screen View */}
                 <div className="flex justify-center">
                   <div 
-                  className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
+                    className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
                     style={{ 
                       width: '210mm', 
-                      height: '297mm',
+                      minHeight: '325mm',
                       minWidth: '210mm',
                       maxWidth: '210mm'
                     }}
                   >
-                    <div style={{ padding: '1.27cm' }} className="h-full flex flex-col">
-                      {/* Header */}
-                      <div className="text-center space-y-2 mb-[4mm]">
-                        {/* Event Name */}
-                        {currentEvent && (
-                          <>
-                            <h1 className="text-base font-bold" style={{ color: '#6D28D9' }}>
-                              {currentEvent.name}
-                            </h1>
-
-                            {/* Chart Title and Date */}
-                            <h2 className="font-bold text-xs text-foreground">
-                              Kitchen Dietary Requirements
-                              {currentEvent.date && ` - ${formatDateWithOrdinal(currentEvent.date)}`}
-                            </h2>
-
-                            {/* Meta Line */}
-                            <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
-                              {currentEvent.venue && `${currentEvent.venue} - `}
-                              Total Dietary Guests: {dietaryGuests.length}
-                              {totalPages > 1 && ` - Page ${currentPage} of ${totalPages}`}
-                              {` - Generated on: ${formatGeneratedTimestamp()}`}
-                            </div>
-                          </>
+                    <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm' }} className="h-full flex flex-col">
+                      {/* Header - matching Full Seating Chart style */}
+                      <div className="text-center" style={{ marginBottom: '1mm' }}>
+                        {/* Line 1: Event Name (purple, larger) */}
+                        <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                          {currentEvent.name}
+                        </h1>
+                        
+                        {/* Line 2: Kitchen Dietary Requirements - Total Dietary Guests: X */}
+                        <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                          Kitchen Dietary Requirements - Total Dietary Guests: {dietaryGuests.length}
+                        </p>
+                        
+                        {/* Ceremony info line */}
+                        {currentEvent.ceremony_date && (
+                          <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                            Ceremony: {formatDateWithOrdinal(currentEvent.ceremony_date)} | {currentEvent.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(currentEvent.ceremony_start_time)} – {formatTimeDisplay(currentEvent.ceremony_finish_time)}
+                          </p>
                         )}
+                        
+                        {/* Reception info line */}
+                        <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
+                          Reception: {currentEvent.date && formatDateWithOrdinal(currentEvent.date)} | {currentEvent.venue || 'Venue TBD'} | {formatTimeDisplay(currentEvent.start_time)} – {formatTimeDisplay(currentEvent.finish_time)}
+                        </p>
+                        
+                        {/* Purple divider */}
+                        <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
                       </div>
 
                       {/* Guest Table */}
@@ -688,16 +701,22 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         </table>
                       </div>
 
-                      {/* Footer with Logo */}
-                      {settings.showLogo && (
-                        <div className="mt-auto pt-4 flex justify-center">
-                          <img 
-                  src={dietaryLogo}
-                            alt="Wedding Waitress" 
-                            style={{ height: '10.5mm', width: 'auto', objectFit: 'contain' }}
-                          />
+                      {/* Footer - matching Full Seating Chart */}
+                      <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingBottom: '0' }}>
+                        {settings.showLogo && (
+                          <div className="flex justify-center" style={{ paddingTop: '0' }}>
+                            <img 
+                              src={dietaryLogo}
+                              alt="Wedding Waitress" 
+                              style={{ height: '12mm', width: 'auto', objectFit: 'contain' }}
+                            />
+                          </div>
+                        )}
+                        <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
+                          <span>Page {currentPage} of {totalPages}</span>
+                          <span>Generated: {formatGeneratedTimestamp()}</span>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </div>
