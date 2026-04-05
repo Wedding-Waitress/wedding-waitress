@@ -574,15 +574,11 @@ export const GuestLookup: React.FC = () => {
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
-              You're invited to
+              You're Invited
             </p>
             <div className="flex items-center justify-center mb-4">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
-                {event.partner1_name && event.partner2_name 
-                  && event.partner1_name !== 'Bride' && event.partner2_name !== 'Groom'
-                  ? `${event.partner1_name} & ${event.partner2_name}`
-                  : event.name
-                }
+                {event.name}
               </h1>
             </div>
           </div>
