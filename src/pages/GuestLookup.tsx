@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { loadGoogleFont } from '@/lib/googleFonts';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -139,6 +140,9 @@ export const GuestLookup: React.FC = () => {
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [addGuestForId, setAddGuestForId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Load Great Vibes font for event name
+  useEffect(() => { loadGoogleFont('Great Vibes'); }, []);
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
   const isEditable = useMemo(() => {
@@ -577,7 +581,7 @@ export const GuestLookup: React.FC = () => {
               You're Invited
             </p>
             <div className="flex items-center justify-center mb-4">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
                 {event.name}
               </h1>
             </div>
@@ -722,9 +726,9 @@ export const GuestLookup: React.FC = () => {
 
             <div className="pt-3">
             <TabsContent value="search" className="mt-0">
+              <p className="text-center text-base md:text-lg font-semibold text-foreground mb-3">Update & Confirm Your Details</p>
               <Card className="ww-box card-elevated">
                 <CardContent className="space-y-4 pt-6">
-                  <p className="text-center text-sm font-semibold text-primary">Update & Confirm Your Details</p>
                   {/* Search Input */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -776,24 +780,6 @@ export const GuestLookup: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Last Updated + Footer */}
-                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={refreshGuestData}
-                      className="h-6 px-2 text-xs"
-                    >
-                      Refresh
-                    </Button>
-                  </div>
-
-                  <div className="text-center text-sm text-muted-foreground space-y-0">
-                    <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organiser for assistance</p>
-                  </div>
-
                   {/* Share Button */}
                    <div className="flex justify-center">
                     <button 
@@ -825,6 +811,24 @@ export const GuestLookup: React.FC = () => {
                         className="h-12 md:h-14 w-auto"
                       />
                     </a>
+                  </div>
+
+                  {/* Last Updated + Help Text - below logo */}
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={refreshGuestData}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Refresh
+                    </Button>
+                  </div>
+
+                  <div className="text-center text-sm text-muted-foreground space-y-0">
+                    <p className="font-medium">Having trouble finding your name?</p>
+                    <p>Contact your organiser for assistance</p>
                   </div>
                 </CardContent>
               </Card>
