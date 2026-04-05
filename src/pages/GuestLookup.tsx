@@ -1126,8 +1126,8 @@ export const GuestLookup: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
-                <p className="text-white/70 text-lg">
+                <MapPin className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">
                   Reception floor plan will appear here soon.
                 </p>
               </div>
