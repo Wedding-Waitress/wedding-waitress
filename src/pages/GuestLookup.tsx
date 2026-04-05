@@ -140,6 +140,9 @@ export const GuestLookup: React.FC = () => {
   const [showAddGuestModal, setShowAddGuestModal] = useState(false);
   const [addGuestForId, setAddGuestForId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Load Great Vibes font for event name
+  useEffect(() => { loadGoogleFont('Great Vibes'); }, []);
   
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
   const isEditable = useMemo(() => {
