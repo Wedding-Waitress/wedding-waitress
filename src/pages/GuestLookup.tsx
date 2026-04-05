@@ -599,7 +599,7 @@ export const GuestLookup: React.FC = () => {
       </div>
 
       {/* Event Date, Venue & Countdown - between hero and buttons */}
-      <div className="w-full bg-primary/10 py-4 px-4">
+      <div className="w-full py-4 px-4">
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <div className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
             <Calendar className="w-4 h-4 mr-2 text-primary" />
