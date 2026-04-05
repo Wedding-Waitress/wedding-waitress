@@ -1116,11 +1116,11 @@ export const GuestLookup: React.FC = () => {
               />
             ) : moduleSettings?.reception_floor_plan_config?.source === 'existing' ? (
               <div className="text-center py-12">
-                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
-                <p className="text-white/70 text-lg">
+                <MapPin className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">
                   Coming soon
                 </p>
-                <p className="text-white/50 text-sm mt-2">
+                <p className="text-muted-foreground text-sm mt-2">
                   Reception floor plan configuration is not yet available.
                 </p>
               </div>
