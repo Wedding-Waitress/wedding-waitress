@@ -1641,7 +1641,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               type="button"
                               variant="success"
                               size="sm"
-                              onClick={handleSavePartnerNames}
+                              onClick={() => {
+                                void handleSavePartnerNames();
+                              }}
                               disabled={isSaving}
                               className="h-8 rounded-full px-4 text-sm"
                             >
