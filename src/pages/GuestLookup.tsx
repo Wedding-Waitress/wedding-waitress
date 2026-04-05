@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { loadGoogleFont } from '@/lib/googleFonts';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
