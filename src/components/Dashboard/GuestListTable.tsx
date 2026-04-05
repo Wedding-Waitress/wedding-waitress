@@ -460,7 +460,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         partner2_name: resolvedPartner2,
       });
 
-      const guestsWithRelations = guests.filter(guest => guest.relation_partner && guest.relation_partner !== '' && guest.relation_role && guest.relation_role !== '');
+      const guestsWithRelations = guests.filter(
+        (guest) => guest.relation_partner && guest.relation_partner !== '' && guest.relation_role && guest.relation_role !== ''
+      );
       if (guestsWithRelations.length > 0) {
         const guestUpdateResults = await Promise.all(
           guestsWithRelations.map(guest =>
@@ -468,8 +470,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               .from('guests')
               .update({
                 relation_display: getResolvedRelationDisplay(guest, resolvedPartner1, resolvedPartner2),
-                relation_person1: resolvedPartner1,
-                relation_person2: resolvedPartner2,
               })
               .eq('id', guest.id)
           )
