@@ -626,7 +626,7 @@ export const Dashboard = () => {
   }
 
   // Show authentication error or redirect to landing
-  if (!session || profileError || !profile) {
+  if (!session) {
     return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <Card className="ww-box p-8 text-center max-w-md">
           <CardTitle className="mb-4">Authentication Required</CardTitle>
