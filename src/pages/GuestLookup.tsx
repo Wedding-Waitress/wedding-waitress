@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { loadGoogleFont } from '@/lib/googleFonts';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,7 +125,16 @@ export const GuestLookup: React.FC = () => {
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('search');
+  const [activeTab, setActiveTabState] = useState('search');
+  const tableTabRef = useRef<HTMLDivElement>(null);
+  const setActiveTab = useCallback((tab: string) => {
+    setActiveTabState(tab);
+    if (tab === 'visualization') {
+      setTimeout(() => {
+        tableTabRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, []);
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -834,7 +843,7 @@ export const GuestLookup: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="visualization">
-              <div className="space-y-6">
+              <div ref={tableTabRef} className="space-y-6">
                 {filteredGuests.length > 0 && searchTerm.length >= 2 && (
                   <>
                     {/* Show table visualization if guest has table assignment */}
@@ -842,11 +851,11 @@ export const GuestLookup: React.FC = () => {
                       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                         {Array.from(new Set(filteredGuests.map(g => g.table_id))).filter(Boolean).map((tableId) => {
                           const tableGuest = filteredGuests.find(g => g.table_id === tableId);
-                          return tableGuest?.table_no ? (
+                          return (tableGuest?.table_no || tableGuest?.table_id) ? (
                             <TableVisualization
                               key={tableId}
                               tableId={tableId!}
-                              tableNumber={tableGuest.table_no}
+                              tableNumber={tableGuest.table_no || 0}
                               eventId={event.id}
                             />
                           ) : null;
@@ -854,11 +863,11 @@ export const GuestLookup: React.FC = () => {
                       </div>
                     ) : (
                       /* Guest found but not assigned to a table */
-                      <Card className="ww-box card-elevated">
+                      <Card className="ww-box card-elevated border-2 border-warning/30">
                         <CardContent className="p-8 text-center">
-                          <MapPin className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                          <CardTitle className="mb-2">No Table Assigned Yet</CardTitle>
-                          <CardDescription>
+                          <MapPin className="w-16 h-16 mx-auto text-warning mb-4" />
+                          <CardTitle className="mb-2 text-lg">No Table Assigned Yet</CardTitle>
+                          <CardDescription className="text-base">
                             You haven't been assigned to a table yet. Please check back later or contact the event organiser.
                           </CardDescription>
                         </CardContent>
