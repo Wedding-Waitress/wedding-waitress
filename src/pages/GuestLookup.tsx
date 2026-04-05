@@ -1062,10 +1062,10 @@ export const GuestLookup: React.FC = () => {
 
       {/* Ceremony Floor Plan Modal */}
       <Dialog open={showFloorPlanModal} onOpenChange={setShowFloorPlanModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
-              <MapPin className="w-6 h-6 text-white" />
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
+              <MapPin className="w-6 h-6 text-primary" />
               Ceremony Floor Plan
             </DialogTitle>
           </DialogHeader>
