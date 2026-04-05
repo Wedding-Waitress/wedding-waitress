@@ -983,10 +983,10 @@ export const GuestLookup: React.FC = () => {
 
       {/* RSVP Invite Modal */}
       <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
-              <Mail className="w-6 h-6 text-white" />
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
+              <Mail className="w-6 h-6 text-foreground" />
               You're invited
             </DialogTitle>
           </DialogHeader>
@@ -1023,10 +1023,10 @@ export const GuestLookup: React.FC = () => {
 
       {/* Welcome Video Modal */}
       <Dialog open={showWelcomeVideoModal} onOpenChange={setShowWelcomeVideoModal}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
-              <Video className="w-6 h-6 text-white" />
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
+              <Video className="w-6 h-6 text-foreground" />
               Welcome Video
             </DialogTitle>
           </DialogHeader>
@@ -1100,10 +1100,10 @@ export const GuestLookup: React.FC = () => {
 
       {/* Reception Floor Plan Modal */}
       <Dialog open={showReceptionFloorPlanModal} onOpenChange={setShowReceptionFloorPlanModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
-              <MapPin className="w-6 h-6 text-white" />
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
+              <MapPin className="w-6 h-6 text-foreground" />
               Reception Floor Plan
             </DialogTitle>
           </DialogHeader>
@@ -1116,18 +1116,18 @@ export const GuestLookup: React.FC = () => {
               />
             ) : moduleSettings?.reception_floor_plan_config?.source === 'existing' ? (
               <div className="text-center py-12">
-                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
-                <p className="text-white/70 text-lg">
+                <MapPin className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">
                   Coming soon
                 </p>
-                <p className="text-white/50 text-sm mt-2">
+                <p className="text-muted-foreground text-sm mt-2">
                   Reception floor plan configuration is not yet available.
                 </p>
               </div>
             ) : (
               <div className="text-center py-12">
-                <MapPin className="w-16 h-16 mx-auto text-white/50 mb-4" />
-                <p className="text-white/70 text-lg">
+                <MapPin className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">
                   Reception floor plan will appear here soon.
                 </p>
               </div>
@@ -1138,10 +1138,10 @@ export const GuestLookup: React.FC = () => {
 
       {/* Menu Modal */}
       <Dialog open={showMenuModal} onOpenChange={setShowMenuModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-primary [&>button]:rounded-full [&>button]:border-2 [&>button]:border-white [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-white [&>button:hover]:text-white/80 [&>button:hover]:border-white/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-white">
-              <UtensilsCrossed className="w-6 h-6 text-white" />
+            <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
+              <UtensilsCrossed className="w-6 h-6 text-foreground" />
               Wedding Menu
             </DialogTitle>
           </DialogHeader>
@@ -1166,8 +1166,8 @@ export const GuestLookup: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <UtensilsCrossed className="w-16 h-16 mx-auto text-white/50 mb-4" />
-                <p className="text-white/70 text-lg">
+                <UtensilsCrossed className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">
                   The wedding menu will appear here soon.
                 </p>
               </div>
