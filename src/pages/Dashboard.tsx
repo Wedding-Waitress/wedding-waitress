@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { AppSidebar } from "@/components/Dashboard/AppSidebar";
@@ -24,18 +24,28 @@ import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { useUndoStack } from '@/hooks/useUndoStack';
 import { useToast } from '@/hooks/use-toast';
-import { QRCodeSeatingChart } from '@/components/Dashboard/QRCode/QRCodeSeatingChart';
-import { QRCodeFeatureGrid } from '@/components/Dashboard/QRCode/QRCodeFeatureGrid';
-import { KitchenDietaryChart } from '@/components/Dashboard/QRCode/KitchenDietaryChart';
-import { SignagePage } from '@/components/Dashboard/Signage/SignagePage';
-import { PlaceCardsPage } from '@/components/Dashboard/PlaceCards/PlaceCardsPage';
-import { FullSeatingChartPage } from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage';
-import { IndividualTableSeatingChartPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
-import { KioskSetup } from '@/components/Dashboard/Kiosk/KioskSetup';
-import { FloorPlanPage } from '@/components/Dashboard/FloorPlan';
-import { RunningSheetPage } from '@/components/Dashboard/RunningSheet';
-import { DJMCQuestionnairePage } from '@/components/Dashboard/DJMCQuestionnaire';
-import { InvitationsPage } from '@/components/Dashboard/Invitations/InvitationsPage';
+
+// Lazy-loaded tab pages for faster initial load
+const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
+const QRCodeFeatureGrid = lazy(() => import('@/components/Dashboard/QRCode/QRCodeFeatureGrid').then(m => ({ default: m.QRCodeFeatureGrid })));
+const KitchenDietaryChart = lazy(() => import('@/components/Dashboard/QRCode/KitchenDietaryChart').then(m => ({ default: m.KitchenDietaryChart })));
+const SignagePage = lazy(() => import('@/components/Dashboard/Signage/SignagePage').then(m => ({ default: m.SignagePage })));
+const PlaceCardsPage = lazy(() => import('@/components/Dashboard/PlaceCards/PlaceCardsPage').then(m => ({ default: m.PlaceCardsPage })));
+const FullSeatingChartPage = lazy(() => import('@/components/Dashboard/FullSeatingChart/FullSeatingChartPage').then(m => ({ default: m.FullSeatingChartPage })));
+const IndividualTableSeatingChartPage = lazy(() => import('@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage').then(m => ({ default: m.IndividualTableSeatingChartPage })));
+const KioskSetup = lazy(() => import('@/components/Dashboard/Kiosk/KioskSetup').then(m => ({ default: m.KioskSetup })));
+const FloorPlanPage = lazy(() => import('@/components/Dashboard/FloorPlan').then(m => ({ default: m.FloorPlanPage })));
+const RunningSheetPage = lazy(() => import('@/components/Dashboard/RunningSheet').then(m => ({ default: m.RunningSheetPage })));
+const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQuestionnaire').then(m => ({ default: m.DJMCQuestionnairePage })));
+const InvitationsPage = lazy(() => import('@/components/Dashboard/Invitations/InvitationsPage').then(m => ({ default: m.InvitationsPage })));
+
+// Minimal inline spinner for lazy suspense boundaries
+const TabLoader = () => (
+  <div className="flex items-center justify-center py-12">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+  </div>
+);
+
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
