@@ -1,47 +1,56 @@
 
 
-## Plan: Vertically Center Seat Numbers in Circles (Preview + PDF)
+## Plan: Guest Live View Page Updates
 
-### Problem
-Seat number text inside the small round seat circles sits slightly too low in both the on-screen preview and the PDF download. The numbers need to shift up slightly to appear perfectly centered.
+### Changes Overview
 
-### Root Cause
-In the **preview**, the seat number uses `<span className="font-bold text-xs">` inside a flexbox circle. The default text baseline and line-height cause the number to render slightly below true center.
+Four targeted modifications to `src/pages/GuestLookup.tsx`:
 
-In the **PDF engine**, the seat circle uses `display: flex; align-items: center; justify-content: center` with `font-size: 12px`, but `html2canvas` renders the text slightly low due to line-height and baseline quirks.
+---
 
-### Changes
+### 1. Share Button — Icon to Left, Narrower Pill Shape
 
-**File 1: `src/components/Dashboard/IndividualTableChart/IndividualTableChartPreview.tsx`**
+**Current** (line 799-813): Tall square button with icon stacked above text.
 
-In the seat circle div (around line 881), add a small upward nudge to the span containing the seat number. Change:
-```tsx
-<span className="font-bold text-xs">{seat.number}</span>
+**Change**: Convert to a horizontal pill/tablet layout with `flex-row`, icon on the left of "Share this invite" text, auto-width to fit content, reduced height.
+
 ```
-to:
-```tsx
-<span className="font-bold text-xs" style={{ marginTop: '-1px' }}>{seat.number}</span>
+<button className="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/40 bg-primary/10 text-primary">
+  <Share2 className="w-4 h-4" />
+  <span className="text-xs font-bold whitespace-nowrap">Share this invite</span>
+</button>
 ```
 
-This shifts the number up by 1px to visually center it within the circle. The guest name labels use `transform: translate(..., -50%)` keyed to the same `seat.y` position, so they will remain aligned.
+---
 
-**File 2: `src/lib/individualTableChartEngine.ts`**
+### 2. Footer Logo — Slightly Larger
 
-In the seat circle HTML (around line 1180-1181), wrap the seat number in a span with a small upward offset. Change:
-```html
-${settings.showSeatNumbers ? seat.number : ''}
-```
-to:
-```html
-${settings.showSeatNumbers ? `<span style="margin-top: -1px; display: block;">${seat.number}</span>` : ''}
-```
+**Current** (line 823-827): `h-8 md:h-10`
 
-This applies the same 1px upward nudge in the PDF engine to match the preview.
+**Change**: Increase to `h-12 md:h-14` while keeping the clickable `<a>` link to weddingwaitress.com intact.
 
-### What stays unchanged
-- Circle size (44px / w-11 h-11)
-- Circle position (x, y coordinates)
-- Guest name positions (labelX, labelY)
-- Font sizes, spacing, A4 layout, PDF scaling
-- All other table shapes (square, long) and their seat circles
+---
+
+### 3. Header — Always Show "You're Invited" + Event Name
+
+**Current** (lines 576-587): Shows "You're invited to" then either partner names or event name.
+
+**Change**: Always show "You're Invited" on the first line, and always show the event name (`event.name`) on the second line below. Remove the partner name logic — just display `event.name`.
+
+---
+
+### 4. Countdown & Date Format Changes
+
+**Location**: Lines 593-650
+
+**Date format change** (line 597-602): Replace `toLocaleDateString('en-US', ...)` with custom formatting to produce `"Sunday 20th December 2026"` (day name + ordinal day + month + year). Will add a helper function for ordinal suffixes (1st, 2nd, 3rd, etc.).
+
+**Countdown text** (line 645-648): Change format from `"8 Months, 19 Days, 2 Hours To go"` to `"8 Months, 19 Days, 2 Hours to go"` (lowercase "to go"). Also match the font size of the countdown line to the date/venue lines above it — currently it uses `text-sm md:text-base` which already matches, but ensure `font-bold` is changed to `font-medium` to match the date line weight consistency.
+
+**Font size alignment**: The countdown line currently uses `text-sm md:text-base font-bold`. Change to `text-sm md:text-base font-medium` to match the date and venue lines' visual weight.
+
+---
+
+### Files Modified
+- `src/pages/GuestLookup.tsx` — all four changes in this single file
 
