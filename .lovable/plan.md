@@ -1,56 +1,28 @@
 
 
-## Plan: Guest Live View Page Updates
+## Investigation: Table Tab Not Showing Content
 
-### Changes Overview
+### Root Cause Analysis
 
-Four targeted modifications to `src/pages/GuestLookup.tsx`:
+After examining the code, I found **two issues**:
 
----
+1. **Adam has no table assigned** — Screenshot 1 clearly shows "No Table Assigned / Please see event staff". When clicking the Table tab, the code checks `filteredGuests.some(g => g.table_id)` which is `false`, so it falls through to show a "No Table Assigned Yet" card. This card likely **is rendering** but may be below the visible area, requiring a scroll. The "Home" button you see is always rendered regardless.
 
-### 1. Share Button — Icon to Left, Narrower Pill Shape
+2. **Named tables bug (line 845)** — Even for guests who DO have a table assigned, if the table uses a name instead of a number (e.g., "VIP Table" where `table_no` is null/0), the visualization silently returns `null` because of this check: `tableGuest?.table_no ? (render) : null`. This breaks named table visualizations entirely.
 
-**Current** (line 799-813): Tall square button with icon stacked above text.
+### Proposed Fixes
 
-**Change**: Convert to a horizontal pill/tablet layout with `flex-row`, icon on the left of "Share this invite" text, auto-width to fit content, reduced height.
+**File**: `src/pages/GuestLookup.tsx`
 
-```
-<button className="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/40 bg-primary/10 text-primary">
-  <Share2 className="w-4 h-4" />
-  <span className="text-xs font-bold whitespace-nowrap">Share this invite</span>
-</button>
-```
+#### Fix 1: Named tables support
+Change the condition on line 845 from `tableGuest?.table_no ?` to allow tables identified by either `table_no` or `table_id`. Pass the table name as a fallback when `table_no` is missing.
 
----
+#### Fix 2: Auto-scroll to content
+When switching to the Table tab, auto-scroll the visualization content into view so the user immediately sees the table assignment (or the "No Table Assigned" message) without needing to manually scroll.
 
-### 2. Footer Logo — Slightly Larger
+#### Fix 3: Improve empty state messaging  
+Ensure the "No Table Assigned Yet" card is visually prominent when the guest has no table, so it's clear what's happening.
 
-**Current** (line 823-827): `h-8 md:h-10`
-
-**Change**: Increase to `h-12 md:h-14` while keeping the clickable `<a>` link to weddingwaitress.com intact.
-
----
-
-### 3. Header — Always Show "You're Invited" + Event Name
-
-**Current** (lines 576-587): Shows "You're invited to" then either partner names or event name.
-
-**Change**: Always show "You're Invited" on the first line, and always show the event name (`event.name`) on the second line below. Remove the partner name logic — just display `event.name`.
-
----
-
-### 4. Countdown & Date Format Changes
-
-**Location**: Lines 593-650
-
-**Date format change** (line 597-602): Replace `toLocaleDateString('en-US', ...)` with custom formatting to produce `"Sunday 20th December 2026"` (day name + ordinal day + month + year). Will add a helper function for ordinal suffixes (1st, 2nd, 3rd, etc.).
-
-**Countdown text** (line 645-648): Change format from `"8 Months, 19 Days, 2 Hours To go"` to `"8 Months, 19 Days, 2 Hours to go"` (lowercase "to go"). Also match the font size of the countdown line to the date/venue lines above it — currently it uses `text-sm md:text-base` which already matches, but ensure `font-bold` is changed to `font-medium` to match the date line weight consistency.
-
-**Font size alignment**: The countdown line currently uses `text-sm md:text-base font-bold`. Change to `text-sm md:text-base font-medium` to match the date and venue lines' visual weight.
-
----
-
-### Files Modified
-- `src/pages/GuestLookup.tsx` — all four changes in this single file
+### Important Note
+For Adam Saad specifically, the Table tab will correctly show "No Table Assigned Yet" because he genuinely has no table assigned in the system. If he should have a table, that needs to be set in the dashboard's Tables page first.
 
