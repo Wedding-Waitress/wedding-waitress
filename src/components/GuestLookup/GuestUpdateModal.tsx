@@ -194,8 +194,9 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-primary">Update Your Information</DialogTitle>
-          <DialogDescription className="text-sm">
-            {helperText || "Please update-edit your details and save. It will automatically be sent to the event organiser."}
+          <DialogDescription className="text-sm text-foreground space-y-1">
+            <span className="block">{helperText || "Please update, edit your details & save below."}</span>
+            <span className="block">You're info will automatically be sent to the event organiser</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -207,30 +208,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           </div>
         ) : (
           <div className="space-y-4 py-4">
-            {/* RSVP Status */}
-            <div className="space-y-2">
-              <Label htmlFor="rsvp">RSVP Status</Label>
-              <Select
-                value={formData.rsvp}
-                onValueChange={(value) => setFormData({ ...formData, rsvp: value })}
-                disabled={!isEditable}
-              >
-                <SelectTrigger id="rsvp">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Pending" className="text-amber-500 font-medium">
-                    Pending
-                  </SelectItem>
-                  <SelectItem value="Attending" className="text-green-600 font-medium">
-                    Accept
-                  </SelectItem>
-                  <SelectItem value="Not Attending" className="text-red-500 font-medium">
-                    Decline
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* RSVP Status removed - handled by Accept/Decline buttons on home screen */}
 
             {/* Email */}
             <div className="space-y-2">
