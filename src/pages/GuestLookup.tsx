@@ -581,7 +581,7 @@ export const GuestLookup: React.FC = () => {
               You're Invited
             </p>
             <div className="flex items-center justify-center mb-4">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
                 {event.name}
               </h1>
             </div>
