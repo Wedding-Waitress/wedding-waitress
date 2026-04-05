@@ -691,7 +691,7 @@ export const GuestLookup: React.FC = () => {
                 )}
                 <TabsTrigger 
                   value="visualization" 
-                  className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
+                  className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <LayoutGrid className="w-5 h-5 mb-1" />
                   <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Table</span>
