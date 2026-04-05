@@ -656,7 +656,7 @@ export const GuestLookup: React.FC = () => {
             return (
               <p className="text-foreground font-medium text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
                 <Hourglass className="h-4 w-4 text-primary" />
-                <Hourglass className="h-4 w-4" />
+                
                 {parts.join(', ')} to go
               </p>
             );
