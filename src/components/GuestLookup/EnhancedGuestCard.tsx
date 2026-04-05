@@ -267,12 +267,12 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Action Buttons - centered in full card width */}
           {isEditable && (
-            <div className="flex gap-2 justify-center pt-1">
+            <div className="flex gap-3 justify-center pt-1">
               <Button
                 size="sm"
                 onClick={() => updateRsvp('Attending')}
                 disabled={updatingRsvp}
-                className="bg-success text-success-foreground hover:bg-success/90 text-sm font-medium"
+                className="bg-success text-success-foreground hover:bg-success/90 text-sm font-medium rounded-full px-6 py-1 h-8"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -285,7 +285,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 size="sm"
                 onClick={() => updateRsvp('Not Attending')}
                 disabled={updatingRsvp}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium rounded-full px-6 py-1 h-8"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />

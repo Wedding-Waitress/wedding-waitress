@@ -320,25 +320,25 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           </div>
         )}
 
-        <DialogFooter>
-          <Button
-            variant="destructive"
-            onClick={() => onOpenChange(false)}
-            disabled={saving}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            Cancel
-          </Button>
+        <DialogFooter className="flex flex-row gap-3 sm:flex-row sm:justify-center">
           {isEditable && (
             <Button 
               onClick={handleSave} 
               disabled={saving}
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-full py-2"
             >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
           )}
+          <Button
+            variant="destructive"
+            onClick={() => onOpenChange(false)}
+            disabled={saving}
+            className={`${isEditable ? 'flex-1' : 'w-full'} bg-red-500 hover:bg-red-600 text-white rounded-full py-2`}
+          >
+            Cancel
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
