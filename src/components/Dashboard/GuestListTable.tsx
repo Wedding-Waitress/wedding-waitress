@@ -422,39 +422,83 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
   };
 
-  const handleSavePartnerNames = async () => {
+  const getResolvedRelationDisplay = useCallback((guest: Pick<typeof guests[number], 'relation_partner' | 'relation_role' | 'relation_display'>, resolvedPartner1: string, resolvedPartner2: string) => {
+    const computedDisplay = computeRelationDisplay(
+      guest.relation_partner as any,
+      guest.relation_role as any,
+      resolvedPartner1,
+      resolvedPartner2,
+      relationSettings.custom_roles || []
+    );
+
+    return computedDisplay || guest.relation_display || '';
+  }, [relationSettings.custom_roles]);
+
+  const handleSavePartnerNames = async (nextPartner1Name?: string, nextPartner2Name?: string) => {
     if (!selectedEventId) return;
 
-    try {
-      const { error} = await supabase
-        .from('events')
-        .update({
-          partner1_name: partner1Name,
-          partner2_name: partner2Name,
-        })
-        .eq('id', selectedEventId);
+    const resolvedPartner1 = (nextPartner1Name ?? partner1Name).trim();
+    const resolvedPartner2 = (nextPartner2Name ?? partner2Name).trim();
 
-      if (error) throw error;
+    const namesAreValid = relationsHidden
+      ? true
+      : eventType === 'two'
+        ? Boolean(resolvedPartner1 && resolvedPartner2)
+        : Boolean(resolvedPartner1);
+
+    if (!namesAreValid) {
+      setShowNamesValidation(true);
+      setPartnerNamesSaved(false);
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      await updateEvent(selectedEventId, { 
+        partner1_name: resolvedPartner1,
+        partner2_name: resolvedPartner2,
+      });
+
+      const guestsWithRelations = guests.filter(guest => guest.relation_partner && guest.relation_role);
+      if (guestsWithRelations.length > 0) {
+        const guestUpdateResults = await Promise.all(
+          guestsWithRelations.map(guest =>
+            supabase
+              .from('guests')
+              .update({
+                relation_display: getResolvedRelationDisplay(guest, resolvedPartner1, resolvedPartner2),
+                relation_person1: resolvedPartner1,
+                relation_person2: resolvedPartner2,
+              })
+              .eq('id', guest.id)
+          )
+        );
+
+        const guestUpdateError = guestUpdateResults.find(result => result.error)?.error;
+        if (guestUpdateError) throw guestUpdateError;
+      }
 
       setShowRelationSaved(true);
       setTimeout(() => setShowRelationSaved(false), 2000);
 
-      await updateEvent(selectedEventId, { 
-        partner1_name: partner1Name,
-        partner2_name: partner2Name 
-      });
+      setPartner1Name(resolvedPartner1);
+      setPartner2Name(resolvedPartner2);
 
       // Update local state so "Add Guest" button becomes active
       const bothFilled = relationsHidden
         ? true
         : eventType === 'two'
-          ? (partner1Name?.trim() && partner2Name?.trim())
-          : partner1Name?.trim();
+          ? (resolvedPartner1 && resolvedPartner2)
+          : resolvedPartner1;
 
       if (bothFilled) {
         setPartnerNamesSaved(true);
         setShowNamesValidation(false);
+        setHasUnsavedChanges(false);
       }
+
+      await refetchGuests();
     } catch (error) {
       console.error('Error saving partner names:', error);
       toast({
@@ -462,6 +506,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         description: "Failed to save partner names",
         variant: "destructive"
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -603,6 +649,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       // Initialize partner names from database - use defaults if empty
       setPartner1Name(selectedEvent.partner1_name || '');
       setPartner2Name(selectedEvent.partner2_name || '');
+      const isUsingDefaultNames = !selectedEvent.partner1_name?.trim() || !selectedEvent.partner2_name?.trim()
+        ? true
+        : selectedEvent.partner1_name.trim() === 'Bride' && selectedEvent.partner2_name.trim() === 'Groom';
+      setUseDefaultNames(isUsingDefaultNames);
       
       // Only update relationMode if database provides a valid value (two, single, or off)
       const modeFromDb = (selectedEvent as any)?.relation_mode;
@@ -1530,22 +1580,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               ? "border-green-500 bg-green-50 text-green-500 shadow-md"
                               : "border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
-                          onClick={async () => {
-                            try {
-                              setUseDefaultNames(true);
-                              setPartner1Name('Bride');
-                              setPartner2Name('Groom');
-                              setPartnerNamesSaved(true);
-                              setShowNamesValidation(false);
-                              if (selectedEventId) {
-                                await supabase
-                                  .from('events')
-                                  .update({ partner1_name: 'Bride', partner2_name: 'Groom' })
-                                  .eq('id', selectedEventId);
-                              }
-                            } catch (err) {
-                              console.error('Error saving default partner names:', err);
-                            }
+                          onClick={() => {
+                            setUseDefaultNames(true);
+                            void handleSavePartnerNames('Bride', 'Groom');
                           }}
                         >
                           <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className={useDefaultNames ? "accent-green-500" : "accent-primary"} />
@@ -1577,6 +1614,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               onChange={(e) => {
                                 setPartner1Name(e.target.value);
                                 setPartnerNamesSaved(false);
+                                setHasUnsavedChanges(true);
                               }}
                               placeholder="e.g. Sarah"
                               className="h-8 text-sm"
@@ -1589,6 +1627,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               onChange={(e) => {
                                 setPartner2Name(e.target.value);
                                 setPartnerNamesSaved(false);
+                                setHasUnsavedChanges(true);
                               }}
                               placeholder="e.g. James"
                               className="h-8 text-sm"
@@ -1599,11 +1638,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           )}
                           <div className="flex items-center gap-2">
                             <Button
+                              type="button"
+                              variant="success"
                               size="sm"
-                              onClick={handleSavePartnerNames}
-                              className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 text-sm"
+                              onClick={() => {
+                                void handleSavePartnerNames();
+                              }}
+                              disabled={isSaving}
+                              className="h-8 rounded-full px-4 text-sm"
                             >
-                              Save Names
+                              {isSaving ? 'Saving...' : 'Save Names'}
                             </Button>
                             {partnerNamesSaved && (
                               <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
@@ -1971,14 +2015,24 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             )}
                           </TableCell>
                           <TableCell className="py-1 px-2">
+                            {(() => {
+                              const relationDisplay = getResolvedRelationDisplay(
+                                guest,
+                                selectedEvent?.partner1_name || 'Bride',
+                                selectedEvent?.partner2_name || 'Groom'
+                              );
+
+                              return (
                             <RelationBadge
-                              display={guest.relation_display || ''}
+                              display={relationDisplay}
                               partner={guest.relation_partner || ''}
                               role={guest.relation_role || ''}
                               partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
                               onClick={() => handleEditRelation(guest)}
-                              isEmpty={!guest.relation_display}
+                              isEmpty={!relationDisplay}
                             />
+                              );
+                            })()}
                           </TableCell>
                     <TableCell className="py-1 px-2">
                       <span className="text-sm text-foreground">
