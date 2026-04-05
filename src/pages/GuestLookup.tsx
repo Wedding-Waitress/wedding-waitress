@@ -796,10 +796,8 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Share Button */}
-                  <div className="flex justify-center">
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
+                   <div className="flex justify-center">
+                    <button 
                       onClick={() => {
                         if (navigator.share) {
                           navigator.share({
@@ -808,11 +806,11 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-black/30 rounded-full px-4 py-1 h-auto text-sm"
+                      className="flex flex-col items-center justify-center h-[72px] w-[120px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                     >
-                      <Share2 className="w-4 h-4 mr-1.5" />
-                      Share this invite
-                    </Button>
+                      <Share2 className="w-5 h-5 mb-1" />
+                      <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Share this invite</span>
+                    </button>
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
