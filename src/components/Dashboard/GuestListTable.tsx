@@ -455,29 +455,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setIsSaving(true);
 
     try {
+      // Update event partner names — the DB trigger automatically rebuilds
+      // relation_display for all guests in this event
       await updateEvent(selectedEventId, { 
         partner1_name: resolvedPartner1,
         partner2_name: resolvedPartner2,
       });
-
-      const guestsWithRelations = guests.filter(
-        (guest) => guest.relation_partner && guest.relation_partner !== '' && guest.relation_role && guest.relation_role !== ''
-      );
-      if (guestsWithRelations.length > 0) {
-        const guestUpdateResults = await Promise.all(
-          guestsWithRelations.map(guest =>
-            supabase
-              .from('guests')
-              .update({
-                relation_display: getResolvedRelationDisplay(guest, resolvedPartner1, resolvedPartner2),
-              })
-              .eq('id', guest.id)
-          )
-        );
-
-        const guestUpdateError = guestUpdateResults.find(result => result.error)?.error;
-        if (guestUpdateError) throw guestUpdateError;
-      }
 
       setShowRelationSaved(true);
       setTimeout(() => setShowRelationSaved(false), 2000);
@@ -498,6 +481,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         setHasUnsavedChanges(false);
       }
 
+      // Refetch guests to pick up the trigger-updated relation_display values
       await refetchGuests();
     } catch (error) {
       console.error('Error saving partner names:', error);
