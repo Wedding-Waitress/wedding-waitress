@@ -574,15 +574,11 @@ export const GuestLookup: React.FC = () => {
           <div className="text-center">
             {/* "You're invited to" text above event name */}
             <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
-              You're invited to
+              You're Invited
             </p>
             <div className="flex items-center justify-center mb-4">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
-                {event.partner1_name && event.partner2_name 
-                  && event.partner1_name !== 'Bride' && event.partner2_name !== 'Groom'
-                  ? `${event.partner1_name} & ${event.partner2_name}`
-                  : event.name
-                }
+                {event.name}
               </h1>
             </div>
           </div>
@@ -594,12 +590,15 @@ export const GuestLookup: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <div className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
             <Calendar className="w-4 h-4 mr-2 text-primary" />
-            <span>{new Date(event.date).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</span>
+            <span>{(() => {
+              const d = new Date(event.date);
+              const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+              const day = d.getDate();
+              const suffix = [11,12,13].includes(day) ? 'th' : ['st','nd','rd'][(day % 10) - 1] || 'th';
+              const month = d.toLocaleDateString('en-US', { month: 'long' });
+              const year = d.getFullYear();
+              return `${dayName} ${day}${suffix} ${month} ${year}`;
+            })()}</span>
           </div>
           {event.venue && (
             <div className="flex items-center justify-center text-foreground text-sm md:text-base">
@@ -642,9 +641,9 @@ export const GuestLookup: React.FC = () => {
             if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'Hour' : 'Hours'}`);
 
             return (
-              <p className="text-primary font-bold text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
+              <p className="text-primary font-medium text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
                 <Hourglass className="h-4 w-4" />
-                {parts.join(', ')} To go
+                {parts.join(', ')} to go
               </p>
             );
           })()}
@@ -806,10 +805,10 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="flex flex-col items-center justify-center h-[72px] w-[120px] py-2 px-1 rounded-xl border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
                     >
-                      <Share2 className="w-5 h-5 mb-1" />
-                      <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Share this invite</span>
+                      <Share2 className="w-4 h-4" />
+                      <span className="text-xs font-bold whitespace-nowrap">Share this invite</span>
                     </button>
                   </div>
 
@@ -823,7 +822,7 @@ export const GuestLookup: React.FC = () => {
                       <img 
                         src={weddingWaitressFooterLogo} 
                         alt="Wedding Waitress" 
-                        className="h-8 md:h-10 w-auto"
+                        className="h-12 md:h-14 w-auto"
                       />
                     </a>
                   </div>
