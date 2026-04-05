@@ -196,8 +196,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     if (settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none') {
       parts.push(capitalizeWords(guest.dietary));
     }
-    if (settings.showRelation && guest.relation_role) {
-      parts.push(capitalizeWords(guest.relation_role));
+    if (settings.showRelation && (guest.relation_display || guest.relation_role)) {
+      parts.push(capitalizeWords(guest.relation_display || guest.relation_role || ''));
     }
     return parts.join(' / ');
   };
