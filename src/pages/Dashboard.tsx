@@ -675,9 +675,11 @@ export const Dashboard = () => {
             </div>}
             
             {/* Tab Content */}
-            <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-              {renderTabContent()}
-            </div>
+            <Suspense fallback={<TabLoader />}>
+              <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                {renderTabContent()}
+              </div>
+            </Suspense>
           </div>
         </main>
       </div>
