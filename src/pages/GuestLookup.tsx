@@ -641,9 +641,9 @@ export const GuestLookup: React.FC = () => {
             if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'Hour' : 'Hours'}`);
 
             return (
-              <p className="text-primary font-bold text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
+              <p className="text-primary font-medium text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
                 <Hourglass className="h-4 w-4" />
-                {parts.join(', ')} To go
+                {parts.join(', ')} to go
               </p>
             );
           })()}
