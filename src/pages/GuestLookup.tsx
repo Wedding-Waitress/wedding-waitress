@@ -590,12 +590,15 @@ export const GuestLookup: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <div className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
             <Calendar className="w-4 h-4 mr-2 text-primary" />
-            <span>{new Date(event.date).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</span>
+            <span>{(() => {
+              const d = new Date(event.date);
+              const dayName = d.toLocaleDateString('en-US', { weekday: 'long' });
+              const day = d.getDate();
+              const suffix = [11,12,13].includes(day) ? 'th' : ['st','nd','rd'][(day % 10) - 1] || 'th';
+              const month = d.toLocaleDateString('en-US', { month: 'long' });
+              const year = d.getFullYear();
+              return `${dayName} ${day}${suffix} ${month} ${year}`;
+            })()}</span>
           </div>
           {event.venue && (
             <div className="flex items-center justify-center text-foreground text-sm md:text-base">
