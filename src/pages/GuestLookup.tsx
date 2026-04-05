@@ -817,9 +817,9 @@ export const GuestLookup: React.FC = () => {
                     </a>
                   </div>
 
-                  {/* Last Updated + Help Text - below logo */}
+                  {/* Last Updated - below logo */}
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <span>Last updated: {lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}</span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -828,11 +828,6 @@ export const GuestLookup: React.FC = () => {
                     >
                       Refresh
                     </Button>
-                  </div>
-
-                  <div className="text-center text-sm text-muted-foreground space-y-0">
-                    <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organiser for assistance</p>
                   </div>
                 </CardContent>
               </Card>
