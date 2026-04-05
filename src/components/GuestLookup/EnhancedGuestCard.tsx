@@ -251,7 +251,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 <span className="font-semibold text-foreground">RSVP Status:</span>
                 <Badge 
                   variant="outline" 
-                  className={`text-base font-bold px-3 py-1 rounded-full border-2 ${
+                  className={`text-xs sm:text-base font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border-2 whitespace-nowrap ${
                     localRsvp === "Attending" 
                       ? "bg-green-100 text-green-700 border-green-500" 
                       : localRsvp === "Not Attending"
