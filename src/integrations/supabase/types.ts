@@ -2987,6 +2987,10 @@ export type Database = {
           qr_code_id: string
         }[]
       }
+      sync_relation_display_for_event: {
+        Args: { p_event_id: string }
+        Returns: undefined
+      }
       update_dj_mc_item_by_token:
         | {
             Args: {
