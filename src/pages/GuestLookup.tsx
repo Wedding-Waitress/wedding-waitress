@@ -581,7 +581,7 @@ export const GuestLookup: React.FC = () => {
               You're Invited
             </p>
             <div className="flex items-center justify-center mb-4">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
                 {event.name}
               </h1>
             </div>
@@ -742,7 +742,11 @@ export const GuestLookup: React.FC = () => {
                     />
                   </div>
 
-                  {/* Search Instructions */}
+                  {/* Help text - below search input */}
+                  <div className="text-center text-xs text-muted-foreground space-y-0">
+                    <p className="font-medium">Having trouble finding your name?</p>
+                    <p>Contact your organiser for assistance</p>
+                  </div>
 
                   {/* Loading State */}
                   {searching && (
@@ -813,9 +817,9 @@ export const GuestLookup: React.FC = () => {
                     </a>
                   </div>
 
-                  {/* Last Updated + Help Text - below logo */}
+                  {/* Last Updated - below logo */}
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+                    <span>Last updated: {lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}</span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -824,11 +828,6 @@ export const GuestLookup: React.FC = () => {
                     >
                       Refresh
                     </Button>
-                  </div>
-
-                  <div className="text-center text-sm text-muted-foreground space-y-0">
-                    <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organiser for assistance</p>
                   </div>
                 </CardContent>
               </Card>
