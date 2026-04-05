@@ -15,12 +15,21 @@ export interface UserPlan {
   trial_extended: boolean;
 }
 
+// Module-level cache for instant loading
+let planCache: UserPlan | null = null;
+
 export const useUserPlan = () => {
-  const [plan, setPlan] = useState<UserPlan | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState<UserPlan | null>(planCache);
+  const [loading, setLoading] = useState(!planCache);
+
+  // Keep cache in sync
+  useEffect(() => {
+    if (plan) planCache = plan;
+  }, [plan]);
 
   useEffect(() => {
     const fetchPlan = async () => {
+      if (!planCache) setLoading(true);
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -38,7 +47,6 @@ export const useUserPlan = () => {
 
         if (data && data.length > 0) {
           const row = data[0];
-          // Fetch trial_extended from user_subscriptions
           const { data: subData } = await supabase
             .from('user_subscriptions')
             .select('plan_id, trial_extended')
@@ -46,7 +54,7 @@ export const useUserPlan = () => {
             .limit(1)
             .single();
 
-          setPlan({
+          const newPlan: UserPlan = {
             plan_name: row.plan_name,
             guest_limit: row.guest_limit,
             table_limit: null,
@@ -58,7 +66,9 @@ export const useUserPlan = () => {
             is_read_only: row.is_read_only,
             expires_at: row.expires_at,
             trial_extended: (subData as any)?.trial_extended ?? false,
-          });
+          };
+
+          setPlan(newPlan);
 
           if (subData?.plan_id) {
             const { data: planData } = await supabase

@@ -614,8 +614,8 @@ export const Dashboard = () => {
     }
   };
 
-  // Show loading state while checking authentication
-  if (authLoading || profileLoading || eventsLoading) {
+  // Only block on authentication check — data loads in background with cached UI
+  if (authLoading) {
     return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <Card className="ww-box p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
