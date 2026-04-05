@@ -194,8 +194,9 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-primary">Update Your Information</DialogTitle>
-          <DialogDescription className="text-sm">
-            {helperText || "Please update-edit your details and save. It will automatically be sent to the event organiser."}
+          <DialogDescription className="text-sm text-foreground space-y-1">
+            <span className="block">{helperText || "Please update, edit your details & save below."}</span>
+            <span className="block">You're info will automatically be sent to the event organiser</span>
           </DialogDescription>
         </DialogHeader>
 
