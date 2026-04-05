@@ -1804,6 +1804,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
+        <p className="text-sm font-medium text-muted-foreground mt-6 mb-3 mx-3 sm:mx-6">
+          Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.
+        </p>
+
         <div className="overflow-hidden border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
           <Table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
