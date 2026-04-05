@@ -125,7 +125,16 @@ export const GuestLookup: React.FC = () => {
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('search');
+  const [activeTab, setActiveTabState] = useState('search');
+  const tableTabRef = useRef<HTMLDivElement>(null);
+  const setActiveTab = useCallback((tab: string) => {
+    setActiveTabState(tab);
+    if (tab === 'visualization') {
+      setTimeout(() => {
+        tableTabRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, []);
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
