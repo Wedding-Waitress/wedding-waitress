@@ -295,7 +295,7 @@ export const exportFullSeatingChartToPdf = async (
         const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
         const infoParts: string[] = [];
         if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
-        if (hasRelation) infoParts.push(capitalizeWords(guest.relation_role || ''));
+        if (hasRelation) infoParts.push(capitalizeWords(guest.relation_display || guest.relation_role || ''));
         const inlineInfo = infoParts.join(' / ');
 
         // Guest name + inline info in brackets on the same line
