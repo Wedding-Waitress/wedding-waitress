@@ -668,7 +668,7 @@ export const GuestLookup: React.FC = () => {
       <div className="w-full px-4 pt-4 pb-1">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-             <div className="bg-white p-2.5 rounded-xl border-2 border-gray-200 shadow-sm">
+             <div className="p-2.5 rounded-xl">
               <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
                 {/* Row 1: RSVP Invite, Welcome Video, Table */}
                 {liveViewSettings?.show_rsvp_invite && (
