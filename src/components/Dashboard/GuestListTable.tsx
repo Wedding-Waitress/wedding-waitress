@@ -910,7 +910,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       guest.email || '',
       guest.family_group || '',
       guest.relation_display || '',
-      (guest.notes || '').replace(/\n/g, ' ')
+      (guest.notes || '').replace(/^\[NEW\+\]/, '').replace(/\n/g, ' ')
     ]);
     
     const ws = XLSX.utils.aoa_to_sheet([DISPLAY_EXPORT_HEADERS, ...rows]);
