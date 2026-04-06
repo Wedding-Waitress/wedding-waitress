@@ -978,6 +978,14 @@ export const GuestLookup: React.FC = () => {
             const g = guests.find(g => g.id === addGuestForId);
             return g?.table_no ?? undefined;
           })()}
+          existingGroupMembers={(() => {
+            if (!addGuestForId) return [];
+            const referrer = guests.find(g => g.id === addGuestForId);
+            if (!referrer?.family_group) return [];
+            return guests
+              .filter(g => g.family_group === referrer.family_group && g.id !== addGuestForId)
+              .map(g => ({ first_name: g.first_name, last_name: g.last_name || '' }));
+          })()}
         />
       )}
 
