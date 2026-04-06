@@ -1393,6 +1393,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const guestCount = sortedGuests.length;
   const totalGuestCount = guests.length;
 
+  // Compute guests with [NEW+] alert marker for notification banner
+  const alertGuests = useMemo(() => {
+    return guests
+      .filter(g => g.notes && g.notes.startsWith('[NEW+]'))
+      .map(g => {
+        const cleanedNotes = g.notes!.replace(/^\[NEW\+\]/, '');
+        const match = cleanedNotes.match(/^(.+?) has added:/);
+        const referrerName = match ? match[1].trim() : `${g.first_name} ${g.last_name || ''}`.trim();
+        return { id: g.id, referrerName };
+      });
+  }, [guests]);
+
   // Calculate guest type counts for stats badges
   // Count groups (not individual guests) for Couple and Family
   const guestTypeStats = useMemo(() => {
