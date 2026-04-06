@@ -469,17 +469,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     }
   };
 
-  // Color change handlers with auto-contrast correction
+  // Color change handlers - only auto-correct when background changes
   const updateColors = (updates: Partial<QRColorsSettings>) => {
     setQrColors(prev => {
       const newColors = { ...prev, ...updates };
-      const bg = newColors.background;
       
-      // Auto-correct all foreground colors if contrast is too low
-      newColors.dotsColor = ensureHighContrast(bg, newColors.dotsColor);
-      newColors.markerBorderColor = ensureHighContrast(bg, newColors.markerBorderColor);
-      newColors.markerCenterColor = ensureHighContrast(bg, newColors.markerCenterColor);
-      newColors.foreground = ensureHighContrast(bg, newColors.foreground);
+      // Only auto-correct other colors when the background color was changed
+      if ('background' in updates) {
+        const bg = newColors.background;
+        newColors.dotsColor = ensureHighContrast(bg, newColors.dotsColor);
+        newColors.markerBorderColor = ensureHighContrast(bg, newColors.markerBorderColor);
+        newColors.markerCenterColor = ensureHighContrast(bg, newColors.markerCenterColor);
+        newColors.foreground = ensureHighContrast(bg, newColors.foreground);
+      }
       
       return newColors;
     });
@@ -686,6 +688,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+            
+            {/* Reset to Default - at bottom of Design panel */}
+            <div className="pt-2 mt-auto">
+              <Button variant="destructive" onClick={handleResetAll} className="w-full rounded-full">
+                Reset to Default
+              </Button>
+            </div>
           </div>
 
           {/* Col 3: Action Buttons */}
