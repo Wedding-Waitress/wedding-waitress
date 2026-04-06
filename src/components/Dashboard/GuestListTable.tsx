@@ -1748,14 +1748,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
             {/* LEFT SIDE: Plus-guest notification banner */}
             <div className="flex flex-col gap-1">
-              {alertGuests.map((ag) => (
+              {alertGuests.length > 0 && (
                 <div
-                  key={ag.id}
-                  className="animate-flash inline-flex items-center gap-2 rounded-full border-4 border-red-500 bg-[#FFFF00] px-4 py-1.5 text-xs font-semibold text-gray-900"
+                  className="animate-flash inline-flex flex-col gap-1 rounded-2xl border-4 border-red-500 bg-[#FFFF00] px-4 py-2 text-xs font-semibold text-gray-900"
                 >
-                  <span>{ag.referrerName} - Has added a +1 Guest. Please acknowledge that in the below flashing row by opening the &quot;EDIT&quot; button.</span>
+                  {alertGuests.map((ag) => (
+                    <span key={ag.id}>{ag.referrerName} - Has added a +1 Guest. Please acknowledge that in the below flashing row by opening the &quot;EDIT&quot; button.</span>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
 
             {/* RIGHT SIDE: Sort By, Import/Export, Add Guest */}

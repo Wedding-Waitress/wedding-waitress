@@ -587,9 +587,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return;
     }
     
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Realtime update received:', payload);
-    }
+    console.log('📡 Realtime update received:', payload.eventType, payload.new?.id || payload.old?.id);
     
     const { eventType, new: newRecord, old: oldRecord } = payload;
 
@@ -622,7 +620,10 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
           return currentGuests;
       }
     });
-  }, []);
+
+    // Safety-net: schedule a debounced full refetch to catch any missed updates
+    debouncedRefetch();
+  }, [debouncedRefetch]);
 
   // Set up Supabase Realtime subscription
   useEffect(() => {
