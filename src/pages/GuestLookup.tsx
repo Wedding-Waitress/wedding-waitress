@@ -752,7 +752,7 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search" className="mt-0">
               <p className="text-center text-base md:text-lg font-semibold text-foreground mb-3">Update & Confirm Your Details</p>
               <Card className="ww-box card-elevated">
-                <CardContent className="space-y-4 pt-6">
+                <CardContent className="space-y-4 pt-3">
                   {/* Search Input */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -809,7 +809,7 @@ export const GuestLookup: React.FC = () => {
                   )}
 
                   {/* Share Button */}
-                   <div className="flex justify-center mt-4">
+                   <div className="flex justify-center mt-10">
                     <button 
                       onClick={() => {
                         if (navigator.share) {
@@ -827,7 +827,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
-                  <div className="flex justify-center mt-6">
+                  <div className="flex justify-center mt-8">
                     <a 
                       href="https://www.weddingwaitress.com/" 
                       target="_blank" 
@@ -840,6 +840,7 @@ export const GuestLookup: React.FC = () => {
                       />
                     </a>
                   </div>
+                  <div className="h-8"></div>
 
                 </CardContent>
               </Card>
