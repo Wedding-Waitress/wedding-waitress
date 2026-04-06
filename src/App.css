@@ -59,6 +59,11 @@
   border-bottom: 4px solid hsl(var(--destructive)) !important;
 }
 
+.animate-row-flash {
+  animation: flash-badge 1s ease-in-out infinite;
+  transform-origin: center;
+}
+
 .animate-row-flash > td:first-child {
   border-left: 4px solid hsl(var(--destructive)) !important;
 }
