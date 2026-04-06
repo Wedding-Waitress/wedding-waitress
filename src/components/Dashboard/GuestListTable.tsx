@@ -2075,18 +2075,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             })()}
                           </TableCell>
                           <TableCell className="py-1 px-2">
-                            {guest.notes && guest.notes.trim() !== '' ? (
-                              <TooltipProvider delayDuration={100}>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer">Yes</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs z-[9999]">
-                                    <p className="whitespace-pre-wrap">{guest.notes}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
+                            {guest.notes && guest.notes.trim() !== '' ? (() => {
+                              const hasNewAlert = guest.notes.startsWith('[NEW+]');
+                              const displayNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+                              return (
+                                <TooltipProvider delayDuration={100}>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <span className={cn(
+                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
+                                        hasNewAlert && "animate-flash"
+                                      )}>Yes</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs z-[9999]">
+                                      <p className="whitespace-pre-wrap">{displayNotes}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              );
+                            })() : (
                               <Badge className="text-white bg-red-500">No</Badge>
                             )}
                           </TableCell>

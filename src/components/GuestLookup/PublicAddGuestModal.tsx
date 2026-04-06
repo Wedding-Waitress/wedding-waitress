@@ -204,6 +204,23 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         }
 
         const total = partyMembers.length;
+        // Update referring guest's notes with [NEW+] marker
+        if (addedByGuestId && addedByGuestName) {
+          const addedNames = partyMembers.map(m => `${m.first_name.trim()} ${m.last_name.trim()}`.trim()).join(', ');
+          const noteText = `${addedByGuestName} has added: ${addedNames}`;
+          try {
+            const { data: referringGuest } = await supabase
+              .from('guests')
+              .select('notes')
+              .eq('id', addedByGuestId)
+              .single();
+            const existingNotes = referringGuest?.notes?.replace(/^\[NEW\+\]/, '') || '';
+            const newNotes = `[NEW+]${existingNotes ? existingNotes + '\n' : ''}${noteText}`;
+            await supabase.from('guests').update({ notes: newNotes }).eq('id', addedByGuestId);
+          } catch (noteErr) {
+            console.error('Error updating referring guest notes:', noteErr);
+          }
+        }
         toast({ title: 'Guest(s) Added', description: `${total} guest${total > 1 ? 's' : ''} added successfully` });
         resetForm();
         onOpenChange(false);

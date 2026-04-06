@@ -39,3 +39,11 @@
 .read-the-docs {
   color: #888;
 }
+
+@keyframes flash-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.animate-flash {
+  animation: flash-badge 1s ease-in-out infinite;
+}
