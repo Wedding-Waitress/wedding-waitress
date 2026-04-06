@@ -1806,7 +1806,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0">
               {familyCount} Family
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border border-primary text-foreground">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border-2 border-primary text-foreground">
               <Users className="w-4 h-4" />
               {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
             </div>
