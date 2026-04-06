@@ -1980,6 +1980,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   'email_sent': { label: 'Email Sent', className: 'bg-purple-500 text-white' },
                                   'sms_sent': { label: 'SMS Sent', className: 'bg-purple-500 text-white' },
                                   'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
+                                  'mail_sent': { label: 'Sent (Mail)', className: 'bg-purple-500 text-white' },
                                 };
                                 const config = statusConfig[status] || statusConfig['not_sent'];
                                 return (
