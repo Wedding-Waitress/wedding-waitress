@@ -122,59 +122,76 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     setPartyMembers(prev => prev.filter((_, i) => i !== index));
   };
 
+  // For individual: when user clicks save, show partner prompt first
+  const handleIndividualSave = async (relationshipType: 'partner' | 'friend') => {
+    setSaving(true);
+    try {
+      const effectiveGuestType = relationshipType === 'partner' ? 'couple' : 'individual';
+      const { data, error } = await supabase.rpc('add_guest_public', {
+        _event_id: eventId,
+        _first_name: guest.first_name.trim(),
+        _last_name: guest.last_name.trim() || '',
+        _rsvp: guest.rsvp,
+        _dietary: guest.dietary === 'None' ? 'NA' : guest.dietary,
+        _mobile: guest.mobile.trim() || null,
+        _email: guest.email.trim() || null,
+        _added_by_guest_id: addedByGuestId || null,
+      } as any);
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to add guest — event may not allow public additions');
+
+      // If partner, manage as couple group
+      if (relationshipType === 'partner' && addedByGuestId) {
+        const { error: groupError } = await (supabase.rpc as any)('public_manage_guest_group', {
+          _event_id: eventId,
+          _new_guest_id: data,
+          _referring_guest_id: addedByGuestId,
+          _guest_type: 'couple',
+        });
+        if (groupError) console.error('Error managing couple group:', groupError);
+      }
+
+      // Update referring guest's notes
+      if (addedByGuestId && addedByGuestName) {
+        const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
+        let noteText = `${addedByGuestName} has added: ${addedName}\nPlease update TABLE and SEAT arrangement.`;
+        if (guest.notes && guest.notes.trim()) {
+          noteText += `\n────────────────────\n${guest.notes.trim()}`;
+        }
+        try {
+          await (supabase.rpc as any)('update_referring_guest_notes', {
+            _referring_guest_id: addedByGuestId,
+            _event_id: eventId,
+            _note_text: noteText,
+          });
+        } catch (noteErr) {
+          console.error('Error updating referring guest notes:', noteErr);
+        }
+      }
+      const categoryMsg = relationshipType === 'partner' ? ' You have been updated to a Couple.' : '';
+      toast({ title: 'Guest Added', description: `1 guest added successfully.${categoryMsg}` });
+      resetForm();
+      onOpenChange(false);
+      onGuestAdded();
+    } catch (err) {
+      console.error('Error adding guest:', err);
+      toast({ title: 'Error', description: 'Failed to add guest. Please try again.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSave = async () => {
     if (guestType === 'individual') {
-      // Individual: validate and save from main form
+      // Individual: validate fields first
       if (!guest.first_name.trim() || !guest.last_name.trim() || !guest.mobile.trim() || !guest.email.trim()) {
         toast({ title: 'Please fill in all required fields (First Name, Last Name, Mobile, Email)', variant: 'destructive' });
         return;
       }
-
-      setSaving(true);
-      try {
-        const { data, error } = await supabase.rpc('add_guest_public', {
-          _event_id: eventId,
-          _first_name: guest.first_name.trim(),
-          _last_name: guest.last_name.trim() || '',
-          _rsvp: guest.rsvp,
-          _dietary: guest.dietary === 'None' ? 'NA' : guest.dietary,
-          _mobile: guest.mobile.trim() || null,
-          _email: guest.email.trim() || null,
-          _added_by_guest_id: addedByGuestId || null,
-        } as any);
-
-        if (error) throw error;
-        if (!data) throw new Error('Failed to add guest — event may not allow public additions');
-
-        // For individual/single: no group management needed
-        // Update referring guest's notes with [NEW+] marker via RPC
-        if (addedByGuestId && addedByGuestName) {
-          const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
-          let noteText = `${addedByGuestName} has added: ${addedName}\nPlease update TABLE and SEAT arrangement.`;
-          // If the guest wrote notes, append them below a separator line
-          if (guest.notes && guest.notes.trim()) {
-            noteText += `\n────────────────────\n${guest.notes.trim()}`;
-          }
-          try {
-            await (supabase.rpc as any)('update_referring_guest_notes', {
-              _referring_guest_id: addedByGuestId,
-              _event_id: eventId,
-              _note_text: noteText,
-            });
-          } catch (noteErr) {
-            console.error('Error updating referring guest notes:', noteErr);
-          }
-        }
-        toast({ title: 'Guest Added', description: '1 guest added successfully' });
-        resetForm();
-        onOpenChange(false);
-        onGuestAdded();
-      } catch (err) {
-        console.error('Error adding guest:', err);
-        toast({ title: 'Error', description: 'Failed to add guest. Please try again.', variant: 'destructive' });
-      } finally {
-        setSaving(false);
-      }
+      // Show partner/friend prompt
+      setShowPartnerPrompt(true);
+      return;
     } else {
       // Couple/Family: save each party member then manage group
       if (partyMembers.length === 0) {
