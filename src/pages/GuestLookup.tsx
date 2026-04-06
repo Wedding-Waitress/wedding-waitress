@@ -827,7 +827,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
-                  <div className="flex justify-center mt-6">
+                  <div className="flex justify-center mt-8">
                     <a 
                       href="https://www.weddingwaitress.com/" 
                       target="_blank" 
@@ -840,6 +840,7 @@ export const GuestLookup: React.FC = () => {
                       />
                     </a>
                   </div>
+                  <div className="h-8"></div>
 
                 </CardContent>
               </Card>
