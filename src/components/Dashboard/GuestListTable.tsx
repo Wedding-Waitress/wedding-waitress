@@ -1581,7 +1581,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {/* Option 2: Custom names */}
                           <label
                             className={cn(
-                              "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-medium transition-all",
+                             "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               !useDefaultNames
                                 ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
                                 : "border-border bg-background text-foreground hover:bg-muted/50"
