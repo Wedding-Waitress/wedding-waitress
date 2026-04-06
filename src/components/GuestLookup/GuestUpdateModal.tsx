@@ -76,7 +76,8 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   helperText,
   allowNameEdit = false,
   showMessageField = true,
-  isEditable = true
+  isEditable = true,
+  allGuests = []
 }) => {
   const [saving, setSaving] = useState(false);
   const [initialRsvp, setInitialRsvp] = useState('Pending');
