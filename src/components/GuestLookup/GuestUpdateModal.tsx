@@ -273,6 +273,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                   placeholder="Any special requests, allergies, or additional information..."
                   rows={3}
                   disabled={!isEditable}
+                  className="border-primary"
                 />
               </div>
             )}
