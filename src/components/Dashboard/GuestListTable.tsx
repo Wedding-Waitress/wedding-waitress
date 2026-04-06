@@ -1813,7 +1813,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-hidden border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
+        <div className="overflow-hidden border-2 border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
           <Table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '3%' }} />
