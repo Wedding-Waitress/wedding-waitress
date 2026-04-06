@@ -173,7 +173,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Use prop selectedEventId if provided, otherwise use local state
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
   const [showAddModal, setShowAddModal] = useState(false);
-  const { guests, loading: guestsLoading, deleteGuest, refetchGuests } = useRealtimeGuests(selectedEventId);
+  const { guests, loading: guestsLoading, deleteGuest, refetchGuests, updateGuest } = useRealtimeGuests(selectedEventId);
   const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [guestToDelete, setGuestToDelete] = useState<any>(null);
