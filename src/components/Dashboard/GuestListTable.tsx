@@ -1497,7 +1497,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                   {/* Event Type */}
                   {selectedEventId && (
-                    <div>
+                    <div className="mb-4">
                       <Label className="text-sm font-medium text-foreground mb-1.5 block">Event Type</Label>
                       <div className="flex flex-col gap-2">
                         <Button
@@ -1529,6 +1529,122 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       </div>
                     </div>
                   )}
+
+                  {/* Guest Relationship Settings (Optional) */}
+                  {selectedEventId && (
+                    <div className={cn(
+                      "border rounded-lg p-3 transition-all duration-300",
+                      relationsHidden ? "border-border bg-muted/30" : "border-primary/40 bg-primary/5"
+                    )}>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label className="text-sm font-medium text-foreground">Guest Relationship Settings</Label>
+                        <span className="text-xs text-muted-foreground italic mr-2">Optional</span>
+                      </div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className={cn("text-xs font-medium", !relationsHidden ? "text-green-600" : "text-muted-foreground")}>ON</span>
+                        <Switch
+                          checked={relationsHidden}
+                          onCheckedChange={(checked) => handleHideRelationsToggle(checked)}
+                          className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-green-500"
+                        />
+                        <span className={cn("text-xs font-medium", relationsHidden ? "text-destructive" : "text-muted-foreground")}>OFF</span>
+                      </div>
+
+                      {/* Expandable content with animation */}
+                      <div className={cn(
+                        "overflow-hidden transition-all duration-300 ease-in-out",
+                        relationsHidden ? "max-h-0 opacity-0" : "max-h-[400px] opacity-100"
+                      )}>
+                        <div className="flex flex-col gap-2 pt-2 border-t border-border/50">
+                          {/* Option 1: Default names */}
+                          <label
+                            className={cn(
+                              "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-medium transition-all",
+                              useDefaultNames
+                                ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
+                                : "border-border bg-background text-foreground hover:bg-muted/50"
+                            )}
+                            onClick={() => {
+                              setUseDefaultNames(true);
+                              void handleSavePartnerNames('Bride', 'Groom');
+                            }}
+                          >
+                            <input type="radio" name="nameChoice" checked={useDefaultNames} readOnly className={useDefaultNames ? "accent-green-500" : "accent-muted-foreground"} />
+                            Use default labels (Bride / Groom)
+                          </label>
+
+                          {/* Option 2: Custom names */}
+                          <label
+                            className={cn(
+                              "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-medium transition-all",
+                              !useDefaultNames
+                                ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
+                                : "border-border bg-background text-foreground hover:bg-muted/50"
+                            )}
+                            onClick={() => {
+                              setUseDefaultNames(false);
+                            }}
+                          >
+                            <input type="radio" name="nameChoice" checked={!useDefaultNames} readOnly className={!useDefaultNames ? "accent-green-500" : "accent-muted-foreground"} />
+                            Use custom names for Partner 1 & Partner 2
+                          </label>
+
+                          {/* Custom name inputs */}
+                          {!useDefaultNames && (
+                            <div className="flex flex-col gap-2 pl-2 mt-1">
+                              <div className="flex items-center gap-2">
+                                <Label className="text-sm font-medium w-20 shrink-0">Partner 1:</Label>
+                                <Input
+                                  id="partner1-name"
+                                  value={partner1Name}
+                                  onChange={(e) => {
+                                    setPartner1Name(e.target.value);
+                                    setPartnerNamesSaved(false);
+                                    setHasUnsavedChanges(true);
+                                  }}
+                                  placeholder="e.g. Sarah"
+                                  className="h-8 text-sm"
+                                />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Label className="text-sm font-medium w-20 shrink-0">Partner 2:</Label>
+                                <Input
+                                  value={partner2Name}
+                                  onChange={(e) => {
+                                    setPartner2Name(e.target.value);
+                                    setPartnerNamesSaved(false);
+                                    setHasUnsavedChanges(true);
+                                  }}
+                                  placeholder="e.g. James"
+                                  className="h-8 text-sm"
+                                />
+                              </div>
+                              {showNamesValidation && (
+                                <p className="text-xs text-destructive">Both partner names are required</p>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  type="button"
+                                  variant="success"
+                                  size="sm"
+                                  onClick={() => { void handleSavePartnerNames(); }}
+                                  disabled={isSaving}
+                                  className="h-8 rounded-full px-4 text-sm"
+                                >
+                                  {isSaving ? 'Saving...' : 'Save Names'}
+                                </Button>
+                                {partnerNamesSaved && (
+                                  <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                    ✓ Names saved
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* RIGHT: Step 2 - Add Your Guests */}
@@ -1538,7 +1654,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <Button
                     variant="default"
                     size="lg"
-                    onClick={handleAddGuest}
+                    onClick={() => {
+                      if (!selectedEventId) {
+                        toast({
+                          title: "No event selected",
+                          description: "Please select an event first",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      handleAddGuest();
+                    }}
                     className="bg-primary hover:bg-primary/90 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base"
                   >
                     <Users className="w-5 h-5" />
