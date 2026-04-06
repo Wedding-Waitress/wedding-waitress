@@ -827,18 +827,6 @@ export const GuestLookup: React.FC = () => {
                     </a>
                   </div>
 
-                  {/* Last Updated - below logo */}
-                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <span>Last updated: {lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={refreshGuestData}
-                      className="h-6 px-2 text-xs"
-                    >
-                      Refresh
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
