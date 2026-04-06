@@ -1467,10 +1467,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                <div className="bg-muted/30 rounded-2xl p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-base font-semibold text-foreground mb-0.5">Step 1: Set Up Your Event</h3>
+                  <h3 className="text-lg font-bold text-foreground mb-0.5">Step 1: Set Up Your Event</h3>
                   <p className="text-sm text-muted-foreground mb-4">Select your event and customise settings</p>
 
                   {/* Choose Event */}
@@ -1533,7 +1534,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 2: Step 2 - Guest Relationship Settings */}
                 <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-base font-semibold text-foreground mb-0.5">Step 2: Guest Relationship Settings</h3>
+                  <h3 className="text-lg font-bold text-foreground mb-0.5">Step 2: Guest Relationship Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Optionally define how guests are related to you</p>
 
                   {selectedEventId ? (
@@ -1655,9 +1656,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
 
                 {/* BOX 3: Step 3 - Add Your Guests */}
-                <div className="border-2 border-primary rounded-xl p-5 flex flex-col items-center justify-center shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-base font-semibold text-foreground mb-0.5">Step 3: Add Your Guests</h3>
+                <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                  <h3 className="text-lg font-bold text-foreground mb-0.5">Step 3: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
+                  <div className="flex-1 flex flex-col items-center justify-center">
                   <Button
                     variant="default"
                     size="lg"
@@ -1678,7 +1680,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     + Add Guest
                   </Button>
                   <p className="text-xs text-muted-foreground mt-3">Guests will appear in the table below</p>
+                  </div>
                 </div>
+              </div>
               </div>
 
             </div>
