@@ -520,7 +520,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}
-              <AccordionItem value="color" className="border border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="color" className="border border-primary rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Palette className="h-4 w-4 text-purple-600" />
@@ -553,7 +553,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* SHAPE Section */}
-              <AccordionItem value="shape" className="border border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="shape" className="border border-primary rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Square className="h-4 w-4 text-purple-600" />
@@ -633,7 +633,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* LOGO Section */}
-              <AccordionItem value="logo" className="border border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="logo" className="border border-primary rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-purple-600" />
@@ -690,7 +690,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </Accordion>
             
             {/* Reset to Default - at bottom of Design panel */}
-            <div className="pt-2 mt-auto">
+            <div className="flex-grow" />
+            <div className="pt-4 border-t border-border">
               <Button variant="destructive" onClick={handleResetAll} className="w-full rounded-full">
                 Reset to Default
               </Button>
