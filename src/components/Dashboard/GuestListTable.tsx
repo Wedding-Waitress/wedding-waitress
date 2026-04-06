@@ -1479,7 +1479,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       Choose Event
                     </Label>
                     <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                      <SelectTrigger className="w-full border-2 border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
+                      <SelectTrigger className="w-full border border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
                         <SelectValue placeholder="Select an event..." />
                       </SelectTrigger>
                       <SelectContent>
