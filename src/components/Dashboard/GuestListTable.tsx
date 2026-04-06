@@ -2193,7 +2193,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 description: `${ids.length} guest(s) marked as invite sent`,
               });
               handleDeselectAll();
-              fetchGuests();
+              refetchGuests();
             } catch (error) {
               console.error('Error marking manual invite:', error);
               toast({
