@@ -219,6 +219,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
   
+  // Pagination state
+  const GUESTS_PER_PAGE = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Guest limit dialog state
   const [showGuestLimitDialog, setShowGuestLimitDialog] = useState(false);
   const [guestLimitDialogVariant, setGuestLimitDialogVariant] = useState<'congratulations' | 'exceeded'>('exceeded');
