@@ -1682,7 +1682,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </div>
                 </div>
               </div>
-              </div>
 
             </div>
           </div>
