@@ -698,6 +698,19 @@
 }
 .running-sheet-dark-gray .text-primary { color: hsl(var(--primary)); }
 .running-sheet-dark-gray .text-destructive { color: hsl(var(--destructive)); }
-.running-sheet-dark-gray .text-muted-foreground { color: #6E6E73; }
 .running-sheet-dark-gray .text-green-600 { color: #16a34a; }
 .running-sheet-dark-gray .text-green-500 { color: #22c55e; }
+.running-sheet-dark-gray input::placeholder,
+.running-sheet-dark-gray textarea::placeholder,
+.running-sheet-dark-gray [data-placeholder] { color: #6E6E73; }
+
+/* Add Guest modal dark gray (Apple #1D1D1F trial) */
+.ww-dark-gray-form,
+.ww-dark-gray-form * {
+  color: #1D1D1F;
+}
+.ww-dark-gray-form .text-primary { color: hsl(var(--primary)); }
+.ww-dark-gray-form .text-destructive { color: hsl(var(--destructive)); }
+.ww-dark-gray-form input::placeholder,
+.ww-dark-gray-form textarea::placeholder,
+.ww-dark-gray-form [data-placeholder] { color: #6E6E73; }
