@@ -137,7 +137,11 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         // Update referring guest's notes with [NEW+] marker via RPC
         if (addedByGuestId && addedByGuestName) {
           const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
-          const noteText = `${addedByGuestName} has added: ${addedName}\nPlease update table and seat arrangement.`;
+          let noteText = `${addedByGuestName} has added: ${addedName}\nPlease update table and seat arrangement.`;
+          // If the guest wrote notes, append them below a separator line
+          if (guest.notes && guest.notes.trim()) {
+            noteText += `\n────────────────────\n${guest.notes.trim()}`;
+          }
           try {
             await (supabase.rpc as any)('update_referring_guest_notes', {
               _referring_guest_id: addedByGuestId,
