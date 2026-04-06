@@ -1655,7 +1655,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
 
                 {/* BOX 3: Step 3 - Add Your Guests */}
-                <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-foreground mb-0.5">Step 3: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
