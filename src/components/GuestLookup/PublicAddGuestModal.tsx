@@ -701,5 +701,48 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         </div>
       </DialogContent>
     </Dialog>
+
+      {/* Partner/Friend Prompt for Individual */}
+      <Dialog open={showPartnerPrompt} onOpenChange={setShowPartnerPrompt}>
+        <DialogContent className="max-w-sm [&>button:last-child]:hidden">
+          <DialogPrimitive.Close className="absolute right-3 top-3 z-10 w-8 h-8 rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+            <X className="w-4 h-4 text-primary" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+          <DialogHeader>
+            <DialogTitle className="text-lg text-primary text-center">
+              Is this guest your partner?
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              If <strong>{guest.first_name} {guest.last_name}</strong> is your partner, you'll both be grouped as a <span className="text-orange-500 font-medium">Couple</span>. Otherwise, they'll be added as an individual guest.
+            </p>
+          </DialogHeader>
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              className="flex-1 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-medium"
+              disabled={saving}
+              onClick={() => {
+                setShowPartnerPrompt(false);
+                handleIndividualSave('partner');
+              }}
+            >
+              {saving ? 'Adding...' : 'Yes, Partner'}
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 rounded-full bg-pink-500 hover:bg-pink-600 text-white font-medium"
+              disabled={saving}
+              onClick={() => {
+                setShowPartnerPrompt(false);
+                handleIndividualSave('friend');
+              }}
+            >
+              {saving ? 'Adding...' : 'No, Friend'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
