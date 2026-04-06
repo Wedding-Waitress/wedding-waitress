@@ -1335,7 +1335,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setShowAddModal(true);
   };
 
-  const handleEditGuest = (guest: any) => {
+  const handleEditGuest = async (guest: any) => {
+    // If guest has [NEW+] marker, strip it to acknowledge the alert
+    if (guest.notes && guest.notes.startsWith('[NEW+]')) {
+      const cleanedNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+      try {
+        await supabase.from('guests').update({ notes: cleanedNotes }).eq('id', guest.id);
+      } catch (err) {
+        console.error('Error stripping NEW+ marker:', err);
+      }
+    }
     setEditingGuest(guest);
     setShowAddModal(true);
   };
