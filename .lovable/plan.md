@@ -1,68 +1,51 @@
 
 
-## Auto-Note Extra Guests Added via Live View + Flashing Indicator
+## Plus-Guest Notification Banner in Guest List
 
 ### What This Does
-When a guest adds extra guests via the public Live View "Plus Guest" button, the system will:
-1. Automatically append a note to the **referring guest's** notes field (e.g., "Adam Saad has added: John Smith, Jane Doe")
-2. Show the Notes badge as **green "Yes"** with a **flashing animation** to alert the organiser
-3. Stop flashing once the organiser clicks Edit on that guest (acknowledging the notification)
+Adds a flashing yellow notification pill with a red border above the guest list table (on the same row as Sort By / Import Export CSV, but left-aligned). It appears only when one or more guests have the `[NEW+]` marker, showing who added extra guests. It disappears once all alerts are acknowledged via Edit.
 
-### File 1: `src/components/GuestLookup/PublicAddGuestModal.tsx`
+### File: `src/components/Dashboard/GuestListTable.tsx`
 
-After successfully adding guest(s), update the **referring guest's** notes field:
-- After the `add_guest_public` RPC call(s) succeed, build a note string: `"{ReferringGuestName} has added: {NewGuest1 FirstName LastName}, {NewGuest2 FirstName LastName}"`
-- Use `supabase.from('guests').update()` to append this text to the referring guest's existing `notes` field (preserving any existing notes with a newline separator)
-- Also set a new flag column or use a convention (e.g., prefix `[PLUS_GUEST_ALERT]`) in the notes to signal the flashing behaviour
+**1. Compute alert guests (memoized)**
 
-**Simpler approach (no DB migration):** Instead of a new column, we prepend `[NEW+]` marker to the referring guest's notes when extra guests are added. The Guest List table detects this marker to trigger flashing. When the Edit modal opens, the marker is stripped.
+Add a `useMemo` that filters guests with notes starting with `[NEW+]`, extracting the referring guest's name from each. This provides the data for the notification banner.
 
-### File 2: `src/hooks/useGuests.ts`
+**2. Modify the control buttons row (line ~1734-1735)**
 
-Add `added_by_guest_id` to the Guest interface so it's available in the guest list table.
+Change from `justify-end` to `justify-between` so we can place content on both sides:
 
-### File 3: `src/components/Dashboard/GuestListTable.tsx`
+- **Left side**: The new notification banner (only rendered when alertGuests array is non-empty)
+- **Right side**: Existing Sort By + Import/Export CSV buttons (unchanged)
 
-**Notes column rendering (~line 2068-2082):**
-- Detect if `guest.notes` contains the `[NEW+]` marker
-- If yes: render the green "Yes" badge with a CSS flashing animation class (`animate-pulse` or custom keyframe)
-- If no marker but notes exist: render normal green "Yes" badge (no flash)
-- No notes: render red "No" badge as current
-
-**Edit button handler (~line 1338):**
-- When `handleEditGuest` is called, if the guest's notes contain `[NEW+]`, strip the marker and update the DB immediately (acknowledge the alert)
-- This stops the flashing on the next render
-
-### File 4: `src/App.css` or inline Tailwind
-
-Add a flashing animation if `animate-pulse` isn't sufficient:
-```css
-@keyframes flash-badge {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-.animate-flash { animation: flash-badge 1s ease-in-out infinite; }
-```
-
-### Implementation Flow
+**3. Notification banner design**
 
 ```text
-Guest scans QR → clicks "Plus Guest" → adds "John Smith"
-                                          │
-                                          ▼
-                          PublicAddGuestModal:
-                          1. Calls add_guest_public (John Smith added to guests table)
-                          2. Updates referring guest's notes:
-                             "[NEW+]Adam Saad has added: John Smith"
-                                          │
-                                          ▼
-                          Dashboard Guest List (realtime sync):
-                          - Notes column shows flashing green "Yes" badge
-                          - Organiser clicks Edit icon
-                          - [NEW+] marker stripped, flashing stops
-                          - Notes show: "Adam Saad has added: John Smith"
+┌─────────────────────────────────────────────────────────────────┐
+│  [Flashing yellow pill, red border]                  [Sort By] [Import/Export] │
+│  "Susan Kenneth - Has added a +1 Guest.                                       │
+│   Please acknowledge that in the below                                        │
+│   flashing row by opening the EDIT button."                                   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Layout Order (unchanged)
-No changes to column order or other UI elements. Only the Notes badge behaviour and the PublicAddGuestModal save logic are modified.
+Styling:
+- Pill shape: `rounded-full`
+- Border: `border-2 border-red-500`
+- Background: same yellow as row flash (`rgba(250, 204, 21, 0.5)` / `bg-yellow-400`)
+- Text: dark text, small font (`text-xs font-semibold`)
+- Animation: reuse existing `animate-flash` class for pulsing on/off
+- If multiple guests have alerts, show multiple lines or stack them
+
+**4. Text format per alert**
+
+For each guest with `[NEW+]` marker, parse the name from their notes (pattern: `{Name} has added: {AddedNames}`), then display:
+
+> **{Guest Name}** - Has added a +1 Guest. Please acknowledge that in the below flashing row by opening the "EDIT" button.
+
+**5. Auto-hide behavior**
+
+Since the banner is computed from `[NEW+]` markers in guest data, it automatically disappears when the organiser clicks Edit on each flagged guest (which strips the marker). No additional logic needed.
+
+### No other files or pages are changed.
 
