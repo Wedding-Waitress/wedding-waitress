@@ -1,48 +1,43 @@
 
 
-## Roll Out Dark Gray (#1D1D1F) App-Wide via CSS Variables
+## Convert Guest List Setup to 3 Equal Sections
 
-**What**: Instead of adding classes to every page and modal one by one, we change the global CSS color variables in `src/index.css`. This instantly applies the Apple dark gray to every page, modal, and component across Wedding Waitress — with zero changes to individual component files.
+**What**: Replace the current 2-column layout (lines 1470-1674) with a 3-column equal-width grid. Move the relationship settings from inside Box 1 into its own dedicated Box 2. The current Box 2 (Add Guest) becomes Box 3.
 
-### Approach
+### File to edit
 
-The app uses CSS variables (`--foreground`, `--card-foreground`, etc.) set to `224 71% 4%` (near-black #030712). By updating these variables to the HSL equivalent of `#1D1D1F` (≈ `240 3% 12%`) and updating `--muted-foreground` to `#6E6E73` (≈ `240 2% 44%`), every element that references these variables automatically gets the new color.
+**`src/components/Dashboard/GuestListTable.tsx`** (lines ~1470-1674)
 
-Then we clean up the trial-scoped classes (`.running-sheet-dark-gray`, `.ww-dark-gray-form`) since they're no longer needed.
+### Changes
 
-### Single file to edit
+1. **Grid layout**: Change `md:grid-cols-2` to `md:grid-cols-3` on the container div (line 1470)
 
-**`src/index.css`**:
+2. **Box 1 (Left) — Step 1: Set Up Your Event**
+   - Keep title, subtext, Choose Event dropdown, and Event Type buttons exactly as-is
+   - **Remove** the Guest Relationship Settings section from this box (lines 1533-1647) — it moves to Box 2
 
-1. Update these CSS variables in `:root`:
-   - `--foreground: 240 3% 12%` (was `224 71% 4%`) → #1D1D1F
-   - `--card-foreground: 240 3% 12%` (was `224 71% 4%`)
-   - `--secondary-foreground: 240 3% 12%` (was `224 71% 4%`)
-   - `--popover-foreground: 240 3% 12%` (was `224 71% 4%`)
-   - `--muted-foreground: 240 2% 44%` (was `224 71% 4%`) → #6E6E73
+3. **Box 2 (Middle) — Step 2: Guest Relationship Settings**
+   - New box with same border/shadow styling as the other two
+   - Title: "Step 2: Guest Relationship Settings"
+   - Subtext: "Optionally define how guests are related to you"
+   - Move all existing relationship toggle + radio options + partner name inputs + Save Names button into this box
+   - Keep the smooth expand/collapse animation exactly as-is
+   - Show relationship content only when an event is selected (same conditional as current)
 
-2. Add a global placeholder rule:
-   ```css
-   input::placeholder, textarea::placeholder, [data-placeholder] {
-     color: #6E6E73 !important;
-   }
-   ```
+4. **Box 3 (Right) — Step 3: Add Your Guests**
+   - Rename from "Step 2" to "Step 3"
+   - Keep centered layout with + Add Guest button
+   - Add helper text below button: "Guests will appear in the table below"
+   - Keep the "no event selected" toast behavior
 
-3. Remove the now-redundant trial classes (`.running-sheet-dark-gray` and `.ww-dark-gray-form` blocks, lines 693–716)
-
-**`src/components/Dashboard/RunningSheet/RunningSheetPage.tsx`** — Remove `running-sheet-dark-gray` class from the root div (no longer needed).
-
-**`src/components/Dashboard/AddGuestModal.tsx`** — Remove `ww-dark-gray-form` class from DialogContent (no longer needed).
-
-### What changes visually
-- ALL text across every page and modal → #1D1D1F (Apple dark gray)
-- ALL placeholder text in inputs/textareas → #6E6E73 (Apple secondary gray)
-- Purple (`text-primary`), red (`text-destructive`), green indicators → unchanged
-- PDF exports → unchanged (they use their own rendering, not CSS variables)
+### Styling rules (all 3 boxes)
+- Same classes: `border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`
+- Title: `text-base font-semibold text-foreground mb-0.5` (unchanged from current)
+- Subtext: `text-sm text-muted-foreground mb-4`
+- Equal height via `items-stretch` on the grid container (already present)
 
 ### What stays the same
-- All layout, spacing, functionality
-- Purple branding colors
-- PDF/DOCX export styling
-- Landing page gradients and hero sections
+- All functional logic (event selection, type toggle, partner name saving, add guest validation)
+- All other sections of the page (stats bar, table, bulk actions, modals)
+- No changes to any other files
 
