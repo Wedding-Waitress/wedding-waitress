@@ -1469,7 +1469,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
-                <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-foreground mb-0.5">Step 1: Set Up Your Event</h3>
                   <p className="text-sm text-muted-foreground mb-4">Select your event and customise settings</p>
 
@@ -1479,7 +1479,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       Choose Event
                     </Label>
                     <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                      <SelectTrigger className="w-full border-2 border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
+                      <SelectTrigger className="w-full border border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
                         <SelectValue placeholder="Select an event..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -1507,9 +1507,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "h-9 text-sm justify-start transition-all",
                             eventType === 'two'
-                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
-                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
-                          )}
+                              ? "border border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
+                              : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                           )}
                         >
                           💍 Wedding / Engagement
                         </Button>
@@ -1520,8 +1520,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "h-9 text-sm justify-start transition-all",
                             eventType === 'single'
-                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
-                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                              ? "border border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
+                              : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
                         >
                           🎂 Birthday / Corporate / Other
@@ -1532,7 +1532,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
 
                 {/* BOX 2: Step 2 - Guest Relationship Settings */}
-                <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-foreground mb-0.5">Step 2: Guest Relationship Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Optionally define how guests are related to you</p>
 
@@ -1564,7 +1564,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {/* Option 1: Default names */}
                           <label
                             className={cn(
-                              "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-medium transition-all",
+                             "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               useDefaultNames
                                 ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
                                 : "border-border bg-background text-foreground hover:bg-muted/50"
@@ -1581,7 +1581,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {/* Option 2: Custom names */}
                           <label
                             className={cn(
-                              "flex items-center gap-2 cursor-pointer rounded-lg border-2 p-2 text-sm font-medium transition-all",
+                             "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               !useDefaultNames
                                 ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
                                 : "border-border bg-background text-foreground hover:bg-muted/50"
@@ -1655,7 +1655,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
 
                 {/* BOX 3: Step 3 - Add Your Guests */}
-                <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-foreground mb-0.5">Step 3: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
