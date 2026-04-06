@@ -529,31 +529,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <Label className="text-sm">Background</Label>
-                      <div className="flex items-center gap-1">
-                        <input type="color" value={qrColors.background} onChange={e => updateColors({ background: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
-                        <Input value={qrColors.background} onChange={e => updateColors({ background: e.target.value })} className="text-xs font-mono h-7 flex-1" />
-                      </div>
+                      <ColorPickerPopover value={qrColors.background} onChange={(c) => updateColors({ background: c })} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Dots</Label>
-                      <div className="flex items-center gap-1">
-                        <input type="color" value={qrColors.dotsColor} onChange={e => updateColors({ dotsColor: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
-                        <Input value={qrColors.dotsColor} onChange={e => updateColors({ dotsColor: e.target.value })} className="text-xs font-mono h-7 flex-1" />
-                      </div>
+                      <ColorPickerPopover value={qrColors.dotsColor} onChange={(c) => updateColors({ dotsColor: c })} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Marker Border</Label>
-                      <div className="flex items-center gap-1">
-                        <input type="color" value={qrColors.markerBorderColor} onChange={e => updateColors({ markerBorderColor: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
-                        <Input value={qrColors.markerBorderColor} onChange={e => updateColors({ markerBorderColor: e.target.value })} className="text-xs font-mono h-7 flex-1" />
-                      </div>
+                      <ColorPickerPopover value={qrColors.markerBorderColor} onChange={(c) => updateColors({ markerBorderColor: c })} />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Marker Center</Label>
-                      <div className="flex items-center gap-1">
-                        <input type="color" value={qrColors.markerCenterColor} onChange={e => updateColors({ markerCenterColor: e.target.value })} className="w-6 h-6 rounded border cursor-pointer" />
-                        <Input value={qrColors.markerCenterColor} onChange={e => updateColors({ markerCenterColor: e.target.value })} className="text-xs font-mono h-7 flex-1" />
-                      </div>
+                      <ColorPickerPopover value={qrColors.markerCenterColor} onChange={(c) => updateColors({ markerCenterColor: c })} />
                     </div>
                   </div>
                   <div className="p-1.5 rounded text-xs bg-green-50 text-green-800 border border-green-200">
