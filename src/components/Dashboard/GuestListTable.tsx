@@ -2151,35 +2151,33 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           successfulRows={importStats.successful}
         />
 
-        {/* Bulk Actions Toolbar */}
-        {selectedGuestIds.size > 0 && (
-          <GuestBulkActionsBar
-            selectedCount={selectedGuestIds.size}
-            totalCount={sortedGuests.length}
-            onSelectAll={handleSelectAll}
-            onDeselectAll={handleDeselectAll}
-            
-            onUpdateRsvp={() => setShowBulkRsvpModal(true)}
-            onDelete={() => setShowBulkDeleteModal(true)}
-            onCancel={handleDeselectAll}
-            onSendEmail={() => {
-              setSendChannel('email');
-              if (hasRsvpPurchase) {
-                setShowSendModal(true);
-              } else {
-                setShowActivationModal(true);
-              }
-            }}
-            onSendSms={() => {
-              setSendChannel('sms');
-              if (hasRsvpPurchase) {
-                setShowSendModal(true);
-              } else {
-                setShowActivationModal(true);
-              }
-            }}
-          />
-        )}
+        {/* Bulk Actions Modal */}
+        <GuestBulkActionsBar
+          isOpen={selectedGuestIds.size > 0}
+          onClose={handleDeselectAll}
+          selectedCount={selectedGuestIds.size}
+          totalCount={sortedGuests.length}
+          onSelectAll={handleSelectAll}
+          onDeselectAll={handleDeselectAll}
+          onUpdateRsvp={() => setShowBulkRsvpModal(true)}
+          onDelete={() => setShowBulkDeleteModal(true)}
+          onSendEmail={() => {
+            setSendChannel('email');
+            if (hasRsvpPurchase) {
+              setShowSendModal(true);
+            } else {
+              setShowActivationModal(true);
+            }
+          }}
+          onSendSms={() => {
+            setSendChannel('sms');
+            if (hasRsvpPurchase) {
+              setShowSendModal(true);
+            } else {
+              setShowActivationModal(true);
+            }
+          }}
+        />
 
         {/* Bulk Table Assignment Modal */}
         <BulkTableAssignmentModal
