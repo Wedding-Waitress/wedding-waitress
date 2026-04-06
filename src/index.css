@@ -78,10 +78,10 @@
     --accent: 262 50% 95%;
     --accent-foreground: 262 83% 40%;
     --secondary: 260 20% 91%;
-    --secondary-foreground: 224 71% 4%;
+    --secondary-foreground: 240 3% 12%;
     --muted: 260 15% 89%;
-    --muted-foreground: 224 71% 4%;
-    
+    --muted-foreground: 240 2% 44%;
+
     /* Status Colors */
     --success: 142.1 70.5% 45.3%;
     --success-foreground: 0 0% 100%;
