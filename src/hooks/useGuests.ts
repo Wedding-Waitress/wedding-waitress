@@ -40,6 +40,7 @@ export interface Guest {
   rsvp_invite_status?: string;
   rsvp_invite_sent_at?: string | null;
   allow_plus_one?: boolean;
+  added_by_guest_id?: string | null;
 }
 
 // Module-level cache for instant loading on tab switches

@@ -910,7 +910,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       guest.email || '',
       guest.family_group || '',
       guest.relation_display || '',
-      (guest.notes || '').replace(/\n/g, ' ')
+      (guest.notes || '').replace(/^\[NEW\+\]/, '').replace(/\n/g, ' ')
     ]);
     
     const ws = XLSX.utils.aoa_to_sheet([DISPLAY_EXPORT_HEADERS, ...rows]);
@@ -1335,7 +1335,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setShowAddModal(true);
   };
 
-  const handleEditGuest = (guest: any) => {
+  const handleEditGuest = async (guest: any) => {
+    // If guest has [NEW+] marker, strip it to acknowledge the alert
+    if (guest.notes && guest.notes.startsWith('[NEW+]')) {
+      const cleanedNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+      try {
+        await supabase.from('guests').update({ notes: cleanedNotes }).eq('id', guest.id);
+      } catch (err) {
+        console.error('Error stripping NEW+ marker:', err);
+      }
+    }
     setEditingGuest(guest);
     setShowAddModal(true);
   };
@@ -2066,18 +2075,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             })()}
                           </TableCell>
                           <TableCell className="py-1 px-2">
-                            {guest.notes && guest.notes.trim() !== '' ? (
-                              <TooltipProvider delayDuration={100}>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer">Yes</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs z-[9999]">
-                                    <p className="whitespace-pre-wrap">{guest.notes}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
+                            {guest.notes && guest.notes.trim() !== '' ? (() => {
+                              const hasNewAlert = guest.notes.startsWith('[NEW+]');
+                              const displayNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+                              return (
+                                <TooltipProvider delayDuration={100}>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <span className={cn(
+                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
+                                        hasNewAlert && "animate-flash"
+                                      )}>Yes</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-xs z-[9999]">
+                                      <p className="whitespace-pre-wrap">{displayNotes}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              );
+                            })() : (
                               <Badge className="text-white bg-red-500">No</Badge>
                             )}
                           </TableCell>
