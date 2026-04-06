@@ -2139,6 +2139,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             {guest.notes && guest.notes.trim() !== '' ? (() => {
                               const hasNewAlert = guest.notes.startsWith('[NEW+]');
                               const displayNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+                              const hasPlusGuestHistory = /has added:/i.test(displayNotes);
                               return (
                                 <TooltipProvider delayDuration={100}>
                                   <Tooltip>
@@ -2146,7 +2147,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                       <span className={cn(
                                         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
                                         hasNewAlert && "animate-flash"
-                                      )}>{hasNewAlert ? "+Guest" : "Yes"}</span>
+                                      )}>{hasPlusGuestHistory ? "+Guest" : "Yes"}</span>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="max-w-xs z-[9999]">
                                       <p className="whitespace-pre-wrap">{displayNotes}</p>
