@@ -1784,7 +1784,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
 
         <div className="mt-2 mb-3 mx-3 sm:mx-6 flex items-center justify-between gap-2 flex-wrap">
-          <span className="inline-block text-xs font-medium text-primary bg-primary/5 border border-primary rounded-full px-4 py-1.5">
+          <span className="inline-block text-xs font-medium text-primary bg-primary/5 border-2 border-primary rounded-full px-4 py-1.5">
             Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.
           </span>
           <div className="flex items-center gap-2 flex-wrap">
@@ -1806,14 +1806,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0">
               {familyCount} Family
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border border-primary text-foreground">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border-2 border-primary text-foreground">
               <Users className="w-4 h-4" />
               {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
             </div>
           </div>
         </div>
 
-        <div className="overflow-hidden border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
+        <div className="overflow-hidden border-2 border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
           <Table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '3%' }} />
