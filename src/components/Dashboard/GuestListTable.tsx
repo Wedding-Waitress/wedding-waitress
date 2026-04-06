@@ -1751,7 +1751,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               {alertGuests.map((ag) => (
                 <div
                   key={ag.id}
-                  className="animate-flash inline-flex items-center gap-2 rounded-full border-4 border-red-500 bg-yellow-400 px-4 py-1.5 text-xs font-semibold text-gray-900"
+                  className="animate-flash inline-flex items-center gap-2 rounded-full border-4 border-red-500 bg-[#FFFF00] px-4 py-1.5 text-xs font-semibold text-gray-900"
                 >
                   <span>{ag.referrerName} - Has added a +1 Guest. Please acknowledge that in the below flashing row by opening the &quot;EDIT&quot; button.</span>
                 </div>
