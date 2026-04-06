@@ -809,7 +809,7 @@ export const GuestLookup: React.FC = () => {
                   )}
 
                   {/* Share Button */}
-                   <div className="flex justify-center mt-10">
+                   <div className="flex justify-center mt-16">
                     <button 
                       onClick={() => {
                         if (navigator.share) {
@@ -827,7 +827,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
-                  <div className="flex justify-center mt-8">
+                  <div className="flex justify-center mt-6">
                     <a 
                       href="https://www.weddingwaitress.com/" 
                       target="_blank" 
