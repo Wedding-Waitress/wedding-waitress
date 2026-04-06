@@ -219,7 +219,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
-        className="flex items-center gap-1.5 py-0 px-0.5 cursor-pointer"
+        className="flex items-center gap-1.5 py-0 px-0.5 cursor-pointer overflow-hidden"
         style={{ 
           minHeight: `${rowHeightMm * 2.65}px`,
           borderBottom: '1px solid #e5e5e5',
@@ -567,13 +567,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               columnGap: `${COLUMN_GAP_MM}mm`,
             }}>
               {/* Left Column */}
-              <div>
+              <div style={{ overflow: 'hidden' }}>
                 {col1Guests.map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               {/* Right Column */}
-              <div>
+              <div style={{ overflow: 'hidden' }}>
                 {col2Guests.map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
