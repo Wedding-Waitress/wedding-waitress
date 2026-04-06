@@ -1393,6 +1393,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const guestCount = sortedGuests.length;
   const totalGuestCount = guests.length;
 
+  // Compute guests with [NEW+] alert marker for notification banner
+  const alertGuests = useMemo(() => {
+    return guests
+      .filter(g => g.notes && g.notes.startsWith('[NEW+]'))
+      .map(g => {
+        const cleanedNotes = g.notes!.replace(/^\[NEW\+\]/, '');
+        const match = cleanedNotes.match(/^(.+?) has added:/);
+        const referrerName = match ? match[1].trim() : `${g.first_name} ${g.last_name || ''}`.trim();
+        return { id: g.id, referrerName };
+      });
+  }, [guests]);
+
   // Calculate guest type counts for stats badges
   // Count groups (not individual guests) for Couple and Family
   const guestTypeStats = useMemo(() => {
@@ -1731,8 +1743,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </div>
           </div>
 
-          {/* Control Buttons - Right aligned */}
-          <div className="flex items-center justify-end gap-2 flex-wrap mb-4 sm:mb-6 mt-4">
+          {/* Control Buttons Row */}
+          <div className="flex items-center justify-between gap-2 flex-wrap mb-4 sm:mb-6 mt-4">
+
+            {/* LEFT SIDE: Plus-guest notification banner */}
+            <div className="flex flex-col gap-1">
+              {alertGuests.map((ag) => (
+                <div
+                  key={ag.id}
+                  className="animate-flash inline-flex items-center gap-2 rounded-full border-2 border-red-500 bg-yellow-400 px-4 py-1.5 text-xs font-semibold text-gray-900"
+                >
+                  <span>{ag.referrerName} - Has added a +1 Guest. Please acknowledge that in the below flashing row by opening the &quot;EDIT&quot; button.</span>
+                </div>
+              ))}
+            </div>
 
             {/* RIGHT SIDE: Sort By, Import/Export, Add Guest */}
             <div className="flex items-center gap-2 flex-wrap">
