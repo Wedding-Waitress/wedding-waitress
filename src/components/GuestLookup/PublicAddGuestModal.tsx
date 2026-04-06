@@ -84,6 +84,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   addedByGuestFamilyGroup,
   addedByGuestTableId,
   addedByGuestTableNo,
+  existingGroupMembers = [],
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
   const [guest, setGuest] = useState<GuestEntry>(emptyGuest());
@@ -91,7 +92,12 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [memberForm, setMemberForm] = useState<PartyMember>(emptyMember());
   const [saving, setSaving] = useState(false);
+  const [showPartnerPrompt, setShowPartnerPrompt] = useState(false);
   const { toast } = useToast();
+
+  // Determine the effective group type: existing members affect category auto-detection
+  const existingMemberCount = existingGroupMembers.length; // excludes the referring guest
+  const totalExistingGroup = existingMemberCount + 1; // including the referring guest
 
   const resetForm = () => {
     setGuestType('individual');
