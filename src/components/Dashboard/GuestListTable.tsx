@@ -1375,11 +1375,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     // If guest has [NEW+] marker, strip it to acknowledge the alert
     if (guest.notes && guest.notes.startsWith('[NEW+]')) {
       const cleanedNotes = guest.notes.replace(/^\[NEW\+\]/, '');
-      try {
-        await supabase.from('guests').update({ notes: cleanedNotes }).eq('id', guest.id);
-      } catch (err) {
-        console.error('Error stripping NEW+ marker:', err);
-      }
+      // Optimistically update local guest state immediately so flashing stops
+      const updatedGuest = { ...guest, notes: cleanedNotes };
+      await updateGuest(guest.id, { notes: cleanedNotes });
+      setEditingGuest(updatedGuest);
+      setShowAddModal(true);
+      return;
     }
     setEditingGuest(guest);
     setShowAddModal(true);
