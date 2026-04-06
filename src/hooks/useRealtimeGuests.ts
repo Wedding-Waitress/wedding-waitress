@@ -104,7 +104,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
     refetchTimeoutRef.current = setTimeout(() => {
       fetchGuests();
-    }, 2000);
+    }, 1000);
   }, [fetchGuests]);
 
   // Reorder guests within a table and recalculate seat numbers
