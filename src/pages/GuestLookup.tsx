@@ -809,7 +809,7 @@ export const GuestLookup: React.FC = () => {
                   )}
 
                   {/* Share Button */}
-                   <div className="flex justify-center mt-4">
+                   <div className="flex justify-center mt-10">
                     <button 
                       onClick={() => {
                         if (navigator.share) {
