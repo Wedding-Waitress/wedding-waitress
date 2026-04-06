@@ -1379,19 +1379,47 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               control={form.control}
               name="notes"
               render={({ field }) => {
-                const hasAlertNote = field.value && /has added:/i.test(field.value);
+                const rawValue = field.value || '';
+                const separatorMatch = rawValue.match(/────+/);
+                const hasAlertNote = /has added:/i.test(rawValue);
+                
+                let alertSection = '';
+                let userNotes = rawValue;
+                
+                if (hasAlertNote && separatorMatch) {
+                  const sepIndex = rawValue.indexOf(separatorMatch[0]);
+                  alertSection = rawValue.substring(0, sepIndex).trim();
+                  userNotes = rawValue.substring(sepIndex + separatorMatch[0].length).trim();
+                }
+
                 return (
                   <FormItem>
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Add any additional notes about this guest..."
-                        className={cn(
-                          "rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none",
-                          hasAlertNote && "text-red-600 font-bold"
+                      <div className="space-y-0">
+                        {alertSection && (
+                          <div className="rounded-t-3xl border-2 border-b-0 border-[#7248e6] px-3 py-2 bg-background">
+                            <p className="text-red-600 font-bold text-sm whitespace-pre-wrap">{alertSection}</p>
+                            <hr className="border-t-[3px] border-black mt-2" />
+                          </div>
                         )}
-                        {...field}
-                      />
+                        <Textarea 
+                          placeholder="Add any additional notes about this guest..."
+                          className={cn(
+                            "border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-y min-h-[80px]",
+                            alertSection ? "rounded-t-none rounded-b-3xl border-t-0" : "rounded-3xl"
+                          )}
+                          value={hasAlertNote && separatorMatch ? userNotes : rawValue}
+                          onChange={(e) => {
+                            if (hasAlertNote && separatorMatch) {
+                              const sep = separatorMatch[0];
+                              field.onChange(`${alertSection}\n${sep}\n${e.target.value}`);
+                            } else {
+                              field.onChange(e.target.value);
+                            }
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
