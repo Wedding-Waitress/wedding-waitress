@@ -47,7 +47,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings className="w-5 h-5 text-primary" />
-          <CardTitle className="text-2xl font-medium text-foreground">Chart Settings</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">Chart Settings</CardTitle>
         </div>
         <CardDescription>
           Customize your full seating chart layout and appearance

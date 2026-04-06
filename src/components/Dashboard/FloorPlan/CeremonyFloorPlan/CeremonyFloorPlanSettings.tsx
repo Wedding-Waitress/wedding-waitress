@@ -42,7 +42,7 @@ export const CeremonyFloorPlanSettings = ({
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
       <CardHeader className="pb-4">
-        <CardTitle className="text-2xl font-medium text-foreground">
+        <CardTitle className="text-2xl font-bold text-foreground">
           Layout Settings
         </CardTitle>
       </CardHeader>

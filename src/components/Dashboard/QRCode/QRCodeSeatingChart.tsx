@@ -93,7 +93,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
               <QrCode className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-medium text-foreground">QR Code Seating Chart</CardTitle>
+              <CardTitle className="text-2xl font-bold text-foreground">QR Code Seating Chart</CardTitle>
             </div>
           </div>
         </CardHeader>

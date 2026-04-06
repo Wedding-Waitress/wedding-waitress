@@ -260,7 +260,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
-            <h1 className="text-2xl font-medium text-foreground">Invitations, Save the Date & Thank You Cards</h1>
+            <h1 className="text-2xl font-bold text-foreground">Invitations, Save the Date & Thank You Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create professional invitations (A4), save the dates (A4/A5), and thank you cards (A4/A5/A6) to send digitally or download to print
             </p>

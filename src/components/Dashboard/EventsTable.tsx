@@ -230,7 +230,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="px-4 sm:px-6 py-4 border-b border-card-border bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-medium text-foreground truncate">
+              <h3 className="text-2xl font-bold text-foreground truncate">
                 My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}
               </h3>
               <div className="flex items-start gap-2 mt-3">

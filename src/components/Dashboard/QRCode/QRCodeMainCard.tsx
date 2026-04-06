@@ -740,7 +740,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
           <CardHeader className="pb-3">
-            <CardTitle className="text-2xl font-medium text-foreground">Guest Live View Configuration</CardTitle>
+            <CardTitle className="text-2xl font-bold text-foreground">Guest Live View Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">

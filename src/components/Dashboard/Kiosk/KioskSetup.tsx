@@ -251,7 +251,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Setup Instructions */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
             <Tablet className="w-5 h-5 text-foreground" />
             Setup Instructions
           </CardTitle>
