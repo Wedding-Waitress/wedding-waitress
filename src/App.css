@@ -47,3 +47,11 @@
 .animate-flash {
   animation: flash-badge 1s ease-in-out infinite;
 }
+
+@keyframes row-flash {
+  0%, 100% { background-color: rgba(114, 72, 230, 0.35); }
+  50% { background-color: transparent; }
+}
+.animate-row-flash {
+  animation: row-flash 1.5s ease-in-out infinite;
+}

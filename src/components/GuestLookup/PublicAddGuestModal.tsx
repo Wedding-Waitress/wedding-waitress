@@ -137,7 +137,11 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         // Update referring guest's notes with [NEW+] marker via RPC
         if (addedByGuestId && addedByGuestName) {
           const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
-          const noteText = `${addedByGuestName} has added: ${addedName}\nPlease update table and seat arrangement.`;
+          let noteText = `${addedByGuestName} has added: ${addedName}\nPlease update table and seat arrangement.`;
+          // If the guest wrote notes, append them below a separator line
+          if (guest.notes && guest.notes.trim()) {
+            noteText += `\n────────────────────\n${guest.notes.trim()}`;
+          }
           try {
             await (supabase.rpc as any)('update_referring_guest_notes', {
               _referring_guest_id: addedByGuestId,
@@ -204,7 +208,12 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         // Update referring guest's notes with [NEW+] marker via RPC
         if (addedByGuestId && addedByGuestName) {
           const addedNames = partyMembers.map(m => `${m.first_name.trim()} ${m.last_name.trim()}`.trim()).join(', ');
-          const noteText = `${addedByGuestName} has added: ${addedNames}\nPlease update table and seat arrangement.`;
+          let noteText = `${addedByGuestName} has added: ${addedNames}\nPlease update table and seat arrangement.`;
+          // Collect any notes from party members and append below separator
+          const memberNotes = partyMembers.filter(m => m.notes && m.notes.trim()).map(m => `${m.first_name.trim()}: ${m.notes.trim()}`);
+          if (memberNotes.length > 0) {
+            noteText += `\n────────────────────\n${memberNotes.join('\n')}`;
+          }
           try {
             await (supabase.rpc as any)('update_referring_guest_notes', {
               _referring_guest_id: addedByGuestId,
