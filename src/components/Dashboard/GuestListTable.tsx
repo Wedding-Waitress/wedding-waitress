@@ -1467,8 +1467,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                {/* LEFT: Step 1 - Set Up Your Event */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-base font-semibold text-foreground mb-0.5">Step 1: Set Up Your Event</h3>
                   <p className="text-sm text-muted-foreground mb-4">Select your event and customise settings</p>
@@ -1497,7 +1497,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                   {/* Event Type */}
                   {selectedEventId && (
-                    <div className="mb-4">
+                    <div>
                       <Label className="text-sm font-medium text-foreground mb-1.5 block">Event Type</Label>
                       <div className="flex flex-col gap-2">
                         <Button
@@ -1529,15 +1529,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       </div>
                     </div>
                   )}
+                </div>
 
-                  {/* Guest Relationship Settings (Optional) */}
-                  {selectedEventId && (
+                {/* BOX 2: Step 2 - Guest Relationship Settings */}
+                <div className="border-2 border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                  <h3 className="text-base font-semibold text-foreground mb-0.5">Step 2: Guest Relationship Settings</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Optionally define how guests are related to you</p>
+
+                  {selectedEventId ? (
                     <div className={cn(
                       "border rounded-lg p-3 transition-all duration-300",
                       relationsHidden ? "border-border bg-muted/30" : "border-primary/40 bg-primary/5"
                     )}>
                       <div className="flex items-center justify-between mb-1">
-                        <Label className="text-sm font-medium text-foreground">Guest Relationship Settings</Label>
+                        <Label className="text-sm font-medium text-foreground">Enable Relationships</Label>
                         <span className="text-xs text-muted-foreground italic mr-2">Optional</span>
                       </div>
                       <div className="flex items-center gap-3 mb-2">
@@ -1644,12 +1649,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         </div>
                       </div>
                     </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">Select an event first to configure relationships</p>
                   )}
                 </div>
 
-                {/* RIGHT: Step 2 - Add Your Guests */}
+                {/* BOX 3: Step 3 - Add Your Guests */}
                 <div className="border-2 border-primary rounded-xl p-5 flex flex-col items-center justify-center shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-base font-semibold text-foreground mb-0.5">Step 2: Add Your Guests</h3>
+                  <h3 className="text-base font-semibold text-foreground mb-0.5">Step 3: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <Button
                     variant="default"
@@ -1670,6 +1677,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <Users className="w-5 h-5" />
                     + Add Guest
                   </Button>
+                  <p className="text-xs text-muted-foreground mt-3">Guests will appear in the table below</p>
                 </div>
               </div>
 
