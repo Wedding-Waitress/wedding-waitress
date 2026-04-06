@@ -553,7 +553,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* SHAPE Section */}
-              <AccordionItem value="shape" className="border border-purple-200 rounded-lg bg-purple-50/30">
+              <AccordionItem value="shape" className="border border-primary rounded-lg bg-purple-50/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
                     <Square className="h-4 w-4 text-purple-600" />
