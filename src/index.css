@@ -690,3 +690,14 @@
 .boundary-warning-pulse {
   animation: boundary-pulse 2s ease-in-out infinite;
 }
+
+/* Running Sheet dark gray text override (Apple #1D1D1F trial) */
+.running-sheet-dark-gray,
+.running-sheet-dark-gray * {
+  color: #1D1D1F;
+}
+.running-sheet-dark-gray .text-primary { color: hsl(var(--primary)); }
+.running-sheet-dark-gray .text-destructive { color: hsl(var(--destructive)); }
+.running-sheet-dark-gray .text-muted-foreground { color: #6E6E73; }
+.running-sheet-dark-gray .text-green-600 { color: #16a34a; }
+.running-sheet-dark-gray .text-green-500 { color: #22c55e; }
