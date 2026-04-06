@@ -276,9 +276,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                ) : (
-                  <CheckCircle2 className="w-4 h-4 mr-2" />
-                )}
+                ) : null}
                 Accept
               </Button>
               <Button
@@ -289,18 +287,15 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                ) : (
-                  <XCircle className="w-4 h-4 mr-2" />
-                )}
+                ) : null}
                 Decline
               </Button>
               {onAddGuest && (
                 <Button
                   size="sm"
                   onClick={onAddGuest}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium rounded-full px-6 py-1 h-8"
                 >
-                  <PlusCircle className="w-4 h-4 mr-1" />
                   Plus Guest
                 </Button>
               )}
