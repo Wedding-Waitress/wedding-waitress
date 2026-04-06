@@ -1,29 +1,22 @@
 
 
-## Add Google Analytics 4 to Wedding Waitress
+## Update Page Title and Meta Tags
 
-**Your Measurement ID**: `G-2EG6ZWCT0T`
+**Change**: Update the main title and all related meta tags in `index.html` from:
 
-### What will be done
+> "Wedding Waitress - Your Dream Wedding, Perfectly Orchestrated"
 
-Two small changes to wire up GA4 tracking across the entire app:
+to:
 
-**1. Add the GA4 script tag to `index.html`**
-- Insert the standard Google gtag.js snippet in the `<head>` section (after the existing preconnect links, before the `<title>` tag)
-- This loads the GA4 library and initializes it with your Measurement ID
+> "Wedding Waitress - Your Wedding and Event Assistant Perfectly Orchestrated"
 
-**2. Add page-view tracking on route changes in `src/App.tsx`**
-- Since this is a single-page app (SPA), Google Analytics only fires on the initial page load by default
-- Add a small `useEffect` that listens for route changes and sends a `page_view` event to GA4 each time the user navigates
-- This ensures every page/tab visit is tracked accurately
+### Files to edit
+- **`index.html`** — Update in 5 places:
+  1. `<title>` tag
+  2. `og:title` meta tag
+  3. `twitter:title` meta tag
+  4. `og:description` meta tag (align wording)
+  5. Structured data JSON-LD `"name"` description
 
-### What you will see in Google Analytics
-- Real-time visitors on the "Realtime" report
-- Page views for every route (`/dashboard`, `/s/:slug`, `/kiosk/:slug`, landing page, etc.)
-- User demographics, device info, and session data -- all automatic with GA4
-- Data should start appearing within 24-48 hours after deployment
-
-### Files touched
-- `index.html` -- add gtag.js script (4 lines)
-- `src/App.tsx` -- add route-change tracking hook (~10 lines)
+All changes are simple text replacements — no logic or code changes needed.
 
