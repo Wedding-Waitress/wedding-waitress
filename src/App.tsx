@@ -27,8 +27,9 @@ const queryClient = new QueryClient();
 const RouteTracker = () => {
   const location = useLocation();
   useEffect(() => {
-    if (typeof window.gtag === 'function') {
-      window.gtag('event', 'page_view', {
+    const w = window as any;
+    if (typeof w.gtag === 'function') {
+      w.gtag('event', 'page_view', {
         page_path: location.pathname + location.search,
         page_title: document.title,
       });
