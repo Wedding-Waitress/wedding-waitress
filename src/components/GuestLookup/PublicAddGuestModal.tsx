@@ -53,6 +53,11 @@ const emptyMember = (): PartyMember => ({
   notes: '',
 });
 
+interface ExistingMember {
+  first_name: string;
+  last_name: string;
+}
+
 interface PublicAddGuestModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,6 +68,7 @@ interface PublicAddGuestModalProps {
   addedByGuestFamilyGroup?: string;
   addedByGuestTableId?: string;
   addedByGuestTableNo?: number;
+  existingGroupMembers?: ExistingMember[];
 }
 
 const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
