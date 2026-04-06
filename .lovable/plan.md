@@ -1,40 +1,51 @@
 
 
-## Convert Bulk Action Bar to Modal
+## Improve "Manage Selected Guests" Modal + Add Manual Invite Option
 
-**What**: Replace the fixed purple horizontal bulk actions bar at the bottom of the screen with a centered modal popup that matches the "Edit Guest" modal styling.
+### Overview
+Enhance the bulk actions modal with selected guest names, reorganized layout, updated labels, and a new "Mark Invite as Sent Manually" option with a dropdown for manual invite tracking.
 
-### File: `src/components/Dashboard/GuestBulkActionsBar.tsx`
+### File 1: `src/components/Dashboard/GuestBulkActionsBar.tsx` — Full rewrite
 
-**Complete rewrite** of this component:
+**New props:**
+- Add `selectedGuests: Array<{ id: string; first_name: string; last_name: string }>` to show guest names
+- Add `onMarkManualInvite: (method: string) => void` callback for manual invite status updates
 
-- Remove the fixed bottom bar layout entirely
-- Replace with a Dialog/modal using the existing `Dialog`, `DialogContent`, `DialogHeader`, `DialogFooter` components from `@/components/ui/dialog`
-- Accept a new `isOpen` prop (triggered when `selectedGuestIds.size > 0`)
+**Header redesign:**
+- Title stays "Manage Selected Guests"
+- Replace badge with dynamic text: if 1 guest, show "Selected: [First Last]"; if 2-3, show comma-separated names; if 4+, show "X guests selected"
+- Move "Select All / Deselect All" toggle button to the right side of this header row (inline, not a separate action row)
 
-**Modal structure:**
-1. **Header**: Title "Manage Selected Guests", subtext "Apply actions to your selected guests", dynamic "{X} guests selected" badge
-2. **Body**: Vertical stack of action buttons, each styled as a bordered row with icon + label:
-   - Select All / Deselect All (toggle)
-   - Update RSVP (with CheckCircle2 icon)
-   - Send Email (with Mail icon, conditionally shown)
-   - Send SMS (with Phone icon, conditionally shown)
-   - Delete Guests (danger/red styled, with Trash2 icon)
-3. **Footer**: Two buttons matching Edit Guest modal style:
-   - Left: "Cancel" (red/destructive outline)
-   - Right: "Apply" is not needed since each action triggers immediately — keep individual action buttons that fire their callbacks and close the modal
+**Action rows (new order):**
+1. Update RSVP (existing)
+2. Send Email via Wedding Waitress (renamed, Mail icon)
+3. Send SMS via Wedding Waitress (renamed, Phone icon)
+4. Mark Invite as Sent Manually — new row with a `Select` dropdown inside it containing: "Sent via Email", "Sent via SMS", "Sent via Physical Mail". When user picks an option, fire `onMarkManualInvite` with the corresponding status value
+5. Delete Guests (danger styled, bottom)
 
-**Design details:**
-- White background, rounded-xl corners, dark overlay (all from existing Dialog component)
-- Each action row: `p-3 rounded-lg border hover:bg-muted/50 cursor-pointer flex items-center gap-3` with icon and label
-- Delete row: `border-red-200 text-red-600 hover:bg-red-50`
-- Close via X button (top right), Cancel button, or after action click
-- Same font sizes and spacing as Edit Guest modal
+**Footer:** Keep Cancel button as-is.
 
-### File: `src/components/Dashboard/GuestListTable.tsx`
+**Manual invite dropdown mapping:**
+- "Sent via Email" → `email_sent`
+- "Sent via SMS" → `sms_sent`
+- "Sent via Physical Mail" → `mail_sent`
 
-**Lines ~2154-2182**: Update the rendering to pass `isOpen` and `onClose` props instead of conditionally rendering based on selection count. The modal will show when guests are selected and close on cancel/action.
+### File 2: `src/components/Dashboard/GuestListTable.tsx`
 
-- Change: `<GuestBulkActionsBar ... />` usage to include `isOpen={selectedGuestIds.size > 0}` and `onClose={handleDeselectAll}`
-- All existing callback props remain the same
+**Pass new props to GuestBulkActionsBar (~line 2155):**
+- Add `selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}`
+- Add `onMarkManualInvite` handler that:
+  1. Iterates over `selectedGuestIds`
+  2. Updates each guest's `rsvp_invite_status` in Supabase to the selected value
+  3. Shows success toast
+  4. Clears selection and refetches guests
+
+**Update RSVP Invite status display (~line 1978):**
+- Add `'mail_sent'` to the `statusConfig` map: `{ label: 'Sent (Mail)', className: 'bg-purple-500 text-white' }`
+
+### Technical Details
+
+- The `rsvp_invite_status` column already exists in the `guests` table (type: `string`, values: `not_sent`, `email_sent`, `sms_sent`, `both_sent`)
+- Adding `mail_sent` as a new status value for physical mail — no migration needed since the column is a plain text/string field
+- The manual invite handler will use `supabase.from('guests').update({ rsvp_invite_status: method }).eq('id', guestId)` for each selected guest
 
