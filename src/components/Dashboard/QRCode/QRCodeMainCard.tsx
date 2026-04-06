@@ -469,17 +469,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     }
   };
 
-  // Color change handlers with auto-contrast correction
+  // Color change handlers - only auto-correct when background changes
   const updateColors = (updates: Partial<QRColorsSettings>) => {
     setQrColors(prev => {
       const newColors = { ...prev, ...updates };
-      const bg = newColors.background;
       
-      // Auto-correct all foreground colors if contrast is too low
-      newColors.dotsColor = ensureHighContrast(bg, newColors.dotsColor);
-      newColors.markerBorderColor = ensureHighContrast(bg, newColors.markerBorderColor);
-      newColors.markerCenterColor = ensureHighContrast(bg, newColors.markerCenterColor);
-      newColors.foreground = ensureHighContrast(bg, newColors.foreground);
+      // Only auto-correct other colors when the background color was changed
+      if ('background' in updates) {
+        const bg = newColors.background;
+        newColors.dotsColor = ensureHighContrast(bg, newColors.dotsColor);
+        newColors.markerBorderColor = ensureHighContrast(bg, newColors.markerBorderColor);
+        newColors.markerCenterColor = ensureHighContrast(bg, newColors.markerCenterColor);
+        newColors.foreground = ensureHighContrast(bg, newColors.foreground);
+      }
       
       return newColors;
     });
