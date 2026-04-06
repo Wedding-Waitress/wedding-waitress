@@ -49,12 +49,12 @@
 }
 
 @keyframes row-flash {
-  0%, 100% { background-color: hsl(48 96% 53%) !important; }
+  0%, 100% { background-color: #FFFF00 !important; }
   50% { background-color: transparent !important; }
 }
 .animate-row-flash > td {
   animation: row-flash 1s ease-in-out infinite, flash-badge 1s ease-in-out infinite;
-  background-color: hsl(48 96% 53%) !important;
+  background-color: #FFFF00 !important;
   border-top: 4px solid hsl(var(--destructive)) !important;
   border-bottom: 4px solid hsl(var(--destructive)) !important;
   transform-origin: center;
