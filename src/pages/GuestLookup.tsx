@@ -575,27 +575,41 @@ export const GuestLookup: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-subtle font-inter">
       {/* Hero Section */}
-      <div 
-        className={!heroImageUrl ? "bg-gradient-hero text-white" : "text-white"}
-        style={heroImageUrl ? {
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${heroImageUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        } : undefined}
-      >
-        <div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
-          <div className="text-center">
-            {/* "You're invited to" text above event name */}
-            <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
-              You're Invited
-            </p>
-            <div className="flex items-center justify-center mb-4">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
-                {event.name}
-              </h1>
+      <div className="relative">
+        {heroImageUrl ? (
+          <div className="relative">
+            <img 
+              src={heroImageUrl} 
+              alt="Event hero" 
+              className="w-full h-auto block"
+            />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <div className="text-center text-white">
+                <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
+                  You're Invited
+                </p>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
+                  {event.name}
+                </h1>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-gradient-hero text-white">
+            <div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
+              <div className="text-center">
+                <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
+                  You're Invited
+                </p>
+                <div className="flex items-center justify-center mb-4">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
+                    {event.name}
+                  </h1>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Event Date, Venue & Countdown - between hero and buttons */}
