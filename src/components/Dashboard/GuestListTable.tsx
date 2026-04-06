@@ -1688,33 +1688,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </div>
           </div>
 
-          {/* Stats + Control Buttons - Left/Right Layout */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 flex-wrap mb-4 sm:mb-6 mt-4">
-            {/* LEFT SIDE: Search, category pills, Guests count */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search guests..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
-                />
-              </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0">
-                {individualCount} Individual
-              </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0">
-                {coupleCount} Couple
-              </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0">
-                {familyCount} Family
-              </div>
-              <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border border-primary text-foreground">
-                <Users className="w-4 h-4" />
-                {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
-              </div>
-            </div>
+          {/* Control Buttons - Right aligned */}
+          <div className="flex items-center justify-end gap-2 flex-wrap mb-4 sm:mb-6 mt-4">
 
             {/* RIGHT SIDE: Sort By, Import/Export, Add Guest */}
             <div className="flex items-center gap-2 flex-wrap">
@@ -1808,10 +1783,34 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="mt-2 mb-3 mx-3 sm:mx-6">
+        <div className="mt-2 mb-3 mx-3 sm:mx-6 flex items-center justify-between gap-2 flex-wrap">
           <span className="inline-block text-xs font-medium text-primary bg-primary/5 border border-primary rounded-full px-4 py-1.5">
             Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.
           </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search guests..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
+              />
+            </div>
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0">
+              {individualCount} Individual
+            </div>
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0">
+              {coupleCount} Couple
+            </div>
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0">
+              {familyCount} Family
+            </div>
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border border-primary text-foreground">
+              <Users className="w-4 h-4" />
+              {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
+            </div>
+          </div>
         </div>
 
         <div className="overflow-hidden border border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
