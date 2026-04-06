@@ -105,6 +105,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     setPartyMembers([]);
     setShowAddMemberForm(false);
     setMemberForm(emptyMember());
+    setShowPartnerPrompt(false);
   };
 
   const addPartyMember = () => {
