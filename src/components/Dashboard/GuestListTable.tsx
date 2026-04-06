@@ -2177,6 +2177,55 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
       </Card>
 
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3">
+          <p className="text-sm text-muted-foreground">
+            Showing {((currentPage - 1) * GUESTS_PER_PAGE) + 1}–{Math.min(currentPage * GUESTS_PER_PAGE, totalFilteredGuestCount)} of {totalFilteredGuestCount} guests
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+              .reduce<(number | 'ellipsis')[]>((acc, p, i, arr) => {
+                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('ellipsis');
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((item, idx) =>
+                item === 'ellipsis' ? (
+                  <span key={`e-${idx}`} className="px-1 text-muted-foreground">…</span>
+                ) : (
+                  <Button
+                    key={item}
+                    variant={item === currentPage ? 'default' : 'outline'}
+                    size="sm"
+                    className="min-w-[36px]"
+                    onClick={() => setCurrentPage(item)}
+                  >
+                    {item}
+                  </Button>
+                )
+              )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
       <AddGuestModal 
         isOpen={showAddModal}
         onClose={() => {
