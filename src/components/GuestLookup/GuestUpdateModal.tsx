@@ -249,7 +249,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 onValueChange={(value) => setFormData({ ...formData, dietary: value })}
                 disabled={!isEditable}
               >
-                <SelectTrigger id="dietary">
+                <SelectTrigger id="dietary" className="border-primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
