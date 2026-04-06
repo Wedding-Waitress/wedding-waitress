@@ -53,6 +53,11 @@ const emptyMember = (): PartyMember => ({
   notes: '',
 });
 
+interface ExistingMember {
+  first_name: string;
+  last_name: string;
+}
+
 interface PublicAddGuestModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,6 +68,7 @@ interface PublicAddGuestModalProps {
   addedByGuestFamilyGroup?: string;
   addedByGuestTableId?: string;
   addedByGuestTableNo?: number;
+  existingGroupMembers?: ExistingMember[];
 }
 
 const inputClasses = "rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9";
@@ -78,6 +84,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   addedByGuestFamilyGroup,
   addedByGuestTableId,
   addedByGuestTableNo,
+  existingGroupMembers = [],
 }) => {
   const [guestType, setGuestType] = useState<GuestType>('individual');
   const [guest, setGuest] = useState<GuestEntry>(emptyGuest());
@@ -85,7 +92,12 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [memberForm, setMemberForm] = useState<PartyMember>(emptyMember());
   const [saving, setSaving] = useState(false);
+  const [showPartnerPrompt, setShowPartnerPrompt] = useState(false);
   const { toast } = useToast();
+
+  // Determine the effective group type: existing members affect category auto-detection
+  const existingMemberCount = existingGroupMembers.length; // excludes the referring guest
+  const totalExistingGroup = existingMemberCount + 1; // including the referring guest
 
   const resetForm = () => {
     setGuestType('individual');
@@ -93,6 +105,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     setPartyMembers([]);
     setShowAddMemberForm(false);
     setMemberForm(emptyMember());
+    setShowPartnerPrompt(false);
   };
 
   const addPartyMember = () => {
@@ -109,65 +122,86 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     setPartyMembers(prev => prev.filter((_, i) => i !== index));
   };
 
+  // For individual: when user clicks save, show partner prompt first
+  const handleIndividualSave = async (relationshipType: 'partner' | 'friend') => {
+    setSaving(true);
+    try {
+      const effectiveGuestType = relationshipType === 'partner' ? 'couple' : 'individual';
+      const { data, error } = await supabase.rpc('add_guest_public', {
+        _event_id: eventId,
+        _first_name: guest.first_name.trim(),
+        _last_name: guest.last_name.trim() || '',
+        _rsvp: guest.rsvp,
+        _dietary: guest.dietary === 'None' ? 'NA' : guest.dietary,
+        _mobile: guest.mobile.trim() || null,
+        _email: guest.email.trim() || null,
+        _added_by_guest_id: addedByGuestId || null,
+      } as any);
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to add guest — event may not allow public additions');
+
+      // If partner, manage as couple group
+      if (relationshipType === 'partner' && addedByGuestId) {
+        const { error: groupError } = await (supabase.rpc as any)('public_manage_guest_group', {
+          _event_id: eventId,
+          _new_guest_id: data,
+          _referring_guest_id: addedByGuestId,
+          _guest_type: 'couple',
+        });
+        if (groupError) console.error('Error managing couple group:', groupError);
+      }
+
+      // Update referring guest's notes
+      if (addedByGuestId && addedByGuestName) {
+        const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
+        let noteText = `${addedByGuestName} has added: ${addedName}\nPlease update TABLE and SEAT arrangement.`;
+        if (guest.notes && guest.notes.trim()) {
+          noteText += `\n────────────────────\n${guest.notes.trim()}`;
+        }
+        try {
+          await (supabase.rpc as any)('update_referring_guest_notes', {
+            _referring_guest_id: addedByGuestId,
+            _event_id: eventId,
+            _note_text: noteText,
+          });
+        } catch (noteErr) {
+          console.error('Error updating referring guest notes:', noteErr);
+        }
+      }
+      const categoryMsg = relationshipType === 'partner' ? ' You have been updated to a Couple.' : '';
+      toast({ title: 'Guest Added', description: `1 guest added successfully.${categoryMsg}` });
+      resetForm();
+      onOpenChange(false);
+      onGuestAdded();
+    } catch (err) {
+      console.error('Error adding guest:', err);
+      toast({ title: 'Error', description: 'Failed to add guest. Please try again.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSave = async () => {
     if (guestType === 'individual') {
-      // Individual: validate and save from main form
+      // Individual: validate fields first
       if (!guest.first_name.trim() || !guest.last_name.trim() || !guest.mobile.trim() || !guest.email.trim()) {
         toast({ title: 'Please fill in all required fields (First Name, Last Name, Mobile, Email)', variant: 'destructive' });
         return;
       }
-
-      setSaving(true);
-      try {
-        const { data, error } = await supabase.rpc('add_guest_public', {
-          _event_id: eventId,
-          _first_name: guest.first_name.trim(),
-          _last_name: guest.last_name.trim() || '',
-          _rsvp: guest.rsvp,
-          _dietary: guest.dietary === 'None' ? 'NA' : guest.dietary,
-          _mobile: guest.mobile.trim() || null,
-          _email: guest.email.trim() || null,
-          _added_by_guest_id: addedByGuestId || null,
-        } as any);
-
-        if (error) throw error;
-        if (!data) throw new Error('Failed to add guest — event may not allow public additions');
-
-        // For individual/single: no group management needed
-        // Update referring guest's notes with [NEW+] marker via RPC
-        if (addedByGuestId && addedByGuestName) {
-          const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
-          let noteText = `${addedByGuestName} has added: ${addedName}\nPlease update TABLE and SEAT arrangement.`;
-          // If the guest wrote notes, append them below a separator line
-          if (guest.notes && guest.notes.trim()) {
-            noteText += `\n────────────────────\n${guest.notes.trim()}`;
-          }
-          try {
-            await (supabase.rpc as any)('update_referring_guest_notes', {
-              _referring_guest_id: addedByGuestId,
-              _event_id: eventId,
-              _note_text: noteText,
-            });
-          } catch (noteErr) {
-            console.error('Error updating referring guest notes:', noteErr);
-          }
-        }
-        toast({ title: 'Guest Added', description: '1 guest added successfully' });
-        resetForm();
-        onOpenChange(false);
-        onGuestAdded();
-      } catch (err) {
-        console.error('Error adding guest:', err);
-        toast({ title: 'Error', description: 'Failed to add guest. Please try again.', variant: 'destructive' });
-      } finally {
-        setSaving(false);
-      }
+      // Show partner/friend prompt
+      setShowPartnerPrompt(true);
+      return;
     } else {
       // Couple/Family: save each party member then manage group
       if (partyMembers.length === 0) {
         toast({ title: guestType === 'couple' ? 'Please add your partner first' : 'Please add at least one member', variant: 'destructive' });
         return;
       }
+
+      // Auto-promote: if couple already has 2 people and adding more, switch to family
+      const newTotalGroup = totalExistingGroup + partyMembers.length;
+      const effectiveGroupType = (guestType === 'couple' && newTotalGroup > 2) ? 'family' : guestType;
 
       setSaving(true);
       try {
@@ -188,18 +222,18 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           if (newGuestId) newGuestIds.push(newGuestId);
         }
 
-        // Call public_manage_guest_group for each new guest
+        // Call public_manage_guest_group for each new guest with effective type
         if (addedByGuestId) {
           for (const newGuestId of newGuestIds) {
             const { error: groupError } = await (supabase.rpc as any)('public_manage_guest_group', {
               _event_id: eventId,
               _new_guest_id: newGuestId,
               _referring_guest_id: addedByGuestId,
-              _guest_type: guestType,
+              _guest_type: effectiveGroupType,
             });
             if (groupError) {
               console.error('Error managing guest group:', groupError);
-              throw new Error(`Failed to assign guest to ${guestType} group: ${groupError.message}`);
+              throw new Error(`Failed to assign guest to ${effectiveGroupType} group: ${groupError.message}`);
             }
           }
         }
@@ -209,7 +243,6 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         if (addedByGuestId && addedByGuestName) {
           const addedNames = partyMembers.map(m => `${m.first_name.trim()} ${m.last_name.trim()}`.trim()).join(', ');
           let noteText = `${addedByGuestName} has added: ${addedNames}\nPlease update TABLE and SEAT arrangement.`;
-          // Collect any notes from party members and append below separator
           const memberNotes = partyMembers.filter(m => m.notes && m.notes.trim()).map(m => `${m.first_name.trim()}: ${m.notes.trim()}`);
           if (memberNotes.length > 0) {
             noteText += `\n────────────────────\n${memberNotes.join('\n')}`;
@@ -224,7 +257,10 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             console.error('Error updating referring guest notes:', noteErr);
           }
         }
-        toast({ title: 'Guest(s) Added', description: `${total} guest${total > 1 ? 's' : ''} added successfully` });
+        const promoMsg = (guestType === 'couple' && effectiveGroupType === 'family') 
+          ? ' Your group has been automatically updated to Family.' 
+          : '';
+        toast({ title: 'Guest(s) Added', description: `${total} guest${total > 1 ? 's' : ''} added successfully.${promoMsg}` });
         resetForm();
         onOpenChange(false);
         onGuestAdded();
@@ -238,6 +274,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
         {/* Custom purple circle close button */}
@@ -309,11 +346,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                   <Users className="w-4 h-4" />
-                  <span>Members ({
-                    guestType === 'couple' && addedByGuestName ? 1 + partyMembers.length :
-                    guestType === 'family' && addedByGuestName ? 1 + partyMembers.length :
-                    partyMembers.length
-                  })</span>
+                  <span>Members ({totalExistingGroup + partyMembers.length})</span>
                 </div>
                 {/* Couple: show add button until partner added (max 1 member) */}
                 {guestType === 'couple' && partyMembers.length < 1 && (
@@ -352,6 +385,20 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                       <p className="text-xs text-muted-foreground">Referring guest</p>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Show existing group members (read-only) */}
+              {existingGroupMembers.length > 0 && (
+                <div className="space-y-1">
+                  {existingGroupMembers.map((member, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-gray-50 py-1.5 px-3 rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-gray-700">{member.first_name} {member.last_name}</p>
+                        <p className="text-xs text-muted-foreground">Family member</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -655,5 +702,48 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         </div>
       </DialogContent>
     </Dialog>
+
+      {/* Partner/Friend Prompt for Individual */}
+      <Dialog open={showPartnerPrompt} onOpenChange={setShowPartnerPrompt}>
+        <DialogContent className="max-w-sm [&>button:last-child]:hidden">
+          <DialogPrimitive.Close className="absolute right-3 top-3 z-10 w-8 h-8 rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
+            <X className="w-4 h-4 text-primary" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+          <DialogHeader>
+            <DialogTitle className="text-lg text-primary text-center">
+              Is this guest your partner?
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              If <strong>{guest.first_name} {guest.last_name}</strong> is your partner, you'll both be grouped as a <span className="text-orange-500 font-medium">Couple</span>. Otherwise, they'll be added as an individual guest.
+            </p>
+          </DialogHeader>
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              className="flex-1 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-medium"
+              disabled={saving}
+              onClick={() => {
+                setShowPartnerPrompt(false);
+                handleIndividualSave('partner');
+              }}
+            >
+              {saving ? 'Adding...' : 'Yes, Partner'}
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 rounded-full bg-pink-500 hover:bg-pink-600 text-white font-medium"
+              disabled={saving}
+              onClick={() => {
+                setShowPartnerPrompt(false);
+                handleIndividualSave('friend');
+              }}
+            >
+              {saving ? 'Adding...' : 'No, Friend'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
