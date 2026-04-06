@@ -951,6 +951,7 @@ export const GuestLookup: React.FC = () => {
         allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable}
+        allGuests={guests}
       />
 
       {/* Public Add Guest Modal */}

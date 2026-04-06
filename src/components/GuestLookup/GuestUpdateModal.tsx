@@ -32,6 +32,7 @@ interface Guest {
   dietary?: string;
   notes?: string;
   rsvp: string;
+  family_group?: string | null;
 }
 
 interface Event {
