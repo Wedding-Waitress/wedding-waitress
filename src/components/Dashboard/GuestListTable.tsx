@@ -2146,7 +2146,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                       <span className={cn(
                                         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
                                         hasNewAlert && "animate-flash"
-                                      )}>Yes</span>
+                                      )}>{hasNewAlert ? "+Guest" : "Yes"}</span>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="max-w-xs z-[9999]">
                                       <p className="whitespace-pre-wrap">{displayNotes}</p>
