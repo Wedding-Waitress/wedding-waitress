@@ -223,6 +223,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="Enter your email address"
                 disabled={!isEditable}
+                className="border-primary"
               />
             </div>
 
