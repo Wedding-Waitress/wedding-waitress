@@ -567,13 +567,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               columnGap: `${COLUMN_GAP_MM}mm`,
             }}>
               {/* Left Column */}
-              <div>
+              <div style={{ overflow: 'hidden' }}>
                 {col1Guests.map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               {/* Right Column */}
-              <div>
+              <div style={{ overflow: 'hidden' }}>
                 {col2Guests.map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
