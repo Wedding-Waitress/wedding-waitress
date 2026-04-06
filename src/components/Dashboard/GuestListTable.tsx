@@ -1980,6 +1980,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   'email_sent': { label: 'Email Sent', className: 'bg-purple-500 text-white' },
                                   'sms_sent': { label: 'SMS Sent', className: 'bg-purple-500 text-white' },
                                   'both_sent': { label: 'Both Sent', className: 'bg-purple-500 text-white' },
+                                  'mail_sent': { label: 'Sent (Mail)', className: 'bg-purple-500 text-white' },
                                 };
                                 const config = statusConfig[status] || statusConfig['not_sent'];
                                 return (
@@ -2157,6 +2158,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           onClose={handleDeselectAll}
           selectedCount={selectedGuestIds.size}
           totalCount={sortedGuests.length}
+          selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
           onSelectAll={handleSelectAll}
           onDeselectAll={handleDeselectAll}
           onUpdateRsvp={() => setShowBulkRsvpModal(true)}
@@ -2175,6 +2177,30 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               setShowSendModal(true);
             } else {
               setShowActivationModal(true);
+            }
+          }}
+          onMarkManualInvite={async (method: string) => {
+            try {
+              const ids = Array.from(selectedGuestIds);
+              for (const guestId of ids) {
+                await supabase
+                  .from('guests')
+                  .update({ rsvp_invite_status: method, rsvp_invite_sent_at: new Date().toISOString() })
+                  .eq('id', guestId);
+              }
+              toast({
+                title: "Success",
+                description: `${ids.length} guest(s) marked as invite sent`,
+              });
+              handleDeselectAll();
+              refetchGuests();
+            } catch (error) {
+              console.error('Error marking manual invite:', error);
+              toast({
+                title: "Error",
+                description: "Failed to update invite status",
+                variant: "destructive",
+              });
             }
           }}
         />
