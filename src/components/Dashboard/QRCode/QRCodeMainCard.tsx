@@ -12,6 +12,7 @@
  * Last locked: 2026-02-19
  */
 import React, { useState, useEffect, useCallback } from 'react';
+import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/enhanced-button';
