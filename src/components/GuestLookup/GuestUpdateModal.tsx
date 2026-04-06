@@ -237,6 +237,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                 placeholder="0411569505"
                 disabled={!isEditable}
+                className="border-primary"
               />
             </div>
 
