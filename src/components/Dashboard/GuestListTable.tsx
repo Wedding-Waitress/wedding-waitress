@@ -1679,6 +1679,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     + Add Guest
                   </Button>
                   <p className="text-xs text-muted-foreground mt-3">Guests will appear in the table below</p>
+                  </div>
                 </div>
               </div>
 
