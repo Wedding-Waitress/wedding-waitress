@@ -1949,7 +1949,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </TableCell>
                 </TableRow>
               ) : (
-                groupedGuests.map((group, groupIndex) => (
+                paginatedGroups.map((group, groupIndex) => (
                   <React.Fragment key={`group-${groupIndex}-${group.groupName || 'individual'}`}>
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
