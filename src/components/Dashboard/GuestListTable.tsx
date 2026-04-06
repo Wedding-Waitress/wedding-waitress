@@ -804,6 +804,38 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     return groups;
   }, [guests, searchTerm, sortBy, tables, selectedEvent]);
 
+  // Count total guests across all groups for pagination
+  const totalFilteredGuestCount = useMemo(() => {
+    return groupedGuests.reduce((sum, g) => sum + g.members.length, 0);
+  }, [groupedGuests]);
+
+  const totalPages = Math.max(1, Math.ceil(totalFilteredGuestCount / GUESTS_PER_PAGE));
+
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, sortBy, selectedEventId]);
+
+  // Paginate groupedGuests by slicing members across groups
+  const paginatedGroups = useMemo(() => {
+    const start = (currentPage - 1) * GUESTS_PER_PAGE;
+    const end = start + GUESTS_PER_PAGE;
+    let count = 0;
+    const result: typeof groupedGuests = [];
+
+    for (const group of groupedGuests) {
+      const groupStart = count;
+      const groupEnd = count + group.members.length;
+
+      if (groupEnd <= start) { count = groupEnd; continue; }
+      if (groupStart >= end) break;
+
+      const sliceStart = Math.max(0, start - groupStart);
+      const sliceEnd = Math.min(group.members.length, end - groupStart);
+      result.push({ ...group, members: group.members.slice(sliceStart, sliceEnd) });
+      count = groupEnd;
+    }
+    return result;
+  }, [groupedGuests, currentPage]);
+
   // Create a map of family_group -> type for quick lookup
   const familyGroupTypeMap = useMemo(() => {
     const map = new Map<string, 'individual' | 'couple' | 'family'>();
