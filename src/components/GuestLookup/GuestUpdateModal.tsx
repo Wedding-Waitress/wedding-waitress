@@ -301,6 +301,34 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 </div>
               </div>
             )}
+
+            {/* Family/Couple Group Info */}
+            {(() => {
+              if (!guest?.family_group || allGuests.length === 0) return null;
+              const groupMembers = allGuests.filter(
+                (g: any) => g.family_group === guest.family_group && g.id !== guest.id
+              );
+              if (groupMembers.length === 0) return null;
+              const guestFullName = `${guest.first_name} ${guest.last_name || ''}`.trim();
+              const groupType = groupMembers.length === 1 ? 'Couple' : 'Family';
+              return (
+                <div className="border border-primary rounded-xl p-3 space-y-2 bg-primary/5">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" />
+                    <p className="text-sm font-medium text-foreground">
+                      {guestFullName} is part of a {groupType}
+                    </p>
+                  </div>
+                  <ul className="space-y-1 pl-6">
+                    {groupMembers.map((m: any) => (
+                      <li key={m.id} className="text-sm text-foreground">
+                        • {m.first_name} {m.last_name || ''}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
           </div>
         )}
 
