@@ -116,7 +116,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <Monitor className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-medium text-foreground">Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars</CardTitle>
+              <CardTitle className="text-2xl font-bold text-foreground">Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars</CardTitle>
               <CardDescription>
                 Configure a self-service guest lookup kiosk for your event entrance
               </CardDescription>
@@ -128,7 +128,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Event Selection */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
             <Calendar className="w-5 h-5 text-foreground" />
             Event Selection
           </CardTitle>
@@ -179,7 +179,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {selectedEvent && (
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
+            <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
               <ExternalLink className="w-5 h-5 text-foreground" />
               Kiosk URL & Controls
             </CardTitle>
@@ -251,7 +251,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
       {/* Setup Instructions */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-medium text-foreground">
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
             <Tablet className="w-5 h-5 text-foreground" />
             Setup Instructions
           </CardTitle>
