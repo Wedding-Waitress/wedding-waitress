@@ -1507,9 +1507,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "h-9 text-sm justify-start transition-all",
                             eventType === 'two'
-                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
-                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
-                          )}
+                              ? "border border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
+                              : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                           )}
                         >
                           💍 Wedding / Engagement
                         </Button>
@@ -1520,8 +1520,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           className={cn(
                             "h-9 text-sm justify-start transition-all",
                             eventType === 'single'
-                              ? "border-2 border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
-                              : "border-2 border-primary bg-primary/10 text-primary hover:bg-primary/15"
+                              ? "border border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
+                              : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
                         >
                           🎂 Birthday / Corporate / Other
