@@ -1,119 +1,122 @@
-/**
- * PRODUCTION-READY -- LOCKED FOR PRODUCTION
- *
- * The Guest List page feature is COMPLETE and APPROVED for production use.
- *
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break guest list management
- * - Changes could break bulk actions and RSVP workflows
- * - Changes could break real-time synchronisation
- *
- * Last locked: 2026-02-19
- */
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Trash2, X, Mail, Phone } from "lucide-react";
+import { CheckCircle2, Trash2, Mail, Phone, Users, CheckSquare } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 interface GuestBulkActionsBarProps {
+  isOpen: boolean;
+  onClose: () => void;
   selectedCount: number;
   totalCount: number;
   onSelectAll: () => void;
   onDeselectAll: () => void;
   onUpdateRsvp: () => void;
   onDelete: () => void;
-  onCancel: () => void;
   onSendEmail?: () => void;
   onSendSms?: () => void;
 }
 
 export const GuestBulkActionsBar = ({
+  isOpen,
+  onClose,
   selectedCount,
   totalCount,
   onSelectAll,
   onDeselectAll,
   onUpdateRsvp,
   onDelete,
-  onCancel,
   onSendEmail,
-  onSendSms
+  onSendSms,
 }: GuestBulkActionsBarProps) => {
   const allSelected = selectedCount === totalCount;
 
+  const handleAction = (action: () => void) => {
+    action();
+  };
+
   return (
-    <div 
-      className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50 
-                 bg-gradient-to-r from-purple-500 to-purple-600 
-                 text-white rounded-lg shadow-2xl px-4 py-3 
-                 flex items-center gap-2 animate-in slide-in-from-bottom-5 
-                 max-w-[90vw]"
-    >
-      <div className="flex items-center gap-1">
-        <span className="font-semibold text-lg">{selectedCount}</span>
-        <span className="text-white/90 text-sm">selected</span>
-      </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <DialogTitle className="text-lg font-semibold">Manage Selected Guests</DialogTitle>
+            <Badge variant="secondary" className="bg-primary/10 text-primary font-semibold">
+              {selectedCount} selected
+            </Badge>
+          </div>
+          <DialogDescription>Apply actions to your selected guests</DialogDescription>
+        </DialogHeader>
 
-      <Button 
-        variant="ghost" 
-        size="sm"
-        onClick={allSelected ? onDeselectAll : onSelectAll}
-        className="text-white hover:bg-white/20 text-sm"
-      >
-        {allSelected ? 'Deselect All' : 'Select All'}
-      </Button>
+        <div className="grid gap-2 py-4">
+          {/* Select All / Deselect All */}
+          <button
+            onClick={() => handleAction(allSelected ? onDeselectAll : onSelectAll)}
+            className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+          >
+            <CheckSquare className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium text-foreground">
+              {allSelected ? 'Deselect All' : 'Select All'}
+            </span>
+          </button>
 
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onUpdateRsvp}
-        className="text-white hover:bg-white/20 text-sm"
-      >
-        <CheckCircle2 className="w-4 h-4 mr-1" />
-        Update RSVP
-      </Button>
-      
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onDelete}
-        className="text-white hover:bg-white/20 hover:bg-red-500/20 text-sm"
-      >
-        <Trash2 className="w-4 h-4 mr-1" />
-        Delete
-      </Button>
+          {/* Update RSVP */}
+          <button
+            onClick={() => handleAction(onUpdateRsvp)}
+            className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+          >
+            <CheckCircle2 className="w-5 h-5 text-primary" />
+            <span className="text-sm font-medium text-foreground">Update RSVP</span>
+          </button>
 
-      {onSendEmail && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onSendEmail}
-          className="text-white hover:bg-blue-500/30 text-sm"
-        >
-          <Mail className="w-4 h-4 mr-1" />
-          Send Email
-        </Button>
-      )}
-      
-      {onSendSms && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onSendSms}
-          className="text-white hover:bg-green-500/30 text-sm"
-        >
-          <Phone className="w-4 h-4 mr-1" />
-          Send SMS
-        </Button>
-      )}
+          {/* Send Email */}
+          {onSendEmail && (
+            <button
+              onClick={() => handleAction(onSendEmail)}
+              className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+            >
+              <Mail className="w-5 h-5 text-blue-500" />
+              <span className="text-sm font-medium text-foreground">Send Email</span>
+            </button>
+          )}
 
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onCancel}
-        className="text-white hover:bg-white/20 text-sm"
-      >
-        <X className="w-4 h-4 mr-1" />
-        Cancel
-      </Button>
-    </div>
+          {/* Send SMS */}
+          {onSendSms && (
+            <button
+              onClick={() => handleAction(onSendSms)}
+              className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+            >
+              <Phone className="w-5 h-5 text-green-500" />
+              <span className="text-sm font-medium text-foreground">Send SMS</span>
+            </button>
+          )}
+
+          {/* Delete Guests */}
+          <button
+            onClick={() => handleAction(onDelete)}
+            className="p-3 rounded-lg border border-red-200 hover:bg-red-50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+          >
+            <Trash2 className="w-5 h-5 text-red-600" />
+            <span className="text-sm font-medium text-red-600">Delete Guests</span>
+          </button>
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="text-destructive border-destructive/30 hover:bg-destructive/10"
+          >
+            Cancel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
