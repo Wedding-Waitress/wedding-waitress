@@ -2026,7 +2026,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               className={cn(
                                 "text-white cursor-pointer",
                                 guest.notes && /has added:/i.test(guest.notes.replace(/^\[NEW\+\]/, ''))
-                                  ? "bg-green-500 hover:bg-green-600 animate-flash"
+                                  ? guest.notes.startsWith('[NEW+]')
+                                    ? "bg-green-500 hover:bg-green-600 animate-flash"
+                                    : "bg-green-500 hover:bg-green-600"
                                   : guest.allow_plus_one !== false
                                     ? "bg-green-500 hover:bg-green-600"
                                     : "bg-red-500 hover:bg-red-600"
@@ -2158,7 +2160,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                       <span className={cn(
                                         "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
                                         hasNewAlert && "animate-flash"
-                                      )>{"Yes"}</span>
+                                      )}>{hasPlusGuestHistory ? "Yes" : "Yes"}</span>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="max-w-xs z-[9999]">
                                       <p className="whitespace-pre-wrap">{displayNotes}</p>
