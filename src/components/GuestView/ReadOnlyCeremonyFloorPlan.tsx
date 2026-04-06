@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface FloorPlanData {
   chairs_per_row: number;
@@ -51,13 +52,13 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
     const parts = name.trim().split(' ');
     if (parts.length > 1) {
       return (
-        <span className="text-[10px] leading-tight text-center px-0.5 flex flex-col items-center justify-center text-white">
+        <span className="text-xs leading-tight text-center px-0.5 flex flex-col items-center justify-center text-foreground">
           <span>{parts[0]}</span>
           <span>{parts.slice(1).join(' ')}</span>
         </span>
       );
     }
-    return <span className="text-[10px] leading-tight text-center px-0.5 text-white">{name}</span>;
+    return <span className="text-xs leading-tight text-center px-0.5 text-foreground">{name}</span>;
   };
 
   const renderSeat = (side: 'left' | 'right', row: number, seat: number) => {
@@ -67,16 +68,17 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
     return (
       <div
         key={`${side}-${row}-${seat}`}
-        className={`w-12 h-9 rounded border text-[10px] flex items-center justify-center ${
+        className={cn(
+          "w-[72px] h-14 rounded border text-xs flex items-center justify-center",
           name
-            ? 'border-white/60 font-medium'
+            ? "bg-primary/5 border-primary font-medium"
             : isAssignedRow
-              ? 'border-white/30 text-white/40'
-              : 'border-white/15 text-white/25'
-        }`}
+              ? "bg-primary/10 border-primary/30 text-muted-foreground"
+              : "bg-muted/10 border-border/50 text-muted-foreground/50"
+        )}
       >
         {name ? renderName(name) : (
-          <span className="text-[9px]">
+          <span className="text-[11px]">
             {data.show_seat_numbers ? seat : '—'}
           </span>
         )}
@@ -90,13 +92,18 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
 
     return (
       <div key={`bridal-${side}-${index}`} className="flex flex-col items-center">
-        <div className={`w-12 h-9 rounded border text-[10px] flex items-center justify-center ${
-          name ? 'border-white/60 font-medium' : 'border-white/30 text-white/40'
-        }`}>
-          {name ? renderName(name) : <span className="text-[9px]">{index + 1}</span>}
+        <div
+          className={cn(
+            "w-[72px] h-14 rounded border text-xs flex items-center justify-center",
+            name
+              ? "bg-transparent border-primary font-medium"
+              : "bg-muted/30 border-border text-muted-foreground"
+          )}
+        >
+          {name ? renderName(name) : <span className="text-[11px]">{index + 1}</span>}
         </div>
         {role && (
-          <span className="text-[8px] text-white/50 italic mt-0.5 truncate max-w-12 text-center">
+          <span className="text-[10px] text-foreground mt-0.5 truncate max-w-[72px] text-center">
             {role}
           </span>
         )}
@@ -111,13 +118,13 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
     }
 
     return (
-      <div key={`${side}-row-${rowNum}`} className="flex items-center gap-0.5 mb-0.5">
+      <div key={`${side}-row-${rowNum}`} className="flex items-center gap-1 mb-1">
         {data.show_row_numbers && side === 'left' && (
-          <span className="w-4 text-[10px] text-white/40 text-right mr-0.5">{rowNum}</span>
+          <span className="w-6 text-xs text-muted-foreground text-right mr-1">{rowNum}</span>
         )}
-        <div className="flex gap-0.5">{seats}</div>
+        <div className="flex gap-1">{seats}</div>
         {data.show_row_numbers && side === 'right' && (
-          <span className="w-4 text-[10px] text-white/40 text-left ml-0.5">{rowNum}</span>
+          <span className="w-6 text-xs text-muted-foreground text-left ml-1">{rowNum}</span>
         )}
       </div>
     );
@@ -131,16 +138,16 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
 
     return (
       <div className="flex flex-col items-center">
-        <h4 className="text-xs font-semibold text-white/80 mb-2">
+        <h4 className="text-sm font-semibold text-primary mb-3">
           {side === 'left' ? data.left_side_label : data.right_side_label} ({data.total_rows * data.chairs_per_row})
         </h4>
         <div>{rows}</div>
         {data.assigned_rows < data.total_rows && (
-          <div className="w-full mt-1 mb-1">
-            <div className="flex items-center gap-1">
-              <div className="flex-1 h-px bg-white/20" />
-              <span className="text-[9px] text-white/40">General Seating</span>
-              <div className="flex-1 h-px bg-white/20" />
+          <div className="w-full mt-1 mb-2">
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-px bg-border/50" />
+              <span className="text-[10px] text-muted-foreground">General Seating</span>
+              <div className="flex-1 h-px bg-border/50" />
             </div>
           </div>
         )}
@@ -164,47 +171,61 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
       : (isGroomLeft ? 'Bride' : 'Groom');
 
     const MAX_PER_ROW = 6;
+    const leftFirstRow = Math.min(leftCount, MAX_PER_ROW);
+    const leftSecondRow = Math.max(0, leftCount - MAX_PER_ROW);
+    const rightFirstRow = Math.min(rightCount, MAX_PER_ROW);
+    const rightSecondRow = Math.max(0, rightCount - MAX_PER_ROW);
 
     return (
-      <div className="flex items-start justify-center gap-3 flex-wrap">
+      <div className="flex items-start justify-center gap-4">
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-xs font-semibold text-white/80 mb-1">{leftLabel} ({leftCount})</span>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex gap-0.5">
-                {Array.from({ length: Math.min(leftCount, MAX_PER_ROW) }).map((_, i) => renderBridalPartyBox('left', i))}
+            <span className="text-sm font-semibold text-primary mb-2">{leftLabel} ({leftCount})</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex gap-1">
+                {Array.from({ length: leftFirstRow }).map((_, i) => renderBridalPartyBox('left', i))}
               </div>
-              {leftCount > MAX_PER_ROW && (
-                <div className="flex gap-0.5">
-                  {Array.from({ length: leftCount - MAX_PER_ROW }).map((_, i) => renderBridalPartyBox('left', i + MAX_PER_ROW))}
+              {leftSecondRow > 0 && (
+                <div className="flex gap-1">
+                  {Array.from({ length: leftSecondRow }).map((_, i) => renderBridalPartyBox('left', i + MAX_PER_ROW))}
                 </div>
               )}
             </div>
           </div>
         )}
 
-        <div className="flex items-center justify-center gap-2 px-1">
-          <div className="w-12 h-12 rounded-full border-2 border-white/60 flex items-center justify-center">
-            <span className="text-[11px] text-white font-medium text-center leading-tight px-0.5">{leftPersonName}</span>
+        <div className="flex items-center justify-center gap-3 px-2">
+          <div className="flex flex-col items-center">
+            <div className="w-[72px] h-[72px] rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-[15px] text-foreground font-medium text-center leading-tight px-1">
+                {leftPersonName}
+              </span>
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center">
-            <span className="text-[9px] text-white/60 text-center">Celebrant</span>
+
+          <div className="w-16 h-16 rounded-full bg-transparent border border-border flex items-center justify-center">
+            <span className="text-xs text-muted-foreground text-center">Celebrant</span>
           </div>
-          <div className="w-12 h-12 rounded-full border-2 border-white/60 flex items-center justify-center">
-            <span className="text-[11px] text-white font-medium text-center leading-tight px-0.5">{rightPersonName}</span>
+
+          <div className="flex flex-col items-center">
+            <div className="w-[72px] h-[72px] rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-[15px] text-foreground font-medium text-center leading-tight px-1">
+                {rightPersonName}
+              </span>
+            </div>
           </div>
         </div>
 
         {rightCount > 0 && (
           <div className="flex flex-col items-center">
-            <span className="text-xs font-semibold text-white/80 mb-1">{rightLabel} ({rightCount})</span>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex gap-0.5">
-                {Array.from({ length: Math.min(rightCount, MAX_PER_ROW) }).map((_, i) => renderBridalPartyBox('right', i))}
+            <span className="text-sm font-semibold text-primary mb-2">{rightLabel} ({rightCount})</span>
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex gap-1">
+                {Array.from({ length: rightFirstRow }).map((_, i) => renderBridalPartyBox('right', i))}
               </div>
-              {rightCount > MAX_PER_ROW && (
-                <div className="flex gap-0.5">
-                  {Array.from({ length: rightCount - MAX_PER_ROW }).map((_, i) => renderBridalPartyBox('right', i + MAX_PER_ROW))}
+              {rightSecondRow > 0 && (
+                <div className="flex gap-1">
+                  {Array.from({ length: rightSecondRow }).map((_, i) => renderBridalPartyBox('right', i + MAX_PER_ROW))}
                 </div>
               )}
             </div>
@@ -216,19 +237,24 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
 
   return (
     <div className="overflow-x-auto pb-4">
-      <div className="flex flex-col items-center space-y-8 min-w-fit">
+      <div className="flex flex-col items-center space-y-16 min-w-fit">
         {renderBridalParty()}
 
-        <div className="flex items-start justify-center gap-1">
+        <div className="flex items-start justify-center gap-1 lg:gap-2">
           {renderSide('left')}
 
-          <div className="flex flex-col items-center justify-center px-2 relative min-h-[200px]">
-            <div className="absolute inset-y-0 left-1/2 w-px bg-white/20 -translate-x-1/2" />
+          <div className="flex flex-col items-center justify-center h-full px-4 relative min-h-[300px]">
+            <div className="absolute inset-y-0 left-1/2 w-px bg-border -translate-x-1/2" />
             <span
-              className="text-xs font-bold whitespace-nowrap relative z-10 text-white/60"
-              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', letterSpacing: '0.5px' }}
+              className="text-sm font-bold whitespace-nowrap relative z-10"
+              style={{
+                writingMode: 'vertical-rl',
+                transform: 'rotate(180deg)',
+                color: 'hsl(262, 83%, 58%)',
+                letterSpacing: '0.5px'
+              }}
             >
-              Aisle
+              Bride's Walkway - Aisle
             </span>
           </div>
 
