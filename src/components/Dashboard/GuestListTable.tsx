@@ -219,6 +219,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
   
+  // Pagination state
+  const GUESTS_PER_PAGE = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Guest limit dialog state
   const [showGuestLimitDialog, setShowGuestLimitDialog] = useState(false);
   const [guestLimitDialogVariant, setGuestLimitDialogVariant] = useState<'congratulations' | 'exceeded'>('exceeded');
@@ -799,6 +803,38 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
     return groups;
   }, [guests, searchTerm, sortBy, tables, selectedEvent]);
+
+  // Count total guests across all groups for pagination
+  const totalFilteredGuestCount = useMemo(() => {
+    return groupedGuests.reduce((sum, g) => sum + g.members.length, 0);
+  }, [groupedGuests]);
+
+  const totalPages = Math.max(1, Math.ceil(totalFilteredGuestCount / GUESTS_PER_PAGE));
+
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, sortBy, selectedEventId]);
+
+  // Paginate groupedGuests by slicing members across groups
+  const paginatedGroups = useMemo(() => {
+    const start = (currentPage - 1) * GUESTS_PER_PAGE;
+    const end = start + GUESTS_PER_PAGE;
+    let count = 0;
+    const result: typeof groupedGuests = [];
+
+    for (const group of groupedGuests) {
+      const groupStart = count;
+      const groupEnd = count + group.members.length;
+
+      if (groupEnd <= start) { count = groupEnd; continue; }
+      if (groupStart >= end) break;
+
+      const sliceStart = Math.max(0, start - groupStart);
+      const sliceEnd = Math.min(group.members.length, end - groupStart);
+      result.push({ ...group, members: group.members.slice(sliceStart, sliceEnd) });
+      count = groupEnd;
+    }
+    return result;
+  }, [groupedGuests, currentPage]);
 
   // Create a map of family_group -> type for quick lookup
   const familyGroupTypeMap = useMemo(() => {
@@ -1913,7 +1949,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </TableCell>
                 </TableRow>
               ) : (
-                groupedGuests.map((group, groupIndex) => (
+                paginatedGroups.map((group, groupIndex) => (
                   <React.Fragment key={`group-${groupIndex}-${group.groupName || 'individual'}`}>
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
@@ -2140,6 +2176,55 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div className="h-12 bg-primary rounded-b-lg" />
         </div>
       </Card>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 py-3">
+          <p className="text-sm text-muted-foreground">
+            Showing {((currentPage - 1) * GUESTS_PER_PAGE) + 1}–{Math.min(currentPage * GUESTS_PER_PAGE, totalFilteredGuestCount)} of {totalFilteredGuestCount} guests
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+              .reduce<(number | 'ellipsis')[]>((acc, p, i, arr) => {
+                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('ellipsis');
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((item, idx) =>
+                item === 'ellipsis' ? (
+                  <span key={`e-${idx}`} className="px-1 text-muted-foreground">…</span>
+                ) : (
+                  <Button
+                    key={item}
+                    variant={item === currentPage ? 'default' : 'outline'}
+                    size="sm"
+                    className="min-w-[36px]"
+                    onClick={() => setCurrentPage(item)}
+                  >
+                    {item}
+                  </Button>
+                )
+              )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       <AddGuestModal 
         isOpen={showAddModal}
