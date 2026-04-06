@@ -274,6 +274,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden" fullScreenOnMobile>
         {/* Custom purple circle close button */}
