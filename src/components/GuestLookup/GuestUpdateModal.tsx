@@ -51,6 +51,7 @@ interface GuestUpdateModalProps {
   allowNameEdit?: boolean;
   showMessageField?: boolean;
   isEditable?: boolean;
+  allGuests?: any[];
 }
 
 const dietaryOptions = [
