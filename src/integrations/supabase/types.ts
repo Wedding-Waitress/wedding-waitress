@@ -3055,6 +3055,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_referring_guest_notes: {
+        Args: {
+          _event_id: string
+          _note_text: string
+          _referring_guest_id: string
+        }
+        Returns: boolean
+      }
       update_running_sheet_item_by_token: {
         Args: {
           item_id: string

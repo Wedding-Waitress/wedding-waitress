@@ -134,19 +134,16 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         if (!data) throw new Error('Failed to add guest — event may not allow public additions');
 
         // For individual/single: no group management needed
-        // Update referring guest's notes with [NEW+] marker
+        // Update referring guest's notes with [NEW+] marker via RPC
         if (addedByGuestId && addedByGuestName) {
           const addedName = `${guest.first_name.trim()} ${guest.last_name.trim()}`.trim();
-          const noteText = `${addedByGuestName} has added: ${addedName}`;
+          const noteText = `${addedByGuestName} has added: ${addedName}\nPlease update table and seat arrangement.`;
           try {
-            const { data: referringGuest } = await supabase
-              .from('guests')
-              .select('notes')
-              .eq('id', addedByGuestId)
-              .single();
-            const existingNotes = referringGuest?.notes?.replace(/^\[NEW\+\]/, '') || '';
-            const newNotes = `[NEW+]${existingNotes ? existingNotes + '\n' : ''}${noteText}`;
-            await supabase.from('guests').update({ notes: newNotes }).eq('id', addedByGuestId);
+            await (supabase.rpc as any)('update_referring_guest_notes', {
+              _referring_guest_id: addedByGuestId,
+              _event_id: eventId,
+              _note_text: noteText,
+            });
           } catch (noteErr) {
             console.error('Error updating referring guest notes:', noteErr);
           }
@@ -204,19 +201,16 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         }
 
         const total = partyMembers.length;
-        // Update referring guest's notes with [NEW+] marker
+        // Update referring guest's notes with [NEW+] marker via RPC
         if (addedByGuestId && addedByGuestName) {
           const addedNames = partyMembers.map(m => `${m.first_name.trim()} ${m.last_name.trim()}`.trim()).join(', ');
-          const noteText = `${addedByGuestName} has added: ${addedNames}`;
+          const noteText = `${addedByGuestName} has added: ${addedNames}\nPlease update table and seat arrangement.`;
           try {
-            const { data: referringGuest } = await supabase
-              .from('guests')
-              .select('notes')
-              .eq('id', addedByGuestId)
-              .single();
-            const existingNotes = referringGuest?.notes?.replace(/^\[NEW\+\]/, '') || '';
-            const newNotes = `[NEW+]${existingNotes ? existingNotes + '\n' : ''}${noteText}`;
-            await supabase.from('guests').update({ notes: newNotes }).eq('id', addedByGuestId);
+            await (supabase.rpc as any)('update_referring_guest_notes', {
+              _referring_guest_id: addedByGuestId,
+              _event_id: eventId,
+              _note_text: noteText,
+            });
           } catch (noteErr) {
             console.error('Error updating referring guest notes:', noteErr);
           }
