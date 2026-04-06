@@ -23,7 +23,19 @@ import { PaymentSuccess } from "./pages/PaymentSuccess";
 import { QRRedirect } from "./pages/QRRedirect";
 const queryClient = new QueryClient();
 
-// (FeatureGuard removed — no longer needed)
+// Track page views on route changes for GA4
+const RouteTracker = () => {
+  const location = useLocation();
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: location.pathname + location.search,
+        page_title: document.title,
+      });
+    }
+  }, [location]);
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
