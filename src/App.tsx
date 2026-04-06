@@ -48,6 +48,7 @@ const App = () => (
     >
       <AppErrorBoundary>
         <BrowserRouter>
+          <RouteTracker />
           <Toaster />
           <Sonner />
           <Routes>
