@@ -199,6 +199,10 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         return;
       }
 
+      // Auto-promote: if couple already has 2 people and adding more, switch to family
+      const newTotalGroup = totalExistingGroup + partyMembers.length;
+      const effectiveGroupType = (guestType === 'couple' && newTotalGroup > 2) ? 'family' : guestType;
+
       setSaving(true);
       try {
         const newGuestIds: string[] = [];
@@ -218,18 +222,18 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           if (newGuestId) newGuestIds.push(newGuestId);
         }
 
-        // Call public_manage_guest_group for each new guest
+        // Call public_manage_guest_group for each new guest with effective type
         if (addedByGuestId) {
           for (const newGuestId of newGuestIds) {
             const { error: groupError } = await (supabase.rpc as any)('public_manage_guest_group', {
               _event_id: eventId,
               _new_guest_id: newGuestId,
               _referring_guest_id: addedByGuestId,
-              _guest_type: guestType,
+              _guest_type: effectiveGroupType,
             });
             if (groupError) {
               console.error('Error managing guest group:', groupError);
-              throw new Error(`Failed to assign guest to ${guestType} group: ${groupError.message}`);
+              throw new Error(`Failed to assign guest to ${effectiveGroupType} group: ${groupError.message}`);
             }
           }
         }
@@ -239,7 +243,6 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         if (addedByGuestId && addedByGuestName) {
           const addedNames = partyMembers.map(m => `${m.first_name.trim()} ${m.last_name.trim()}`.trim()).join(', ');
           let noteText = `${addedByGuestName} has added: ${addedNames}\nPlease update TABLE and SEAT arrangement.`;
-          // Collect any notes from party members and append below separator
           const memberNotes = partyMembers.filter(m => m.notes && m.notes.trim()).map(m => `${m.first_name.trim()}: ${m.notes.trim()}`);
           if (memberNotes.length > 0) {
             noteText += `\n────────────────────\n${memberNotes.join('\n')}`;
@@ -254,7 +257,10 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             console.error('Error updating referring guest notes:', noteErr);
           }
         }
-        toast({ title: 'Guest(s) Added', description: `${total} guest${total > 1 ? 's' : ''} added successfully` });
+        const promoMsg = (guestType === 'couple' && effectiveGroupType === 'family') 
+          ? ' Your group has been automatically updated to Family.' 
+          : '';
+        toast({ title: 'Guest(s) Added', description: `${total} guest${total > 1 ? 's' : ''} added successfully.${promoMsg}` });
         resetForm();
         onOpenChange(false);
         onGuestAdded();
