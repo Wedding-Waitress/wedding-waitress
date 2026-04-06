@@ -1978,7 +1978,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             "border-card-border",
                             "hover:bg-purple-100 dark:hover:bg-purple-950/30",
                             group.type !== 'individual' && "border-l-4 border-l-purple-200",
-                            group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]"
+                            group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]",
+                            guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
                           )}
                         >
                           <TableCell className="py-1 px-2">

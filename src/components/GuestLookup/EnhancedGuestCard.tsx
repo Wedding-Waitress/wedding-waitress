@@ -293,7 +293,17 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               {onAddGuest && (
                 <Button
                   size="sm"
-                  onClick={onAddGuest}
+                  onClick={() => {
+                    if (localRsvp !== 'Attending') {
+                      toast({
+                        title: "RSVP Required",
+                        description: "You can't add another guest if you are not attending. Please accept your invitation first.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    onAddGuest();
+                  }}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium rounded-full px-6 py-1 h-8"
                 >
                   Plus Guest
