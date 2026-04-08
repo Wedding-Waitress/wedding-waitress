@@ -16,7 +16,7 @@
  * Last locked: 2025-11-12
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Guest } from '@/hooks/useGuests';
