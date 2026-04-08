@@ -16,7 +16,7 @@
  * Last locked: 2025-11-12
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Guest } from '@/hooks/useGuests';
@@ -53,6 +53,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
   const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Flag to prevent realtime updates from interfering with active drag operations
   const isOperationInProgress = useRef(false);
+  // Stable ref for fetch function to avoid subscription churn
+  const fetchGuestsRef = useRef<() => Promise<void>>(async () => {});
 
   // Keep cache in sync
   useEffect(() => {
@@ -97,15 +99,20 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
   }, [eventId, toast]);
 
-  // Debounced refetch as fallback
+  // Keep ref in sync so subscription callback always calls latest fetch
+  useEffect(() => {
+    fetchGuestsRef.current = fetchGuests;
+  }, [fetchGuests]);
+
+  // Stable debounced refetch that uses ref - never changes identity
   const debouncedRefetch = useCallback(() => {
     if (refetchTimeoutRef.current) {
       clearTimeout(refetchTimeoutRef.current);
     }
     refetchTimeoutRef.current = setTimeout(() => {
-      fetchGuests();
+      fetchGuestsRef.current();
     }, 1000);
-  }, [fetchGuests]);
+  }, []);
 
   // Reorder guests within a table and recalculate seat numbers
   const reorderGuestsWithSeats = useCallback(async (
@@ -579,7 +586,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
   }, [toast]);
 
-  // Handle realtime updates
+  // Handle realtime updates - stable callback with no changing deps
   const handleRealtimeUpdate = useCallback((payload: any) => {
     // Skip realtime updates during active operations to prevent conflicts
     if (isOperationInProgress.current) {
@@ -625,7 +632,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     debouncedRefetch();
   }, [debouncedRefetch]);
 
-  // Set up Supabase Realtime subscription
+  // Set up Supabase Realtime subscription - stable, only re-runs on eventId change
   useEffect(() => {
     if (!eventId) {
       // Clean up existing channel
@@ -674,7 +681,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         supabase.removeChannel(channel);
       }
     };
-  }, [eventId, handleRealtimeUpdate, debouncedRefetch]);
+  }, [eventId]); // Stable deps - handleRealtimeUpdate and debouncedRefetch never change identity
 
   // Clear guests immediately when eventId changes, then fetch
   useEffect(() => {
