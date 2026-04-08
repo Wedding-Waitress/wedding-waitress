@@ -99,15 +99,20 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }
   }, [eventId, toast]);
 
-  // Debounced refetch as fallback
+  // Keep ref in sync so subscription callback always calls latest fetch
+  useEffect(() => {
+    fetchGuestsRef.current = fetchGuests;
+  }, [fetchGuests]);
+
+  // Stable debounced refetch that uses ref - never changes identity
   const debouncedRefetch = useCallback(() => {
     if (refetchTimeoutRef.current) {
       clearTimeout(refetchTimeoutRef.current);
     }
     refetchTimeoutRef.current = setTimeout(() => {
-      fetchGuests();
+      fetchGuestsRef.current();
     }, 1000);
-  }, [fetchGuests]);
+  }, []);
 
   // Reorder guests within a table and recalculate seat numbers
   const reorderGuestsWithSeats = useCallback(async (
