@@ -632,7 +632,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     debouncedRefetch();
   }, [debouncedRefetch]);
 
-  // Set up Supabase Realtime subscription
+  // Set up Supabase Realtime subscription - stable, only re-runs on eventId change
   useEffect(() => {
     if (!eventId) {
       // Clean up existing channel
@@ -681,7 +681,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         supabase.removeChannel(channel);
       }
     };
-  }, [eventId, handleRealtimeUpdate, debouncedRefetch]);
+  }, [eventId]); // Stable deps - handleRealtimeUpdate and debouncedRefetch never change identity
 
   // Clear guests immediately when eventId changes, then fetch
   useEffect(() => {
