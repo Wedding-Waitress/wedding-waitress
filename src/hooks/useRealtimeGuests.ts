@@ -53,6 +53,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
   const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Flag to prevent realtime updates from interfering with active drag operations
   const isOperationInProgress = useRef(false);
+  // Stable ref for fetch function to avoid subscription churn
+  const fetchGuestsRef = useRef<() => Promise<void>>(async () => {});
 
   // Keep cache in sync
   useEffect(() => {
