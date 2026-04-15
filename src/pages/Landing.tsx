@@ -530,7 +530,7 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-3 gap-6">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
@@ -543,8 +543,14 @@ export const Landing = () => {
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.support')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
                   <li><Link to="/contact" className="hover:text-white transition-colors">{t('footer.contactUs')}</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.legal')}</h4>
+                <ul className="space-y-3 text-sm text-gray-400">
                   <li><Link to="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link></li>
                   <li><Link to="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link></li>
+                  <li><Link to="/cookies" className="hover:text-white transition-colors">{t('footer.cookiePolicy')}</Link></li>
                 </ul>
               </div>
             </div>
