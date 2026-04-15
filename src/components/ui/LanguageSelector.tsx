@@ -11,7 +11,7 @@ const languages = [
   { code: 'ar', name: 'العربية', flag: '🇸🇦' },
   { code: 'zh', name: '中文', flag: '🇨🇳' },
   { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'hi', name: 'Hindi (Indian)', flag: '🇮🇳' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
   { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
