@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, Heart } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import heroImg from "@/assets/hero-wedding.jpg";
@@ -12,6 +12,14 @@ import featureQr from "@/assets/feature-qr.jpg";
 import featureTimeline from "@/assets/feature-timeline.jpg";
 import featureInvitations from "@/assets/feature-invitations.jpg";
 import ctaImg from "@/assets/cta-wedding.jpg";
+import featureMyevents from "@/assets/feature-myevents.jpg";
+import featurePlacecards from "@/assets/feature-placecards.jpg";
+import featureTablecharts from "@/assets/feature-tablecharts.jpg";
+import featureDietary from "@/assets/feature-dietary.jpg";
+import featureSeatingchart from "@/assets/feature-seatingchart.jpg";
+import featureKiosk from "@/assets/feature-kiosk.jpg";
+import featureDjmc from "@/assets/feature-djmc.jpg";
+import featureFloorplan from "@/assets/feature-floorplan.jpg";
 
 const featureCards = [
   { title: "Guest List", desc: "Manage all your guests in one place", img: featureGuestlist, icon: Users },
@@ -19,7 +27,14 @@ const featureCards = [
   { title: "QR Code Seating", desc: "Guests scan and find their table instantly", img: featureQr, icon: QrCode },
   { title: "Invitations", desc: "Send invites and track RSVPs", img: featureInvitations, icon: Mail },
   { title: "Running Sheet", desc: "Plan your full wedding timeline", img: featureTimeline, icon: Calendar },
-  { title: "Floor Plan", desc: "Visualise your venue layout", img: featureTables, icon: Layout },
+  { title: "Floor Plan", desc: "Visualise your venue layout", img: featureFloorplan, icon: Layout },
+  { title: "My Events", desc: "Manage all your events with ease", img: featureMyevents, icon: ClipboardList },
+  { title: "Name Place Cards", desc: "Beautiful printed name cards", img: featurePlacecards, icon: CreditCard },
+  { title: "Individual Table Charts", desc: "Per-table seating charts for each table", img: featureTablecharts, icon: Grid3X3 },
+  { title: "Dietary Requirements", desc: "Track every guest's dietary needs", img: featureDietary, icon: UtensilsCrossed },
+  { title: "Full Seating Chart", desc: "Complete print-ready seating chart", img: featureSeatingchart, icon: FileText },
+  { title: "Kiosk Live View", desc: "Self-service guest check-in at venue", img: featureKiosk, icon: Monitor },
+  { title: "DJ-MC Questionnaire", desc: "Share music and timing with your DJ", img: featureDjmc, icon: Mic },
 ];
 
 const alternatingFeatures = [
@@ -53,14 +68,71 @@ const alternatingFeatures = [
     desc: "Send beautiful digital invitations and track responses in real time. Customise designs, add QR codes, and manage RSVPs all in one place.",
     img: featureInvitations,
   },
+  {
+    id: "my-events",
+    title: "Your Events, Your Way",
+    desc: "Create and manage multiple events from a single dashboard. Track countdowns, set up venues, and keep every detail organised beautifully.",
+    img: featureMyevents,
+  },
+  {
+    id: "place-cards",
+    title: "Elegant Name Place Cards",
+    desc: "Design stunning printed name cards with custom fonts, colours, and backgrounds. Export in high-resolution 300 DPI for professional printing.",
+    img: featurePlacecards,
+  },
+  {
+    id: "table-charts",
+    title: "Individual Table Charts",
+    desc: "Generate beautiful per-table seating charts your guests can see at a glance. Perfect for printing and displaying at each table.",
+    img: featureTablecharts,
+  },
+  {
+    id: "dietary",
+    title: "Dietary Requirements Made Easy",
+    desc: "Track every guest's dietary needs and generate kitchen-ready charts. Ensure no guest is overlooked with detailed allergen and preference tracking.",
+    img: featureDietary,
+  },
+  {
+    id: "seating-chart",
+    title: "Full Seating Chart",
+    desc: "Create a complete, print-ready seating chart showing every guest and table. Export to PDF with custom styling and your event branding.",
+    img: featureSeatingchart,
+  },
+  {
+    id: "kiosk",
+    title: "Kiosk Live View",
+    desc: "Set up self-service check-in kiosks at your venue entrance. Guests search their name and instantly see their table assignment on screen.",
+    img: featureKiosk,
+  },
+  {
+    id: "dj-mc",
+    title: "DJ & MC Questionnaire",
+    desc: "Share your music preferences, pronunciation guides, and event timeline directly with your DJ or MC. Keep everyone aligned for the perfect celebration.",
+    img: featureDjmc,
+  },
+  {
+    id: "floor-plan",
+    title: "Venue Floor Plan",
+    desc: "Visualise your entire venue layout with an interactive floor plan. Position tables, map the ceremony space, and plan every area of your event.",
+    img: featureFloorplan,
+  },
 ];
 
 const extraFeatures = [
-  { icon: Music, title: "DJ & Music Planner", desc: "Curate your perfect playlist" },
+  { icon: Music, title: "DJ & MC Planner", desc: "Curate your perfect playlist" },
   { icon: UtensilsCrossed, title: "Dietary Requirements", desc: "Track every guest's needs" },
   { icon: CreditCard, title: "Place Cards", desc: "Beautiful printed name cards" },
   { icon: Monitor, title: "Live Kiosk View", desc: "Self-service guest check-in" },
   { icon: BarChart3, title: "Seating Charts", desc: "Print-ready table layouts" },
+  { icon: ClipboardList, title: "My Events", desc: "Manage all your events" },
+  { icon: MapPin, title: "Tables Setup", desc: "Create and organise tables" },
+  { icon: Users, title: "Guest List", desc: "Full guest management" },
+  { icon: QrCode, title: "QR Code Seating", desc: "Scan to find your table" },
+  { icon: Mail, title: "Invitations & Cards", desc: "Send and track invites" },
+  { icon: Grid3X3, title: "Individual Table Charts", desc: "Per-table guest display" },
+  { icon: Layout, title: "Floor Plan", desc: "Visualise your venue layout" },
+  { icon: FileText, title: "Full Seating Chart", desc: "Complete seating overview" },
+  { icon: Calendar, title: "Running Sheet", desc: "Plan your full timeline" },
 ];
 
 const testimonials = [
@@ -158,17 +230,17 @@ export const Landing = () => {
 
       {/* Extra Feature Grid */}
       <section className="py-24 md:py-32 px-4 bg-white">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
             Everything you need for your perfect day
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {extraFeatures.map((f) => (
-              <div key={f.title} className="bg-[#FAFAFA] rounded-3xl p-8 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+              <div key={f.title} className="bg-[#FAFAFA] rounded-3xl p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                   <f.icon className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{f.title}</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-gray-500 text-sm">{f.desc}</p>
               </div>
             ))}
@@ -225,7 +297,6 @@ export const Landing = () => {
       <footer className="bg-gray-900 text-white py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-            {/* Left */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto brightness-0 invert" />
@@ -234,7 +305,6 @@ export const Landing = () => {
                 The all-in-one wedding planning platform trusted by couples across Australia.
               </p>
             </div>
-            {/* Center */}
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Explore</h4>
@@ -253,7 +323,6 @@ export const Landing = () => {
                 </ul>
               </div>
             </div>
-            {/* Right */}
             <div>
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Follow Us</h4>
               <div className="flex gap-4">
