@@ -13,9 +13,10 @@
   "hero": {
     "title1": "Plan Your Wedding",
     "title2": "Without the Stress.",
-    "subtitle": "Everything you need to manage guests, seating, invitations and your entire wedding — all in one place.",
+    "subtitle": "Everything you need to manage guests, seating, invitations, QR code seating charts and your entire wedding — all in one place.",
     "cta": "Start Your Free Trial",
-    "trustLine": "No credit card required. Start free in minutes.",
+    "trustLine": "No credit card required",
+    "trustLine2": "Sign up in 60 seconds. No app download required",
     "trusted": "Trusted by couples across Australia"
   },
   "featureCards": {

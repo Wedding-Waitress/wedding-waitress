@@ -7,16 +7,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' },
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'hi', name: 'Hindi (Indian)', flag: '🇮🇳' },
+  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
   { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
   { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'zh', name: '中文', flag: '🇨🇳' },
-  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
   { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
 ];
 
