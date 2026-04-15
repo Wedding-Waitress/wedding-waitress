@@ -14,58 +14,179 @@
     "title1": "计划您的婚礼",
     "title2": "无忧无虑。",
     "subtitle": "管理宾客、座位、请柬和整个婚礼所需的一切 — 全部集中在一处。",
-    "cta": "免费开始",
-    "trusted": "受到全澳大利亚情侣的信赖"
+    "cta": "开始免费试用",
+    "trusted": "受到全澳大利亚情侣的信赖",
+    "trustLine": "无需信用卡。几分钟内免费开始。"
   },
   "featureCards": {
     "sectionTitle": "您的宾客会爱上的婚礼平台。",
     "sectionSubtitle": "每个您需要的工具，设计精美，简单易用。",
-    "guestList": { "title": "宾客名单", "desc": "在一个地方管理所有宾客" },
-    "tables": { "title": "桌位和座位", "desc": "轻松组织桌位和座位" },
-    "qr": { "title": "二维码座位", "desc": "宾客扫描即刻找到桌位" },
-    "invitations": { "title": "请柬", "desc": "发送请柬并追踪回复" },
-    "runningSheet": { "title": "流程表", "desc": "规划完整的婚礼时间线" },
-    "floorPlan": { "title": "平面图", "desc": "可视化场地布局" },
-    "myEvents": { "title": "我的活动", "desc": "轻松管理所有活动" },
-    "placeCards": { "title": "席位卡", "desc": "精美的印刷名片" },
-    "tableCharts": { "title": "单桌图表", "desc": "每桌的座位图" },
-    "dietary": { "title": "饮食要求", "desc": "追踪每位宾客的饮食需求" },
-    "seatingChart": { "title": "完整座位表", "desc": "可打印的完整座位表" },
-    "kiosk": { "title": "自助终端实时视图", "desc": "场地自助签到" },
-    "djmc": { "title": "DJ-MC问卷", "desc": "与DJ分享音乐和时间安排" }
+    "guestList": {
+      "title": "宾客名单",
+      "desc": "在一个地方管理所有宾客"
+    },
+    "tables": {
+      "title": "桌位和座位",
+      "desc": "轻松组织桌位和座位"
+    },
+    "qr": {
+      "title": "二维码座位",
+      "desc": "宾客扫描即刻找到桌位"
+    },
+    "invitations": {
+      "title": "请柬",
+      "desc": "发送请柬并追踪回复"
+    },
+    "runningSheet": {
+      "title": "流程表",
+      "desc": "规划完整的婚礼时间线"
+    },
+    "floorPlan": {
+      "title": "平面图",
+      "desc": "可视化场地布局"
+    },
+    "myEvents": {
+      "title": "我的活动",
+      "desc": "轻松管理所有活动"
+    },
+    "placeCards": {
+      "title": "席位卡",
+      "desc": "精美的印刷名片"
+    },
+    "tableCharts": {
+      "title": "单桌图表",
+      "desc": "每桌的座位图"
+    },
+    "dietary": {
+      "title": "饮食要求",
+      "desc": "追踪每位宾客的饮食需求"
+    },
+    "seatingChart": {
+      "title": "完整座位表",
+      "desc": "可打印的完整座位表"
+    },
+    "kiosk": {
+      "title": "自助终端实时视图",
+      "desc": "场地自助签到"
+    },
+    "djmc": {
+      "title": "DJ-MC问卷",
+      "desc": "与DJ分享音乐和时间安排"
+    }
   },
   "alternating": {
-    "guestList": { "title": "宾客名单管理", "desc": "轻松管理整个宾客名单，追踪回复，组织关系。导入宾客，发送请柬，保持一切完美有序。" },
-    "tables": { "title": "座位安排变简单", "desc": "使用我们的可视化拖放系统轻松创建桌位并分配宾客。一目了然地查看容量，轻松进行最后调整。" },
-    "qr": { "title": "即时宾客入座", "desc": "宾客扫描二维码即刻找到桌位 — 不混乱，不延迟。宾客会喜欢的现代科技体验。" },
-    "runningSheet": { "title": "规划每一个时刻", "desc": "为婚礼当天创建完整的日程安排，并与供应商分享。从仪式到最后一支舞，让每个人保持同步。" },
-    "invitations": { "title": "请柬与回复", "desc": "发送精美的数字请柬，实时追踪回复。自定义设计，添加二维码，在一个地方管理所有回复。" },
-    "myEvents": { "title": "您的活动，您做主", "desc": "从一个仪表板创建和管理多个活动。追踪倒计时，设置场地，将每个细节精美地组织起来。" },
-    "placeCards": { "title": "优雅席位卡", "desc": "使用自定义字体、颜色和背景设计精美的印刷名片。以300 DPI高分辨率导出，用于专业印刷。" },
-    "tableCharts": { "title": "单桌图表", "desc": "生成宾客一目了然的精美单桌座位图。非常适合在每桌打印和展示。" },
-    "dietary": { "title": "饮食要求变简单", "desc": "追踪每位宾客的饮食需求，生成厨房可用的图表。确保不遗漏任何宾客。" },
-    "seatingChart": { "title": "完整座位表", "desc": "创建显示每位宾客和桌位的完整可打印座位表。以自定义样式和活动品牌导出PDF。" },
-    "kiosk": { "title": "自助终端实时视图", "desc": "在场地入口设置自助签到终端。宾客搜索姓名即刻查看桌位分配。" },
-    "djmc": { "title": "DJ和MC问卷", "desc": "直接与DJ或MC分享音乐偏好、发音指南和活动时间线。" },
-    "floorPlan": { "title": "场地平面图", "desc": "通过交互式平面图可视化整个场地布局。放置桌位，规划仪式空间，计划活动的每个区域。" },
+    "guestList": {
+      "title": "宾客名单管理",
+      "desc": "轻松管理整个宾客名单，追踪回复，组织关系。导入宾客，发送请柬，保持一切完美有序。"
+    },
+    "tables": {
+      "title": "座位安排变简单",
+      "desc": "使用我们的可视化拖放系统轻松创建桌位并分配宾客。一目了然地查看容量，轻松进行最后调整。"
+    },
+    "qr": {
+      "title": "即时宾客入座",
+      "desc": "宾客扫描二维码即刻找到桌位 — 不混乱，不延迟。宾客会喜欢的现代科技体验。"
+    },
+    "runningSheet": {
+      "title": "规划每一个时刻",
+      "desc": "为婚礼当天创建完整的日程安排，并与供应商分享。从仪式到最后一支舞，让每个人保持同步。"
+    },
+    "invitations": {
+      "title": "请柬与回复",
+      "desc": "发送精美的数字请柬，实时追踪回复。自定义设计，添加二维码，在一个地方管理所有回复。"
+    },
+    "myEvents": {
+      "title": "您的活动，您做主",
+      "desc": "从一个仪表板创建和管理多个活动。追踪倒计时，设置场地，将每个细节精美地组织起来。"
+    },
+    "placeCards": {
+      "title": "优雅席位卡",
+      "desc": "使用自定义字体、颜色和背景设计精美的印刷名片。以300 DPI高分辨率导出，用于专业印刷。"
+    },
+    "tableCharts": {
+      "title": "单桌图表",
+      "desc": "生成宾客一目了然的精美单桌座位图。非常适合在每桌打印和展示。"
+    },
+    "dietary": {
+      "title": "饮食要求变简单",
+      "desc": "追踪每位宾客的饮食需求，生成厨房可用的图表。确保不遗漏任何宾客。"
+    },
+    "seatingChart": {
+      "title": "完整座位表",
+      "desc": "创建显示每位宾客和桌位的完整可打印座位表。以自定义样式和活动品牌导出PDF。"
+    },
+    "kiosk": {
+      "title": "自助终端实时视图",
+      "desc": "在场地入口设置自助签到终端。宾客搜索姓名即刻查看桌位分配。"
+    },
+    "djmc": {
+      "title": "DJ和MC问卷",
+      "desc": "直接与DJ或MC分享音乐偏好、发音指南和活动时间线。"
+    },
+    "floorPlan": {
+      "title": "场地平面图",
+      "desc": "通过交互式平面图可视化整个场地布局。放置桌位，规划仪式空间，计划活动的每个区域。"
+    },
     "learnMore": "了解更多"
   },
   "extraGrid": {
     "title": "完美一天所需的一切",
-    "djmc": { "title": "DJ和MC规划器", "desc": "策划您的完美播放列表" },
-    "dietary": { "title": "饮食要求", "desc": "追踪每位宾客的需求" },
-    "placeCards": { "title": "席位卡", "desc": "精美的印刷名片" },
-    "kiosk": { "title": "实时自助终端", "desc": "宾客自助签到" },
-    "seatingCharts": { "title": "座位表", "desc": "可打印的桌位布局" },
-    "myEvents": { "title": "我的活动", "desc": "管理所有活动" },
-    "tables": { "title": "桌位设置", "desc": "创建和组织桌位" },
-    "guestList": { "title": "宾客名单", "desc": "完整宾客管理" },
-    "qr": { "title": "二维码座位", "desc": "扫描找到您的桌位" },
-    "invitations": { "title": "请柬与卡片", "desc": "发送和追踪请柬" },
-    "tableCharts": { "title": "单桌图表", "desc": "每桌宾客展示" },
-    "floorPlan": { "title": "平面图", "desc": "可视化场地布局" },
-    "fullSeatingChart": { "title": "完整座位表", "desc": "完整座位总览" },
-    "runningSheet": { "title": "流程表", "desc": "规划完整时间线" }
+    "djmc": {
+      "title": "DJ和MC规划器",
+      "desc": "策划您的完美播放列表"
+    },
+    "dietary": {
+      "title": "饮食要求",
+      "desc": "追踪每位宾客的需求"
+    },
+    "placeCards": {
+      "title": "席位卡",
+      "desc": "精美的印刷名片"
+    },
+    "kiosk": {
+      "title": "实时自助终端",
+      "desc": "宾客自助签到"
+    },
+    "seatingCharts": {
+      "title": "座位表",
+      "desc": "可打印的桌位布局"
+    },
+    "myEvents": {
+      "title": "我的活动",
+      "desc": "管理所有活动"
+    },
+    "tables": {
+      "title": "桌位设置",
+      "desc": "创建和组织桌位"
+    },
+    "guestList": {
+      "title": "宾客名单",
+      "desc": "完整宾客管理"
+    },
+    "qr": {
+      "title": "二维码座位",
+      "desc": "扫描找到您的桌位"
+    },
+    "invitations": {
+      "title": "请柬与卡片",
+      "desc": "发送和追踪请柬"
+    },
+    "tableCharts": {
+      "title": "单桌图表",
+      "desc": "每桌宾客展示"
+    },
+    "floorPlan": {
+      "title": "平面图",
+      "desc": "可视化场地布局"
+    },
+    "fullSeatingChart": {
+      "title": "完整座位表",
+      "desc": "完整座位总览"
+    },
+    "runningSheet": {
+      "title": "流程表",
+      "desc": "规划完整时间线"
+    }
   },
   "pricing": {
     "title": "简单透明的定价",
@@ -76,41 +197,97 @@
     "mostPopular": "最受欢迎",
     "forProfessionals": "专业版",
     "approvalRequired": "需要审批",
-    "essential": { "name": "Essential", "guests": "最多100位宾客 · 12个月访问" },
-    "premium": { "name": "Premium", "guests": "最多300位宾客 · 12个月访问" },
-    "unlimited": { "name": "Unlimited", "guests": "无限宾客 · 12个月访问" },
-    "vendorPro": { "name": "Vendor Pro", "guests": "面向场地和活动专业人士" },
+    "essential": {
+      "name": "Essential",
+      "guests": "最多100位宾客 · 12个月访问"
+    },
+    "premium": {
+      "name": "Premium",
+      "guests": "最多300位宾客 · 12个月访问"
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "guests": "无限宾客 · 12个月访问"
+    },
+    "vendorPro": {
+      "name": "Vendor Pro",
+      "guests": "面向场地和活动专业人士"
+    },
     "features": {
       "oneEvent": "1个活动",
       "fullAccess": "完全访问所有婚礼和活动规划工具",
       "easySetup": "简单设置和无缝体验",
       "unlimitedEvents": "无限活动",
       "unlimitedGuests": "无限宾客",
-      "fullPlatform": "完全平台访问"
-    }
+      "fullPlatform": "完全平台访问",
+      "forVenues": "面向婚礼和活动场地",
+      "weddingPlanners": "婚礼策划师",
+      "djMcPros": "DJ、MC和活动专业人士"
+    },
+    "reassurance": "一个简单计划。完全访问。仅按宾客数量选择。",
+    "trialUnderButton": "包含7天免费试用",
+    "bestForMost": "最适合大多数婚礼",
+    "forVenuesAndPros": "面向场地和专业人士"
   },
   "testimonials": {
     "title": "您的朋友会印象深刻。",
     "subtitle": "看看情侣们对Wedding Waitress的评价。",
     "items": [
-      { "name": "Sarah & James", "text": "这让我们的婚礼策划变得如此轻松。我们毫无压力地管理了200位宾客！" },
-      { "name": "Emily & Tom", "text": "二维码座位太棒了 — 我们的宾客喜欢即刻找到自己的桌位。" },
-      { "name": "Jessica & Michael", "text": "一切都组织得完美无缺。流程表让所有供应商都按计划进行。" },
-      { "name": "Olivia & Daniel", "text": "宾客名单管理节省了我们很多时间。绝对的改变者！" },
-      { "name": "Sophie & Chris", "text": "席位卡和座位表看起来无比专业。物超所值。" },
-      { "name": "Mia & Liam", "text": "我们的协调员对一切的组织程度印象深刻。感谢Wedding Waitress！" }
-    ]
+      {
+        "name": "Sarah & James",
+        "text": "这让我们的婚礼策划变得如此轻松。我们毫无压力地管理了200位宾客！"
+      },
+      {
+        "name": "Emily & Tom",
+        "text": "二维码座位太棒了 — 我们的宾客喜欢即刻找到自己的桌位。"
+      },
+      {
+        "name": "Jessica & Michael",
+        "text": "一切都组织得完美无缺。流程表让所有供应商都按计划进行。"
+      },
+      {
+        "name": "Olivia & Daniel",
+        "text": "宾客名单管理节省了我们很多时间。绝对的改变者！"
+      },
+      {
+        "name": "Sophie & Chris",
+        "text": "席位卡和座位表看起来无比专业。物超所值。"
+      },
+      {
+        "name": "Mia & Liam",
+        "text": "我们的协调员对一切的组织程度印象深刻。感谢Wedding Waitress！"
+      }
+    ],
+    "intro": "情侣们用它来简化宾客、座位、回复和活动流程。"
   },
   "faq": {
     "title": "常见问题",
     "subtitle": "开始之前您需要了解的一切。",
     "items": [
-      { "q": "有免费试用吗？", "a": "有！所有计划包含7天免费试用，最多20位宾客。无需信用卡。" },
-      { "q": "12个月后会怎样？", "a": "您的计划将在12个月后到期。您可以随时从仪表板以优惠价格延期。" },
-      { "q": "以后可以升级吗？", "a": "当然可以。您可以随时从Essential升级到Premium或Unlimited — 只需支付差价。" },
-      { "q": "我可以创建多少个活动？", "a": "Essential和Premium计划各支持一个活动。Unlimited计划让您创建任意数量的活动。" },
-      { "q": "宾客需要账户才能回复吗？", "a": "不需要。宾客只需扫描二维码或点击链接 — 无需登录或下载。" },
-      { "q": "可以退款吗？", "a": "如果您未超过免费试用限制，我们提供购买后14天内全额退款。" }
+      {
+        "q": "宾客需要应用程序吗？",
+        "a": "不需要。宾客只需扫描二维码或点击链接 — 无需登录、应用或下载。"
+      },
+      {
+        "q": "我可以通过电子邮件或短信发送RSVP邀请吗？",
+        "a": "可以！发送精美的数字请柬并实时追踪回复。"
+      },
+      {
+        "q": "我可以在一个地方管理座位表和宾客名单吗？",
+        "a": "当然。从宾客管理到座位表，一切都集成在一个平台中。"
+      },
+      {
+        "q": "Wedding Waitress适合场地和策划师吗？",
+        "a": "是的。我们的Vendor Pro计划专为场地、策划师、DJ和活动专业人士设计。"
+      },
+      {
+        "q": "7天免费试用后会怎样？",
+        "a": "您可以随时升级。如果不升级，您的数据仍然安全，您可以稍后返回。"
+      },
+      {
+        "q": "可以退款吗？",
+        "a": "如果您未超过免费试用限制，我们提供购买后14天内全额退款。"
+      }
     ]
   },
   "contact": {
@@ -130,7 +307,7 @@
     "title1": "所有的魔力。",
     "title2": "没有压力。",
     "subtitle": "开始规划您的完美一天 — 免费的。",
-    "cta": "免费开始"
+    "cta": "开始免费试用"
   },
   "footer": {
     "tagline": "受到全澳大利亚情侣信赖的一体化婚礼策划平台。",

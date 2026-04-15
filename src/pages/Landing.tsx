@@ -119,7 +119,8 @@ export const Landing = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
-          <p className="text-white/60 text-sm mt-6">{t('hero.trusted')}</p>
+          <p className="text-white/70 text-sm mt-4">{t('hero.trustLine')}</p>
+          <p className="text-white/60 text-sm mt-2">{t('hero.trusted')}</p>
         </div>
       </section>
 
@@ -205,8 +206,11 @@ export const Landing = () => {
           <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">
             {t('pricing.subtitle')}
           </p>
-          <p className="text-base font-medium text-primary text-center mb-16 max-w-2xl mx-auto">
+          <p className="text-base font-medium text-primary text-center mb-4 max-w-2xl mx-auto">
             {t('pricing.trialNote')}
+          </p>
+          <p className="text-sm text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            {t('pricing.reassurance')}
           </p>
 
           {/* Main Plans */}
@@ -234,6 +238,7 @@ export const Landing = () => {
               <SignUpModal>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
+              <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             </div>
 
             {/* Premium — highlighted */}
@@ -241,7 +246,8 @@ export const Landing = () => {
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.mostPopular')}</span>
               </div>
-              <div className="flex items-center gap-2 mb-4 mt-2">
+              <p className="text-xs text-primary/70 text-center mt-2">{t('pricing.bestForMost')}</p>
+              <div className="flex items-center gap-2 mb-4 mt-1">
                 <Crown className="w-5 h-5 text-primary" />
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.premium.name')}</h3>
               </div>
@@ -262,6 +268,7 @@ export const Landing = () => {
               <SignUpModal>
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </SignUpModal>
+              <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             </div>
 
             {/* Unlimited */}
@@ -287,12 +294,13 @@ export const Landing = () => {
               <SignUpModal>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
+              <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             </div>
 
             {/* Vendor Pro */}
             <div className="bg-gray-900 text-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.forProfessionals')}</span>
+                <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.forVenuesAndPros')}</span>
               </div>
               <div className="flex items-center gap-2 mb-4 mt-2">
                 <Building2 className="w-5 h-5 text-purple-400" />
@@ -303,9 +311,9 @@ export const Landing = () => {
                 <span className="text-gray-400 text-lg">/month</span>
               </div>
               <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
-              <ul className="space-y-3 mb-8">
-                {[t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform')].map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
+              <ul className="space-y-2 mb-8">
+                {[t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-xs text-gray-300">
                     <Check className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
                     {f}
                   </li>
@@ -323,6 +331,7 @@ export const Landing = () => {
       {/* Testimonials */}
       <section className="py-24 md:py-32 px-4">
         <div className="max-w-7xl mx-auto">
+          <p className="text-sm text-primary font-medium text-center mb-4">{t('testimonials.intro')}</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('testimonials.title')}
           </h2>
