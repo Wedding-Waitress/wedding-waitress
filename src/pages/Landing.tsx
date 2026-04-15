@@ -12,6 +12,7 @@ import featureQr from "@/assets/feature-qr.jpg";
 import featureTimeline from "@/assets/feature-timeline.jpg";
 import featureInvitations from "@/assets/feature-invitations.jpg";
 import ctaImg from "@/assets/cta-wedding.jpg";
+import ctaVideo from "/videos/cta-wedding-ring.mp4.asset.json";
 import featureMyevents from "@/assets/feature-myevents.jpg";
 import featurePlacecards from "@/assets/feature-placecards.jpg";
 import featureTablecharts from "@/assets/feature-tablecharts.jpg";
@@ -274,16 +275,25 @@ export const Landing = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="relative py-32 md:py-40 overflow-hidden">
+      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={ctaImg} alt="Wedding moment" loading="lazy" width={1920} height={800} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/55" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover scale-105 animate-[ctaZoom_20s_ease-in-out_infinite_alternate]"
+            poster={ctaImg}
+          >
+            <source src={ctaVideo.url} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/50" />
         </div>
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-[ctaFadeIn_1.5s_ease-out_both]">
+          <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
             All the magic.<br />None of the stress.
           </h2>
-          <p className="text-white/70 text-lg mb-10">Start planning your perfect day — it's free.</p>
+          <p className="text-white/70 text-lg md:text-xl mb-12">Start planning your perfect day — it's free.</p>
           <SignUpModal>
             <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
               Get Started Free
