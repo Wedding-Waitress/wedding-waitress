@@ -6,7 +6,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { SignInModal } from "@/components/auth/SignInModal";
 import { useTranslation } from 'react-i18next';
-import { toast } from "sonner";
 
 const headerLanguages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -41,16 +40,11 @@ export const Header: React.FC<HeaderProps> = ({
   const [signInOpen, setSignInOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation('landing');
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
 
   const handleLanguageChange = (langCode: string) => {
-    const supportedFull = ['en', 'de', 'es', 'fr', 'it', 'nl', 'ja', 'ar', 'vi', 'zh', 'tr', 'el'];
-    if (supportedFull.includes(langCode)) {
-      i18n.changeLanguage(langCode);
-    } else {
-      toast("Language support coming soon", { description: "We're working on adding this language." });
-    }
+    i18n.changeLanguage(langCode);
   };
 
   const handleBackToSignUp = () => {
@@ -95,12 +89,12 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="hidden md:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
                   <a href="#how-it-works" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
-                    How it Works
+                    {t('nav.howItWorks')}
                   </a>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
-                        Products
+                        {t('nav.products')}
                         <ChevronDown className="w-3 h-3 ml-1" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -115,24 +109,24 @@ export const Header: React.FC<HeaderProps> = ({
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <a href="#pricing" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
-                    Pricing
+                    {t('nav.pricing')}
                   </a>
                   <a href="#faq" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
-                    FAQ
+                    {t('nav.faq')}
                   </a>
                   <a href="#contact" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
-                    Contact
+                    {t('nav.contact')}
                   </a>
                 </nav>
 
                 {!hideDashboardElements && (
                   <>
                     <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950">
-                      Sign In
+                      {t('nav.signIn')}
                     </Button>
                     <SignUpModal>
                       <Button ref={signUpButtonRef} size="sm" className="min-h-[44px] text-sm bg-primary hover:bg-primary/90 text-white rounded-xl px-6">
-                        Get Started
+                        {t('nav.getStarted')}
                       </Button>
                     </SignUpModal>
                     <DropdownMenu>
@@ -176,23 +170,23 @@ export const Header: React.FC<HeaderProps> = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[80vh] overflow-y-auto">
                     <DropdownMenuItem onClick={() => setSignInOpen(true)}>
-                      <span className="w-full font-semibold" style={{ color: '#6D28D9' }}>Sign In</span>
+                      <span className="w-full font-semibold" style={{ color: '#6D28D9' }}>{t('nav.signIn')}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <SignUpModal>
                         <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#6D28D9' }}>
-                          Sign Up
+                          {t('nav.signUp')}
                         </button>
                       </SignUpModal>
                     </DropdownMenuItem>
                     <div className="my-1 h-px bg-gray-100"></div>
-                    <DropdownMenuItem><a href="#how-it-works" className="w-full">How it Works</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
                     {productLinks.map((link) => (
                       <DropdownMenuItem key={link.href}><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem><a href="#pricing" className="w-full">Pricing</a></DropdownMenuItem>
-                    <DropdownMenuItem><a href="#faq" className="w-full">FAQ</a></DropdownMenuItem>
-                    <DropdownMenuItem><a href="#contact" className="w-full">Contact</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -202,7 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Logged-in user actions */}
           {user && !hideDashboardElements && (
             <Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
-              Logout
+              {t('nav.logout')}
             </Button>
           )}
         </div>

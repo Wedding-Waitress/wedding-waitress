@@ -1,62 +1,148 @@
 {
+  "nav": {
+    "howItWorks": "How it Works",
+    "products": "Products",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "getStarted": "Get Started",
+    "logout": "Logout"
+  },
   "hero": {
-    "title": "Plan Your Perfect Wedding",
-    "subtitle": "Streamline your wedding planning with our all-in-one platform. Manage guests, seating, and create beautiful event materials.",
+    "title1": "Plan Your Wedding",
+    "title2": "Without the Stress.",
+    "subtitle": "Everything you need to manage guests, seating, invitations and your entire wedding — all in one place.",
     "cta": "Get Started Free",
-    "signIn": "Sign In"
+    "trusted": "Trusted by couples across Australia"
   },
-  "features": {
-    "title": "Everything You Need",
-    "guestManagement": {
-      "title": "Guest Management",
-      "description": "Easily manage your guest list with RSVP tracking and dietary requirements"
-    },
-    "seating": {
-      "title": "Seating Arrangements",
-      "description": "Create perfect seating plans with drag-and-drop table management"
-    },
-    "qrCodes": {
-      "title": "QR Codes",
-      "description": "Generate custom QR codes for guest lookup and self-service check-in"
-    },
-    "placeCards": {
-      "title": "Place Cards",
-      "description": "Design and print beautiful place cards with personalized messages"
+  "featureCards": {
+    "sectionTitle": "The wedding platform your guests will love.",
+    "sectionSubtitle": "Every tool you need, beautifully designed and simple to use.",
+    "guestList": { "title": "Guest List", "desc": "Manage all your guests in one place" },
+    "tables": { "title": "Tables & Seating", "desc": "Organise tables and seating effortlessly" },
+    "qr": { "title": "QR Code Seating", "desc": "Guests scan and find their table instantly" },
+    "invitations": { "title": "Invitations", "desc": "Send invites and track RSVPs" },
+    "runningSheet": { "title": "Running Sheet", "desc": "Plan your full wedding timeline" },
+    "floorPlan": { "title": "Floor Plan", "desc": "Visualise your venue layout" },
+    "myEvents": { "title": "My Events", "desc": "Manage all your events with ease" },
+    "placeCards": { "title": "Name Place Cards", "desc": "Beautiful printed name cards" },
+    "tableCharts": { "title": "Individual Table Charts", "desc": "Per-table seating charts for each table" },
+    "dietary": { "title": "Dietary Requirements", "desc": "Track every guest's dietary needs" },
+    "seatingChart": { "title": "Full Seating Chart", "desc": "Complete print-ready seating chart" },
+    "kiosk": { "title": "Kiosk Live View", "desc": "Self-service guest check-in at venue" },
+    "djmc": { "title": "DJ-MC Questionnaire", "desc": "Share music and timing with your DJ" }
+  },
+  "alternating": {
+    "guestList": { "title": "Guest List Management", "desc": "Easily manage your entire guest list, track RSVPs, and organise relationships. Import guests, send invitations, and keep everything perfectly organised." },
+    "tables": { "title": "Seating Made Simple", "desc": "Create tables and assign guests with ease using our visual drag-and-drop system. See capacity at a glance and make last-minute changes effortlessly." },
+    "qr": { "title": "Instant Guest Seating", "desc": "Guests scan a QR code to instantly find their table — no confusion, no delays. A modern, tech-forward touch your guests will love." },
+    "runningSheet": { "title": "Plan Every Moment", "desc": "Create a full schedule for your wedding day and share with vendors. Keep everyone on the same page from ceremony to last dance." },
+    "invitations": { "title": "Invitations & RSVPs", "desc": "Send beautiful digital invitations and track responses in real time. Customise designs, add QR codes, and manage RSVPs all in one place." },
+    "myEvents": { "title": "Your Events, Your Way", "desc": "Create and manage multiple events from a single dashboard. Track countdowns, set up venues, and keep every detail organised beautifully." },
+    "placeCards": { "title": "Elegant Name Place Cards", "desc": "Design stunning printed name cards with custom fonts, colours, and backgrounds. Export in high-resolution 300 DPI for professional printing." },
+    "tableCharts": { "title": "Individual Table Charts", "desc": "Generate beautiful per-table seating charts your guests can see at a glance. Perfect for printing and displaying at each table." },
+    "dietary": { "title": "Dietary Requirements Made Easy", "desc": "Track every guest's dietary needs and generate kitchen-ready charts. Ensure no guest is overlooked with detailed allergen and preference tracking." },
+    "seatingChart": { "title": "Full Seating Chart", "desc": "Create a complete, print-ready seating chart showing every guest and table. Export to PDF with custom styling and your event branding." },
+    "kiosk": { "title": "Kiosk Live View", "desc": "Set up self-service check-in kiosks at your venue entrance. Guests search their name and instantly see their table assignment on screen." },
+    "djmc": { "title": "DJ & MC Questionnaire", "desc": "Share your music preferences, pronunciation guides, and event timeline directly with your DJ or MC. Keep everyone aligned for the perfect celebration." },
+    "floorPlan": { "title": "Venue Floor Plan", "desc": "Visualise your entire venue layout with an interactive floor plan. Position tables, map the ceremony space, and plan every area of your event." },
+    "learnMore": "Learn More"
+  },
+  "extraGrid": {
+    "title": "Everything you need for your perfect day",
+    "djmc": { "title": "DJ & MC Planner", "desc": "Curate your perfect playlist" },
+    "dietary": { "title": "Dietary Requirements", "desc": "Track every guest's needs" },
+    "placeCards": { "title": "Place Cards", "desc": "Beautiful printed name cards" },
+    "kiosk": { "title": "Live Kiosk View", "desc": "Self-service guest check-in" },
+    "seatingCharts": { "title": "Seating Charts", "desc": "Print-ready table layouts" },
+    "myEvents": { "title": "My Events", "desc": "Manage all your events" },
+    "tables": { "title": "Tables Setup", "desc": "Create and organise tables" },
+    "guestList": { "title": "Guest List", "desc": "Full guest management" },
+    "qr": { "title": "QR Code Seating", "desc": "Scan to find your table" },
+    "invitations": { "title": "Invitations & Cards", "desc": "Send and track invites" },
+    "tableCharts": { "title": "Individual Table Charts", "desc": "Per-table guest display" },
+    "floorPlan": { "title": "Floor Plan", "desc": "Visualise your venue layout" },
+    "fullSeatingChart": { "title": "Full Seating Chart", "desc": "Complete seating overview" },
+    "runningSheet": { "title": "Running Sheet", "desc": "Plan your full timeline" }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Start free. Upgrade when you're ready.",
+    "trialNote": "All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.",
+    "saveLine": "Save over $1,000 vs buying tools separately",
+    "getStarted": "Get Started",
+    "mostPopular": "Most Popular",
+    "forProfessionals": "For Professionals",
+    "approvalRequired": "Approval required",
+    "essential": { "name": "Essential", "guests": "Up to 100 guests · 12-month access" },
+    "premium": { "name": "Premium", "guests": "Up to 300 guests · 12-month access" },
+    "unlimited": { "name": "Unlimited", "guests": "Unlimited guests · 12-month access" },
+    "vendorPro": { "name": "Vendor Pro", "guests": "For venues & event professionals" },
+    "features": {
+      "oneEvent": "1 event",
+      "fullAccess": "Full access to all wedding & event planning tools",
+      "easySetup": "Easy setup & seamless experience",
+      "unlimitedEvents": "Unlimited events",
+      "unlimitedGuests": "Unlimited guests",
+      "fullPlatform": "Full platform access"
     }
   },
-  "howItWorks": {
-    "title": "How It Works",
-    "step1": {
-      "title": "Create Event",
-      "description": "Set up your wedding or event details"
-    },
-    "step2": {
-      "title": "Add Guests",
-      "description": "Import or manually add your guest list"
-    },
-    "step3": {
-      "title": "Arrange Seating",
-      "description": "Organize tables and assign seats"
-    },
-    "step4": {
-      "title": "Export & Share",
-      "description": "Generate QR codes, place cards, and seating charts"
-    }
+  "testimonials": {
+    "title": "Your friends will be impressed.",
+    "subtitle": "See what couples are saying about Wedding Waitress.",
+    "items": [
+      { "name": "Sarah & James", "text": "This made our wedding planning so easy. We managed 200 guests without any stress!" },
+      { "name": "Emily & Tom", "text": "The QR seating was amazing — our guests loved scanning to find their table instantly." },
+      { "name": "Jessica & Michael", "text": "Everything was organised perfectly. The running sheet kept all our vendors on track." },
+      { "name": "Olivia & Daniel", "text": "We saved so many hours with the guest list management. Absolute game changer!" },
+      { "name": "Sophie & Chris", "text": "The place cards and seating charts looked incredibly professional. Worth every cent." },
+      { "name": "Mia & Liam", "text": "Our coordinator was impressed with how organised everything was. Thank you Wedding Waitress!" }
+    ]
   },
-  "cta": {
-    "title": "Ready to Get Started?",
-    "subtitle": "Join thousands of happy couples planning their perfect day",
-    "button": "Start Planning Today"
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know before getting started.",
+    "items": [
+      { "q": "Is there a free trial?", "a": "Yes! All plans include a 7-day free trial with up to 20 guests. No credit card required." },
+      { "q": "What happens after 12 months?", "a": "Your plan expires after 12 months. You can extend it anytime from your dashboard at a discounted rate." },
+      { "q": "Can I upgrade my plan later?", "a": "Absolutely. You can upgrade from Essential to Premium or Unlimited at any time — you'll only pay the difference." },
+      { "q": "How many events can I create?", "a": "Essential and Premium plans support one event each. The Unlimited plan lets you create as many events as you need." },
+      { "q": "Do guests need an account to RSVP?", "a": "No. Guests simply scan the QR code or click a link — no login or download required." },
+      { "q": "Can I get a refund?", "a": "We offer a full refund within 14 days of purchase if you haven't exceeded the free trial limits." }
+    ]
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Have a question? We'd love to hear from you.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "you@example.com",
+    "messagePlaceholder": "How can we help?",
+    "sendButton": "Send Message",
+    "sending": "Sending...",
+    "sent": "✓ Message Sent!"
+  },
+  "finalCta": {
+    "title1": "All the magic.",
+    "title2": "None of the stress.",
+    "subtitle": "Start planning your perfect day — it's free.",
+    "cta": "Get Started Free"
   },
   "footer": {
+    "tagline": "The all-in-one wedding planning platform trusted by couples across Australia.",
     "explore": "Explore",
     "support": "Support",
     "features": "Features",
     "pricing": "Pricing",
-    "about": "About",
-    "blog": "Blog",
-    "help": "Help Center",
     "faq": "FAQ",
-    "contact": "Contact Us"
+    "contactUs": "Contact Us",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "followUs": "Follow Us",
+    "copyright": "Wedding Waitress. All rights reserved."
   }
 }

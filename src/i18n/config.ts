@@ -51,6 +51,10 @@ import elCommon from './locales/el/common.json';
 import elLanding from './locales/el/landing.json';
 import elDashboard from './locales/el/dashboard.json';
 
+import hiCommon from './locales/hi/common.json';
+import hiLanding from './locales/hi/landing.json';
+import hiDashboard from './locales/hi/dashboard.json';
+
 const resources = {
   en: {
     common: enCommon,
@@ -111,6 +115,11 @@ const resources = {
     common: elCommon,
     landing: elLanding,
     dashboard: elDashboard,
+  },
+  hi: {
+    common: hiCommon,
+    landing: hiLanding,
+    dashboard: hiDashboard,
   },
 };
 
