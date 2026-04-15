@@ -261,13 +261,13 @@ Streamline your wedding & event planning with our sophisticated guest management
       </section>
 
       {/* Features Section */}
-      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-background">
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20">
         <div className="w-full px-4">
           <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              How <span className="gradient-text">Wedding Waitress</span> Works
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-white">
+              How <span className="text-white/90">Wedding Waitress</span> Works
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto my-6 sm:my-12 md:my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
+            <p className="text-base sm:text-lg md:text-xl text-white/75 max-w-3xl mx-auto my-6 sm:my-12 md:my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
 It handles every detail of your event's seating chart, RSVP & more so you can focus on what matters most - celebrating your special day.</p>
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 my-8 sm:my-12 md:my-[100px] text-white">
               Four Simple Steps To <span className="text-white/90">Create Your Perfect Wedding</span> Or Event Experience
