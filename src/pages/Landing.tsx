@@ -15,7 +15,7 @@ import featureTimeline from "@/assets/feature-timeline.jpg";
 import featureInvitations from "@/assets/feature-invitations.jpg";
 import ctaImg from "@/assets/cta-wedding.jpg";
 const ctaVideoUrl = "/__l5e/assets-v1/3df32a40-373d-4aa5-90c4-832d147e46a6/cta-wedding-ring.mp4";
-const heroVideoUrl = "/__l5e/assets-v1/c3478e86-4416-4d11-9a8b-18024f7b6445/hero-wedding-video.mp4";
+import heroCombinedVideo from "@/assets/hero-combined.mp4";
 import featureMyevents from "@/assets/feature-myevents.jpg";
 import featurePlacecards from "@/assets/feature-placecards.jpg";
 import featureTablecharts from "@/assets/feature-tablecharts.jpg";
