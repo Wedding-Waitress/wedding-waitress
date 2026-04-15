@@ -43,7 +43,7 @@ export const Admin = () => {
   if (adminLoading || authLoading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#6D28D9' }}></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#967A59' }}></div>
       </div>
     );
   }
@@ -59,9 +59,9 @@ export const Admin = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8" style={{ color: '#6D28D9' }} />
+              <Shield className="w-8 h-8" style={{ color: '#967A59' }} />
               <div>
-                <h1 className="text-2xl font-bold" style={{ color: '#6D28D9' }}>
+                <h1 className="text-2xl font-bold" style={{ color: '#967A59' }}>
                   Admin Dashboard
                 </h1>
                 <p className="text-sm text-muted-foreground">Production Environment</p>
@@ -72,7 +72,7 @@ export const Admin = () => {
               variant="outline"
               onClick={() => navigate('/dashboard')}
               className="flex items-center gap-2"
-              style={{ borderColor: '#6D28D9', color: '#6D28D9' }}
+              style={{ borderColor: '#967A59', color: '#967A59' }}
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back to Dashboard</span>

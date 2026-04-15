@@ -101,7 +101,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
         <h1 style={{ 
           fontSize: '18pt', 
           fontWeight: 'bold', 
-          color: '#7C3AED',
+          color: '#967A59',
           margin: '0 0 4pt 0'
         }}>
           {event.name}

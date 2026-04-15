@@ -477,7 +477,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               </div>
 
               {currentEvent && (
-                <span className="text-lg font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">
+                <span className="text-lg font-normal bg-gradient-to-r from-[#967A59] to-[#9333EA] bg-clip-text text-transparent">
                   Dietary Requirements for {currentEvent.name}
                 </span>
               )}
@@ -491,7 +491,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     Choose Event:
                   </label>
                   <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                    <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
                       <SelectValue placeholder="Choose Event" />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border z-50">
@@ -649,7 +649,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       {/* Header - matching Full Seating Chart style */}
                       <div className="text-center" style={{ marginBottom: '1mm' }}>
                         {/* Line 1: Event Name (purple, larger) */}
-                        <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                        <h1 className="font-bold" style={{ color: '#967A59', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                           {currentEvent.name}
                         </h1>
                         
@@ -672,7 +672,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         </p>
                         
                         {/* Purple divider */}
-                        <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
+                        <div style={{ borderTop: '2px solid #967A59', marginTop: '1.5mm' }}></div>
                         
                         {/* Total Dietary Guest Requirements - between purple line and gray header */}
                         <p className="text-center" style={{ marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
@@ -848,7 +848,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   {/* Event Name */}
                   {currentEvent && (
                     <>
-                      <h1 className="text-xl font-semibold" style={{ color: '#7C3AED' }}>
+                      <h1 className="text-xl font-semibold" style={{ color: '#967A59' }}>
                         {currentEvent.name}
                       </h1>
 

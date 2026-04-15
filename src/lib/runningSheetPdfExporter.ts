@@ -162,7 +162,7 @@ const generateRunningSheetHTML = (
     <div style="width:794px;background:#fff;font-family:Arial,Helvetica,sans-serif;padding:40px 40px 0 40px;box-sizing:border-box;">
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
-        <div style="font-size:22px;font-weight:bold;color:#6d28d9;">${escapeHtml(event.name)}</div>
+        <div style="font-size:22px;font-weight:bold;color:#967A59;">${escapeHtml(event.name)}</div>
         <div style="font-size:16px;color:#222;margin-top:4px;">Running Sheet</div>
       </div>
       <!-- Event details -->
@@ -170,7 +170,7 @@ const generateRunningSheetHTML = (
         ${detailsHtml}
       </div>
       <!-- Purple divider -->
-      <div style="border-top:2px solid #6d28d9;margin:8px 0 14px 0;"></div>
+      <div style="border-top:2px solid #967A59;margin:8px 0 14px 0;"></div>
       ${notesBlock}
       <!-- Table -->
       <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;">

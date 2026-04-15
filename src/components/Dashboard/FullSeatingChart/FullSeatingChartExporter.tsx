@@ -163,7 +163,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Event name
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(124, 58, 237); // Darker purple #7C3AED
+        pdf.setTextColor(124, 58, 237); // Darker purple #967A59
         pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
         y += 6;
 

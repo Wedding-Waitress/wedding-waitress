@@ -93,7 +93,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
     >
       {/* Drop indicator ABOVE this guest */}
       {isBeingDraggedOver && indicatorPosition === 'above' && (
-        <div className="absolute -top-1.5 left-0 right-0 h-2 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#5B21B6] z-20 pointer-events-none" />
+        <div className="absolute -top-1.5 left-0 right-0 h-2 bg-[#967A59] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#7A6347] z-20 pointer-events-none" />
       )}
       
       <div className="flex items-center gap-1">
@@ -132,7 +132,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
       
       {/* Drop indicator BELOW this guest */}
       {isBeingDraggedOver && indicatorPosition === 'below' && (
-        <div className="absolute -bottom-1.5 left-0 right-0 h-2 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#5B21B6] z-20 pointer-events-none" />
+        <div className="absolute -bottom-1.5 left-0 right-0 h-2 bg-[#967A59] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#7A6347] z-20 pointer-events-none" />
       )}
     </div>
   );

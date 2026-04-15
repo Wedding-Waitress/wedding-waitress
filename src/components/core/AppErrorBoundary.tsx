@@ -35,7 +35,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
               marginTop: 20, 
               padding: '10px 20px', 
               cursor: 'pointer',
-              backgroundColor: '#6D28D9',
+              backgroundColor: '#967A59',
               color: 'white',
               border: 'none',
               borderRadius: '6px'

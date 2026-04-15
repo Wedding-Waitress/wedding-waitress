@@ -494,7 +494,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   return <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <QrCodeIcon className="h-5 w-5 text-purple-600" />
+          <QrCodeIcon className="h-5 w-5 text-[#856A4C]" />
           QR Code Generator
         </CardTitle>
       </CardHeader>
@@ -520,10 +520,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}
-              <AccordionItem value="color" className="border border-primary rounded-lg bg-purple-50/30">
+              <AccordionItem value="color" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-purple-600" />
+                    <Palette className="h-4 w-4 text-[#856A4C]" />
                     <span className="text-sm font-medium">Color</span>
                   </div>
                 </AccordionTrigger>
@@ -553,10 +553,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* SHAPE Section */}
-              <AccordionItem value="shape" className="border border-primary rounded-lg bg-purple-50/30">
+              <AccordionItem value="shape" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <Square className="h-4 w-4 text-purple-600" />
+                    <Square className="h-4 w-4 text-[#856A4C]" />
                     <span className="text-sm font-medium">Shape & Form</span>
                   </div>
                 </AccordionTrigger>
@@ -570,8 +570,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           onClick={() => updateShapes({ dotsShape: shape })}
                           className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
                             qrShapes.dotsShape === shape 
-                              ? 'border-purple-600 bg-purple-100' 
-                              : 'border-gray-200 hover:border-purple-300'
+                              ? 'border-[#856A4C] bg-[#F5F0EB]' 
+                              : 'border-gray-200 hover:border-[#C4A882]'
                           }`}
                           title={shape}
                         >
@@ -596,8 +596,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             onClick={() => updateShapes({ markerBorderShape: shape })}
                             className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
                               qrShapes.markerBorderShape === shape 
-                                ? 'border-purple-600 bg-purple-100' 
-                                : 'border-gray-200 hover:border-purple-300'
+                                ? 'border-[#856A4C] bg-[#F5F0EB]' 
+                                : 'border-gray-200 hover:border-[#C4A882]'
                             }`}
                             title={shape}
                           >
@@ -617,8 +617,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             onClick={() => updateShapes({ markerCenterShape: shape })}
                             className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
                               qrShapes.markerCenterShape === shape 
-                                ? 'border-purple-600 bg-purple-100' 
-                                : 'border-gray-200 hover:border-purple-300'
+                                ? 'border-[#856A4C] bg-[#F5F0EB]' 
+                                : 'border-gray-200 hover:border-[#C4A882]'
                             }`}
                             title={shape}
                           >
@@ -633,10 +633,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* LOGO Section */}
-              <AccordionItem value="logo" className="border border-primary rounded-lg bg-purple-50/30">
+              <AccordionItem value="logo" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-purple-600" />
+                    <ImageIcon className="h-4 w-4 text-[#856A4C]" />
                     <span className="text-sm font-medium">Logo</span>
                   </div>
                 </AccordionTrigger>
@@ -665,7 +665,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </div>
                   ) : (
                     <div
-                      className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer hover:bg-purple-50/50 transition-colors ${isUploadingLogo ? 'opacity-50 pointer-events-none' : ''}`}
+                      className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer hover:bg-[#F5F0EB]/50 transition-colors ${isUploadingLogo ? 'opacity-50 pointer-events-none' : ''}`}
                       onClick={() => {
                         const input = document.createElement('input');
                         input.type = 'file';
@@ -678,7 +678,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       }}
                     >
                       {isUploadingLogo ? (
-                        <Loader2 className="h-5 w-5 mx-auto animate-spin text-purple-600" />
+                        <Loader2 className="h-5 w-5 mx-auto animate-spin text-[#856A4C]" />
                       ) : (
                         <Upload className="h-5 w-5 mx-auto text-muted-foreground" />
                       )}
@@ -707,19 +707,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </Button>
             
             {/* Copy Link - Full Width */}
-            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="border-purple-400 w-full">
+            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="border-[#C4A882] w-full">
               <Link className="h-4 w-4 mr-2" />
               Copy Link
             </Button>
             
             {/* PNG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-purple-300 w-full">
+            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-[#C4A882] w-full">
               <FileDown className="h-4 w-4 mr-2" />
               PNG
             </Button>
             
             {/* JPG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="border-purple-300 w-full">
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="border-[#C4A882] w-full">
               <ImageIcon className="h-4 w-4 mr-2" />
               JPG
             </Button>
@@ -752,7 +752,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-purple-600" />
+                    <Mail className="h-5 w-5 text-[#856A4C]" />
                     <div>
                       <h4 className="text-sm font-semibold">RSVP Invite</h4>
                       <p className="text-xs text-muted-foreground">Let guests view your digital invitation and RSVP</p>
@@ -774,11 +774,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="rsvp-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-purple-600">Configure RSVP Invite Settings</span>
+                        <span className="text-[#856A4C]">Configure RSVP Invite Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
-                          <div className="p-3 bg-purple-50/50 rounded-md space-y-2">
+                          <div className="p-3 bg-[#F5F0EB]/50 rounded-md space-y-2">
                             <h5 className="text-xs font-semibold">Upload Your Digital Invitation</h5>
                             <p className="text-xs text-muted-foreground">
                               Create an A4 size digital invitation and upload it as PDF, JPG, or PNG.
@@ -965,7 +965,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Video className="h-5 w-5 text-purple-600" />
+                    <Video className="h-5 w-5 text-[#856A4C]" />
                     <div>
                       <h4 className="text-sm font-semibold">Welcome Video</h4>
                       <p className="text-xs text-muted-foreground">Add a personal video message for your guests</p>
@@ -987,7 +987,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="video-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-purple-600">Configure Welcome Video Settings</span>
+                        <span className="text-[#856A4C]">Configure Welcome Video Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="p-3 bg-muted/30 rounded-md space-y-3">
@@ -1102,7 +1102,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-purple-600" />
+                    <MapPin className="h-5 w-5 text-[#856A4C]" />
                     <div>
                       <h4 className="text-sm font-semibold">Ceremony Floor Plan</h4>
                       <p className="text-xs text-muted-foreground">Show your ceremony floor plan to guests</p>
@@ -1124,7 +1124,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="floorplan-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-purple-600">Configure Ceremony Floor Plan Settings</span>
+                        <span className="text-[#856A4C]">Configure Ceremony Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
@@ -1318,7 +1318,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-purple-600" />
+                    <MapPin className="h-5 w-5 text-[#856A4C]" />
                     <div>
                       <h4 className="text-sm font-semibold">Reception Floor Plan</h4>
                       <p className="text-xs text-muted-foreground">Show your reception floor plan to guests</p>
@@ -1340,7 +1340,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="reception-floorplan-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-purple-600">Configure Reception Floor Plan Settings</span>
+                        <span className="text-[#856A4C]">Configure Reception Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
@@ -1539,7 +1539,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <UtensilsCrossed className="h-5 w-5 text-purple-600" />
+                    <UtensilsCrossed className="h-5 w-5 text-[#856A4C]" />
                     <div>
                       <h4 className="text-sm font-semibold">Menu</h4>
                       <p className="text-xs text-muted-foreground">Upload your wedding menu for guests to view</p>
@@ -1561,11 +1561,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="menu-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-purple-600">Configure Menu Settings</span>
+                        <span className="text-[#856A4C]">Configure Menu Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
-                          <div className="p-3 bg-purple-50/50 rounded-md space-y-2">
+                          <div className="p-3 bg-[#F5F0EB]/50 rounded-md space-y-2">
                             <h5 className="text-xs font-semibold">Upload Your Wedding Menu</h5>
                             <p className="text-xs text-muted-foreground">
                               Upload your menu as a PDF, JPG, or PNG so guests can view it on their phones.
@@ -1686,22 +1686,22 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* Hero Image / Logo Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-border bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-3">
-                  <ImageIcon className="h-5 w-5 text-purple-600" />
+                  <ImageIcon className="h-5 w-5 text-[#856A4C]" />
                   <div>
                     <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
                     <p className="text-xs text-muted-foreground">Upload an image to replace the purple gradient behind your event header in the guest view</p>
-                    <p className="text-sm font-semibold text-purple-600 mt-1">📸 For best results, use a horizontal - landscape (6×4) photo.</p>
+                    <p className="text-sm font-semibold text-[#856A4C] mt-1">📸 For best results, use a horizontal - landscape (6×4) photo.</p>
                   </div>
                 </div>
 
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="hero-image-config" className="border-0">
                     <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <span className="text-purple-600">Configure Hero Background</span>
+                      <span className="text-[#856A4C]">Configure Hero Background</span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-3 pt-2">
-                        <div className="p-3 bg-purple-50/50 rounded-md space-y-2">
+                        <div className="p-3 bg-[#F5F0EB]/50 rounded-md space-y-2">
                           <h5 className="text-xs font-semibold">Upload Your Photo or Logo</h5>
                           <p className="text-xs text-muted-foreground">
                             Upload a JPG or PNG image. It will appear as the background behind "You're invited to..." in the guest view. A dark overlay is applied automatically for text readability.

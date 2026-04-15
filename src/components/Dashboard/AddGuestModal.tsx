@@ -921,7 +921,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             {!isEdit && (
               <div className="pt-1 pb-2">
                 <Label className="text-sm font-medium mb-2 block">Guest Category</Label>
-                <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
+                <div className="flex items-center justify-center gap-0 bg-[#967A59]/10 border-2 border-[#967A59] rounded-full p-1 w-full">
                   <button
                     type="button"
                     onClick={() => {
@@ -1229,7 +1229,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
                 {/* Add Member Form */}
                 {showAddMemberForm && (
-                  <div className="bg-purple-50 p-4 rounded-lg space-y-3 border border-[#7248e6]/20">
+                  <div className="bg-[#F5F0EB] p-4 rounded-lg space-y-3 border border-[#967A59]/20">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs">First Name *</Label>
@@ -1237,7 +1237,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           value={memberForm.first_name}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, first_name: e.target.value }))}
                           placeholder="First name"
-                          className="rounded-full border-[#7248e6] text-sm"
+                          className="rounded-full border-[#967A59] text-sm"
                         />
                       </div>
                       <div>
@@ -1246,7 +1246,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           value={memberForm.last_name}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, last_name: e.target.value }))}
                           placeholder="Last name"
-                          className="rounded-full border-[#7248e6] text-sm"
+                          className="rounded-full border-[#967A59] text-sm"
                         />
                       </div>
                     </div>
@@ -1257,7 +1257,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           value={memberForm.mobile}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, mobile: e.target.value }))}
                           placeholder="Mobile (optional)"
-                          className="rounded-full border-[#7248e6] text-sm"
+                          className="rounded-full border-[#967A59] text-sm"
                         />
                       </div>
                       <div>
@@ -1266,7 +1266,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           value={memberForm.email}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, email: e.target.value }))}
                           placeholder="Email (optional)"
-                          className="rounded-full border-[#7248e6] text-sm"
+                          className="rounded-full border-[#967A59] text-sm"
                         />
                       </div>
                     </div>
@@ -1287,7 +1287,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         type="button"
                         size="sm"
                         onClick={addPartyMember}
-                        className="rounded-full bg-[#7248e6] hover:bg-[#7248e6]/90"
+                        className="rounded-full bg-[#967A59] hover:bg-[#967A59]/90"
                       >
                         Add Member
                       </Button>
@@ -1398,7 +1398,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <div className="space-y-0">
                         {alertSection && (
-                          <div className="rounded-t-3xl border-2 border-b-0 border-[#7248e6] px-3 py-2 bg-background">
+                          <div className="rounded-t-3xl border-2 border-b-0 border-[#967A59] px-3 py-2 bg-background">
                             <p className="text-red-600 font-bold text-sm whitespace-pre-wrap">{alertSection}</p>
                             <hr className="border-t-[3px] border-black mt-2" />
                           </div>
@@ -1406,7 +1406,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         <Textarea 
                           placeholder="Add any additional notes about this guest..."
                           className={cn(
-                            "border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-y min-h-[80px]",
+                            "border-2 border-[#967A59] focus-visible:border-[#967A59] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-y min-h-[80px]",
                             alertSection ? "rounded-t-none rounded-b-3xl border-t-0" : "rounded-3xl"
                           )}
                           value={hasAlertNote && separatorMatch ? userNotes : rawValue}

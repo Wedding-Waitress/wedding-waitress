@@ -11,7 +11,7 @@ import { SignInModal } from '@/components/auth/SignInModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
-const PRIMARY_COLOR = '#6D28D9';
+const PRIMARY_COLOR = '#967A59';
 
 export default function Index() {
   const [showSignIn, setShowSignIn] = useState(false);
@@ -160,7 +160,7 @@ export default function Index() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-purple-50 to-white">
+      <section className="py-20 px-6 bg-gradient-to-br from-[#F5F0EB] to-white">
         <div className="container mx-auto text-center max-w-5xl">
           <h1 className="text-5xl md:text-6xl font-bold mb-6" style={{ color: PRIMARY_COLOR }}>
             All-in-One Wedding Planning & Guest Experience
@@ -501,7 +501,7 @@ export default function Index() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 px-6 bg-gradient-to-br from-purple-50 to-white">
+      <section className="py-20 px-6 bg-gradient-to-br from-[#F5F0EB] to-white">
         <div className="container mx-auto text-center max-w-4xl">
           <h2 className="text-5xl font-bold mb-6" style={{ color: PRIMARY_COLOR }}>
             Ready to plan the perfect day?

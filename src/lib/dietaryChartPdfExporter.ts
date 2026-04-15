@@ -199,7 +199,7 @@ export const exportDietaryChartToPdf = async (
   const displayTotalCount = totalDietaryCount ?? guests.length;
 
   // Purple color for event name and dietary info
-  const purple = { r: 109, g: 40, b: 217 }; // #6D28D9
+  const purple = { r: 109, g: 40, b: 217 }; // #967A59
   const gray = { r: 107, g: 114, b: 128 }; // #6B7280
 
   // Get table columns

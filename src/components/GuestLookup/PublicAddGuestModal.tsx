@@ -297,7 +297,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
             <Label className="text-sm font-medium mb-1.5 block">Guest Category <span className="text-destructive">*</span></Label>
-            <div className="flex items-center justify-center gap-0 bg-[#7248e6]/10 border-2 border-[#7248e6] rounded-full p-1 w-full">
+            <div className="flex items-center justify-center gap-0 bg-[#967A59]/10 border-2 border-[#967A59] rounded-full p-1 w-full">
               <button
                 type="button"
                 onClick={() => { setGuestType('individual'); setPartyMembers([]); }}
@@ -379,7 +379,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               {/* Auto-populated referring guest (read-only) */}
               {addedByGuestName && (
                 <div className="space-y-1">
-                  <div className="flex items-center justify-between bg-purple-50 py-1.5 px-3 rounded-lg border border-primary/20">
+                  <div className="flex items-center justify-between bg-[#F5F0EB] py-1.5 px-3 rounded-lg border border-primary/20">
                     <div className="flex-1">
                       <p className="font-medium text-sm text-primary">{addedByGuestName}</p>
                       <p className="text-xs text-muted-foreground">Referring guest</p>
@@ -404,7 +404,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
               {/* Add Member Form (enhanced with RSVP, Dietary, Notes) */}
               {showAddMemberForm && (
-                <div className="bg-purple-50 p-4 rounded-lg space-y-3 border border-primary/20">
+                <div className="bg-[#F5F0EB] p-4 rounded-lg space-y-3 border border-primary/20">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs">First Name *</Label>
@@ -672,7 +672,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                   value={guest.notes}
                   onChange={e => setGuest(prev => ({ ...prev, notes: e.target.value }))}
                   placeholder="Add any additional notes about this guest..."
-                  className="rounded-3xl border-2 border-[#7248e6] focus-visible:border-[#7248e6] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
+                  className="rounded-3xl border-2 border-[#967A59] focus-visible:border-[#967A59] focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none resize-none"
                 />
               </div>
 

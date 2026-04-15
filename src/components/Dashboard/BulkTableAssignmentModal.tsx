@@ -142,7 +142,7 @@ export const BulkTableAssignmentModal = ({
           <Button 
             onClick={handleConfirm} 
             disabled={!selectedTableId || loading}
-            className="bg-purple-500 hover:bg-purple-600"
+            className="bg-[#F5F0EB]0 hover:bg-[#856A4C]"
           >
             {loading ? "Assigning..." : `Assign to ${selectedTable?.name || "Table"}`}
           </Button>

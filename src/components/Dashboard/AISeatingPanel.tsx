@@ -41,7 +41,7 @@ export const AISeatingPanel: React.FC<AISeatingPanelProps> = ({ eventId, tables,
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
+            <Sparkles className="w-5 h-5 text-[#F5F0EB]0" />
             AI Seating Suggestions
           </SheetTitle>
         </SheetHeader>

@@ -140,7 +140,7 @@ export const exportFullSeatingChartToDocx = async (
     const col1Guests = pageGuests.slice(0, guestsPerColumn);
     const col2Guests = pageGuests.slice(guestsPerColumn);
 
-    // Header - Event Name (16pt, bold, purple #6D28D9)
+    // Header - Event Name (16pt, bold, purple #967A59)
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,

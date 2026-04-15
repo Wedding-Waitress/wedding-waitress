@@ -403,7 +403,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             {/* Header Section - Running Sheet Style */}  
             <div className="text-center mb-2">
               {/* Event Name - Large Purple Bold */}
-              <div className="text-center font-bold" style={{ color: '#6d28d9', fontSize: '22px' }}>
+              <div className="text-center font-bold" style={{ color: '#967A59', fontSize: '22px' }}>
                 {event?.name || 'Event'}
               </div>
 
@@ -445,7 +445,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               </div>
 
               {/* Purple Divider */}
-              <div style={{ borderTop: '2px solid #6d28d9', margin: '8px 0 14px 0' }}></div>
+              <div style={{ borderTop: '2px solid #967A59', margin: '8px 0 14px 0' }}></div>
             </div>
 
 

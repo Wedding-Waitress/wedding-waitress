@@ -82,7 +82,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
             <div 
               className={`text-muted-foreground italic text-xs p-3 border-2 border-dashed rounded-md text-center transition-colors duration-150 animate-in fade-in-50 scale-in-95 ${
                 showDropIndicator 
-                  ? 'border-[#7C3AED] bg-[#7C3AED]/10 text-[#7C3AED] shadow-[0_0_8px_rgba(124,58,237,0.4)]' 
+                  ? 'border-[#967A59] bg-[#967A59]/10 text-[#967A59] shadow-[0_0_8px_rgba(124,58,237,0.4)]' 
                   : 'border-muted'
               }`}
             >
@@ -94,7 +94,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
       
       {/* Drop indicator at the bottom when guests exist and hovering over table (not a specific guest) - solid dark purple with glow */}
       {guests.length > 0 && showDropIndicator && !overGuestId && (
-        <div className="h-2.5 bg-[#7C3AED] rounded-full mt-2 shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#5B21B6]" />
+        <div className="h-2.5 bg-[#967A59] rounded-full mt-2 shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#7A6347]" />
       )}
     </div>
   );

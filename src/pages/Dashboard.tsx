@@ -431,7 +431,7 @@ export const Dashboard = () => {
                       Choose Event:
                     </label>
                     <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                      <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
+                      <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#967A59]">
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border z-50">
@@ -493,7 +493,7 @@ export const Dashboard = () => {
                       Choose Event:
                     </label>
                     <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                      <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#7248E6]">
+                      <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#967A59]">
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border z-50">

@@ -209,8 +209,8 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
           "w-full px-3 py-2 text-sm rounded-full border-2 cursor-pointer transition-colors",
           error 
             ? 'border-red-500' 
-            : 'border-[#7248e6] hover:border-[#7248e6]',
-          isOpen && !error && 'border-[#7248e6] border-[3px]'
+            : 'border-[#967A59] hover:border-[#967A59]',
+          isOpen && !error && 'border-[#967A59] border-[3px]'
         )}
       >
         {displayText || (

@@ -59,7 +59,7 @@ export const AdminUsers = () => {
 
   if (loading) {
     return <div className="flex items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#6D28D9' }}></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#967A59' }}></div>
     </div>;
   }
 
@@ -67,7 +67,7 @@ export const AdminUsers = () => {
     <div className="space-y-6">
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle style={{ color: '#6D28D9' }}>User Management</CardTitle>
+          <CardTitle style={{ color: '#967A59' }}>User Management</CardTitle>
           <div className="flex items-center gap-4 mt-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />

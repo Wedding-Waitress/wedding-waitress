@@ -340,7 +340,7 @@ export const Landing = () => {
                 <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.forVenuesAndPros')}</span>
               </div>
               <div className="flex items-center gap-2 mb-4 mt-2">
-                <Building2 className="w-5 h-5 text-purple-400" />
+                <Building2 className="w-5 h-5 text-[#C4A882]" />
                 <h3 className="text-xl font-bold">{t('pricing.vendorPro.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
@@ -351,7 +351,7 @@ export const Landing = () => {
               <ul className="space-y-2 mb-8">
                 {[t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-xs text-gray-300">
-                    <Check className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
+                    <Check className="w-4 h-4 text-[#C4A882] mt-0.5 shrink-0" />
                     {f}
                   </li>
                 ))}

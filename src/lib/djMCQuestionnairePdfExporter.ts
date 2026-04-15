@@ -28,7 +28,7 @@ interface Event {
 }
 
 // Purple color for branding
-const PURPLE = { r: 109, g: 40, b: 217 }; // #6D28D9
+const PURPLE = { r: 109, g: 40, b: 217 }; // #967A59
 
 // --- Layout constants (mm) matching running sheet ---
 const PDF_WIDTH_MM = 210;

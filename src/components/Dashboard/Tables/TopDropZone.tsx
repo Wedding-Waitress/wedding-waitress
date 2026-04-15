@@ -51,7 +51,7 @@ export const TopDropZone: React.FC<TopDropZoneProps> = ({ tableId }) => {
       style={style}
       className={`h-7 rounded-md border-2 border-dashed transition-all duration-150 flex items-center justify-center text-xs ${
         isOver
-          ? 'border-[#7C3AED] bg-[#7C3AED]/15 text-[#7C3AED] shadow-[0_0_8px_rgba(124,58,237,0.4)] font-medium'
+          ? 'border-[#967A59] bg-[#967A59]/15 text-[#967A59] shadow-[0_0_8px_rgba(124,58,237,0.4)] font-medium'
           : 'border-muted-foreground/30 text-muted-foreground/50'
       }`}
     >
