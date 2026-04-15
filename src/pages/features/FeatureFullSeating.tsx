@@ -1,10 +1,10 @@
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
-import bgImage from '@/assets/features/feature-full-seating.jpg';
+import bgImage from '@/assets/features/feature-full-seating-chart-page.jpg';
 
 export const FeatureFullSeating = () => (
   <FeaturePageLayout
     title="Full Seating Chart"
-    description="View your entire wedding seating arrangement at a glance. Export a beautifully formatted master seating chart as PDF or print-ready document — ideal for display boards, venue staff, and day-of coordination."
+    description="Visualise your entire wedding or event with a complete seating chart in one clear view. Easily organise tables, assign guests, and manage seating arrangements with a simple and intuitive layout. Wedding Waitress gives you full control over your seating plan, helping you create a well-balanced, organised, and stress-free event experience for you and your guests."
     backgroundImage={bgImage}
   />
 );
