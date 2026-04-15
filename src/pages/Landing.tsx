@@ -151,14 +151,11 @@ export const Landing = () => {
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
-            {t('hero.title1')}<br />
-            <span className="text-white/90">{t('hero.title2')}</span>
+            Plan Your Wedding Day<br />
+            <span className="text-white/90">Without the Stress</span>
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-6 whitespace-nowrap">
-            {t('hero.title3')}
-          </p>
-          <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
-            {t('hero.subtitle')}
+          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-10">
+            Guest List, Seating Charts & QR Code RSVPs — All in One Place
           </p>
           <div className="flex justify-center">
             <SignUpModal>
@@ -168,12 +165,9 @@ export const Landing = () => {
               </Button>
             </SignUpModal>
           </div>
-          <div className="mt-6 space-y-1">
-            <p className="text-sm sm:text-base text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{t('hero.trustLine1')}</p>
-            <p className="text-sm sm:text-base text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{t('hero.trustLine2')}</p>
-            <p className="text-sm sm:text-base text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{t('hero.trustLine3')}</p>
-            <p className="text-sm sm:text-base text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{t('hero.trustLine4')}</p>
-          </div>
+          <p className="mt-6 text-sm text-white/70 font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+            Trusted by couples across Australia
+          </p>
         </div>
       </section>
 
