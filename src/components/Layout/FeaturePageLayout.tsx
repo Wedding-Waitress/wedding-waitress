@@ -61,10 +61,10 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
       <Header />
 
       <main className="flex-1 flex flex-col">
-        <div className="flex flex-col md:flex-row">
+        <div className="flex flex-col md:flex-row pt-20 pb-8">
           {/* Left: Visual + Content */}
           <div
-            className="relative w-full md:w-1/2 min-h-[340px] md:min-h-0 flex items-center justify-center"
+            className="relative w-full md:w-1/2 min-h-[340px] md:min-h-[500px] flex items-center justify-center"
             style={{
               backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
               backgroundSize: 'cover',
