@@ -1,10 +1,10 @@
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
-import bgImage from '@/assets/features/feature-dietary.jpg';
+import bgImage from '@/assets/features/feature-dietary-page.jpg';
 
 export const FeatureDietary = () => (
   <FeaturePageLayout
-    title="Dietary Requirements Made Easy"
-    description="Track every guest's dietary needs — from vegetarian and vegan to gluten-free and allergies. Generate kitchen-ready dietary charts sorted by table, so your caterer delivers the perfect meal to every seat."
+    title="Dietary Requirements"
+    description="Easily collect and manage dietary requirements for your wedding or event. Track guest allergies, preferences, and special meal requests in one organised system, ensuring every guest is catered for. Wedding Waitress helps you streamline communication with venues and caterers, making meal planning simple, accurate, and stress-free."
     backgroundImage={bgImage}
   />
 );
