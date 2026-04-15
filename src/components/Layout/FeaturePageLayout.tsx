@@ -6,7 +6,7 @@ import { CookieBanner } from '@/components/ui/CookieBanner';
 
 interface SeoSection {
   heading: string;
-  text: string;
+  text: React.ReactNode;
 }
 
 interface InternalLink {

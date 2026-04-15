@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-place-cards-page.jpg';
 
@@ -9,8 +10,8 @@ export const FeaturePlaceCards = () => (
     pageTitle="Wedding Place Cards Generator | Printable Name Cards"
     metaDescription="Create elegant wedding place cards with guest names and table numbers. Download printable designs for your reception."
     seoSections={[
-      { heading: "Create Elegant Name Place Cards", text: "Design beautiful place cards with your guests' names, table numbers, and seat assignments. Choose from a range of elegant fonts and styles to match your wedding theme." },
-      { heading: "Print Professional Guest Cards", text: "Export your place cards in high-resolution 300 DPI format, ready for professional printing. Every card is perfectly formatted for a polished table presentation." },
+      { heading: "Create Elegant Name Place Cards", text: <>Design beautiful place cards with your guests' names, table numbers, and seat assignments pulled directly from your <Link to="/features/qr-seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">wedding seating chart</Link>.</> },
+      { heading: "Print Professional Guest Cards", text: <>Export your place cards in high-resolution 300 DPI format, ready for professional printing. Pair them with <Link to="/features/table-charts" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">individual table charts</Link> for a polished table presentation.</> },
       { heading: "Customise Table & Seating Details", text: "Add personalised messages, dietary icons, and custom styling to each place card. Wedding Waitress makes every detail count for a memorable guest experience." },
     ]}
     relatedFeatures={[
