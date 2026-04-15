@@ -133,21 +133,13 @@ export const Landing = () => {
           <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
             {t('hero.subtitle')}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex justify-center">
             <SignUpModal>
               <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
                 {t('hero.cta')}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </SignUpModal>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white/40 text-gray-900 bg-white/80 hover:bg-white/90 rounded-2xl px-8 py-5 text-base font-semibold transition-all"
-              onClick={() => document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              {t('hero.watchDemo')}
-            </Button>
           </div>
           <div className="mt-6 space-y-1">
             <p className="text-sm sm:text-base text-white font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{t('hero.trustLine1')}</p>
@@ -192,7 +184,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('howItWorks.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto whitespace-nowrap">
             {t('howItWorks.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -212,7 +204,7 @@ export const Landing = () => {
               </div>
             ))}
           </div>
-          <p className="text-center text-sm text-gray-500 mt-12">{t('howItWorks.bottomNote')}</p>
+          <p className="text-center text-sm mt-12" style={{ color: '#967A59' }}>{t('howItWorks.bottomNote')}</p>
         </div>
       </section>
 
