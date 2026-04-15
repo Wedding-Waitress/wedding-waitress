@@ -281,7 +281,7 @@ export const Landing = () => {
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-            </div>
+              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Premium — highlighted */}
