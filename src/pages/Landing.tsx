@@ -155,13 +155,13 @@ export const Landing = () => {
                   <Sparkles className="w-4 h-4 mr-2" />
                   Elegant Event Management
                 </div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-white">
                   Your Dream Wedding,
-                  <span className="gradient-text block">
+                  <span className="block text-white/90">
                     Perfectly Orchestrated
                   </span>
                 </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed my-[25px] text-center">First of it's kind worldwide. 
+                <p className="text-xl text-white/80 leading-relaxed my-[25px] text-center">First of it's kind worldwide. 
 Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
               </div>
               
