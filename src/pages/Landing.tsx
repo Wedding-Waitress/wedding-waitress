@@ -213,7 +213,7 @@ export const Landing = () => {
       <Header />
 
       {/* Hero Section */}
-      <HeroSection signUpRef={signUpRef} ctaLabel={t('hero.cta')} />
+      <HeroSection signUpRef={signUpRef} />
 
       {/* Feature Cards Row */}
       <section className="py-16 md:py-20 px-4">
@@ -263,7 +263,7 @@ export const Landing = () => {
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>
                   <item.icon className="w-8 h-8" style={{ color: '#967A59' }} />
                 </div>
-                <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>Step {item.step}</div>
+                <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
               </div>
