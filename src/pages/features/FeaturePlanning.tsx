@@ -13,5 +13,10 @@ export const FeaturePlanning = () => (
       { heading: "Provide Digital Seating Information", text: "Guests scan and instantly see their table number, seat assignment, and event details. No more printed charts or confusion at the door." },
       { heading: "Simplify Guest Experience at Your Event", text: "Create a modern, tech-forward guest experience that reduces stress for you and your guests. One scan gives them everything they need to know." },
     ]}
+    relatedFeatures={[
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Digital Invitations", href: "/features/invitations" },
+      { label: "Kiosk Check-In", href: "/features/kiosk" },
+    ]}
   />
 );

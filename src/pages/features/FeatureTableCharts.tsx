@@ -13,5 +13,10 @@ export const FeatureTableCharts = () => (
       { heading: "Print & Display at Your Venue", text: "Export individual table charts for printing and place them at each table or near the entrance. Help guests find their seats without any confusion." },
       { heading: "Customise Layout & Styling", text: "Adjust fonts, colours, and layout options to match your wedding design. Every table chart is tailored to look professional and on-brand." },
     ]}
+    relatedFeatures={[
+      { label: "Full Seating Chart", href: "/features/full-seating" },
+      { label: "Place Cards", href: "/features/place-cards" },
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+    ]}
   />
 );

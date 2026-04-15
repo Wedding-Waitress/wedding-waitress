@@ -13,5 +13,10 @@ export const FeaturePlaceCards = () => (
       { heading: "Print Professional Guest Cards", text: "Export your place cards in high-resolution 300 DPI format, ready for professional printing. Every card is perfectly formatted for a polished table presentation." },
       { heading: "Customise Table & Seating Details", text: "Add personalised messages, dietary icons, and custom styling to each place card. Wedding Waitress makes every detail count for a memorable guest experience." },
     ]}
+    relatedFeatures={[
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+      { label: "Individual Table Charts", href: "/features/table-charts" },
+      { label: "Digital Invitations", href: "/features/invitations" },
+    ]}
   />
 );

@@ -13,5 +13,10 @@ export const FeatureSeating = () => (
       { heading: "Track RSVPs in Real Time", text: "See who's attending, who's declined, and who's yet to respond — all updated instantly. Never chase RSVPs manually again with automated tracking and status updates." },
       { heading: "Organise Guests, Families & Plus-Ones", text: "Group guests into families, manage plus-ones, and assign relationships with ease. Wedding Waitress keeps your guest list structured and clear, no matter the size of your event." },
     ]}
+    relatedFeatures={[
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+      { label: "QR Code RSVP", href: "/features/planning" },
+      { label: "Dietary Requirements", href: "/features/dietary" },
+    ]}
   />
 );

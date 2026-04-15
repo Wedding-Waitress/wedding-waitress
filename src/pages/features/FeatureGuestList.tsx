@@ -13,5 +13,10 @@ export const FeatureGuestList = () => (
       { heading: "Organise Every Moment", text: "Structure your ceremony, reception, speeches, and entertainment into a clear running sheet that everyone can follow on the day." },
       { heading: "Share Timeline with Vendors", text: "Export and share your running sheet with your venue, photographer, DJ, and wedding party so everyone is aligned and prepared." },
     ]}
+    relatedFeatures={[
+      { label: "DJ & MC Questionnaire", href: "/features/dj-mc" },
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Event Manager", href: "/features/events" },
+    ]}
   />
 );

@@ -13,5 +13,10 @@ export const FeatureInvitations = () => (
       { heading: "Manage RSVPs Digitally", text: "Track every response in real time. See who's attending, who's declined, and follow up with those who haven't replied — all from your dashboard." },
       { heading: "Create Beautiful Save the Dates", text: "Design stunning save the date cards that match your wedding style. Customise colours, fonts, and wording to make a lasting first impression." },
     ]}
+    relatedFeatures={[
+      { label: "QR Code RSVP", href: "/features/planning" },
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Place Cards", href: "/features/place-cards" },
+    ]}
   />
 );

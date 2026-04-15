@@ -13,5 +13,10 @@ export const FeatureQrSeating = () => (
       { heading: "Assign Guests to Tables with Precision", text: "Place guests exactly where they belong. Balance table numbers, keep families together, and manage capacity limits to create the perfect reception flow." },
       { heading: "Optimise Your Reception Layout", text: "Ensure every table is balanced and every guest has the best experience. Wedding Waitress helps you plan a well-organised reception layout that works for your venue." },
     ]}
+    relatedFeatures={[
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Full Seating Chart", href: "/features/full-seating" },
+      { label: "Floor Plan Creator", href: "/features/floor-plan" },
+    ]}
   />
 );

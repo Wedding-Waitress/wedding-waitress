@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { EmbeddedSignUpForm } from '@/components/auth/EmbeddedSignUpForm';
 import { CookieBanner } from '@/components/ui/CookieBanner';
@@ -9,6 +9,11 @@ interface SeoSection {
   text: string;
 }
 
+interface InternalLink {
+  label: string;
+  href: string;
+}
+
 interface FeaturePageLayoutProps {
   title: string;
   description?: string;
@@ -16,9 +21,12 @@ interface FeaturePageLayoutProps {
   pageTitle?: string;
   metaDescription?: string;
   seoSections?: SeoSection[];
+  relatedFeatures?: InternalLink[];
 }
 
-export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, description, backgroundImage, pageTitle, metaDescription, seoSections }) => {
+export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, description, backgroundImage, pageTitle, metaDescription, seoSections, relatedFeatures }) => {
+  const location = useLocation();
+
   useEffect(() => {
     if (pageTitle) {
       document.title = pageTitle;
@@ -27,13 +35,26 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
     if (metaDescription && metaTag) {
       metaTag.setAttribute('content', metaDescription);
     }
+
+    // Canonical tag
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', `https://weddingwaitress.com${location.pathname}`);
+
     return () => {
       document.title = 'Wedding Planning App Australia | Guest List, Seating Chart & RSVP Tool';
       if (metaTag) {
         metaTag.setAttribute('content', 'Plan your wedding with ease using Wedding Waitress — the all-in-one wedding planning app. Manage your guest list, create seating charts, send QR code RSVPs, and organise your entire event in one place.');
       }
+      if (canonical) {
+        canonical.setAttribute('href', 'https://weddingwaitress.com/');
+      }
     };
-  }, [pageTitle, metaDescription]);
+  }, [pageTitle, metaDescription, location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
@@ -90,6 +111,30 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
                 </p>
               </div>
             ))}
+
+            {/* Trust signal */}
+            <p className="text-sm text-[#6E6E73] text-center pt-4">
+              Trusted by couples across Australia & around the world. Simple, intuitive, and designed for real events.
+            </p>
+          </section>
+        )}
+
+        {/* Internal linking */}
+        {relatedFeatures && relatedFeatures.length > 0 && (
+          <section className="w-full max-w-4xl mx-auto px-6 pb-12 md:pb-16">
+            <h2 className="text-lg font-semibold text-[#1D1D1F] mb-4">Explore More Features</h2>
+            <div className="flex flex-wrap gap-3">
+              {relatedFeatures.map((link, i) => (
+                <Link
+                  key={i}
+                  to={link.href}
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="text-sm font-medium text-[#967A59] hover:text-[#7a6347] underline underline-offset-2 transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </section>
         )}
       </main>
