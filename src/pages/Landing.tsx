@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2 } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import heroImg from "@/assets/hero-wedding.jpg";
@@ -145,8 +145,34 @@ const testimonials = [
   { name: "Mia & Liam", text: "Our coordinator was impressed with how organised everything was. Thank you Wedding Waitress!", rating: 5 },
 ];
 
+const faqItems = [
+  { q: "Is there a free trial?", a: "Yes! All plans include a 7-day free trial with up to 20 guests. No credit card required." },
+  { q: "What happens after 12 months?", a: "Your plan expires after 12 months. You can extend it anytime from your dashboard at a discounted rate." },
+  { q: "Can I upgrade my plan later?", a: "Absolutely. You can upgrade from Essential to Premium or Unlimited at any time — you'll only pay the difference." },
+  { q: "How many events can I create?", a: "Essential and Premium plans support one event each. The Unlimited plan lets you create as many events as you need." },
+  { q: "Do guests need an account to RSVP?", a: "No. Guests simply scan the QR code or click a link — no login or download required." },
+  { q: "Can I get a refund?", a: "We offer a full refund within 14 days of purchase if you haven't exceeded the free trial limits." },
+];
+
 export const Landing = () => {
   const signUpRef = useRef<HTMLButtonElement>(null);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [contactSending, setContactSending] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) return;
+    setContactSending(true);
+    // Simulate send
+    setTimeout(() => {
+      setContactSending(false);
+      setContactSent(true);
+      setContactForm({ name: '', email: '', message: '' });
+      setTimeout(() => setContactSent(false), 4000);
+    }, 1000);
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -337,59 +363,9 @@ export const Landing = () => {
             </div>
           </div>
 
-          <p className="text-center text-sm text-gray-400 mb-20">
+          <p className="text-center text-sm text-gray-400">
             All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
           </p>
-
-          {/* Vendor Pro */}
-          <div className="mb-20">
-            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">For Wedding Professionals</h3>
-            <div className="max-w-2xl mx-auto bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-6 h-6 text-primary" />
-                  <h4 className="text-xl font-bold text-gray-900">Vendor Pro</h4>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-gray-900">$249</span>
-                  <span className="text-gray-500 text-sm">/month</span>
-                </div>
-              </div>
-              <p className="text-gray-500 mb-6">Perfect for venues, planners, and DJs managing multiple events.</p>
-              <ul className="grid sm:grid-cols-3 gap-3 mb-8">
-                {["Unlimited events", "Client management tools", "Full platform access"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <SignUpModal>
-                <Button variant="outline" className="rounded-xl px-8">Start Subscription</Button>
-              </SignUpModal>
-            </div>
-          </div>
-
-          {/* RSVP Bundles */}
-          <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">Invite & RSVP Bundles</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-4">
-              {[
-                { guests: "100", price: "$99" },
-                { guests: "300", price: "$149" },
-                { guests: "500", price: "$199" },
-                { guests: "1,000", price: "$299" },
-              ].map((tier) => (
-                <div key={tier.guests} className="bg-white rounded-[20px] p-6 text-center shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
-                  <p className="text-sm text-gray-500 mb-1">Up to</p>
-                  <p className="text-2xl font-bold text-gray-900 mb-1">{tier.guests}</p>
-                  <p className="text-sm text-gray-500 mb-3">guests</p>
-                  <p className="text-xl font-bold text-primary">{tier.price}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-sm text-gray-400">One-time payment per event</p>
-          </div>
         </div>
       </section>
 
@@ -415,6 +391,104 @@ export const Landing = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-24 md:py-32 px-4 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            Everything you need to know before getting started.
+          </p>
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div
+                key={i}
+                className="bg-[#FAFAFA] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-6 text-left"
+                >
+                  <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 pb-6' : 'max-h-0'}`}>
+                  <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="py-24 md:py-32 px-4">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Get in Touch
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            Have a question? We'd love to hear from you.
+          </p>
+          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
+            <div className="space-y-5">
+              <div>
+                <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+                <input
+                  id="contact-name"
+                  type="text"
+                  maxLength={100}
+                  value={contactForm.name}
+                  onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  placeholder="Your name"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  maxLength={255}
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">Message</label>
+                <textarea
+                  id="contact-message"
+                  maxLength={1000}
+                  rows={5}
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+                  placeholder="How can we help?"
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={contactSending}
+                className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
+              >
+                {contactSending ? 'Sending...' : contactSent ? '✓ Message Sent!' : (
+                  <>
+                    Send Message
+                    <Send className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
       </section>
 
