@@ -1,62 +1,13 @@
 {
-  "hero": {
-    "title": "Lên Kế Hoạch Đám Cưới Hoàn Hảo",
-    "subtitle": "Tối ưu hóa kế hoạch đám cưới của bạn với nền tảng tất cả trong một của chúng tôi. Quản lý khách mời, sắp xếp chỗ ngồi và tạo tài liệu sự kiện đẹp mắt.",
-    "cta": "Bắt Đầu Miễn Phí",
-    "signIn": "Đăng Nhập"
-  },
-  "features": {
-    "title": "Mọi Thứ Bạn Cần",
-    "guestManagement": {
-      "title": "Quản Lý Khách Mời",
-      "description": "Quản lý danh sách khách mời dễ dàng với theo dõi xác nhận và yêu cầu về chế độ ăn"
-    },
-    "seating": {
-      "title": "Sắp Xếp Chỗ Ngồi",
-      "description": "Tạo kế hoạch chỗ ngồi hoàn hảo với quản lý bàn kéo và thả"
-    },
-    "qrCodes": {
-      "title": "Mã QR",
-      "description": "Tạo mã QR tùy chỉnh để tìm kiếm khách và check-in tự phục vụ"
-    },
-    "placeCards": {
-      "title": "Thẻ Chỗ Ngồi",
-      "description": "Thiết kế và in thẻ chỗ ngồi đẹp với tin nhắn cá nhân hóa"
-    }
-  },
-  "howItWorks": {
-    "title": "Cách Hoạt Động",
-    "step1": {
-      "title": "Tạo Sự Kiện",
-      "description": "Thiết lập chi tiết đám cưới hoặc sự kiện của bạn"
-    },
-    "step2": {
-      "title": "Thêm Khách Mời",
-      "description": "Nhập hoặc thêm danh sách khách mời thủ công"
-    },
-    "step3": {
-      "title": "Sắp Xếp Chỗ Ngồi",
-      "description": "Tổ chức bàn và phân công chỗ ngồi"
-    },
-    "step4": {
-      "title": "Xuất và Chia Sẻ",
-      "description": "Tạo mã QR, thẻ chỗ ngồi và sơ đồ chỗ ngồi"
-    }
-  },
-  "cta": {
-    "title": "Sẵn Sàng Bắt Đầu?",
-    "subtitle": "Tham gia cùng hàng ngàn cặp đôi hạnh phúc đang lên kế hoạch cho ngày hoàn hảo của họ",
-    "button": "Bắt Đầu Lên Kế Hoạch Hôm Nay"
-  },
-  "footer": {
-    "explore": "Khám Phá",
-    "support": "Hỗ Trợ",
-    "features": "Tính Năng",
-    "pricing": "Bảng Giá",
-    "about": "Về Chúng Tôi",
-    "blog": "Blog",
-    "help": "Trung Tâm Trợ Giúp",
-    "faq": "Câu Hỏi Thường Gặp",
-    "contact": "Liên Hệ Chúng Tôi"
-  }
+  "nav": { "howItWorks": "Cách hoạt động", "products": "Sản phẩm", "pricing": "Bảng giá", "faq": "Câu hỏi thường gặp", "contact": "Liên hệ", "signIn": "Đăng nhập", "signUp": "Đăng ký", "getStarted": "Bắt đầu", "logout": "Đăng xuất" },
+  "hero": { "title1": "Lên kế hoạch đám cưới", "title2": "Không căng thẳng.", "subtitle": "Mọi thứ bạn cần để quản lý khách mời, chỗ ngồi, thiệp mời và toàn bộ đám cưới — tất cả trong một nơi.", "cta": "Bắt đầu miễn phí", "trusted": "Được các cặp đôi trên toàn nước Úc tin dùng" },
+  "featureCards": { "sectionTitle": "Nền tảng đám cưới mà khách mời sẽ yêu thích.", "sectionSubtitle": "Mọi công cụ bạn cần, thiết kế đẹp và dễ sử dụng.", "guestList": { "title": "Danh sách khách", "desc": "Quản lý tất cả khách mời tại một nơi" }, "tables": { "title": "Bàn & Chỗ ngồi", "desc": "Sắp xếp bàn và chỗ ngồi dễ dàng" }, "qr": { "title": "Chỗ ngồi QR", "desc": "Khách quét và tìm bàn ngay lập tức" }, "invitations": { "title": "Thiệp mời", "desc": "Gửi thiệp mời và theo dõi RSVP" }, "runningSheet": { "title": "Lịch trình", "desc": "Lên kế hoạch lịch trình đám cưới đầy đủ" }, "floorPlan": { "title": "Sơ đồ sàn", "desc": "Hình dung bố trí địa điểm" }, "myEvents": { "title": "Sự kiện của tôi", "desc": "Quản lý tất cả sự kiện dễ dàng" }, "placeCards": { "title": "Thẻ tên", "desc": "Thẻ tên in đẹp" }, "tableCharts": { "title": "Biểu đồ bàn riêng", "desc": "Biểu đồ chỗ ngồi theo từng bàn" }, "dietary": { "title": "Yêu cầu ăn uống", "desc": "Theo dõi nhu cầu ăn uống của từng khách" }, "seatingChart": { "title": "Biểu đồ chỗ ngồi đầy đủ", "desc": "Biểu đồ chỗ ngồi sẵn sàng in" }, "kiosk": { "title": "Kiosk trực tiếp", "desc": "Check-in tự phục vụ tại địa điểm" }, "djmc": { "title": "Bảng câu hỏi DJ-MC", "desc": "Chia sẻ nhạc và lịch trình với DJ" } },
+  "alternating": { "guestList": { "title": "Quản lý danh sách khách", "desc": "Dễ dàng quản lý toàn bộ danh sách khách, theo dõi RSVP và tổ chức mối quan hệ." }, "tables": { "title": "Sắp xếp chỗ ngồi đơn giản", "desc": "Tạo bàn và phân công khách dễ dàng với hệ thống kéo thả trực quan." }, "qr": { "title": "Chỗ ngồi khách tức thì", "desc": "Khách quét mã QR để tìm bàn ngay lập tức — không nhầm lẫn, không chậm trễ." }, "runningSheet": { "title": "Lên kế hoạch mọi khoảnh khắc", "desc": "Tạo lịch trình đầy đủ cho ngày cưới và chia sẻ với nhà cung cấp." }, "invitations": { "title": "Thiệp mời & RSVP", "desc": "Gửi thiệp mời số đẹp và theo dõi phản hồi theo thời gian thực." }, "myEvents": { "title": "Sự kiện của bạn, theo cách của bạn", "desc": "Tạo và quản lý nhiều sự kiện từ một bảng điều khiển." }, "placeCards": { "title": "Thẻ tên thanh lịch", "desc": "Thiết kế thẻ tên in tuyệt đẹp với phông chữ, màu sắc và nền tùy chỉnh." }, "tableCharts": { "title": "Biểu đồ bàn riêng", "desc": "Tạo biểu đồ chỗ ngồi đẹp cho từng bàn." }, "dietary": { "title": "Yêu cầu ăn uống dễ dàng", "desc": "Theo dõi nhu cầu ăn uống của từng khách và tạo biểu đồ sẵn sàng cho bếp." }, "seatingChart": { "title": "Biểu đồ chỗ ngồi đầy đủ", "desc": "Tạo biểu đồ chỗ ngồi hoàn chỉnh sẵn sàng in hiển thị mọi khách và bàn." }, "kiosk": { "title": "Kiosk trực tiếp", "desc": "Thiết lập kiosk check-in tự phục vụ tại lối vào địa điểm." }, "djmc": { "title": "Bảng câu hỏi DJ & MC", "desc": "Chia sẻ sở thích âm nhạc, hướng dẫn phát âm và lịch trình sự kiện với DJ hoặc MC." }, "floorPlan": { "title": "Sơ đồ sàn địa điểm", "desc": "Hình dung toàn bộ bố trí địa điểm với sơ đồ sàn tương tác." }, "learnMore": "Tìm hiểu thêm" },
+  "extraGrid": { "title": "Mọi thứ bạn cần cho ngày hoàn hảo", "djmc": { "title": "DJ & MC Planner", "desc": "Tạo playlist hoàn hảo" }, "dietary": { "title": "Yêu cầu ăn uống", "desc": "Theo dõi nhu cầu từng khách" }, "placeCards": { "title": "Thẻ tên", "desc": "Thẻ in đẹp" }, "kiosk": { "title": "Kiosk trực tiếp", "desc": "Check-in tự phục vụ" }, "seatingCharts": { "title": "Biểu đồ chỗ ngồi", "desc": "Bố trí sẵn sàng in" }, "myEvents": { "title": "Sự kiện của tôi", "desc": "Quản lý tất cả sự kiện" }, "tables": { "title": "Thiết lập bàn", "desc": "Tạo và sắp xếp bàn" }, "guestList": { "title": "Danh sách khách", "desc": "Quản lý khách đầy đủ" }, "qr": { "title": "Chỗ ngồi QR", "desc": "Quét để tìm bàn" }, "invitations": { "title": "Thiệp mời & Thẻ", "desc": "Gửi và theo dõi thiệp mời" }, "tableCharts": { "title": "Biểu đồ bàn", "desc": "Hiển thị khách theo bàn" }, "floorPlan": { "title": "Sơ đồ sàn", "desc": "Hình dung bố trí địa điểm" }, "fullSeatingChart": { "title": "Biểu đồ đầy đủ", "desc": "Tổng quan chỗ ngồi" }, "runningSheet": { "title": "Lịch trình", "desc": "Lên kế hoạch lịch trình đầy đủ" } },
+  "pricing": { "title": "Bảng giá đơn giản, minh bạch", "subtitle": "Bắt đầu miễn phí. Nâng cấp khi bạn sẵn sàng.", "trialNote": "Tất cả các gói đều bao gồm dùng thử miễn phí 7 ngày (tối đa 20 khách). Không rủi ro. Nâng cấp bất cứ lúc nào.", "saveLine": "Tiết kiệm hơn $1,000 so với mua công cụ riêng lẻ", "getStarted": "Bắt đầu", "mostPopular": "Phổ biến nhất", "forProfessionals": "Dành cho chuyên gia", "approvalRequired": "Cần phê duyệt", "essential": { "name": "Essential", "guests": "Tối đa 100 khách · Truy cập 12 tháng" }, "premium": { "name": "Premium", "guests": "Tối đa 300 khách · Truy cập 12 tháng" }, "unlimited": { "name": "Unlimited", "guests": "Khách không giới hạn · Truy cập 12 tháng" }, "vendorPro": { "name": "Vendor Pro", "guests": "Dành cho địa điểm & chuyên gia sự kiện" }, "features": { "oneEvent": "1 sự kiện", "fullAccess": "Truy cập đầy đủ tất cả công cụ lên kế hoạch", "easySetup": "Thiết lập dễ dàng & trải nghiệm mượt mà", "unlimitedEvents": "Sự kiện không giới hạn", "unlimitedGuests": "Khách không giới hạn", "fullPlatform": "Truy cập đầy đủ nền tảng" } },
+  "testimonials": { "title": "Bạn bè bạn sẽ ấn tượng.", "subtitle": "Xem các cặp đôi nói gì về Wedding Waitress.", "items": [ { "name": "Sarah & James", "text": "Điều này giúp kế hoạch đám cưới của chúng tôi dễ dàng hơn. Chúng tôi quản lý 200 khách mà không căng thẳng!" }, { "name": "Emily & Tom", "text": "Chỗ ngồi QR thật tuyệt vời — khách mời thích quét để tìm bàn ngay lập tức." }, { "name": "Jessica & Michael", "text": "Mọi thứ được tổ chức hoàn hảo. Lịch trình giữ tất cả nhà cung cấp đúng hướng." }, { "name": "Olivia & Daniel", "text": "Chúng tôi tiết kiệm rất nhiều giờ với quản lý danh sách khách. Thay đổi cuộc chơi!" }, { "name": "Sophie & Chris", "text": "Thẻ tên và biểu đồ chỗ ngồi trông chuyên nghiệp đáng kinh ngạc." }, { "name": "Mia & Liam", "text": "Điều phối viên của chúng tôi ấn tượng với mọi thứ được tổ chức tốt. Cảm ơn Wedding Waitress!" } ] },
+  "faq": { "title": "Câu hỏi thường gặp", "subtitle": "Mọi thứ bạn cần biết trước khi bắt đầu.", "items": [ { "q": "Có dùng thử miễn phí không?", "a": "Có! Tất cả các gói đều bao gồm dùng thử miễn phí 7 ngày với tối đa 20 khách. Không cần thẻ tín dụng." }, { "q": "Sau 12 tháng thì sao?", "a": "Gói của bạn hết hạn sau 12 tháng. Bạn có thể gia hạn bất cứ lúc nào với giá ưu đãi." }, { "q": "Tôi có thể nâng cấp gói sau không?", "a": "Hoàn toàn có thể. Nâng cấp từ Essential lên Premium hoặc Unlimited bất cứ lúc nào — chỉ trả phần chênh lệch." }, { "q": "Tôi có thể tạo bao nhiêu sự kiện?", "a": "Gói Essential và Premium hỗ trợ một sự kiện mỗi gói. Gói Unlimited cho phép tạo bao nhiêu tùy thích." }, { "q": "Khách có cần tài khoản để RSVP không?", "a": "Không. Khách chỉ cần quét mã QR hoặc nhấp vào liên kết — không cần đăng nhập hay tải xuống." }, { "q": "Tôi có thể hoàn tiền không?", "a": "Chúng tôi hoàn tiền đầy đủ trong 14 ngày kể từ khi mua nếu bạn chưa vượt quá giới hạn dùng thử." } ] },
+  "contact": { "title": "Liên hệ", "subtitle": "Có câu hỏi? Chúng tôi rất muốn nghe từ bạn.", "name": "Tên", "email": "Email", "message": "Tin nhắn", "namePlaceholder": "Tên của bạn", "emailPlaceholder": "you@example.com", "messagePlaceholder": "Chúng tôi có thể giúp gì?", "sendButton": "Gửi tin nhắn", "sending": "Đang gửi...", "sent": "✓ Đã gửi tin nhắn!" },
+  "finalCta": { "title1": "Tất cả sự kỳ diệu.", "title2": "Không căng thẳng.", "subtitle": "Bắt đầu lên kế hoạch cho ngày hoàn hảo — miễn phí.", "cta": "Bắt đầu miễn phí" },
+  "footer": { "tagline": "Nền tảng lên kế hoạch đám cưới toàn diện được các cặp đôi trên toàn nước Úc tin dùng.", "explore": "Khám phá", "support": "Hỗ trợ", "features": "Tính năng", "pricing": "Bảng giá", "faq": "Câu hỏi thường gặp", "contactUs": "Liên hệ", "privacy": "Quyền riêng tư", "terms": "Điều khoản", "followUs": "Theo dõi chúng tôi", "copyright": "Wedding Waitress. Bảo lưu mọi quyền." }
 }

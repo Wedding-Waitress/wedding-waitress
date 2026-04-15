@@ -1,62 +1,13 @@
 {
-  "hero": {
-    "title": "Planifiez Votre Mariage Parfait",
-    "subtitle": "Optimisez la planification de votre mariage avec notre plateforme tout-en-un. Gérez les invités, les plans de table et créez de magnifiques supports d'événement.",
-    "cta": "Commencer Gratuitement",
-    "signIn": "Se Connecter"
-  },
-  "features": {
-    "title": "Tout ce Dont Vous Avez Besoin",
-    "guestManagement": {
-      "title": "Gestion des Invités",
-      "description": "Gérez facilement votre liste d'invités avec suivi des confirmations et exigences alimentaires"
-    },
-    "seating": {
-      "title": "Plan de Table",
-      "description": "Créez des plans de table parfaits avec gestion par glisser-déposer"
-    },
-    "qrCodes": {
-      "title": "Codes QR",
-      "description": "Générez des codes QR personnalisés pour la recherche d'invités et l'enregistrement en libre-service"
-    },
-    "placeCards": {
-      "title": "Cartons de Table",
-      "description": "Concevez et imprimez de magnifiques cartons de table avec des messages personnalisés"
-    }
-  },
-  "howItWorks": {
-    "title": "Comment Ça Marche",
-    "step1": {
-      "title": "Créer l'Événement",
-      "description": "Configurez les détails de votre mariage ou événement"
-    },
-    "step2": {
-      "title": "Ajouter des Invités",
-      "description": "Importez ou ajoutez manuellement votre liste d'invités"
-    },
-    "step3": {
-      "title": "Organiser les Places",
-      "description": "Organisez les tables et assignez les places"
-    },
-    "step4": {
-      "title": "Exporter et Partager",
-      "description": "Générez des codes QR, cartons de table et plans de table"
-    }
-  },
-  "cta": {
-    "title": "Prêt à Commencer?",
-    "subtitle": "Rejoignez des milliers de couples heureux planifiant leur jour parfait",
-    "button": "Commencez à Planifier Aujourd'hui"
-  },
-  "footer": {
-    "explore": "Explorer",
-    "support": "Support",
-    "features": "Fonctionnalités",
-    "pricing": "Tarifs",
-    "about": "À Propos",
-    "blog": "Blog",
-    "help": "Centre d'Aide",
-    "faq": "FAQ",
-    "contact": "Nous Contacter"
-  }
+  "nav": { "howItWorks": "Comment ça marche", "products": "Produits", "pricing": "Tarifs", "faq": "FAQ", "contact": "Contact", "signIn": "Se connecter", "signUp": "S'inscrire", "getStarted": "Commencer", "logout": "Déconnexion" },
+  "hero": { "title1": "Planifiez votre mariage", "title2": "Sans le stress.", "subtitle": "Tout ce dont vous avez besoin pour gérer les invités, les plans de table, les invitations et votre mariage — en un seul endroit.", "cta": "Commencer gratuitement", "trusted": "Approuvé par des couples dans toute l'Australie" },
+  "featureCards": { "sectionTitle": "La plateforme de mariage que vos invités vont adorer.", "sectionSubtitle": "Tous les outils dont vous avez besoin, magnifiquement conçus et simples à utiliser.", "guestList": { "title": "Liste d'invités", "desc": "Gérez tous vos invités en un seul endroit" }, "tables": { "title": "Tables et places", "desc": "Organisez tables et places sans effort" }, "qr": { "title": "QR Code places", "desc": "Les invités scannent et trouvent leur table instantanément" }, "invitations": { "title": "Invitations", "desc": "Envoyez des invitations et suivez les RSVP" }, "runningSheet": { "title": "Feuille de route", "desc": "Planifiez le programme complet de votre mariage" }, "floorPlan": { "title": "Plan de salle", "desc": "Visualisez l'agencement de votre lieu" }, "myEvents": { "title": "Mes événements", "desc": "Gérez tous vos événements facilement" }, "placeCards": { "title": "Cartons de table", "desc": "De beaux cartons de table imprimés" }, "tableCharts": { "title": "Plans de table individuels", "desc": "Plans de table par table" }, "dietary": { "title": "Régimes alimentaires", "desc": "Suivez les besoins alimentaires de chaque invité" }, "seatingChart": { "title": "Plan de table complet", "desc": "Plan de table complet prêt à imprimer" }, "kiosk": { "title": "Vue kiosque", "desc": "Enregistrement en libre-service sur le lieu" }, "djmc": { "title": "Questionnaire DJ-MC", "desc": "Partagez musique et planning avec votre DJ" } },
+  "alternating": { "guestList": { "title": "Gestion des invités", "desc": "Gérez facilement votre liste d'invités, suivez les RSVP et organisez les relations. Importez des invités, envoyez des invitations et gardez tout organisé." }, "tables": { "title": "Places assises simplifiées", "desc": "Créez des tables et assignez des invités facilement avec notre système visuel de glisser-déposer." }, "qr": { "title": "Places instantanées", "desc": "Les invités scannent un code QR pour trouver instantanément leur table — sans confusion ni retard." }, "runningSheet": { "title": "Planifiez chaque moment", "desc": "Créez un programme complet pour le jour de votre mariage et partagez-le avec les prestataires." }, "invitations": { "title": "Invitations et RSVP", "desc": "Envoyez de belles invitations numériques et suivez les réponses en temps réel." }, "myEvents": { "title": "Vos événements, à votre façon", "desc": "Créez et gérez plusieurs événements depuis un seul tableau de bord." }, "placeCards": { "title": "Élégants cartons de table", "desc": "Concevez de magnifiques cartons de table avec des polices, couleurs et arrière-plans personnalisés." }, "tableCharts": { "title": "Plans de table individuels", "desc": "Générez de beaux plans de table par table que vos invités peuvent voir d'un coup d'œil." }, "dietary": { "title": "Régimes alimentaires simplifiés", "desc": "Suivez les besoins alimentaires de chaque invité et générez des tableaux prêts pour la cuisine." }, "seatingChart": { "title": "Plan de table complet", "desc": "Créez un plan de table complet prêt à imprimer montrant chaque invité et table." }, "kiosk": { "title": "Vue kiosque", "desc": "Installez des kiosques d'enregistrement en libre-service à l'entrée de votre lieu." }, "djmc": { "title": "Questionnaire DJ et MC", "desc": "Partagez vos préférences musicales et le programme de l'événement directement avec votre DJ ou MC." }, "floorPlan": { "title": "Plan de salle", "desc": "Visualisez l'agencement complet de votre lieu avec un plan de salle interactif." }, "learnMore": "En savoir plus" },
+  "extraGrid": { "title": "Tout ce qu'il faut pour votre jour parfait", "djmc": { "title": "Planificateur DJ & MC", "desc": "Créez votre playlist parfaite" }, "dietary": { "title": "Régimes alimentaires", "desc": "Suivez les besoins de chaque invité" }, "placeCards": { "title": "Cartons de table", "desc": "De beaux cartons imprimés" }, "kiosk": { "title": "Kiosque en direct", "desc": "Enregistrement en libre-service" }, "seatingCharts": { "title": "Plans de table", "desc": "Mises en page prêtes à imprimer" }, "myEvents": { "title": "Mes événements", "desc": "Gérez tous vos événements" }, "tables": { "title": "Configuration des tables", "desc": "Créez et organisez les tables" }, "guestList": { "title": "Liste d'invités", "desc": "Gestion complète des invités" }, "qr": { "title": "QR Code places", "desc": "Scannez pour trouver votre table" }, "invitations": { "title": "Invitations et cartes", "desc": "Envoyez et suivez les invitations" }, "tableCharts": { "title": "Plans de table individuels", "desc": "Affichage par table" }, "floorPlan": { "title": "Plan de salle", "desc": "Visualisez votre lieu" }, "fullSeatingChart": { "title": "Plan complet", "desc": "Vue d'ensemble des places" }, "runningSheet": { "title": "Feuille de route", "desc": "Planifiez votre programme" } },
+  "pricing": { "title": "Tarifs simples et transparents", "subtitle": "Commencez gratuitement. Passez à la version supérieure quand vous êtes prêt.", "trialNote": "Tous les plans incluent un essai gratuit de 7 jours (jusqu'à 20 invités). Sans risque. Passez à la version supérieure à tout moment.", "saveLine": "Économisez plus de 1 000 $ par rapport à l'achat d'outils séparément", "getStarted": "Commencer", "mostPopular": "Le plus populaire", "forProfessionals": "Pour les professionnels", "approvalRequired": "Approbation requise", "essential": { "name": "Essential", "guests": "Jusqu'à 100 invités · Accès 12 mois" }, "premium": { "name": "Premium", "guests": "Jusqu'à 300 invités · Accès 12 mois" }, "unlimited": { "name": "Unlimited", "guests": "Invités illimités · Accès 12 mois" }, "vendorPro": { "name": "Vendor Pro", "guests": "Pour les lieux et professionnels de l'événementiel" }, "features": { "oneEvent": "1 événement", "fullAccess": "Accès complet à tous les outils de planification", "easySetup": "Configuration facile et expérience fluide", "unlimitedEvents": "Événements illimités", "unlimitedGuests": "Invités illimités", "fullPlatform": "Accès complet à la plateforme" } },
+  "testimonials": { "title": "Vos amis seront impressionnés.", "subtitle": "Découvrez ce que les couples disent de Wedding Waitress.", "items": [ { "name": "Sarah & James", "text": "Cela a rendu la planification de notre mariage si facile. Nous avons géré 200 invités sans aucun stress !" }, { "name": "Emily & Tom", "text": "Le QR pour les places était incroyable — nos invités ont adoré scanner pour trouver leur table." }, { "name": "Jessica & Michael", "text": "Tout était parfaitement organisé. La feuille de route a gardé tous nos prestataires sur la bonne voie." }, { "name": "Olivia & Daniel", "text": "Nous avons économisé tant d'heures avec la gestion de la liste d'invités. Un vrai changement !" }, { "name": "Sophie & Chris", "text": "Les cartons de table et les plans de table avaient l'air incroyablement professionnels." }, { "name": "Mia & Liam", "text": "Notre coordinatrice était impressionnée par l'organisation. Merci Wedding Waitress !" } ] },
+  "faq": { "title": "Questions fréquemment posées", "subtitle": "Tout ce que vous devez savoir avant de commencer.", "items": [ { "q": "Y a-t-il un essai gratuit ?", "a": "Oui ! Tous les plans incluent un essai gratuit de 7 jours avec jusqu'à 20 invités. Aucune carte de crédit requise." }, { "q": "Que se passe-t-il après 12 mois ?", "a": "Votre plan expire après 12 mois. Vous pouvez le prolonger à tout moment depuis votre tableau de bord à un tarif réduit." }, { "q": "Puis-je mettre à niveau mon plan plus tard ?", "a": "Absolument. Vous pouvez passer de Essential à Premium ou Unlimited à tout moment — vous ne payez que la différence." }, { "q": "Combien d'événements puis-je créer ?", "a": "Les plans Essential et Premium prennent en charge un événement chacun. Le plan Unlimited vous permet d'en créer autant que nécessaire." }, { "q": "Les invités ont-ils besoin d'un compte pour RSVP ?", "a": "Non. Les invités scannent simplement le code QR ou cliquent sur un lien — pas de connexion ni de téléchargement requis." }, { "q": "Puis-je obtenir un remboursement ?", "a": "Nous offrons un remboursement complet dans les 14 jours suivant l'achat si vous n'avez pas dépassé les limites de l'essai gratuit." } ] },
+  "contact": { "title": "Nous contacter", "subtitle": "Une question ? Nous serions ravis de vous entendre.", "name": "Nom", "email": "E-mail", "message": "Message", "namePlaceholder": "Votre nom", "emailPlaceholder": "vous@exemple.com", "messagePlaceholder": "Comment pouvons-nous vous aider ?", "sendButton": "Envoyer le message", "sending": "Envoi en cours...", "sent": "✓ Message envoyé !" },
+  "finalCta": { "title1": "Toute la magie.", "title2": "Aucun stress.", "subtitle": "Commencez à planifier votre jour parfait — c'est gratuit.", "cta": "Commencer gratuitement" },
+  "footer": { "tagline": "La plateforme de planification de mariage tout-en-un approuvée par des couples dans toute l'Australie.", "explore": "Explorer", "support": "Support", "features": "Fonctionnalités", "pricing": "Tarifs", "faq": "FAQ", "contactUs": "Nous contacter", "privacy": "Confidentialité", "terms": "Conditions", "followUs": "Suivez-nous", "copyright": "Wedding Waitress. Tous droits réservés." }
 }
