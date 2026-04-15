@@ -6,29 +6,44 @@ import { CookieBanner } from '@/components/ui/CookieBanner';
 interface FeaturePageLayoutProps {
   title: string;
   description?: string;
+  backgroundImage?: string;
 }
 
-export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, description }) => {
+export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, description, backgroundImage }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#faf8f5] to-[#f3efe9]">
+    <div className="min-h-screen flex flex-col bg-[#faf8f5]">
       <Header />
 
-      <main className="flex-1 flex items-center justify-center px-4 py-12 md:py-20">
-        <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
-          {/* Left: Content */}
-          <div className="space-y-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+      <main className="flex-1 flex flex-col md:flex-row">
+        {/* Left: Visual + Content */}
+        <div
+          className="relative w-full md:w-1/2 min-h-[340px] md:min-h-0 flex items-center justify-center"
+          style={{
+            backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: backgroundImage ? undefined : '#967A59',
+          }}
+        >
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/40" />
+
+          {/* Content */}
+          <div className="relative z-10 text-center px-8 py-16 md:py-0 max-w-lg">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-lg">
               {title}
             </h1>
             {description && (
-              <p className="text-lg text-gray-500 leading-relaxed">{description}</p>
+              <p className="mt-5 text-base sm:text-lg text-white/90 leading-relaxed drop-shadow-md">
+                {description}
+              </p>
             )}
           </div>
+        </div>
 
-          {/* Right: Sign-up form */}
-          <div className="flex justify-center md:justify-end">
-            <EmbeddedSignUpForm />
-          </div>
+        {/* Right: Sign-up form */}
+        <div className="w-full md:w-1/2 flex items-center justify-center bg-[#f3efe9] px-6 py-12 md:py-0">
+          <EmbeddedSignUpForm />
         </div>
       </main>
 
