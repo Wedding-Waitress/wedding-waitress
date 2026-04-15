@@ -1,10 +1,10 @@
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
-import bgImage from '@/assets/features/feature-place-cards.jpg';
+import bgImage from '@/assets/features/feature-place-cards-page.jpg';
 
 export const FeaturePlaceCards = () => (
   <FeaturePageLayout
-    title="Elegant Name Place Cards"
-    description="Create beautiful, print-ready wedding place cards in seconds. Choose from elegant templates, customise fonts and colours, and export at 300 DPI for professional-quality prints that impress every guest."
+    title="Name Place Cards"
+    description="Create elegant and personalised name place cards for your wedding or event in just minutes. Easily generate guest names, customise fonts and layouts, and print professional-quality place cards directly from your seating plan. Wedding Waitress makes it simple to organise seating, enhance your table presentation, and deliver a polished, seamless guest experience from arrival to reception."
     backgroundImage={bgImage}
   />
 );
