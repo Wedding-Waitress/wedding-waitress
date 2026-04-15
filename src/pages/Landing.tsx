@@ -145,8 +145,34 @@ const testimonials = [
   { name: "Mia & Liam", text: "Our coordinator was impressed with how organised everything was. Thank you Wedding Waitress!", rating: 5 },
 ];
 
+const faqItems = [
+  { q: "Is there a free trial?", a: "Yes! All plans include a 7-day free trial with up to 20 guests. No credit card required." },
+  { q: "What happens after 12 months?", a: "Your plan expires after 12 months. You can extend it anytime from your dashboard at a discounted rate." },
+  { q: "Can I upgrade my plan later?", a: "Absolutely. You can upgrade from Essential to Premium or Unlimited at any time — you'll only pay the difference." },
+  { q: "How many events can I create?", a: "Essential and Premium plans support one event each. The Unlimited plan lets you create as many events as you need." },
+  { q: "Do guests need an account to RSVP?", a: "No. Guests simply scan the QR code or click a link — no login or download required." },
+  { q: "Can I get a refund?", a: "We offer a full refund within 14 days of purchase if you haven't exceeded the free trial limits." },
+];
+
 export const Landing = () => {
   const signUpRef = useRef<HTMLButtonElement>(null);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [contactSending, setContactSending] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) return;
+    setContactSending(true);
+    // Simulate send
+    setTimeout(() => {
+      setContactSending(false);
+      setContactSent(true);
+      setContactForm({ name: '', email: '', message: '' });
+      setTimeout(() => setContactSent(false), 4000);
+    }, 1000);
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
