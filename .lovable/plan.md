@@ -1,73 +1,50 @@
 
 
-# Plan: Make Language Switcher Fully Functional on Homepage
+# Plan: Vendor Pro Card Update + Conversion Psychology Layer
 
-## Summary
-The entire Landing page and Header have hardcoded English text. The existing `landing.json` files are outdated and don't match the current homepage content. This plan rewrites all 13 locale files with complete translations and updates `Landing.tsx` + `Header.tsx` to use `t()` from react-i18next.
+## 1. Vendor Pro Card — Update bullet text (Landing.tsx lines 306-312)
 
-## What Changes
+Replace the 3-bullet feature list with 6 items:
+- Unlimited events
+- Unlimited guests
+- Full platform access
+- For wedding and event venues
+- Wedding planners
+- DJs, MCs and event professionals
 
-### 1. Rewrite `src/i18n/locales/en/landing.json` (and all 12 other locales)
+Reduce text size to `text-xs` and spacing to `space-y-2` to keep it balanced and not crowded.
 
-Replace the current small landing.json with a comprehensive structure covering every homepage section:
+## 2. Conversion Psychology — Hero Section (Landing.tsx lines 116-122)
 
-```json
-{
-  "nav": { "howItWorks", "products", "pricing", "faq", "contact", "signIn", "getStarted" },
-  "hero": { "title1", "title2", "subtitle", "cta", "trusted" },
-  "featureCards": { "sectionTitle", "sectionSubtitle", cards x13 (title + desc) },
-  "alternating": { 13 features (title + desc + learnMore) },
-  "extraGrid": { "title", 14 items (title + desc) },
-  "pricing": { "title", "subtitle", "trialNote", "saveLine", plans x4, features, "approvalRequired", "forProfessionals", "mostPopular" },
-  "testimonials": { "title", "subtitle", 6 quotes },
-  "faq": { "title", "subtitle", 6 Q&A pairs },
-  "contact": { "title", "subtitle", "name", "email", "message", "placeholder*", "sendButton", "sending", "sent" },
-  "finalCta": { "title1", "title2", "subtitle", "cta" },
-  "footer": { "tagline", "explore", "support", "features", "pricing", "faq", "contactUs", "privacy", "terms", "followUs", "copyright" }
-}
-```
+- Change hero CTA button text: update `hero.cta` in EN landing.json from "Get Started Free" to "Start Your Free Trial"
+- Add trust line below button: "No credit card required. Start free in minutes." (new key `hero.trustLine`)
 
-**All 13 locales** (en, de, es, fr, it, nl, ja, ar, vi, zh, tr, el, hi) get properly translated versions. Hindi (`hi`) will be added as a new locale.
+## 3. Conversion Psychology — Pricing Section
 
-### 2. Add Hindi locale support
+- Add reassurance line below trial note: "One simple plan. Full access. Choose by guest size only." (new key `pricing.reassurance`)
+- Add "7-day free trial included" under each plan's Get Started button (new key `pricing.trialUnderButton`)
+- Add "Best for most weddings" subtitle under Premium's "Most Popular" badge (new key `pricing.bestForMost`)
+- Update Vendor Pro badge text from "For Professionals" to "For Venues & Pros" (update `pricing.forProfessionals`)
 
-- Create `src/i18n/locales/hi/common.json`, `landing.json`, `dashboard.json`
-- Register Hindi in `src/i18n/config.ts` (import + add to resources)
+## 4. Conversion Psychology — Testimonials Section (Landing.tsx line 324)
 
-### 3. Update `src/pages/Landing.tsx`
+Add intro line above testimonials title: "Used by couples to simplify guests, seating, RSVPs and event flow." (new key `testimonials.intro`)
 
-- Add `const { t } = useTranslation('landing');` 
-- Replace every hardcoded string with `t('key')` calls
-- Move data arrays (featureCards, alternatingFeatures, extraFeatures, testimonials, faqItems) inside the component so they can use `t()`
-- No layout or styling changes
+## 5. Conversion Psychology — FAQ Questions (EN landing.json)
 
-### 4. Update `src/components/Layout/Header.tsx`
+Replace current 6 FAQ items with conversion-focused questions:
+1. "Do guests need an app?" → "No. Guests scan a QR code or click a link — no login, app, or download required."
+2. "Can I send RSVP invites by email or SMS?" → "Yes! Send beautiful digital invitations and track RSVPs in real time."
+3. "Can I manage seating charts and guest lists in one place?" → "Absolutely. Everything from guest management to seating charts is built into one platform."
+4. "Is Wedding Waitress suitable for venues and planners too?" → "Yes. Our Vendor Pro plan is built for venues, planners, DJs, and event professionals."
+5. "What happens after the 7-day free trial?" → "You can upgrade anytime. If you don't, your data stays safe and you can return later."
+6. "Can I get a refund?" → "We offer a full refund within 14 days of purchase if you haven't exceeded the free trial limits."
 
-- Replace hardcoded nav labels ("How it Works", "Pricing", "FAQ", "Contact", "Sign In", "Get Started") with `t('landing:nav.howItWorks')` etc.
-- Remove the "coming soon" toast for Hindi — all languages now fully supported
-- Mobile menu labels also translated
+## 6. Update all 13 locale files
 
-### 5. localStorage persistence
-
-Already configured in `i18n/config.ts` via `detection.caches: ['localStorage']` — no change needed. RTL for Arabic also already handled via the `languageChanged` event.
+Add the new keys (`hero.trustLine`, `hero.cta` update, `pricing.reassurance`, `pricing.trialUnderButton`, `pricing.bestForMost`, `pricing.forProfessionals` update, `pricing.features.forVenues`/`weddingPlanners`/`djMcPros`, `testimonials.intro`, updated FAQ items) to all 13 landing.json files with proper translations.
 
 ## Files Modified
-1. `src/i18n/locales/en/landing.json` — Full rewrite with all homepage keys
-2. `src/i18n/locales/de/landing.json` — German translations
-3. `src/i18n/locales/es/landing.json` — Spanish translations
-4. `src/i18n/locales/fr/landing.json` — French translations
-5. `src/i18n/locales/it/landing.json` — Italian translations
-6. `src/i18n/locales/nl/landing.json` — Dutch translations
-7. `src/i18n/locales/ja/landing.json` — Japanese translations
-8. `src/i18n/locales/ar/landing.json` — Arabic translations
-9. `src/i18n/locales/vi/landing.json` — Vietnamese translations
-10. `src/i18n/locales/zh/landing.json` — Chinese translations
-11. `src/i18n/locales/tr/landing.json` — Turkish translations
-12. `src/i18n/locales/el/landing.json` — Greek translations
-13. `src/i18n/locales/hi/common.json` — New Hindi common
-14. `src/i18n/locales/hi/landing.json` — New Hindi landing
-15. `src/i18n/locales/hi/dashboard.json` — New Hindi dashboard (minimal placeholder)
-16. `src/i18n/config.ts` — Add Hindi imports + resources
-17. `src/pages/Landing.tsx` — Replace all hardcoded text with `t()` calls
-18. `src/components/Layout/Header.tsx` — Translate nav labels, remove "coming soon" toast for hi
+1. `src/pages/Landing.tsx` — Vendor Pro bullets, trust line, reassurance line, trial-under-button, best-for-most, testimonials intro
+2. `src/i18n/locales/[en,de,es,fr,it,nl,ja,ar,hi,vi,zh,tr,el]/landing.json` — All 13 locale files updated with new/changed keys
 
