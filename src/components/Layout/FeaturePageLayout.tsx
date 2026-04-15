@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { EmbeddedSignUpForm } from '@/components/auth/EmbeddedSignUpForm';
@@ -8,9 +8,27 @@ interface FeaturePageLayoutProps {
   title: string;
   description?: string;
   backgroundImage?: string;
+  pageTitle?: string;
+  metaDescription?: string;
 }
 
-export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, description, backgroundImage }) => {
+export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, description, backgroundImage, pageTitle, metaDescription }) => {
+  useEffect(() => {
+    if (pageTitle) {
+      document.title = pageTitle;
+    }
+    const metaTag = document.querySelector('meta[name="description"]');
+    if (metaDescription && metaTag) {
+      metaTag.setAttribute('content', metaDescription);
+    }
+    return () => {
+      document.title = 'Wedding Planning App Australia | Guest List, Seating Chart & RSVP Tool';
+      if (metaTag) {
+        metaTag.setAttribute('content', 'Plan your wedding with ease using Wedding Waitress — the all-in-one wedding planning app. Manage your guest list, create seating charts, send QR code RSVPs, and organise your entire event in one place.');
+      }
+    };
+  }, [pageTitle, metaDescription]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
       <Header />
