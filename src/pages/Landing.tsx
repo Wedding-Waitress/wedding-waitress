@@ -144,7 +144,7 @@ export const Landing = () => {
             poster={heroImg}
             className="w-full h-full object-cover hidden md:block"
           >
-            <source src={heroVideoUrl} type="video/mp4" />
+            <source src={heroCombinedVideo} type="video/mp4" />
           </video>
           <img src={heroImg} alt="Wedding reception with elegant table settings and seating chart" width={1920} height={1080} className="w-full h-full object-cover md:hidden" />
           <div className="absolute inset-0 bg-black/50" />
