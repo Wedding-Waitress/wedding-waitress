@@ -52,9 +52,10 @@ export const PrivacyPolicy = () => {
                 <li><a href="#your-rights" className="text-primary hover:underline">6. Your Rights</a></li>
                 <li><a href="#cookies" className="text-primary hover:underline">7. Cookies and Tracking</a></li>
                 <li><a href="#data-retention" className="text-primary hover:underline">8. Data Retention</a></li>
-                <li><a href="#childrens-privacy" className="text-primary hover:underline">9. Children's Privacy</a></li>
-                <li><a href="#changes" className="text-primary hover:underline">10. Changes to This Policy</a></li>
-                <li><a href="#contact" className="text-primary hover:underline">11. Contact Us</a></li>
+                <li><a href="#international-users" className="text-primary hover:underline">9. International Users</a></li>
+                <li><a href="#childrens-privacy" className="text-primary hover:underline">10. Children's Privacy</a></li>
+                <li><a href="#changes" className="text-primary hover:underline">11. Changes to This Policy</a></li>
+                <li><a href="#contact" className="text-primary hover:underline">12. Contact Us</a></li>
               </ol>
             </div>
 
@@ -106,9 +107,9 @@ export const PrivacyPolicy = () => {
                 <li><strong>Account Management:</strong> To create and manage your account, authenticate your identity</li>
                 <li><strong>Event Management:</strong> To help you organize guests, seating charts, QR codes, and event materials</li>
                 <li><strong>Communication:</strong> To send you service updates, technical notices, support messages</li>
-                <li><strong>Payment Processing:</strong> To process subscription payments and one-time purchases via Stripe</li>
+                <li><strong>Payment Processing:</strong> We process payments securely via Stripe. Wedding Waitress does not store credit card details. Wedding plans are one-time purchases, while Vendor Pro is a recurring subscription billed monthly. Stripe processes payments on our behalf in accordance with their privacy policy.</li>
                 <li><strong>Analytics:</strong> To understand how our services are used and improve user experience</li>
-                <li><strong>Marketing:</strong> To send promotional materials (you can opt-out at any time)</li>
+                <li><strong>Marketing:</strong> To send promotional emails and updates about Wedding Waitress. You may opt out of marketing communications at any time by clicking "unsubscribe" or contacting us directly.</li>
                 <li><strong>Legal Compliance:</strong> To comply with legal obligations and enforce our terms</li>
               </ul>
             </section>
@@ -116,7 +117,7 @@ export const PrivacyPolicy = () => {
             <section id="data-sharing">
               <h2 className="text-2xl font-bold text-foreground mb-4">4. Data Sharing and Disclosure</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                We do not sell your personal information. We may share your information in the following circumstances:
+                We do not sell your personal information. We may share your data with trusted third-party providers who assist us in operating the platform.
               </p>
               
               <h3 className="text-xl font-semibold text-foreground mb-3">4.1 Service Providers</h3>
@@ -126,6 +127,9 @@ export const PrivacyPolicy = () => {
                 <li><strong>Cloud Storage:</strong> For storing event materials and QR codes</li>
                 <li><strong>Email Services:</strong> For sending notifications and verification emails</li>
               </ul>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                These providers process data on our behalf and are contractually obligated to protect your information.
+              </p>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">4.2 Legal Requirements</h3>
               <p className="text-muted-foreground leading-relaxed">
@@ -158,7 +162,7 @@ export const PrivacyPolicy = () => {
             <section id="your-rights">
               <h2 className="text-2xl font-bold text-foreground mb-4">6. Your Rights</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                Under Australian privacy law (Privacy Act 1988) and GDPR (if applicable), you have the following rights:
+                Under Australian Privacy Law and, where applicable, GDPR or other international data protection laws, you may have the following rights:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li><strong>Access:</strong> Request a copy of your personal information</li>
@@ -186,6 +190,9 @@ export const PrivacyPolicy = () => {
               <p className="text-muted-foreground leading-relaxed mt-4">
                 You can control cookies through your browser settings. Note that disabling certain cookies may affect service functionality.
               </p>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                By using our website, you consent to the use of cookies. You may control or disable cookies through your browser settings. Disabling cookies may affect certain features of the platform.
+              </p>
             </section>
 
             <section id="data-retention">
@@ -203,15 +210,22 @@ export const PrivacyPolicy = () => {
               </p>
             </section>
 
+            <section id="international-users">
+              <h2 className="text-2xl font-bold text-foreground mb-4">9. International Users</h2>
+              <p className="text-muted-foreground leading-relaxed">
+                Wedding Waitress is accessible globally. By using our platform, you acknowledge that your data may be processed and stored in servers located outside your country, including Australia. We take reasonable steps to ensure your data is handled securely and in accordance with this policy.
+              </p>
+            </section>
+
             <section id="childrens-privacy">
-              <h2 className="text-2xl font-bold text-foreground mb-4">9. Children's Privacy</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">10. Children's Privacy</h2>
               <p className="text-muted-foreground leading-relaxed">
                 Wedding Waitress is not intended for children under 18. We do not knowingly collect information from children. If you believe we have collected information from a child, please contact us immediately.
               </p>
             </section>
 
             <section id="changes">
-              <h2 className="text-2xl font-bold text-foreground mb-4">10. Changes to This Policy</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">11. Changes to This Policy</h2>
               <p className="text-muted-foreground leading-relaxed">
                 We may update this Privacy Policy from time to time. We will notify you of significant changes by:
               </p>
@@ -226,7 +240,7 @@ export const PrivacyPolicy = () => {
             </section>
 
             <section id="contact">
-              <h2 className="text-2xl font-bold text-foreground mb-4">11. Contact Us</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">12. Contact Us</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 If you have questions or concerns about this Privacy Policy, please contact us:
               </p>
@@ -238,6 +252,9 @@ export const PrivacyPolicy = () => {
                   Email: <a href="mailto:support@weddingwaitress.com" className="text-primary hover:underline">support@weddingwaitress.com</a>
                 </p>
               </div>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                You may also contact us to request deletion of your data or closure of your account.
+              </p>
             </section>
 
             {/* Back to Top */}
