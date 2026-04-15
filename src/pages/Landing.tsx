@@ -281,12 +281,15 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             Simple, Transparent Pricing
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">
             Start free. Upgrade when you're ready.
+          </p>
+          <p className="text-base font-medium text-gray-600 text-center mb-16 max-w-2xl mx-auto">
+            All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
           </p>
 
           {/* Main Plans */}
-          <div className="grid md:grid-cols-3 gap-8 items-center mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
             {/* Essential */}
             <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
@@ -299,7 +302,7 @@ export const Landing = () => {
               </div>
               <p className="text-sm text-gray-500 mb-6">Up to 100 guests · 12-month access</p>
               <ul className="space-y-3 mb-8">
-                {["Guest list management", "Seating tools", "Basic planning features"].map((f) => (
+                {["Up to 100 guests", "1 event", "Full access to all features"].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -312,7 +315,7 @@ export const Landing = () => {
             </div>
 
             {/* Premium — highlighted */}
-            <div className="bg-white rounded-[20px] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary md:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
+            <div className="bg-white rounded-[20px] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary lg:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">Most Popular</span>
               </div>
@@ -326,7 +329,7 @@ export const Landing = () => {
               </div>
               <p className="text-sm text-gray-500 mb-6">Up to 300 guests · 12-month access</p>
               <ul className="space-y-3 mb-8">
-                {["Everything in Essential", "QR code guest seating", "Invitations & RSVP tools"].map((f) => (
+                {["Up to 300 guests", "1 event", "Full access to all features"].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -350,7 +353,7 @@ export const Landing = () => {
               </div>
               <p className="text-sm text-gray-500 mb-6">Unlimited guests · 12-month access</p>
               <ul className="space-y-3 mb-8">
-                {["All features unlocked", "Unlimited events & guests"].map((f) => (
+                {["Unlimited guests", "1 event", "Full access to all features"].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -361,11 +364,35 @@ export const Landing = () => {
                 <Button variant="outline" className="w-full rounded-xl">Get Started</Button>
               </SignUpModal>
             </div>
-          </div>
 
-          <p className="text-center text-sm text-gray-400">
-            All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
-          </p>
+            {/* Vendor Pro */}
+            <div className="bg-gray-900 text-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">For Professionals</span>
+              </div>
+              <div className="flex items-center gap-2 mb-4 mt-2">
+                <Building2 className="w-5 h-5 text-purple-400" />
+                <h3 className="text-xl font-bold">Vendor Pro</h3>
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-4xl font-bold">$249</span>
+                <span className="text-gray-400 text-lg">/month</span>
+              </div>
+              <p className="text-sm text-gray-400 mb-6">For venues & event professionals</p>
+              <ul className="space-y-3 mb-8">
+                {["Unlimited events", "Unlimited guests", "Full platform access"].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
+                    <Check className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <SignUpModal>
+                <Button variant="outline" className="w-full rounded-xl border-white/20 text-white hover:bg-white/10">Get Started</Button>
+              </SignUpModal>
+              <p className="text-xs text-gray-500 text-center mt-3">Approval required</p>
+            </div>
+          </div>
         </div>
       </section>
 
