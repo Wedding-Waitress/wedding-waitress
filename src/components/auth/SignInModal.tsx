@@ -336,9 +336,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground text-center">
                 By continuing you agree to our{' '}
-                <a href="#" className="underline hover:text-foreground">Terms</a>
+                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { onOpenChange(false); navigate('/terms'); }}>Terms of Service</span>
                 {' '}&{' '}
-                <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
+                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { onOpenChange(false); navigate('/privacy'); }}>Privacy Policy</span>
               </p>
 
               <div className="text-center">
