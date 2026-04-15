@@ -248,8 +248,11 @@ export const Landing = () => {
           <p className="text-base font-medium text-primary text-center mb-4 max-w-2xl mx-auto">
             {t('pricing.trialNote')}
           </p>
-          <p className="text-sm text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-sm text-gray-500 text-center mb-2 max-w-xl mx-auto">
             {t('pricing.reassurance')}
+          </p>
+          <p className="text-sm text-gray-400 text-center mb-16 max-w-xl mx-auto">
+            {t('pricing.noHiddenFees')}
           </p>
 
           {/* Main Plans */}
@@ -276,6 +279,9 @@ export const Landing = () => {
               </ul>
               <SignUpModal>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
+              </SignUpModal>
+              <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
+              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             </div>
@@ -307,6 +313,8 @@ export const Landing = () => {
               <SignUpModal>
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </SignUpModal>
+              <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
+              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             </div>
 
