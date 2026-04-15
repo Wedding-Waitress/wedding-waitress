@@ -143,10 +143,10 @@ export const Landing = () => {
             {t('hero.title1')}<br />
             <span className="text-white/90">{t('hero.title2')}</span>
           </h1>
-          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-6">
+          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-6 whitespace-nowrap">
             {t('hero.title3')}
           </p>
-          <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed">
             {t('hero.subtitle')}
           </p>
           <div className="flex justify-center">

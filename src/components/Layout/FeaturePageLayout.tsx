@@ -29,15 +29,17 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
           {/* Overlay */}
           <div className="absolute inset-0 bg-black/40" />
 
+          {/* Back to Home — top left */}
+          <Link
+            to="/"
+            onClick={() => window.scrollTo(0, 0)}
+            className="absolute top-4 left-6 z-20 text-sm text-white hover:text-[#967A59] transition-colors"
+          >
+            ← Back to Home
+          </Link>
+
           {/* Content */}
           <div className="relative z-10 text-center px-8 py-16 md:py-0 max-w-lg">
-            <Link
-              to="/"
-              onClick={() => window.scrollTo(0, 0)}
-              className="inline-block mb-6 text-sm text-gray-300 hover:text-[#967A59] transition-colors"
-            >
-              ← Back to Home
-            </Link>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-lg">
               {title}
             </h1>
