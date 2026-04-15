@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-floor-plan-page.jpg';
 
@@ -9,8 +10,8 @@ export const FeatureFloorPlan = () => (
     pageTitle="Wedding Floor Plan Creator | Venue Layout & Seating Design"
     metaDescription="Design your wedding venue layout with a visual floor plan tool. Arrange seating, ceremony setup, and reception flow."
     seoSections={[
-      { heading: "Design Your Venue Layout", text: "Create a detailed floor plan for your wedding venue. Place tables, stages, dance floors, and key features exactly where they need to be." },
-      { heading: "Plan Ceremony & Reception Setup", text: "Design both your ceremony and reception layouts in one tool. Visualise aisle seating, altar placement, and reception flow before the big day." },
+      { heading: "Design Your Venue Layout", text: <>Create a detailed floor plan for your wedding venue. Align your layout with your <Link to="/features/qr-seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">seating chart planner</Link> to ensure tables fit perfectly within your space.</> },
+      { heading: "Plan Ceremony & Reception Setup", text: <>Design both your ceremony and reception layouts in one tool. Coordinate your <Link to="/features/qr-seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">table arrangements</Link> with the physical venue for a seamless flow.</> },
       { heading: "Visualise Seating Arrangements", text: "See how your tables and seating fit within your venue space. Adjust layouts in real time to ensure everything works perfectly on the day." },
     ]}
     relatedFeatures={[
