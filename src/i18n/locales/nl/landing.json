@@ -1,62 +1,163 @@
 {
+  "nav": {
+    "howItWorks": "Hoe het werkt",
+    "products": "Producten",
+    "pricing": "Prijzen",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "signIn": "Inloggen",
+    "signUp": "Registreren",
+    "getStarted": "Aan de slag",
+    "logout": "Uitloggen"
+  },
   "hero": {
-    "title": "Plan Je Perfecte Bruiloft",
-    "subtitle": "Stroomlijn je bruiloftsplanning met ons alles-in-één platform. Beheer gasten, tafelschikking en creëer prachtige eventmaterialen.",
-    "cta": "Gratis Beginnen",
-    "signIn": "Inloggen"
+    "title1": "Plan je bruiloft",
+    "title2": "Zonder de stress.",
+    "subtitle": "Alles wat je nodig hebt om gasten, zitplaatsen, uitnodigingen en je hele bruiloft te beheren — alles op één plek.",
+    "cta": "Gratis beginnen",
+    "trusted": "Vertrouwd door stellen in heel Australië"
   },
-  "features": {
-    "title": "Alles Wat Je Nodig Hebt",
-    "guestManagement": {
-      "title": "Gastenbeheer",
-      "description": "Beheer eenvoudig je gastenlijst met RSVP-tracking en dieetwensen"
-    },
-    "seating": {
-      "title": "Tafelschikking",
-      "description": "Creëer perfecte zitplannen met drag-and-drop tafelbeheer"
-    },
-    "qrCodes": {
-      "title": "QR-Codes",
-      "description": "Genereer aangepaste QR-codes voor gastenzoeken en zelfservice check-in"
-    },
-    "placeCards": {
-      "title": "Plaatskaarten",
-      "description": "Ontwerp en print mooie plaatskaarten met gepersonaliseerde berichten"
+  "featureCards": {
+    "sectionTitle": "Het bruiloftsplatform waar je gasten van zullen houden.",
+    "sectionSubtitle": "Elke tool die je nodig hebt, prachtig ontworpen en eenvoudig te gebruiken.",
+    "guestList": { "title": "Gastenlijst", "desc": "Beheer al je gasten op één plek" },
+    "tables": { "title": "Tafels & zitplaatsen", "desc": "Organiseer tafels en zitplaatsen moeiteloos" },
+    "qr": { "title": "QR-code zitplaatsen", "desc": "Gasten scannen en vinden direct hun tafel" },
+    "invitations": { "title": "Uitnodigingen", "desc": "Stuur uitnodigingen en volg RSVP's" },
+    "runningSheet": { "title": "Draaiboek", "desc": "Plan je volledige bruiloftstijdlijn" },
+    "floorPlan": { "title": "Plattegrond", "desc": "Visualiseer je locatie-indeling" },
+    "myEvents": { "title": "Mijn evenementen", "desc": "Beheer al je evenementen met gemak" },
+    "placeCards": { "title": "Plaatskaarten", "desc": "Mooie gedrukte naamkaarten" },
+    "tableCharts": { "title": "Individuele tafelschema's", "desc": "Zitschema's per tafel" },
+    "dietary": { "title": "Dieetwensen", "desc": "Volg de dieetbehoeften van elke gast" },
+    "seatingChart": { "title": "Volledig zitschema", "desc": "Compleet printklaar zitschema" },
+    "kiosk": { "title": "Kiosk live weergave", "desc": "Zelfbediening check-in op locatie" },
+    "djmc": { "title": "DJ-MC vragenlijst", "desc": "Deel muziek en timing met je DJ" }
+  },
+  "alternating": {
+    "guestList": { "title": "Gastenlijstbeheer", "desc": "Beheer eenvoudig je hele gastenlijst, volg RSVP's en organiseer relaties. Importeer gasten, stuur uitnodigingen en houd alles perfect georganiseerd." },
+    "tables": { "title": "Zitplaatsen eenvoudig gemaakt", "desc": "Maak tafels en wijs gasten toe met ons visuele drag-and-drop systeem. Zie capaciteit in één oogopslag en maak last-minute wijzigingen moeiteloos." },
+    "qr": { "title": "Direct gasten zitplaatsen", "desc": "Gasten scannen een QR-code om direct hun tafel te vinden — geen verwarring, geen vertragingen. Een moderne, tech-forward touch die je gasten geweldig vinden." },
+    "runningSheet": { "title": "Plan elk moment", "desc": "Maak een volledig schema voor je trouwdag en deel het met leveranciers. Houd iedereen op één lijn van ceremonie tot laatste dans." },
+    "invitations": { "title": "Uitnodigingen & RSVP's", "desc": "Stuur mooie digitale uitnodigingen en volg reacties in realtime. Pas ontwerpen aan, voeg QR-codes toe en beheer RSVP's op één plek." },
+    "myEvents": { "title": "Jouw evenementen, jouw manier", "desc": "Maak en beheer meerdere evenementen vanuit één dashboard. Volg aftellingen, stel locaties in en houd elk detail prachtig georganiseerd." },
+    "placeCards": { "title": "Elegante plaatskaarten", "desc": "Ontwerp verbluffende gedrukte naamkaarten met aangepaste lettertypes, kleuren en achtergronden. Exporteer in hoge resolutie 300 DPI voor professioneel drukwerk." },
+    "tableCharts": { "title": "Individuele tafelschema's", "desc": "Genereer mooie zitschema's per tafel die je gasten in één oogopslag kunnen zien. Perfect voor afdrukken en tonen bij elke tafel." },
+    "dietary": { "title": "Dieetwensen eenvoudig gemaakt", "desc": "Volg de dieetbehoeften van elke gast en genereer keukenkare schema's. Zorg ervoor dat geen gast over het hoofd wordt gezien." },
+    "seatingChart": { "title": "Volledig zitschema", "desc": "Maak een compleet, printklaar zitschema met elke gast en tafel. Exporteer naar PDF met aangepaste styling en je evenement-branding." },
+    "kiosk": { "title": "Kiosk live weergave", "desc": "Stel zelfbediening check-in kiosken op bij de ingang van je locatie. Gasten zoeken hun naam en zien direct hun tafeltoewijzing." },
+    "djmc": { "title": "DJ & MC vragenlijst", "desc": "Deel je muziekvoorkeuren, uitspraakgidsen en evenementtijdlijn rechtstreeks met je DJ of MC." },
+    "floorPlan": { "title": "Locatie plattegrond", "desc": "Visualiseer je hele locatie-indeling met een interactieve plattegrond. Positioneer tafels, breng de ceremonieruimte in kaart en plan elk gebied." },
+    "learnMore": "Meer informatie"
+  },
+  "extraGrid": {
+    "title": "Alles wat je nodig hebt voor je perfecte dag",
+    "djmc": { "title": "DJ & MC planner", "desc": "Stel je perfecte playlist samen" },
+    "dietary": { "title": "Dieetwensen", "desc": "Volg de behoeften van elke gast" },
+    "placeCards": { "title": "Plaatskaarten", "desc": "Mooie gedrukte naamkaarten" },
+    "kiosk": { "title": "Live kiosk weergave", "desc": "Zelfbediening gasten check-in" },
+    "seatingCharts": { "title": "Zitschema's", "desc": "Printklare tafelindelingen" },
+    "myEvents": { "title": "Mijn evenementen", "desc": "Beheer al je evenementen" },
+    "tables": { "title": "Tafels instellen", "desc": "Maak en organiseer tafels" },
+    "guestList": { "title": "Gastenlijst", "desc": "Volledig gastenbeheer" },
+    "qr": { "title": "QR-code zitplaatsen", "desc": "Scan om je tafel te vinden" },
+    "invitations": { "title": "Uitnodigingen & kaarten", "desc": "Stuur en volg uitnodigingen" },
+    "tableCharts": { "title": "Individuele tafelschema's", "desc": "Gastenweergave per tafel" },
+    "floorPlan": { "title": "Plattegrond", "desc": "Visualiseer je locatie-indeling" },
+    "fullSeatingChart": { "title": "Volledig zitschema", "desc": "Compleet zitplaatsoverzicht" },
+    "runningSheet": { "title": "Draaiboek", "desc": "Plan je volledige tijdlijn" }
+  },
+  "pricing": {
+    "title": "Eenvoudige, transparante prijzen",
+    "subtitle": "Begin gratis. Upgrade wanneer je klaar bent.",
+    "trialNote": "Alle plannen bevatten een gratis proefperiode van 7 dagen (tot 20 gasten). Geen risico. Upgrade op elk moment.",
+    "saveLine": "Bespaar meer dan $1.000 ten opzichte van het apart kopen van tools",
+    "getStarted": "Aan de slag",
+    "mostPopular": "Meest populair",
+    "forProfessionals": "Voor professionals",
+    "approvalRequired": "Goedkeuring vereist",
+    "essential": { "name": "Essential", "guests": "Tot 100 gasten · 12 maanden toegang" },
+    "premium": { "name": "Premium", "guests": "Tot 300 gasten · 12 maanden toegang" },
+    "unlimited": { "name": "Unlimited", "guests": "Onbeperkt gasten · 12 maanden toegang" },
+    "vendorPro": { "name": "Vendor Pro", "guests": "Voor locaties & evenementenprofessionals" },
+    "features": {
+      "oneEvent": "1 evenement",
+      "fullAccess": "Volledige toegang tot alle bruilofts- & evenementenplanningstools",
+      "easySetup": "Eenvoudige opzet & naadloze ervaring",
+      "unlimitedEvents": "Onbeperkte evenementen",
+      "unlimitedGuests": "Onbeperkte gasten",
+      "fullPlatform": "Volledige platformtoegang"
     }
   },
-  "howItWorks": {
-    "title": "Hoe Het Werkt",
-    "step1": {
-      "title": "Evenement Aanmaken",
-      "description": "Stel je bruiloft of evenementdetails in"
-    },
-    "step2": {
-      "title": "Gasten Toevoegen",
-      "description": "Importeer of voeg handmatig je gastenlijst toe"
-    },
-    "step3": {
-      "title": "Zitplaatsen Regelen",
-      "description": "Organiseer tafels en wijs plaatsen toe"
-    },
-    "step4": {
-      "title": "Exporteren en Delen",
-      "description": "Genereer QR-codes, plaatskaarten en zitplannen"
-    }
+  "testimonials": {
+    "title": "Je vrienden zullen onder de indruk zijn.",
+    "subtitle": "Ontdek wat stellen zeggen over Wedding Waitress.",
+    "items": [
+      { "name": "Sarah & James", "text": "Dit maakte onze bruiloftsplanning zo makkelijk. We beheerden 200 gasten zonder stress!" },
+      { "name": "Emily & Tom", "text": "De QR-zitplaatsen waren geweldig — onze gasten vonden het fantastisch om direct hun tafel te vinden." },
+      { "name": "Jessica & Michael", "text": "Alles was perfect georganiseerd. Het draaiboek hield al onze leveranciers op schema." },
+      { "name": "Olivia & Daniel", "text": "We bespaarden zoveel uren met het gastenbeheer. Een absolute gamechanger!" },
+      { "name": "Sophie & Chris", "text": "De plaatskaarten en zitschema's zagen er ongelooflijk professioneel uit. Elke cent waard." },
+      { "name": "Mia & Liam", "text": "Onze coördinator was onder de indruk van hoe georganiseerd alles was. Bedankt Wedding Waitress!" }
+    ]
   },
-  "cta": {
-    "title": "Klaar om te Beginnen?",
-    "subtitle": "Sluit je aan bij duizenden gelukkige stellen die hun perfecte dag plannen",
-    "button": "Begin Vandaag met Plannen"
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "subtitle": "Alles wat je moet weten voordat je begint.",
+    "items": [
+      { "q": "Is er een gratis proefperiode?", "a": "Ja! Alle plannen bevatten een gratis proefperiode van 7 dagen met tot 20 gasten. Geen creditcard nodig." },
+      { "q": "Wat gebeurt er na 12 maanden?", "a": "Je plan verloopt na 12 maanden. Je kunt het op elk moment verlengen vanuit je dashboard tegen een gereduceerd tarief." },
+      { "q": "Kan ik later upgraden?", "a": "Absoluut. Je kunt op elk moment upgraden van Essential naar Premium of Unlimited — je betaalt alleen het verschil." },
+      { "q": "Hoeveel evenementen kan ik maken?", "a": "Essential en Premium plannen ondersteunen elk één evenement. Het Unlimited plan laat je zoveel evenementen maken als je nodig hebt." },
+      { "q": "Hebben gasten een account nodig om te reageren?", "a": "Nee. Gasten scannen simpelweg de QR-code of klikken op een link — geen login of download nodig." },
+      { "q": "Kan ik een terugbetaling krijgen?", "a": "We bieden een volledige terugbetaling binnen 14 dagen na aankoop als je de limieten van de gratis proefperiode niet hebt overschreden." }
+    ]
+  },
+  "contact": {
+    "title": "Neem contact op",
+    "subtitle": "Heb je een vraag? We horen graag van je.",
+    "name": "Naam",
+    "email": "E-mail",
+    "message": "Bericht",
+    "namePlaceholder": "Je naam",
+    "emailPlaceholder": "jij@voorbeeld.nl",
+    "messagePlaceholder": "Hoe kunnen we helpen?",
+    "sendButton": "Bericht versturen",
+    "sending": "Versturen...",
+    "sent": "✓ Bericht verzonden!"
+  },
+  "finalCta": {
+    "title1": "Alle magie.",
+    "title2": "Geen stress.",
+    "subtitle": "Begin met het plannen van je perfecte dag — het is gratis.",
+    "cta": "Gratis beginnen"
   },
   "footer": {
+    "tagline": "Het alles-in-één bruiloftsplanningsplatform vertrouwd door stellen in heel Australië.",
     "explore": "Verkennen",
     "support": "Ondersteuning",
     "features": "Functies",
     "pricing": "Prijzen",
-    "about": "Over Ons",
-    "blog": "Blog",
-    "help": "Helpcentrum",
-    "faq": "Veelgestelde Vragen",
-    "contact": "Contact Opnemen"
+    "faq": "FAQ",
+    "contactUs": "Contact opnemen",
+    "privacy": "Privacy",
+    "terms": "Voorwaarden",
+    "followUs": "Volg ons",
+    "copyright": "© {{year}} Wedding Waitress. Alle rechten voorbehouden."
+  },
+  "productLinks": {
+    "myEvents": "Mijn evenementen",
+    "tables": "Tafels",
+    "guestList": "Gastenlijst",
+    "qrSeating": "QR-code zitplaatsen",
+    "invitations": "Uitnodigingen & kaarten",
+    "placeCards": "Plaatskaarten",
+    "tableCharts": "Individuele tafelschema's",
+    "floorPlan": "Plattegrond",
+    "dietary": "Dieetwensen",
+    "seatingChart": "Volledig zitschema",
+    "kiosk": "Kiosk live weergave",
+    "djmc": "DJ-MC vragenlijst",
+    "runningSheet": "Draaiboek"
   }
 }

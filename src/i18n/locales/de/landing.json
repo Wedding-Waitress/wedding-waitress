@@ -1,62 +1,202 @@
 {
-  "hero": {
-    "title": "Planen Sie Ihre perfekte Hochzeit",
-    "subtitle": "Optimieren Sie Ihre Hochzeitsplanung mit unserer All-in-One-Plattform. Verwalten Sie Gäste, Sitzordnung und erstellen Sie wunderschöne Eventmaterialien.",
-    "cta": "Kostenlos starten",
-    "signIn": "Anmelden"
+  "nav": {
+    "howItWorks": "So funktioniert's",
+    "products": "Produkte",
+    "pricing": "Preise",
+    "faq": "FAQ",
+    "contact": "Kontakt",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "getStarted": "Loslegen",
+    "logout": "Abmelden"
   },
-  "features": {
-    "title": "Alles was Sie brauchen",
-    "guestManagement": {
-      "title": "Gästeverwaltung",
-      "description": "Verwalten Sie Ihre Gästeliste einfach mit RSVP-Tracking und diätetischen Anforderungen"
+  "hero": {
+    "title1": "Plane deine Hochzeit",
+    "title2": "Ohne den Stress.",
+    "subtitle": "Alles, was du brauchst, um Gäste, Sitzordnung, Einladungen und deine gesamte Hochzeit zu verwalten — alles an einem Ort.",
+    "cta": "Kostenlos starten",
+    "trusted": "Vertraut von Paaren in ganz Australien"
+  },
+  "featureCards": {
+    "sectionTitle": "Die Hochzeitsplattform, die deine Gäste lieben werden.",
+    "sectionSubtitle": "Jedes Tool, das du brauchst, wunderschön gestaltet und einfach zu bedienen.",
+    "guestList": { "title": "Gästeliste", "desc": "Verwalte alle Gäste an einem Ort" },
+    "tables": { "title": "Tische & Sitzordnung", "desc": "Organisiere Tische und Sitzplätze mühelos" },
+    "qr": { "title": "QR-Code Sitzplan", "desc": "Gäste scannen und finden sofort ihren Tisch" },
+    "invitations": { "title": "Einladungen", "desc": "Einladungen senden und RSVPs verfolgen" },
+    "runningSheet": { "title": "Ablaufplan", "desc": "Plane deinen kompletten Hochzeitstag" },
+    "floorPlan": { "title": "Raumplan", "desc": "Visualisiere dein Veranstaltungslayout" },
+    "myEvents": { "title": "Meine Events", "desc": "Verwalte alle Events mit Leichtigkeit" },
+    "placeCards": { "title": "Tischkarten", "desc": "Wunderschöne gedruckte Namenskarten" },
+    "tableCharts": { "title": "Einzelne Tischpläne", "desc": "Sitzpläne pro Tisch" },
+    "dietary": { "title": "Ernährungsanforderungen", "desc": "Verfolge die Ernährungsbedürfnisse jedes Gastes" },
+    "seatingChart": { "title": "Gesamter Sitzplan", "desc": "Druckfertiger kompletter Sitzplan" },
+    "kiosk": { "title": "Kiosk Live-Ansicht", "desc": "Self-Service-Check-in am Veranstaltungsort" },
+    "djmc": { "title": "DJ-MC Fragebogen", "desc": "Teile Musik und Timing mit deinem DJ" }
+  },
+  "alternating": {
+    "guestList": {
+      "title": "Gästelistenverwaltung",
+      "desc": "Verwalte deine gesamte Gästeliste, verfolge RSVPs und organisiere Beziehungen. Importiere Gäste, sende Einladungen und halte alles perfekt organisiert."
     },
-    "seating": {
-      "title": "Sitzordnung",
-      "description": "Erstellen Sie perfekte Sitzpläne mit Drag-and-Drop-Tischverwaltung"
+    "tables": {
+      "title": "Sitzordnung leicht gemacht",
+      "desc": "Erstelle Tische und weise Gäste mit unserem visuellen Drag-and-Drop-System zu. Sieh Kapazitäten auf einen Blick und nimm Last-Minute-Änderungen mühelos vor."
     },
-    "qrCodes": {
-      "title": "QR-Codes",
-      "description": "Generieren Sie individuelle QR-Codes für Gästesuche und Self-Service-Check-in"
+    "qr": {
+      "title": "Sofortige Gäste-Sitzplatzfindung",
+      "desc": "Gäste scannen einen QR-Code und finden sofort ihren Tisch — keine Verwirrung, keine Verzögerungen. Ein moderner, technikaffiner Touch, den deine Gäste lieben werden."
+    },
+    "runningSheet": {
+      "title": "Plane jeden Moment",
+      "desc": "Erstelle einen vollständigen Zeitplan für deinen Hochzeitstag und teile ihn mit Dienstleistern. Halte alle auf dem gleichen Stand von der Zeremonie bis zum letzten Tanz."
+    },
+    "invitations": {
+      "title": "Einladungen & RSVPs",
+      "desc": "Sende schöne digitale Einladungen und verfolge Antworten in Echtzeit. Passe Designs an, füge QR-Codes hinzu und verwalte RSVPs an einem Ort."
+    },
+    "myEvents": {
+      "title": "Deine Events, deine Art",
+      "desc": "Erstelle und verwalte mehrere Events von einem einzigen Dashboard aus. Verfolge Countdowns, richte Veranstaltungsorte ein und halte jedes Detail schön organisiert."
     },
     "placeCards": {
-      "title": "Tischkarten",
-      "description": "Entwerfen und drucken Sie wunderschöne Tischkarten mit persönlichen Nachrichten"
+      "title": "Elegante Tischkarten",
+      "desc": "Gestalte beeindruckende gedruckte Namenskarten mit individuellen Schriftarten, Farben und Hintergründen. Exportiere in hochauflösendem 300 DPI für professionellen Druck."
+    },
+    "tableCharts": {
+      "title": "Einzelne Tischpläne",
+      "desc": "Erstelle schöne Sitzpläne pro Tisch, die deine Gäste auf einen Blick sehen können. Perfekt zum Drucken und Auslegen an jedem Tisch."
+    },
+    "dietary": {
+      "title": "Ernährungsanforderungen leicht gemacht",
+      "desc": "Verfolge die Ernährungsbedürfnisse jedes Gastes und erstelle küchenfertige Diagramme. Stelle sicher, dass kein Gast übersehen wird."
+    },
+    "seatingChart": {
+      "title": "Gesamter Sitzplan",
+      "desc": "Erstelle einen vollständigen, druckfertigen Sitzplan mit allen Gästen und Tischen. Exportiere als PDF mit individuellem Styling und deinem Event-Branding."
+    },
+    "kiosk": {
+      "title": "Kiosk Live-Ansicht",
+      "desc": "Richte Self-Service-Check-in-Kioske am Eingang deines Veranstaltungsortes ein. Gäste suchen ihren Namen und sehen sofort ihre Tischzuweisung."
+    },
+    "djmc": {
+      "title": "DJ & MC Fragebogen",
+      "desc": "Teile deine Musikvorlieben, Aussprachehilfen und den Veranstaltungszeitplan direkt mit deinem DJ oder MC."
+    },
+    "floorPlan": {
+      "title": "Veranstaltungs-Raumplan",
+      "desc": "Visualisiere dein gesamtes Veranstaltungslayout mit einem interaktiven Raumplan. Positioniere Tische, plane den Zeremoniebereich und jeden Bereich deines Events."
+    },
+    "learnMore": "Mehr erfahren"
+  },
+  "extraGrid": {
+    "title": "Alles, was du für deinen perfekten Tag brauchst",
+    "djmc": { "title": "DJ & MC Planer", "desc": "Erstelle deine perfekte Playlist" },
+    "dietary": { "title": "Ernährungsanforderungen", "desc": "Verfolge die Bedürfnisse jedes Gastes" },
+    "placeCards": { "title": "Tischkarten", "desc": "Wunderschöne gedruckte Namenskarten" },
+    "kiosk": { "title": "Live Kiosk-Ansicht", "desc": "Self-Service Gäste-Check-in" },
+    "seatingCharts": { "title": "Sitzpläne", "desc": "Druckfertige Tischlayouts" },
+    "myEvents": { "title": "Meine Events", "desc": "Verwalte alle Events" },
+    "tables": { "title": "Tische einrichten", "desc": "Erstelle und organisiere Tische" },
+    "guestList": { "title": "Gästeliste", "desc": "Komplette Gästeverwaltung" },
+    "qr": { "title": "QR-Code Sitzplan", "desc": "Scannen und Tisch finden" },
+    "invitations": { "title": "Einladungen & Karten", "desc": "Einladungen senden und verfolgen" },
+    "tableCharts": { "title": "Einzelne Tischpläne", "desc": "Gästeanzeige pro Tisch" },
+    "floorPlan": { "title": "Raumplan", "desc": "Visualisiere dein Veranstaltungslayout" },
+    "fullSeatingChart": { "title": "Gesamter Sitzplan", "desc": "Komplette Sitzplanübersicht" },
+    "runningSheet": { "title": "Ablaufplan", "desc": "Plane deinen vollständigen Zeitplan" }
+  },
+  "pricing": {
+    "title": "Einfache, transparente Preise",
+    "subtitle": "Starte kostenlos. Upgrade, wenn du bereit bist.",
+    "trialNote": "Alle Pläne beinhalten eine 7-tägige kostenlose Testphase (bis zu 20 Gäste). Kein Risiko. Jederzeit upgraden.",
+    "saveLine": "Spare über 1.000 $ im Vergleich zum Einzelkauf von Tools",
+    "getStarted": "Loslegen",
+    "mostPopular": "Am beliebtesten",
+    "forProfessionals": "Für Profis",
+    "approvalRequired": "Genehmigung erforderlich",
+    "essential": { "name": "Essential", "guests": "Bis zu 100 Gäste · 12 Monate Zugang" },
+    "premium": { "name": "Premium", "guests": "Bis zu 300 Gäste · 12 Monate Zugang" },
+    "unlimited": { "name": "Unlimited", "guests": "Unbegrenzte Gäste · 12 Monate Zugang" },
+    "vendorPro": { "name": "Vendor Pro", "guests": "Für Veranstaltungsorte & Eventprofis" },
+    "features": {
+      "oneEvent": "1 Event",
+      "fullAccess": "Voller Zugang zu allen Hochzeits- & Eventplanungs-Tools",
+      "easySetup": "Einfache Einrichtung & nahtlose Erfahrung",
+      "unlimitedEvents": "Unbegrenzte Events",
+      "unlimitedGuests": "Unbegrenzte Gäste",
+      "fullPlatform": "Voller Plattformzugang"
     }
   },
-  "howItWorks": {
-    "title": "So funktioniert's",
-    "step1": {
-      "title": "Event erstellen",
-      "description": "Richten Sie Ihre Hochzeits- oder Eventdetails ein"
-    },
-    "step2": {
-      "title": "Gäste hinzufügen",
-      "description": "Importieren oder fügen Sie Ihre Gästeliste manuell hinzu"
-    },
-    "step3": {
-      "title": "Sitzplätze anordnen",
-      "description": "Organisieren Sie Tische und weisen Sie Plätze zu"
-    },
-    "step4": {
-      "title": "Exportieren & Teilen",
-      "description": "Generieren Sie QR-Codes, Tischkarten und Sitzpläne"
-    }
+  "testimonials": {
+    "title": "Deine Freunde werden beeindruckt sein.",
+    "subtitle": "Was Paare über Wedding Waitress sagen.",
+    "items": [
+      { "name": "Sarah & James", "text": "Das hat unsere Hochzeitsplanung so einfach gemacht. Wir haben 200 Gäste ohne Stress verwaltet!" },
+      { "name": "Emily & Tom", "text": "Die QR-Sitzplatzfindung war großartig — unsere Gäste liebten es, ihren Tisch sofort zu finden." },
+      { "name": "Jessica & Michael", "text": "Alles war perfekt organisiert. Der Ablaufplan hielt alle unsere Dienstleister auf Kurs." },
+      { "name": "Olivia & Daniel", "text": "Wir haben so viele Stunden mit der Gästelistenverwaltung gespart. Ein absoluter Gamechanger!" },
+      { "name": "Sophie & Chris", "text": "Die Tischkarten und Sitzpläne sahen unglaublich professionell aus. Jeden Cent wert." },
+      { "name": "Mia & Liam", "text": "Unsere Koordinatorin war beeindruckt, wie organisiert alles war. Danke, Wedding Waitress!" }
+    ]
   },
-  "cta": {
-    "title": "Bereit anzufangen?",
-    "subtitle": "Schließen Sie sich Tausenden glücklichen Paaren an, die ihren perfekten Tag planen",
-    "button": "Jetzt mit der Planung beginnen"
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Alles, was du wissen musst, bevor du loslegst.",
+    "items": [
+      { "q": "Gibt es eine kostenlose Testphase?", "a": "Ja! Alle Pläne beinhalten eine 7-tägige kostenlose Testphase mit bis zu 20 Gästen. Keine Kreditkarte erforderlich." },
+      { "q": "Was passiert nach 12 Monaten?", "a": "Dein Plan läuft nach 12 Monaten ab. Du kannst ihn jederzeit von deinem Dashboard zu einem ermäßigten Preis verlängern." },
+      { "q": "Kann ich meinen Plan später upgraden?", "a": "Absolut. Du kannst jederzeit von Essential auf Premium oder Unlimited upgraden — du zahlst nur die Differenz." },
+      { "q": "Wie viele Events kann ich erstellen?", "a": "Essential und Premium Pläne unterstützen jeweils ein Event. Der Unlimited Plan lässt dich so viele Events erstellen, wie du brauchst." },
+      { "q": "Brauchen Gäste ein Konto zum RSVP?", "a": "Nein. Gäste scannen einfach den QR-Code oder klicken einen Link — kein Login oder Download erforderlich." },
+      { "q": "Kann ich eine Rückerstattung erhalten?", "a": "Wir bieten eine volle Rückerstattung innerhalb von 14 Tagen nach dem Kauf, wenn du die Testphasenlimits nicht überschritten hast." }
+    ]
+  },
+  "contact": {
+    "title": "Kontakt aufnehmen",
+    "subtitle": "Hast du eine Frage? Wir freuen uns von dir zu hören.",
+    "name": "Name",
+    "email": "E-Mail",
+    "message": "Nachricht",
+    "namePlaceholder": "Dein Name",
+    "emailPlaceholder": "du@beispiel.de",
+    "messagePlaceholder": "Wie können wir helfen?",
+    "sendButton": "Nachricht senden",
+    "sending": "Wird gesendet...",
+    "sent": "✓ Nachricht gesendet!"
+  },
+  "finalCta": {
+    "title1": "Die ganze Magie.",
+    "title2": "Ohne den Stress.",
+    "subtitle": "Beginne jetzt mit der Planung deines perfekten Tages — kostenlos.",
+    "cta": "Kostenlos starten"
   },
   "footer": {
+    "tagline": "Die All-in-One Hochzeitsplanungsplattform, der Paare in ganz Australien vertrauen.",
     "explore": "Entdecken",
     "support": "Support",
     "features": "Funktionen",
     "pricing": "Preise",
-    "about": "Über uns",
-    "blog": "Blog",
-    "help": "Hilfecenter",
     "faq": "FAQ",
-    "contact": "Kontakt"
+    "contactUs": "Kontakt",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "followUs": "Folge uns",
+    "copyright": "© {{year}} Wedding Waitress. Alle Rechte vorbehalten."
+  },
+  "productLinks": {
+    "myEvents": "Meine Events",
+    "tables": "Tische",
+    "guestList": "Gästeliste",
+    "qrSeating": "QR-Code Sitzplan",
+    "invitations": "Einladungen & Karten",
+    "placeCards": "Tischkarten",
+    "tableCharts": "Einzelne Tischpläne",
+    "floorPlan": "Raumplan",
+    "dietary": "Ernährungsanforderungen",
+    "seatingChart": "Gesamter Sitzplan",
+    "kiosk": "Kiosk Live-Ansicht",
+    "djmc": "DJ-MC Fragebogen",
+    "runningSheet": "Ablaufplan"
   }
 }
