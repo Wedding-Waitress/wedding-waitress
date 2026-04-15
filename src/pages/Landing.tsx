@@ -132,15 +132,29 @@ export const Landing = () => {
           <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
             {t('hero.subtitle')}
           </p>
-          <SignUpModal>
-            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
-              {t('hero.cta')}
-              <ArrowRight className="w-5 h-5 ml-2" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <SignUpModal>
+              <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+                {t('hero.cta')}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </SignUpModal>
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-white/40 text-white hover:bg-white/10 rounded-2xl px-8 py-5 text-base font-medium transition-all"
+              onClick={() => document.getElementById('guest-list')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+              {t('hero.watchDemo')}
             </Button>
-          </SignUpModal>
-          <p className="text-lg sm:text-xl md:text-2xl text-white/70 mt-6">{t('hero.trustLine')}</p>
-          <p className="text-lg sm:text-xl md:text-2xl text-white/60 mt-2">{t('hero.trustLine2')}</p>
-          <p className="text-lg sm:text-xl md:text-2xl text-white/60 mt-2">{t('hero.trusted')}</p>
+          </div>
+          <p className="text-sm sm:text-base text-white/70 mt-6">{t('hero.trustLine')}</p>
+          <p className="text-sm sm:text-base text-white/60 mt-2">{t('hero.trustLine2')}</p>
+          <p className="text-sm sm:text-base text-white/60 mt-2">{t('hero.trusted')}</p>
+        </div>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40 flex flex-col items-center gap-1">
+          <span className="text-white text-xs uppercase tracking-widest">{t('hero.scrollExplore')}</span>
+          <ChevronDown className="w-4 h-4 text-white" />
         </div>
       </section>
 

@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Plan Your Wedding",
     "title2": "Without the Stress.",
-    "title3": "Guest Lists, Seating Charts & QR Code RSVPs — All in One Place",
-    "subtitle": "Manage your wedding guest list, seating chart, digital invitations, online RSVPs, and QR code seating charts — all in one simple and powerful wedding planning platform.",
-    "cta": "Start Your Free Trial",
+    "title3": "Seat Every Guest Perfectly — Instantly",
+    "subtitle": "Manage your wedding guest list, seating chart, QR code seating, invitations and RSVPs — all in one simple, powerful platform designed for modern weddings.",
+    "cta": "Start Planning Free",
     "trustLine": "No credit card required",
-    "trustLine2": "Sign up in 60 seconds. No app download required.",
-    "trusted": "Trusted by couples across Australia"
+    "trustLine2": "Sign up in 60 seconds",
+    "trusted": "Trusted by couples across Australia",
+    "watchDemo": "Watch Demo",
+    "scrollExplore": "Scroll to explore"
   },
   "featureCards": {
     "sectionTitle": "The wedding platform your guests will love.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Simple, Transparent Pricing",
-    "subtitle": "Start free. Upgrade when you're ready.",
+    "subtitle": "Choose the perfect plan for your wedding — start free and upgrade anytime.",
     "trialNote": "All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.",
     "reassurance": "One simple plan. Full access. Choose by guest size only.",
     "saveLine": "Save over $1,000 vs buying tools separately",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Frequently Asked Questions",
-    "subtitle": "Everything you need to know before getting started.",
+    "subtitle": "Still have questions? We've got you covered.",
     "items": [
       {
         "q": "What is a wedding guest list manager?",
@@ -319,10 +321,10 @@
     "sent": "✓ Message Sent!"
   },
   "finalCta": {
-    "title1": "All the magic.",
-    "title2": "None of the stress.",
+    "title1": "Plan Your Wedding the Smart Way",
+    "title2": "All the tools you need. None of the stress.",
     "subtitle": "Start planning your perfect day — it's free.",
-    "cta": "Start Your Free Trial"
+    "cta": "Start Planning Free"
   },
   "footer": {
     "tagline": "The all-in-one wedding planning platform trusted by couples across Australia.",
