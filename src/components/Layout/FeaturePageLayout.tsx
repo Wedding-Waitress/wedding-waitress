@@ -61,42 +61,44 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
       <Header />
 
       <main className="flex-1 flex flex-col">
-        <div className="flex flex-col md:flex-row pt-20 pb-8">
-          {/* Left: Visual + Content */}
-          <div
-            className="relative w-full md:w-1/2 min-h-[340px] md:min-h-[500px] flex items-center justify-center"
-            style={{
-              backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundColor: backgroundImage ? undefined : '#967A59',
-            }}
-          >
-            <div className="absolute inset-0 bg-black/40" />
-            <Link
-              to="/"
-              onClick={() => window.scrollTo(0, 0)}
-              className="absolute top-4 left-6 z-20 text-sm text-white hover:text-[#967A59] transition-colors"
+        <section className="w-full bg-[#f3efe9] pt-20 pb-20">
+          <div className="flex flex-col md:flex-row max-w-[1400px] mx-auto">
+            {/* Left: Visual + Content */}
+            <div
+              className="relative w-full md:w-1/2 min-h-[340px] md:min-h-[500px] flex items-center justify-center"
+              style={{
+                backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundColor: backgroundImage ? undefined : '#967A59',
+              }}
             >
-              ← Back to Home
-            </Link>
-            <div className="relative z-10 text-center px-8 py-16 md:py-0 max-w-lg">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-lg">
-                {title}
-              </h1>
-              {description && (
-                <p className="mt-5 text-base sm:text-lg text-white/90 leading-relaxed drop-shadow-md">
-                  {description}
-                </p>
-              )}
+              <div className="absolute inset-0 bg-black/40" />
+              <Link
+                to="/"
+                onClick={() => window.scrollTo(0, 0)}
+                className="absolute top-4 left-6 z-20 text-sm text-white hover:text-[#967A59] transition-colors"
+              >
+                ← Back to Home
+              </Link>
+              <div className="relative z-10 text-center px-8 py-16 md:py-0 max-w-lg">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-lg">
+                  {title}
+                </h1>
+                {description && (
+                  <p className="mt-5 text-base sm:text-lg text-white/90 leading-relaxed drop-shadow-md">
+                    {description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Sign-up form */}
+            <div className="w-full md:w-1/2 flex items-center justify-center px-6 py-12 md:py-0">
+              <EmbeddedSignUpForm />
             </div>
           </div>
-
-          {/* Right: Sign-up form */}
-          <div className="w-full md:w-1/2 flex items-center justify-center bg-[#f3efe9] px-6 py-12 md:py-0">
-            <EmbeddedSignUpForm />
-          </div>
-        </div>
+        </section>
 
         {/* SEO Content Sections */}
         {seoSections && seoSections.length > 0 && (
