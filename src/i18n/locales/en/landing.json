@@ -7,18 +7,20 @@
     "contact": "Contact",
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "getStarted": "Get Started",
+    "getStarted": "Start Planning Free",
     "logout": "Logout"
   },
   "hero": {
     "title1": "Plan Your Wedding",
     "title2": "Without the Stress.",
-    "title3": "Seat Every Guest Perfectly — Instantly",
-    "subtitle": "Manage your wedding guest list, seating chart, QR code seating, invitations and RSVPs — all in one simple, powerful platform designed for modern weddings.",
+    "title3": "Manage Guests, Seating Charts, QR Code Seating & More in One Place",
+    "subtitle": "Everything you need to manage your guest list, seating plan, QR code seating chart, invitations, and your entire wedding or event — all in one place.",
     "cta": "Start Planning Free",
+    "ctaSub": "Takes less than 60 seconds",
     "trustLine": "No credit card required",
-    "trustLine2": "Sign up in 60 seconds",
+    "trustLine2": "Sign up in 60 seconds — no app download needed",
     "trusted": "Trusted by couples across Australia",
+    "trustedSub": "Plan smarter. Save time. Stay stress-free.",
     "watchDemo": "Watch Demo",
     "scrollExplore": "Scroll to explore"
   },
@@ -196,11 +198,15 @@
   "pricing": {
     "title": "Simple, Transparent Pricing",
     "subtitle": "Choose the perfect plan for your wedding — start free and upgrade anytime.",
+    "noHiddenFees": "No hidden fees. No lock-in contracts. Cancel anytime.",
     "trialNote": "All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.",
     "reassurance": "One simple plan. Full access. Choose by guest size only.",
     "saveLine": "Save over $1,000 vs buying tools separately",
-    "getStarted": "Get Started",
+    "getStarted": "Start Planning Free",
     "trialUnderButton": "7-day free trial included",
+    "cardTrust": "Used by real couples planning weddings right now",
+    "riskReversal1": "Start free. Upgrade only when you're ready.",
+    "riskReversal2": "No risk. No pressure.",
     "mostPopular": "Most Popular",
     "bestForMost": "Best for most weddings",
     "forVenuesAndPros": "For Venues & Pros",
@@ -324,7 +330,8 @@
     "title1": "Plan Your Wedding the Smart Way",
     "title2": "All the tools you need. None of the stress.",
     "subtitle": "Start planning your perfect day — it's free.",
-    "cta": "Start Planning Free"
+    "cta": "Start Planning Your Wedding Free",
+    "ctaSub": "No credit card required · Instant access"
   },
   "footer": {
     "tagline": "The all-in-one wedding planning platform trusted by couples across Australia.",

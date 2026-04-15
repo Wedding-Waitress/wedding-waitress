@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useTranslation } from 'react-i18next';
 
 import heroImg from "@/assets/hero-wedding.jpg";
@@ -148,9 +149,11 @@ export const Landing = () => {
               {t('hero.watchDemo')}
             </Button>
           </div>
-          <p className="text-sm sm:text-base text-white/70 mt-6">{t('hero.trustLine')}</p>
-          <p className="text-sm sm:text-base text-white/60 mt-2">{t('hero.trustLine2')}</p>
-          <p className="text-sm sm:text-base text-white/60 mt-2">{t('hero.trusted')}</p>
+          <p className="text-xs sm:text-sm text-white/60 mt-3">{t('hero.ctaSub')}</p>
+          <p className="text-sm sm:text-base text-white/70 mt-4">{t('hero.trustLine')}</p>
+          <p className="text-sm sm:text-base text-white/60 mt-1">{t('hero.trustLine2')}</p>
+          <p className="text-sm sm:text-base text-white/60 mt-4 font-medium">{t('hero.trusted')}</p>
+          <p className="text-xs sm:text-sm text-white/50 mt-1">{t('hero.trustedSub')}</p>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40 flex flex-col items-center gap-1">
           <span className="text-white text-xs uppercase tracking-widest">{t('hero.scrollExplore')}</span>
@@ -246,8 +249,11 @@ export const Landing = () => {
           <p className="text-base font-medium text-primary text-center mb-4 max-w-2xl mx-auto">
             {t('pricing.trialNote')}
           </p>
-          <p className="text-sm text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-sm text-gray-500 text-center mb-2 max-w-xl mx-auto">
             {t('pricing.reassurance')}
+          </p>
+          <p className="text-sm text-gray-400 text-center mb-16 max-w-xl mx-auto">
+            {t('pricing.noHiddenFees')}
           </p>
 
           {/* Main Plans */}
@@ -276,6 +282,7 @@ export const Landing = () => {
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
+              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Premium — highlighted */}
@@ -306,6 +313,7 @@ export const Landing = () => {
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
+              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Unlimited */}
@@ -332,6 +340,7 @@ export const Landing = () => {
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
+              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Vendor Pro */}
@@ -361,6 +370,10 @@ export const Landing = () => {
               </SignUpModal>
               <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
             </div>
+          </div>
+          <div className="text-center mt-12">
+            <p className="text-base font-medium text-gray-700">{t('pricing.riskReversal1')}</p>
+            <p className="text-sm text-gray-400 mt-1">{t('pricing.riskReversal2')}</p>
           </div>
         </div>
       </section>
@@ -515,6 +528,7 @@ export const Landing = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
+          <p className="text-sm text-white/60 mt-4">{t('finalCta.ctaSub')}</p>
         </div>
       </section>
 
@@ -574,6 +588,7 @@ export const Landing = () => {
           </div>
         </div>
       </footer>
+      <CookieBanner />
     </div>
   );
 };
