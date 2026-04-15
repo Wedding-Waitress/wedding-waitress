@@ -1,508 +1,283 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Heart, Users, Calendar, MapPin, Mail, QrCode, Sparkles, ArrowRight, Check, Star, Instagram, Facebook, Linkedin, Youtube, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate, Link } from "react-router-dom";
+import { SignUpModal } from "@/components/auth/SignUpModal";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
+
+import heroImg from "@/assets/hero-wedding.jpg";
+import featureGuestlist from "@/assets/feature-guestlist.jpg";
+import featureTables from "@/assets/feature-tables.jpg";
+import featureQr from "@/assets/feature-qr.jpg";
+import featureTimeline from "@/assets/feature-timeline.jpg";
+import featureInvitations from "@/assets/feature-invitations.jpg";
+import ctaImg from "@/assets/cta-wedding.jpg";
+
+const featureCards = [
+  { title: "Guest List", desc: "Manage all your guests in one place", img: featureGuestlist, icon: Users },
+  { title: "Tables & Seating", desc: "Organise tables and seating effortlessly", img: featureTables, icon: MapPin },
+  { title: "QR Code Seating", desc: "Guests scan and find their table instantly", img: featureQr, icon: QrCode },
+  { title: "Invitations", desc: "Send invites and track RSVPs", img: featureInvitations, icon: Mail },
+  { title: "Running Sheet", desc: "Plan your full wedding timeline", img: featureTimeline, icon: Calendar },
+  { title: "Floor Plan", desc: "Visualise your venue layout", img: featureTables, icon: Layout },
+];
+
+const alternatingFeatures = [
+  {
+    id: "guest-list",
+    title: "Guest List Management",
+    desc: "Easily manage your entire guest list, track RSVPs, and organise relationships. Import guests, send invitations, and keep everything perfectly organised.",
+    img: featureGuestlist,
+  },
+  {
+    id: "tables-seating",
+    title: "Seating Made Simple",
+    desc: "Create tables and assign guests with ease using our visual drag-and-drop system. See capacity at a glance and make last-minute changes effortlessly.",
+    img: featureTables,
+  },
+  {
+    id: "qr-seating",
+    title: "Instant Guest Seating",
+    desc: "Guests scan a QR code to instantly find their table — no confusion, no delays. A modern, tech-forward touch your guests will love.",
+    img: featureQr,
+  },
+  {
+    id: "running-sheet",
+    title: "Plan Every Moment",
+    desc: "Create a full schedule for your wedding day and share with vendors. Keep everyone on the same page from ceremony to last dance.",
+    img: featureTimeline,
+  },
+  {
+    id: "invitations",
+    title: "Invitations & RSVPs",
+    desc: "Send beautiful digital invitations and track responses in real time. Customise designs, add QR codes, and manage RSVPs all in one place.",
+    img: featureInvitations,
+  },
+];
+
+const extraFeatures = [
+  { icon: Music, title: "DJ & Music Planner", desc: "Curate your perfect playlist" },
+  { icon: UtensilsCrossed, title: "Dietary Requirements", desc: "Track every guest's needs" },
+  { icon: CreditCard, title: "Place Cards", desc: "Beautiful printed name cards" },
+  { icon: Monitor, title: "Live Kiosk View", desc: "Self-service guest check-in" },
+  { icon: BarChart3, title: "Seating Charts", desc: "Print-ready table layouts" },
+];
+
+const testimonials = [
+  { name: "Sarah & James", text: "This made our wedding planning so easy. We managed 200 guests without any stress!", rating: 5 },
+  { name: "Emily & Tom", text: "The QR seating was amazing — our guests loved scanning to find their table instantly.", rating: 5 },
+  { name: "Jessica & Michael", text: "Everything was organised perfectly. The running sheet kept all our vendors on track.", rating: 5 },
+  { name: "Olivia & Daniel", text: "We saved so many hours with the guest list management. Absolute game changer!", rating: 5 },
+  { name: "Sophie & Chris", text: "The place cards and seating charts looked incredibly professional. Worth every cent.", rating: 5 },
+  { name: "Mia & Liam", text: "Our coordinator was impressed with how organised everything was. Thank you Wedding Waitress!", rating: 5 },
+];
+
 export const Landing = () => {
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    mobile: '',
-    password: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    
-    // Validate required fields
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
-      setError('Please fill in all required fields');
-      return;
-    }
+  const signUpRef = useRef<HTMLButtonElement>(null);
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
-    // Password validation
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            mobile: formData.mobile
-          }
-        }
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
-
-      // Create profile in profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          mobile: formData.mobile || null
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        // Don't show this error to user as the signup was successful
-      }
-
-      toast({
-        title: "Account created successfully!",
-        description: "Please check your email to verify your account, then you'll be redirected to your dashboard.",
-      });
-
-      // Navigate to dashboard - the auth will be handled there
-      navigate('/dashboard');
-
-    } catch (error) {
-      console.error('Signup error:', error);
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  const features = [{
-    icon: <Users className="w-6 h-6" />,
-    title: "My Events",
-    description: "Effortlessly manage your guest list with AI-powered seating optimization."
-  }, {
-    icon: <Calendar className="w-6 h-6" />,
-    title: "Guest List",
-    description: "Keep your wedding day perfectly orchestrated with intelligent scheduling."
-  }, {
-    icon: <MapPin className="w-6 h-6" />,
-    title: "Table Setup",
-    description: "Design and visualize your perfect wedding layout in 3D."
-  }, {
-    icon: <Mail className="w-6 h-6" />,
-    title: "Floor Plan",
-    description: "Beautiful, personalized invitations with real-time RSVP tracking."
-  }, {
-    icon: <QrCode className="w-6 h-6" />,
-    title: "Online RSVP",
-    description: "Seamless guest check-in process with contactless QR codes."
-  }, {
-    icon: <Sparkles className="w-6 h-6" />,
-    title: "Online Wishing Well",
-    description: "Modern digital gift registry and money collection system."
-  }, {
-    icon: <Heart className="w-6 h-6" />,
-    title: "Music Playlist",
-    description: "Curate the perfect soundtrack for your special day with collaborative playlists."
-  }, {
-    icon: <QrCode className="w-6 h-6" />,
-    title: "QR Code & Signage",
-    description: "Create beautiful digital signage and QR codes for seamless guest experience."
-  }];
-  return <div className="min-h-screen bg-gradient-subtle">
+  return (
+    <div className="min-h-screen bg-[#FAFAFA]">
       <Header />
-      
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-10"></div>
-        <div className="w-full px-4 py-10 md:py-16 lg:py-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Hero Content */}
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="inline-flex items-center rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-4 md:px-8 lg:px-16 py-2">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Elegant Event Management
-                </div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-                  Your Dream Wedding,
-                  <span className="gradient-text block">
-                    Perfectly Orchestrated
-                  </span>
-                </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed my-[25px] text-center">First of it's kind worldwide. 
-Streamline your wedding & event planning with our sophisticated guest management system. Create stunning event managed  arrangement, RSVPs invites and delight your guests with seamless table assignments.</p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 my-4 sm:my-6 md:my-8">
-                <Button variant="hero" size="lg" className="btn-glow text-sm md:text-base w-full sm:w-auto touch-target">
-                  Start Planning Today
-                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-                </Button>
-                <Button variant="outline" size="lg" className="glass w-full sm:w-auto touch-target">
-                  Watch Demo
-                </Button>
-              </div>
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={heroImg} alt="Luxury wedding reception" width={1920} height={1080} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+            Plan Your Wedding<br />
+            <span className="text-white/90">Without the Stress.</span>
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Everything you need to manage guests, seating, invitations and your entire wedding — all in one place.
+          </p>
+          <SignUpModal>
+            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+              Get Started Free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </SignUpModal>
+          <p className="text-white/60 text-sm mt-6">Trusted by couples across Australia</p>
+        </div>
+      </section>
 
-              {/* Trust Indicators */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-6 pt-4 sm:pt-6 md:pt-8">
-                <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-primary text-primary" />)}
+      {/* Feature Cards Row */}
+      <section className="py-24 md:py-32 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            The wedding platform your guests will love.
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+            Every tool you need, beautifully designed and simple to use.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featureCards.map((card) => (
+              <div key={card.title} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
+                <img src={card.img} alt={card.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="flex items-center gap-3 mb-2">
+                    <card.icon className="w-5 h-5 text-white/80" />
+                    <h3 className="text-xl font-semibold text-white">{card.title}</h3>
+                  </div>
+                  <p className="text-white/70 text-sm">{card.desc}</p>
                 </div>
-                <span className="text-muted-foreground text-xs sm:text-sm md:text-base lg:text-lg text-center lg:text-left leading-relaxed">
-                  5-Star rating from 2,000+ couples<br className="sm:hidden" />
-                  Australian Made - Servicing Events Worldwide
-                </span>
               </div>
-            </div>
-
-            {/* Sign Up Form */}
-            <Card className="ww-box p-8">
-              <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl gradient-text mx-0 px-0 py-0">Start Your Journey & Test Drive FREE !
-              </CardTitle>
-                <CardDescription className="text-base">
-                  Join thousands of couples & event planners<br />
-                  who have created their perfect day.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  {error && (
-                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
-                      {error}
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} className="glass touch-target" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="glass touch-target" required />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="glass touch-target" required />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number</Label>
-                    <Input id="mobile" name="mobile" type="tel" value={formData.mobile} onChange={handleInputChange} className="glass touch-target" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password * (min 6 characters)</Label>
-                    <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="glass touch-target" required />
-                  </div>
-                  
-                  <Button type="submit" variant="gradient" size="lg" className="w-full btn-glow touch-target" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating Account...
-                      </>
-                    ) : (
-                      <>
-                        Create Account
-                        <Heart className="w-4 h-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                  
-                  <p className="text-xs text-center text-muted-foreground">
-                    By signing up, you agree to our <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
-                  </p>
-                </form>
-              </CardContent>
-            </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-background">
-        <div className="w-full px-4">
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              How <span className="gradient-text">Wedding Waitress</span> Works
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto my-6 sm:my-12 md:my-[75px]">Our intelligent platform helps you save time, money & lots of stress. 
-It handles every detail of your event's seating chart, RSVP & more so you can focus on what matters most - celebrating your special day.</p>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 my-8 sm:my-12 md:my-[100px]">
-              Four Simple Steps To <span className="gradient-text">Create Your Perfect Wedding</span> Or Event Experience
-            </h2>
-          </div>
-
-          {/* Four Steps Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12 md:mb-16">
-            <Card className="ww-box group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader className="text-center">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl mb-2">Step 1: Sign Up Free</CardTitle>
-                    <CardDescription className="text-base">
-                      Sign up & get started with your planning journey.
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-            
-            <Card className="ww-box group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader className="text-center">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                    <Calendar className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl mb-2">Step 2: Create Your Free Account</CardTitle>
-                    <CardDescription className="text-base">
-                      Add your guest list & test drive your RSVP's + seating charts then watch the magic happen.
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-            
-            <Card className="ww-box group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader className="text-center">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                    <MapPin className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl mb-2">Step 3: Customise Everything</CardTitle>
-                    <CardDescription className="text-base">
-                      Finalise everything, download – print your QR Code & signage design
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-            
-            <Card className="ww-box group hover:shadow-purple-glow transition-all duration-300">
-              <CardHeader className="text-center">
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300">
-                    <Heart className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl mb-2">Step 4: Download your QR Code</CardTitle>
-                    <CardDescription className="text-base">
-                      Display at your event – Guests scan with mobile phone to find their table & seating
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
-
-          {/* Additional Heading */}
-          <div className="text-center my-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              Choose A Product or <span className="gradient-text">Create The Magic</span> & Choose Them All
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {features.map((feature, index) => <Card key={index} className="ww-box group hover:shadow-purple-glow transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                      {feature.icon}
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-xl text-left mb-2">{feature.title}</CardTitle>
-                      <CardDescription className="text-base">
-                        {feature.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <img src="/lovable-uploads/52bd6087-306b-46dd-af9b-463864f343a3.png" alt={`${feature.title} illustration`} className="w-full h-auto rounded-lg object-cover" />
-                </CardContent>
-              </Card>)}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
-        <div className="w-full px-4 text-center relative z-10">
-          <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              Ready to Plan Your Perfect Wedding?
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
-              Join thousands of couples who trust Wedding Waitress to make their dream day a reality.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-              <Button variant="hero" size="lg" className="btn-glow w-full sm:w-auto touch-target">
-                Get Started for Free
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Button variant="outline" size="lg" className="glass w-full sm:w-auto touch-target">
-                Book a Demo
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer Section */}
-      <footer className="relative border-t">
-        <div className="absolute inset-0 bg-gradient-hero opacity-10 pointer-events-none"></div>
-        {/* CTA Footer Section */}
-        <section className="py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-hero opacity-5 pointer-events-none"></div>
-          <div className="w-full px-4 text-center relative z-10">
-            <div className="max-w-4xl mx-auto space-y-8">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-                Ready to Plan Smarter & Stress-Free?
+      {/* Alternating Feature Sections */}
+      {alternatingFeatures.map((feature, idx) => (
+        <section key={feature.id} id={feature.id} className="py-20 md:py-28 px-4">
+          <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
+            <div className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                {feature.title}
               </h2>
-              <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
-                Join thousands of couples, planners, and venues already simplifying their seating charts and RSVPs.
+              <p className="text-lg text-gray-500 leading-relaxed mb-8">
+                {feature.desc}
               </p>
-              <Button variant="hero" size="xl" className="btn-glow">
-                Create Your Free Account
-              </Button>
+              <SignUpModal>
+                <Button variant="outline" className="rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
+                  Learn More
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </SignUpModal>
+            </div>
+            <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+              <img src={feature.img} alt={feature.title} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
             </div>
           </div>
         </section>
+      ))}
 
-        {/* Footer Links */}
-        <div className="bg-card border-t relative z-10">
-          <div className="w-full px-4 py-16">
-            <div className="grid md:grid-cols-4 gap-8">
-              {/* Wedding Waitress Column */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Heart className="w-6 h-6 text-primary" />
-                  <span className="font-bold text-xl">Wedding Waitress</span>
+      {/* Extra Feature Grid */}
+      <section className="py-24 md:py-32 px-4 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
+            Everything you need for your perfect day
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {extraFeatures.map((f) => (
+              <div key={f.title} className="bg-[#FAFAFA] rounded-3xl p-8 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
+                  <f.icon className="w-7 h-7 text-primary" />
                 </div>
-                <p className="text-muted-foreground text-sm">
-                  Smart QR Seating Charts & RSVPs for weddings and events worldwide.
-                </p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{f.title}</h3>
+                <p className="text-gray-500 text-sm">{f.desc}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-              {/* Explore Column */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-foreground">Explore</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-primary transition-colors">QR Code Seating Chart</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">QR Code RSVP</a></li>
-                  <li><a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Testimonials</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Pricing</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">Trust</a></li>
-                  <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
+      {/* Testimonials */}
+      <section className="py-24 md:py-32 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Your friends will be impressed.
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            See what couples are saying about Wedding Waitress.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <div key={i} className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(t.rating)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-600 leading-relaxed mb-4">"{t.text}"</p>
+                <p className="text-sm font-semibold text-gray-900">{t.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="relative py-32 md:py-40 overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={ctaImg} alt="Wedding moment" loading="lazy" width={1920} height={800} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/55" />
+        </div>
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4 leading-tight">
+            All the magic.<br />None of the stress.
+          </h2>
+          <p className="text-white/70 text-lg mb-10">Start planning your perfect day — it's free.</p>
+          <SignUpModal>
+            <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+              Get Started Free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </SignUpModal>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            {/* Left */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <img src="/wedding-waitress-new-logo.png" alt="Wedding Waitress" className="h-10 w-auto brightness-200" />
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
+                The all-in-one wedding planning platform trusted by couples across Australia.
+              </p>
+            </div>
+            {/* Center */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Explore</h4>
+                <ul className="space-y-3 text-sm text-gray-400">
+                  <li><a href="#guest-list" className="hover:text-white transition-colors">Features</a></li>
+                  <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                  <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
                 </ul>
               </div>
-
-              {/* Support Column */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-foreground">Support</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><Link to="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</Link></li>
-                  <li><Link to="/terms" className="hover:text-primary transition-colors cursor-pointer">Terms of Service</Link></li>
-                  <li><Link to="/contact" className="hover:text-primary transition-colors cursor-pointer">Contact</Link></li>
+              <div>
+                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Support</h4>
+                <ul className="space-y-3 text-sm text-gray-400">
+                  <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">Terms</Link></li>
                 </ul>
-              </div>
-
-              {/* Payment Column */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-foreground">Trusted & Secure Payment Gateway</h3>
-                <div className="space-y-3">
-                  <div className="bg-primary/10 rounded-lg p-3 inline-block">
-                    <span className="text-primary font-bold text-lg">stripe</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Secure checkout powered by Stripe. Data encrypted. Your credit card information is fully on Stripe & not on this platform.
-                  </p>
-                </div>
               </div>
             </div>
-
-            {/* Social Media & Copyright */}
-            <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center space-x-4 mb-4 md:mb-0">
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+            {/* Right */}
+            <div>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Follow Us</h4>
+              <div className="flex gap-4">
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Instagram className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Linkedin className="w-5 h-5" />
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Youtube className="w-5 h-5" />
                 </a>
               </div>
-              <p className="text-sm text-muted-foreground">
-                © 2025 Wedding Waitress. All rights reserved
-              </p>
             </div>
           </div>
-          
-          {/* Simple Footer - Legal Links */}
-          <div className="border-t bg-gray-50 py-4 mt-8">
-            <div className="w-full px-4">
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600">
-                <Link to="/privacy" className="hover:text-primary transition-colors">
-                  Privacy Policy
-                </Link>
-                <span>•</span>
-                <Link to="/terms" className="hover:text-primary transition-colors">
-                  Terms of Service
-                </Link>
-                <span>•</span>
-                <Link to="/contact" className="hover:text-primary transition-colors">
-                  Contact
-                </Link>
-                <span>•</span>
-                <span>© 2025 Wedding Waitress</span>
-              </div>
+          <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Wedding Waitress. All rights reserved.</p>
+            <div className="flex gap-6 text-sm text-gray-500">
+              <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+              <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             </div>
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
