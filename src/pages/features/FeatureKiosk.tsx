@@ -1,10 +1,10 @@
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
-import bgImage from '@/assets/features/feature-kiosk.jpg';
+import bgImage from '@/assets/features/feature-kiosk-page.jpg';
 
 export const FeatureKiosk = () => (
   <FeaturePageLayout
-    title="Kiosk Live View"
-    description="Set up a self-service check-in kiosk at your venue entrance. Guests search their name and instantly see their table assignment — creating a seamless, modern arrival experience for your wedding or event."
+    title="Corporate Kiosk Live View"
+    description="Create a professional and interactive guest experience with a live kiosk display. Allow guests to quickly search their name and find their table, seat, or event details on a digital screen. Wedding Waitress transforms your seating chart into a live, easy-to-use kiosk system, perfect for weddings, corporate events, and large functions where organisation and guest flow matter most."
     backgroundImage={bgImage}
   />
 );
