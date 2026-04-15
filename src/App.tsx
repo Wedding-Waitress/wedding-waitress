@@ -17,6 +17,7 @@ import { ResetPassword } from "./pages/ResetPassword";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { TermsOfService } from "./pages/TermsOfService";
 import { Contact } from "./pages/Contact";
+import { CookiePolicy } from "./pages/CookiePolicy";
 import { DJMCPublicView } from "./pages/DJMCPublicView";
 import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
 import { SeatingChartPublicView } from "./pages/SeatingChartPublicView";
