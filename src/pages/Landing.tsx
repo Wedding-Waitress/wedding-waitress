@@ -285,7 +285,7 @@ export const Landing = () => {
             className="w-full h-full object-cover scale-105 animate-[ctaZoom_20s_ease-in-out_infinite_alternate]"
             poster={ctaImg}
           >
-            <source src={ctaVideo.url} type="video/mp4" />
+            <source src={ctaVideoUrl} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/50" />
         </div>
