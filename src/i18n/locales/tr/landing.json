@@ -13,15 +13,16 @@
   "hero": {
     "title1": "Düğününüzü Planlayın",
     "title2": "Stressiz.",
-    "subtitle": "Konukları, oturma düzenini, davetiyeleri, QR kodlu oturma planlarını, RSVP'leri — tüm düğününüz veya etkinliğiniz için — ve çok daha fazlasını — tek bir yerde yönetmek için ihtiyacınız olan her şey.",
+    "subtitle": "Düğün konuk listenizi, oturma düzeninizi, dijital davetiyelerinizi, online RSVP'lerinizi ve QR kod oturma tablolarınızı yönetin — basit ve güçlü bir düğün planlama platformunda her şey bir arada.",
     "cta": "Ücretsiz denemenizi başlatın",
     "trusted": "Avustralya genelinde çiftler tarafından güveniliyor",
     "trustLine": "Kredi kartı gerekmez",
-    "trustLine2": "60 saniyede kaydolun. Uygulama indirme gerekmez."
+    "trustLine2": "60 saniyede kaydolun. Uygulama indirme gerekmez.",
+    "title3": "Konuk listeleri, oturma düzenleri ve QR kod RSVP'ler — hepsi bir arada"
   },
   "featureCards": {
     "sectionTitle": "Konuklarınızın seveceği düğün platformu.",
-    "sectionSubtitle": "İhtiyacınız olan her araç, güzel tasarlanmış ve kullanımı kolay.",
+    "sectionSubtitle": "Platformumuz güçlü bir düğün konuk listesi yöneticisi, oturma düzeni aracı, QR kod oturma tablosu, RSVP takipçisi ve dijital düğün davetiyeleri birleştirir — ihtiyacınız olan her şey tek yerde.",
     "guestList": {
       "title": "Konuk Listesi",
       "desc": "Tüm konuklarınızı tek bir yerde yönetin"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Konuk Listesi Yönetimi",
-      "desc": "Tüm konuk listenizi kolayca yönetin, RSVP'leri takip edin ve ilişkileri düzenleyin. Konukları içe aktarın, davetiye gönderin ve her şeyi mükemmel organize edin."
+      "desc": "RSVP takibi, konuk gruplama ve planlamanızı basitleştirmek için tasarlanmış eksiksiz bir konuk listesi yöneticisiyle düğün konuk listenizi kolayca yönetin."
     },
     "tables": {
       "title": "Oturma Düzeni Kolaylaştı",
-      "desc": "Görsel sürükle-bırak sistemimizle masalar oluşturun ve konukları atayın. Kapasiteyi bir bakışta görün ve son dakika değişikliklerini zahmetsizce yapın."
+      "desc": "Kullanımı kolay oturma planlayıcısıyla düğün oturma düzeninizi oluşturun. Masaları düzenleyin, konukları atayın ve tüm yerleşim düzeninizi görselleştirin."
     },
     "qr": {
       "title": "Anında Konuk Oturma",
-      "desc": "Konuklar bir QR kodu tarayarak masalarını anında bulur — kafa karışıklığı yok, gecikme yok. Konuklarınızın seveceği modern, teknolojik bir dokunuş."
+      "desc": "Konuklar modern bir QR kod oturma tablosu ile QR kodu tarayarak masalarını anında bulurlar — düğünler ve etkinlikler için mükemmel."
     },
     "runningSheet": {
       "title": "Her Anı Planlayın",
-      "desc": "Düğün gününüz için tam bir program oluşturun ve tedarikçilerle paylaşın. Törenden son dansa kadar herkesi aynı sayfada tutun."
+      "desc": "Kusursuz düğün koordinasyonu için tasarlanmış eksiksiz bir etkinlik programı aracıyla düğün zaman çizelgenizi planlayın."
     },
     "invitations": {
       "title": "Davetiyeler ve RSVP'ler",
-      "desc": "Güzel dijital davetiyeler gönderin ve yanıtları gerçek zamanlı takip edin. Tasarımları özelleştirin, QR kodları ekleyin ve RSVP'leri tek yerden yönetin."
+      "desc": "RSVP takipli dijital düğün davetiyeleri gönderin ve basit, güçlü bir online RSVP sistemiyle yanıtları yönetin."
     },
     "myEvents": {
       "title": "Etkinlikleriniz, Sizin Yolunuz",
@@ -126,7 +127,7 @@
     },
     "floorPlan": {
       "title": "Mekan Zemin Planı",
-      "desc": "İnteraktif bir zemin planıyla tüm mekan düzeninizi görselleştirin. Masaları konumlandırın, tören alanını haritalayın ve etkinliğinizin her alanını planlayın."
+      "desc": "Görsel düğün kat planı oluşturucu ve oturma düzeni planlayıcısı ile mekan yerleşiminizi tasarlayın."
     },
     "learnMore": "Daha Fazla Bilgi"
   },
@@ -187,7 +188,8 @@
     "runningSheet": {
       "title": "İşleyiş Planı",
       "desc": "Tam zaman çizelgenizi planlayın"
-    }
+    },
+    "subtitle": "Düğün konuk listesi yönetimi ve oturma düzenlerinden QR kod oturmaya, RSVP takibine ve dijital davetiyelere — her şey tüm düğün planlama deneyiminizi basitleştirmek için tasarlandı."
   },
   "pricing": {
     "title": "Basit, Şeffaf Fiyatlandırma",
@@ -266,28 +268,40 @@
     "subtitle": "Başlamadan önce bilmeniz gereken her şey.",
     "items": [
       {
-        "q": "Misafirlerin bir uygulamaya ihtiyacı var mı?",
-        "a": "Hayır. Misafirler bir QR kodu tarar veya bir bağlantıya tıklar — giriş, uygulama veya indirme gerekmez."
+        "q": "Düğün konuk listesi yöneticisi nedir?",
+        "a": "Düğün konuk listesi yöneticisi tüm konuklarınızı düzenlemenize, RSVP'leri takip etmenize, aileleri gruplamanıza ve diyet gereksinimlerini yönetmenize yardımcı olur."
       },
       {
-        "q": "RSVP davetiyelerini e-posta veya SMS ile gönderebilir miyim?",
-        "a": "Evet! Güzel dijital davetiyeler gönderin ve RSVP'leri gerçek zamanlı olarak takip edin."
+        "q": "Düğün oturma düzeni nasıl çalışır?",
+        "a": "Oturma düzenimiz masa oluşturmanıza, konukları sürükleyip bırakmanıza ve tüm mekan yerleşimini görselleştirmenize olanak tanır. Baskıya hazır tablolar dışa aktarın."
       },
       {
-        "q": "Oturma planlarını ve misafir listelerini tek bir yerde yönetebilir miyim?",
-        "a": "Kesinlikle. Misafir yönetiminden oturma planlarına kadar her şey tek bir platformda."
+        "q": "Düğün oturma düzeni için QR kod kullanabilir miyim?",
+        "a": "Evet! QR kod oturma tablomuzla konuklar kodu tarar ve masa atamalarını anında görürler — uygulama indirmeye gerek yok."
       },
       {
-        "q": "Wedding Waitress mekanlar ve organizatörler için de uygun mu?",
+        "q": "Online düğün RSVP'leri nasıl çalışır?",
+        "a": "Yerleşik RSVP bağlantısıyla e-posta veya SMS ile dijital davetiyeler gönderin. Konuklar online yanıt verir ve siz her şeyi gerçek zamanlı takip edersiniz."
+      },
+      {
+        "q": "Dijital düğün davetiyeleri gönderebilir miyim?",
+        "a": "Kesinlikle. Güzel dijital davetiyeler tasarlayın, QR kodları ekleyin ve yerleşik RSVP takibiyle doğrudan gönderin."
+      },
+      {
+        "q": "Konukların uygulamaya ihtiyacı var mı?",
+        "a": "Hayır. Konuklar QR kodu tarar veya bağlantıya tıklar — giriş, uygulama veya indirme gerektirmez."
+      },
+      {
+        "q": "Wedding Waitress mekanlar ve organizatörler için uygun mu?",
         "a": "Evet. Vendor Pro planımız mekanlar, organizatörler, DJ'ler ve etkinlik profesyonelleri için tasarlanmıştır."
       },
       {
-        "q": "7 günlük ücretsiz denemeden sonra ne olur?",
-        "a": "İstediğiniz zaman yükseltebilirsiniz. Yükseltmezseniz verileriniz güvende kalır."
+        "q": "7 günlük ücretsiz deneme süresinden sonra ne olur?",
+        "a": "İstediğiniz zaman yükseltme yapabilirsiniz. Yapmazsanız verileriniz güvende kalır ve daha sonra geri dönebilirsiniz."
       },
       {
         "q": "Geri ödeme alabilir miyim?",
-        "a": "Ücretsiz deneme sınırlarını aşmadıysanız, satın alma tarihinden itibaren 14 gün içinde tam geri ödeme sunuyoruz."
+        "a": "Ücretsiz deneme sınırlarını aşmadıysanız satın alma tarihinden itibaren 14 gün içinde tam geri ödeme sunuyoruz."
       }
     ]
   },

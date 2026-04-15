@@ -13,15 +13,16 @@
   "hero": {
     "title1": "Planifiez votre mariage",
     "title2": "Sans le stress.",
-    "subtitle": "Tout ce dont vous avez besoin pour gérer les invités, les places, les invitations, les plans de table QR code, les RSVP pour tout votre mariage ou événement — et bien plus encore — tout en un seul endroit.",
+    "subtitle": "Gérez votre liste d'invités de mariage, plan de table, invitations numériques, RSVPs en ligne et plans de table par QR code — le tout sur une plateforme de planification de mariage simple et puissante.",
     "cta": "Commencez votre essai gratuit",
     "trusted": "La confiance des couples à travers l'Australie",
     "trustLine": "Aucune carte de crédit requise",
-    "trustLine2": "Inscription en 60 secondes. Aucun téléchargement d'application."
+    "trustLine2": "Inscription en 60 secondes. Aucun téléchargement d'application.",
+    "title3": "Listes d'invités, plans de table et RSVPs par QR code — tout en un seul endroit"
   },
   "featureCards": {
     "sectionTitle": "La plateforme de mariage que vos invités vont adorer.",
-    "sectionSubtitle": "Tous les outils dont vous avez besoin, magnifiquement conçus et simples à utiliser.",
+    "sectionSubtitle": "Notre plateforme combine un puissant gestionnaire de liste d'invités, outil de plan de table, plan par QR code, suivi RSVP et invitations numériques — tout ce dont vous avez besoin en un seul endroit.",
     "guestList": {
       "title": "Liste d'invités",
       "desc": "Gérez tous vos invités en un seul endroit"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Gestion des invités",
-      "desc": "Gérez facilement votre liste d'invités, suivez les RSVP et organisez les relations. Importez des invités, envoyez des invitations et gardez tout organisé."
+      "desc": "Gérez facilement votre liste d'invités de mariage avec le suivi des RSVP, le regroupement des invités et un gestionnaire complet conçu pour simplifier votre planification."
     },
     "tables": {
       "title": "Places assises simplifiées",
-      "desc": "Créez des tables et assignez des invités facilement avec notre système visuel de glisser-déposer."
+      "desc": "Créez votre plan de table de mariage avec un planificateur facile à utiliser. Organisez les tables, assignez les invités et visualisez toute votre disposition."
     },
     "qr": {
       "title": "Places instantanées",
-      "desc": "Les invités scannent un code QR pour trouver instantanément leur table — sans confusion ni retard."
+      "desc": "Les invités scannent un QR code pour trouver leur table instantanément grâce à un plan de table QR moderne — parfait pour les mariages et événements."
     },
     "runningSheet": {
       "title": "Planifiez chaque moment",
-      "desc": "Créez un programme complet pour le jour de votre mariage et partagez-le avec les prestataires."
+      "desc": "Planifiez le déroulement de votre mariage avec un outil de planification d'événements complet conçu pour une coordination parfaite."
     },
     "invitations": {
       "title": "Invitations et RSVP",
-      "desc": "Envoyez de belles invitations numériques et suivez les réponses en temps réel."
+      "desc": "Envoyez des invitations numériques de mariage avec suivi RSVP et gérez les réponses avec un système RSVP en ligne simple et puissant."
     },
     "myEvents": {
       "title": "Vos événements, à votre façon",
@@ -126,7 +127,7 @@
     },
     "floorPlan": {
       "title": "Plan de salle",
-      "desc": "Visualisez l'agencement complet de votre lieu avec un plan de salle interactif."
+      "desc": "Concevez l'agencement de votre lieu avec un constructeur visuel de plan de salle et planificateur de placement."
     },
     "learnMore": "En savoir plus"
   },
@@ -187,7 +188,8 @@
     "runningSheet": {
       "title": "Feuille de route",
       "desc": "Planifiez votre programme"
-    }
+    },
+    "subtitle": "De la gestion de la liste d'invités aux plans de table en passant par les places QR code, le suivi RSVP et les invitations numériques — tout est conçu pour simplifier votre expérience de planification de mariage."
   },
   "pricing": {
     "title": "Tarifs simples et transparents",
@@ -266,24 +268,36 @@
     "subtitle": "Tout ce que vous devez savoir avant de commencer.",
     "items": [
       {
+        "q": "Qu'est-ce qu'un gestionnaire de liste d'invités de mariage ?",
+        "a": "Un gestionnaire de liste d'invités vous aide à organiser tous vos invités, suivre les RSVP, regrouper les familles et gérer les exigences alimentaires — tout en un seul endroit."
+      },
+      {
+        "q": "Comment fonctionne un plan de table de mariage ?",
+        "a": "Notre plan de table vous permet de créer des tables, glisser-déposer les invités et visualiser toute la disposition. Exportez des plans prêts à imprimer."
+      },
+      {
+        "q": "Puis-je utiliser un QR code pour le placement de mariage ?",
+        "a": "Oui ! Avec notre plan de table QR code, les invités scannent un code et voient instantanément leur attribution de table — aucun téléchargement d'application requis."
+      },
+      {
+        "q": "Comment fonctionnent les RSVP de mariage en ligne ?",
+        "a": "Envoyez des invitations numériques par email ou SMS avec un lien RSVP intégré. Les invités répondent en ligne et vous suivez tout en temps réel."
+      },
+      {
+        "q": "Puis-je envoyer des invitations numériques de mariage ?",
+        "a": "Absolument. Concevez de belles invitations numériques, ajoutez des QR codes et envoyez-les directement avec un suivi RSVP intégré."
+      },
+      {
         "q": "Les invités ont-ils besoin d'une application ?",
-        "a": "Non. Les invités scannent un QR code ou cliquent sur un lien — pas de connexion, d'application ni de téléchargement."
+        "a": "Non. Les invités scannent un QR code ou cliquent sur un lien — aucune connexion, application ou téléchargement requis."
       },
       {
-        "q": "Puis-je envoyer des invitations RSVP par e-mail ou SMS ?",
-        "a": "Oui ! Envoyez de belles invitations numériques et suivez les RSVP en temps réel."
-      },
-      {
-        "q": "Puis-je gérer les plans de table et les listes d'invités au même endroit ?",
-        "a": "Absolument. Tout, de la gestion des invités aux plans de table, est intégré dans une seule plateforme."
-      },
-      {
-        "q": "Wedding Waitress convient-il aux lieux et aux organisateurs ?",
+        "q": "Wedding Waitress convient-il aux lieux et organisateurs ?",
         "a": "Oui. Notre plan Vendor Pro est conçu pour les lieux, organisateurs, DJs et professionnels de l'événementiel."
       },
       {
         "q": "Que se passe-t-il après l'essai gratuit de 7 jours ?",
-        "a": "Vous pouvez passer à la version supérieure à tout moment. Sinon, vos données restent en sécurité."
+        "a": "Vous pouvez passer à la version supérieure à tout moment. Sinon, vos données restent en sécurité et vous pouvez revenir plus tard."
       },
       {
         "q": "Puis-je obtenir un remboursement ?",

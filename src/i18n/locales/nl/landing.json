@@ -13,15 +13,16 @@
   "hero": {
     "title1": "Plan je bruiloft",
     "title2": "Zonder de stress.",
-    "subtitle": "Alles wat je nodig hebt om gasten, zitplaatsen, uitnodigingen, QR-code zitplaatskaarten, RSVP's voor je hele bruiloft of evenement te beheren — en nog zoveel meer — alles op één plek.",
+    "subtitle": "Beheer je bruiloft gastenlijst, zitschema, digitale uitnodigingen, online RSVP's en QR-code zitschema's — alles op één eenvoudig en krachtig bruiloftsplanningsplatform.",
     "cta": "Start je gratis proefperiode",
     "trusted": "Vertrouwd door koppels door heel Australië",
     "trustLine": "Geen creditcard vereist",
-    "trustLine2": "Meld je aan in 60 seconden. Geen app-download nodig."
+    "trustLine2": "Meld je aan in 60 seconden. Geen app-download nodig.",
+    "title3": "Gastenlijsten, zitschema's & QR-code RSVP's — alles op één plek"
   },
   "featureCards": {
     "sectionTitle": "Het bruiloftsplatform waar je gasten van zullen houden.",
-    "sectionSubtitle": "Elke tool die je nodig hebt, prachtig ontworpen en eenvoudig te gebruiken.",
+    "sectionSubtitle": "Ons platform combineert een krachtige bruiloft gastenlijst manager, zitschema-tool, QR-code zitschema, RSVP-tracker en digitale bruiloftsuitnodigingen — alles wat je nodig hebt op één plek.",
     "guestList": {
       "title": "Gastenlijst",
       "desc": "Beheer al je gasten op één plek"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Gastenlijstbeheer",
-      "desc": "Beheer eenvoudig je hele gastenlijst, volg RSVP's en organiseer relaties. Importeer gasten, stuur uitnodigingen en houd alles perfect georganiseerd."
+      "desc": "Beheer eenvoudig je bruiloft gastenlijst met RSVP-tracking, gastgroepering en een complete gastenlijst manager ontworpen om je planning te vereenvoudigen."
     },
     "tables": {
       "title": "Zitplaatsen eenvoudig gemaakt",
-      "desc": "Maak tafels en wijs gasten toe met ons visuele drag-and-drop systeem. Zie capaciteit in één oogopslag en maak last-minute wijzigingen moeiteloos."
+      "desc": "Maak je bruiloft zitschema met een gebruiksvriendelijke zitplanner. Organiseer tafels, wijs gasten toe en visualiseer je volledige zitplaatsindeling."
     },
     "qr": {
       "title": "Direct gasten zitplaatsen",
-      "desc": "Gasten scannen een QR-code om direct hun tafel te vinden — geen verwarring, geen vertragingen. Een moderne, tech-forward touch die je gasten geweldig vinden."
+      "desc": "Gasten scannen een QR-code om direct hun tafel te vinden met een modern QR-code zitschema — perfect voor bruiloften en evenementen."
     },
     "runningSheet": {
       "title": "Plan elk moment",
-      "desc": "Maak een volledig schema voor je trouwdag en deel het met leveranciers. Houd iedereen op één lijn van ceremonie tot laatste dans."
+      "desc": "Plan je bruiloftstijdlijn met een complete evenementplanningstool ontworpen voor naadloze bruiloftscoördinatie."
     },
     "invitations": {
       "title": "Uitnodigingen & RSVP's",
-      "desc": "Stuur mooie digitale uitnodigingen en volg reacties in realtime. Pas ontwerpen aan, voeg QR-codes toe en beheer RSVP's op één plek."
+      "desc": "Stuur digitale bruiloftsuitnodigingen met RSVP-tracking en beheer reacties met een eenvoudig en krachtig online RSVP-systeem."
     },
     "myEvents": {
       "title": "Jouw evenementen, jouw manier",
@@ -126,7 +127,7 @@
     },
     "floorPlan": {
       "title": "Locatie plattegrond",
-      "desc": "Visualiseer je hele locatie-indeling met een interactieve plattegrond. Positioneer tafels, breng de ceremonieruimte in kaart en plan elk gebied."
+      "desc": "Ontwerp je locatie-indeling met een visuele bruiloft plattegrond-builder en zitplaatsplanner."
     },
     "learnMore": "Meer informatie"
   },
@@ -187,7 +188,8 @@
     "runningSheet": {
       "title": "Draaiboek",
       "desc": "Plan je volledige tijdlijn"
-    }
+    },
+    "subtitle": "Van bruiloft gastenlijstbeheer en zitschema's tot QR-code zitplaatsen, RSVP-tracking en digitale uitnodigingen — alles is gebouwd om je hele bruiloftsplanningservaring te vereenvoudigen."
   },
   "pricing": {
     "title": "Eenvoudige, transparante prijzen",
@@ -266,16 +268,28 @@
     "subtitle": "Alles wat je moet weten voordat je begint.",
     "items": [
       {
+        "q": "Wat is een bruiloft gastenlijst manager?",
+        "a": "Een bruiloft gastenlijst manager helpt je alle gasten te organiseren, RSVP's bij te houden, families te groeperen en dieetwensen te beheren — alles op één plek."
+      },
+      {
+        "q": "Hoe werkt een bruiloft zitschema?",
+        "a": "Ons zitschema laat je tafels maken, gasten slepen en neerzetten en je hele locatie-indeling visualiseren. Exporteer drukklare schema's."
+      },
+      {
+        "q": "Kan ik een QR-code gebruiken voor bruiloftszitplaatsen?",
+        "a": "Ja! Met ons QR-code zitschema scannen gasten een code en zien direct hun tafeltoewijzing — geen app-download nodig."
+      },
+      {
+        "q": "Hoe werken online bruilofts-RSVP's?",
+        "a": "Stuur digitale uitnodigingen per e-mail of SMS met een ingebouwde RSVP-link. Gasten reageren online en je volgt alles in realtime."
+      },
+      {
+        "q": "Kan ik digitale bruiloftsuitnodigingen versturen?",
+        "a": "Absoluut. Ontwerp prachtige digitale uitnodigingen, voeg QR-codes toe en stuur ze direct naar je gasten met ingebouwde RSVP-tracking."
+      },
+      {
         "q": "Hebben gasten een app nodig?",
         "a": "Nee. Gasten scannen een QR-code of klikken op een link — geen login, app of download nodig."
-      },
-      {
-        "q": "Kan ik RSVP-uitnodigingen per e-mail of SMS sturen?",
-        "a": "Ja! Stuur mooie digitale uitnodigingen en volg RSVP's in realtime."
-      },
-      {
-        "q": "Kan ik tafelschema's en gastenlijsten op één plek beheren?",
-        "a": "Absoluut. Alles van gastenbeheer tot tafelschema's is ingebouwd in één platform."
       },
       {
         "q": "Is Wedding Waitress geschikt voor locaties en planners?",

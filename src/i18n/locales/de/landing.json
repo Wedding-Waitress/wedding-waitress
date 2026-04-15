@@ -13,15 +13,16 @@
   "hero": {
     "title1": "Plane deine Hochzeit",
     "title2": "Ohne den Stress.",
-    "subtitle": "Alles, was Sie brauchen, um Gäste, Sitzordnung, Einladungen, QR-Code-Sitzpläne, RSVPs für Ihre gesamte Hochzeit oder Veranstaltung zu verwalten — und noch so viel mehr — alles an einem Ort.",
+    "subtitle": "Verwalte deine Hochzeits-Gästeliste, Sitzordnung, digitale Einladungen, Online-RSVPs und QR-Code-Sitzpläne — alles auf einer einfachen und leistungsstarken Hochzeitsplanungsplattform.",
     "cta": "Kostenlose Testversion starten",
     "trusted": "Vertraut von Paaren in ganz Australien",
     "trustLine": "Keine Kreditkarte erforderlich",
-    "trustLine2": "Registrierung in 60 Sekunden. Kein App-Download nötig."
+    "trustLine2": "Registrierung in 60 Sekunden. Kein App-Download nötig.",
+    "title3": "Gästelisten, Sitzpläne & QR-Code-RSVPs — alles an einem Ort"
   },
   "featureCards": {
     "sectionTitle": "Die Hochzeitsplattform, die deine Gäste lieben werden.",
-    "sectionSubtitle": "Jedes Tool, das du brauchst, wunderschön gestaltet und einfach zu bedienen.",
+    "sectionSubtitle": "Unsere Plattform vereint einen leistungsstarken Hochzeits-Gästelisten-Manager, Sitzplan-Tool, QR-Code-Sitzplan, RSVP-Tracker und digitale Hochzeitseinladungen — alles was du brauchst an einem Ort.",
     "guestList": {
       "title": "Gästeliste",
       "desc": "Verwalte alle Gäste an einem Ort"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Gästelistenverwaltung",
-      "desc": "Verwalte deine gesamte Gästeliste, verfolge RSVPs und organisiere Beziehungen. Importiere Gäste, sende Einladungen und halte alles perfekt organisiert."
+      "desc": "Verwalte deine Hochzeits-Gästeliste einfach mit RSVP-Tracking, Gäste-Gruppierung und einem kompletten Gästelisten-Manager für stressfreie Planung."
     },
     "tables": {
       "title": "Sitzordnung leicht gemacht",
-      "desc": "Erstelle Tische und weise Gäste mit unserem visuellen Drag-and-Drop-System zu. Sieh Kapazitäten auf einen Blick und nimm Last-Minute-Änderungen mühelos vor."
+      "desc": "Erstelle deinen Hochzeits-Sitzplan mit einem benutzerfreundlichen Sitzplaner. Organisiere Tische, weise Gäste zu und visualisiere deine gesamte Sitzordnung."
     },
     "qr": {
       "title": "Sofortige Gäste-Sitzplatzfindung",
-      "desc": "Gäste scannen einen QR-Code und finden sofort ihren Tisch — keine Verwirrung, keine Verzögerungen. Ein moderner, technikaffiner Touch, den deine Gäste lieben werden."
+      "desc": "Gäste scannen einen QR-Code, um sofort ihren Tisch zu finden — mit einem modernen QR-Code-Sitzplan, perfekt für Hochzeiten und Events."
     },
     "runningSheet": {
       "title": "Plane jeden Moment",
-      "desc": "Erstelle einen vollständigen Zeitplan für deinen Hochzeitstag und teile ihn mit Dienstleistern. Halte alle auf dem gleichen Stand von der Zeremonie bis zum letzten Tanz."
+      "desc": "Plane deine Hochzeitszeitlinie mit einem vollständigen Event-Planungstool für nahtlose Hochzeitskoordination."
     },
     "invitations": {
       "title": "Einladungen & RSVPs",
-      "desc": "Sende schöne digitale Einladungen und verfolge Antworten in Echtzeit. Passe Designs an, füge QR-Codes hinzu und verwalte RSVPs an einem Ort."
+      "desc": "Versende digitale Hochzeitseinladungen mit RSVP-Tracking und verwalte Antworten mit einem einfachen und leistungsstarken Online-RSVP-System."
     },
     "myEvents": {
       "title": "Deine Events, deine Art",
@@ -126,7 +127,7 @@
     },
     "floorPlan": {
       "title": "Veranstaltungs-Raumplan",
-      "desc": "Visualisiere dein gesamtes Veranstaltungslayout mit einem interaktiven Raumplan. Positioniere Tische, plane den Zeremoniebereich und jeden Bereich deines Events."
+      "desc": "Gestalte dein Veranstaltungsort-Layout mit einem visuellen Hochzeits-Raumplaner und Sitzplan-Designer."
     },
     "learnMore": "Mehr erfahren"
   },
@@ -187,7 +188,8 @@
     "runningSheet": {
       "title": "Ablaufplan",
       "desc": "Plane deinen vollständigen Zeitplan"
-    }
+    },
+    "subtitle": "Von der Hochzeits-Gästelisten-Verwaltung und Sitzplänen bis hin zu QR-Code-Sitzplätzen, RSVP-Tracking und digitalen Einladungen — alles ist darauf ausgelegt, deine gesamte Hochzeitsplanung zu vereinfachen."
   },
   "pricing": {
     "title": "Einfache, transparente Preise",
@@ -266,28 +268,40 @@
     "subtitle": "Alles, was du wissen musst, bevor du loslegst.",
     "items": [
       {
+        "q": "Was ist ein Hochzeits-Gästelisten-Manager?",
+        "a": "Ein Hochzeits-Gästelisten-Manager hilft dir, alle Gäste zu organisieren, RSVPs zu verfolgen, Familien zu gruppieren und Diätanforderungen zu verwalten — alles an einem Ort."
+      },
+      {
+        "q": "Wie funktioniert ein Hochzeits-Sitzplan?",
+        "a": "Unser Sitzplan lässt dich Tische erstellen, Gäste per Drag & Drop zuweisen und dein gesamtes Veranstaltungsort-Layout visualisieren. Exportiere druckfertige Pläne."
+      },
+      {
+        "q": "Kann ich einen QR-Code für die Hochzeitssitzordnung nutzen?",
+        "a": "Ja! Mit unserem QR-Code-Sitzplan scannen Gäste einen Code und sehen sofort ihre Tischzuweisung — kein App-Download nötig."
+      },
+      {
+        "q": "Wie funktionieren Online-Hochzeits-RSVPs?",
+        "a": "Versende digitale Einladungen per E-Mail oder SMS mit integriertem RSVP-Link. Gäste antworten online und du verfolgst alles in Echtzeit."
+      },
+      {
+        "q": "Kann ich digitale Hochzeitseinladungen versenden?",
+        "a": "Absolut. Gestalte schöne digitale Einladungen, füge QR-Codes hinzu und sende sie direkt an deine Gäste mit integriertem RSVP-Tracking."
+      },
+      {
         "q": "Brauchen Gäste eine App?",
         "a": "Nein. Gäste scannen einen QR-Code oder klicken auf einen Link — kein Login, keine App, kein Download erforderlich."
       },
       {
-        "q": "Kann ich RSVP-Einladungen per E-Mail oder SMS senden?",
-        "a": "Ja! Senden Sie schöne digitale Einladungen und verfolgen Sie RSVPs in Echtzeit."
+        "q": "Ist Wedding Waitress für Veranstaltungsorte und Planer geeignet?",
+        "a": "Ja. Unser Vendor Pro Plan ist für Veranstaltungsorte, Planer, DJs und Eventprofis konzipiert."
       },
       {
-        "q": "Kann ich Sitzpläne und Gästelisten an einem Ort verwalten?",
-        "a": "Absolut. Alles von der Gästeverwaltung bis zu Sitzplänen ist in einer Plattform integriert."
-      },
-      {
-        "q": "Ist Wedding Waitress auch für Locations und Planer geeignet?",
-        "a": "Ja. Unser Vendor Pro Plan ist für Locations, Planer, DJs und Eventprofis konzipiert."
-      },
-      {
-        "q": "Was passiert nach der 7-tägigen kostenlosen Testversion?",
-        "a": "Sie können jederzeit upgraden. Wenn nicht, bleiben Ihre Daten sicher und Sie können später zurückkehren."
+        "q": "Was passiert nach der 7-tägigen kostenlosen Testphase?",
+        "a": "Du kannst jederzeit upgraden. Wenn nicht, bleiben deine Daten sicher und du kannst später zurückkehren."
       },
       {
         "q": "Kann ich eine Rückerstattung erhalten?",
-        "a": "Wir bieten eine vollständige Rückerstattung innerhalb von 14 Tagen nach dem Kauf, wenn Sie die Grenzen der kostenlosen Testversion nicht überschritten haben."
+        "a": "Wir bieten eine vollständige Rückerstattung innerhalb von 14 Tagen nach dem Kauf, wenn du die Limits der kostenlosen Testphase nicht überschritten hast."
       }
     ]
   },
