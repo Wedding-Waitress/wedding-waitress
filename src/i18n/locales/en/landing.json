@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Plan Your Wedding",
     "title2": "Without the Stress.",
-    "title3": "Seat Every Guest Perfectly — Instantly",
-    "subtitle": "Manage your wedding guest list, seating chart, QR code seating, invitations and RSVPs — all in one simple, powerful platform designed for modern weddings.",
+    "title3": "Manage Guests, Seating Charts, QR Code Seating & More in One Place",
+    "subtitle": "Everything you need to manage your guest list, seating plan, QR code seating chart, invitations, and your entire wedding or event — all in one place.",
     "cta": "Start Planning Free",
+    "ctaSub": "Takes less than 60 seconds",
     "trustLine": "No credit card required",
-    "trustLine2": "Sign up in 60 seconds",
+    "trustLine2": "Sign up in 60 seconds — no app download needed",
     "trusted": "Trusted by couples across Australia",
+    "trustedSub": "Plan smarter. Save time. Stay stress-free.",
     "watchDemo": "Watch Demo",
     "scrollExplore": "Scroll to explore"
   },
