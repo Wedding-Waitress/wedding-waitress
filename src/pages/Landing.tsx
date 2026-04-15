@@ -235,12 +235,12 @@ export const Landing = () => {
               <p className="text-lg text-gray-500 leading-relaxed mb-8">
                 {t(`alternating.${feature.key}.desc`)}
               </p>
-              <SignUpModal>
+              <Link to={featureRoutes[feature.key] || '/'}>
                 <Button variant="outline" className="rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
                   {t('alternating.learnMore')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-              </SignUpModal>
+              </Link>
             </div>
             <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
