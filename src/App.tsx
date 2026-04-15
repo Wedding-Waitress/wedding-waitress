@@ -62,6 +62,7 @@ const App = () => (
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
           {/* Guest seating lookup */}
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
