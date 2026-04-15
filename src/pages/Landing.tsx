@@ -191,7 +191,7 @@ export const Landing = () => {
               </SignUpModal>
             </div>
             <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
-              <img src={feature.img} alt={t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
+              <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
             </div>
           </div>
         </section>
@@ -200,9 +200,12 @@ export const Landing = () => {
       {/* Extra Feature Grid */}
       <section className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('extraGrid.title')}
           </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-3xl mx-auto">
+            {t('extraGrid.subtitle')}
+          </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {extraFeatureKeys.map((f) => (
               <div key={f.key} className="bg-[#FAFAFA] rounded-3xl p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
