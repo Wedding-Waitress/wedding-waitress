@@ -228,7 +228,7 @@ export const Landing = () => {
             {/* Left */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <img src="/wedding-waitress-new-logo.png" alt="Wedding Waitress" className="h-10 w-auto brightness-200" />
+                <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto brightness-0 invert" />
               </div>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
                 The all-in-one wedding planning platform trusted by couples across Australia.

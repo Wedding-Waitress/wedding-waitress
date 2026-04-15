@@ -32,154 +32,149 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const productLinks = [
+    { label: "My Events", href: "#my-events" },
+    { label: "Tables", href: "#tables-seating" },
     { label: "Guest List", href: "#guest-list" },
-    { label: "Tables & Seating", href: "#tables-seating" },
-    { label: "QR Code Seating", href: "#qr-seating" },
-    { label: "Running Sheet", href: "#running-sheet" },
+    { label: "QR Code Seating Chart", href: "#qr-seating" },
     { label: "Invitations & Cards", href: "#invitations" },
+    { label: "Name Place Cards", href: "#place-cards" },
+    { label: "Individual Table Charts", href: "#table-charts" },
+    { label: "Floor Plan", href: "#floor-plan" },
+    { label: "Dietary Requirements", href: "#dietary" },
+    { label: "Full Seating Chart", href: "#seating-chart" },
+    { label: "Kiosk Live View", href: "#kiosk" },
+    { label: "DJ-MC Questionnaire", href: "#dj-mc" },
+    { label: "Running Sheet", href: "#running-sheet" },
   ];
 
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-      <div className="w-full px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Right Navigation */}
-          <div className="flex items-center space-x-4">
-            {!user && (
-              <>
-                {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center">
-                  <Link to="/" className="flex items-center pr-6">
-                    <img
-                      src="/wedding-waitress-new-logo.png"
-                      alt="Wedding Waitress Logo"
-                      className="h-14 md:h-16 lg:h-20 w-auto hover:opacity-80 transition-opacity"
-                    />
-                  </Link>
-                  <nav className="flex items-center space-x-1 lg:space-x-2">
-                    <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
-                      How it Works
-                    </a>
+      <div className="w-full px-4 lg:px-8 py-3">
+        <div className="flex items-center justify-between w-full">
+          {/* Logo — always left */}
+          <Link to="/" className="flex items-center flex-shrink-0">
+            <img
+              src="/wedding-waitress-logo-full.png"
+              alt="Wedding Waitress Logo"
+              className="h-12 lg:h-14 w-auto hover:opacity-80 transition-opacity"
+            />
+          </Link>
+
+          {!user && (
+            <>
+              {/* Desktop Nav — right side */}
+              <div className="hidden md:flex items-center gap-1 lg:gap-2">
+                <nav className="flex items-center space-x-1 lg:space-x-2">
+                  <a href="#how-it-works" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                    How it Works
+                  </a>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
+                        Products
+                        <ChevronDown className="w-3 h-3 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
+                      {productLinks.map((link) => (
+                        <DropdownMenuItem key={link.href} asChild>
+                          <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
+                            {link.label}
+                          </a>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <a href="#pricing" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                    Pricing
+                  </a>
+                  <a href="#faq" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                    FAQ
+                  </a>
+                  <a href="#contact" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                    Contact
+                  </a>
+                </nav>
+
+                {!hideDashboardElements && (
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950">
+                      Sign In
+                    </Button>
+                    <SignUpModal>
+                      <Button ref={signUpButtonRef} size="sm" className="min-h-[44px] text-sm bg-primary hover:bg-primary/90 text-white rounded-xl px-6">
+                        Get Started
+                      </Button>
+                    </SignUpModal>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="min-h-[44px] text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
-                          Products
+                        <Button variant="ghost" size="sm" className="hover:bg-gray-50 min-h-[44px] min-w-[44px] text-gray-700">
+                          <Globe className="w-4 h-4 mr-1" />
+                          <span className="text-[14px]">EN</span>
                           <ChevronDown className="w-3 h-3 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-2xl p-2 z-50">
-                        {productLinks.map((link) => (
-                          <DropdownMenuItem key={link.href} asChild>
-                            <a href={link.href} className="cursor-pointer rounded-xl px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900">
-                              {link.label}
-                            </a>
-                          </DropdownMenuItem>
-                        ))}
+                      <DropdownMenuContent align="end" className="bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50">
+                        <DropdownMenuItem>🇺🇸 English</DropdownMenuItem>
+                        <DropdownMenuItem>🇪🇸 Español</DropdownMenuItem>
+                        <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
+                        <DropdownMenuItem>🇩🇪 Deutsch</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
-                      Pricing
-                    </a>
-                    <a href="#faq" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
-                      FAQ
-                    </a>
-                    <a href="#contact" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
-                      Contact
-                    </a>
-                  </nav>
-                </div>
-
-                {/* Mobile Navigation */}
-                <div className="md:hidden flex items-center justify-center w-full h-14 relative pt-[env(safe-area-inset-top)]">
-                  <Link to="/" className="flex items-center">
-                    <img
-                      src="/wedding-waitress-new-logo-mobile.png?v=2"
-                      alt="Wedding Waitress Logo"
-                      className="h-9 w-auto hover:opacity-80 transition-opacity"
-                    />
-                  </Link>
-
-                  <div className="absolute right-0">
-                    <DropdownMenu onOpenChange={setMobileMenuOpen}>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="min-h-[44px] min-w-[44px] p-2 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
-                          style={{ backgroundColor: '#6D28D9' }}
-                          aria-label="Open menu"
-                          aria-expanded={mobileMenuOpen}
-                        >
-                          <div className="flex flex-col space-y-1">
-                            <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                            <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                            <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                          </div>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-2xl p-2 z-50">
-                        <DropdownMenuItem onClick={() => setSignInOpen(true)}>
-                          <span className="w-full font-semibold" style={{ color: '#6D28D9' }}>Sign In</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <SignUpModal>
-                            <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#6D28D9' }}>
-                              Sign Up
-                            </button>
-                          </SignUpModal>
-                        </DropdownMenuItem>
-                        <div className="my-1 h-px bg-gray-100"></div>
-                        <DropdownMenuItem><a href="#how-it-works" className="w-full">How it Works</a></DropdownMenuItem>
-                        {productLinks.map((link) => (
-                          <DropdownMenuItem key={link.href}><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
-                        ))}
-                        <DropdownMenuItem><a href="#pricing" className="w-full">Pricing</a></DropdownMenuItem>
-                        <DropdownMenuItem><a href="#faq" className="w-full">FAQ</a></DropdownMenuItem>
-                        <DropdownMenuItem><a href="#contact" className="w-full">Contact</a></DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* User Actions */}
-            {!hideDashboardElements && (user ? (
-              <Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
-                Logout
-              </Button>
-            ) : (
-              <div className="hidden md:flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-sm text-gray-600 hover:text-gray-900">
-                  Sign In
-                </Button>
-                <SignUpModal>
-                  <Button ref={signUpButtonRef} size="sm" className="min-h-[44px] text-sm bg-primary hover:bg-primary/90 text-white rounded-xl px-6">
-                    Get Started
-                  </Button>
-                </SignUpModal>
+                  </>
+                )}
               </div>
-            ))}
 
-            {/* Language Selector */}
-            {!hideDashboardElements && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden md:flex hover:bg-gray-50 min-h-[44px] min-w-[44px] text-gray-600">
-                    <Globe className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">EN</span>
-                    <ChevronDown className="w-3 h-3 ml-1 hidden sm:block" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-2xl p-2 z-50">
-                  <DropdownMenuItem>🇺🇸 English</DropdownMenuItem>
-                  <DropdownMenuItem>🇪🇸 Español</DropdownMenuItem>
-                  <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
-                  <DropdownMenuItem>🇩🇪 Deutsch</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+              {/* Mobile hamburger */}
+              <div className="md:hidden">
+                <DropdownMenu onOpenChange={setMobileMenuOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="min-h-[44px] min-w-[44px] p-2 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
+                      style={{ backgroundColor: '#6D28D9' }}
+                      aria-label="Open menu"
+                      aria-expanded={mobileMenuOpen}
+                    >
+                      <div className="flex flex-col space-y-1">
+                        <div className="w-5 h-0.5 bg-white rounded-sm"></div>
+                        <div className="w-5 h-0.5 bg-white rounded-sm"></div>
+                        <div className="w-5 h-0.5 bg-white rounded-sm"></div>
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[80vh] overflow-y-auto">
+                    <DropdownMenuItem onClick={() => setSignInOpen(true)}>
+                      <span className="w-full font-semibold" style={{ color: '#6D28D9' }}>Sign In</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <SignUpModal>
+                        <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#6D28D9' }}>
+                          Sign Up
+                        </button>
+                      </SignUpModal>
+                    </DropdownMenuItem>
+                    <div className="my-1 h-px bg-gray-100"></div>
+                    <DropdownMenuItem><a href="#how-it-works" className="w-full">How it Works</a></DropdownMenuItem>
+                    {productLinks.map((link) => (
+                      <DropdownMenuItem key={link.href}><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
+                    ))}
+                    <DropdownMenuItem><a href="#pricing" className="w-full">Pricing</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#faq" className="w-full">FAQ</a></DropdownMenuItem>
+                    <DropdownMenuItem><a href="#contact" className="w-full">Contact</a></DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </>
+          )}
+
+          {/* Logged-in user actions */}
+          {user && !hideDashboardElements && (
+            <Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
+              Logout
+            </Button>
+          )}
         </div>
       </div>
 
