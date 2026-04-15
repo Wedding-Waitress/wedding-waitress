@@ -154,6 +154,7 @@ export const Landing = () => {
           <p className="text-sm sm:text-base text-white/60 mt-1">{t('hero.trustLine2')}</p>
           <p className="text-sm sm:text-base text-white/60 mt-4 font-medium">{t('hero.trusted')}</p>
           <p className="text-xs sm:text-sm text-white/50 mt-1">{t('hero.trustedSub')}</p>
+          <p className="text-xs text-white/40 mt-2">No downloads required · Works on mobile, tablet & desktop</p>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40 flex flex-col items-center gap-1">
           <span className="text-white text-xs uppercase tracking-widest">{t('hero.scrollExplore')}</span>
@@ -162,7 +163,7 @@ export const Landing = () => {
       </section>
 
       {/* Feature Cards Row */}
-      <section className="py-24 md:py-32 px-4">
+      <section className="py-16 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('featureCards.sectionTitle')}
@@ -191,7 +192,7 @@ export const Landing = () => {
 
       {/* Alternating Feature Sections */}
       {alternatingFeatures.map((feature, idx) => (
-        <section key={feature.id} id={feature.id} className="py-20 md:py-28 px-4">
+        <section key={feature.id} id={feature.id} className="py-10 md:py-14 px-4">
           <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
             <div className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
@@ -215,7 +216,7 @@ export const Landing = () => {
       ))}
 
       {/* Extra Feature Grid */}
-      <section className="py-24 md:py-32 px-4 bg-white">
+      <section className="py-16 md:py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('extraGrid.title')}
@@ -238,7 +239,7 @@ export const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 md:py-32 px-4">
+      <section id="pricing" className="py-16 md:py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('pricing.title')}
@@ -379,7 +380,7 @@ export const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 md:py-32 px-4">
+      <section className="py-16 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <p className="text-sm text-primary font-medium text-center mb-4">{t('testimonials.intro')}</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
@@ -405,7 +406,7 @@ export const Landing = () => {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-24 md:py-32 px-4 bg-white">
+      <section id="faq" className="py-16 md:py-20 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('faq.title')}
@@ -436,7 +437,7 @@ export const Landing = () => {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="py-24 md:py-32 px-4">
+      <section id="contact" className="py-16 md:py-20 px-4">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('contact.title')}
