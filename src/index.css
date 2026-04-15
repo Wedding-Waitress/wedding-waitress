@@ -720,3 +720,13 @@ input::placeholder, textarea::placeholder, [data-placeholder] {
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
   filter: brightness(0.9);
 }
+
+/* CTA video section animations */
+@keyframes ctaZoom {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1.15); }
+}
+@keyframes ctaFadeIn {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
