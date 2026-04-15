@@ -1,52 +1,62 @@
 
 
-# Plan: Premium One-Page Homepage Rebuild for Wedding Waitress
+# Plan: Premium Apple-Style Buttons for Live View Page
 
 ## Summary
-Complete rewrite of `Landing.tsx` with all the requested sections: hero with video background, how-it-works, 7 feature sections with alternating layouts, social proof/testimonials, pricing, FAQ, final CTA, and footer. The Header will be updated to match the new nav structure with Products dropdown that scrolls to sections.
+Apply a premium Apple-style button treatment to the 5 buttons on the Guest Lookup (Live View) page only: **Update Your Details**, **Accept**, **Decline**, **Add Guest**, and **Share this invite**.
 
-## Sections to Build (in order)
+## What Changes
 
-1. **Header** — Update nav links to match spec (How It Works, Products dropdown with scroll-to anchors, Pricing, FAQ, Contact). Keep Sign In / Sign Up / Language selector. Products dropdown items: Guest List, Tables & Seating, QR Code Seating, Running Sheet, Invitations & Cards.
+### 1. EnhancedGuestCard.tsx — 4 buttons
+Apply inline styles to each button for the exact specs:
+- **Height**: 36px, **Padding**: 8px 18px, **Border-radius**: 10px, **Font-weight**: 500
+- **Shadow**: `0 1px 2px rgba(0,0,0,0.08)`
+- **Transition**: `all 0.2s ease`
+- **Subtle gradient overlay** (barely visible, Apple-style — e.g., a `linear-gradient` from slightly lighter to slightly darker of the existing color)
+- **Hover**: darker background (5-8%), lift `translateY(-1px)`, shadow `0 4px 10px rgba(0,0,0,0.12)`
+- **Active**: press down, softer shadow
 
-2. **Hero Section** — Full-width with a looping background video (wedding reception footage from a free stock URL or placeholder with dark purple gradient overlay `rgba(0,0,0,0.35)`). Left side: badge, heading ("Plan Your Wedding. Seat Every Guest Perfectly."), subheading, two buttons, trust text. Right side: glassmorphism signup card (keep existing form logic).
+Buttons affected:
+- **Update Your Details** (green, line ~187)
+- **Accept** (green/success, line ~271)
+- **Decline** (red/destructive, line ~282)
+- **Add Guest** (purple/primary, line ~294)
 
-3. **How It Works** — 4 horizontal cards: Create Event, Add Guests, Organise Seating, Share & Manage. Each with icon, title, description.
+Implementation: Use a shared CSS class (e.g., `.lv-premium-btn`) defined in `index.css` scoped or applied only to these buttons, plus Tailwind overrides for the specific sizing.
 
-4. **Feature Sections (7 total)** — Alternating image-left/text-right layout. Each with title, description paragraph, bullet points with check icons. Sections: Guest List, Tables & Seating, QR Code Seating, Running Sheet, DJ & Music, Floor Plan, Invitations. Use placeholder images with glassmorphism card style.
+### 2. GuestLookup.tsx — Share this invite button (line ~813)
+Apply the same premium style to the "Share this invite" button.
 
-5. **Social Proof** — "Loved by Couples Everywhere" with 3 testimonial cards (glassmorphism), star ratings, names.
+### 3. index.css — Add premium button class
+Add a `.lv-premium-btn` utility class with:
+```css
+.lv-premium-btn {
+  height: 36px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+.lv-premium-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+.lv-premium-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+```
 
-6. **Pricing** — "Simple, Transparent Pricing" with 2 cards (Standard and Premium). Premium highlighted with a "Popular" badge and border accent.
+Each button keeps its existing color but gets a subtle gradient overlay (e.g., green button gets `linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(0,0,0,0.04))`).
 
-7. **FAQ** — 4 collapsible accordion items using the existing `Collapsible` component.
+## Files Modified
+1. `src/index.css` — Add `.lv-premium-btn` class
+2. `src/components/GuestLookup/EnhancedGuestCard.tsx` — Apply class to 4 buttons
+3. `src/pages/GuestLookup.tsx` — Apply class to Share button
 
-8. **Final CTA** — Dark purple gradient section with glow, heading, subtext, "Get Started Free" button.
-
-9. **Footer** — Keep existing footer structure, update links to match spec.
-
-## Technical Details
-
-### Files Modified
-1. **`src/pages/Landing.tsx`** — Full rewrite (~600-700 lines). Keep existing signup form logic and state. Add all new sections.
-2. **`src/components/Layout/Header.tsx`** — Update Products dropdown items to use `href="#guest-list"`, `href="#tables-seating"`, etc. Update nav links.
-
-### Design Implementation
-- Rich purple gradient background maintained globally (already exists)
-- Glassmorphism cards: `backdrop-filter: blur(10px)`, `background: rgba(255,255,255,0.1)`, `border: 1px solid rgba(255,255,255,0.2)`
-- All text in white with opacity variants for hierarchy
-- `rounded-2xl` (16px) on all cards, `rounded-3xl` (24px) on hero elements
-- Large Apple-style spacing (`py-20`, `py-24`, `gap-16`)
-- Hero video: HTML `<video>` tag with autoplay, muted, loop, playsInline, with dark overlay div on top
-- Feature alternating: odd sections = image left/text right, even = text left/image right using `flex-row-reverse`
-- FAQ: Use `Collapsible` + `CollapsibleTrigger` + `CollapsibleContent` from existing components
-- Pricing cards: glassmorphism with Premium card having a purple border highlight
-
-### New Icons Needed
-- Import additional Lucide icons: `Music`, `Layout`, `Clock`, `CreditCard`, `ChevronDown` (already imported), `Play`
-
-### No Backend Changes
-- All existing signup logic preserved
-- No database or Supabase changes
-- No new dependencies needed
+## What Does NOT Change
+- No other pages affected
+- All existing button colors preserved
+- No changes to button functionality or locked features
 
