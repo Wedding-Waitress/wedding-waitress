@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Düğününüzü Planlayın",
     "title2": "Stressiz.",
-    "subtitle": "Düğün konuk listenizi, oturma düzeninizi, dijital davetiyelerinizi, online RSVP'lerinizi ve QR kod oturma tablolarınızı yönetin — basit ve güçlü bir düğün planlama platformunda her şey bir arada.",
-    "cta": "Ücretsiz denemenizi başlatın",
-    "trusted": "Avustralya genelinde çiftler tarafından güveniliyor",
+    "subtitle": "Düğün davetli listenizi, oturma düzeninizi, QR kodlu oturma yerlerini, davetiyelerinizi ve RSVP'lerinizi yönetin — modern düğünler için basit ve güçlü bir platform.",
+    "cta": "Ücretsiz başla",
+    "trusted": "Avustralya'daki çiftler tarafından güvenilir",
     "trustLine": "Kredi kartı gerekmez",
-    "trustLine2": "60 saniyede kaydolun. Uygulama indirme gerekmez.",
-    "title3": "Konuk listeleri, oturma düzenleri ve QR kod RSVP'ler — hepsi bir arada"
+    "trustLine2": "60 saniyede kayıt olun",
+    "title3": "Her misafiri mükemmel yerleştirin — anında",
+    "watchDemo": "Demoyu izle",
+    "scrollExplore": "Keşfetmek için kaydırın"
   },
   "featureCards": {
     "sectionTitle": "Konuklarınızın seveceği düğün platformu.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Basit, Şeffaf Fiyatlandırma",
-    "subtitle": "Ücretsiz başlayın. Hazır olduğunuzda yükseltin.",
+    "subtitle": "Düğününüz için mükemmel planı seçin — ücretsiz başlayın ve istediğiniz zaman yükseltin.",
     "trialNote": "Tüm planlar 7 günlük ücretsiz deneme içerir (20 konuğa kadar). Risk yok. İstediğiniz zaman yükseltin.",
     "saveLine": "Araçları ayrı satın almaya kıyasla $1.000'den fazla tasarruf edin",
     "getStarted": "Başla",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Sık Sorulan Sorular",
-    "subtitle": "Başlamadan önce bilmeniz gereken her şey.",
+    "subtitle": "Hâlâ sorularınız mı var? Size yardımcı olalım.",
     "items": [
       {
         "q": "Düğün konuk listesi yöneticisi nedir?",
@@ -319,10 +321,10 @@
     "sent": "✓ Mesaj Gönderildi!"
   },
   "finalCta": {
-    "title1": "Tüm sihir.",
-    "title2": "Hiçbir stres.",
+    "title1": "Düğününüzü akıllıca planlayın",
+    "title2": "İhtiyacınız olan tüm araçlar. Stres yok.",
     "subtitle": "Mükemmel gününüzü planlamaya başlayın — ücretsiz.",
-    "cta": "Ücretsiz denemenizi başlatın"
+    "cta": "Ücretsiz başla"
   },
   "footer": {
     "tagline": "Avustralya genelinde çiftler tarafından güvenilen hepsi bir arada düğün planlama platformu.",

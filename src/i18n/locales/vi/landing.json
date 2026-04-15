@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Lên kế hoạch đám cưới",
     "title2": "Không căng thẳng.",
-    "subtitle": "Quản lý danh sách khách mời đám cưới, sơ đồ chỗ ngồi, thiệp mời kỹ thuật số, RSVP trực tuyến và sơ đồ chỗ ngồi mã QR — tất cả trên một nền tảng lập kế hoạch đám cưới đơn giản và mạnh mẽ.",
-    "cta": "Bắt đầu dùng thử miễn phí",
-    "trusted": "Được tin tưởng bởi các cặp đôi trên khắp Úc",
+    "subtitle": "Quản lý danh sách khách, sơ đồ chỗ ngồi, chỗ ngồi mã QR, thiệp mời và RSVP — tất cả trong một nền tảng đơn giản, mạnh mẽ cho đám cưới hiện đại.",
+    "cta": "Bắt đầu miễn phí",
+    "trusted": "Được tin tưởng bởi các cặp đôi tại Úc",
     "trustLine": "Không cần thẻ tín dụng",
-    "trustLine2": "Đăng ký trong 60 giây. Không cần tải ứng dụng.",
-    "title3": "Danh sách khách, sơ đồ chỗ ngồi & RSVP mã QR — tất cả trong một nơi"
+    "trustLine2": "Đăng ký trong 60 giây",
+    "title3": "Sắp xếp mọi khách hoàn hảo — ngay lập tức",
+    "watchDemo": "Xem demo",
+    "scrollExplore": "Cuộn để khám phá"
   },
   "featureCards": {
     "sectionTitle": "Nền tảng đám cưới mà khách mời sẽ yêu thích.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Bảng giá đơn giản, minh bạch",
-    "subtitle": "Bắt đầu miễn phí. Nâng cấp khi bạn sẵn sàng.",
+    "subtitle": "Chọn gói hoàn hảo cho đám cưới của bạn — bắt đầu miễn phí và nâng cấp bất cứ lúc nào.",
     "trialNote": "Tất cả các gói đều bao gồm dùng thử miễn phí 7 ngày (tối đa 20 khách). Không rủi ro. Nâng cấp bất cứ lúc nào.",
     "saveLine": "Tiết kiệm hơn $1,000 so với mua công cụ riêng lẻ",
     "getStarted": "Bắt đầu",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Câu hỏi thường gặp",
-    "subtitle": "Mọi thứ bạn cần biết trước khi bắt đầu.",
+    "subtitle": "Vẫn còn câu hỏi? Chúng tôi sẵn sàng giúp bạn.",
     "items": [
       {
         "q": "Trình quản lý danh sách khách đám cưới là gì?",
@@ -319,10 +321,10 @@
     "sent": "✓ Đã gửi tin nhắn!"
   },
   "finalCta": {
-    "title1": "Tất cả sự kỳ diệu.",
-    "title2": "Không căng thẳng.",
+    "title1": "Lên kế hoạch đám cưới thông minh",
+    "title2": "Tất cả công cụ bạn cần. Không căng thẳng.",
     "subtitle": "Bắt đầu lên kế hoạch cho ngày hoàn hảo — miễn phí.",
-    "cta": "Bắt đầu dùng thử miễn phí"
+    "cta": "Bắt đầu miễn phí"
   },
   "footer": {
     "tagline": "Nền tảng lên kế hoạch đám cưới toàn diện được các cặp đôi trên toàn nước Úc tin dùng.",
