@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 import heroImg from "@/assets/hero-wedding.jpg";
 import featureGuestlist from "@/assets/feature-guestlist.jpg";
@@ -22,150 +23,70 @@ import featureKiosk from "@/assets/feature-kiosk.jpg";
 import featureDjmc from "@/assets/feature-djmc.jpg";
 import featureFloorplan from "@/assets/feature-floorplan.jpg";
 
-const featureCards = [
-  { title: "Guest List", desc: "Manage all your guests in one place", img: featureGuestlist, icon: Users },
-  { title: "Tables & Seating", desc: "Organise tables and seating effortlessly", img: featureTables, icon: MapPin },
-  { title: "QR Code Seating", desc: "Guests scan and find their table instantly", img: featureQr, icon: QrCode },
-  { title: "Invitations", desc: "Send invites and track RSVPs", img: featureInvitations, icon: Mail },
-  { title: "Running Sheet", desc: "Plan your full wedding timeline", img: featureTimeline, icon: Calendar },
-  { title: "Floor Plan", desc: "Visualise your venue layout", img: featureFloorplan, icon: Layout },
-  { title: "My Events", desc: "Manage all your events with ease", img: featureMyevents, icon: ClipboardList },
-  { title: "Name Place Cards", desc: "Beautiful printed name cards", img: featurePlacecards, icon: CreditCard },
-  { title: "Individual Table Charts", desc: "Per-table seating charts for each table", img: featureTablecharts, icon: Grid3X3 },
-  { title: "Dietary Requirements", desc: "Track every guest's dietary needs", img: featureDietary, icon: UtensilsCrossed },
-  { title: "Full Seating Chart", desc: "Complete print-ready seating chart", img: featureSeatingchart, icon: FileText },
-  { title: "Kiosk Live View", desc: "Self-service guest check-in at venue", img: featureKiosk, icon: Monitor },
-  { title: "DJ-MC Questionnaire", desc: "Share music and timing with your DJ", img: featureDjmc, icon: Mic },
-];
-
-const alternatingFeatures = [
-  {
-    id: "guest-list",
-    title: "Guest List Management",
-    desc: "Easily manage your entire guest list, track RSVPs, and organise relationships. Import guests, send invitations, and keep everything perfectly organised.",
-    img: featureGuestlist,
-  },
-  {
-    id: "tables-seating",
-    title: "Seating Made Simple",
-    desc: "Create tables and assign guests with ease using our visual drag-and-drop system. See capacity at a glance and make last-minute changes effortlessly.",
-    img: featureTables,
-  },
-  {
-    id: "qr-seating",
-    title: "Instant Guest Seating",
-    desc: "Guests scan a QR code to instantly find their table — no confusion, no delays. A modern, tech-forward touch your guests will love.",
-    img: featureQr,
-  },
-  {
-    id: "running-sheet",
-    title: "Plan Every Moment",
-    desc: "Create a full schedule for your wedding day and share with vendors. Keep everyone on the same page from ceremony to last dance.",
-    img: featureTimeline,
-  },
-  {
-    id: "invitations",
-    title: "Invitations & RSVPs",
-    desc: "Send beautiful digital invitations and track responses in real time. Customise designs, add QR codes, and manage RSVPs all in one place.",
-    img: featureInvitations,
-  },
-  {
-    id: "my-events",
-    title: "Your Events, Your Way",
-    desc: "Create and manage multiple events from a single dashboard. Track countdowns, set up venues, and keep every detail organised beautifully.",
-    img: featureMyevents,
-  },
-  {
-    id: "place-cards",
-    title: "Elegant Name Place Cards",
-    desc: "Design stunning printed name cards with custom fonts, colours, and backgrounds. Export in high-resolution 300 DPI for professional printing.",
-    img: featurePlacecards,
-  },
-  {
-    id: "table-charts",
-    title: "Individual Table Charts",
-    desc: "Generate beautiful per-table seating charts your guests can see at a glance. Perfect for printing and displaying at each table.",
-    img: featureTablecharts,
-  },
-  {
-    id: "dietary",
-    title: "Dietary Requirements Made Easy",
-    desc: "Track every guest's dietary needs and generate kitchen-ready charts. Ensure no guest is overlooked with detailed allergen and preference tracking.",
-    img: featureDietary,
-  },
-  {
-    id: "seating-chart",
-    title: "Full Seating Chart",
-    desc: "Create a complete, print-ready seating chart showing every guest and table. Export to PDF with custom styling and your event branding.",
-    img: featureSeatingchart,
-  },
-  {
-    id: "kiosk",
-    title: "Kiosk Live View",
-    desc: "Set up self-service check-in kiosks at your venue entrance. Guests search their name and instantly see their table assignment on screen.",
-    img: featureKiosk,
-  },
-  {
-    id: "dj-mc",
-    title: "DJ & MC Questionnaire",
-    desc: "Share your music preferences, pronunciation guides, and event timeline directly with your DJ or MC. Keep everyone aligned for the perfect celebration.",
-    img: featureDjmc,
-  },
-  {
-    id: "floor-plan",
-    title: "Venue Floor Plan",
-    desc: "Visualise your entire venue layout with an interactive floor plan. Position tables, map the ceremony space, and plan every area of your event.",
-    img: featureFloorplan,
-  },
-];
-
-const extraFeatures = [
-  { icon: Music, title: "DJ & MC Planner", desc: "Curate your perfect playlist" },
-  { icon: UtensilsCrossed, title: "Dietary Requirements", desc: "Track every guest's needs" },
-  { icon: CreditCard, title: "Place Cards", desc: "Beautiful printed name cards" },
-  { icon: Monitor, title: "Live Kiosk View", desc: "Self-service guest check-in" },
-  { icon: BarChart3, title: "Seating Charts", desc: "Print-ready table layouts" },
-  { icon: ClipboardList, title: "My Events", desc: "Manage all your events" },
-  { icon: MapPin, title: "Tables Setup", desc: "Create and organise tables" },
-  { icon: Users, title: "Guest List", desc: "Full guest management" },
-  { icon: QrCode, title: "QR Code Seating", desc: "Scan to find your table" },
-  { icon: Mail, title: "Invitations & Cards", desc: "Send and track invites" },
-  { icon: Grid3X3, title: "Individual Table Charts", desc: "Per-table guest display" },
-  { icon: Layout, title: "Floor Plan", desc: "Visualise your venue layout" },
-  { icon: FileText, title: "Full Seating Chart", desc: "Complete seating overview" },
-  { icon: Calendar, title: "Running Sheet", desc: "Plan your full timeline" },
-];
-
-const testimonials = [
-  { name: "Sarah & James", text: "This made our wedding planning so easy. We managed 200 guests without any stress!", rating: 5 },
-  { name: "Emily & Tom", text: "The QR seating was amazing — our guests loved scanning to find their table instantly.", rating: 5 },
-  { name: "Jessica & Michael", text: "Everything was organised perfectly. The running sheet kept all our vendors on track.", rating: 5 },
-  { name: "Olivia & Daniel", text: "We saved so many hours with the guest list management. Absolute game changer!", rating: 5 },
-  { name: "Sophie & Chris", text: "The place cards and seating charts looked incredibly professional. Worth every cent.", rating: 5 },
-  { name: "Mia & Liam", text: "Our coordinator was impressed with how organised everything was. Thank you Wedding Waitress!", rating: 5 },
-];
-
-const faqItems = [
-  { q: "Is there a free trial?", a: "Yes! All plans include a 7-day free trial with up to 20 guests. No credit card required." },
-  { q: "What happens after 12 months?", a: "Your plan expires after 12 months. You can extend it anytime from your dashboard at a discounted rate." },
-  { q: "Can I upgrade my plan later?", a: "Absolutely. You can upgrade from Essential to Premium or Unlimited at any time — you'll only pay the difference." },
-  { q: "How many events can I create?", a: "Essential and Premium plans support one event each. The Unlimited plan lets you create as many events as you need." },
-  { q: "Do guests need an account to RSVP?", a: "No. Guests simply scan the QR code or click a link — no login or download required." },
-  { q: "Can I get a refund?", a: "We offer a full refund within 14 days of purchase if you haven't exceeded the free trial limits." },
-];
-
 export const Landing = () => {
+  const { t } = useTranslation('landing');
   const signUpRef = useRef<HTMLButtonElement>(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSending, setContactSending] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  const featureCards = [
+    { key: "guestList", img: featureGuestlist, icon: Users },
+    { key: "tables", img: featureTables, icon: MapPin },
+    { key: "qr", img: featureQr, icon: QrCode },
+    { key: "invitations", img: featureInvitations, icon: Mail },
+    { key: "runningSheet", img: featureTimeline, icon: Calendar },
+    { key: "floorPlan", img: featureFloorplan, icon: Layout },
+    { key: "myEvents", img: featureMyevents, icon: ClipboardList },
+    { key: "placeCards", img: featurePlacecards, icon: CreditCard },
+    { key: "tableCharts", img: featureTablecharts, icon: Grid3X3 },
+    { key: "dietary", img: featureDietary, icon: UtensilsCrossed },
+    { key: "seatingChart", img: featureSeatingchart, icon: FileText },
+    { key: "kiosk", img: featureKiosk, icon: Monitor },
+    { key: "djmc", img: featureDjmc, icon: Mic },
+  ];
+
+  const alternatingFeatures = [
+    { id: "guest-list", key: "guestList", img: featureGuestlist },
+    { id: "tables-seating", key: "tables", img: featureTables },
+    { id: "qr-seating", key: "qr", img: featureQr },
+    { id: "running-sheet", key: "runningSheet", img: featureTimeline },
+    { id: "invitations", key: "invitations", img: featureInvitations },
+    { id: "my-events", key: "myEvents", img: featureMyevents },
+    { id: "place-cards", key: "placeCards", img: featurePlacecards },
+    { id: "table-charts", key: "tableCharts", img: featureTablecharts },
+    { id: "dietary", key: "dietary", img: featureDietary },
+    { id: "seating-chart", key: "seatingChart", img: featureSeatingchart },
+    { id: "kiosk", key: "kiosk", img: featureKiosk },
+    { id: "dj-mc", key: "djmc", img: featureDjmc },
+    { id: "floor-plan", key: "floorPlan", img: featureFloorplan },
+  ];
+
+  const extraFeatureKeys = [
+    { icon: Music, key: "djmc" },
+    { icon: UtensilsCrossed, key: "dietary" },
+    { icon: CreditCard, key: "placeCards" },
+    { icon: Monitor, key: "kiosk" },
+    { icon: BarChart3, key: "seatingCharts" },
+    { icon: ClipboardList, key: "myEvents" },
+    { icon: MapPin, key: "tables" },
+    { icon: Users, key: "guestList" },
+    { icon: QrCode, key: "qr" },
+    { icon: Mail, key: "invitations" },
+    { icon: Grid3X3, key: "tableCharts" },
+    { icon: Layout, key: "floorPlan" },
+    { icon: FileText, key: "fullSeatingChart" },
+    { icon: Calendar, key: "runningSheet" },
+  ];
+
+  const testimonialItems = t('testimonials.items', { returnObjects: true }) as Array<{ name: string; text: string }>;
+  const faqItems = t('faq.items', { returnObjects: true }) as Array<{ q: string; a: string }>;
+
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) return;
     setContactSending(true);
-    // Simulate send
     setTimeout(() => {
       setContactSending(false);
       setContactSent(true);
@@ -186,19 +107,19 @@ export const Landing = () => {
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
-            Plan Your Wedding<br />
-            <span className="text-white/90">Without the Stress.</span>
+            {t('hero.title1')}<br />
+            <span className="text-white/90">{t('hero.title2')}</span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Everything you need to manage guests, seating, invitations and your entire wedding — all in one place.
+            {t('hero.subtitle')}
           </p>
           <SignUpModal>
             <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
-              Get Started Free
+              {t('hero.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
-          <p className="text-white/60 text-sm mt-6">Trusted by couples across Australia</p>
+          <p className="text-white/60 text-sm mt-6">{t('hero.trusted')}</p>
         </div>
       </section>
 
@@ -206,23 +127,23 @@ export const Landing = () => {
       <section className="py-24 md:py-32 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            The wedding platform your guests will love.
+            {t('featureCards.sectionTitle')}
           </h2>
           <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
-            Every tool you need, beautifully designed and simple to use.
+            {t('featureCards.sectionSubtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featureCards.map((card) => (
-              <div key={card.title} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
-                <img src={card.img} alt={card.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
+                <img src={card.img} alt={t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
                   <div className="flex items-center gap-3 mb-2">
                     <card.icon className="w-5 h-5 text-white/80" />
-                    <h3 className="text-xl font-semibold text-white">{card.title}</h3>
+                    <h3 className="text-xl font-semibold text-white">{t(`featureCards.${card.key}.title`)}</h3>
                   </div>
-                  <p className="text-white/70 text-sm">{card.desc}</p>
+                  <p className="text-white/70 text-sm">{t(`featureCards.${card.key}.desc`)}</p>
                 </div>
               </div>
             ))}
@@ -236,20 +157,20 @@ export const Landing = () => {
           <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
             <div className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                {feature.title}
+                {t(`alternating.${feature.key}.title`)}
               </h2>
               <p className="text-lg text-gray-500 leading-relaxed mb-8">
-                {feature.desc}
+                {t(`alternating.${feature.key}.desc`)}
               </p>
               <SignUpModal>
                 <Button variant="outline" className="rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
-                  Learn More
+                  {t('alternating.learnMore')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </SignUpModal>
             </div>
             <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
-              <img src={feature.img} alt={feature.title} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
+              <img src={feature.img} alt={t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
             </div>
           </div>
         </section>
@@ -259,16 +180,16 @@ export const Landing = () => {
       <section className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
-            Everything you need for your perfect day
+            {t('extraGrid.title')}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {extraFeatures.map((f) => (
-              <div key={f.title} className="bg-[#FAFAFA] rounded-3xl p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+            {extraFeatureKeys.map((f) => (
+              <div key={f.key} className="bg-[#FAFAFA] rounded-3xl p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
                   <f.icon className="w-7 h-7 text-primary" />
                 </div>
-                <h3 className="text-base font-semibold text-gray-900 mb-2">{f.title}</h3>
-                <p className="text-gray-500 text-sm">{f.desc}</p>
+                <h3 className="text-base font-semibold text-gray-900 mb-2">{t(`extraGrid.${f.key}.title`)}</h3>
+                <p className="text-gray-500 text-sm">{t(`extraGrid.${f.key}.desc`)}</p>
               </div>
             ))}
           </div>
@@ -279,13 +200,13 @@ export const Landing = () => {
       <section id="pricing" className="py-24 md:py-32 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Simple, Transparent Pricing
+            {t('pricing.title')}
           </h2>
           <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">
-            Start free. Upgrade when you're ready.
+            {t('pricing.subtitle')}
           </p>
           <p className="text-base font-medium text-primary text-center mb-16 max-w-2xl mx-auto">
-            All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
+            {t('pricing.trialNote')}
           </p>
 
           {/* Main Plans */}
@@ -294,16 +215,16 @@ export const Landing = () => {
             <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-bold text-gray-900">Essential</h3>
+                <h3 className="text-xl font-bold text-gray-900">{t('pricing.essential.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-4xl font-bold text-gray-900">$99</span>
                 <span className="text-gray-400 line-through text-lg">$199</span>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Up to 100 guests · 12-month access</p>
-              <p className="text-xs text-primary/70 mb-6">Save over $1,000 vs buying tools separately</p>
+              <p className="text-sm text-gray-500 mb-1">{t('pricing.essential.guests')}</p>
+              <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
               <ul className="space-y-3 mb-8">
-                {["1 event", "Full access to all wedding & event planning tools", "Easy setup & seamless experience"].map((f) => (
+                {[t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -311,27 +232,27 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button variant="outline" className="w-full rounded-xl">Get Started</Button>
+                <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
             </div>
 
             {/* Premium — highlighted */}
             <div className="bg-white rounded-[20px] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary lg:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">Most Popular</span>
+                <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.mostPopular')}</span>
               </div>
               <div className="flex items-center gap-2 mb-4 mt-2">
                 <Crown className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-bold text-gray-900">Premium</h3>
+                <h3 className="text-xl font-bold text-gray-900">{t('pricing.premium.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-4xl font-bold text-gray-900">$149</span>
                 <span className="text-gray-400 line-through text-lg">$299</span>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Up to 300 guests · 12-month access</p>
-              <p className="text-xs text-primary/70 mb-6">Save over $1,000 vs buying tools separately</p>
+              <p className="text-sm text-gray-500 mb-1">{t('pricing.premium.guests')}</p>
+              <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
               <ul className="space-y-3 mb-8">
-                {["1 event", "Full access to all wedding & event planning tools", "Easy setup & seamless experience"].map((f) => (
+                {[t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -339,7 +260,7 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">Get Started</Button>
+                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </SignUpModal>
             </div>
 
@@ -347,16 +268,16 @@ export const Landing = () => {
             <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
                 <Heart className="w-5 h-5 text-primary" />
-                <h3 className="text-xl font-bold text-gray-900">Unlimited</h3>
+                <h3 className="text-xl font-bold text-gray-900">{t('pricing.unlimited.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-4xl font-bold text-gray-900">$249</span>
                 <span className="text-gray-400 line-through text-lg">$499</span>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Unlimited guests · 12-month access</p>
-              <p className="text-xs text-primary/70 mb-6">Save over $1,000 vs buying tools separately</p>
+              <p className="text-sm text-gray-500 mb-1">{t('pricing.unlimited.guests')}</p>
+              <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
               <ul className="space-y-3 mb-8">
-                {["1 event", "Full access to all wedding & event planning tools", "Easy setup & seamless experience"].map((f) => (
+                {[t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -364,26 +285,26 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button variant="outline" className="w-full rounded-xl">Get Started</Button>
+                <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </SignUpModal>
             </div>
 
             {/* Vendor Pro */}
             <div className="bg-gray-900 text-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">For Professionals</span>
+                <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.forProfessionals')}</span>
               </div>
               <div className="flex items-center gap-2 mb-4 mt-2">
                 <Building2 className="w-5 h-5 text-purple-400" />
-                <h3 className="text-xl font-bold">Vendor Pro</h3>
+                <h3 className="text-xl font-bold">{t('pricing.vendorPro.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-4xl font-bold">$249</span>
                 <span className="text-gray-400 text-lg">/month</span>
               </div>
-              <p className="text-sm text-gray-400 mb-6">For venues & event professionals</p>
+              <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
               <ul className="space-y-3 mb-8">
-                {["Unlimited events", "Unlimited guests", "Full platform access"].map((f) => (
+                {[t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform')].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
                     <Check className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
                     {f}
@@ -391,9 +312,9 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">Get Started</Button>
+                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </SignUpModal>
-              <p className="text-xs text-gray-500 text-center mt-3">Approval required</p>
+              <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
             </div>
           </div>
         </div>
@@ -403,21 +324,21 @@ export const Landing = () => {
       <section className="py-24 md:py-32 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Your friends will be impressed.
+            {t('testimonials.title')}
           </h2>
           <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
-            See what couples are saying about Wedding Waitress.
+            {t('testimonials.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
+            {Array.isArray(testimonialItems) && testimonialItems.map((item, i) => (
               <div key={i} className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <div className="flex gap-1 mb-4">
-                  {[...Array(t.rating)].map((_, j) => (
+                  {[...Array(5)].map((_, j) => (
                     <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-600 leading-relaxed mb-4">"{t.text}"</p>
-                <p className="text-sm font-semibold text-gray-900">{t.name}</p>
+                <p className="text-gray-600 leading-relaxed mb-4">"{item.text}"</p>
+                <p className="text-sm font-semibold text-gray-900">{item.name}</p>
               </div>
             ))}
           </div>
@@ -428,13 +349,13 @@ export const Landing = () => {
       <section id="faq" className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h2>
           <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
-            Everything you need to know before getting started.
+            {t('faq.subtitle')}
           </p>
           <div className="space-y-4">
-            {faqItems.map((item, i) => (
+            {Array.isArray(faqItems) && faqItems.map((item, i) => (
               <div
                 key={i}
                 className="bg-[#FAFAFA] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
@@ -459,15 +380,15 @@ export const Landing = () => {
       <section id="contact" className="py-24 md:py-32 px-4">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Get in Touch
+            {t('contact.title')}
           </h2>
           <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
-            Have a question? We'd love to hear from you.
+            {t('contact.subtitle')}
           </p>
           <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
             <div className="space-y-5">
               <div>
-                <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+                <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.name')}</label>
                 <input
                   id="contact-name"
                   type="text"
@@ -475,12 +396,12 @@ export const Landing = () => {
                   value={contactForm.name}
                   onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  placeholder="Your name"
+                  placeholder={t('contact.namePlaceholder')}
                   required
                 />
               </div>
               <div>
-                <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.email')}</label>
                 <input
                   id="contact-email"
                   type="email"
@@ -488,12 +409,12 @@ export const Landing = () => {
                   value={contactForm.email}
                   onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  placeholder="you@example.com"
+                  placeholder={t('contact.emailPlaceholder')}
                   required
                 />
               </div>
               <div>
-                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">Message</label>
+                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.message')}</label>
                 <textarea
                   id="contact-message"
                   maxLength={1000}
@@ -501,7 +422,7 @@ export const Landing = () => {
                   value={contactForm.message}
                   onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
-                  placeholder="How can we help?"
+                  placeholder={t('contact.messagePlaceholder')}
                   required
                 />
               </div>
@@ -510,9 +431,9 @@ export const Landing = () => {
                 disabled={contactSending}
                 className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
               >
-                {contactSending ? 'Sending...' : contactSent ? '✓ Message Sent!' : (
+                {contactSending ? t('contact.sending') : contactSent ? t('contact.sent') : (
                   <>
-                    Send Message
+                    {t('contact.sendButton')}
                     <Send className="w-4 h-4 ml-2" />
                   </>
                 )}
@@ -539,12 +460,12 @@ export const Landing = () => {
         </div>
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-[ctaFadeIn_1.5s_ease-out_both]">
           <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            All the magic.<br />None of the stress.
+            {t('finalCta.title1')}<br />{t('finalCta.title2')}
           </h2>
-          <p className="text-white/70 text-lg md:text-xl mb-12">Start planning your perfect day — it's free.</p>
+          <p className="text-white/70 text-lg md:text-xl mb-12">{t('finalCta.subtitle')}</p>
           <SignUpModal>
             <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
-              Get Started Free
+              {t('finalCta.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
@@ -560,29 +481,29 @@ export const Landing = () => {
                 <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto brightness-0 invert" />
               </div>
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-                The all-in-one wedding planning platform trusted by couples across Australia.
+                {t('footer.tagline')}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Explore</h4>
+                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
-                  <li><a href="#guest-list" className="hover:text-white transition-colors">Features</a></li>
-                  <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                  <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
+                  <li><a href="#guest-list" className="hover:text-white transition-colors">{t('footer.features')}</a></li>
+                  <li><a href="#pricing" className="hover:text-white transition-colors">{t('footer.pricing')}</a></li>
+                  <li><a href="#faq" className="hover:text-white transition-colors">{t('footer.faq')}</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Support</h4>
+                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.support')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
-                  <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">Terms</Link></li>
+                  <li><Link to="/contact" className="hover:text-white transition-colors">{t('footer.contactUs')}</Link></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link></li>
                 </ul>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">Follow Us</h4>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.followUs')}</h4>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Instagram className="w-5 h-5" />
@@ -597,10 +518,10 @@ export const Landing = () => {
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Wedding Waitress. All rights reserved.</p>
+            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} {t('footer.copyright')}</p>
             <div className="flex gap-6 text-sm text-gray-500">
-              <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
-              <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link>
+              <Link to="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link>
             </div>
           </div>
         </div>
