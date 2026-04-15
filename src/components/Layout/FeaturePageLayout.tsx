@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { EmbeddedSignUpForm } from '@/components/auth/EmbeddedSignUpForm';
 import { CookieBanner } from '@/components/ui/CookieBanner';
