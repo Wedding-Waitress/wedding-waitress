@@ -226,7 +226,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       </Card>;
   }
   return <>
-      <Card className="border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-0">
+      <Card className="border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-0 rounded-xl">
         <div className="px-4 sm:px-6 py-4 border-b-2 border-primary bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
