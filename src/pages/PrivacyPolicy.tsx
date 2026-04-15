@@ -240,7 +240,7 @@ export const PrivacyPolicy = () => {
             </section>
 
             <section id="contact">
-              <h2 className="text-2xl font-bold text-foreground mb-4">11. Contact Us</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-4">12. Contact Us</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 If you have questions or concerns about this Privacy Policy, please contact us:
               </p>
