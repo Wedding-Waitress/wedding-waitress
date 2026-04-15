@@ -13,5 +13,10 @@ export const FeatureFloorPlan = () => (
       { heading: "Plan Ceremony & Reception Setup", text: "Design both your ceremony and reception layouts in one tool. Visualise aisle seating, altar placement, and reception flow before the big day." },
       { heading: "Visualise Seating Arrangements", text: "See how your tables and seating fit within your venue space. Adjust layouts in real time to ensure everything works perfectly on the day." },
     ]}
+    relatedFeatures={[
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+      { label: "Full Seating Chart", href: "/features/full-seating" },
+      { label: "Kiosk Check-In", href: "/features/kiosk" },
+    ]}
   />
 );

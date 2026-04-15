@@ -13,5 +13,10 @@ export const FeatureDietary = () => (
       { heading: "Manage Allergies & Preferences", text: "Keep a clear record of food allergies and special requests. Wedding Waitress ensures nothing is overlooked when it comes to guest meal planning." },
       { heading: "Share with Caterers Easily", text: "Export your dietary summary and share it directly with your venue or caterer. Save time and avoid miscommunication on the day." },
     ]}
+    relatedFeatures={[
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Place Cards", href: "/features/place-cards" },
+      { label: "Full Seating Chart", href: "/features/full-seating" },
+    ]}
   />
 );

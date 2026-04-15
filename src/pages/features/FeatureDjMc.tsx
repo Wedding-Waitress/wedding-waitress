@@ -13,5 +13,10 @@ export const FeatureDjMc = () => (
       { heading: "Organise Song Lists", text: "Build your must-play, do-not-play, and maybe lists with ease. Keep your music selections organised and easy to share with your DJ or MC." },
       { heading: "Coordinate with Your DJ & MC", text: "Share your completed questionnaire directly with your DJ or MC. Ensure they have every detail they need for a seamless, perfectly timed event." },
     ]}
+    relatedFeatures={[
+      { label: "Timeline & Running Sheet", href: "/features/guest-list" },
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Floor Plan Creator", href: "/features/floor-plan" },
+    ]}
   />
 );

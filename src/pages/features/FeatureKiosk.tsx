@@ -13,5 +13,10 @@ export const FeatureKiosk = () => (
       { heading: "Instant Table Lookup", text: "Guests simply search their name and instantly see their table number, seat assignment, and event details — no staff assistance needed." },
       { heading: "Improve Event Entry Experience", text: "Create a smooth, modern arrival experience that impresses your guests and keeps your event running on time from the very first moment." },
     ]}
+    relatedFeatures={[
+      { label: "QR Code RSVP", href: "/features/planning" },
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+      { label: "Guest List Manager", href: "/features/seating" },
+    ]}
   />
 );

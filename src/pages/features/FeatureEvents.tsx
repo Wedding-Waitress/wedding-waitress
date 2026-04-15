@@ -13,5 +13,10 @@ export const FeatureEvents = () => (
       { heading: "Customise Each Event Individually", text: "Set unique guest limits, venues, timelines, and seating plans for every event. Each one gets its own dedicated settings and guest list." },
       { heading: "Perfect for Couples & Planners", text: "Wedding Waitress is built for both couples planning their own wedding and professional event planners managing multiple clients and events." },
     ]}
+    relatedFeatures={[
+      { label: "Guest List Manager", href: "/features/seating" },
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+      { label: "Timeline & Running Sheet", href: "/features/guest-list" },
+    ]}
   />
 );

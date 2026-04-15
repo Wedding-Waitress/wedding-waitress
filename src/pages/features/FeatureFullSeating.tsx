@@ -13,5 +13,10 @@ export const FeatureFullSeating = () => (
       { heading: "Organise Every Guest Clearly", text: "Ensure no guest is missed or misplaced. Sort by table, name, or RSVP status to keep your seating plan accurate and up to date." },
       { heading: "Export Your Layout for Printing", text: "Download your complete seating chart as a professional PDF, ready for printing and sharing with your venue, coordinator, or wedding party." },
     ]}
+    relatedFeatures={[
+      { label: "Individual Table Charts", href: "/features/table-charts" },
+      { label: "Seating Chart Planner", href: "/features/qr-seating" },
+      { label: "Guest List Manager", href: "/features/seating" },
+    ]}
   />
 );
