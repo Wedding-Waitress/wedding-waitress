@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
 
 export const PrivacyPolicy = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
@@ -33,7 +35,7 @@ export const PrivacyPolicy = () => {
             </div>
             <CardTitle className="text-3xl font-bold">Privacy Policy</CardTitle>
             <p className="text-muted-foreground mt-2">
-              Last Updated: 20 January 2025
+              Last Updated: 15 April {currentYear}
             </p>
           </CardHeader>
 
@@ -256,7 +258,7 @@ export const PrivacyPolicy = () => {
       <footer className="border-t bg-background/95">
         <div className="w-full px-4 py-8">
           <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 Wedding Waitress. All rights reserved.</p>
+            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-4">
               <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <span>•</span>

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText } from 'lucide-react';
 
 export const TermsOfService = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
@@ -33,7 +35,7 @@ export const TermsOfService = () => {
             </div>
             <CardTitle className="text-3xl font-bold">Terms of Service</CardTitle>
             <p className="text-muted-foreground mt-2">
-              Last Updated: 20 January 2025
+              Last Updated: 15 April {currentYear}
             </p>
           </CardHeader>
 
@@ -102,87 +104,103 @@ export const TermsOfService = () => {
                 Wedding Waitress offers both one-time purchase plans and monthly subscription plans:
               </p>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3">A. FOR WEDDING COUPLES & EVENT ORGANIZERS (One-Time Purchase)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3">A. For Wedding Couples & Event Organisers (One-Time Purchase)</h3>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                Wedding Waitress offers one-time payment plans that provide access to the platform for a fixed period.
+              </p>
               
               <div className="bg-muted/50 rounded-lg p-6 space-y-4 not-prose">
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">1. Starter Plan (FREE)</h4>
+                  <h4 className="font-bold text-foreground mb-2">1. Starter Free Trial</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>Up to 10 guests</li>
-                    <li>Access to all Wedding Waitress features</li>
-                    <li>Perfect for testing and small intimate gatherings</li>
-                    <li>No credit card required</li>
+                    <li>7-day free trial</li>
+                    <li>Up to 20 guests</li>
+                    <li>Full access to platform features during trial</li>
+                    <li>Upgrade required after trial ends to continue use</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">2. Essential Plan ($99 AUD one-time)</h4>
+                  <h4 className="font-bold text-foreground mb-2">2. Essential Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
+                    <li>One-time payment</li>
                     <li>Up to 100 guests</li>
-                    <li>All features included</li>
-                    <li>Ideal for typical weddings and events</li>
+                    <li>Access valid for 12 months</li>
+                    <li>Includes full access to all wedding & event planning tools</li>
+                    <li>Limited to 1 event</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">3. Premium Plan ($149 AUD one-time)</h4>
+                  <h4 className="font-bold text-foreground mb-2">3. Premium Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>101 to 300 guests</li>
-                    <li>All features included</li>
-                    <li>Perfect for large weddings and events</li>
+                    <li>One-time payment</li>
+                    <li>Up to 300 guests</li>
+                    <li>Access valid for 12 months</li>
+                    <li>Includes full access to all wedding & event planning tools</li>
+                    <li>Limited to 1 event</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">4. Unlimited Plan ($249 AUD one-time)</h4>
+                  <h4 className="font-bold text-foreground mb-2">4. Unlimited Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
+                    <li>One-time payment</li>
                     <li>Unlimited guests</li>
-                    <li>All features included</li>
-                    <li>Best for wedding planners managing multiple large events</li>
+                    <li>Access valid for 12 months</li>
+                    <li>Includes full access to all wedding & event planning tools</li>
+                    <li>Limited to 1 event</li>
                   </ul>
                 </div>
 
                 <div className="border-t pt-4">
-                  <h4 className="font-bold text-foreground mb-2">Add-ons (available for all plans):</h4>
+                  <h4 className="font-bold text-foreground mb-2">Plan Expiry & Grace Period</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>Extra Event Slot: $19 AUD</li>
-                    <li>Priority Support: $29 AUD</li>
-                    <li>Custom Branding: $49 AUD</li>
+                    <li>All paid plans are valid for 12 months from purchase date</li>
+                    <li>After expiry, users receive 6 months read-only access</li>
+                    <li>After the grace period, access may be restricted or removed</li>
                   </ul>
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">B. FOR WEDDING VENDORS & EVENT PROFESSIONALS (Monthly Subscription)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">B. For Wedding Vendors & Event Professionals (Subscription)</h3>
               
               <div className="bg-muted/50 rounded-lg p-6 space-y-4 not-prose">
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">1. Vendor Basic ($49 AUD/month)</h4>
+                  <h4 className="font-bold text-foreground mb-2">Vendor Pro Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>Up to 5 active events</li>
-                    <li>Unlimited guests per event</li>
-                    <li>All Wedding Waitress features</li>
-                    <li>Multi-user accounts</li>
-                    <li>Vendor branding</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-foreground mb-2">2. Vendor Pro ($149 AUD/month)</h4>
-                  <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>Unlimited active events</li>
-                    <li>Unlimited guests per event</li>
-                    <li>All features included</li>
-                    <li>White-label Live View</li>
-                    <li>Custom domain support</li>
+                    <li>Monthly recurring subscription</li>
+                    <li>Designed for venues, wedding planners, and event professionals</li>
+                    <li>Includes:
+                      <ul className="list-disc pl-6 space-y-1 mt-1">
+                        <li>Unlimited events</li>
+                        <li>Unlimited guests</li>
+                        <li>Full platform access</li>
+                      </ul>
+                    </li>
+                    <li>Subscription remains active until cancelled</li>
                   </ul>
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">Usage Limits and Upgrades</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">C. RSVP Invite Bundles (One-Time Add-On)</h3>
+              <p className="text-muted-foreground leading-relaxed mb-2">
+                Users may purchase RSVP bundles based on guest count per event.
+              </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li><strong>Guest Limits:</strong> Free Starter Plan users are limited to 10 guests. Upon reaching this limit, you will be prompted to upgrade to a paid plan.</li>
-                <li><strong>Upgrades:</strong> You may upgrade your plan at any time. Upgrades are immediate and unlock higher guest limits instantly.</li>
-                <li><strong>Overage Policy:</strong> You cannot add guests beyond your plan's limit. An upgrade is required before adding additional guests.</li>
+                <li>Pricing varies based on guest range</li>
+                <li>Applies per event</li>
+                <li>Non-refundable once used</li>
+              </ul>
+
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">D. Plan Extensions (Optional Add-On)</h3>
+              <p className="text-muted-foreground leading-relaxed mb-2">
+                Users may purchase extensions to extend their plan duration.
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li>Available for Essential, Premium, and Unlimited plans</li>
+                <li>Duration options may vary (e.g., monthly or yearly extensions)</li>
+                <li>Pricing varies depending on plan type and extension length</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">Promotional Codes</h3>
@@ -266,12 +284,11 @@ export const TermsOfService = () => {
                 All payments are processed securely through Stripe, a PCI-DSS compliant payment processor. We do not store your credit card information on our servers.
               </p>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.2 One-Time Purchases</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.2 Plan Access</h3>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Payment is charged immediately upon purchase</li>
+                <li>Wedding plans are one-time purchases and do not auto-renew</li>
+                <li>Vendor Pro is a recurring subscription billed monthly</li>
                 <li>Access to features is granted instantly upon successful payment</li>
-                <li>One-time purchases are non-recurring</li>
-                <li>Subject to 14-day money-back guarantee (see Refund Policy)</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.3 Monthly Subscriptions (Vendor Plans)</h3>
@@ -305,20 +322,19 @@ export const TermsOfService = () => {
 
             <section id="refunds">
               <h2 className="text-2xl font-bold text-foreground mb-4">8. Refund Policy</h2>
-              <h3 className="text-xl font-semibold text-foreground mb-3">8.1 One-Time Purchases (Wedding Couples)</h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                We offer a <strong>14-day money-back guarantee</strong> for one-time purchases:
-              </p>
-              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Request a refund within 14 days of purchase</li>
-                <li>Email support@weddingwaitress.com with your order details</li>
-                <li>Full refund processed within 5-10 business days</li>
-                <li>No questions asked</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.2 Monthly Subscriptions (Vendor Plans)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3">8.1 Free Trials</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Monthly subscriptions are <strong>non-refundable</strong>. However:
+                Free trials are risk-free. No payment is required during the trial period.
+              </p>
+
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.2 One-Time Purchases (Wedding Couples)</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Paid plans are generally <strong>non-refundable</strong> once activated. If you believe there has been an error, please contact support@weddingwaitress.com.
+              </p>
+
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.3 Monthly Subscriptions (Vendor Plans)</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Subscription cancellations stop future billing only. However:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground mt-2">
                 <li>You can cancel at any time to prevent future charges</li>
@@ -326,9 +342,9 @@ export const TermsOfService = () => {
                 <li>No refunds for partial months</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.3 Add-ons</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.4 Add-ons</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Add-on purchases are non-refundable once activated, except within the 14-day money-back guarantee period for one-time customers.
+                Add-on purchases (including RSVP bundles and plan extensions) are non-refundable once activated.
               </p>
             </section>
 
@@ -511,7 +527,7 @@ export const TermsOfService = () => {
       <footer className="border-t bg-background/95">
         <div className="w-full px-4 py-8">
           <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 Wedding Waitress. All rights reserved.</p>
+            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-4">
               <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <span>•</span>

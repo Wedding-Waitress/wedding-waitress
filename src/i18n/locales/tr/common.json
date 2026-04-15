@@ -2,7 +2,7 @@
   "privacyPolicy": "Gizlilik Politikası",
   "termsOfService": "Hizmet Koşulları",
   "contact": "İletişim",
-  "copyright": "© 2025 Wedding Waitress",
+  "copyright": "© {{year}} Wedding Waitress",
   "loading": "Yükleniyor...",
   "error": "Hata",
   "retry": "Tekrar Dene",

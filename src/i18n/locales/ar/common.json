@@ -2,7 +2,7 @@
   "privacyPolicy": "سياسة الخصوصية",
   "termsOfService": "شروط الخدمة",
   "contact": "اتصل بنا",
-  "copyright": "© 2025 Wedding Waitress",
+  "copyright": "© {{year}} Wedding Waitress",
   "loading": "جاري التحميل...",
   "error": "خطأ",
   "retry": "إعادة المحاولة",

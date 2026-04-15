@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export const Contact = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       {/* Header */}
@@ -101,7 +103,7 @@ export const Contact = () => {
       <footer className="border-t mt-12">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 Wedding Waitress. All rights reserved.</p>
+            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-2">
               <Link to="/privacy" className="hover:text-primary transition-colors">
                 Privacy Policy

@@ -2,7 +2,7 @@
   "privacyPolicy": "プライバシーポリシー",
   "termsOfService": "利用規約",
   "contact": "お問い合わせ",
-  "copyright": "© 2025 Wedding Waitress",
+  "copyright": "© {{year}} Wedding Waitress",
   "loading": "読み込み中...",
   "error": "エラー",
   "retry": "再試行",
