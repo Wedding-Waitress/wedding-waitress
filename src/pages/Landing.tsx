@@ -102,14 +102,17 @@ export const Landing = () => {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImg} alt="Luxury wedding reception" width={1920} height={1080} className="w-full h-full object-cover" />
+          <img src={heroImg} alt="Wedding reception with elegant table settings and seating chart" width={1920} height={1080} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50" />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
             {t('hero.title1')}<br />
             <span className="text-white/90">{t('hero.title2')}</span>
           </h1>
+          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-6">
+            {t('hero.title3')}
+          </p>
           <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
             {t('hero.subtitle')}
           </p>

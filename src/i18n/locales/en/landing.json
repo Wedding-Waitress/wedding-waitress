@@ -13,7 +13,8 @@
   "hero": {
     "title1": "Plan Your Wedding",
     "title2": "Without the Stress.",
-    "subtitle": "Everything you need to manage guests, seating, invitations, QR code seating charts, RSVP's for your entire wedding or event — plus so much more — all in one place.",
+    "title3": "Guest Lists, Seating Charts & QR Code RSVPs — All in One Place",
+    "subtitle": "Manage your wedding guest list, seating chart, digital invitations, online RSVPs, and QR code seating charts — all in one simple and powerful wedding planning platform.",
     "cta": "Start Your Free Trial",
     "trustLine": "No credit card required",
     "trustLine2": "Sign up in 60 seconds. No app download required.",
@@ -21,7 +22,7 @@
   },
   "featureCards": {
     "sectionTitle": "The wedding platform your guests will love.",
-    "sectionSubtitle": "Every tool you need, beautifully designed and simple to use.",
+    "sectionSubtitle": "Our platform combines a powerful wedding guest list manager, wedding seating chart tool, QR code seating chart, RSVP tracker, and digital wedding invitations — everything you need in one place.",
     "guestList": {
       "title": "Guest List",
       "desc": "Manage all your guests in one place"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Guest List Management",
-      "desc": "Easily manage your entire guest list, track RSVPs, and organise relationships. Import guests, send invitations, and keep everything perfectly organised."
+      "desc": "Easily manage your wedding guest list with RSVP tracking, guest grouping, and a complete wedding guest list manager designed to simplify your planning."
     },
     "tables": {
       "title": "Seating Made Simple",
-      "desc": "Create tables and assign guests with ease using our visual drag-and-drop system. See capacity at a glance and make last-minute changes effortlessly."
+      "desc": "Create your wedding seating chart with an easy-to-use seating planner. Organise tables, assign guests, and visualise your entire wedding seating layout."
     },
     "qr": {
       "title": "Instant Guest Seating",
-      "desc": "Guests scan a QR code to instantly find their table — no confusion, no delays. A modern, tech-forward touch your guests will love."
+      "desc": "Let guests scan a QR code to instantly find their table using a modern QR code seating chart — perfect for weddings and events."
     },
     "runningSheet": {
       "title": "Plan Every Moment",
-      "desc": "Create a full schedule for your wedding day and share with vendors. Keep everyone on the same page from ceremony to last dance."
+      "desc": "Plan your wedding timeline with a complete event schedule tool designed for seamless wedding coordination."
     },
     "invitations": {
       "title": "Invitations & RSVPs",
-      "desc": "Send beautiful digital invitations and track responses in real time. Customise designs, add QR codes, and manage RSVPs all in one place."
+      "desc": "Send digital wedding invitations with RSVP tracking and manage responses using a simple and powerful online wedding RSVP system."
     },
     "myEvents": {
       "title": "Your Events, Your Way",
@@ -126,12 +127,13 @@
     },
     "floorPlan": {
       "title": "Venue Floor Plan",
-      "desc": "Visualise your entire venue layout with an interactive floor plan. Position tables, map the ceremony space, and plan every area of your event."
+      "desc": "Design your venue layout with a visual wedding floor plan builder and seating chart planner."
     },
     "learnMore": "Learn More"
   },
   "extraGrid": {
     "title": "Everything you need for your perfect day",
+    "subtitle": "From wedding guest list management and seating charts to QR code seating, RSVP tracking, and digital invitations — everything is built to simplify your entire wedding planning experience.",
     "djmc": {
       "title": "DJ & MC Planner",
       "desc": "Curate your perfect playlist"
@@ -266,19 +268,31 @@
     "subtitle": "Everything you need to know before getting started.",
     "items": [
       {
+        "q": "What is a wedding guest list manager?",
+        "a": "A wedding guest list manager helps you organise all your guests, track RSVPs, group families, and manage dietary requirements — all in one place. Wedding Waitress makes it simple and stress-free."
+      },
+      {
+        "q": "How does a wedding seating chart work?",
+        "a": "Our wedding seating chart lets you create tables, drag and drop guests into seats, and visualise your entire venue layout. Export print-ready charts for your big day."
+      },
+      {
+        "q": "Can I use a QR code for wedding seating?",
+        "a": "Yes! With our QR code seating chart, guests scan a code at the venue and instantly see their table assignment — no app download needed."
+      },
+      {
+        "q": "How do online wedding RSVPs work?",
+        "a": "Send digital wedding invitations via email or SMS with a built-in RSVP link. Guests respond online and you track everything in real time."
+      },
+      {
+        "q": "Can I send digital wedding invitations?",
+        "a": "Absolutely. Design beautiful digital invitations, add QR codes, and send them directly to your guests with built-in RSVP tracking."
+      },
+      {
         "q": "Do guests need an app?",
         "a": "No. Guests scan a QR code or click a link — no login, app, or download required."
       },
       {
-        "q": "Can I send RSVP invites by email or SMS?",
-        "a": "Yes! Send beautiful digital invitations and track RSVPs in real time."
-      },
-      {
-        "q": "Can I manage seating charts and guest lists in one place?",
-        "a": "Absolutely. Everything from guest management to seating charts is built into one platform."
-      },
-      {
-        "q": "Is Wedding Waitress suitable for venues and planners too?",
+        "q": "Is Wedding Waitress suitable for venues and planners?",
         "a": "Yes. Our Vendor Pro plan is built for venues, planners, DJs, and event professionals."
       },
       {
