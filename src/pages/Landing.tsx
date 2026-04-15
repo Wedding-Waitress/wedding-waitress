@@ -148,9 +148,11 @@ export const Landing = () => {
               {t('hero.watchDemo')}
             </Button>
           </div>
-          <p className="text-sm sm:text-base text-white/70 mt-6">{t('hero.trustLine')}</p>
-          <p className="text-sm sm:text-base text-white/60 mt-2">{t('hero.trustLine2')}</p>
-          <p className="text-sm sm:text-base text-white/60 mt-2">{t('hero.trusted')}</p>
+          <p className="text-xs sm:text-sm text-white/60 mt-3">{t('hero.ctaSub')}</p>
+          <p className="text-sm sm:text-base text-white/70 mt-4">{t('hero.trustLine')}</p>
+          <p className="text-sm sm:text-base text-white/60 mt-1">{t('hero.trustLine2')}</p>
+          <p className="text-sm sm:text-base text-white/60 mt-4 font-medium">{t('hero.trusted')}</p>
+          <p className="text-xs sm:text-sm text-white/50 mt-1">{t('hero.trustedSub')}</p>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-40 flex flex-col items-center gap-1">
           <span className="text-white text-xs uppercase tracking-widest">{t('hero.scrollExplore')}</span>
