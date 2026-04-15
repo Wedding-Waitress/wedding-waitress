@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FormData {
   first_name: string;
@@ -15,6 +16,7 @@ interface FormData {
 }
 
 export const EmbeddedSignUpForm: React.FC = () => {
+  const { t } = useTranslation('common');
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -34,12 +36,12 @@ export const EmbeddedSignUpForm: React.FC = () => {
     e.preventDefault();
     setError('');
     if (!formData.first_name || !formData.last_name || !formData.email) {
-      setError('Please fill in all required fields');
+      setError(t('form.fillRequired'));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
+      setError(t('form.validEmail'));
       return;
     }
     setLoading(true);
@@ -62,7 +64,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
         startResendTimer();
       }
     } catch {
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('form.unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +73,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
   const handleVerifyCode = async () => {
     const code = verificationCode.join('');
     if (code.length !== 6) {
-      setError('Please enter the complete 6-digit code');
+      setError(t('form.completeCode'));
       return;
     }
     setLoading(true);
@@ -93,13 +95,13 @@ export const EmbeddedSignUpForm: React.FC = () => {
           mobile: formData.mobile || null
         });
         toast({
-          title: "Welcome to Wedding Waitress 🎉",
-          description: "Your account has been created successfully!"
+          title: t('form.welcomeTitle'),
+          description: t('form.welcomeDesc')
         });
         navigate('/dashboard');
       }
     } catch {
-      setError('Verification failed. Please try again.');
+      setError(t('form.verificationFailed'));
     } finally {
       setLoading(false);
     }
@@ -148,13 +150,13 @@ export const EmbeddedSignUpForm: React.FC = () => {
         }
       });
       if (!error) {
-        toast({ title: "Code sent!", description: "A new verification code has been sent to your email." });
+        toast({ title: t('form.codeSent'), description: t('form.codeSentDesc') });
         startResendTimer();
       } else {
         setError(error.message);
       }
     } catch {
-      setError('Failed to resend code. Please try again.');
+      setError(t('form.failedResend'));
     } finally {
       setLoading(false);
     }
@@ -173,16 +175,16 @@ export const EmbeddedSignUpForm: React.FC = () => {
   return (
     <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-8 w-full max-w-[420px]">
       <h2 className="text-xl font-semibold text-center text-gray-900">
-        {step === 'form' ? 'Create your free account' : 'Enter the 6-digit code'}
+        {step === 'form' ? t('form.createFreeAccount') : t('form.enterCode')}
       </h2>
       {step === 'form' && (
         <p className="text-sm text-gray-500 text-center mt-2">
-          Once submitted a verification code will be sent to your email
+          {t('form.verificationSent')}
         </p>
       )}
       {step === 'verify' && (
         <p className="text-sm text-gray-500 text-center mt-2">
-          We've emailed a one-time code to {formData.email}
+          {t('form.emailedCode', { email: formData.email })}
         </p>
       )}
 
@@ -190,20 +192,20 @@ export const EmbeddedSignUpForm: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           <div className="space-y-3">
             <div>
-              <Label htmlFor="feat_first_name" className="text-sm font-medium">First name *</Label>
+              <Label htmlFor="feat_first_name" className="text-sm font-medium">{t('form.firstNameLabel')}</Label>
               <Input id="feat_first_name" type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="mt-1" disabled={loading} />
             </div>
             <div>
-              <Label htmlFor="feat_last_name" className="text-sm font-medium">Last name *</Label>
+              <Label htmlFor="feat_last_name" className="text-sm font-medium">{t('form.lastNameLabel')}</Label>
               <Input id="feat_last_name" type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="mt-1" disabled={loading} />
             </div>
             <div>
-              <Label htmlFor="feat_email" className="text-sm font-medium">Email *</Label>
+              <Label htmlFor="feat_email" className="text-sm font-medium">{t('form.emailLabel')}</Label>
               <Input id="feat_email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" disabled={loading} />
             </div>
             <div>
-              <Label htmlFor="feat_mobile" className="text-sm font-medium">Mobile *</Label>
-              <Input id="feat_mobile" type="tel" placeholder="04XX XXX XXX" value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className="mt-1" disabled={loading} />
+              <Label htmlFor="feat_mobile" className="text-sm font-medium">{t('form.mobileLabel')}</Label>
+              <Input id="feat_mobile" type="tel" placeholder={t('form.mobilePlaceholder')} value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className="mt-1" disabled={loading} />
             </div>
           </div>
 
@@ -212,18 +214,18 @@ export const EmbeddedSignUpForm: React.FC = () => {
           <div className="space-y-3">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Send verification code
+              {t('form.sendVerificationCode')}
             </Button>
             <p className="text-xs text-gray-500 text-center">
-              By continuing you agree to our{' '}
-              <a href="/terms" className="underline hover:text-gray-700">Terms of Service</a>
+              {t('form.termsAgree')}{' '}
+              <a href="/terms" className="underline hover:text-gray-700">{t('form.termsOfServiceLink')}</a>
               {' '}&{' '}
-              <a href="/privacy" className="underline hover:text-gray-700">Privacy Policy</a>
+              <a href="/privacy" className="underline hover:text-gray-700">{t('form.privacyPolicyLink')}</a>
             </p>
             <div className="text-center">
               <span className="text-sm text-gray-500">
-                I already have an account →{' '}
-                <a href="/#" className="font-bold hover:underline" style={{ color: '#856A4C' }}>Sign In</a>
+                {t('form.alreadyHaveAccount')}{' '}
+                <a href="/#" className="font-bold hover:underline" style={{ color: '#856A4C' }}>{t('form.signInLink')}</a>
               </span>
             </div>
           </div>
@@ -250,11 +252,11 @@ export const EmbeddedSignUpForm: React.FC = () => {
           <div className="space-y-3">
             <Button onClick={handleVerifyCode} className="w-full" disabled={loading || verificationCode.join('').length !== 6}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Verify Code
+              {t('form.verifyCode')}
             </Button>
             <div className="text-center">
               <button type="button" onClick={handleResend} disabled={resendTimer > 0 || loading} className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend code'}
+                {resendTimer > 0 ? t('form.resendIn', { seconds: resendTimer }) : t('form.resendCode')}
               </button>
             </div>
           </div>

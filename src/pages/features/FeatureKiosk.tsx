@@ -1,23 +1,29 @@
 import { Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-kiosk-page.jpg';
 
-export const FeatureKiosk = () => (
-  <FeaturePageLayout
-    title="Wedding Guest Check-In Kiosk & Live Lookup System"
-    description="Create a professional and interactive guest experience with a live kiosk display. Allow guests to quickly search their name and find their table, seat, or event details on a digital screen."
-    backgroundImage={bgImage}
-    pageTitle="Wedding Check-In Kiosk | Guest Lookup & Entry System"
-    metaDescription="Set up a live guest check-in kiosk. Let guests search their name and find their table instantly at your event entrance."
-    seoSections={[
-      { heading: "Enable Guest Self Check-In", text: <>Set up a digital kiosk at your venue entrance powered by your <Link to="/features/planning" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">QR code system</Link>. It's fast, professional, and reduces queues on arrival.</> },
-      { heading: "Instant Table Lookup", text: <>Guests simply search their name and instantly see their table number and seat from your <Link to="/features/seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">guest list</Link> — no staff assistance needed.</> },
-      { heading: "Improve Event Entry Experience", text: "Create a smooth, modern arrival experience that impresses your guests and keeps your event running on time from the very first moment." },
-    ]}
-    relatedFeatures={[
-      { label: "QR Code RSVP", href: "/features/planning" },
-      { label: "Guest List Manager", href: "/features/seating" },
-      { label: "Seating Chart Planner", href: "/features/qr-seating" },
-    ]}
-  />
-);
+const linkClass = "text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]";
+
+export const FeatureKiosk = () => {
+  const { t } = useTranslation('landing');
+  return (
+    <FeaturePageLayout
+      title={t('fp.kiosk.title')}
+      description={t('fp.kiosk.description')}
+      backgroundImage={bgImage}
+      pageTitle={t('fp.kiosk.pageTitle')}
+      metaDescription={t('fp.kiosk.metaDesc')}
+      seoSections={[
+        { heading: t('fp.kiosk.seo1Heading'), text: <Trans i18nKey="fp.kiosk.seo1Text" ns="landing" components={[<Link to="/features/planning" className={linkClass} />]} /> },
+        { heading: t('fp.kiosk.seo2Heading'), text: <Trans i18nKey="fp.kiosk.seo2Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
+        { heading: t('fp.kiosk.seo3Heading'), text: t('fp.kiosk.seo3Text') },
+      ]}
+      relatedFeatures={[
+        { label: t('fp.kiosk.related1'), href: "/features/planning" },
+        { label: t('fp.kiosk.related2'), href: "/features/seating" },
+        { label: t('fp.kiosk.related3'), href: "/features/qr-seating" },
+      ]}
+    />
+  );
+};

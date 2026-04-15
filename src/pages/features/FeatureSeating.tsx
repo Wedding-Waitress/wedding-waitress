@@ -1,23 +1,29 @@
 import { Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-guest-list-page.jpg';
 
-export const FeatureSeating = () => (
-  <FeaturePageLayout
-    title="Wedding Guest List Management & RSVP Tracker"
-    description="Effortlessly manage your wedding guest list with a powerful and easy-to-use guest list manager. Add guests individually or as couples and families, track RSVPs in real-time, manage plus-ones, and organise seating arrangements with complete clarity."
-    backgroundImage={bgImage}
-    pageTitle="Wedding Guest List Manager | Track RSVPs & Guests Easily"
-    metaDescription="Easily manage your wedding guest list, track RSVPs, organise families, and control plus-ones with our powerful wedding guest list manager tool."
-    seoSections={[
-      { heading: "Manage Your Wedding Guest List Online", text: <>Add, edit, and organise your entire wedding guest list from any device. Keep track of every guest, couple, and family group in one central place with real-time updates. Once your guest list is ready, you can easily create your <Link to="/features/qr-seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">wedding seating chart</Link> or send <Link to="/features/invitations" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">digital invitations</Link> to every guest.</> },
-      { heading: "Track RSVPs in Real Time", text: <>See who's attending, who's declined, and who's yet to respond — all updated instantly. Guests can also RSVP directly using your <Link to="/features/planning" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">QR code RSVP system</Link>, making the process seamless for everyone.</> },
-      { heading: "Organise Guests, Families & Plus-Ones", text: "Group guests into families, manage plus-ones, and assign relationships with ease. Wedding Waitress keeps your guest list structured and clear, no matter the size of your event." },
-    ]}
-    relatedFeatures={[
-      { label: "Seating Chart Planner", href: "/features/qr-seating" },
-      { label: "QR Code RSVP", href: "/features/planning" },
-      { label: "Digital Invitations", href: "/features/invitations" },
-    ]}
-  />
-);
+const linkClass = "text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]";
+
+export const FeatureSeating = () => {
+  const { t } = useTranslation('landing');
+  return (
+    <FeaturePageLayout
+      title={t('fp.seating.title')}
+      description={t('fp.seating.description')}
+      backgroundImage={bgImage}
+      pageTitle={t('fp.seating.pageTitle')}
+      metaDescription={t('fp.seating.metaDesc')}
+      seoSections={[
+        { heading: t('fp.seating.seo1Heading'), text: <Trans i18nKey="fp.seating.seo1Text" ns="landing" components={[<Link to="/features/qr-seating" className={linkClass} />, <Link to="/features/invitations" className={linkClass} />]} /> },
+        { heading: t('fp.seating.seo2Heading'), text: <Trans i18nKey="fp.seating.seo2Text" ns="landing" components={[<Link to="/features/planning" className={linkClass} />]} /> },
+        { heading: t('fp.seating.seo3Heading'), text: t('fp.seating.seo3Text') },
+      ]}
+      relatedFeatures={[
+        { label: t('fp.seating.related1'), href: "/features/qr-seating" },
+        { label: t('fp.seating.related2'), href: "/features/planning" },
+        { label: t('fp.seating.related3'), href: "/features/invitations" },
+      ]}
+    />
+  );
+};

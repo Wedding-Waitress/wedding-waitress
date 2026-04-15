@@ -1,23 +1,29 @@
 import { Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-place-cards-page.jpg';
 
-export const FeaturePlaceCards = () => (
-  <FeaturePageLayout
-    title="Wedding Place Cards Generator & Printable Name Cards"
-    description="Create elegant and personalised name place cards for your wedding or event in just minutes. Easily generate guest names, customise fonts and layouts, and print professional-quality place cards directly from your seating plan."
-    backgroundImage={bgImage}
-    pageTitle="Wedding Place Cards Generator | Printable Name Cards"
-    metaDescription="Create elegant wedding place cards with guest names and table numbers. Download printable designs for your reception."
-    seoSections={[
-      { heading: "Create Elegant Name Place Cards", text: <>Design beautiful place cards with your guests' names, table numbers, and seat assignments pulled directly from your <Link to="/features/qr-seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">wedding seating chart</Link>.</> },
-      { heading: "Print Professional Guest Cards", text: <>Export your place cards in high-resolution 300 DPI format, ready for professional printing. Pair them with <Link to="/features/table-charts" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">individual table charts</Link> for a polished table presentation.</> },
-      { heading: "Customise Table & Seating Details", text: "Add personalised messages, dietary icons, and custom styling to each place card. Wedding Waitress makes every detail count for a memorable guest experience." },
-    ]}
-    relatedFeatures={[
-      { label: "Seating Chart Planner", href: "/features/qr-seating" },
-      { label: "Individual Table Charts", href: "/features/table-charts" },
-      { label: "Digital Invitations", href: "/features/invitations" },
-    ]}
-  />
-);
+const linkClass = "text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]";
+
+export const FeaturePlaceCards = () => {
+  const { t } = useTranslation('landing');
+  return (
+    <FeaturePageLayout
+      title={t('fp.placeCards.title')}
+      description={t('fp.placeCards.description')}
+      backgroundImage={bgImage}
+      pageTitle={t('fp.placeCards.pageTitle')}
+      metaDescription={t('fp.placeCards.metaDesc')}
+      seoSections={[
+        { heading: t('fp.placeCards.seo1Heading'), text: <Trans i18nKey="fp.placeCards.seo1Text" ns="landing" components={[<Link to="/features/qr-seating" className={linkClass} />]} /> },
+        { heading: t('fp.placeCards.seo2Heading'), text: <Trans i18nKey="fp.placeCards.seo2Text" ns="landing" components={[<Link to="/features/table-charts" className={linkClass} />]} /> },
+        { heading: t('fp.placeCards.seo3Heading'), text: t('fp.placeCards.seo3Text') },
+      ]}
+      relatedFeatures={[
+        { label: t('fp.placeCards.related1'), href: "/features/qr-seating" },
+        { label: t('fp.placeCards.related2'), href: "/features/table-charts" },
+        { label: t('fp.placeCards.related3'), href: "/features/invitations" },
+      ]}
+    />
+  );
+};

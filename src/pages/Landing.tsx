@@ -25,7 +25,8 @@ import featureKiosk from "@/assets/feature-kiosk.jpg";
 import featureDjmc from "@/assets/feature-djmc.jpg";
 import featureFloorplan from "@/assets/feature-floorplan.jpg";
 
-const HeroSection = ({ signUpRef, ctaLabel }: { signUpRef: React.RefObject<HTMLButtonElement>; ctaLabel: string }) => {
+const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonElement> }) => {
+  const { t } = useTranslation('landing');
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showVideo, setShowVideo] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
@@ -82,19 +83,19 @@ const HeroSection = ({ signUpRef, ctaLabel }: { signUpRef: React.RefObject<HTMLB
       </div>
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
-          Plan Your Wedding Day<br />
-          <span className="text-white/90">Without the Stress</span>
+          {t('hero.title1')}<br />
+          <span className="text-white/90">{t('hero.title2')}</span>
         </h1>
         <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-4">
-          Guest List, Seating Charts & QR Code RSVPs — All in One Place
+          {t('hero.title3')}
         </p>
         <p className="text-base sm:text-lg text-white font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-          Trusted by couples across Australia & around the world
+          {t('hero.trustLine')}
         </p>
         <div className="flex justify-center">
           <SignUpModal>
             <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
-              {ctaLabel}
+              {t('hero.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
@@ -213,7 +214,7 @@ export const Landing = () => {
       <Header />
 
       {/* Hero Section */}
-      <HeroSection signUpRef={signUpRef} ctaLabel={t('hero.cta')} />
+      <HeroSection signUpRef={signUpRef} />
 
       {/* Feature Cards Row */}
       <section className="py-16 md:py-20 px-4">
@@ -263,7 +264,7 @@ export const Landing = () => {
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>
                   <item.icon className="w-8 h-8" style={{ color: '#967A59' }} />
                 </div>
-                <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>Step {item.step}</div>
+                <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
               </div>
