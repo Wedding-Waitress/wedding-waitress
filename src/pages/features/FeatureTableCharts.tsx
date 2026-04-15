@@ -1,10 +1,10 @@
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
-import bgImage from '@/assets/features/feature-table-charts.jpg';
+import bgImage from '@/assets/features/feature-individual-table-chart-page.jpg';
 
 export const FeatureTableCharts = () => (
   <FeaturePageLayout
-    title="Individual Table Charts"
-    description="Generate detailed per-table seating charts for your wedding reception. Share individual table layouts with your venue coordinator, caterer, or bridal party — keeping everyone perfectly in sync on the big day."
+    title="Individual Table Seating Chart"
+    description="Create clear and beautifully organised individual table seating charts for your wedding or event. Display each table's guest list with ease, making it simple for guests to find their seats quickly and confidently. Wedding Waitress allows you to generate professional table charts, customise layouts, and print or display them for a smooth and stress-free guest experience."
     backgroundImage={bgImage}
   />
 );
