@@ -31,6 +31,22 @@ export const Landing = () => {
   const [contactSent, setContactSent] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  const featureCardAlts: Record<string, string> = {
+    guestList: "Wedding guest list manager with RSVP tracking",
+    tables: "Wedding table seating arrangement planner",
+    qr: "QR code wedding seating chart scanner",
+    invitations: "Digital wedding invitations with online RSVP",
+    runningSheet: "Wedding day timeline and event schedule",
+    floorPlan: "Wedding venue floor plan layout designer",
+    myEvents: "Wedding event management dashboard",
+    placeCards: "Printed wedding name place cards",
+    tableCharts: "Individual wedding table seating charts",
+    dietary: "Wedding guest dietary requirements tracker",
+    seatingChart: "Full wedding seating chart overview",
+    kiosk: "Wedding venue self-service check-in kiosk",
+    djmc: "Wedding DJ and MC music questionnaire",
+  };
+
   const featureCards = [
     { key: "guestList", img: featureGuestlist, icon: Users },
     { key: "tables", img: featureTables, icon: MapPin },
@@ -140,7 +156,7 @@ export const Landing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featureCards.map((card) => (
               <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
-                <img src={card.img} alt={t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
