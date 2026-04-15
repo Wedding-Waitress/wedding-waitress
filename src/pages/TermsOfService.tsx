@@ -159,6 +159,7 @@ export const TermsOfService = () => {
                     <li>All paid plans are valid for 12 months from purchase date</li>
                     <li>After expiry, users receive 6 months read-only access</li>
                     <li>After the grace period, access may be restricted or removed</li>
+                    <li>Wedding Waitress reserves the right to modify plan limits, pricing, or features at any time, with reasonable notice to users</li>
                   </ul>
                 </div>
               </div>
@@ -185,12 +186,11 @@ export const TermsOfService = () => {
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">C. RSVP Invite Bundles (One-Time Add-On)</h3>
               <p className="text-muted-foreground leading-relaxed mb-2">
-                Users may purchase RSVP bundles based on guest count per event.
+                RSVP bundles are optional add-ons purchased per event and based on guest count.
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Pricing varies based on guest range</li>
-                <li>Applies per event</li>
-                <li>Non-refundable once used</li>
+                <li>Pricing varies depending on the number of guests selected</li>
+                <li>Once purchased and used, RSVP bundles are non-refundable</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">D. Plan Extensions (Optional Add-On)</h3>
