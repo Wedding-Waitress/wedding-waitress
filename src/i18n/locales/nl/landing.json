@@ -13,10 +13,11 @@
   "hero": {
     "title1": "Plan je bruiloft",
     "title2": "Zonder de stress.",
-    "subtitle": "Alles wat je nodig hebt om gasten, zitplaatsen, uitnodigingen en je hele bruiloft te beheren — alles op één plek.",
+    "subtitle": "Alles wat je nodig hebt om gasten, zitplaatsen, uitnodigingen, QR-code plattegronden en je hele bruiloft te beheren — alles op één plek.",
     "cta": "Start je gratis proefperiode",
     "trusted": "Vertrouwd door stellen in heel Australië",
-    "trustLine": "Geen creditcard vereist. Start gratis in enkele minuten."
+    "trustLine": "Geen creditcard vereist",
+    "trustLine2": "Aanmelden in 60 seconden. Geen app-download nodig"
   },
   "featureCards": {
     "sectionTitle": "Het bruiloftsplatform waar je gasten van zullen houden.",
