@@ -23,6 +23,19 @@ import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
 import { SeatingChartPublicView } from "./pages/SeatingChartPublicView";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
 import { QRRedirect } from "./pages/QRRedirect";
+import { FeatureGuestList } from "./pages/features/FeatureGuestList";
+import { FeatureSeating } from "./pages/features/FeatureSeating";
+import { FeatureQrSeating } from "./pages/features/FeatureQrSeating";
+import { FeaturePlanning } from "./pages/features/FeaturePlanning";
+import { FeatureInvitations } from "./pages/features/FeatureInvitations";
+import { FeatureEvents } from "./pages/features/FeatureEvents";
+import { FeaturePlaceCards } from "./pages/features/FeaturePlaceCards";
+import { FeatureTableCharts } from "./pages/features/FeatureTableCharts";
+import { FeatureDietary } from "./pages/features/FeatureDietary";
+import { FeatureFullSeating } from "./pages/features/FeatureFullSeating";
+import { FeatureKiosk } from "./pages/features/FeatureKiosk";
+import { FeatureDjMc } from "./pages/features/FeatureDjMc";
+import { FeatureFloorPlan } from "./pages/features/FeatureFloorPlan";
 const queryClient = new QueryClient();
 
 // Track page views on route changes for GA4
@@ -64,6 +77,20 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           {/* Guest seating lookup */}
+          {/* Feature pages */}
+          <Route path="/features/guest-list" element={<FeatureGuestList />} />
+          <Route path="/features/seating" element={<FeatureSeating />} />
+          <Route path="/features/qr-seating" element={<FeatureQrSeating />} />
+          <Route path="/features/planning" element={<FeaturePlanning />} />
+          <Route path="/features/invitations" element={<FeatureInvitations />} />
+          <Route path="/features/events" element={<FeatureEvents />} />
+          <Route path="/features/place-cards" element={<FeaturePlaceCards />} />
+          <Route path="/features/table-charts" element={<FeatureTableCharts />} />
+          <Route path="/features/dietary" element={<FeatureDietary />} />
+          <Route path="/features/full-seating" element={<FeatureFullSeating />} />
+          <Route path="/features/kiosk" element={<FeatureKiosk />} />
+          <Route path="/features/dj-mc" element={<FeatureDjMc />} />
+          <Route path="/features/floor-plan" element={<FeatureFloorPlan />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
