@@ -14,58 +14,179 @@
     "title1": "Düğününüzü Planlayın",
     "title2": "Stressiz.",
     "subtitle": "Konukları, oturma düzenini, davetleri ve tüm düğününüzü yönetmek için ihtiyacınız olan her şey — tek bir yerde.",
-    "cta": "Ücretsiz Başlayın",
-    "trusted": "Avustralya genelinde çiftler tarafından güveniliyor"
+    "cta": "Ücretsiz denemenizi başlatın",
+    "trusted": "Avustralya genelinde çiftler tarafından güveniliyor",
+    "trustLine": "Kredi kartı gerekmez. Dakikalar içinde ücretsiz başlayın."
   },
   "featureCards": {
     "sectionTitle": "Konuklarınızın seveceği düğün platformu.",
     "sectionSubtitle": "İhtiyacınız olan her araç, güzel tasarlanmış ve kullanımı kolay.",
-    "guestList": { "title": "Konuk Listesi", "desc": "Tüm konuklarınızı tek bir yerde yönetin" },
-    "tables": { "title": "Masalar ve Oturma", "desc": "Masaları ve oturma düzenini zahmetsizce düzenleyin" },
-    "qr": { "title": "QR Kod Oturma", "desc": "Konuklar tarayıp masalarını anında bulur" },
-    "invitations": { "title": "Davetiyeler", "desc": "Davetiye gönderin ve RSVP'leri takip edin" },
-    "runningSheet": { "title": "İşleyiş Planı", "desc": "Düğün zaman çizelgenizi planlayın" },
-    "floorPlan": { "title": "Zemin Planı", "desc": "Mekan düzeninizi görselleştirin" },
-    "myEvents": { "title": "Etkinliklerim", "desc": "Tüm etkinliklerinizi kolayca yönetin" },
-    "placeCards": { "title": "Masa Kartları", "desc": "Güzel basılı isim kartları" },
-    "tableCharts": { "title": "Bireysel Masa Grafikleri", "desc": "Her masa için oturma grafikleri" },
-    "dietary": { "title": "Diyet Gereksinimleri", "desc": "Her konuğun diyet ihtiyaçlarını takip edin" },
-    "seatingChart": { "title": "Tam Oturma Planı", "desc": "Baskıya hazır tam oturma planı" },
-    "kiosk": { "title": "Kiosk Canlı Görünüm", "desc": "Mekanda self-servis check-in" },
-    "djmc": { "title": "DJ-MC Anketi", "desc": "DJ'nizle müzik ve zamanlama paylaşın" }
+    "guestList": {
+      "title": "Konuk Listesi",
+      "desc": "Tüm konuklarınızı tek bir yerde yönetin"
+    },
+    "tables": {
+      "title": "Masalar ve Oturma",
+      "desc": "Masaları ve oturma düzenini zahmetsizce düzenleyin"
+    },
+    "qr": {
+      "title": "QR Kod Oturma",
+      "desc": "Konuklar tarayıp masalarını anında bulur"
+    },
+    "invitations": {
+      "title": "Davetiyeler",
+      "desc": "Davetiye gönderin ve RSVP'leri takip edin"
+    },
+    "runningSheet": {
+      "title": "İşleyiş Planı",
+      "desc": "Düğün zaman çizelgenizi planlayın"
+    },
+    "floorPlan": {
+      "title": "Zemin Planı",
+      "desc": "Mekan düzeninizi görselleştirin"
+    },
+    "myEvents": {
+      "title": "Etkinliklerim",
+      "desc": "Tüm etkinliklerinizi kolayca yönetin"
+    },
+    "placeCards": {
+      "title": "Masa Kartları",
+      "desc": "Güzel basılı isim kartları"
+    },
+    "tableCharts": {
+      "title": "Bireysel Masa Grafikleri",
+      "desc": "Her masa için oturma grafikleri"
+    },
+    "dietary": {
+      "title": "Diyet Gereksinimleri",
+      "desc": "Her konuğun diyet ihtiyaçlarını takip edin"
+    },
+    "seatingChart": {
+      "title": "Tam Oturma Planı",
+      "desc": "Baskıya hazır tam oturma planı"
+    },
+    "kiosk": {
+      "title": "Kiosk Canlı Görünüm",
+      "desc": "Mekanda self-servis check-in"
+    },
+    "djmc": {
+      "title": "DJ-MC Anketi",
+      "desc": "DJ'nizle müzik ve zamanlama paylaşın"
+    }
   },
   "alternating": {
-    "guestList": { "title": "Konuk Listesi Yönetimi", "desc": "Tüm konuk listenizi kolayca yönetin, RSVP'leri takip edin ve ilişkileri düzenleyin. Konukları içe aktarın, davetiye gönderin ve her şeyi mükemmel organize edin." },
-    "tables": { "title": "Oturma Düzeni Kolaylaştı", "desc": "Görsel sürükle-bırak sistemimizle masalar oluşturun ve konukları atayın. Kapasiteyi bir bakışta görün ve son dakika değişikliklerini zahmetsizce yapın." },
-    "qr": { "title": "Anında Konuk Oturma", "desc": "Konuklar bir QR kodu tarayarak masalarını anında bulur — kafa karışıklığı yok, gecikme yok. Konuklarınızın seveceği modern, teknolojik bir dokunuş." },
-    "runningSheet": { "title": "Her Anı Planlayın", "desc": "Düğün gününüz için tam bir program oluşturun ve tedarikçilerle paylaşın. Törenden son dansa kadar herkesi aynı sayfada tutun." },
-    "invitations": { "title": "Davetiyeler ve RSVP'ler", "desc": "Güzel dijital davetiyeler gönderin ve yanıtları gerçek zamanlı takip edin. Tasarımları özelleştirin, QR kodları ekleyin ve RSVP'leri tek yerden yönetin." },
-    "myEvents": { "title": "Etkinlikleriniz, Sizin Yolunuz", "desc": "Tek bir panodan birden fazla etkinlik oluşturun ve yönetin. Geri sayımları takip edin, mekanları kurun ve her detayı güzelce organize edin." },
-    "placeCards": { "title": "Zarif Masa Kartları", "desc": "Özel yazı tipleri, renkler ve arka planlarla muhteşem basılı isim kartları tasarlayın. Profesyonel baskı için yüksek çözünürlüklü 300 DPI'da dışa aktarın." },
-    "tableCharts": { "title": "Bireysel Masa Grafikleri", "desc": "Konuklarınızın bir bakışta görebileceği güzel masa başı oturma grafikleri oluşturun. Her masada basım ve sergileme için mükemmel." },
-    "dietary": { "title": "Diyet Gereksinimleri Kolaylaştı", "desc": "Her konuğun diyet ihtiyaçlarını takip edin ve mutfağa hazır grafikler oluşturun. Hiçbir konuğun gözden kaçmamasını sağlayın." },
-    "seatingChart": { "title": "Tam Oturma Planı", "desc": "Her konuğu ve masayı gösteren tam, baskıya hazır bir oturma planı oluşturun. Özel stil ve etkinlik markanızla PDF'ye aktarın." },
-    "kiosk": { "title": "Kiosk Canlı Görünüm", "desc": "Mekan girişinde self-servis check-in kioskları kurun. Konuklar isimlerini arar ve masa atamalarını anında görür." },
-    "djmc": { "title": "DJ ve MC Anketi", "desc": "Müzik tercihlerinizi, telaffuz rehberlerinizi ve etkinlik zaman çizelgesini doğrudan DJ veya MC'nizle paylaşın." },
-    "floorPlan": { "title": "Mekan Zemin Planı", "desc": "İnteraktif bir zemin planıyla tüm mekan düzeninizi görselleştirin. Masaları konumlandırın, tören alanını haritalayın ve etkinliğinizin her alanını planlayın." },
+    "guestList": {
+      "title": "Konuk Listesi Yönetimi",
+      "desc": "Tüm konuk listenizi kolayca yönetin, RSVP'leri takip edin ve ilişkileri düzenleyin. Konukları içe aktarın, davetiye gönderin ve her şeyi mükemmel organize edin."
+    },
+    "tables": {
+      "title": "Oturma Düzeni Kolaylaştı",
+      "desc": "Görsel sürükle-bırak sistemimizle masalar oluşturun ve konukları atayın. Kapasiteyi bir bakışta görün ve son dakika değişikliklerini zahmetsizce yapın."
+    },
+    "qr": {
+      "title": "Anında Konuk Oturma",
+      "desc": "Konuklar bir QR kodu tarayarak masalarını anında bulur — kafa karışıklığı yok, gecikme yok. Konuklarınızın seveceği modern, teknolojik bir dokunuş."
+    },
+    "runningSheet": {
+      "title": "Her Anı Planlayın",
+      "desc": "Düğün gününüz için tam bir program oluşturun ve tedarikçilerle paylaşın. Törenden son dansa kadar herkesi aynı sayfada tutun."
+    },
+    "invitations": {
+      "title": "Davetiyeler ve RSVP'ler",
+      "desc": "Güzel dijital davetiyeler gönderin ve yanıtları gerçek zamanlı takip edin. Tasarımları özelleştirin, QR kodları ekleyin ve RSVP'leri tek yerden yönetin."
+    },
+    "myEvents": {
+      "title": "Etkinlikleriniz, Sizin Yolunuz",
+      "desc": "Tek bir panodan birden fazla etkinlik oluşturun ve yönetin. Geri sayımları takip edin, mekanları kurun ve her detayı güzelce organize edin."
+    },
+    "placeCards": {
+      "title": "Zarif Masa Kartları",
+      "desc": "Özel yazı tipleri, renkler ve arka planlarla muhteşem basılı isim kartları tasarlayın. Profesyonel baskı için yüksek çözünürlüklü 300 DPI'da dışa aktarın."
+    },
+    "tableCharts": {
+      "title": "Bireysel Masa Grafikleri",
+      "desc": "Konuklarınızın bir bakışta görebileceği güzel masa başı oturma grafikleri oluşturun. Her masada basım ve sergileme için mükemmel."
+    },
+    "dietary": {
+      "title": "Diyet Gereksinimleri Kolaylaştı",
+      "desc": "Her konuğun diyet ihtiyaçlarını takip edin ve mutfağa hazır grafikler oluşturun. Hiçbir konuğun gözden kaçmamasını sağlayın."
+    },
+    "seatingChart": {
+      "title": "Tam Oturma Planı",
+      "desc": "Her konuğu ve masayı gösteren tam, baskıya hazır bir oturma planı oluşturun. Özel stil ve etkinlik markanızla PDF'ye aktarın."
+    },
+    "kiosk": {
+      "title": "Kiosk Canlı Görünüm",
+      "desc": "Mekan girişinde self-servis check-in kioskları kurun. Konuklar isimlerini arar ve masa atamalarını anında görür."
+    },
+    "djmc": {
+      "title": "DJ ve MC Anketi",
+      "desc": "Müzik tercihlerinizi, telaffuz rehberlerinizi ve etkinlik zaman çizelgesini doğrudan DJ veya MC'nizle paylaşın."
+    },
+    "floorPlan": {
+      "title": "Mekan Zemin Planı",
+      "desc": "İnteraktif bir zemin planıyla tüm mekan düzeninizi görselleştirin. Masaları konumlandırın, tören alanını haritalayın ve etkinliğinizin her alanını planlayın."
+    },
     "learnMore": "Daha Fazla Bilgi"
   },
   "extraGrid": {
     "title": "Mükemmel gününüz için ihtiyacınız olan her şey",
-    "djmc": { "title": "DJ ve MC Planlayıcı", "desc": "Mükemmel çalma listenizi oluşturun" },
-    "dietary": { "title": "Diyet Gereksinimleri", "desc": "Her konuğun ihtiyaçlarını takip edin" },
-    "placeCards": { "title": "Masa Kartları", "desc": "Güzel basılı isim kartları" },
-    "kiosk": { "title": "Canlı Kiosk Görünümü", "desc": "Self-servis konuk check-in" },
-    "seatingCharts": { "title": "Oturma Planları", "desc": "Baskıya hazır masa düzenleri" },
-    "myEvents": { "title": "Etkinliklerim", "desc": "Tüm etkinliklerinizi yönetin" },
-    "tables": { "title": "Masa Kurulumu", "desc": "Masalar oluşturun ve düzenleyin" },
-    "guestList": { "title": "Konuk Listesi", "desc": "Tam konuk yönetimi" },
-    "qr": { "title": "QR Kod Oturma", "desc": "Masanızı bulmak için tarayın" },
-    "invitations": { "title": "Davetiyeler ve Kartlar", "desc": "Davetiye gönderin ve takip edin" },
-    "tableCharts": { "title": "Bireysel Masa Grafikleri", "desc": "Masa başı konuk gösterimi" },
-    "floorPlan": { "title": "Zemin Planı", "desc": "Mekan düzeninizi görselleştirin" },
-    "fullSeatingChart": { "title": "Tam Oturma Planı", "desc": "Tam oturma genel bakışı" },
-    "runningSheet": { "title": "İşleyiş Planı", "desc": "Tam zaman çizelgenizi planlayın" }
+    "djmc": {
+      "title": "DJ ve MC Planlayıcı",
+      "desc": "Mükemmel çalma listenizi oluşturun"
+    },
+    "dietary": {
+      "title": "Diyet Gereksinimleri",
+      "desc": "Her konuğun ihtiyaçlarını takip edin"
+    },
+    "placeCards": {
+      "title": "Masa Kartları",
+      "desc": "Güzel basılı isim kartları"
+    },
+    "kiosk": {
+      "title": "Canlı Kiosk Görünümü",
+      "desc": "Self-servis konuk check-in"
+    },
+    "seatingCharts": {
+      "title": "Oturma Planları",
+      "desc": "Baskıya hazır masa düzenleri"
+    },
+    "myEvents": {
+      "title": "Etkinliklerim",
+      "desc": "Tüm etkinliklerinizi yönetin"
+    },
+    "tables": {
+      "title": "Masa Kurulumu",
+      "desc": "Masalar oluşturun ve düzenleyin"
+    },
+    "guestList": {
+      "title": "Konuk Listesi",
+      "desc": "Tam konuk yönetimi"
+    },
+    "qr": {
+      "title": "QR Kod Oturma",
+      "desc": "Masanızı bulmak için tarayın"
+    },
+    "invitations": {
+      "title": "Davetiyeler ve Kartlar",
+      "desc": "Davetiye gönderin ve takip edin"
+    },
+    "tableCharts": {
+      "title": "Bireysel Masa Grafikleri",
+      "desc": "Masa başı konuk gösterimi"
+    },
+    "floorPlan": {
+      "title": "Zemin Planı",
+      "desc": "Mekan düzeninizi görselleştirin"
+    },
+    "fullSeatingChart": {
+      "title": "Tam Oturma Planı",
+      "desc": "Tam oturma genel bakışı"
+    },
+    "runningSheet": {
+      "title": "İşleyiş Planı",
+      "desc": "Tam zaman çizelgenizi planlayın"
+    }
   },
   "pricing": {
     "title": "Basit, Şeffaf Fiyatlandırma",
@@ -76,41 +197,97 @@
     "mostPopular": "En Popüler",
     "forProfessionals": "Profesyoneller İçin",
     "approvalRequired": "Onay gereklidir",
-    "essential": { "name": "Essential", "guests": "100 konuğa kadar · 12 aylık erişim" },
-    "premium": { "name": "Premium", "guests": "300 konuğa kadar · 12 aylık erişim" },
-    "unlimited": { "name": "Unlimited", "guests": "Sınırsız konuk · 12 aylık erişim" },
-    "vendorPro": { "name": "Vendor Pro", "guests": "Mekanlar ve etkinlik profesyonelleri için" },
+    "essential": {
+      "name": "Essential",
+      "guests": "100 konuğa kadar · 12 aylık erişim"
+    },
+    "premium": {
+      "name": "Premium",
+      "guests": "300 konuğa kadar · 12 aylık erişim"
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "guests": "Sınırsız konuk · 12 aylık erişim"
+    },
+    "vendorPro": {
+      "name": "Vendor Pro",
+      "guests": "Mekanlar ve etkinlik profesyonelleri için"
+    },
     "features": {
       "oneEvent": "1 etkinlik",
       "fullAccess": "Tüm düğün ve etkinlik planlama araçlarına tam erişim",
       "easySetup": "Kolay kurulum ve sorunsuz deneyim",
       "unlimitedEvents": "Sınırsız etkinlik",
       "unlimitedGuests": "Sınırsız konuk",
-      "fullPlatform": "Tam platform erişimi"
-    }
+      "fullPlatform": "Tam platform erişimi",
+      "forVenues": "Düğün ve etkinlik mekanları için",
+      "weddingPlanners": "Düğün organizatörleri",
+      "djMcPros": "DJ'ler, MC'ler ve etkinlik profesyonelleri"
+    },
+    "reassurance": "Basit bir plan. Tam erişim. Sadece misafir sayısına göre seçin.",
+    "trialUnderButton": "7 günlük ücretsiz deneme dahil",
+    "bestForMost": "Çoğu düğün için en iyisi",
+    "forVenuesAndPros": "Mekanlar ve Profesyoneller İçin"
   },
   "testimonials": {
     "title": "Arkadaşlarınız etkilenecek.",
     "subtitle": "Çiftlerin Wedding Waitress hakkında ne dediğini görün.",
     "items": [
-      { "name": "Sarah & James", "text": "Bu, düğün planlamasını çok kolaylaştırdı. 200 konuğu stressiz yönettik!" },
-      { "name": "Emily & Tom", "text": "QR oturma düzeni harikaydı — konuklarımız masalarını anında bulmayı çok sevdi." },
-      { "name": "Jessica & Michael", "text": "Her şey mükemmel organize edilmişti. İşleyiş planı tüm tedarikçilerimizi yolunda tuttu." },
-      { "name": "Olivia & Daniel", "text": "Konuk listesi yönetimiyle çok saat kazandık. Mutlak bir oyun değiştirici!" },
-      { "name": "Sophie & Chris", "text": "Masa kartları ve oturma planları inanılmaz profesyonel görünüyordu. Her kuruşa değer." },
-      { "name": "Mia & Liam", "text": "Koordinatörümüz her şeyin ne kadar organize olduğuna hayran kaldı. Teşekkürler Wedding Waitress!" }
-    ]
+      {
+        "name": "Sarah & James",
+        "text": "Bu, düğün planlamasını çok kolaylaştırdı. 200 konuğu stressiz yönettik!"
+      },
+      {
+        "name": "Emily & Tom",
+        "text": "QR oturma düzeni harikaydı — konuklarımız masalarını anında bulmayı çok sevdi."
+      },
+      {
+        "name": "Jessica & Michael",
+        "text": "Her şey mükemmel organize edilmişti. İşleyiş planı tüm tedarikçilerimizi yolunda tuttu."
+      },
+      {
+        "name": "Olivia & Daniel",
+        "text": "Konuk listesi yönetimiyle çok saat kazandık. Mutlak bir oyun değiştirici!"
+      },
+      {
+        "name": "Sophie & Chris",
+        "text": "Masa kartları ve oturma planları inanılmaz profesyonel görünüyordu. Her kuruşa değer."
+      },
+      {
+        "name": "Mia & Liam",
+        "text": "Koordinatörümüz her şeyin ne kadar organize olduğuna hayran kaldı. Teşekkürler Wedding Waitress!"
+      }
+    ],
+    "intro": "Çiftler tarafından misafirleri, oturma düzenini, RSVP'leri ve etkinlik akışını basitleştirmek için kullanılıyor."
   },
   "faq": {
     "title": "Sık Sorulan Sorular",
     "subtitle": "Başlamadan önce bilmeniz gereken her şey.",
     "items": [
-      { "q": "Ücretsiz deneme var mı?", "a": "Evet! Tüm planlar 20 konuğa kadar 7 günlük ücretsiz deneme içerir. Kredi kartı gerekmez." },
-      { "q": "12 ay sonra ne olur?", "a": "Planınız 12 ay sonra sona erer. İstediğiniz zaman panelden indirimli fiyatla uzatabilirsiniz." },
-      { "q": "Planımı daha sonra yükseltebilir miyim?", "a": "Kesinlikle. Essential'dan Premium veya Unlimited'a istediğiniz zaman yükseltebilirsiniz — sadece farkı ödersiniz." },
-      { "q": "Kaç etkinlik oluşturabilirim?", "a": "Essential ve Premium planları her biri bir etkinliği destekler. Unlimited planı ihtiyacınız kadar etkinlik oluşturmanıza olanak tanır." },
-      { "q": "Konukların RSVP için hesaba ihtiyacı var mı?", "a": "Hayır. Konuklar sadece QR kodunu tarar veya bağlantıya tıklar — giriş veya indirme gerekmez." },
-      { "q": "İade alabilir miyim?", "a": "Ücretsiz deneme limitlerini aşmadıysanız, satın alma tarihinden itibaren 14 gün içinde tam iade sunuyoruz." }
+      {
+        "q": "Misafirlerin bir uygulamaya ihtiyacı var mı?",
+        "a": "Hayır. Misafirler bir QR kodu tarar veya bir bağlantıya tıklar — giriş, uygulama veya indirme gerekmez."
+      },
+      {
+        "q": "RSVP davetiyelerini e-posta veya SMS ile gönderebilir miyim?",
+        "a": "Evet! Güzel dijital davetiyeler gönderin ve RSVP'leri gerçek zamanlı olarak takip edin."
+      },
+      {
+        "q": "Oturma planlarını ve misafir listelerini tek bir yerde yönetebilir miyim?",
+        "a": "Kesinlikle. Misafir yönetiminden oturma planlarına kadar her şey tek bir platformda."
+      },
+      {
+        "q": "Wedding Waitress mekanlar ve organizatörler için de uygun mu?",
+        "a": "Evet. Vendor Pro planımız mekanlar, organizatörler, DJ'ler ve etkinlik profesyonelleri için tasarlanmıştır."
+      },
+      {
+        "q": "7 günlük ücretsiz denemeden sonra ne olur?",
+        "a": "İstediğiniz zaman yükseltebilirsiniz. Yükseltmezseniz verileriniz güvende kalır."
+      },
+      {
+        "q": "Geri ödeme alabilir miyim?",
+        "a": "Ücretsiz deneme sınırlarını aşmadıysanız, satın alma tarihinden itibaren 14 gün içinde tam geri ödeme sunuyoruz."
+      }
     ]
   },
   "contact": {
@@ -130,7 +307,7 @@
     "title1": "Tüm sihir.",
     "title2": "Hiçbir stres.",
     "subtitle": "Mükemmel gününüzü planlamaya başlayın — ücretsiz.",
-    "cta": "Ücretsiz Başlayın"
+    "cta": "Ücretsiz denemenizi başlatın"
   },
   "footer": {
     "tagline": "Avustralya genelinde çiftler tarafından güvenilen hepsi bir arada düğün planlama platformu.",

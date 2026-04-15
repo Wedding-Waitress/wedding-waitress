@@ -14,58 +14,179 @@
     "title1": "Planifica tu boda",
     "title2": "Sin el estrés.",
     "subtitle": "Todo lo que necesitas para gestionar invitados, asientos, invitaciones y toda tu boda — todo en un solo lugar.",
-    "cta": "Comenzar gratis",
-    "trusted": "Confiado por parejas en toda Australia"
+    "cta": "Comienza tu prueba gratuita",
+    "trusted": "Confiado por parejas en toda Australia",
+    "trustLine": "Sin tarjeta de crédito. Comienza gratis en minutos."
   },
   "featureCards": {
     "sectionTitle": "La plataforma de bodas que tus invitados amarán.",
     "sectionSubtitle": "Cada herramienta que necesitas, bellamente diseñada y fácil de usar.",
-    "guestList": { "title": "Lista de invitados", "desc": "Gestiona todos tus invitados en un solo lugar" },
-    "tables": { "title": "Mesas y asientos", "desc": "Organiza mesas y asientos sin esfuerzo" },
-    "qr": { "title": "Asientos QR", "desc": "Los invitados escanean y encuentran su mesa al instante" },
-    "invitations": { "title": "Invitaciones", "desc": "Envía invitaciones y rastrea confirmaciones" },
-    "runningSheet": { "title": "Hoja de ruta", "desc": "Planifica toda la línea de tiempo de tu boda" },
-    "floorPlan": { "title": "Plano del venue", "desc": "Visualiza el diseño de tu venue" },
-    "myEvents": { "title": "Mis eventos", "desc": "Gestiona todos tus eventos con facilidad" },
-    "placeCards": { "title": "Tarjetas de mesa", "desc": "Hermosas tarjetas impresas con nombres" },
-    "tableCharts": { "title": "Gráficos por mesa", "desc": "Planos de asientos por mesa" },
-    "dietary": { "title": "Requisitos dietéticos", "desc": "Rastrea las necesidades dietéticas de cada invitado" },
-    "seatingChart": { "title": "Plano completo de asientos", "desc": "Plano de asientos completo listo para imprimir" },
-    "kiosk": { "title": "Vista kiosco en vivo", "desc": "Check-in autoservicio en el venue" },
-    "djmc": { "title": "Cuestionario DJ-MC", "desc": "Comparte música y horarios con tu DJ" }
+    "guestList": {
+      "title": "Lista de invitados",
+      "desc": "Gestiona todos tus invitados en un solo lugar"
+    },
+    "tables": {
+      "title": "Mesas y asientos",
+      "desc": "Organiza mesas y asientos sin esfuerzo"
+    },
+    "qr": {
+      "title": "Asientos QR",
+      "desc": "Los invitados escanean y encuentran su mesa al instante"
+    },
+    "invitations": {
+      "title": "Invitaciones",
+      "desc": "Envía invitaciones y rastrea confirmaciones"
+    },
+    "runningSheet": {
+      "title": "Hoja de ruta",
+      "desc": "Planifica toda la línea de tiempo de tu boda"
+    },
+    "floorPlan": {
+      "title": "Plano del venue",
+      "desc": "Visualiza el diseño de tu venue"
+    },
+    "myEvents": {
+      "title": "Mis eventos",
+      "desc": "Gestiona todos tus eventos con facilidad"
+    },
+    "placeCards": {
+      "title": "Tarjetas de mesa",
+      "desc": "Hermosas tarjetas impresas con nombres"
+    },
+    "tableCharts": {
+      "title": "Gráficos por mesa",
+      "desc": "Planos de asientos por mesa"
+    },
+    "dietary": {
+      "title": "Requisitos dietéticos",
+      "desc": "Rastrea las necesidades dietéticas de cada invitado"
+    },
+    "seatingChart": {
+      "title": "Plano completo de asientos",
+      "desc": "Plano de asientos completo listo para imprimir"
+    },
+    "kiosk": {
+      "title": "Vista kiosco en vivo",
+      "desc": "Check-in autoservicio en el venue"
+    },
+    "djmc": {
+      "title": "Cuestionario DJ-MC",
+      "desc": "Comparte música y horarios con tu DJ"
+    }
   },
   "alternating": {
-    "guestList": { "title": "Gestión de invitados", "desc": "Gestiona fácilmente toda tu lista de invitados, rastrea confirmaciones y organiza relaciones. Importa invitados, envía invitaciones y mantén todo perfectamente organizado." },
-    "tables": { "title": "Asientos simplificados", "desc": "Crea mesas y asigna invitados con facilidad usando nuestro sistema visual de arrastrar y soltar. Ve la capacidad de un vistazo y haz cambios de último momento sin esfuerzo." },
-    "qr": { "title": "Asientos instantáneos para invitados", "desc": "Los invitados escanean un código QR para encontrar su mesa al instante — sin confusión, sin demoras. Un toque moderno y tecnológico que tus invitados amarán." },
-    "runningSheet": { "title": "Planifica cada momento", "desc": "Crea un cronograma completo para el día de tu boda y compártelo con los proveedores. Mantén a todos al tanto desde la ceremonia hasta el último baile." },
-    "invitations": { "title": "Invitaciones y confirmaciones", "desc": "Envía hermosas invitaciones digitales y rastrea respuestas en tiempo real. Personaliza diseños, agrega códigos QR y gestiona confirmaciones todo en un lugar." },
-    "myEvents": { "title": "Tus eventos, a tu manera", "desc": "Crea y gestiona múltiples eventos desde un solo panel. Rastrea cuentas regresivas, configura venues y mantén cada detalle bellamente organizado." },
-    "placeCards": { "title": "Elegantes tarjetas de mesa", "desc": "Diseña impresionantes tarjetas impresas con fuentes, colores y fondos personalizados. Exporta en alta resolución 300 DPI para impresión profesional." },
-    "tableCharts": { "title": "Gráficos individuales por mesa", "desc": "Genera hermosos planos de asientos por mesa que tus invitados pueden ver de un vistazo. Perfecto para imprimir y mostrar en cada mesa." },
-    "dietary": { "title": "Requisitos dietéticos simplificados", "desc": "Rastrea las necesidades dietéticas de cada invitado y genera gráficos listos para la cocina. Asegúrate de que ningún invitado sea pasado por alto." },
-    "seatingChart": { "title": "Plano completo de asientos", "desc": "Crea un plano de asientos completo y listo para imprimir que muestra cada invitado y mesa. Exporta a PDF con estilo personalizado y tu marca de evento." },
-    "kiosk": { "title": "Vista kiosco en vivo", "desc": "Configura kioscos de check-in autoservicio en la entrada de tu venue. Los invitados buscan su nombre y ven su asignación de mesa al instante." },
-    "djmc": { "title": "Cuestionario DJ y MC", "desc": "Comparte tus preferencias musicales, guías de pronunciación y la línea de tiempo del evento directamente con tu DJ o MC." },
-    "floorPlan": { "title": "Plano del venue", "desc": "Visualiza todo el diseño de tu venue con un plano interactivo. Posiciona mesas, mapea el espacio de la ceremonia y planifica cada área de tu evento." },
+    "guestList": {
+      "title": "Gestión de invitados",
+      "desc": "Gestiona fácilmente toda tu lista de invitados, rastrea confirmaciones y organiza relaciones. Importa invitados, envía invitaciones y mantén todo perfectamente organizado."
+    },
+    "tables": {
+      "title": "Asientos simplificados",
+      "desc": "Crea mesas y asigna invitados con facilidad usando nuestro sistema visual de arrastrar y soltar. Ve la capacidad de un vistazo y haz cambios de último momento sin esfuerzo."
+    },
+    "qr": {
+      "title": "Asientos instantáneos para invitados",
+      "desc": "Los invitados escanean un código QR para encontrar su mesa al instante — sin confusión, sin demoras. Un toque moderno y tecnológico que tus invitados amarán."
+    },
+    "runningSheet": {
+      "title": "Planifica cada momento",
+      "desc": "Crea un cronograma completo para el día de tu boda y compártelo con los proveedores. Mantén a todos al tanto desde la ceremonia hasta el último baile."
+    },
+    "invitations": {
+      "title": "Invitaciones y confirmaciones",
+      "desc": "Envía hermosas invitaciones digitales y rastrea respuestas en tiempo real. Personaliza diseños, agrega códigos QR y gestiona confirmaciones todo en un lugar."
+    },
+    "myEvents": {
+      "title": "Tus eventos, a tu manera",
+      "desc": "Crea y gestiona múltiples eventos desde un solo panel. Rastrea cuentas regresivas, configura venues y mantén cada detalle bellamente organizado."
+    },
+    "placeCards": {
+      "title": "Elegantes tarjetas de mesa",
+      "desc": "Diseña impresionantes tarjetas impresas con fuentes, colores y fondos personalizados. Exporta en alta resolución 300 DPI para impresión profesional."
+    },
+    "tableCharts": {
+      "title": "Gráficos individuales por mesa",
+      "desc": "Genera hermosos planos de asientos por mesa que tus invitados pueden ver de un vistazo. Perfecto para imprimir y mostrar en cada mesa."
+    },
+    "dietary": {
+      "title": "Requisitos dietéticos simplificados",
+      "desc": "Rastrea las necesidades dietéticas de cada invitado y genera gráficos listos para la cocina. Asegúrate de que ningún invitado sea pasado por alto."
+    },
+    "seatingChart": {
+      "title": "Plano completo de asientos",
+      "desc": "Crea un plano de asientos completo y listo para imprimir que muestra cada invitado y mesa. Exporta a PDF con estilo personalizado y tu marca de evento."
+    },
+    "kiosk": {
+      "title": "Vista kiosco en vivo",
+      "desc": "Configura kioscos de check-in autoservicio en la entrada de tu venue. Los invitados buscan su nombre y ven su asignación de mesa al instante."
+    },
+    "djmc": {
+      "title": "Cuestionario DJ y MC",
+      "desc": "Comparte tus preferencias musicales, guías de pronunciación y la línea de tiempo del evento directamente con tu DJ o MC."
+    },
+    "floorPlan": {
+      "title": "Plano del venue",
+      "desc": "Visualiza todo el diseño de tu venue con un plano interactivo. Posiciona mesas, mapea el espacio de la ceremonia y planifica cada área de tu evento."
+    },
     "learnMore": "Saber más"
   },
   "extraGrid": {
     "title": "Todo lo que necesitas para tu día perfecto",
-    "djmc": { "title": "Planificador DJ y MC", "desc": "Crea tu playlist perfecta" },
-    "dietary": { "title": "Requisitos dietéticos", "desc": "Rastrea las necesidades de cada invitado" },
-    "placeCards": { "title": "Tarjetas de mesa", "desc": "Hermosas tarjetas impresas" },
-    "kiosk": { "title": "Vista kiosco en vivo", "desc": "Check-in autoservicio" },
-    "seatingCharts": { "title": "Planos de asientos", "desc": "Diseños de mesa listos para imprimir" },
-    "myEvents": { "title": "Mis eventos", "desc": "Gestiona todos tus eventos" },
-    "tables": { "title": "Configuración de mesas", "desc": "Crea y organiza mesas" },
-    "guestList": { "title": "Lista de invitados", "desc": "Gestión completa de invitados" },
-    "qr": { "title": "Asientos QR", "desc": "Escanea para encontrar tu mesa" },
-    "invitations": { "title": "Invitaciones y tarjetas", "desc": "Envía y rastrea invitaciones" },
-    "tableCharts": { "title": "Gráficos por mesa", "desc": "Vista de invitados por mesa" },
-    "floorPlan": { "title": "Plano del venue", "desc": "Visualiza el diseño de tu venue" },
-    "fullSeatingChart": { "title": "Plano completo", "desc": "Vista general completa de asientos" },
-    "runningSheet": { "title": "Hoja de ruta", "desc": "Planifica tu línea de tiempo completa" }
+    "djmc": {
+      "title": "Planificador DJ y MC",
+      "desc": "Crea tu playlist perfecta"
+    },
+    "dietary": {
+      "title": "Requisitos dietéticos",
+      "desc": "Rastrea las necesidades de cada invitado"
+    },
+    "placeCards": {
+      "title": "Tarjetas de mesa",
+      "desc": "Hermosas tarjetas impresas"
+    },
+    "kiosk": {
+      "title": "Vista kiosco en vivo",
+      "desc": "Check-in autoservicio"
+    },
+    "seatingCharts": {
+      "title": "Planos de asientos",
+      "desc": "Diseños de mesa listos para imprimir"
+    },
+    "myEvents": {
+      "title": "Mis eventos",
+      "desc": "Gestiona todos tus eventos"
+    },
+    "tables": {
+      "title": "Configuración de mesas",
+      "desc": "Crea y organiza mesas"
+    },
+    "guestList": {
+      "title": "Lista de invitados",
+      "desc": "Gestión completa de invitados"
+    },
+    "qr": {
+      "title": "Asientos QR",
+      "desc": "Escanea para encontrar tu mesa"
+    },
+    "invitations": {
+      "title": "Invitaciones y tarjetas",
+      "desc": "Envía y rastrea invitaciones"
+    },
+    "tableCharts": {
+      "title": "Gráficos por mesa",
+      "desc": "Vista de invitados por mesa"
+    },
+    "floorPlan": {
+      "title": "Plano del venue",
+      "desc": "Visualiza el diseño de tu venue"
+    },
+    "fullSeatingChart": {
+      "title": "Plano completo",
+      "desc": "Vista general completa de asientos"
+    },
+    "runningSheet": {
+      "title": "Hoja de ruta",
+      "desc": "Planifica tu línea de tiempo completa"
+    }
   },
   "pricing": {
     "title": "Precios simples y transparentes",
@@ -76,41 +197,97 @@
     "mostPopular": "Más popular",
     "forProfessionals": "Para profesionales",
     "approvalRequired": "Aprobación requerida",
-    "essential": { "name": "Essential", "guests": "Hasta 100 invitados · Acceso 12 meses" },
-    "premium": { "name": "Premium", "guests": "Hasta 300 invitados · Acceso 12 meses" },
-    "unlimited": { "name": "Unlimited", "guests": "Invitados ilimitados · Acceso 12 meses" },
-    "vendorPro": { "name": "Vendor Pro", "guests": "Para venues y profesionales de eventos" },
+    "essential": {
+      "name": "Essential",
+      "guests": "Hasta 100 invitados · Acceso 12 meses"
+    },
+    "premium": {
+      "name": "Premium",
+      "guests": "Hasta 300 invitados · Acceso 12 meses"
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "guests": "Invitados ilimitados · Acceso 12 meses"
+    },
+    "vendorPro": {
+      "name": "Vendor Pro",
+      "guests": "Para venues y profesionales de eventos"
+    },
     "features": {
       "oneEvent": "1 evento",
       "fullAccess": "Acceso completo a todas las herramientas de planificación de bodas y eventos",
       "easySetup": "Configuración fácil y experiencia fluida",
       "unlimitedEvents": "Eventos ilimitados",
       "unlimitedGuests": "Invitados ilimitados",
-      "fullPlatform": "Acceso completo a la plataforma"
-    }
+      "fullPlatform": "Acceso completo a la plataforma",
+      "forVenues": "Para lugares de bodas y eventos",
+      "weddingPlanners": "Organizadores de bodas",
+      "djMcPros": "DJs, MCs y profesionales de eventos"
+    },
+    "reassurance": "Un plan simple. Acceso completo. Elige solo por tamaño de invitados.",
+    "trialUnderButton": "Prueba gratuita de 7 días incluida",
+    "bestForMost": "Ideal para la mayoría de bodas",
+    "forVenuesAndPros": "Para Lugares y Profesionales"
   },
   "testimonials": {
     "title": "Tus amigos quedarán impresionados.",
     "subtitle": "Mira lo que las parejas dicen sobre Wedding Waitress.",
     "items": [
-      { "name": "Sarah & James", "text": "Esto hizo que la planificación de nuestra boda fuera muy fácil. ¡Gestionamos 200 invitados sin estrés!" },
-      { "name": "Emily & Tom", "text": "Los asientos QR fueron increíbles — a nuestros invitados les encantó encontrar su mesa al instante." },
-      { "name": "Jessica & Michael", "text": "Todo estuvo perfectamente organizado. La hoja de ruta mantuvo a todos nuestros proveedores al día." },
-      { "name": "Olivia & Daniel", "text": "Ahorramos tantas horas con la gestión de la lista de invitados. ¡Un cambio absoluto!" },
-      { "name": "Sophie & Chris", "text": "Las tarjetas de mesa y los planos de asientos se veían increíblemente profesionales. Vale cada centavo." },
-      { "name": "Mia & Liam", "text": "Nuestra coordinadora quedó impresionada con lo organizado que estaba todo. ¡Gracias Wedding Waitress!" }
-    ]
+      {
+        "name": "Sarah & James",
+        "text": "Esto hizo que la planificación de nuestra boda fuera muy fácil. ¡Gestionamos 200 invitados sin estrés!"
+      },
+      {
+        "name": "Emily & Tom",
+        "text": "Los asientos QR fueron increíbles — a nuestros invitados les encantó encontrar su mesa al instante."
+      },
+      {
+        "name": "Jessica & Michael",
+        "text": "Todo estuvo perfectamente organizado. La hoja de ruta mantuvo a todos nuestros proveedores al día."
+      },
+      {
+        "name": "Olivia & Daniel",
+        "text": "Ahorramos tantas horas con la gestión de la lista de invitados. ¡Un cambio absoluto!"
+      },
+      {
+        "name": "Sophie & Chris",
+        "text": "Las tarjetas de mesa y los planos de asientos se veían increíblemente profesionales. Vale cada centavo."
+      },
+      {
+        "name": "Mia & Liam",
+        "text": "Nuestra coordinadora quedó impresionada con lo organizado que estaba todo. ¡Gracias Wedding Waitress!"
+      }
+    ],
+    "intro": "Usado por parejas para simplificar invitados, asientos, RSVPs y flujo del evento."
   },
   "faq": {
     "title": "Preguntas frecuentes",
     "subtitle": "Todo lo que necesitas saber antes de comenzar.",
     "items": [
-      { "q": "¿Hay una prueba gratuita?", "a": "¡Sí! Todos los planes incluyen una prueba gratuita de 7 días con hasta 20 invitados. Sin tarjeta de crédito." },
-      { "q": "¿Qué pasa después de 12 meses?", "a": "Tu plan expira después de 12 meses. Puedes extenderlo en cualquier momento desde tu panel a una tarifa con descuento." },
-      { "q": "¿Puedo mejorar mi plan después?", "a": "Por supuesto. Puedes mejorar de Essential a Premium o Unlimited en cualquier momento — solo pagas la diferencia." },
-      { "q": "¿Cuántos eventos puedo crear?", "a": "Los planes Essential y Premium soportan un evento cada uno. El plan Unlimited te permite crear todos los eventos que necesites." },
-      { "q": "¿Los invitados necesitan una cuenta para confirmar?", "a": "No. Los invitados simplemente escanean el código QR o hacen clic en un enlace — sin login ni descarga." },
-      { "q": "¿Puedo obtener un reembolso?", "a": "Ofrecemos un reembolso completo dentro de los 14 días posteriores a la compra si no has excedido los límites de la prueba gratuita." }
+      {
+        "q": "¿Los invitados necesitan una app?",
+        "a": "No. Los invitados escanean un código QR o hacen clic en un enlace — sin inicio de sesión, app ni descarga."
+      },
+      {
+        "q": "¿Puedo enviar invitaciones RSVP por email o SMS?",
+        "a": "¡Sí! Envía hermosas invitaciones digitales y rastrea RSVPs en tiempo real."
+      },
+      {
+        "q": "¿Puedo gestionar planos de asientos y listas de invitados en un solo lugar?",
+        "a": "Absolutamente. Todo, desde la gestión de invitados hasta los planos de asientos, está integrado en una sola plataforma."
+      },
+      {
+        "q": "¿Wedding Waitress es adecuado para lugares y organizadores?",
+        "a": "Sí. Nuestro plan Vendor Pro está diseñado para lugares, organizadores, DJs y profesionales de eventos."
+      },
+      {
+        "q": "¿Qué pasa después de la prueba gratuita de 7 días?",
+        "a": "Puedes actualizar en cualquier momento. Si no, tus datos permanecen seguros y puedes volver después."
+      },
+      {
+        "q": "¿Puedo obtener un reembolso?",
+        "a": "Ofrecemos un reembolso completo dentro de los 14 días posteriores a la compra si no has excedido los límites de la prueba gratuita."
+      }
     ]
   },
   "contact": {
@@ -130,7 +307,7 @@
     "title1": "Toda la magia.",
     "title2": "Sin el estrés.",
     "subtitle": "Comienza a planificar tu día perfecto — es gratis.",
-    "cta": "Comenzar gratis"
+    "cta": "Comienza tu prueba gratuita"
   },
   "footer": {
     "tagline": "La plataforma todo en uno de planificación de bodas en la que confían parejas de toda Australia.",
