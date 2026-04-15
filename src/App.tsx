@@ -38,6 +38,15 @@ import { FeatureDjMc } from "./pages/features/FeatureDjMc";
 import { FeatureFloorPlan } from "./pages/features/FeatureFloorPlan";
 const queryClient = new QueryClient();
 
+// Scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 // Track page views on route changes for GA4
 const RouteTracker = () => {
   const location = useLocation();
@@ -63,6 +72,7 @@ const App = () => (
     >
       <AppErrorBoundary>
         <BrowserRouter>
+          <ScrollToTop />
           <RouteTracker />
           <Toaster />
           <Sonner />
