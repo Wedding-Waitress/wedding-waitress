@@ -15,6 +15,7 @@ import featureTimeline from "@/assets/feature-timeline.jpg";
 import featureInvitations from "@/assets/feature-invitations.jpg";
 import ctaImg from "@/assets/cta-wedding.jpg";
 const ctaVideoUrl = "/__l5e/assets-v1/3df32a40-373d-4aa5-90c4-832d147e46a6/cta-wedding-ring.mp4";
+const heroVideoUrl = "/__l5e/assets-v1/c3478e86-4416-4d11-9a8b-18024f7b6445/hero-wedding-video.mp4";
 import featureMyevents from "@/assets/feature-myevents.jpg";
 import featurePlacecards from "@/assets/feature-placecards.jpg";
 import featureTablecharts from "@/assets/feature-tablecharts.jpg";
@@ -135,7 +136,17 @@ export const Landing = () => {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImg} alt="Wedding reception with elegant table settings and seating chart" width={1920} height={1080} className="w-full h-full object-cover" />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster={heroImg}
+            className="w-full h-full object-cover hidden md:block"
+          >
+            <source src={heroVideoUrl} type="video/mp4" />
+          </video>
+          <img src={heroImg} alt="Wedding reception with elegant table settings and seating chart" width={1920} height={1080} className="w-full h-full object-cover md:hidden" />
           <div className="absolute inset-0 bg-black/50" />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
