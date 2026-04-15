@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { EmbeddedSignUpForm } from '@/components/auth/EmbeddedSignUpForm';
 import { CookieBanner } from '@/components/ui/CookieBanner';
@@ -30,6 +31,13 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
 
           {/* Content */}
           <div className="relative z-10 text-center px-8 py-16 md:py-0 max-w-lg">
+            <Link
+              to="/"
+              onClick={() => window.scrollTo(0, 0)}
+              className="inline-block mb-6 text-sm text-gray-300 hover:text-[#967A59] transition-colors"
+            >
+              ← Back to Home
+            </Link>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight drop-shadow-lg">
               {title}
             </h1>
