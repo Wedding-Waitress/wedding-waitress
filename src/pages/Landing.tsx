@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2 } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import heroImg from "@/assets/hero-wedding.jpg";
@@ -337,59 +337,9 @@ export const Landing = () => {
             </div>
           </div>
 
-          <p className="text-center text-sm text-gray-400 mb-20">
+          <p className="text-center text-sm text-gray-400">
             All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
           </p>
-
-          {/* Vendor Pro */}
-          <div className="mb-20">
-            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">For Wedding Professionals</h3>
-            <div className="max-w-2xl mx-auto bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-6 h-6 text-primary" />
-                  <h4 className="text-xl font-bold text-gray-900">Vendor Pro</h4>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-gray-900">$249</span>
-                  <span className="text-gray-500 text-sm">/month</span>
-                </div>
-              </div>
-              <p className="text-gray-500 mb-6">Perfect for venues, planners, and DJs managing multiple events.</p>
-              <ul className="grid sm:grid-cols-3 gap-3 mb-8">
-                {["Unlimited events", "Client management tools", "Full platform access"].map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-primary shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <SignUpModal>
-                <Button variant="outline" className="rounded-xl px-8">Start Subscription</Button>
-              </SignUpModal>
-            </div>
-          </div>
-
-          {/* RSVP Bundles */}
-          <div>
-            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">Invite & RSVP Bundles</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-4">
-              {[
-                { guests: "100", price: "$99" },
-                { guests: "300", price: "$149" },
-                { guests: "500", price: "$199" },
-                { guests: "1,000", price: "$299" },
-              ].map((tier) => (
-                <div key={tier.guests} className="bg-white rounded-[20px] p-6 text-center shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
-                  <p className="text-sm text-gray-500 mb-1">Up to</p>
-                  <p className="text-2xl font-bold text-gray-900 mb-1">{tier.guests}</p>
-                  <p className="text-sm text-gray-500 mb-3">guests</p>
-                  <p className="text-xl font-bold text-primary">{tier.price}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-sm text-gray-400">One-time payment per event</p>
-          </div>
         </div>
       </section>
 
