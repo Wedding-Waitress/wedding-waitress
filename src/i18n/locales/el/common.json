@@ -2,7 +2,7 @@
   "privacyPolicy": "Πολιτική Απορρήτου",
   "termsOfService": "Όροι Υπηρεσίας",
   "contact": "Επικοινωνία",
-  "copyright": "© 2025 Wedding Waitress",
+  "copyright": "© {{year}} Wedding Waitress",
   "loading": "Φόρτωση...",
   "error": "Σφάλμα",
   "retry": "Επανάληψη",

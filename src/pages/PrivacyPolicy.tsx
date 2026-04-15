@@ -35,7 +35,7 @@ export const PrivacyPolicy = () => {
             </div>
             <CardTitle className="text-3xl font-bold">Privacy Policy</CardTitle>
             <p className="text-muted-foreground mt-2">
-              Last Updated: 20 January 2025
+              Last Updated: 15 April {currentYear}
             </p>
           </CardHeader>
 

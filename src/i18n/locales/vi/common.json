@@ -2,7 +2,7 @@
   "privacyPolicy": "Chính Sách Bảo Mật",
   "termsOfService": "Điều Khoản Dịch Vụ",
   "contact": "Liên Hệ",
-  "copyright": "© 2025 Wedding Waitress",
+  "copyright": "© {{year}} Wedding Waitress",
   "loading": "Đang tải...",
   "error": "Lỗi",
   "retry": "Thử Lại",

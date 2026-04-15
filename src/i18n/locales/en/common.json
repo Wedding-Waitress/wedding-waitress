@@ -2,7 +2,7 @@
   "privacyPolicy": "Privacy Policy",
   "termsOfService": "Terms of Service",
   "contact": "Contact",
-  "copyright": "© 2025 Wedding Waitress",
+  "copyright": "© {{year}} Wedding Waitress",
   "loading": "Loading...",
   "error": "Error",
   "retry": "Retry",
