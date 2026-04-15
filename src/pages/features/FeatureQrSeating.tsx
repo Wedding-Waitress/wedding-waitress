@@ -6,5 +6,7 @@ export const FeatureQrSeating = () => (
     title="Tables"
     description="Create and organise your wedding tables with ease using a smart table planning tool. Set up table names, assign guests, balance numbers, and visually manage seating arrangements for your reception. Wedding Waitress helps you design the perfect table layout, optimise guest placement, and streamline your seating plan with intuitive wedding planning software built for real events."
     backgroundImage={bgImage}
+    pageTitle="Wedding Seating Chart Planner | Organise Tables & Guests"
+    metaDescription="Create and manage your wedding seating chart with ease. Assign guests to tables, balance groups, and design your perfect reception layout."
   />
 );

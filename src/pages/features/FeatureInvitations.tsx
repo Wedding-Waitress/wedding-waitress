@@ -6,5 +6,7 @@ export const FeatureInvitations = () => (
     title="Invitations & Cards"
     description="Design and send beautiful wedding invitations, save the dates, and thank you cards with ease. Create stunning digital or printable designs, customise your wording, and share instantly via email, SMS, or QR code. Wedding Waitress combines invitation design, RSVP tracking, and guest communication into one seamless wedding planning platform — helping you impress your guests from the very first moment."
     backgroundImage={bgImage}
+    pageTitle="Digital Wedding Invitations & RSVP Cards | Easy Online Invites"
+    metaDescription="Design and send beautiful digital wedding invitations, save the dates, and RSVP cards. Share instantly or download for print."
   />
 );
