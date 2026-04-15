@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Custom Place Card Fonts */
 @font-face {
   font-family: 'Beauty Mountains';
