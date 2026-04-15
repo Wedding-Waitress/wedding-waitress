@@ -32,11 +32,19 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const productLinks = [
+    { label: "My Events", href: "#my-events" },
+    { label: "Tables", href: "#tables-seating" },
     { label: "Guest List", href: "#guest-list" },
-    { label: "Tables & Seating", href: "#tables-seating" },
-    { label: "QR Code Seating", href: "#qr-seating" },
-    { label: "Running Sheet", href: "#running-sheet" },
+    { label: "QR Code Seating Chart", href: "#qr-seating" },
     { label: "Invitations & Cards", href: "#invitations" },
+    { label: "Name Place Cards", href: "#place-cards" },
+    { label: "Individual Table Charts", href: "#table-charts" },
+    { label: "Floor Plan", href: "#floor-plan" },
+    { label: "Dietary Requirements", href: "#dietary" },
+    { label: "Full Seating Chart", href: "#seating-chart" },
+    { label: "Kiosk Live View", href: "#kiosk" },
+    { label: "DJ-MC Questionnaire", href: "#dj-mc" },
+    { label: "Running Sheet", href: "#running-sheet" },
   ];
 
   return (
@@ -44,50 +52,48 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="w-full px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Right Navigation */}
-          <div className="flex items-center space-x-4">
+         <div className="flex items-center justify-between w-full">
             {!user && (
               <>
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center">
-                  <Link to="/" className="flex items-center pr-6">
+                <div className="hidden md:flex items-center justify-between w-full">
+                  <Link to="/" className="flex items-center flex-shrink-0">
                     <img
-                      src="/wedding-waitress-new-logo.png"
+                      src="/wedding-waitress-logo-full.png"
                       alt="Wedding Waitress Logo"
-                      className="h-14 md:h-16 lg:h-20 w-auto hover:opacity-80 transition-opacity"
+                      className="h-12 lg:h-14 w-auto hover:opacity-80 transition-opacity"
                     />
                   </Link>
                   <nav className="flex items-center space-x-1 lg:space-x-2">
-                    <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
+                    <a href="#how-it-works" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                       How it Works
                     </a>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="min-h-[44px] text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                        <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
                           Products
                           <ChevronDown className="w-3 h-3 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-2xl p-2 z-50">
+                      <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
                         {productLinks.map((link) => (
                           <DropdownMenuItem key={link.href} asChild>
-                            <a href={link.href} className="cursor-pointer rounded-xl px-3 py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                            <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
                               {link.label}
                             </a>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
+                    <a href="#pricing" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                       Pricing
                     </a>
-                    <a href="#faq" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
+                    <a href="#faq" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                       FAQ
                     </a>
-                    <a href="#contact" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50">
+                    <a href="#contact" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                       Contact
                     </a>
-                  </nav>
-                </div>
 
                 {/* Mobile Navigation */}
                 <div className="md:hidden flex items-center justify-center w-full h-14 relative pt-[env(safe-area-inset-top)]">
