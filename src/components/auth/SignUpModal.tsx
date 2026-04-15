@@ -341,9 +341,9 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
 
               <p className="text-xs text-muted-foreground text-center">
                 By continuing you agree to our{' '}
-                <a href="/terms" className="underline hover:text-foreground">Terms of Service</a>
+                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { setOpen(false); navigate('/terms'); }}>Terms of Service</span>
                 {' '}&{' '}
-                <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>
+                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { setOpen(false); navigate('/privacy'); }}>Privacy Policy</span>
               </p>
 
               <div className="text-center">
