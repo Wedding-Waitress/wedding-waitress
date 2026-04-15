@@ -216,7 +216,7 @@ export const Landing = () => {
               </div>
             ))}
           </div>
-          <p className="text-center text-sm text-gray-400 mt-12">{t('howItWorks.bottomNote')}</p>
+          <p className="text-center text-sm text-gray-500 mt-12">{t('howItWorks.bottomNote')}</p>
         </div>
       </section>
 
