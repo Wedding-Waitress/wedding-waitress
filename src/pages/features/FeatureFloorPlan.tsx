@@ -1,10 +1,10 @@
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
-import bgImage from '@/assets/features/feature-floor-plan.jpg';
+import bgImage from '@/assets/features/feature-floor-plan-page.jpg';
 
 export const FeatureFloorPlan = () => (
   <FeaturePageLayout
     title="Venue Floor Plan"
-    description="Visualise your ceremony and reception layout with an interactive floor plan designer. Arrange seating rows, assign guests to specific seats, and share the layout with your venue — bringing your wedding vision to life."
+    description="Design and visualise your wedding or event layout with an easy-to-use venue floor plan tool. Arrange tables, ceremony seating, stages, and key areas to match your space perfectly. Wedding Waitress helps you plan both ceremony and reception layouts with clarity, giving you a complete visual overview so everything runs smoothly on the day."
     backgroundImage={bgImage}
   />
 );
