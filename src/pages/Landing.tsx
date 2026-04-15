@@ -212,27 +212,27 @@ Streamline your wedding & event planning with our sophisticated guest management
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name *</Label>
+                      <Label htmlFor="firstName" className="text-white">First Name *</Label>
                       <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} className="glass touch-target" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name *</Label>
+                      <Label htmlFor="lastName" className="text-white">Last Name *</Label>
                       <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} className="glass touch-target" required />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="email" className="text-white">Email *</Label>
                     <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="glass touch-target" required />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile Number</Label>
+                    <Label htmlFor="mobile" className="text-white">Mobile Number</Label>
                     <Input id="mobile" name="mobile" type="tel" value={formData.mobile} onChange={handleInputChange} className="glass touch-target" />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password * (min 6 characters)</Label>
+                    <Label htmlFor="password" className="text-white">Password * (min 6 characters)</Label>
                     <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="glass touch-target" required />
                   </div>
                   
@@ -250,7 +250,7 @@ Streamline your wedding & event planning with our sophisticated guest management
                     )}
                   </Button>
                   
-                  <p className="text-xs text-center text-muted-foreground">
+                  <p className="text-xs text-center text-white/60">
                     By signing up, you agree to our <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>
                   </p>
                 </form>
