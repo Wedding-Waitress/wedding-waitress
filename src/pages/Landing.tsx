@@ -284,7 +284,7 @@ export const Landing = () => {
           <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">
             Start free. Upgrade when you're ready.
           </p>
-          <p className="text-base font-medium text-gray-600 text-center mb-16 max-w-2xl mx-auto">
+          <p className="text-base font-medium text-primary text-center mb-16 max-w-2xl mx-auto">
             All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
           </p>
 
@@ -300,9 +300,10 @@ export const Landing = () => {
                 <span className="text-4xl font-bold text-gray-900">$99</span>
                 <span className="text-gray-400 line-through text-lg">$199</span>
               </div>
-              <p className="text-sm text-gray-500 mb-6">Up to 100 guests · 12-month access</p>
+              <p className="text-sm text-gray-500 mb-1">Up to 100 guests · 12-month access</p>
+              <p className="text-xs text-primary/70 mb-6">Save over $1,000 vs buying tools separately</p>
               <ul className="space-y-3 mb-8">
-                {["Up to 100 guests", "1 event", "Full access to all features"].map((f) => (
+                {["1 event", "Full access to all wedding & event planning tools", "Easy setup & seamless experience"].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -327,9 +328,10 @@ export const Landing = () => {
                 <span className="text-4xl font-bold text-gray-900">$149</span>
                 <span className="text-gray-400 line-through text-lg">$299</span>
               </div>
-              <p className="text-sm text-gray-500 mb-6">Up to 300 guests · 12-month access</p>
+              <p className="text-sm text-gray-500 mb-1">Up to 300 guests · 12-month access</p>
+              <p className="text-xs text-primary/70 mb-6">Save over $1,000 vs buying tools separately</p>
               <ul className="space-y-3 mb-8">
-                {["Up to 300 guests", "1 event", "Full access to all features"].map((f) => (
+                {["1 event", "Full access to all wedding & event planning tools", "Easy setup & seamless experience"].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -351,9 +353,10 @@ export const Landing = () => {
                 <span className="text-4xl font-bold text-gray-900">$249</span>
                 <span className="text-gray-400 line-through text-lg">$499</span>
               </div>
-              <p className="text-sm text-gray-500 mb-6">Unlimited guests · 12-month access</p>
+              <p className="text-sm text-gray-500 mb-1">Unlimited guests · 12-month access</p>
+              <p className="text-xs text-primary/70 mb-6">Save over $1,000 vs buying tools separately</p>
               <ul className="space-y-3 mb-8">
-                {["Unlimited guests", "1 event", "Full access to all features"].map((f) => (
+                {["1 event", "Full access to all wedding & event planning tools", "Easy setup & seamless experience"].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                     <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                     {f}
@@ -388,7 +391,7 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button variant="outline" className="w-full rounded-xl border-white/20 text-white hover:bg-white/10">Get Started</Button>
+                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">Get Started</Button>
               </SignUpModal>
               <p className="text-xs text-gray-500 text-center mt-3">Approval required</p>
             </div>

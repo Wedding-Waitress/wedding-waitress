@@ -5,6 +5,24 @@ import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { SignInModal } from "@/components/auth/SignInModal";
+import { useTranslation } from 'react-i18next';
+import { toast } from "sonner";
+
+const headerLanguages = [
+  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' },
+  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
+];
 
 interface HeaderProps {
   user?: {
@@ -23,6 +41,17 @@ export const Header: React.FC<HeaderProps> = ({
   const [signInOpen, setSignInOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
+  const { i18n } = useTranslation();
+  const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
+
+  const handleLanguageChange = (langCode: string) => {
+    const supportedFull = ['en', 'de', 'es', 'fr', 'it', 'nl', 'ja', 'ar', 'vi', 'zh', 'tr', 'el'];
+    if (supportedFull.includes(langCode)) {
+      i18n.changeLanguage(langCode);
+    } else {
+      toast("Language support coming soon", { description: "We're working on adding this language." });
+    }
+  };
 
   const handleBackToSignUp = () => {
     setSignInOpen(false);
@@ -110,15 +139,16 @@ export const Header: React.FC<HeaderProps> = ({
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="hover:bg-gray-50 min-h-[44px] min-w-[44px] text-gray-700">
                           <Globe className="w-4 h-4 mr-1" />
-                          <span className="text-[14px]">EN</span>
+                          <span className="text-[14px]">{currentLang.code.toUpperCase()}</span>
                           <ChevronDown className="w-3 h-3 ml-1" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50">
-                        <DropdownMenuItem>🇺🇸 English</DropdownMenuItem>
-                        <DropdownMenuItem>🇪🇸 Español</DropdownMenuItem>
-                        <DropdownMenuItem>🇫🇷 Français</DropdownMenuItem>
-                        <DropdownMenuItem>🇩🇪 Deutsch</DropdownMenuItem>
+                      <DropdownMenuContent align="end" className="bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[60vh] overflow-y-auto">
+                        {headerLanguages.map((lang) => (
+                          <DropdownMenuItem key={lang.code} onClick={() => handleLanguageChange(lang.code)} className="cursor-pointer">
+                            {lang.flag} {lang.name}
+                          </DropdownMenuItem>
+                        ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </>
