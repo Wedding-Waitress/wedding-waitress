@@ -258,7 +258,7 @@ export const PrivacyPolicy = () => {
       <footer className="border-t bg-background/95">
         <div className="w-full px-4 py-8">
           <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 Wedding Waitress. All rights reserved.</p>
+            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-4">
               <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <span>•</span>

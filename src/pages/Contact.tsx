@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export const Contact = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       {/* Header */}
