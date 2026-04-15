@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
 
 export const PrivacyPolicy = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
