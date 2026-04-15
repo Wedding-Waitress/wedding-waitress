@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useTranslation } from 'react-i18next';
