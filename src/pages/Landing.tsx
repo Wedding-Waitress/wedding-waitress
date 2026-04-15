@@ -64,6 +64,22 @@ export const Landing = () => {
     { key: "djmc", img: featureDjmc, icon: Mic },
   ];
 
+  const featureRoutes: Record<string, string> = {
+    guestList: '/features/guest-list',
+    tables: '/features/seating',
+    qr: '/features/qr-seating',
+    runningSheet: '/features/planning',
+    invitations: '/features/invitations',
+    myEvents: '/features/events',
+    placeCards: '/features/place-cards',
+    tableCharts: '/features/table-charts',
+    dietary: '/features/dietary',
+    seatingChart: '/features/full-seating',
+    kiosk: '/features/kiosk',
+    djmc: '/features/dj-mc',
+    floorPlan: '/features/floor-plan',
+  };
+
   const alternatingFeatures = [
     { id: "guest-list", key: "guestList", img: featureGuestlist },
     { id: "tables-seating", key: "tables", img: featureTables },
