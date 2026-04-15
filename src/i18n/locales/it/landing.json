@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Pianifica il tuo matrimonio",
     "title2": "Senza lo stress.",
-    "subtitle": "Gestisci la lista invitati del matrimonio, piano tavoli, inviti digitali, RSVP online e piani tavoli con codice QR — tutto in una piattaforma di pianificazione matrimoniale semplice e potente.",
-    "cta": "Inizia la tua prova gratuita",
-    "trusted": "La fiducia delle coppie in tutta l'Australia",
+    "subtitle": "Gestisci la lista degli invitati, la disposizione dei posti, i posti con codice QR, gli inviti e le conferme — tutto in una piattaforma semplice e potente per matrimoni moderni.",
+    "cta": "Inizia gratis",
+    "trusted": "Scelto da coppie in Australia",
     "trustLine": "Nessuna carta di credito richiesta",
-    "trustLine2": "Iscriviti in 60 secondi. Nessun download di app.",
-    "title3": "Liste invitati, piani tavoli e RSVP con codice QR — tutto in un unico posto"
+    "trustLine2": "Registrati in 60 secondi",
+    "title3": "Sistema ogni ospite perfettamente — in un istante",
+    "watchDemo": "Guarda la demo",
+    "scrollExplore": "Scorri per esplorare"
   },
   "featureCards": {
     "sectionTitle": "La piattaforma per matrimoni che i tuoi ospiti ameranno.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Prezzi semplici e trasparenti",
-    "subtitle": "Inizia gratis. Aggiorna quando sei pronto.",
+    "subtitle": "Scegli il piano perfetto per il tuo matrimonio — inizia gratis e aggiorna quando vuoi.",
     "trialNote": "Tutti i piani includono una prova gratuita di 7 giorni (fino a 20 ospiti). Nessun rischio. Aggiorna in qualsiasi momento.",
     "saveLine": "Risparmia oltre $1.000 rispetto all'acquisto di strumenti separati",
     "getStarted": "Inizia",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Domande frequenti",
-    "subtitle": "Tutto ciò che devi sapere prima di iniziare.",
+    "subtitle": "Hai ancora domande? Ti aiutiamo noi.",
     "items": [
       {
         "q": "Cos'è un gestore lista invitati matrimonio?",
@@ -319,10 +321,10 @@
     "sent": "✓ Messaggio inviato!"
   },
   "finalCta": {
-    "title1": "Tutta la magia.",
-    "title2": "Nessuno stress.",
+    "title1": "Pianifica il tuo matrimonio in modo intelligente",
+    "title2": "Tutti gli strumenti di cui hai bisogno. Senza stress.",
     "subtitle": "Inizia a pianificare il tuo giorno perfetto — è gratis.",
-    "cta": "Inizia la tua prova gratuita"
+    "cta": "Inizia gratis"
   },
   "footer": {
     "tagline": "La piattaforma all-in-one per la pianificazione del matrimonio di cui si fidano le coppie in tutta l'Australia.",

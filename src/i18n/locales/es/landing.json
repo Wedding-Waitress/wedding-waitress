@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Planifica tu boda",
     "title2": "Sin el estrés.",
-    "subtitle": "Gestiona tu lista de invitados de boda, plano de asientos, invitaciones digitales, RSVPs en línea y planos de asientos con código QR — todo en una plataforma de planificación de bodas simple y potente.",
-    "cta": "Comienza tu prueba gratuita",
-    "trusted": "La confianza de parejas en toda Australia",
+    "subtitle": "Gestiona tu lista de invitados, plano de asientos, asientos con código QR, invitaciones y RSVPs — todo en una plataforma sencilla y potente para bodas modernas.",
+    "cta": "Empieza gratis",
+    "trusted": "De confianza para parejas en Australia",
     "trustLine": "No se requiere tarjeta de crédito",
-    "trustLine2": "Regístrate en 60 segundos. Sin descarga de aplicación.",
-    "title3": "Listas de invitados, planos de asientos y RSVPs con código QR — todo en un solo lugar"
+    "trustLine2": "Regístrate en 60 segundos",
+    "title3": "Sienta a cada invitado perfectamente — al instante",
+    "watchDemo": "Ver demostración",
+    "scrollExplore": "Desplázate para explorar"
   },
   "featureCards": {
     "sectionTitle": "La plataforma de bodas que tus invitados amarán.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Precios simples y transparentes",
-    "subtitle": "Comienza gratis. Mejora cuando estés listo.",
+    "subtitle": "Elige el plan perfecto para tu boda — empieza gratis y actualiza cuando quieras.",
     "trialNote": "Todos los planes incluyen una prueba gratuita de 7 días (hasta 20 invitados). Sin riesgo. Mejora en cualquier momento.",
     "saveLine": "Ahorra más de $1.000 vs comprar herramientas por separado",
     "getStarted": "Comenzar",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Preguntas frecuentes",
-    "subtitle": "Todo lo que necesitas saber antes de comenzar.",
+    "subtitle": "¿Todavía tienes preguntas? Te ayudamos.",
     "items": [
       {
         "q": "¿Qué es un gestor de lista de invitados de boda?",
@@ -319,10 +321,10 @@
     "sent": "✓ ¡Mensaje enviado!"
   },
   "finalCta": {
-    "title1": "Toda la magia.",
-    "title2": "Sin el estrés.",
+    "title1": "Planifica tu boda de forma inteligente",
+    "title2": "Todas las herramientas que necesitas. Sin estrés.",
     "subtitle": "Comienza a planificar tu día perfecto — es gratis.",
-    "cta": "Comienza tu prueba gratuita"
+    "cta": "Empieza gratis"
   },
   "footer": {
     "tagline": "La plataforma todo en uno de planificación de bodas en la que confían parejas de toda Australia.",

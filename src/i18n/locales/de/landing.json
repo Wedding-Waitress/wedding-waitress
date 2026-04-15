@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Plane deine Hochzeit",
     "title2": "Ohne den Stress.",
-    "subtitle": "Verwalte deine Hochzeits-Gästeliste, Sitzordnung, digitale Einladungen, Online-RSVPs und QR-Code-Sitzpläne — alles auf einer einfachen und leistungsstarken Hochzeitsplanungsplattform.",
-    "cta": "Kostenlose Testversion starten",
-    "trusted": "Vertraut von Paaren in ganz Australien",
+    "subtitle": "Verwalten Sie Ihre Hochzeitsgästeliste, Sitzordnung, QR-Code-Sitzplätze, Einladungen und RSVPs — alles in einer einfachen, leistungsstarken Plattform für moderne Hochzeiten.",
+    "cta": "Kostenlos planen",
+    "trusted": "Von Paaren in Australien geschätzt",
     "trustLine": "Keine Kreditkarte erforderlich",
-    "trustLine2": "Registrierung in 60 Sekunden. Kein App-Download nötig.",
-    "title3": "Gästelisten, Sitzpläne & QR-Code-RSVPs — alles an einem Ort"
+    "trustLine2": "Anmeldung in 60 Sekunden",
+    "title3": "Jeden Gast perfekt platzieren — sofort",
+    "watchDemo": "Demo ansehen",
+    "scrollExplore": "Scrollen zum Entdecken"
   },
   "featureCards": {
     "sectionTitle": "Die Hochzeitsplattform, die deine Gäste lieben werden.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Einfache, transparente Preise",
-    "subtitle": "Starte kostenlos. Upgrade, wenn du bereit bist.",
+    "subtitle": "Wählen Sie den perfekten Plan für Ihre Hochzeit — starten Sie kostenlos und upgraden Sie jederzeit.",
     "trialNote": "Alle Pläne beinhalten eine 7-tägige kostenlose Testphase (bis zu 20 Gäste). Kein Risiko. Jederzeit upgraden.",
     "saveLine": "Spare über 1.000 $ im Vergleich zum Einzelkauf von Tools",
     "getStarted": "Loslegen",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Häufig gestellte Fragen",
-    "subtitle": "Alles, was du wissen musst, bevor du loslegst.",
+    "subtitle": "Noch Fragen? Wir haben die Antworten.",
     "items": [
       {
         "q": "Was ist ein Hochzeits-Gästelisten-Manager?",
@@ -319,10 +321,10 @@
     "sent": "✓ Nachricht gesendet!"
   },
   "finalCta": {
-    "title1": "Die ganze Magie.",
-    "title2": "Ohne den Stress.",
+    "title1": "Planen Sie Ihre Hochzeit clever",
+    "title2": "Alle Tools, die Sie brauchen. Kein Stress.",
     "subtitle": "Beginne jetzt mit der Planung deines perfekten Tages — kostenlos.",
-    "cta": "Kostenlose Testversion starten"
+    "cta": "Kostenlos planen"
   },
   "footer": {
     "tagline": "Die All-in-One Hochzeitsplanungsplattform, der Paare in ganz Australien vertrauen.",

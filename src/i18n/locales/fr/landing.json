@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Planifiez votre mariage",
     "title2": "Sans le stress.",
-    "subtitle": "Gérez votre liste d'invités de mariage, plan de table, invitations numériques, RSVPs en ligne et plans de table par QR code — le tout sur une plateforme de planification de mariage simple et puissante.",
-    "cta": "Commencez votre essai gratuit",
-    "trusted": "La confiance des couples à travers l'Australie",
+    "subtitle": "Gérez votre liste d'invités, plan de table, places QR code, invitations et RSVPs — le tout dans une plateforme simple et puissante pour les mariages modernes.",
+    "cta": "Commencer gratuitement",
+    "trusted": "Approuvé par des couples en Australie",
     "trustLine": "Aucune carte de crédit requise",
-    "trustLine2": "Inscription en 60 secondes. Aucun téléchargement d'application.",
-    "title3": "Listes d'invités, plans de table et RSVPs par QR code — tout en un seul endroit"
+    "trustLine2": "Inscription en 60 secondes",
+    "title3": "Placez chaque invité parfaitement — instantanément",
+    "watchDemo": "Voir la démo",
+    "scrollExplore": "Défiler pour explorer"
   },
   "featureCards": {
     "sectionTitle": "La plateforme de mariage que vos invités vont adorer.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Tarifs simples et transparents",
-    "subtitle": "Commencez gratuitement. Passez à la version supérieure quand vous êtes prêt.",
+    "subtitle": "Choisissez le plan parfait pour votre mariage — commencez gratuitement et passez à un plan supérieur à tout moment.",
     "trialNote": "Tous les plans incluent un essai gratuit de 7 jours (jusqu'à 20 invités). Sans risque. Passez à la version supérieure à tout moment.",
     "saveLine": "Économisez plus de 1 000 $ par rapport à l'achat d'outils séparément",
     "getStarted": "Commencer",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Questions fréquemment posées",
-    "subtitle": "Tout ce que vous devez savoir avant de commencer.",
+    "subtitle": "Encore des questions ? Nous avons les réponses.",
     "items": [
       {
         "q": "Qu'est-ce qu'un gestionnaire de liste d'invités de mariage ?",
@@ -319,10 +321,10 @@
     "sent": "✓ Message envoyé !"
   },
   "finalCta": {
-    "title1": "Toute la magie.",
-    "title2": "Aucun stress.",
+    "title1": "Planifiez votre mariage intelligemment",
+    "title2": "Tous les outils dont vous avez besoin. Sans stress.",
     "subtitle": "Commencez à planifier votre jour parfait — c'est gratuit.",
-    "cta": "Commencez votre essai gratuit"
+    "cta": "Commencer gratuitement"
   },
   "footer": {
     "tagline": "La plateforme de planification de mariage tout-en-un approuvée par des couples dans toute l'Australie.",

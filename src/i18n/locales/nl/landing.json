@@ -13,12 +13,14 @@
   "hero": {
     "title1": "Plan je bruiloft",
     "title2": "Zonder de stress.",
-    "subtitle": "Beheer je bruiloft gastenlijst, zitschema, digitale uitnodigingen, online RSVP's en QR-code zitschema's — alles op één eenvoudig en krachtig bruiloftsplanningsplatform.",
-    "cta": "Start je gratis proefperiode",
-    "trusted": "Vertrouwd door koppels door heel Australië",
-    "trustLine": "Geen creditcard vereist",
-    "trustLine2": "Meld je aan in 60 seconden. Geen app-download nodig.",
-    "title3": "Gastenlijsten, zitschema's & QR-code RSVP's — alles op één plek"
+    "subtitle": "Beheer je gastenlijst, tafelschikking, QR-code zitplaatsen, uitnodigingen en RSVPs — alles in één eenvoudig, krachtig platform voor moderne bruiloften.",
+    "cta": "Gratis beginnen",
+    "trusted": "Vertrouwd door stellen in Australië",
+    "trustLine": "Geen creditcard nodig",
+    "trustLine2": "Aanmelden in 60 seconden",
+    "title3": "Elke gast perfect geplaatst — direct",
+    "watchDemo": "Demo bekijken",
+    "scrollExplore": "Scroll om te ontdekken"
   },
   "featureCards": {
     "sectionTitle": "Het bruiloftsplatform waar je gasten van zullen houden.",
@@ -193,7 +195,7 @@
   },
   "pricing": {
     "title": "Eenvoudige, transparante prijzen",
-    "subtitle": "Begin gratis. Upgrade wanneer je klaar bent.",
+    "subtitle": "Kies het perfecte plan voor je bruiloft — begin gratis en upgrade wanneer je wilt.",
     "trialNote": "Alle plannen bevatten een gratis proefperiode van 7 dagen (tot 20 gasten). Geen risico. Upgrade op elk moment.",
     "saveLine": "Bespaar meer dan $1.000 ten opzichte van het apart kopen van tools",
     "getStarted": "Aan de slag",
@@ -265,7 +267,7 @@
   },
   "faq": {
     "title": "Veelgestelde vragen",
-    "subtitle": "Alles wat je moet weten voordat je begint.",
+    "subtitle": "Nog vragen? Wij helpen je graag.",
     "items": [
       {
         "q": "Wat is een bruiloft gastenlijst manager?",
@@ -319,10 +321,10 @@
     "sent": "✓ Bericht verzonden!"
   },
   "finalCta": {
-    "title1": "Alle magie.",
-    "title2": "Geen stress.",
+    "title1": "Plan je bruiloft slim",
+    "title2": "Alle tools die je nodig hebt. Geen stress.",
     "subtitle": "Begin met het plannen van je perfecte dag — het is gratis.",
-    "cta": "Start je gratis proefperiode"
+    "cta": "Gratis beginnen"
   },
   "footer": {
     "tagline": "Het alles-in-één bruiloftsplanningsplatform vertrouwd door stellen in heel Australië.",
