@@ -394,6 +394,104 @@ export const Landing = () => {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" className="py-24 md:py-32 px-4 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            Everything you need to know before getting started.
+          </p>
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div
+                key={i}
+                className="bg-[#FAFAFA] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-6 text-left"
+                >
+                  <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 pb-6' : 'max-h-0'}`}>
+                  <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="py-24 md:py-32 px-4">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Get in Touch
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            Have a question? We'd love to hear from you.
+          </p>
+          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
+            <div className="space-y-5">
+              <div>
+                <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">Name</label>
+                <input
+                  id="contact-name"
+                  type="text"
+                  maxLength={100}
+                  value={contactForm.name}
+                  onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  placeholder="Your name"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  maxLength={255}
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">Message</label>
+                <textarea
+                  id="contact-message"
+                  maxLength={1000}
+                  rows={5}
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+                  placeholder="How can we help?"
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={contactSending}
+                className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
+              >
+                {contactSending ? 'Sending...' : contactSent ? '✓ Message Sent!' : (
+                  <>
+                    Send Message
+                    <Send className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
