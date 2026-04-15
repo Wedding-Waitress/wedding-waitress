@@ -570,7 +570,7 @@ export const Landing = () => {
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} {t('footer.copyright')}</p>
+            <p className="text-gray-500 text-sm">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
             <div className="flex gap-6 text-sm text-gray-500">
               <Link to="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link>
               <Link to="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link>
