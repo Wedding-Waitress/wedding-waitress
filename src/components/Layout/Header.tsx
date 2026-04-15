@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
       signUpButtonRef.current?.click();
     }, 100);
   };
-  return <header className="bg-background/95 backdrop-blur-sm border-b border-card-border sticky top-0 z-50">
+  return <header className="backdrop-blur-md border-b border-white/15 sticky top-0 z-50" style={{ background: 'rgba(91, 46, 255, 0.3)' }}>
       <div className="w-full px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
