@@ -1,50 +1,57 @@
 
 
-# Plan: Vendor Pro Card Update + Conversion Psychology Layer
+# Plan: Above the Fold Conversion Optimisation
 
-## 1. Vendor Pro Card — Update bullet text (Landing.tsx lines 306-312)
+## Changes Overview
 
-Replace the 3-bullet feature list with 6 items:
-- Unlimited events
-- Unlimited guests
-- Full platform access
-- For wedding and event venues
-- Wedding planners
-- DJs, MCs and event professionals
+### 1. EN landing.json — Update copy
+- `hero.title1`: "Plan Your Wedding" (keep)
+- `hero.title2`: "Without the Stress." (keep)  
+- `hero.title3`: "Seat Every Guest Perfectly — Instantly" (new line 2)
+- `hero.subtitle`: "Manage your wedding guest list, seating chart, QR code seating, invitations and RSVPs — all in one simple, powerful platform designed for modern weddings."
+- `hero.cta`: "Start Planning Free"
+- `hero.trustLine`: "No credit card required"
+- `hero.trustLine2`: "Sign up in 60 seconds"
+- `hero.trusted`: "Trusted by couples across Australia"
+- Add `hero.watchDemo`: "Watch Demo"
+- Add `hero.scrollExplore`: "Scroll to explore"
+- `pricing.subtitle`: "Choose the perfect plan for your wedding — start free and upgrade anytime."
+- `faq.subtitle`: "Still have questions? We've got you covered."
+- `finalCta.title1`: "Plan Your Wedding the Smart Way"
+- `finalCta.title2`: "All the tools you need. None of the stress."
+- `finalCta.cta`: "Start Planning Free"
 
-Reduce text size to `text-xs` and spacing to `space-y-2` to keep it balanced and not crowded.
+### 2. All 12 other locale files — Same key updates with translations
 
-## 2. Conversion Psychology — Hero Section (Landing.tsx lines 116-122)
+### 3. Landing.tsx — UI changes
 
-- Change hero CTA button text: update `hero.cta` in EN landing.json from "Get Started Free" to "Start Your Free Trial"
-- Add trust line below button: "No credit card required. Start free in minutes." (new key `hero.trustLine`)
+**Hero section (lines 124-144):**
+- Change `hero.title3` line to use the new "Seat Every Guest Perfectly — Instantly" text (already uses `t()`)
+- Add a secondary "Watch Demo" outline button next to the primary CTA — on click, smooth-scroll to `#guest-list` (first feature section)
+- Reduce trust line font size from `text-lg sm:text-xl md:text-2xl` to `text-sm sm:text-base` for subtlety
 
-## 3. Conversion Psychology — Pricing Section
+**Scroll indicator (after hero, before feature cards):**
+- Add a small animated down-arrow with "Scroll to explore" text centered, low opacity, with a CSS bounce animation
 
-- Add reassurance line below trial note: "One simple plan. Full access. Choose by guest size only." (new key `pricing.reassurance`)
-- Add "7-day free trial included" under each plan's Get Started button (new key `pricing.trialUnderButton`)
-- Add "Best for most weddings" subtitle under Premium's "Most Popular" badge (new key `pricing.bestForMost`)
-- Update Vendor Pro badge text from "For Professionals" to "For Venues & Pros" (update `pricing.forProfessionals`)
+**Feature card images (line 159):**
+- The images are already imported from `src/assets/` — if they appear grey, this is likely a loading/missing asset issue. Will verify the imports are correct and add `decoding="async"` for better loading. No structural change needed since all 13 images are already mapped.
 
-## 4. Conversion Psychology — Testimonials Section (Landing.tsx line 324)
+**Pricing subtitle (line 230):**
+- Already uses `t('pricing.subtitle')` — just updating the JSON value
 
-Add intro line above testimonials title: "Used by couples to simplify guests, seating, RSVPs and event flow." (new key `testimonials.intro`)
+**FAQ subtitle (line 387):**
+- Already uses `t('faq.subtitle')` — just updating the JSON value
 
-## 5. Conversion Psychology — FAQ Questions (EN landing.json)
-
-Replace current 6 FAQ items with conversion-focused questions:
-1. "Do guests need an app?" → "No. Guests scan a QR code or click a link — no login, app, or download required."
-2. "Can I send RSVP invites by email or SMS?" → "Yes! Send beautiful digital invitations and track RSVPs in real time."
-3. "Can I manage seating charts and guest lists in one place?" → "Absolutely. Everything from guest management to seating charts is built into one platform."
-4. "Is Wedding Waitress suitable for venues and planners too?" → "Yes. Our Vendor Pro plan is built for venues, planners, DJs, and event professionals."
-5. "What happens after the 7-day free trial?" → "You can upgrade anytime. If you don't, your data stays safe and you can return later."
-6. "Can I get a refund?" → "We offer a full refund within 14 days of purchase if you haven't exceeded the free trial limits."
-
-## 6. Update all 13 locale files
-
-Add the new keys (`hero.trustLine`, `hero.cta` update, `pricing.reassurance`, `pricing.trialUnderButton`, `pricing.bestForMost`, `pricing.forProfessionals` update, `pricing.features.forVenues`/`weddingPlanners`/`djMcPros`, `testimonials.intro`, updated FAQ items) to all 13 landing.json files with proper translations.
+**Final CTA (lines 494-501):**
+- Already uses `t()` keys — just updating JSON values
+- Change button text via `finalCta.cta` key
 
 ## Files Modified
-1. `src/pages/Landing.tsx` — Vendor Pro bullets, trust line, reassurance line, trial-under-button, best-for-most, testimonials intro
-2. `src/i18n/locales/[en,de,es,fr,it,nl,ja,ar,hi,vi,zh,tr,el]/landing.json` — All 13 locale files updated with new/changed keys
+1. `src/pages/Landing.tsx` — Add Watch Demo button, scroll indicator, adjust trust text sizing
+2. `src/i18n/locales/[en,de,es,fr,it,nl,ja,ar,hi,vi,zh,tr,el]/landing.json` — 13 files with updated copy
+
+## Technical Details
+- Watch Demo button: `<Button variant="outline" onClick={() => document.getElementById('guest-list')?.scrollIntoView({behavior:'smooth'})}>`
+- Scroll indicator: `<div className="animate-bounce opacity-40">` with ChevronDown icon
+- No layout or spacing changes beyond these additions
 
