@@ -819,7 +819,7 @@ export const GuestLookup: React.FC = () => {
                           });
                         }
                       }}
-                      className="flex items-center gap-2 px-4 py-1 rounded-full border border-primary/40 bg-primary/10 text-primary transition-all duration-200"
+                      className="lv-premium-btn flex items-center gap-2 h-[36px] px-[18px] py-0 border border-primary/40 bg-primary/10 text-primary"
                     >
                       <Share2 className="w-4 h-4" />
                       <span className="text-xs font-bold whitespace-nowrap">Share this invite</span>
