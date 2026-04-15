@@ -523,6 +523,7 @@ export const Landing = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
+          <p className="text-sm text-white/60 mt-4">{t('finalCta.ctaSub')}</p>
         </div>
       </section>
 
