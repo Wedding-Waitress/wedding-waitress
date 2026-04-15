@@ -31,6 +31,22 @@ export const Landing = () => {
   const [contactSent, setContactSent] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  const featureCardAlts: Record<string, string> = {
+    guestList: "Wedding guest list manager with RSVP tracking",
+    tables: "Wedding table seating arrangement planner",
+    qr: "QR code wedding seating chart scanner",
+    invitations: "Digital wedding invitations with online RSVP",
+    runningSheet: "Wedding day timeline and event schedule",
+    floorPlan: "Wedding venue floor plan layout designer",
+    myEvents: "Wedding event management dashboard",
+    placeCards: "Printed wedding name place cards",
+    tableCharts: "Individual wedding table seating charts",
+    dietary: "Wedding guest dietary requirements tracker",
+    seatingChart: "Full wedding seating chart overview",
+    kiosk: "Wedding venue self-service check-in kiosk",
+    djmc: "Wedding DJ and MC music questionnaire",
+  };
+
   const featureCards = [
     { key: "guestList", img: featureGuestlist, icon: Users },
     { key: "tables", img: featureTables, icon: MapPin },
@@ -102,14 +118,17 @@ export const Landing = () => {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImg} alt="Luxury wedding reception" width={1920} height={1080} className="w-full h-full object-cover" />
+          <img src={heroImg} alt="Wedding reception with elegant table settings and seating chart" width={1920} height={1080} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/50" />
         </div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
             {t('hero.title1')}<br />
             <span className="text-white/90">{t('hero.title2')}</span>
           </h1>
+          <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-6">
+            {t('hero.title3')}
+          </p>
           <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
             {t('hero.subtitle')}
           </p>
@@ -137,7 +156,7 @@ export const Landing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featureCards.map((card) => (
               <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
-                <img src={card.img} alt={t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -172,7 +191,7 @@ export const Landing = () => {
               </SignUpModal>
             </div>
             <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
-              <img src={feature.img} alt={t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
+              <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
             </div>
           </div>
         </section>
@@ -181,9 +200,12 @@ export const Landing = () => {
       {/* Extra Feature Grid */}
       <section className="py-24 md:py-32 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('extraGrid.title')}
           </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-3xl mx-auto">
+            {t('extraGrid.subtitle')}
+          </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {extraFeatureKeys.map((f) => (
               <div key={f.key} className="bg-[#FAFAFA] rounded-3xl p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">

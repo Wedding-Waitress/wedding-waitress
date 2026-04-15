@@ -13,15 +13,16 @@
   "hero": {
     "title1": "Planifica tu boda",
     "title2": "Sin el estrés.",
-    "subtitle": "Todo lo que necesitas para gestionar invitados, asientos, invitaciones, planos de asientos con código QR, RSVPs para toda tu boda o evento — y mucho más — todo en un solo lugar.",
+    "subtitle": "Gestiona tu lista de invitados de boda, plano de asientos, invitaciones digitales, RSVPs en línea y planos de asientos con código QR — todo en una plataforma de planificación de bodas simple y potente.",
     "cta": "Comienza tu prueba gratuita",
     "trusted": "La confianza de parejas en toda Australia",
     "trustLine": "No se requiere tarjeta de crédito",
-    "trustLine2": "Regístrate en 60 segundos. Sin descarga de aplicación."
+    "trustLine2": "Regístrate en 60 segundos. Sin descarga de aplicación.",
+    "title3": "Listas de invitados, planos de asientos y RSVPs con código QR — todo en un solo lugar"
   },
   "featureCards": {
     "sectionTitle": "La plataforma de bodas que tus invitados amarán.",
-    "sectionSubtitle": "Cada herramienta que necesitas, bellamente diseñada y fácil de usar.",
+    "sectionSubtitle": "Nuestra plataforma combina un potente gestor de lista de invitados, herramienta de plano de asientos, plano con código QR, seguimiento de RSVP e invitaciones digitales — todo lo que necesitas en un solo lugar.",
     "guestList": {
       "title": "Lista de invitados",
       "desc": "Gestiona todos tus invitados en un solo lugar"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Gestión de invitados",
-      "desc": "Gestiona fácilmente toda tu lista de invitados, rastrea confirmaciones y organiza relaciones. Importa invitados, envía invitaciones y mantén todo perfectamente organizado."
+      "desc": "Gestiona fácilmente tu lista de invitados de boda con seguimiento de RSVP, agrupación de invitados y un completo gestor de listas diseñado para simplificar tu planificación."
     },
     "tables": {
       "title": "Asientos simplificados",
-      "desc": "Crea mesas y asigna invitados con facilidad usando nuestro sistema visual de arrastrar y soltar. Ve la capacidad de un vistazo y haz cambios de último momento sin esfuerzo."
+      "desc": "Crea tu plano de asientos de boda con un planificador fácil de usar. Organiza mesas, asigna invitados y visualiza toda tu disposición de asientos."
     },
     "qr": {
       "title": "Asientos instantáneos para invitados",
-      "desc": "Los invitados escanean un código QR para encontrar su mesa al instante — sin confusión, sin demoras. Un toque moderno y tecnológico que tus invitados amarán."
+      "desc": "Los invitados escanean un código QR para encontrar su mesa al instante con un moderno plano de asientos QR — perfecto para bodas y eventos."
     },
     "runningSheet": {
       "title": "Planifica cada momento",
-      "desc": "Crea un cronograma completo para el día de tu boda y compártelo con los proveedores. Mantén a todos al tanto desde la ceremonia hasta el último baile."
+      "desc": "Planifica la cronología de tu boda con una herramienta de programación de eventos completa diseñada para una coordinación perfecta."
     },
     "invitations": {
       "title": "Invitaciones y confirmaciones",
-      "desc": "Envía hermosas invitaciones digitales y rastrea respuestas en tiempo real. Personaliza diseños, agrega códigos QR y gestiona confirmaciones todo en un lugar."
+      "desc": "Envía invitaciones digitales de boda con seguimiento de RSVP y gestiona respuestas con un sistema de RSVP en línea simple y potente."
     },
     "myEvents": {
       "title": "Tus eventos, a tu manera",
@@ -126,7 +127,7 @@
     },
     "floorPlan": {
       "title": "Plano del venue",
-      "desc": "Visualiza todo el diseño de tu venue con un plano interactivo. Posiciona mesas, mapea el espacio de la ceremonia y planifica cada área de tu evento."
+      "desc": "Diseña la distribución de tu lugar con un constructor visual de planos de planta y planificador de asientos para bodas."
     },
     "learnMore": "Saber más"
   },
@@ -187,7 +188,8 @@
     "runningSheet": {
       "title": "Hoja de ruta",
       "desc": "Planifica tu línea de tiempo completa"
-    }
+    },
+    "subtitle": "Desde la gestión de listas de invitados y planos de asientos hasta asientos con código QR, seguimiento de RSVP e invitaciones digitales — todo está diseñado para simplificar toda tu experiencia de planificación de bodas."
   },
   "pricing": {
     "title": "Precios simples y transparentes",
@@ -266,24 +268,36 @@
     "subtitle": "Todo lo que necesitas saber antes de comenzar.",
     "items": [
       {
+        "q": "¿Qué es un gestor de lista de invitados de boda?",
+        "a": "Un gestor de lista de invitados te ayuda a organizar todos tus invitados, rastrear RSVPs, agrupar familias y gestionar requisitos dietéticos — todo en un solo lugar."
+      },
+      {
+        "q": "¿Cómo funciona un plano de asientos de boda?",
+        "a": "Nuestro plano de asientos te permite crear mesas, arrastrar y soltar invitados y visualizar toda la distribución. Exporta planos listos para imprimir."
+      },
+      {
+        "q": "¿Puedo usar un código QR para los asientos de boda?",
+        "a": "¡Sí! Con nuestro plano de asientos QR, los invitados escanean un código y ven su asignación de mesa al instante — sin necesidad de descargar una app."
+      },
+      {
+        "q": "¿Cómo funcionan los RSVPs de boda en línea?",
+        "a": "Envía invitaciones digitales por email o SMS con un enlace RSVP integrado. Los invitados responden en línea y tú sigues todo en tiempo real."
+      },
+      {
+        "q": "¿Puedo enviar invitaciones digitales de boda?",
+        "a": "Absolutamente. Diseña hermosas invitaciones digitales, añade códigos QR y envíalas directamente a tus invitados con seguimiento RSVP integrado."
+      },
+      {
         "q": "¿Los invitados necesitan una app?",
-        "a": "No. Los invitados escanean un código QR o hacen clic en un enlace — sin inicio de sesión, app ni descarga."
+        "a": "No. Los invitados escanean un código QR o hacen clic en un enlace — sin inicio de sesión, app ni descarga requerida."
       },
       {
-        "q": "¿Puedo enviar invitaciones RSVP por email o SMS?",
-        "a": "¡Sí! Envía hermosas invitaciones digitales y rastrea RSVPs en tiempo real."
-      },
-      {
-        "q": "¿Puedo gestionar planos de asientos y listas de invitados en un solo lugar?",
-        "a": "Absolutamente. Todo, desde la gestión de invitados hasta los planos de asientos, está integrado en una sola plataforma."
-      },
-      {
-        "q": "¿Wedding Waitress es adecuado para lugares y organizadores?",
-        "a": "Sí. Nuestro plan Vendor Pro está diseñado para lugares, organizadores, DJs y profesionales de eventos."
+        "q": "¿Es Wedding Waitress adecuado para locales y organizadores?",
+        "a": "Sí. Nuestro plan Vendor Pro está diseñado para locales, organizadores, DJs y profesionales de eventos."
       },
       {
         "q": "¿Qué pasa después de la prueba gratuita de 7 días?",
-        "a": "Puedes actualizar en cualquier momento. Si no, tus datos permanecen seguros y puedes volver después."
+        "a": "Puedes actualizar en cualquier momento. Si no lo haces, tus datos permanecen seguros y puedes volver más tarde."
       },
       {
         "q": "¿Puedo obtener un reembolso?",

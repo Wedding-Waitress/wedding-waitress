@@ -13,15 +13,16 @@
   "hero": {
     "title1": "Pianifica il tuo matrimonio",
     "title2": "Senza lo stress.",
-    "subtitle": "Tutto ciò di cui hai bisogno per gestire ospiti, posti a sedere, inviti, mappe dei posti con codice QR, RSVP per tutto il tuo matrimonio o evento — e molto altro — tutto in un unico posto.",
+    "subtitle": "Gestisci la lista invitati del matrimonio, piano tavoli, inviti digitali, RSVP online e piani tavoli con codice QR — tutto in una piattaforma di pianificazione matrimoniale semplice e potente.",
     "cta": "Inizia la tua prova gratuita",
     "trusted": "La fiducia delle coppie in tutta l'Australia",
     "trustLine": "Nessuna carta di credito richiesta",
-    "trustLine2": "Iscriviti in 60 secondi. Nessun download di app."
+    "trustLine2": "Iscriviti in 60 secondi. Nessun download di app.",
+    "title3": "Liste invitati, piani tavoli e RSVP con codice QR — tutto in un unico posto"
   },
   "featureCards": {
     "sectionTitle": "La piattaforma per matrimoni che i tuoi ospiti ameranno.",
-    "sectionSubtitle": "Ogni strumento di cui hai bisogno, progettato con cura e semplice da usare.",
+    "sectionSubtitle": "La nostra piattaforma combina un potente gestore lista invitati, strumento piano tavoli, piano con codice QR, tracker RSVP e inviti digitali — tutto ciò di cui hai bisogno in un unico posto.",
     "guestList": {
       "title": "Lista ospiti",
       "desc": "Gestisci tutti i tuoi ospiti in un unico posto"
@@ -78,23 +79,23 @@
   "alternating": {
     "guestList": {
       "title": "Gestione lista ospiti",
-      "desc": "Gestisci facilmente l'intera lista ospiti, traccia le conferme e organizza le relazioni. Importa ospiti, invia inviti e mantieni tutto perfettamente organizzato."
+      "desc": "Gestisci facilmente la lista invitati del tuo matrimonio con tracciamento RSVP, raggruppamento ospiti e un gestore completo progettato per semplificare la pianificazione."
     },
     "tables": {
       "title": "Posti a sedere semplificati",
-      "desc": "Crea tavoli e assegna ospiti con facilità usando il nostro sistema visuale drag-and-drop. Vedi la capacità a colpo d'occhio e fai modifiche dell'ultimo minuto senza sforzo."
+      "desc": "Crea il piano tavoli del tuo matrimonio con un pianificatore facile da usare. Organizza i tavoli, assegna gli ospiti e visualizza l'intera disposizione."
     },
     "qr": {
       "title": "Posti ospiti istantanei",
-      "desc": "Gli ospiti scansionano un codice QR per trovare istantaneamente il loro tavolo — nessuna confusione, nessun ritardo. Un tocco moderno e tecnologico che i tuoi ospiti adoreranno."
+      "desc": "Gli ospiti scansionano un codice QR per trovare il loro tavolo istantaneamente con un moderno piano tavoli QR — perfetto per matrimoni ed eventi."
     },
     "runningSheet": {
       "title": "Pianifica ogni momento",
-      "desc": "Crea un programma completo per il giorno del tuo matrimonio e condividilo con i fornitori. Mantieni tutti allineati dalla cerimonia all'ultimo ballo."
+      "desc": "Pianifica la timeline del tuo matrimonio con uno strumento di programmazione eventi completo progettato per un coordinamento perfetto."
     },
     "invitations": {
       "title": "Inviti e conferme",
-      "desc": "Invia bellissimi inviti digitali e traccia le risposte in tempo reale. Personalizza i design, aggiungi codici QR e gestisci le conferme tutto in un posto."
+      "desc": "Invia inviti digitali di matrimonio con tracciamento RSVP e gestisci le risposte con un sistema RSVP online semplice e potente."
     },
     "myEvents": {
       "title": "I tuoi eventi, a modo tuo",
@@ -126,7 +127,7 @@
     },
     "floorPlan": {
       "title": "Planimetria del locale",
-      "desc": "Visualizza l'intero layout del tuo locale con una planimetria interattiva. Posiziona tavoli, mappa lo spazio della cerimonia e pianifica ogni area del tuo evento."
+      "desc": "Progetta la disposizione del tuo locale con un costruttore visuale di planimetrie e pianificatore di posti a sedere."
     },
     "learnMore": "Scopri di più"
   },
@@ -187,7 +188,8 @@
     "runningSheet": {
       "title": "Scaletta",
       "desc": "Pianifica la tua cronologia completa"
-    }
+    },
+    "subtitle": "Dalla gestione della lista invitati e piani tavoli ai posti con codice QR, tracciamento RSVP e inviti digitali — tutto è progettato per semplificare l'intera esperienza di pianificazione del matrimonio."
   },
   "pricing": {
     "title": "Prezzi semplici e trasparenti",
@@ -266,24 +268,36 @@
     "subtitle": "Tutto ciò che devi sapere prima di iniziare.",
     "items": [
       {
+        "q": "Cos'è un gestore lista invitati matrimonio?",
+        "a": "Un gestore lista invitati ti aiuta a organizzare tutti gli ospiti, tracciare gli RSVP, raggruppare le famiglie e gestire le esigenze alimentari — tutto in un unico posto."
+      },
+      {
+        "q": "Come funziona un piano tavoli matrimoniale?",
+        "a": "Il nostro piano tavoli ti permette di creare tavoli, trascinare gli ospiti e visualizzare l'intera disposizione. Esporta piani pronti per la stampa."
+      },
+      {
+        "q": "Posso usare un codice QR per i posti al matrimonio?",
+        "a": "Sì! Con il nostro piano tavoli QR, gli ospiti scansionano un codice e vedono istantaneamente la loro assegnazione — nessun download di app necessario."
+      },
+      {
+        "q": "Come funzionano gli RSVP matrimoniali online?",
+        "a": "Invia inviti digitali via email o SMS con un link RSVP integrato. Gli ospiti rispondono online e tu monitori tutto in tempo reale."
+      },
+      {
+        "q": "Posso inviare inviti digitali di matrimonio?",
+        "a": "Assolutamente. Progetta bellissimi inviti digitali, aggiungi codici QR e inviali direttamente con tracciamento RSVP integrato."
+      },
+      {
         "q": "Gli ospiti hanno bisogno di un'app?",
-        "a": "No. Gli ospiti scansionano un codice QR o cliccano un link — nessun login, app o download necessario."
+        "a": "No. Gli ospiti scansionano un codice QR o cliccano su un link — nessun login, app o download richiesto."
       },
       {
-        "q": "Posso inviare inviti RSVP via email o SMS?",
-        "a": "Sì! Invia bellissimi inviti digitali e traccia gli RSVP in tempo reale."
-      },
-      {
-        "q": "Posso gestire piani posti e liste ospiti in un unico posto?",
-        "a": "Assolutamente. Tutto, dalla gestione ospiti ai piani posti, è integrato in un'unica piattaforma."
-      },
-      {
-        "q": "Wedding Waitress è adatto a location e organizzatori?",
-        "a": "Sì. Il nostro piano Vendor Pro è pensato per location, organizzatori, DJ e professionisti degli eventi."
+        "q": "Wedding Waitress è adatto per location e organizzatori?",
+        "a": "Sì. Il nostro piano Vendor Pro è progettato per location, organizzatori, DJ e professionisti degli eventi."
       },
       {
         "q": "Cosa succede dopo la prova gratuita di 7 giorni?",
-        "a": "Puoi fare l'upgrade in qualsiasi momento. Altrimenti, i tuoi dati restano al sicuro e puoi tornare dopo."
+        "a": "Puoi effettuare l'upgrade in qualsiasi momento. In caso contrario, i tuoi dati restano al sicuro e puoi tornare più tardi."
       },
       {
         "q": "Posso ottenere un rimborso?",
