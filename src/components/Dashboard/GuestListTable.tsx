@@ -1508,7 +1508,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   return (
     <>
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className="border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden !p-0">
         {/* Header Controls */}
         <div className="px-3 sm:px-6 py-4">
           {/* Page Title with Couple Names Section */}
@@ -1882,7 +1882,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-hidden border-2 border-primary rounded-lg shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-3 sm:mx-6 mb-4">
+        <div className="overflow-hidden border-t-2 border-primary">
           <Table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '3%' }} />
@@ -2214,7 +2214,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               )}
             </TableBody>
           </Table>
-          <div className="h-12 bg-primary rounded-b-lg" />
+          <div className="h-12 bg-primary" />
         </div>
       </Card>
 
