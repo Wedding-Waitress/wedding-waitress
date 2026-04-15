@@ -1,23 +1,29 @@
 import { Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-events.jpg';
 
-export const FeatureEvents = () => (
-  <FeaturePageLayout
-    title="Your Events, Your Way"
-    description="Manage multiple weddings, engagements, or corporate events from a single dashboard. Customise each event with unique settings, guest lists, and seating plans — perfect for couples and professional event planners alike."
-    backgroundImage={bgImage}
-    pageTitle="Wedding Event Manager | Plan Multiple Events Easily"
-    metaDescription="Manage multiple weddings and events from one dashboard. Customise settings, guest lists, and seating plans for each event."
-    seoSections={[
-      { heading: "Manage Multiple Events from One Place", text: <>Whether you're planning a wedding, engagement party, or corporate function, manage all your events from a single dashboard — each with its own <Link to="/features/seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">guest list</Link> and settings.</> },
-      { heading: "Customise Each Event Individually", text: <>Set unique guest limits, venues, timelines, and <Link to="/features/qr-seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">seating plans</Link> for every event. Each one gets its own dedicated configuration.</> },
-      { heading: "Perfect for Couples & Planners", text: <>Wedding Waitress is built for both couples planning their own wedding and professional event planners. Coordinate everything from your <Link to="/features/guest-list" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">timeline and running sheet</Link> to table layouts.</> },
-    ]}
-    relatedFeatures={[
-      { label: "Guest List Manager", href: "/features/seating" },
-      { label: "Seating Chart Planner", href: "/features/qr-seating" },
-      { label: "Timeline & Running Sheet", href: "/features/guest-list" },
-    ]}
-  />
-);
+const linkClass = "text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]";
+
+export const FeatureEvents = () => {
+  const { t } = useTranslation('landing');
+  return (
+    <FeaturePageLayout
+      title={t('fp.events.title')}
+      description={t('fp.events.description')}
+      backgroundImage={bgImage}
+      pageTitle={t('fp.events.pageTitle')}
+      metaDescription={t('fp.events.metaDesc')}
+      seoSections={[
+        { heading: t('fp.events.seo1Heading'), text: <Trans i18nKey="fp.events.seo1Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
+        { heading: t('fp.events.seo2Heading'), text: <Trans i18nKey="fp.events.seo2Text" ns="landing" components={[<Link to="/features/qr-seating" className={linkClass} />]} /> },
+        { heading: t('fp.events.seo3Heading'), text: <Trans i18nKey="fp.events.seo3Text" ns="landing" components={[<Link to="/features/guest-list" className={linkClass} />]} /> },
+      ]}
+      relatedFeatures={[
+        { label: t('fp.events.related1'), href: "/features/seating" },
+        { label: t('fp.events.related2'), href: "/features/qr-seating" },
+        { label: t('fp.events.related3'), href: "/features/guest-list" },
+      ]}
+    />
+  );
+};

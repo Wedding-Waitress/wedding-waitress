@@ -1,23 +1,29 @@
 import { Link } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';
 import bgImage from '@/assets/features/feature-my-events.jpg';
 
-export const FeatureGuestList = () => (
-  <FeaturePageLayout
-    title="Wedding Timeline Planner & Running Sheet Tool"
-    description="Create and manage your wedding or event in one beautiful place. Add your ceremony and reception details, set guest limits, track RSVP deadlines, and stay organised from day one."
-    backgroundImage={bgImage}
-    pageTitle="Wedding Timeline Planner | Running Sheet & Schedule Tool"
-    metaDescription="Create a detailed wedding timeline and running sheet. Plan every moment from ceremony to reception with ease."
-    seoSections={[
-      { heading: "Plan Your Wedding Schedule", text: <>Build a detailed timeline for your wedding day. Coordinate timing with your <Link to="/features/dj-mc" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">DJ & MC questionnaire</Link> to keep music and announcements perfectly aligned.</> },
-      { heading: "Organise Every Moment", text: <>Structure your ceremony, reception, speeches, and entertainment into a clear running sheet. Reference your <Link to="/features/seating" className="text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]">wedding guest list</Link> to ensure key moments include the right people.</> },
-      { heading: "Share Timeline with Vendors", text: "Export and share your running sheet with your venue, photographer, DJ, and wedding party so everyone is aligned and prepared." },
-    ]}
-    relatedFeatures={[
-      { label: "DJ & MC Questionnaire", href: "/features/dj-mc" },
-      { label: "Guest List Manager", href: "/features/seating" },
-      { label: "Event Manager", href: "/features/events" },
-    ]}
-  />
-);
+const linkClass = "text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]";
+
+export const FeatureGuestList = () => {
+  const { t } = useTranslation('landing');
+  return (
+    <FeaturePageLayout
+      title={t('fp.guestList.title')}
+      description={t('fp.guestList.description')}
+      backgroundImage={bgImage}
+      pageTitle={t('fp.guestList.pageTitle')}
+      metaDescription={t('fp.guestList.metaDesc')}
+      seoSections={[
+        { heading: t('fp.guestList.seo1Heading'), text: <Trans i18nKey="fp.guestList.seo1Text" ns="landing" components={[<Link to="/features/dj-mc" className={linkClass} />]} /> },
+        { heading: t('fp.guestList.seo2Heading'), text: <Trans i18nKey="fp.guestList.seo2Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
+        { heading: t('fp.guestList.seo3Heading'), text: t('fp.guestList.seo3Text') },
+      ]}
+      relatedFeatures={[
+        { label: t('fp.guestList.related1'), href: "/features/dj-mc" },
+        { label: t('fp.guestList.related2'), href: "/features/seating" },
+        { label: t('fp.guestList.related3'), href: "/features/events" },
+      ]}
+    />
+  );
+};
