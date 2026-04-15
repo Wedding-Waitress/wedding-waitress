@@ -249,6 +249,150 @@ export const Landing = () => {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 md:py-32 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Simple, Transparent Pricing
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            Start free. Upgrade when you're ready.
+          </p>
+
+          {/* Main Plans */}
+          <div className="grid md:grid-cols-3 gap-8 items-center mb-8">
+            {/* Essential */}
+            <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-bold text-gray-900">Essential</h3>
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-4xl font-bold text-gray-900">$99</span>
+                <span className="text-gray-400 line-through text-lg">$199</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">Up to 100 guests · 12-month access</p>
+              <ul className="space-y-3 mb-8">
+                {["Guest list management", "Seating tools", "Basic planning features"].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <SignUpModal>
+                <Button variant="outline" className="w-full rounded-xl">Get Started</Button>
+              </SignUpModal>
+            </div>
+
+            {/* Premium — highlighted */}
+            <div className="bg-white rounded-[20px] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary md:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">Most Popular</span>
+              </div>
+              <div className="flex items-center gap-2 mb-4 mt-2">
+                <Crown className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-bold text-gray-900">Premium</h3>
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-4xl font-bold text-gray-900">$149</span>
+                <span className="text-gray-400 line-through text-lg">$299</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">Up to 300 guests · 12-month access</p>
+              <ul className="space-y-3 mb-8">
+                {["Everything in Essential", "QR code guest seating", "Invitations & RSVP tools"].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <SignUpModal>
+                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">Get Started</Button>
+              </SignUpModal>
+            </div>
+
+            {/* Unlimited */}
+            <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
+              <div className="flex items-center gap-2 mb-4">
+                <Heart className="w-5 h-5 text-primary" />
+                <h3 className="text-xl font-bold text-gray-900">Unlimited</h3>
+              </div>
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-4xl font-bold text-gray-900">$249</span>
+                <span className="text-gray-400 line-through text-lg">$499</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">Unlimited guests · 12-month access</p>
+              <ul className="space-y-3 mb-8">
+                {["All features unlocked", "Unlimited events & guests"].map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <SignUpModal>
+                <Button variant="outline" className="w-full rounded-xl">Get Started</Button>
+              </SignUpModal>
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-gray-400 mb-20">
+            All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime.
+          </p>
+
+          {/* Vendor Pro */}
+          <div className="mb-20">
+            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">For Wedding Professionals</h3>
+            <div className="max-w-2xl mx-auto bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-6 h-6 text-primary" />
+                  <h4 className="text-xl font-bold text-gray-900">Vendor Pro</h4>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-gray-900">$249</span>
+                  <span className="text-gray-500 text-sm">/month</span>
+                </div>
+              </div>
+              <p className="text-gray-500 mb-6">Perfect for venues, planners, and DJs managing multiple events.</p>
+              <ul className="grid sm:grid-cols-3 gap-3 mb-8">
+                {["Unlimited events", "Client management tools", "Full platform access"].map((f) => (
+                  <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
+                    <Check className="w-4 h-4 text-primary shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <SignUpModal>
+                <Button variant="outline" className="rounded-xl px-8">Start Subscription</Button>
+              </SignUpModal>
+            </div>
+          </div>
+
+          {/* RSVP Bundles */}
+          <div>
+            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">Invite & RSVP Bundles</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto mb-4">
+              {[
+                { guests: "100", price: "$99" },
+                { guests: "300", price: "$149" },
+                { guests: "500", price: "$199" },
+                { guests: "1,000", price: "$299" },
+              ].map((tier) => (
+                <div key={tier.guests} className="bg-white rounded-[20px] p-6 text-center shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
+                  <p className="text-sm text-gray-500 mb-1">Up to</p>
+                  <p className="text-2xl font-bold text-gray-900 mb-1">{tier.guests}</p>
+                  <p className="text-sm text-gray-500 mb-3">guests</p>
+                  <p className="text-xl font-bold text-primary">{tier.price}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-sm text-gray-400">One-time payment per event</p>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="py-24 md:py-32 px-4">
         <div className="max-w-7xl mx-auto">
