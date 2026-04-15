@@ -12,7 +12,7 @@ import featureQr from "@/assets/feature-qr.jpg";
 import featureTimeline from "@/assets/feature-timeline.jpg";
 import featureInvitations from "@/assets/feature-invitations.jpg";
 import ctaImg from "@/assets/cta-wedding.jpg";
-import ctaVideo from "/videos/cta-wedding-ring.mp4.asset.json";
+const ctaVideoUrl = "/__l5e/assets-v1/3df32a40-373d-4aa5-90c4-832d147e46a6/cta-wedding-ring.mp4";
 import featureMyevents from "@/assets/feature-myevents.jpg";
 import featurePlacecards from "@/assets/feature-placecards.jpg";
 import featureTablecharts from "@/assets/feature-tablecharts.jpg";
