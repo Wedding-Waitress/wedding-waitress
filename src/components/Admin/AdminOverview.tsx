@@ -54,13 +54,13 @@ export const AdminOverview = () => {
   };
 
   const kpis = [
-    { label: 'Total Users', value: stats.totalUsers, icon: Users, color: '#6D28D9' },
-    { label: 'Total Events', value: stats.totalEvents, icon: Calendar, color: '#6D28D9' },
+    { label: 'Total Users', value: stats.totalUsers, icon: Users, color: '#967A59' },
+    { label: 'Total Events', value: stats.totalEvents, icon: Calendar, color: '#967A59' },
   ];
 
   if (loading) {
     return <div className="flex items-center justify-center py-12">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#6D28D9' }}></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#967A59' }}></div>
     </div>;
   }
 
@@ -79,7 +79,7 @@ export const AdminOverview = () => {
                 <Icon className="w-5 h-5" style={{ color: kpi.color }} />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold" style={{ color: '#6D28D9' }}>
+                <div className="text-3xl font-bold" style={{ color: '#967A59' }}>
                   {kpi.value}
                 </div>
               </CardContent>

@@ -46,7 +46,7 @@ export const AdminLogs = () => {
       {/* Upload Errors */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle style={{ color: '#6D28D9' }}>
+          <CardTitle style={{ color: '#967A59' }}>
             <AlertCircle className="w-5 h-5 inline mr-2" />
             Upload Errors
           </CardTitle>
@@ -92,7 +92,7 @@ export const AdminLogs = () => {
       {/* Edge Function Logs */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle style={{ color: '#6D28D9' }}>Edge Function Logs</CardTitle>
+          <CardTitle style={{ color: '#967A59' }}>Edge Function Logs</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

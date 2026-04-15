@@ -34,7 +34,7 @@ export const SignageTemplateCard: React.FC<SignageTemplateCardProps> = ({
         );
       case 'elegant-script':
         return (
-          <div className={`${commonClasses} bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200`}>
+          <div className={`${commonClasses} bg-gradient-to-r from-[#F5F0EB] to-pink-50 border-[#EDE5DB]`}>
             <div className="text-xs text-muted-foreground italic">Elegant Script</div>
           </div>
         );

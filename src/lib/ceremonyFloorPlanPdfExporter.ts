@@ -35,7 +35,7 @@ const MARGIN_RIGHT = 15;
 const MARGIN_TOP = 15;
 const MARGIN_BOTTOM = 20;
 
-const PRIMARY_COLOR = '#7248e6';
+const PRIMARY_COLOR = '#967A59';
 
 const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
   if (!dateString) return 'TBD';
@@ -78,7 +78,7 @@ export const generateCeremonyFloorPlanPDF = async (
   // Event Name - Purple, Bold, ~22px = ~16.5pt
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(16.5);
-  pdf.setTextColor(109, 40, 217); // #6d28d9
+  pdf.setTextColor(109, 40, 217); // #967A59
   pdf.text(event.name, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 7;
 

@@ -117,7 +117,7 @@ export const AdminSubscriptions = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#6D28D9' }} />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#967A59' }} />
       </div>
     );
   }
@@ -204,7 +204,7 @@ export const AdminSubscriptions = () => {
       {/* All Subscriptions */}
       <Card>
         <div className="p-4 border-b flex items-center justify-between">
-          <h3 className="font-semibold" style={{ color: '#6D28D9' }}>All Subscriptions ({subscriptions.length})</h3>
+          <h3 className="font-semibold" style={{ color: '#967A59' }}>All Subscriptions ({subscriptions.length})</h3>
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input

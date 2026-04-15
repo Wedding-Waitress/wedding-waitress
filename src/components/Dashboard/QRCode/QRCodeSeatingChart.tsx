@@ -104,7 +104,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                 Choose Event:
               </label>
               <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#7248e6]">
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -121,7 +121,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </div>
             
             {selectedEvent && (
-              <div className="text-sm sm:text-lg font-medium text-[#7248e6] space-y-1 sm:space-y-0">
+              <div className="text-sm sm:text-lg font-medium text-[#967A59] space-y-1 sm:space-y-0">
                 <span className="block sm:inline">{selectedEvent.venue || 'Venue not specified'}</span>
                 <span className="hidden sm:inline">{' - '}</span>
                 <span className="block sm:inline">{formatEventDate(selectedEvent.date)}</span>

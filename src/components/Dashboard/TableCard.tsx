@@ -104,7 +104,7 @@ export const TableCard: React.FC<TableCardProps> = ({
   // Calculate capacity color based on percentage
   const getCapacityColor = () => {
     if (table.guest_count === 0) return 'bg-gray-400';
-    if (progressPercentage >= 75) return 'bg-purple-500';
+    if (progressPercentage >= 75) return 'bg-[#F5F0EB]0';
     if (progressPercentage >= 51) return 'bg-blue-500';
     if (progressPercentage >= 26) return 'bg-yellow-500';
     return 'bg-orange-500';
@@ -179,7 +179,7 @@ export const TableCard: React.FC<TableCardProps> = ({
                             {table.guest_count}/{table.limit_seats}
                           </span>
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
-                            progressPercentage >= 75 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' :
+                            progressPercentage >= 75 ? 'bg-[#F5F0EB] text-[#967A59] dark:bg-[#6B5640] dark:text-[#C4A882]' :
                             progressPercentage >= 51 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
                             progressPercentage >= 26 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
                             table.guest_count === 0 ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' :

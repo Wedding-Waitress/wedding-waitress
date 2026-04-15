@@ -190,7 +190,7 @@ export const CountdownBar: React.FC<CountdownBarProps> = ({
         {displayEvent && <p className={`text-lg font-medium text-muted-foreground transition-opacity duration-300 ease-in-out ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
             {hasStarted ? 'Event has started!' : (
               <>
-                Until <span className="text-2xl font-normal bg-gradient-to-r from-[#7C3AED] to-[#9333EA] bg-clip-text text-transparent">{displayEvent.name}</span>
+                Until <span className="text-2xl font-normal bg-gradient-to-r from-[#967A59] to-[#9333EA] bg-clip-text text-transparent">{displayEvent.name}</span>
               </>
             )}
           </p>}

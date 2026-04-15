@@ -2002,9 +2002,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           key={guest.id}
                           className={cn(
                             "border-card-border",
-                            "hover:bg-purple-100 dark:hover:bg-purple-950/30",
-                            group.type !== 'individual' && "border-l-4 border-l-purple-200",
-                            group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#7248e6]",
+                            "hover:bg-[#F5F0EB] dark:hover:bg-[#5A4835]/30",
+                            group.type !== 'individual' && "border-l-4 border-l-[#EDE5DB]",
+                            group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#967A59]",
                             guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
                           )}
                         >
@@ -2016,7 +2016,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </TableCell>
                           <TableCell className="py-1 px-2 font-medium truncate">
                             {group.type !== 'individual' && (
-                              <span className="inline-block w-2 h-2 rounded-full bg-[#7248e6] mr-2 align-middle" />
+                              <span className="inline-block w-2 h-2 rounded-full bg-[#967A59] mr-2 align-middle" />
                             )}
                             {guest.first_name}
                           </TableCell>

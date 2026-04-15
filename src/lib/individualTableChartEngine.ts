@@ -802,7 +802,7 @@ export const generateIndividualTableSVG = (
       <!-- Header Section - Running Sheet Style -->
       <div style="text-align: center; margin-bottom: 10px; padding: 10px 0;">
         <!-- Event Name - Large Purple Bold -->
-        <div style="font-size: 22px; font-weight: 700; color: #6d28d9; text-align: center; margin-bottom: 4px; line-height: 1.5;">
+        <div style="font-size: 22px; font-weight: 700; color: #967A59; text-align: center; margin-bottom: 4px; line-height: 1.5;">
           ${eventName}
         </div>
         <!-- Subtitle with guest count -->
@@ -815,7 +815,7 @@ export const generateIndividualTableSVG = (
           <div style="color:#555;font-size:12px;margin-top:2px;">${receptionDetailLine}</div>
         </div>
         <!-- Purple Divider -->
-        <div style="border-top: 2px solid #6d28d9; margin: 8px 0 14px 0;"></div>
+        <div style="border-top: 2px solid #967A59; margin: 8px 0 14px 0;"></div>
       </div>
 
       <!-- Table Visualization -->
@@ -916,7 +916,7 @@ export const generateIndividualTableSVG = (
                         font-weight: 500;
                         font-size: ${fontSize}px;
                         white-space: nowrap;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #967A59; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
                       <!-- Chair Circle -->
                       <div style="
                         width: ${chairSize}px;
@@ -976,7 +976,7 @@ export const generateIndividualTableSVG = (
                         font-weight: 500;
                         font-size: ${fontSize}px;
                         white-space: nowrap;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #7c3aed; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #967A59; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
                     </div>
                   `}).join('')}
                 </div>
@@ -998,7 +998,7 @@ export const generateIndividualTableSVG = (
                         ${topEnd[0].guest.first_name} ${topEnd[0].guest.last_name}
                       </span>
                       ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
-                        <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${topEnd[0].guest.dietary}</span>
+                        <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${topEnd[0].guest.dietary}</span>
                       ` : ''}
                       <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px;">
                         ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
@@ -1014,7 +1014,7 @@ export const generateIndividualTableSVG = (
                             ${topEnd[0].guest.first_name} ${topEnd[0].guest.last_name}
                           </span>
                           ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
-                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${topEnd[0].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${topEnd[0].guest.dietary}</span>
                           ` : ''}
                         </div>
                         <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px;">
@@ -1031,7 +1031,7 @@ export const generateIndividualTableSVG = (
                             ${topEnd[1].guest.first_name} ${topEnd[1].guest.last_name}
                           </span>
                           ${settings.includeDietary && topEnd[1].guest.dietary && topEnd[1].guest.dietary !== 'NA' ? `
-                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${topEnd[1].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${topEnd[1].guest.dietary}</span>
                           ` : ''}
                         </div>
                       </div>
@@ -1060,7 +1060,7 @@ export const generateIndividualTableSVG = (
                         ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
                       </span>
                       ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
-                        <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${bottomEnd[0].guest.dietary}</span>
+                        <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${bottomEnd[0].guest.dietary}</span>
                       ` : ''}
                     </div>
                   ` : `
@@ -1073,7 +1073,7 @@ export const generateIndividualTableSVG = (
                             ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
                           </span>
                           ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
-                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
                           ` : ''}
                         </div>
                         <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px;">
@@ -1090,7 +1090,7 @@ export const generateIndividualTableSVG = (
                             ${bottomEnd[1].guest.first_name} ${bottomEnd[1].guest.last_name}
                           </span>
                           ${settings.includeDietary && bottomEnd[1].guest.dietary && bottomEnd[1].guest.dietary !== 'NA' ? `
-                            <span style="color: #7c3aed; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${bottomEnd[1].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${bottomEnd[1].guest.dietary}</span>
                           ` : ''}
                         </div>
                       </div>
@@ -1190,7 +1190,7 @@ export const generateIndividualTableSVG = (
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
+                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;
@@ -1205,7 +1205,7 @@ export const generateIndividualTableSVG = (
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #6D28D9; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
+                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;

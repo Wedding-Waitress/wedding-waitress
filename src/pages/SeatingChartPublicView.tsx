@@ -214,7 +214,7 @@ export function SeatingChartPublicView() {
                 <div style={{ padding: '12mm' }} className="flex flex-col" >
                   {/* Page Header - matching Running Sheet layout */}
                   <div className="text-center mb-3">
-                    <h2 className="text-lg font-bold mb-0.5" style={{ color: '#6D28D9' }}>
+                    <h2 className="text-lg font-bold mb-0.5" style={{ color: '#967A59' }}>
                       {data.event_name}
                     </h2>
                     <p className="text-sm text-black mb-0.5">
@@ -225,7 +225,7 @@ export function SeatingChartPublicView() {
                         Reception: {formatDateWithOrdinal(data.event_date)} | {data.event_venue || 'Venue TBD'}
                       </p>
                     )}
-                    <div className="border-t-2 mt-2 mb-2" style={{ borderColor: '#6D28D9' }}></div>
+                    <div className="border-t-2 mt-2 mb-2" style={{ borderColor: '#967A59' }}></div>
                   </div>
 
                   {/* Column Headers Bar */}
@@ -304,7 +304,7 @@ export function SeatingChartPublicView() {
 function GuestRow({ guest }: { guest: SharedGuest }) {
   return (
     <div className="flex items-center gap-1.5 py-0.5 px-0.5">
-      <span className="text-sm font-mono flex-shrink-0" style={{ color: '#7C3AED' }}>☐</span>
+      <span className="text-sm font-mono flex-shrink-0" style={{ color: '#967A59' }}>☐</span>
       <span className="text-sm font-bold text-black flex-1 min-w-0 truncate">
         {guest.first_name}
       </span>

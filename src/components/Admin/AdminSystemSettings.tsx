@@ -35,7 +35,7 @@ export const AdminSystemSettings = () => {
       {/* Feature Flags */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle style={{ color: '#6D28D9' }}>
+          <CardTitle style={{ color: '#967A59' }}>
             <Settings className="w-5 h-5 inline mr-2" />
             Feature Flags
           </CardTitle>
@@ -111,7 +111,7 @@ export const AdminSystemSettings = () => {
       {/* Brand Settings */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle style={{ color: '#6D28D9' }}>Brand Settings</CardTitle>
+          <CardTitle style={{ color: '#967A59' }}>Brand Settings</CardTitle>
           <CardDescription>
             Customize branding and appearance
           </CardDescription>
@@ -128,10 +128,10 @@ export const AdminSystemSettings = () => {
               <Input
                 id="primaryColor"
                 type="color"
-                defaultValue="#6D28D9"
+                defaultValue="#967A59"
                 className="w-20"
               />
-              <Input value="#6D28D9" readOnly className="flex-1" />
+              <Input value="#967A59" readOnly className="flex-1" />
             </div>
           </div>
 
@@ -154,7 +154,7 @@ export const AdminSystemSettings = () => {
       {/* Data Tools */}
       <Card className="ww-box">
         <CardHeader>
-          <CardTitle style={{ color: '#6D28D9' }}>Data Tools</CardTitle>
+          <CardTitle style={{ color: '#967A59' }}>Data Tools</CardTitle>
           <CardDescription>
             Manage system data and exports
           </CardDescription>

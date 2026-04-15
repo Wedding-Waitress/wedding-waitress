@@ -355,7 +355,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
                       setOpen(false);
                       setSignInOpen(true);
                     }}
-                    className="font-bold text-purple-600 hover:text-purple-700"
+                    className="font-bold text-[#856A4C] hover:text-[#967A59]"
                   >
                     Sign In
                   </button>

@@ -190,7 +190,7 @@ export const exportFullSeatingChartToPdf = async (
     logoBase64 = await loadLogoAsBase64();
   }
 
-  const purple = { r: 109, g: 40, b: 217 };
+  const purple = { r: 150, g: 122, b: 89 };
 
   const startPage = pageNum || 1;
   const endPage = pageNum || totalPages;

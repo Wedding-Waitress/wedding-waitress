@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
                       variant="ghost"
                       size="sm"
                       className="min-h-[44px] min-w-[44px] p-2 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
-                      style={{ backgroundColor: '#6D28D9' }}
+                      style={{ backgroundColor: '#967A59' }}
                       aria-label="Open menu"
                       aria-expanded={mobileMenuOpen}
                     >
@@ -170,11 +170,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[80vh] overflow-y-auto">
                     <DropdownMenuItem onClick={() => setSignInOpen(true)}>
-                      <span className="w-full font-semibold" style={{ color: '#6D28D9' }}>{t('nav.signIn')}</span>
+                      <span className="w-full font-semibold" style={{ color: '#967A59' }}>{t('nav.signIn')}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <SignUpModal>
-                        <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#6D28D9' }}>
+                        <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#967A59' }}>
                           {t('nav.signUp')}
                         </button>
                       </SignUpModal>

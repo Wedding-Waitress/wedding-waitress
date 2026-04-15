@@ -124,8 +124,8 @@ export const BulkRsvpUpdateModal = ({
           </div>
 
           {/* Preview Summary */}
-          <div className="bg-purple-50 dark:bg-purple-950 rounded-lg p-4">
-            <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+          <div className="bg-[#F5F0EB] dark:bg-[#5A4835] rounded-lg p-4">
+            <p className="text-sm font-medium text-[#6B5640] dark:text-[#F5F0EB]">
               {selectedGuests.length} guests will be updated to "{newStatus}"
             </p>
           </div>
@@ -138,7 +138,7 @@ export const BulkRsvpUpdateModal = ({
           <Button 
             onClick={handleConfirm} 
             disabled={loading}
-            className="bg-purple-500 hover:bg-purple-600"
+            className="bg-[#F5F0EB]0 hover:bg-[#856A4C]"
           >
             {loading ? "Updating..." : "Update RSVP"}
           </Button>

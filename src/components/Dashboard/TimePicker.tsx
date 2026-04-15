@@ -53,7 +53,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           "w-full border-2 rounded-full focus:border-[3px] focus:ring-0 focus:outline-none",
           filled 
             ? "border-green-500 hover:border-green-500 focus:border-green-500" 
-            : "border-[#7248e6] hover:border-[#7248e6] focus:border-[#7248e6]"
+            : "border-[#967A59] hover:border-[#967A59] focus:border-[#967A59]"
         )}
       >
         <SelectValue placeholder={placeholder} />

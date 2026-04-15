@@ -157,7 +157,7 @@ const createHeaderSection = (
   const formattedDate = event?.date ? formatDateWithOrdinal(event.date) : '';
   
   return [
-    // Event Name (purple #6D28D9, bold, 16pt)
+    // Event Name (purple #967A59, bold, 16pt)
     new Paragraph({
       children: [
         new TextRun({

@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
 <title>Wedding Waitress</title>
 <style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8f9fa;color:#333}
 .card{text-align:center;padding:2rem;max-width:400px;background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(0,0,0,.08)}
-h1{color:#7248e6;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
+h1{color:#967A59;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
 <body><div class="card"><h1>💍 Wedding Waitress</h1><p>This QR code is not currently linked to an active event. Please check with your event host.</p></div></body></html>`,
         {
           status: 200,
@@ -87,7 +87,7 @@ h1{color:#7248e6;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
 <title>Wedding Waitress</title>
 <style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8f9fa;color:#333}
 .card{text-align:center;padding:2rem;max-width:400px;background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(0,0,0,.08)}
-h1{color:#7248e6;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
+h1{color:#967A59;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
 <body><div class="card"><h1>💍 Wedding Waitress</h1><p>This QR code is active but no event is currently assigned. Please check with your event host.</p></div></body></html>`,
         {
           status: 200,

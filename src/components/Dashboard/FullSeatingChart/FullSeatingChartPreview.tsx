@@ -228,7 +228,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       >
         {/* Purple circle checkbox matching PDF */}
         <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
-          <circle cx="7" cy="7" r="5.5" fill={checkedGuests.has(guest.id) ? '#6D28D9' : 'none'} stroke="#6D28D9" strokeWidth="1.2" />
+          <circle cx="7" cy="7" r="5.5" fill={checkedGuests.has(guest.id) ? '#967A59' : 'none'} stroke="#967A59" strokeWidth="1.2" />
           {checkedGuests.has(guest.id) && (
             <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           )}
@@ -338,7 +338,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           font-size: 22px;
           font-weight: bold;
           margin: 0 0 4px 0;
-          color: #6d28d9;
+          color: #967A59;
         }
 
         .print-chart-subtitle {
@@ -355,7 +355,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
           
           .print-divider {
-            border-top: 2px solid #6d28d9;
+            border-top: 2px solid #967A59;
             margin: 8px 0 14px 0;
           }
 
@@ -505,7 +505,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               overflow: 'hidden',
             }}>
               <div className="text-center">
-                <h1 className="font-bold" style={{ color: '#6D28D9', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                <h1 className="font-bold" style={{ color: '#967A59', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   {event.name}
                 </h1>
                 <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
@@ -519,7 +519,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                 <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
-                <div style={{ borderTop: '2px solid #6D28D9', marginTop: '1.5mm' }}></div>
+                <div style={{ borderTop: '2px solid #967A59', marginTop: '1.5mm' }}></div>
               </div>
 
               {/* Column Headers Bar */}
