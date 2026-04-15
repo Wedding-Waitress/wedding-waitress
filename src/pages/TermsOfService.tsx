@@ -421,6 +421,27 @@ export const TermsOfService = () => {
               <p className="text-muted-foreground leading-relaxed mt-4">
                 Our total liability to you for any claims related to the Service is limited to the amount you paid us in the 12 months preceding the claim, or $100 AUD, whichever is greater.
               </p>
+
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-foreground mb-3">Data Loss & Platform Use Disclaimer</h3>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  Wedding Waitress is provided on an "as-is" and "as-available" basis.
+                </p>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  While we strive to provide a reliable and secure platform, we do not guarantee that the service will be uninterrupted, error-free, or free from data loss.
+                </p>
+                <p className="text-muted-foreground leading-relaxed mb-3">
+                  By using the platform, you acknowledge and agree that:
+                </p>
+                <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                  <li>You are solely responsible for maintaining your own copies or backups of important data</li>
+                  <li>Wedding Waitress is not liable for any loss of data, including guest lists, event details, or uploaded content</li>
+                  <li>We are not responsible for any interruptions, system failures, bugs, or technical issues that may result in loss or disruption</li>
+                </ul>
+                <p className="text-muted-foreground leading-relaxed mt-3 font-semibold">
+                  Use of the platform is at your own risk.
+                </p>
+              </div>
             </section>
 
             <section id="indemnification">
