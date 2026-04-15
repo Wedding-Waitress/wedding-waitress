@@ -13,10 +13,11 @@
   "hero": {
     "title1": "Düğününüzü Planlayın",
     "title2": "Stressiz.",
-    "subtitle": "Konukları, oturma düzenini, davetleri ve tüm düğününüzü yönetmek için ihtiyacınız olan her şey — tek bir yerde.",
+    "subtitle": "Konukları, oturma düzenini, davetiyeleri, QR kodlu oturma planlarını ve tüm düğününüzü yönetmek için ihtiyacınız olan her şey — tek bir yerde.",
     "cta": "Ücretsiz denemenizi başlatın",
     "trusted": "Avustralya genelinde çiftler tarafından güveniliyor",
-    "trustLine": "Kredi kartı gerekmez. Dakikalar içinde ücretsiz başlayın."
+    "trustLine": "Kredi kartı gerekmez",
+    "trustLine2": "60 saniyede kaydolun. Uygulama indirmeye gerek yok"
   },
   "featureCards": {
     "sectionTitle": "Konuklarınızın seveceği düğün platformu.",

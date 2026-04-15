@@ -13,10 +13,11 @@
   "hero": {
     "title1": "Pianifica il tuo matrimonio",
     "title2": "Senza lo stress.",
-    "subtitle": "Tutto ciò di cui hai bisogno per gestire ospiti, posti a sedere, inviti e tutto il tuo matrimonio — tutto in un unico posto.",
+    "subtitle": "Tutto ciò di cui hai bisogno per gestire ospiti, posti a sedere, inviti, mappe dei tavoli con codice QR e tutto il tuo matrimonio — tutto in un unico posto.",
     "cta": "Inizia la tua prova gratuita",
     "trusted": "Scelto da coppie in tutta l'Australia",
-    "trustLine": "Nessuna carta di credito richiesta. Inizia gratis in pochi minuti."
+    "trustLine": "Nessuna carta di credito richiesta",
+    "trustLine2": "Registrati in 60 secondi. Nessuna app da scaricare"
   },
   "featureCards": {
     "sectionTitle": "La piattaforma per matrimoni che i tuoi ospiti ameranno.",

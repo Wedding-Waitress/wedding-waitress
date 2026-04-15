@@ -119,8 +119,9 @@ export const Landing = () => {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
-          <p className="text-white/70 text-sm mt-4">{t('hero.trustLine')}</p>
-          <p className="text-white/60 text-sm mt-2">{t('hero.trusted')}</p>
+          <p className="text-lg sm:text-xl md:text-2xl text-white/70 mt-6">{t('hero.trustLine')}</p>
+          <p className="text-lg sm:text-xl md:text-2xl text-white/60 mt-2">{t('hero.trustLine2')}</p>
+          <p className="text-lg sm:text-xl md:text-2xl text-white/60 mt-2">{t('hero.trusted')}</p>
         </div>
       </section>
 
