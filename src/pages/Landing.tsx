@@ -588,6 +588,7 @@ export const Landing = () => {
           </div>
         </div>
       </footer>
+      <CookieBanner />
     </div>
   );
 };
