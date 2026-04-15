@@ -1,42 +1,39 @@
 
 
-# Plan: Add Premium Pricing Section to Homepage
+# Plan: Pricing Section Refinement
 
-## Summary
-Add a comprehensive pricing section between the "Everything you need" grid and the Testimonials section, featuring three main plan cards, a vendor plan row, and an RSVP bundles row. All pricing data sourced from the existing `stripePrices.ts` constants.
+## Changes (all in `src/pages/Landing.tsx`)
 
-## What Changes
+### 1. Move trial text above cards
+Move "All plans include a 7-day free trial..." from below the cards (line 366-368) to directly below the subtitle (after line 286). Style it with `text-base font-medium text-gray-600` for better visibility.
 
-### Landing.tsx — Add Pricing Section (single file edit)
+### 2. Update all 3 plan feature lists
+Replace per-plan feature bullets with uniform text for all cards:
+- Essential: "Up to 100 guests", "1 event", "Full access to all features"
+- Premium: "Up to 300 guests", "1 event", "Full access to all features"
+- Unlimited: "Unlimited guests", "1 event", "Full access to all features"
 
-Insert a new `#pricing` section after the Extra Feature Grid (line 250) and before Testimonials (line 252). Three sub-sections:
+Remove all old feature text (Guest list management, Seating tools, Basic planning features, Everything in Essential, QR code guest seating, Invitations & RSVP tools, All features unlocked, Unlimited events & guests).
 
-**1. Main Plans (3 cards side-by-side)**
-- Essential ($99, ~~$199~~, 100 guests), Premium ($149, ~~$299~~, 300 guests, highlighted with purple border + "Most Popular" badge + slightly larger), Unlimited ($249, ~~$499~~, unlimited guests)
-- Each card: rounded-[20px], soft shadow, hover lift animation (`hover:-translate-y-2`), "Get Started" button triggering SignUpModal
-- Note below: "All plans include a 7-day free trial (up to 20 guests). No risk. Upgrade anytime."
+### 3. Fix Unlimited plan
+Change subtitle from "Unlimited guests · 12-month access" — keep as-is but ensure feature list says "1 event" not "Unlimited events".
 
-**2. Vendor Pro (single card, centered)**
-- Title: "For Wedding Professionals"
-- Card: Vendor Pro, $249/month, description + bullet points, "Start Subscription" button
+### 4. Add Vendor Pro as 4th card
+Add a 4th card after the 3 main plans. Change grid from `md:grid-cols-3` to a 4-column layout (`lg:grid-cols-4 md:grid-cols-2`).
 
-**3. RSVP Bundles (horizontal cards/row)**
-- Title: "Invite & RSVP Bundles"
-- 4 simplified tier cards in a row: 100/$99, 300/$149, 500/$199, 1000/$299
-- Note: "One-time payment per event"
+**Vendor Pro card:**
+- Dark/outlined style (dark background `bg-gray-900 text-white` or bordered outline)
+- Badge: "For Professionals"
+- Icon: `Building2`
+- Price: $249/month
+- Subtext: "For venues & event professionals"
+- Features: "Unlimited events", "Unlimited guests", "Full platform access"
+- Small note: "Approval required" in muted text
+- Button: "Get Started" with outline-on-dark styling
 
-**Design tokens used:**
-- `rounded-[20px]`, `shadow-[0_4px_30px_rgba(0,0,0,0.08)]`
-- Premium card: `border-2 border-primary`, `scale-105` on md+
-- Hover: `hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)]`
-- Background matches existing `bg-white` section style
-- Typography matches existing heading/body patterns
-
-### No other files changed
-- No new assets needed
-- Pricing data hardcoded to match `stripePrices.ts` values
-- Import `Check` icon from lucide-react for feature checkmarks
+### 5. Remove old trial note line (line 366-368)
+Already moved above.
 
 ## Files Modified
-1. `src/pages/Landing.tsx` — Insert pricing section JSX + add `Check` to icon imports
+1. `src/pages/Landing.tsx` — Pricing section restructure only
 
