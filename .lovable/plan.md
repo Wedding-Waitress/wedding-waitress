@@ -1,62 +1,68 @@
 
 
-# Plan: Premium Apple-Style Buttons for Live View Page
+# Plan: Premium One-Page Homepage for Wedding Waitress
 
 ## Summary
-Apply a premium Apple-style button treatment to the 5 buttons on the Guest Lookup (Live View) page only: **Update Your Details**, **Accept**, **Decline**, **Add Guest**, and **Share this invite**.
+Complete redesign of `Landing.tsx` — replacing the current layout with a modern, Hitchd-inspired, image-driven marketing homepage. The existing Header component will be updated for the new navigation structure. All existing functionality (sign-up form logic, auth, routing) is preserved.
 
 ## What Changes
 
-### 1. EnhancedGuestCard.tsx — 4 buttons
-Apply inline styles to each button for the exact specs:
-- **Height**: 36px, **Padding**: 8px 18px, **Border-radius**: 10px, **Font-weight**: 500
-- **Shadow**: `0 1px 2px rgba(0,0,0,0.08)`
-- **Transition**: `all 0.2s ease`
-- **Subtle gradient overlay** (barely visible, Apple-style — e.g., a `linear-gradient` from slightly lighter to slightly darker of the existing color)
-- **Hover**: darker background (5-8%), lift `translateY(-1px)`, shadow `0 4px 10px rgba(0,0,0,0.12)`
-- **Active**: press down, softer shadow
+### 1. Replace Landing.tsx (~508 lines) — Full Rewrite
+The entire page becomes a cinematic one-page marketing site with these sections in order:
 
-Buttons affected:
-- **Update Your Details** (green, line ~187)
-- **Accept** (green/success, line ~271)
-- **Decline** (red/destructive, line ~282)
-- **Add Guest** (purple/primary, line ~294)
+**Hero Section** — Full-viewport video/image background with dark overlay, centered headline "Plan Your Wedding Without the Stress.", subheading, "Get Started Free" button, trust text. Uses a high-quality stock wedding image (from Unsplash or similar placeholder) as background since we can't embed actual video in Lovable easily — will use a looping CSS-animated gradient overlay to simulate cinematic feel.
 
-Implementation: Use a shared CSS class (e.g., `.lv-premium-btn`) defined in `index.css` scoped or applied only to these buttons, plus Tailwind overrides for the specific sizing.
+**Feature Cards Row** — Title "The wedding platform your guests will love." with 6 vertical image cards (Guest List, Tables & Seating, QR Code Seating, Invitations, Running Sheet, Floor Plan) using glass overlay effect on background images.
 
-### 2. GuestLookup.tsx — Share this invite button (line ~813)
-Apply the same premium style to the "Share this invite" button.
+**5 Alternating Feature Sections** — Large horizontal sections alternating image left/text right, then image right/text left. Each with background image, heading, description, and "Learn More" button. Covers: Guest List, Tables & Seating, QR Code Seating, Running Sheet, Invitations.
 
-### 3. index.css — Add premium button class
-Add a `.lv-premium-btn` utility class with:
-```css
-.lv-premium-btn {
-  height: 36px;
-  padding: 8px 18px;
-  border-radius: 10px;
-  font-weight: 500;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-  transition: all 0.2s ease;
-}
-.lv-premium-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-}
-.lv-premium-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-}
-```
+**Extra Feature Grid** — "Everything you need for your perfect day" with smaller cards: DJ & Music Planner, Dietary Requirements, Place Cards, Live Kiosk View, Seating Charts.
 
-Each button keeps its existing color but gets a subtle gradient overlay (e.g., green button gets `linear-gradient(to bottom, rgba(255,255,255,0.12), rgba(0,0,0,0.04))`).
+**Testimonial Section** — "Your friends will be impressed." with 6-8 review cards in a grid.
 
-## Files Modified
-1. `src/index.css` — Add `.lv-premium-btn` class
-2. `src/components/GuestLookup/EnhancedGuestCard.tsx` — Apply class to 4 buttons
-3. `src/pages/GuestLookup.tsx` — Apply class to Share button
+**Final CTA** — Emotional background with "All the magic. None of the stress." and Get Started Free button.
+
+**Footer** — Logo + description left, Features/Pricing/FAQ center, social icons right, copyright with dynamic year, Terms & Privacy links.
+
+### 2. Update Header.tsx — Navigation Restructure
+- Keep the existing Header component structure
+- Update desktop nav links: How It Works, Products (dropdown with scroll-to links), Pricing, FAQ, Contact
+- Products dropdown items: Guest List, Tables & Seating, QR Code Seating, Running Sheet, Invitations & Cards
+- Keep existing Sign In / Sign Up / Language selector on right
+- Keep mobile hamburger menu
+
+### 3. index.css — Add Homepage-Specific Styles
+- Add utility classes for the hero overlay, glass card effects, alternating section layouts
+- Add smooth scroll behavior
+- Keep all existing styles untouched
+
+### 4. Design Specifications
+- Background: `#FAFAFA` (off-white)
+- Large spacing between sections (py-24 to py-32)
+- Border radius: `rounded-2xl` to `rounded-3xl` (16-24px)
+- Soft shadows: `shadow-[0_4px_30px_rgba(0,0,0,0.08)]`
+- Glass overlays: `bg-white/80 backdrop-blur-sm`
+- Typography: existing Inter font, large headings (text-5xl to text-7xl)
+- Images: Unsplash placeholder URLs for wedding imagery (will use `/lovable-uploads/` if available, otherwise placeholder gradients)
+- All existing auth logic (SignUpModal, SignInModal) preserved
 
 ## What Does NOT Change
-- No other pages affected
-- All existing button colors preserved
-- No changes to button functionality or locked features
+- No other pages modified
+- No routing changes
+- No database changes
+- Dashboard, Guest Lookup, Kiosk — all untouched
+- Existing CSS variables and design tokens preserved
+- Sign-up form functionality stays the same (moves into SignUpModal trigger)
+
+## Files Modified
+1. `src/pages/Landing.tsx` — Full rewrite
+2. `src/components/Layout/Header.tsx` — Nav link updates + Products dropdown scroll targets
+3. `src/index.css` — Add homepage utility classes
+
+## Technical Notes
+- Video backgrounds: Will use high-quality static images with subtle CSS animation (parallax/zoom) to simulate cinematic feel, since embedding real video requires hosted video files
+- Smooth scrolling: Add `scroll-behavior: smooth` to html
+- Section IDs for dropdown navigation: `#guest-list`, `#tables-seating`, `#qr-seating`, `#running-sheet`, `#invitations`
+- Copyright year: `new Date().getFullYear()` for auto-updating
+- All images use placeholder wedding photos — user can replace with real assets later
 
