@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useTranslation } from 'react-i18next';
 
 import heroImg from "@/assets/hero-wedding.jpg";
@@ -369,6 +370,10 @@ export const Landing = () => {
               </SignUpModal>
               <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
             </div>
+          </div>
+          <div className="text-center mt-12">
+            <p className="text-base font-medium text-gray-700">{t('pricing.riskReversal1')}</p>
+            <p className="text-sm text-gray-400 mt-1">{t('pricing.riskReversal2')}</p>
           </div>
         </div>
       </section>
