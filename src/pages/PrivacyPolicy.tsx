@@ -252,6 +252,9 @@ export const PrivacyPolicy = () => {
                   Email: <a href="mailto:support@weddingwaitress.com" className="text-primary hover:underline">support@weddingwaitress.com</a>
                 </p>
               </div>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                You may also contact us to request deletion of your data or closure of your account.
+              </p>
             </section>
 
             {/* Back to Top */}
