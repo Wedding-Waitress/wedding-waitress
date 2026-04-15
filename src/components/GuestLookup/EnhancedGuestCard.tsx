@@ -185,7 +185,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             {onEdit && isEditable && (
               <Button
                 onClick={() => onEdit(guest)}
-                className="ml-2 rounded-full px-4 py-1.5 h-auto min-h-0 bg-green-500 text-white hover:bg-green-600 border-2 border-green-600 text-[13px] font-bold"
+                className="lv-premium-btn ml-2 h-[36px] min-h-0 px-[18px] py-0 bg-green-500 text-white border-2 border-green-600 text-[13px]"
               >
                 Update Your Details
               </Button>
@@ -272,7 +272,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 size="sm"
                 onClick={() => updateRsvp('Attending')}
                 disabled={updatingRsvp}
-                className="bg-success text-success-foreground hover:bg-success/90 text-sm font-medium rounded-full px-6 py-1 h-8"
+                className="lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -283,7 +283,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 size="sm"
                 onClick={() => updateRsvp('Not Attending')}
                 disabled={updatingRsvp}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-sm font-medium rounded-full px-6 py-1 h-8"
+                className="lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -304,7 +304,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                     }
                     onAddGuest();
                   }}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm font-medium rounded-full px-6 py-1 h-8"
+                  className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
                   Add Guest
                 </Button>
