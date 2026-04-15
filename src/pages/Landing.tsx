@@ -157,8 +157,8 @@ export const Landing = () => {
           <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-4">
             Guest List, Seating Charts & QR Code RSVPs — All in One Place
           </p>
-          <p className="text-base sm:text-lg text-white/70 font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-            Trusted by couples across Australia
+          <p className="text-base sm:text-lg text-white font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+            Trusted by couples across Australia & around the world
           </p>
           <div className="flex justify-center">
             <SignUpModal>
