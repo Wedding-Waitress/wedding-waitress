@@ -223,24 +223,24 @@ export const Landing = () => {
       <HeroSection signUpRef={signUpRef} />
 
       {/* Feature Cards Row */}
-      <section className="py-16 md:py-20 px-4">
+      <section className="py-12 md:py-20 px-5 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('featureCards.sectionTitle')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-10 sm:mb-16 max-w-2xl mx-auto leading-relaxed">
             {t('featureCards.sectionSubtitle')}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {featureCards.map((card) => (
-              <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
+              <div key={card.key} className="group relative rounded-2xl sm:rounded-3xl overflow-hidden h-64 sm:h-80 cursor-pointer">
                 <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                   <div className="flex items-center gap-3 mb-2">
                     <card.icon className="w-5 h-5 text-white/80" />
-                    <h3 className="text-xl font-semibold text-white">{t(`featureCards.${card.key}.title`)}</h3>
+                    <h3 className="text-lg sm:text-xl font-semibold text-white">{t(`featureCards.${card.key}.title`)}</h3>
                   </div>
                   <p className="text-white/70 text-sm">{t(`featureCards.${card.key}.desc`)}</p>
                 </div>
@@ -251,15 +251,15 @@ export const Landing = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-16 md:py-20 px-4 bg-white">
+      <section id="how-it-works" className="py-12 md:py-20 px-5 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('howItWorks.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto whitespace-nowrap">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-10 sm:mb-16 max-w-4xl mx-auto">
             {t('howItWorks.subtitle')}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
             {[
               { icon: CalendarPlus, step: '1', titleKey: 'step1Title', descKey: 'step1Desc' },
               { icon: UserPlus, step: '2', titleKey: 'step2Title', descKey: 'step2Desc' },
@@ -267,38 +267,38 @@ export const Landing = () => {
               { icon: Share2, step: '4', titleKey: 'step4Title', descKey: 'step4Desc' },
             ].map((item) => (
               <div key={item.step} className="text-center group">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>
-                  <item.icon className="w-8 h-8" style={{ color: '#967A59' }} />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>
+                  <item.icon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: '#967A59' }} />
                 </div>
-                <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
+                <div className="text-xs sm:text-sm font-bold mb-1 sm:mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
+                <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
               </div>
             ))}
           </div>
-          <p className="text-center text-sm mt-12" style={{ color: '#967A59' }}>{t('howItWorks.bottomNote')}</p>
+          <p className="text-center text-xs sm:text-sm mt-8 sm:mt-12" style={{ color: '#967A59' }}>{t('howItWorks.bottomNote')}</p>
         </div>
       </section>
 
       {/* Alternating Feature Sections */}
       {alternatingFeatures.map((feature, idx) => (
-        <section key={feature.id} id={feature.id} className="py-10 md:py-14 px-4">
-          <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
-            <div className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+        <section key={feature.id} id={feature.id} className="py-8 sm:py-10 md:py-14 px-5 sm:px-6">
+          <div className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
+            <div className={`order-2 md:order-1 ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
                 {t(`alternating.${feature.key}.title`)}
               </h2>
-              <p className="text-lg text-gray-500 leading-relaxed mb-8">
+              <p className="text-base sm:text-lg text-gray-500 leading-relaxed mb-6 sm:mb-8">
                 {t(`alternating.${feature.key}.desc`)}
               </p>
               <Link to={featureRoutes[feature.key] || '/'}>
-                <Button variant="outline" className="rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
+                <Button variant="outline" className="rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all w-full sm:w-auto">
                   {t('alternating.learnMore')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
-            <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+            <div className={`order-1 md:order-2 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
             </div>
           </div>
@@ -306,22 +306,22 @@ export const Landing = () => {
       ))}
 
       {/* Extra Feature Grid */}
-      <section className="py-16 md:py-20 px-4 bg-white">
+      <section className="py-12 md:py-20 px-5 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('extraGrid.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-10 sm:mb-16 max-w-3xl mx-auto leading-relaxed">
             {t('extraGrid.subtitle')}
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
             {extraFeatureKeys.map((f) => (
-              <div key={f.key} className="bg-[#FAFAFA] rounded-3xl p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
-                  <f.icon className="w-7 h-7 text-primary" />
+              <div key={f.key} className="bg-[#FAFAFA] rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-5">
+                  <f.icon className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
                 </div>
-                <h3 className="text-base font-semibold text-gray-900 mb-2">{t(`extraGrid.${f.key}.title`)}</h3>
-                <p className="text-gray-500 text-sm">{t(`extraGrid.${f.key}.desc`)}</p>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">{t(`extraGrid.${f.key}.title`)}</h3>
+                <p className="text-gray-500 text-xs sm:text-sm leading-relaxed">{t(`extraGrid.${f.key}.desc`)}</p>
               </div>
             ))}
           </div>
@@ -329,35 +329,35 @@ export const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 md:py-20 px-4">
+      <section id="pricing" className="py-12 md:py-20 px-5 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('pricing.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-3 sm:mb-4 max-w-xl mx-auto">
             {t('pricing.subtitle')}
           </p>
-          <p className="text-base font-medium text-primary text-center mb-4 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base font-medium text-primary text-center mb-3 sm:mb-4 max-w-2xl mx-auto">
             {t('pricing.trialNote')}
           </p>
-          <p className="text-sm text-gray-500 text-center mb-2 max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-gray-500 text-center mb-2 max-w-xl mx-auto">
             {t('pricing.reassurance')}
           </p>
-          <p className="text-sm text-gray-400 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-gray-400 text-center mb-10 sm:mb-16 max-w-xl mx-auto">
             {t('pricing.noHiddenFees')}
           </p>
 
           {/* Main Plans */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 items-start">
             {/* Essential */}
-            <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
+            <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="w-5 h-5 text-primary" />
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.essential.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.essential.price)}</span>
-                <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>
+                <span className="text-3xl sm:text-4xl font-bold text-gray-900">{formatPrice(currency, plans.essential.price)}</span>
+                <span className="text-gray-400 line-through text-base sm:text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-1">{t('pricing.essential.guests')}</p>
               <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
@@ -370,14 +370,14 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
+                <Button variant="outline" className="w-full rounded-xl py-3">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
               <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Premium — highlighted */}
-            <div className="bg-white rounded-[20px] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary lg:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
+            <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary lg:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.mostPopular')}</span>
               </div>
@@ -387,8 +387,8 @@ export const Landing = () => {
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.premium.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.premium.price)}</span>
-                <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>
+                <span className="text-3xl sm:text-4xl font-bold text-gray-900">{formatPrice(currency, plans.premium.price)}</span>
+                <span className="text-gray-400 line-through text-base sm:text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-1">{t('pricing.premium.guests')}</p>
               <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
@@ -401,21 +401,21 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
+                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
               <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Unlimited */}
-            <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
+            <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
                 <Heart className="w-5 h-5 text-primary" />
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.unlimited.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.unlimited.price)}</span>
-                <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>
+                <span className="text-3xl sm:text-4xl font-bold text-gray-900">{formatPrice(currency, plans.unlimited.price)}</span>
+                <span className="text-gray-400 line-through text-base sm:text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-1">{t('pricing.unlimited.guests')}</p>
               <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
@@ -428,14 +428,14 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
+                <Button variant="outline" className="w-full rounded-xl py-3">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
               <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Vendor Pro */}
-            <div className="bg-gray-900 text-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
+            <div className="bg-gray-900 text-white rounded-[20px] p-6 sm:p-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.forVenuesAndPros')}</span>
               </div>
@@ -444,8 +444,8 @@ export const Landing = () => {
                 <h3 className="text-xl font-bold">{t('pricing.vendorPro.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold">{formatPrice(currency, vendor.price)}</span>
-                <span className="text-gray-400 text-lg">/{t('pricing.perMonth') || 'month'}</span>
+                <span className="text-3xl sm:text-4xl font-bold">{formatPrice(currency, vendor.price)}</span>
+                <span className="text-gray-400 text-base sm:text-lg">/{t('pricing.perMonth') || 'month'}</span>
               </div>
               <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
               <ul className="space-y-2 mb-8">
@@ -457,37 +457,37 @@ export const Landing = () => {
                 ))}
               </ul>
               <SignUpModal>
-                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
+                <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3">{t('pricing.getStarted')}</Button>
               </SignUpModal>
               <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
             </div>
           </div>
-          <div className="text-center mt-12">
-            <p className="text-base font-medium text-gray-700">{t('pricing.riskReversal1')}</p>
-            <p className="text-sm text-gray-400 mt-1">{t('pricing.riskReversal2')}</p>
+          <div className="text-center mt-8 sm:mt-12">
+            <p className="text-sm sm:text-base font-medium text-gray-700">{t('pricing.riskReversal1')}</p>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">{t('pricing.riskReversal2')}</p>
           </div>
         </div>
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 md:py-20 px-4">
+      <section className="py-12 md:py-20 px-5 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <p className="text-sm text-primary font-medium text-center mb-4">{t('testimonials.intro')}</p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <p className="text-xs sm:text-sm text-primary font-medium text-center mb-3 sm:mb-4">{t('testimonials.intro')}</p>
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('testimonials.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-10 sm:mb-16 max-w-xl mx-auto leading-relaxed">
             {t('testimonials.subtitle')}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {Array.isArray(testimonialItems) && testimonialItems.map((item, i) => (
-              <div key={i} className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+              <div key={i} className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, j) => (
                     <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-600 leading-relaxed mb-4">"{item.text}"</p>
+                <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">"{item.text}"</p>
                 <p className="text-sm font-semibold text-gray-900">{item.name}</p>
               </div>
             ))}
@@ -496,29 +496,29 @@ export const Landing = () => {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-16 md:py-20 px-4 bg-white">
+      <section id="faq" className="py-12 md:py-20 px-5 sm:px-6 bg-white">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('faq.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-10 sm:mb-16 max-w-xl mx-auto leading-relaxed">
             {t('faq.subtitle')}
           </p>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {Array.isArray(faqItems) && faqItems.map((item, i) => (
               <div
                 key={i}
-                className="bg-[#FAFAFA] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
+                className="bg-[#FAFAFA] rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-6 text-left"
+                  className="w-full flex items-center justify-between p-4 sm:p-6 text-left"
                 >
-                  <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
+                  <span className="text-sm sm:text-base font-semibold text-gray-900 pr-4">{item.q}</span>
                   <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 pb-6' : 'max-h-0'}`}>
-                  <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-60 pb-4 sm:pb-6' : 'max-h-0'}`}>
+                  <p className="px-4 sm:px-6 text-xs sm:text-sm text-gray-500 leading-relaxed">{item.a}</p>
                 </div>
               </div>
             ))}
@@ -527,16 +527,16 @@ export const Landing = () => {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="py-16 md:py-20 px-4">
+      <section id="contact" className="py-12 md:py-20 px-5 sm:px-6">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center text-gray-900 mb-3 sm:mb-4">
             {t('contact.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-500 text-center mb-10 sm:mb-16 max-w-xl mx-auto leading-relaxed">
             {t('contact.subtitle')}
           </p>
-          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
-            <div className="space-y-5">
+          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-6 sm:p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
+            <div className="space-y-4 sm:space-y-5">
               <div>
                 <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.name')}</label>
                 <input
@@ -624,9 +624,9 @@ export const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16 px-4">
+      <footer className="bg-gray-900 text-white py-10 sm:py-16 px-5 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 mb-8 sm:mb-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto brightness-0 invert" />
@@ -635,24 +635,24 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-4 sm:gap-6">
               <div>
-                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
-                <ul className="space-y-3 text-sm text-gray-400">
+                <h4 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
+                <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-400">
                   <li><a href="#guest-list" className="hover:text-white transition-colors">{t('footer.features')}</a></li>
                   <li><a href="#pricing" className="hover:text-white transition-colors">{t('footer.pricing')}</a></li>
                   <li><a href="#faq" className="hover:text-white transition-colors">{t('footer.faq')}</a></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.support')}</h4>
-                <ul className="space-y-3 text-sm text-gray-400">
+                <h4 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm uppercase tracking-wider text-gray-300">{t('footer.support')}</h4>
+                <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-400">
                   <li><Link to="/contact" className="hover:text-white transition-colors">{t('footer.contactUs')}</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.legal')}</h4>
-                <ul className="space-y-3 text-sm text-gray-400">
+                <h4 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm uppercase tracking-wider text-gray-300">{t('footer.legal')}</h4>
+                <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-400">
                   <li><Link to="/privacy" className="hover:text-white transition-colors">{t('footer.privacy')}</Link></li>
                   <li><Link to="/terms" className="hover:text-white transition-colors">{t('footer.terms')}</Link></li>
                   <li><Link to="/cookies" className="hover:text-white transition-colors">{t('footer.cookiePolicy')}</Link></li>
@@ -660,8 +660,8 @@ export const Landing = () => {
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.followUs')}</h4>
-              <div className="flex gap-4">
+              <h4 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm uppercase tracking-wider text-gray-300">{t('footer.followUs')}</h4>
+              <div className="flex gap-3 sm:gap-4">
                 <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Instagram className="w-5 h-5" />
                 </a>
@@ -674,8 +674,8 @@ export const Landing = () => {
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 pt-8 flex items-center justify-center">
-            <p className="text-gray-500 text-sm">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
+          <div className="border-t border-white/10 pt-6 sm:pt-8 flex items-center justify-center">
+            <p className="text-gray-500 text-xs sm:text-sm">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
           </div>
         </div>
       </footer>
