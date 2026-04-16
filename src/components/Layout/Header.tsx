@@ -6,6 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { SignInModal } from "@/components/auth/SignInModal";
 import { useTranslation } from 'react-i18next';
+import { CurrencySelector } from "@/components/ui/CurrencySelector";
+import { useCurrencyContext } from "@/contexts/CurrencyContext";
 
 const headerLanguages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -42,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
   const { t, i18n } = useTranslation('landing');
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
+  const { currency, setCurrency } = useCurrencyContext();
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
