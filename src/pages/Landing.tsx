@@ -55,7 +55,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
   }, []);
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[80vh] sm:min-h-[90vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         {/* Static hero image - shows first with cinematic zoom */}
         <img
@@ -63,7 +63,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           alt="Wedding reception with elegant table settings and seating chart"
           width={1920}
           height={1080}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 md:block"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
           style={{
             opacity: showVideo ? 0 : 1,
             animation: 'heroZoom 5s ease-out forwards',
@@ -83,20 +83,20 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
         </video>
         <div className="absolute inset-0 bg-black/50" />
       </div>
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
+      <div className="relative z-10 text-center px-5 sm:px-6 max-w-4xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-tight mb-3 sm:mb-4">
           {t('hero.title1')}<br />
           <span className="text-white/90">{t('hero.title2')}</span>
         </h1>
-        <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-4">
+        <p className="text-lg sm:text-xl md:text-3xl font-semibold text-white/90 mb-3 sm:mb-4">
           {t('hero.title3')}
         </p>
-        <p className="text-base sm:text-lg text-white font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+        <p className="text-sm sm:text-base md:text-lg text-white font-medium mb-6 sm:mb-8 leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
           {t('hero.trustLine')}
         </p>
         <div className="flex justify-center">
           <SignUpModal>
-            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
               {t('hero.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
