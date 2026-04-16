@@ -188,22 +188,38 @@ export const Header: React.FC<HeaderProps> = ({
                       </SignUpModal>
                     </DropdownMenuItem>
                     <div className="my-0.5 h-px bg-gray-100"></div>
-                    <DropdownMenuItem asChild className="!py-1 !px-3 text-[13px]">
-                      <a href="#how-it-works" className="w-full cursor-pointer">{t('nav.howItWorks')}</a>
+                    <DropdownMenuItem
+                      className="!py-1 !px-3 text-[13px] cursor-pointer"
+                      onSelect={() => { setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    >
+                      {t('nav.howItWorks')}
                     </DropdownMenuItem>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} asChild className="!py-1 !px-3 text-[13px]">
-                        <a href={link.href} className="w-full cursor-pointer">{link.label}</a>
+                      <DropdownMenuItem
+                        key={link.href}
+                        className="!py-1 !px-3 text-[13px] cursor-pointer"
+                        onSelect={() => { setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                      >
+                        {link.label}
                       </DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem asChild className="!py-1 !px-3 text-[13px]">
-                      <a href="#pricing" className="w-full cursor-pointer">{t('nav.pricing')}</a>
+                    <DropdownMenuItem
+                      className="!py-1 !px-3 text-[13px] cursor-pointer"
+                      onSelect={() => { setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    >
+                      {t('nav.pricing')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="!py-1 !px-3 text-[13px]">
-                      <a href="#faq" className="w-full cursor-pointer">{t('nav.faq')}</a>
+                    <DropdownMenuItem
+                      className="!py-1 !px-3 text-[13px] cursor-pointer"
+                      onSelect={() => { setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    >
+                      {t('nav.faq')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="!py-1 !px-3 text-[13px]">
-                      <a href="#contact" className="w-full cursor-pointer">{t('nav.contact')}</a>
+                    <DropdownMenuItem
+                      className="!py-1 !px-3 text-[13px] cursor-pointer"
+                      onSelect={() => { setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    >
+                      {t('nav.contact')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
