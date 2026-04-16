@@ -280,9 +280,9 @@ export const Landing = () => {
             {t('featureCards.sectionSubtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featureCards.map((card) => (
+            {featureCards.map((card, cardIdx) => (
               <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
-                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading={idx < 3 ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading={cardIdx < 3 ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
