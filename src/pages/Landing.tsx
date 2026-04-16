@@ -16,6 +16,13 @@ import heroSlide3 from "@/assets/hero-slide-3.jpg";
 import heroSlide4 from "@/assets/hero-slide-4.jpg";
 import heroSlide5 from "@/assets/hero-slide-5.jpg";
 import heroSlide6 from "@/assets/hero-slide-6.jpg";
+import heroSlide7 from "@/assets/hero-slide-7.jpg";
+import heroSlide8 from "@/assets/hero-slide-8.jpg";
+import heroSlide9 from "@/assets/hero-slide-9.jpg";
+import heroSlide10 from "@/assets/hero-slide-10.jpg";
+import heroSlide11 from "@/assets/hero-slide-11.jpg";
+import heroSlide12 from "@/assets/hero-slide-12.jpg";
+import heroSlide13 from "@/assets/hero-slide-13.jpg";
 import featureGuestlist from "@/assets/feature-guestlist.jpg";
 import featureTables from "@/assets/feature-tables.jpg";
 import featureQr from "@/assets/feature-qr.jpg";
@@ -38,7 +45,11 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showVideo, setShowVideo] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
-  const heroSlides = [heroSlide1, heroSlide2, heroSlide3, heroSlide4, heroSlide5, heroSlide6];
+  const heroSlides = [
+    heroSlide1, heroSlide9, heroSlide4, heroSlide7, heroSlide2,
+    heroSlide10, heroSlide5, heroSlide8, heroSlide3, heroSlide11,
+    heroSlide6, heroSlide12, heroSlide13
+  ];
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -96,15 +107,21 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           <source src={heroCombinedVideo} type="video/mp4" />
         </video>
 
-        {/* Mobile: Image slideshow with fade */}
-        <div className="md:hidden absolute inset-0">
+        {/* Mobile: Image slideshow with fade + Ken Burns zoom */}
+        <div className="md:hidden absolute inset-0 overflow-hidden">
           {heroSlides.map((slide, i) => (
             <img
               key={i}
               src={slide}
               alt={`Wedding moment ${i + 1}`}
               className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
-              style={{ opacity: currentSlide === i ? 1 : 0 }}
+              style={{
+                opacity: currentSlide === i ? 1 : 0,
+                transform: currentSlide === i ? 'scale(1.08)' : 'scale(1)',
+                transition: currentSlide === i
+                  ? 'opacity 1s ease-in-out, transform 4.5s ease-in-out'
+                  : 'opacity 1s ease-in-out, transform 0s',
+              }}
               loading={i === 0 ? "eager" : "lazy"}
             />
           ))}
