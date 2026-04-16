@@ -154,75 +154,73 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
 
               {/* Mobile + Tablet hamburger */}
-              <div className="lg:hidden">
-                <DropdownMenu onOpenChange={setMobileMenuOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="min-h-[44px] min-w-[44px] p-2 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95"
-                      style={{ backgroundColor: '#967A59' }}
-                      aria-label="Open menu"
-                      aria-expanded={mobileMenuOpen}
-                    >
-                      <div className="flex flex-col space-y-1">
-                        <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                        <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                        <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="mobile-nav-menu w-48 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[80vh] overflow-y-auto">
-                    <DropdownMenuItem
-                      onSelect={(e) => { e.preventDefault(); setSignInOpen(true); }}
-                      className="!py-1 !px-3 text-[13px] font-semibold cursor-pointer"
+              <div className="lg:hidden relative">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="min-h-[44px] min-w-[44px] p-2 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center"
+                  style={{ backgroundColor: '#967A59' }}
+                  aria-label="Open menu"
+                  aria-expanded={mobileMenuOpen}
+                >
+                  <div className="flex flex-col space-y-1">
+                    <div className="w-5 h-0.5 bg-white rounded-sm"></div>
+                    <div className="w-5 h-0.5 bg-white rounded-sm"></div>
+                    <div className="w-5 h-0.5 bg-white rounded-sm"></div>
+                  </div>
+                </button>
+                {mobileMenuOpen && (
+                  <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[80vh] overflow-y-auto">
+                    <button
+                      className="w-full text-left px-3 py-1 text-[13px] font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
                       style={{ color: '#967A59' }}
+                      onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
                     >
                       {t('nav.signIn')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="!py-1 !px-3 text-[13px] font-semibold">
-                      <SignUpModal>
-                        <button className="w-full text-left text-[13px] font-semibold px-3 py-1 rounded-sm hover:bg-accent cursor-pointer" style={{ color: '#967A59' }}>
-                          {t('nav.signUp')}
-                        </button>
-                      </SignUpModal>
-                    </DropdownMenuItem>
+                    </button>
+                    <SignUpModal>
+                      <button
+                        className="w-full text-left px-3 py-1 text-[13px] font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
+                        style={{ color: '#967A59' }}
+                      >
+                        {t('nav.signUp')}
+                      </button>
+                    </SignUpModal>
                     <div className="my-0.5 h-px bg-gray-100"></div>
-                    <DropdownMenuItem
-                      className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    <button
+                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
                     >
                       {t('nav.howItWorks')}
-                    </DropdownMenuItem>
+                    </button>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem
+                      <button
                         key={link.href}
-                        className="!py-1 !px-3 text-[13px] cursor-pointer"
-                        onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                        className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                        onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
                       >
                         {link.label}
-                      </DropdownMenuItem>
+                      </button>
                     ))}
-                    <DropdownMenuItem
-                      className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    <button
+                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
                     >
                       {t('nav.pricing')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    </button>
+                    <button
+                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
                     >
                       {t('nav.faq')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                    </button>
+                    <button
+                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
                     >
                       {t('nav.contact')}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </button>
+                  </div>
+                )}
               </div>
             </>
           )}
