@@ -172,25 +172,25 @@ export const Header: React.FC<HeaderProps> = ({
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto">
-                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="rounded-md px-3 py-1 text-[13px] font-medium min-h-0" style={{ color: '#967A59' }}>
+                  <DropdownMenuContent align="end" className="w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto [&>*]:!py-[5px] [&>*]:!min-h-0">
+                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="!px-3 !text-[13px] font-medium" style={{ color: '#967A59' }}>
                       {t('nav.signIn')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-md px-3 py-1 text-[13px] font-medium min-h-0">
+                    <DropdownMenuItem asChild className="!px-3 !text-[13px] font-medium">
                       <SignUpModal>
-                        <button className="w-full text-left text-[13px] font-medium px-3 py-1 rounded-md hover:bg-accent min-h-0" style={{ color: '#967A59' }}>
+                        <button className="w-full text-left text-[13px] font-medium px-3 py-[5px] rounded-sm hover:bg-accent" style={{ color: '#967A59' }}>
                           {t('nav.signUp')}
                         </button>
                       </SignUpModal>
                     </DropdownMenuItem>
-                    <div className="my-0.5 h-px bg-gray-100"></div>
-                    <DropdownMenuItem className="rounded-md px-3 py-1 text-[13px] min-h-0"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
+                    <div className="!py-0 my-0.5 h-px bg-gray-100"></div>
+                    <DropdownMenuItem className="!px-3 !text-[13px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} className="rounded-md px-3 py-1 text-[13px] min-h-0"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
+                      <DropdownMenuItem key={link.href} className="!px-3 !text-[13px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem className="rounded-md px-3 py-1 text-[13px] min-h-0"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="rounded-md px-3 py-1 text-[13px] min-h-0"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="rounded-md px-3 py-1 text-[13px] min-h-0"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!px-3 !text-[13px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!px-3 !text-[13px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!px-3 !text-[13px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
