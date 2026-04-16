@@ -110,6 +110,10 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
 export const Landing = () => {
   const { t } = useTranslation('landing');
   const signUpRef = useRef<HTMLButtonElement>(null);
+  const { currency } = useCurrencyContext();
+  const plans = PLAN_PRICING[currency];
+  const vendor = VENDOR_PRICING[currency];
+  const sym = CURRENCIES[currency].symbol;
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSending, setContactSending] = useState(false);
   const [contactSent, setContactSent] = useState(false);
