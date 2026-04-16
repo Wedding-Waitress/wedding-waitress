@@ -4,11 +4,23 @@
 
 /* Compact mobile/tablet nav menu */
 .mobile-nav-menu [role="menuitem"],
-.mobile-nav-menu div[role="menuitem"] {
-  padding: 5px 12px !important;
-  min-height: 28px !important;
-  font-size: 14px !important;
-  line-height: 1.2 !important;
+.mobile-nav-menu div[role="menuitem"],
+.mobile-nav-menu [data-radix-collection-item] {
+  padding: 4px 12px !important;
+  min-height: 24px !important;
+  height: auto !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+}
+
+/* Hide scrollbar but keep scroll */
+.mobile-nav-menu {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mobile-nav-menu::-webkit-scrollbar {
+  display: none;
 }
 
 html {
