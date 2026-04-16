@@ -594,7 +594,7 @@ export const Landing = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <video
             autoPlay
@@ -608,18 +608,18 @@ export const Landing = () => {
           </video>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/50" />
         </div>
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-[ctaFadeIn_1.5s_ease-out_both]">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
+        <div className="relative z-10 text-center px-5 sm:px-6 max-w-3xl mx-auto animate-[ctaFadeIn_1.5s_ease-out_both]">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
             {t('finalCta.title1')}<br />{t('finalCta.title2')}
           </h2>
-          <p className="text-white/70 text-lg md:text-xl mb-12">{t('finalCta.subtitle')}</p>
+          <p className="text-white/70 text-base sm:text-lg md:text-xl mb-8 sm:mb-12">{t('finalCta.subtitle')}</p>
           <SignUpModal>
-            <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+            <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
               {t('finalCta.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
-          <p className="text-sm text-white/60 mt-4">{t('finalCta.ctaSub')}</p>
+          <p className="text-xs sm:text-sm text-white/60 mt-4">{t('finalCta.ctaSub')}</p>
         </div>
       </section>
 
