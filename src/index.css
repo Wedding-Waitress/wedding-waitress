@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Compact mobile nav menu */
+.mobile-nav-menu [role="menuitem"] {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  min-height: 0 !important;
+  padding-left: 10px !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
