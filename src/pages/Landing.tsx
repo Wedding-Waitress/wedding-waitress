@@ -6,6 +6,8 @@ import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, Utens
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useTranslation } from 'react-i18next';
+import { useCurrencyContext } from '@/contexts/CurrencyContext';
+import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
 
 import heroImg from "@/assets/hero-wedding.jpg";
 import featureGuestlist from "@/assets/feature-guestlist.jpg";
@@ -108,6 +110,10 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
 export const Landing = () => {
   const { t } = useTranslation('landing');
   const signUpRef = useRef<HTMLButtonElement>(null);
+  const { currency } = useCurrencyContext();
+  const plans = PLAN_PRICING[currency];
+  const vendor = VENDOR_PRICING[currency];
+  const sym = CURRENCIES[currency].symbol;
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [contactSending, setContactSending] = useState(false);
   const [contactSent, setContactSent] = useState(false);
@@ -350,8 +356,8 @@ export const Landing = () => {
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.essential.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold text-gray-900">$99</span>
-                <span className="text-gray-400 line-through text-lg">$199</span>
+                <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.essential.price)}</span>
+                <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-1">{t('pricing.essential.guests')}</p>
               <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
@@ -381,8 +387,8 @@ export const Landing = () => {
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.premium.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold text-gray-900">$149</span>
-                <span className="text-gray-400 line-through text-lg">$299</span>
+                <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.premium.price)}</span>
+                <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-1">{t('pricing.premium.guests')}</p>
               <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
@@ -408,8 +414,8 @@ export const Landing = () => {
                 <h3 className="text-xl font-bold text-gray-900">{t('pricing.unlimited.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold text-gray-900">$249</span>
-                <span className="text-gray-400 line-through text-lg">$499</span>
+                <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.unlimited.price)}</span>
+                <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>
               </div>
               <p className="text-sm text-gray-500 mb-1">{t('pricing.unlimited.guests')}</p>
               <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
@@ -438,8 +444,8 @@ export const Landing = () => {
                 <h3 className="text-xl font-bold">{t('pricing.vendorPro.name')}</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-bold">$249</span>
-                <span className="text-gray-400 text-lg">/month</span>
+                <span className="text-4xl font-bold">{formatPrice(currency, vendor.price)}</span>
+                <span className="text-gray-400 text-lg">/{t('pricing.perMonth') || 'month'}</span>
               </div>
               <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
               <ul className="space-y-2 mb-8">

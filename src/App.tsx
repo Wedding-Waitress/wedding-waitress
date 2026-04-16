@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import "./App.css";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -71,6 +72,7 @@ const App = () => (
       disableTransitionOnChange
     >
       <AppErrorBoundary>
+        <CurrencyProvider>
         <BrowserRouter>
           <ScrollToTop />
           <RouteTracker />
@@ -122,6 +124,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </CurrencyProvider>
       </AppErrorBoundary>
     </ThemeProvider>
   </QueryClientProvider>
