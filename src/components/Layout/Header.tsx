@@ -132,6 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
                         {t('nav.getStarted')}
                       </Button>
                     </SignUpModal>
+                    <CurrencySelector currency={currency} onCurrencyChange={setCurrency} />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="hover:bg-gray-50 min-h-[44px] min-w-[44px] text-gray-700">
