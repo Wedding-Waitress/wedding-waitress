@@ -6,12 +6,12 @@
 .mobile-nav-menu [role="menuitem"],
 .mobile-nav-menu > div,
 .mobile-nav-menu > button {
-  padding-top: 3px !important;
-  padding-bottom: 3px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
   min-height: 0 !important;
-  padding-left: 10px !important;
-  font-size: 13px !important;
-  line-height: 1.4 !important;
+  padding-left: 12px !important;
+  font-size: 14px !important;
+  line-height: 1.3 !important;
 }
 
 html {
