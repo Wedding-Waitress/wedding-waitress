@@ -81,7 +81,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
   }, [heroSlides.length]);
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-start md:items-center justify-center overflow-hidden pt-[18vh] md:pt-0">
       <div className="absolute inset-0">
         {/* Desktop: Static hero image with zoom, then video */}
         <img
