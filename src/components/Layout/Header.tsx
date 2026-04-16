@@ -184,13 +184,13 @@ export const Header: React.FC<HeaderProps> = ({
                       </SignUpModal>
                     </DropdownMenuItem>
                     <div className="my-0.5 h-px bg-gray-100"></div>
-                    <DropdownMenuItem className="text-[13px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="text-[14px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} className="text-[13px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
+                      <DropdownMenuItem key={link.href} className="text-[14px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem className="text-[13px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="text-[13px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="text-[13px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="text-[14px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="text-[14px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="text-[14px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
