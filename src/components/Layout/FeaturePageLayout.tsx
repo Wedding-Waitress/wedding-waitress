@@ -67,12 +67,19 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
             <div
               className="relative w-full md:w-1/2 min-h-[340px] md:min-h-[500px] flex items-center justify-center"
               style={{
-                backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundColor: backgroundImage ? undefined : '#967A59',
+                backgroundColor: '#967A59',
               }}
             >
+              {backgroundImage && (
+                <img
+                  src={backgroundImage}
+                  alt=""
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
               <div className="absolute inset-0 bg-black/40" />
               <Link
                 to="/"

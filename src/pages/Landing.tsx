@@ -63,14 +63,11 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch(() => {});
-      }
+    if (videoReady && videoRef.current) {
+      videoRef.current.play().catch(() => {});
       setShowVideo(true);
-    }, 4500);
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [videoReady]);
 
   // Mobile slideshow
   useEffect(() => {
@@ -89,6 +86,8 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           alt="Wedding reception with elegant table settings and seating chart"
           width={1920}
           height={1080}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 hidden md:block"
           style={{
             opacity: showVideo ? 0 : 1,
@@ -101,6 +100,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           muted
           playsInline
           preload="auto"
+          poster={heroImg}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 hidden md:block"
           style={{ opacity: showVideo ? 1 : 0 }}
         >
@@ -123,6 +123,8 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
                   : 'opacity 1s ease-in-out, transform 0s',
               }}
               loading={i === 0 ? "eager" : "lazy"}
+              fetchPriority={i === 0 ? "high" : undefined}
+              decoding="async"
             />
           ))}
         </div>
@@ -280,7 +282,7 @@ export const Landing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featureCards.map((card) => (
               <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
-                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading={idx < 3 ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
                 <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -345,7 +347,7 @@ export const Landing = () => {
               </Link>
             </div>
             <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
-              <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading="lazy" width={1280} height={960} className="w-full h-auto object-cover" />
+              <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading={idx < 2 ? "eager" : "lazy"} decoding="async" width={1280} height={960} className="w-full h-auto object-cover" />
             </div>
           </div>
         </section>
