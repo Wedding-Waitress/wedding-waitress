@@ -2,16 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Compact mobile nav menu */
+/* Compact mobile/tablet nav menu */
 .mobile-nav-menu [role="menuitem"],
-.mobile-nav-menu > div,
-.mobile-nav-menu > button {
-  padding-top: 3px !important;
-  padding-bottom: 3px !important;
-  min-height: 0 !important;
-  padding-left: 10px !important;
-  font-size: 13px !important;
-  line-height: 1.4 !important;
+.mobile-nav-menu div[role="menuitem"] {
+  padding: 5px 12px !important;
+  min-height: 28px !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
 }
 
 html {

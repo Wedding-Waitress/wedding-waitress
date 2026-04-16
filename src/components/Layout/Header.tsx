@@ -88,8 +88,8 @@ export const Header: React.FC<HeaderProps> = ({
 
           {!user && (
             <>
-              {/* Desktop Nav — right side */}
-              <div className="hidden md:flex items-center gap-1 lg:gap-2">
+              {/* Desktop Nav — right side (lg+ only) */}
+              <div className="hidden lg:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
                   <a href="#how-it-works" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.howItWorks')}
@@ -153,8 +153,8 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               </div>
 
-              {/* Mobile hamburger */}
-              <div className="md:hidden">
+              {/* Mobile + Tablet hamburger */}
+              <div className="lg:hidden">
                 <DropdownMenu onOpenChange={setMobileMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -173,24 +173,24 @@ export const Header: React.FC<HeaderProps> = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="mobile-nav-menu w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto">
-                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="text-[13px] font-medium" style={{ color: '#967A59' }}>
+                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="!py-1 text-[14px] font-semibold" style={{ color: '#967A59' }}>
                       {t('nav.signIn')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="text-[13px] font-medium">
+                    <DropdownMenuItem asChild className="!py-1 text-[14px] font-semibold">
                       <SignUpModal>
-                        <button className="w-full text-left text-[13px] font-medium px-2 py-1 rounded-sm hover:bg-accent" style={{ color: '#967A59' }}>
+                        <button className="w-full text-left text-[14px] font-semibold px-2 py-1 rounded-sm hover:bg-accent" style={{ color: '#967A59' }}>
                           {t('nav.signUp')}
                         </button>
                       </SignUpModal>
                     </DropdownMenuItem>
                     <div className="my-0.5 h-px bg-gray-100"></div>
-                    <DropdownMenuItem className="text-[13px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} className="text-[13px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
+                      <DropdownMenuItem key={link.href} className="!py-1 text-[14px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem className="text-[13px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="text-[13px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="text-[13px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
