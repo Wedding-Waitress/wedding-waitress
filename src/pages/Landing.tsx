@@ -38,9 +38,10 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
   const videoRef = useRef<HTMLVideoElement>(null);
   const [showVideo, setShowVideo] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const heroSlides = [heroSlide1, heroSlide2, heroSlide3, heroSlide4, heroSlide5, heroSlide6];
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    // Preload video
     const vid = videoRef.current;
     if (vid) {
       vid.load();
@@ -60,22 +61,29 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
     return () => clearTimeout(timer);
   }, []);
 
+  // Mobile slideshow
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % heroSlides.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
-        {/* Static hero image - shows first with cinematic zoom */}
+        {/* Desktop: Static hero image with zoom, then video */}
         <img
           src={heroImg}
           alt="Wedding reception with elegant table settings and seating chart"
           width={1920}
           height={1080}
-          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 md:block"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 hidden md:block"
           style={{
             opacity: showVideo ? 0 : 1,
             animation: 'heroZoom 5s ease-out forwards',
           }}
         />
-        {/* Video - fades in after delay (desktop only) */}
         <video
           ref={videoRef}
           loop
@@ -87,22 +95,37 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
         >
           <source src={heroCombinedVideo} type="video/mp4" />
         </video>
+
+        {/* Mobile: Image slideshow with fade */}
+        <div className="md:hidden absolute inset-0">
+          {heroSlides.map((slide, i) => (
+            <img
+              key={i}
+              src={slide}
+              alt={`Wedding moment ${i + 1}`}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+              style={{ opacity: currentSlide === i ? 1 : 0 }}
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+          ))}
+        </div>
+
         <div className="absolute inset-0 bg-black/50" />
       </div>
-      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
+      <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
           {t('hero.title1')}<br />
           <span className="text-white/90">{t('hero.title2')}</span>
         </h1>
-        <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-4">
+        <p className="text-lg sm:text-xl md:text-3xl font-semibold text-white/90 mb-4">
           {t('hero.title3')}
         </p>
-        <p className="text-base sm:text-lg text-white font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+        <p className="text-sm sm:text-base md:text-lg text-white font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
           {t('hero.trustLine')}
         </p>
         <div className="flex justify-center">
           <SignUpModal>
-            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
               {t('hero.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
