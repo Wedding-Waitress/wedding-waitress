@@ -173,10 +173,10 @@ export const Header: React.FC<HeaderProps> = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="mobile-nav-menu w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto">
-                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="text-[14px] font-semibold" style={{ color: '#967A59' }}>
+                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="!py-1 text-[14px] font-semibold" style={{ color: '#967A59' }}>
                       {t('nav.signIn')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="text-[14px] font-semibold">
+                    <DropdownMenuItem asChild className="!py-1 text-[14px] font-semibold">
                       <SignUpModal>
                         <button className="w-full text-left text-[14px] font-semibold px-2 py-1 rounded-sm hover:bg-accent" style={{ color: '#967A59' }}>
                           {t('nav.signUp')}
@@ -184,13 +184,13 @@ export const Header: React.FC<HeaderProps> = ({
                       </SignUpModal>
                     </DropdownMenuItem>
                     <div className="my-0.5 h-px bg-gray-100"></div>
-                    <DropdownMenuItem className="text-[14px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem key={link.href} className="text-[14px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
+                      <DropdownMenuItem key={link.href} className="!py-1 text-[14px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem className="text-[14px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="text-[14px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
-                    <DropdownMenuItem className="text-[14px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="!py-1 text-[14px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
