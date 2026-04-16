@@ -172,25 +172,25 @@ export const Header: React.FC<HeaderProps> = ({
                       </div>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[80vh] overflow-y-auto">
-                    <DropdownMenuItem onClick={() => setSignInOpen(true)}>
-                      <span className="w-full font-semibold" style={{ color: '#967A59' }}>{t('nav.signIn')}</span>
+                  <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1.5 z-50 max-h-[85vh] overflow-y-auto">
+                    <DropdownMenuItem onClick={() => setSignInOpen(true)} className="rounded-lg px-3 py-1.5 text-[13px] font-medium" style={{ color: '#967A59' }}>
+                      {t('nav.signIn')}
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="rounded-lg px-3 py-1.5 text-[13px] font-medium">
                       <SignUpModal>
-                        <button className="w-full text-left font-semibold px-2 py-1.5 rounded-sm hover:bg-accent" style={{ color: '#967A59' }}>
+                        <button className="w-full text-left text-[13px] font-medium px-3 py-1.5 rounded-lg hover:bg-accent" style={{ color: '#967A59' }}>
                           {t('nav.signUp')}
                         </button>
                       </SignUpModal>
                     </DropdownMenuItem>
-                    <div className="my-1 h-px bg-gray-100"></div>
-                    <DropdownMenuItem><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
+                    <div className="my-0.5 h-px bg-gray-100"></div>
+                    <DropdownMenuItem className="rounded-lg px-3 py-1.5 text-[13px]"><a href="#how-it-works" className="w-full">{t('nav.howItWorks')}</a></DropdownMenuItem>
                     {productLinks.map((link) => (
-                      <DropdownMenuItem key={link.href}><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
+                      <DropdownMenuItem key={link.href} className="rounded-lg px-3 py-1.5 text-[13px]"><a href={link.href} className="w-full">{link.label}</a></DropdownMenuItem>
                     ))}
-                    <DropdownMenuItem><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
-                    <DropdownMenuItem><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
-                    <DropdownMenuItem><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="rounded-lg px-3 py-1.5 text-[13px]"><a href="#pricing" className="w-full">{t('nav.pricing')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="rounded-lg px-3 py-1.5 text-[13px]"><a href="#faq" className="w-full">{t('nav.faq')}</a></DropdownMenuItem>
+                    <DropdownMenuItem className="rounded-lg px-3 py-1.5 text-[13px]"><a href="#contact" className="w-full">{t('nav.contact')}</a></DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

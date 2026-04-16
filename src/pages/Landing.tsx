@@ -10,6 +10,12 @@ import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
 
 import heroImg from "@/assets/hero-wedding.jpg";
+import heroSlide1 from "@/assets/hero-slide-1.jpg";
+import heroSlide2 from "@/assets/hero-slide-2.jpg";
+import heroSlide3 from "@/assets/hero-slide-3.jpg";
+import heroSlide4 from "@/assets/hero-slide-4.jpg";
+import heroSlide5 from "@/assets/hero-slide-5.jpg";
+import heroSlide6 from "@/assets/hero-slide-6.jpg";
 import featureGuestlist from "@/assets/feature-guestlist.jpg";
 import featureTables from "@/assets/feature-tables.jpg";
 import featureQr from "@/assets/feature-qr.jpg";
