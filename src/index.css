@@ -2,17 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Compact mobile nav menu */
-.mobile-nav-menu [role="menuitem"] {
-  padding: 6px 12px !important;
-  min-height: 0 !important;
+/* Compact mobile/tablet nav menu */
+.mobile-nav-menu [role="menuitem"],
+.mobile-nav-menu div[role="menuitem"] {
+  padding: 5px 12px !important;
+  min-height: 28px !important;
   font-size: 14px !important;
   line-height: 1.2 !important;
-  margin: 0 !important;
-}
-.mobile-nav-menu > div.my-0\.5 {
-  margin-top: 2px !important;
-  margin-bottom: 2px !important;
 }
 
 html {
