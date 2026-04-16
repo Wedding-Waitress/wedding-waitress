@@ -6,6 +6,8 @@ import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, Utens
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useTranslation } from 'react-i18next';
+import { useCurrencyContext } from '@/contexts/CurrencyContext';
+import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
 
 import heroImg from "@/assets/hero-wedding.jpg";
 import featureGuestlist from "@/assets/feature-guestlist.jpg";
