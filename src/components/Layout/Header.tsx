@@ -190,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="my-0.5 h-px bg-gray-100"></div>
                     <DropdownMenuItem
                       className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={() => { setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
                     >
                       {t('nav.howItWorks')}
                     </DropdownMenuItem>
@@ -198,26 +198,26 @@ export const Header: React.FC<HeaderProps> = ({
                       <DropdownMenuItem
                         key={link.href}
                         className="!py-1 !px-3 text-[13px] cursor-pointer"
-                        onSelect={() => { setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                        onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
                       >
                         {link.label}
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuItem
                       className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={() => { setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
                     >
                       {t('nav.pricing')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={() => { setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
                     >
                       {t('nav.faq')}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="!py-1 !px-3 text-[13px] cursor-pointer"
-                      onSelect={() => { setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+                      onSelect={(e) => { e.preventDefault(); setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
                     >
                       {t('nav.contact')}
                     </DropdownMenuItem>
