@@ -1,33 +1,19 @@
 
-## Plan: Public SEO Page `/products/name-place-cards`
+## Plan (PENDING AUTHORISATION): Homepage SEO Optimisation
 
-### Files
-- **Create** `src/pages/products/ProductNamePlaceCards.tsx` — uses `ProductPageLayout`.
-- **Edit** `src/App.tsx` — import + register route above catch-all.
-- **Edit** `public/sitemap.xml` — add URL (priority 0.9).
+**Blocked:** `src/pages/Landing.tsx` is locked. Requires `AUTHORISED CHANGE – HOMEPAGE` phrase in the prompt before I can edit it.
 
-### Component
-```tsx
-import { ProductPageLayout } from '@/components/Layout/ProductPageLayout';
+### Files (once authorised)
+- **Edit** `src/pages/Landing.tsx`
+  - Add `<SeoHead>` at top with title `"Wedding Planning App | Guest List, Seating Chart & Invitations"` and the supplied meta description (indexable — no `noIndex`).
+  - Update H1 to `"All-In-One Wedding Planning Made Simple"` and lead paragraph to the supplied supporting text.
+  - Insert a new "Explore the Platform" section with 5 internal-link cards (Guest List, Tables, QR Seating, Invitations, Name Place Cards) each linking to its `/products/*` page using `<Link>` from `react-router-dom`. Cards styled to match existing Landing aesthetic (white card, brown accent, rounded-2xl).
+  - Ensure both CTAs exist: `Start Planning Your Event → /dashboard` and `View All Features → /products/my-events`.
+- **Verify** `src/App.tsx` already has `HelmetProvider` wrapping `<BrowserRouter>` (needed for `SeoHead`). If missing, wrap it — `react-helmet-async` is already used by `SeoHead.tsx`.
 
-export const ProductNamePlaceCards = () => (
-  <ProductPageLayout
-    pageTitle="Wedding Name Place Cards | Table Seating Cards Made Easy"
-    metaDescription="Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional."
-    breadcrumbLabel="Name Place Cards"
-    h1="Create Wedding Name Place Cards"
-    lead="Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size."
-    primaryCta={{ label: 'Start Planning Your Event', href: '/dashboard' }}
-    highlights={[
-      { heading: 'Create name place cards instantly', text: 'Quickly generate cards for all your guests.' },
-      { heading: 'Keep seating organised and clear', text: 'Help guests find their seats with ease.' },
-      { heading: 'Clean and elegant design', text: 'Perfect for weddings and formal events.' },
-      { heading: 'Works with your guest list and tables', text: 'Everything stays connected and organised.' },
-    ]}
-    finalCtaLabel="Start Planning Your Event"
-    finalCtaHref="/dashboard"
-  />
-);
-```
+### Notes
+- I'll preserve all existing Landing sections (hero video, pricing, testimonials, etc.) and only update the H1/lead, add SEO head, and append the internal-links grid.
+- No structural rewrite, no removal of existing copy beyond the H1/lead replacement you specified.
+- Will need to read `src/pages/Landing.tsx` and `src/App.tsx` first to confirm exact insertion points and HelmetProvider status before editing.
 
-Indexable by default; SEO, JSON-LD, canonical handled by `ProductPageLayout` — same pattern as My Events / Tables / Guest List / QR Code Seating Chart / Invitations & Cards.
+**Next step from you:** Reply with `AUTHORISED CHANGE – HOMEPAGE` to proceed.
