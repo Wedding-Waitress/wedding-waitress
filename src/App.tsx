@@ -49,6 +49,7 @@ import { ProductIndividualTableCharts } from "./pages/products/ProductIndividual
 import { ProductDietaryRequirements } from "./pages/products/ProductDietaryRequirements";
 import { ProductRunningSheet } from "./pages/products/ProductRunningSheet";
 import { ProductKioskLiveView } from "./pages/products/ProductKioskLiveView";
+import { ProductDjMcQuestionnaire } from "./pages/products/ProductDjMcQuestionnaire";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -128,6 +129,7 @@ const App = () => (
           <Route path="/products/dietary-requirements" element={<ProductDietaryRequirements />} />
           <Route path="/products/running-sheet" element={<ProductRunningSheet />} />
           <Route path="/products/kiosk-live-view" element={<ProductKioskLiveView />} />
+          <Route path="/products/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
