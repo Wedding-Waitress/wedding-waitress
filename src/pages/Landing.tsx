@@ -135,10 +135,10 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
       </div>
       <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-          All-In-One Wedding Planning Made Simple
+          All-In-One Wedding & Event Planning Made Simple with QR Code Seating Charts & More
         </h1>
         <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-8 max-w-3xl mx-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-          Plan your entire wedding or event from one place. Manage guests, create seating charts, send invitations, and stay organised every step of the way.
+          Plan your entire wedding or event from one place. Manage your guest list, create seating charts, send invitations, and stay organised — all without the stress of printed seating boards.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <SignUpModal>
