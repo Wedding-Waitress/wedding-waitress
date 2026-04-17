@@ -419,7 +419,16 @@ export const Dashboard = () => {
       case 'my-events':
         return <MyEventsPage />;
       case 'guest-list':
-        return <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return (
+          <>
+            <SeoHead
+              title="Wedding Guest List Manager | Track RSVPs & Guests Easily"
+              description="Easily manage your wedding guest list, track RSVPs, organise guests, and send invitations via email or SMS. The simplest way to stay organised for your big day."
+              noIndex
+            />
+            <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />
+          </>
+        );
       case 'table-list':
         const tablesSeo = (
           <SeoHead
