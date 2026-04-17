@@ -211,33 +211,23 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="my-0.5 h-px bg-gray-100"></div>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('how-it-works'); }}
                     >
                       {t('nav.howItWorks')}
                     </button>
                     {productLinks.map((link) => (
-                      link.isRoute ? (
-                        <Link
-                          key={link.href}
-                          to={link.href}
-                          onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                          className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                        >
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <button
-                          key={link.href}
-                          className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                          onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
-                        >
-                          {link.label}
-                        </button>
-                      )
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                        className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      >
+                        {link.label}
+                      </Link>
                     ))}
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('pricing'); }}
                     >
                       {t('nav.pricing')}
                     </button>
@@ -250,13 +240,13 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('faq'); }}
                     >
                       {t('nav.faq')}
                     </button>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('contact'); }}
                     >
                       {t('nav.contact')}
                     </button>
