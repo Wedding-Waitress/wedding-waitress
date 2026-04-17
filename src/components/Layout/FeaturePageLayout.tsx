@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { EmbeddedSignUpForm } from '@/components/auth/EmbeddedSignUpForm';
 import { CookieBanner } from '@/components/ui/CookieBanner';
+import { SeoHead } from '@/components/SEO/SeoHead';
 import { useTranslation } from 'react-i18next';
 
 interface SeoSection {
@@ -29,36 +30,40 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
   const location = useLocation();
   const { t } = useTranslation('landing');
 
-  useEffect(() => {
-    if (pageTitle) {
-      document.title = pageTitle;
-    }
-    const metaTag = document.querySelector('meta[name="description"]');
-    if (metaDescription && metaTag) {
-      metaTag.setAttribute('content', metaDescription);
-    }
+  const seoTitle = pageTitle || `${title} | Wedding Waitress`;
+  const seoDescription = metaDescription || description || 'Plan your wedding with ease using Wedding Waitress — the all-in-one wedding planning app.';
 
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', `https://weddingwaitress.com${location.pathname}`);
+  // BreadcrumbList JSON-LD helps Google show rich breadcrumbs in SERPs.
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com/' },
+      { '@type': 'ListItem', position: 2, name: title, item: `https://weddingwaitress.com${location.pathname}` },
+    ],
+  };
 
-    return () => {
-      document.title = 'Wedding Planning App Australia | Guest List, Seating Chart & RSVP Tool';
-      if (metaTag) {
-        metaTag.setAttribute('content', 'Plan your wedding with ease using Wedding Waitress — the all-in-one wedding planning app. Manage your guest list, create seating charts, send QR code RSVPs, and organise your entire event in one place.');
-      }
-      if (canonical) {
-        canonical.setAttribute('href', 'https://weddingwaitress.com/');
-      }
-    };
-  }, [pageTitle, metaDescription, location.pathname]);
+  // WebPage schema with FAQ-style content from seoSections (if present).
+  const webPageJsonLd: Record<string, any> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: seoTitle,
+    description: seoDescription,
+    url: `https://weddingwaitress.com${location.pathname}`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Wedding Waitress',
+      url: 'https://weddingwaitress.com',
+    },
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf8f5]">
+      <SeoHead
+        title={seoTitle}
+        description={seoDescription}
+        jsonLd={[breadcrumbJsonLd, webPageJsonLd]}
+      />
       <Header />
 
       <main className="flex-1 flex flex-col">
