@@ -24,6 +24,7 @@ import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { useUndoStack } from '@/hooks/useUndoStack';
 import { useToast } from '@/hooks/use-toast';
+import { SeoHead } from '@/components/SEO/SeoHead';
 
 // Lazy-loaded tab pages for faster initial load
 const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
@@ -420,8 +421,17 @@ export const Dashboard = () => {
       case 'guest-list':
         return <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'table-list':
+        const tablesSeo = (
+          <SeoHead
+            title="Tables Planner | Create & Manage Wedding Tables Easily"
+            description="Create and manage your wedding or event tables with ease. Add tables, set guest limits, rename tables, and organise seating effortlessly with Wedding Waitress."
+            noIndex
+          />
+        );
         if (selectedEventType === 'cocktail') {
           return (
+            <>
+              {tablesSeo}
             <Card className="ww-box">
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Event Selector */}
@@ -459,9 +469,11 @@ export const Dashboard = () => {
               </CardDescription>
               </CardContent>
             </Card>
+            </>
           );
         }
         return <div className="space-y-6">
+            {tablesSeo}
             <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Top row - Title */}
