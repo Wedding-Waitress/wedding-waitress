@@ -64,6 +64,13 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
   const location = useLocation();
   const url = `https://weddingwaitress.com${location.pathname}`;
 
+  // Normalize href so any variant pointing to the dashboard is auth-gated.
+  const isDashboardHref = (href?: string) => {
+    if (!href) return false;
+    const h = href.trim().toLowerCase();
+    return h === '/dashboard' || h.startsWith('/dashboard/') || h.startsWith('/dashboard?');
+  };
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -107,7 +114,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {lead}
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              {primaryCta.href === '/dashboard' ? (
+              {isDashboardHref(primaryCta.href) ? (
                 <AuthGatedCtaLink
                   to={primaryCta.href}
                   className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#967A59] text-white font-semibold text-base hover:bg-[#7a6347] transition-colors shadow-sm"
@@ -124,7 +131,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
                 </Link>
               )}
               {secondaryCta && (
-                secondaryCta.href === '/dashboard' ? (
+                secondaryCta.href && isDashboardHref(secondaryCta.href) ? (
                   <AuthGatedCtaLink
                     to={secondaryCta.href}
                     className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
@@ -196,7 +203,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {finalCtaHeading}
             </h2>
             <p className="text-lg text-white/90 mb-8 leading-relaxed">{finalCtaText}</p>
-            {finalCtaHref === '/dashboard' ? (
+            {isDashboardHref(finalCtaHref) ? (
               <AuthGatedCtaLink
                 to={finalCtaHref}
                 className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
