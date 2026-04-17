@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { SignUpModal } from '@/components/auth/SignUpModal';
 import { BLOG_POSTS, getBlogPostBySlug } from '@/content/blogPosts';
 import NotFound from '@/pages/NotFound';
 
@@ -111,13 +112,14 @@ export const BlogPost = () => {
             <p className="text-white/90 mb-6">
               Try Wedding Waitress free and bring all of these tools into one place.
             </p>
-            <Link
-              to="/dashboard"
-              onClick={() => window.scrollTo(0, 0)}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
-            >
-              Start Planning Your Event
-            </Link>
+            <SignUpModal>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
+              >
+                Start Planning Your Event
+              </button>
+            </SignUpModal>
           </div>
         </article>
 

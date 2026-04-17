@@ -67,8 +67,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: 'The Real Cost of Wedding Seating Charts in Australia',
         paragraphs: [
-          'Traditional printed seating signage in Australia adds up quickly: acrylic signage $250–$600+, calligraphy or design $150–$400, last-minute reprints $80–$200, and setup or easel hire $50–$150. Total: $400–$1,000+.',
-          'Digital with Wedding Waitress: a small QR code print $5–$20, and unlimited updates for free. Total: minimal cost.',
+          'Traditional printed seating signage in Australia adds up quickly: acrylic signage $600–$1,000+, calligraphy or design $400–$700, last-minute reprints $200–$450, and setup or easel hire $300–$500. Total: $1,600–$2,800.',
+          'Digital with Wedding Waitress: a small QR code print $5–$100, and unlimited updates for free. Total: minimal cost.',
           'This is exactly why couples searching for the best wedding planning tools in Australia are switching to digital.',
         ],
       },
