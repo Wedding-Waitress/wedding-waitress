@@ -145,6 +145,31 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
           </div>
         </section>
 
+        {/* Explore More Features — internal linking for SEO */}
+        <section className="w-full bg-white border-t border-[#eee5d8] py-16 md:py-20">
+          <div className="max-w-5xl mx-auto px-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#1D1D1F] text-center mb-10">
+              Explore More Features
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {ALL_PRODUCTS.filter((p) => p.href !== location.pathname).map((p) => (
+                <Link
+                  key={p.href}
+                  to={p.href}
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="block bg-[#faf8f5] rounded-2xl p-6 border border-[#eee5d8] hover:border-[#967A59] hover:shadow-md transition-all"
+                >
+                  <h3 className="text-lg font-bold text-[#1D1D1F] mb-2">{p.heading}</h3>
+                  <p className="text-sm text-[#6E6E73] leading-relaxed">{p.text}</p>
+                  <span className="mt-3 inline-block text-sm font-semibold text-[#967A59]">
+                    Learn more →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Final CTA */}
         <section className="w-full bg-[#967A59] py-16 md:py-20">
           <div className="max-w-3xl mx-auto px-6 text-center">
@@ -163,8 +188,41 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
         </section>
       </main>
 
-      <footer className="py-6 text-center text-sm text-gray-400 border-t border-gray-100">
-        © {new Date().getFullYear()} Wedding Waitress. All rights reserved.
+      <footer className="bg-[#1D1D1F] text-white">
+        <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
+            <h3 className="text-lg font-bold mb-4">Wedding Waitress</h3>
+            <p className="text-sm text-white/70 leading-relaxed">
+              All-in-one wedding and event planning made simple.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-white/90">Features</h3>
+            <ul className="space-y-2">
+              {ALL_PRODUCTS.map((p) => (
+                <li key={p.href}>
+                  <Link
+                    to={p.href}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="text-sm text-white/70 hover:text-white transition-colors"
+                  >
+                    {p.heading}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-white/90">Get Started</h3>
+            <ul className="space-y-2">
+              <li><Link to="/dashboard" onClick={() => window.scrollTo(0, 0)} className="text-sm text-white/70 hover:text-white">Start Planning</Link></li>
+              <li><Link to="/" onClick={() => window.scrollTo(0, 0)} className="text-sm text-white/70 hover:text-white">Home</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">
+          © {new Date().getFullYear()} Wedding Waitress. All rights reserved.
+        </div>
       </footer>
       <CookieBanner />
     </div>
