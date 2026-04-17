@@ -20,6 +20,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
   const { t } = useTranslation('common');
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     first_name: '',
     last_name: '',
