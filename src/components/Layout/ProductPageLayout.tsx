@@ -131,7 +131,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
                 </Link>
               )}
               {secondaryCta && (
-                secondaryCta.href === '/dashboard' ? (
+                secondaryCta.href && isDashboardHref(secondaryCta.href) ? (
                   <AuthGatedCtaLink
                     to={secondaryCta.href}
                     className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
@@ -203,7 +203,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {finalCtaHeading}
             </h2>
             <p className="text-lg text-white/90 mb-8 leading-relaxed">{finalCtaText}</p>
-            {finalCtaHref === '/dashboard' ? (
+            {isDashboardHref(finalCtaHref) ? (
               <AuthGatedCtaLink
                 to={finalCtaHref}
                 className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
