@@ -21,6 +21,7 @@ import { EventsTable } from './EventsTable';
 import { useEvents, Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { SeoHead } from '@/components/SEO/SeoHead';
 export const MyEventsPage: React.FC = () => {
   const {
     events,
@@ -416,6 +417,11 @@ export const MyEventsPage: React.FC = () => {
   const hasReception = selectedEvent?.reception_enabled !== false; // Default to true if not set
 
   return <div className="space-y-4 sm:space-y-6">
+      <SeoHead
+        title="Manage Your Wedding Events | Wedding Waitress"
+        description="Effortlessly organize all your wedding events in one place—track guest lists, seating, and more with Wedding Waitress."
+        noIndex
+      />
       {/* Countdown Section */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-4 sm:p-8 mx-0">
         <div className="text-center space-y-6">
