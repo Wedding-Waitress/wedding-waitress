@@ -3,6 +3,15 @@ import { Header } from '@/components/Layout/Header';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { BLOG_POSTS } from '@/content/blogPosts';
+import blogQrScanning from '@/assets/blog-qr-scanning.jpg';
+import blogPlanningLaptop from '@/assets/blog-planning-laptop.jpg';
+import blogWeddingSignage from '@/assets/blog-wedding-signage.jpg';
+
+const BLOG_COVER_IMAGES: Record<string, string> = {
+  'blog-qr-scanning': blogQrScanning,
+  'blog-planning-laptop': blogPlanningLaptop,
+  'blog-wedding-signage': blogWeddingSignage,
+};
 
 export const Blog = () => {
   const itemListJsonLd = {
@@ -46,9 +55,26 @@ export const Blog = () => {
                 key={post.slug}
                 className="bg-white rounded-2xl border border-[#eee5d8] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
               >
-                <div className="aspect-[16/9] bg-gradient-to-br from-[#f3efe9] to-[#e8dfcf] flex items-center justify-center text-6xl">
-                  <span aria-hidden="true">{post.coverEmoji}</span>
-                </div>
+                <Link
+                  to={`/blog/${post.slug}`}
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="block aspect-[16/9] overflow-hidden bg-[#f3efe9]"
+                >
+                  {post.coverImage && BLOG_COVER_IMAGES[post.coverImage] ? (
+                    <img
+                      src={BLOG_COVER_IMAGES[post.coverImage]}
+                      alt={post.title}
+                      loading="lazy"
+                      width={1024}
+                      height={576}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#f3efe9] to-[#e8dfcf] flex items-center justify-center text-6xl">
+                      <span aria-hidden="true">{post.coverEmoji}</span>
+                    </div>
+                  )}
+                </Link>
                 <div className="p-6 flex flex-col flex-1">
                   <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
                     {post.readingTime}
