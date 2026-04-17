@@ -421,8 +421,17 @@ export const Dashboard = () => {
       case 'guest-list':
         return <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'table-list':
+        const tablesSeo = (
+          <SeoHead
+            title="Tables Planner | Create & Manage Wedding Tables Easily"
+            description="Create and manage your wedding or event tables with ease. Add tables, set guest limits, rename tables, and organise seating effortlessly with Wedding Waitress."
+            noIndex
+          />
+        );
         if (selectedEventType === 'cocktail') {
           return (
+            <>
+              {tablesSeo}
             <Card className="ww-box">
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Event Selector */}
