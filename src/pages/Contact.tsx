@@ -2,12 +2,25 @@ import { ArrowLeft, Mail, Building2, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SeoHead } from "@/components/SEO/SeoHead";
 
 export const Contact = () => {
   const currentYear = new Date().getFullYear();
 
+  const contactJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact Wedding Waitress',
+    url: 'https://weddingwaitress.com/contact',
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <SeoHead
+        title="Contact Us | Wedding Waitress"
+        description="Get in touch with the Wedding Waitress team. We're here to help with your wedding planning, guest list, seating, and RSVP questions."
+        jsonLd={contactJsonLd}
+      />
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-16 flex items-center justify-between">

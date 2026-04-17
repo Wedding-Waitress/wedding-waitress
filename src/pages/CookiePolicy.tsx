@@ -3,12 +3,17 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Cookie } from 'lucide-react';
+import { SeoHead } from '@/components/SEO/SeoHead';
 
 export const CookiePolicy = () => {
   const currentYear = new Date().getFullYear();
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
+      <SeoHead
+        title="Cookie Policy | Wedding Waitress"
+        description="Understand how Wedding Waitress uses cookies and similar technologies to improve your wedding planning experience."
+      />
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="w-full px-4 py-4 flex items-center justify-between">
