@@ -50,6 +50,8 @@ import { ProductDietaryRequirements } from "./pages/products/ProductDietaryRequi
 import { ProductRunningSheet } from "./pages/products/ProductRunningSheet";
 import { ProductKioskLiveView } from "./pages/products/ProductKioskLiveView";
 import { ProductDjMcQuestionnaire } from "./pages/products/ProductDjMcQuestionnaire";
+import { Blog } from "./pages/Blog";
+import { BlogPost } from "./pages/BlogPost";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -130,6 +132,9 @@ const App = () => (
           <Route path="/products/running-sheet" element={<ProductRunningSheet />} />
           <Route path="/products/kiosk-live-view" element={<ProductKioskLiveView />} />
           <Route path="/products/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
+          {/* Blog */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
