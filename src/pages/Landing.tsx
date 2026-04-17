@@ -9,6 +9,7 @@ import { SeoHead } from "@/components/SEO/SeoHead";
 import { useTranslation } from 'react-i18next';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
+import { BLOG_POSTS } from '@/content/blogPosts';
 
 import heroImg from "@/assets/hero-wedding.jpg";
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
@@ -613,6 +614,66 @@ export const Landing = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog — Wedding Tips & Ideas */}
+      <section id="blog" className="py-16 md:py-20 px-4 bg-[#faf8f5]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Wedding Tips & Ideas
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Helpful guides and tips to make planning your wedding simple and stress-free.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {[...BLOG_POSTS]
+              .sort((a, b) => b.date.localeCompare(a.date))
+              .slice(0, 3)
+              .map((post) => (
+                <article
+                  key={post.slug}
+                  className="bg-white rounded-2xl border border-[#eee5d8] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+                >
+                  <div className="aspect-[16/9] bg-gradient-to-br from-[#f3efe9] to-[#e8dfcf] flex items-center justify-center text-6xl">
+                    <span aria-hidden="true">{post.coverEmoji}</span>
+                  </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
+                      {post.readingTime}
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug">
+                      <Link
+                        to={`/blog/${post.slug}`}
+                        onClick={() => window.scrollTo(0, 0)}
+                        className="hover:text-[#967A59] transition-colors"
+                      >
+                        {post.title}
+                      </Link>
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed flex-1">{post.excerpt}</p>
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="mt-5 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
+                    >
+                      Read More →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link
+              to="/blog"
+              onClick={() => window.scrollTo(0, 0)}
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full border-2 border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
+            >
+              View All Articles →
+            </Link>
           </div>
         </div>
       </section>
