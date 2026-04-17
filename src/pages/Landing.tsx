@@ -5,6 +5,7 @@ import { SignUpModal } from "@/components/auth/SignUpModal";
 import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
+import { Reveal } from "@/components/ui/Reveal";
 import { SeoHead } from "@/components/SEO/SeoHead";
 import { useTranslation } from 'react-i18next';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
@@ -412,10 +413,14 @@ export const Landing = () => {
       </section>
 
       {/* Alternating Feature Sections */}
-      {alternatingFeatures.map((feature, idx) => (
+      {alternatingFeatures.map((feature, idx) => {
+        const imageOnRight = idx % 2 === 0; // even rows: image right, text left
+        const textDir = imageOnRight ? 'left' : 'right';
+        const imgDir = imageOnRight ? 'right' : 'left';
+        return (
         <section key={feature.id} id={feature.id} className="py-10 md:py-14 px-4">
           <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
-            <div className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+            <Reveal direction={textDir} className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
                 {t(`alternating.${feature.key}.title`)}
               </h2>
@@ -423,18 +428,19 @@ export const Landing = () => {
                 {t(`alternating.${feature.key}.desc`)}
               </p>
               <Link to={featureRoutes[feature.key] || '/'}>
-                <Button variant="outline" className="rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
+                <Button variant="outline" className="btn-press rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
                   {t('alternating.learnMore')}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
-            </div>
-            <div className={`rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+            </Reveal>
+            <Reveal direction={imgDir} className={`image-zoom-hover lift-on-hover rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading={idx < 2 ? "eager" : "lazy"} decoding="async" width={1280} height={960} className="w-full h-auto object-cover" />
-            </div>
+            </Reveal>
           </div>
         </section>
-      ))}
+        );
+      })}
 
       {/* Extra Feature Grid */}
       <section className="py-16 md:py-20 px-4 bg-white">

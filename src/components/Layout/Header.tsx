@@ -93,8 +93,20 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full px-4 lg:px-8 py-3">
         <div className="flex items-center justify-between w-full">
-          {/* Logo — always left */}
-          <Link to="/" className="flex items-center flex-shrink-0">
+          {/* Logo — always left. Click: scroll to top, no reload if already on / */}
+          <Link
+            to="/"
+            onClick={(e) => {
+              if (location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else {
+                // Allow navigation, then scroll to top after route change
+                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+              }
+            }}
+            className="flex items-center flex-shrink-0"
+          >
             <img
               src="/wedding-waitress-logo-full.png"
               alt="Wedding Waitress Logo"

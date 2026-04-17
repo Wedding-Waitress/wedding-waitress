@@ -28,6 +28,71 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ===== Scroll reveal animations (Apple-style: subtle fade + slide) ===== */
+.reveal-left,
+.reveal-right,
+.reveal-up {
+  opacity: 0;
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  will-change: opacity, transform;
+}
+.reveal-left { transform: translate3d(-30px, 0, 0); }
+.reveal-right { transform: translate3d(30px, 0, 0); }
+.reveal-up { transform: translate3d(0, 24px, 0); }
+
+@media (min-width: 768px) {
+  .reveal-left { transform: translate3d(-60px, 0, 0); }
+  .reveal-right { transform: translate3d(60px, 0, 0); }
+  .reveal-up { transform: translate3d(0, 40px, 0); }
+}
+
+.is-revealed.reveal-left,
+.is-revealed.reveal-right,
+.is-revealed.reveal-up {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-left,
+  .reveal-right,
+  .reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== Premium micro-interactions (Apple-style) ===== */
+.lift-on-hover {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+.lift-on-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.18);
+}
+
+.image-zoom-hover {
+  overflow: hidden;
+}
+.image-zoom-hover img {
+  transition: transform 0.5s ease-out;
+}
+.image-zoom-hover:hover img {
+  transform: scale(1.05);
+}
+
+.btn-press {
+  transition: transform 0.18s ease-out, filter 0.18s ease-out, box-shadow 0.18s ease-out;
+}
+.btn-press:hover {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+.btn-press:active {
+  transform: scale(0.98);
+}
+
 /* Custom Place Card Fonts */
 @font-face {
   font-family: 'Beauty Mountains';
