@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2 } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { SeoHead } from "@/components/SEO/SeoHead";
@@ -326,6 +326,13 @@ export const Landing = () => {
               { icon: QrCode, heading: 'QR Code Seating Chart', text: 'Let guests scan and find their seat instantly.', href: '/products/qr-code-seating-chart' },
               { icon: Mail, heading: 'Send Digital Invitations', text: 'Create and send beautiful invites via SMS or email.', href: '/products/invitations-cards' },
               { icon: CreditCard, heading: 'Name Place Cards', text: 'Organise seating with clean and elegant place cards.', href: '/products/name-place-cards' },
+              { icon: LayoutGrid, heading: 'Individual Table Charts', text: 'Print elegant per-table seating charts for every guest.', href: '/products/individual-table-charts' },
+              { icon: Map, heading: 'Wedding Floor Plan Tool', text: 'Design your ceremony and reception venue layout visually.', href: '/products/floor-plan' },
+              { icon: ChefHat, heading: 'Dietary Requirements', text: "Track every guest's meal and dietary needs in one place.", href: '/products/dietary-requirements' },
+              { icon: FileText, heading: 'Full Seating Chart', text: 'Generate a complete printable master seating chart.', href: '/products/full-seating-chart' },
+              { icon: Monitor, heading: 'Kiosk Live View', text: 'Let guests find their seat instantly at the venue.', href: '/products/kiosk-live-view' },
+              { icon: Music, heading: 'DJ & MC Questionnaire', text: 'Brief your DJ and MC with a structured digital form.', href: '/products/dj-mc-questionnaire' },
+              { icon: ListChecks, heading: 'Wedding Running Sheet Planner', text: 'Build and share a minute-by-minute wedding day timeline.', href: '/products/running-sheet' },
             ].map(({ icon: Icon, heading, text, href }) => (
               <Link
                 key={href}
