@@ -199,13 +199,24 @@ export const Header: React.FC<HeaderProps> = ({
                       {t('nav.howItWorks')}
                     </button>
                     {productLinks.map((link) => (
-                      <button
-                        key={link.href}
-                        className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                        onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
-                      >
-                        {link.label}
-                      </button>
+                      link.isRoute ? (
+                        <Link
+                          key={link.href}
+                          to={link.href}
+                          onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                          className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <button
+                          key={link.href}
+                          className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                          onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                        >
+                          {link.label}
+                        </button>
+                      )
                     ))}
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
