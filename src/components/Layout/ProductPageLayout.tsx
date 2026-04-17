@@ -64,6 +64,13 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
   const location = useLocation();
   const url = `https://weddingwaitress.com${location.pathname}`;
 
+  // Normalize href so any variant pointing to the dashboard is auth-gated.
+  const isDashboardHref = (href?: string) => {
+    if (!href) return false;
+    const h = href.trim().toLowerCase();
+    return h === '/dashboard' || h.startsWith('/dashboard/') || h.startsWith('/dashboard?');
+  };
+
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
