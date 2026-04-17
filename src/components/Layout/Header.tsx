@@ -58,19 +58,19 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const productLinks = [
-    { label: "My Events", href: "#my-events" },
-    { label: "Tables", href: "#tables-seating" },
-    { label: "Guest List", href: "#guest-list" },
-    { label: "QR Code Seating Chart", href: "#qr-seating" },
-    { label: "Invitations & Cards", href: "#invitations" },
-    { label: "Name Place Cards", href: "#place-cards" },
-    { label: "Individual Table Charts", href: "#table-charts" },
-    { label: "Floor Plan", href: "#floor-plan" },
-    { label: "Dietary Requirements", href: "#dietary" },
-    { label: "Full Seating Chart", href: "#seating-chart" },
-    { label: "Kiosk Live View", href: "#kiosk" },
-    { label: "DJ-MC Questionnaire", href: "#dj-mc" },
-    { label: "Running Sheet", href: "#running-sheet" },
+    { label: "My Events", href: "/products/my-events", isRoute: true },
+    { label: "Guest List", href: "/products/guest-list", isRoute: true },
+    { label: "Tables", href: "/products/tables", isRoute: true },
+    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart", isRoute: true },
+    { label: "Invitations & Cards", href: "/products/invitations-cards", isRoute: true },
+    { label: "Name Place Cards", href: "/products/name-place-cards", isRoute: true },
+    { label: "Individual Table Charts", href: "#table-charts", isRoute: false },
+    { label: "Floor Plan", href: "#floor-plan", isRoute: false },
+    { label: "Dietary Requirements", href: "#dietary", isRoute: false },
+    { label: "Full Seating Chart", href: "#seating-chart", isRoute: false },
+    { label: "Kiosk Live View", href: "#kiosk", isRoute: false },
+    { label: "DJ-MC Questionnaire", href: "#dj-mc", isRoute: false },
+    { label: "Running Sheet", href: "#running-sheet", isRoute: false },
   ];
 
   return (
@@ -104,9 +104,15 @@ export const Header: React.FC<HeaderProps> = ({
                     <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
                       {productLinks.map((link) => (
                         <DropdownMenuItem key={link.href} asChild>
-                          <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
-                            {link.label}
-                          </a>
+                          {link.isRoute ? (
+                            <Link to={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
+                              {link.label}
+                            </Link>
+                          ) : (
+                            <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
+                              {link.label}
+                            </a>
+                          )}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -193,13 +199,24 @@ export const Header: React.FC<HeaderProps> = ({
                       {t('nav.howItWorks')}
                     </button>
                     {productLinks.map((link) => (
-                      <button
-                        key={link.href}
-                        className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                        onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
-                      >
-                        {link.label}
-                      </button>
+                      link.isRoute ? (
+                        <Link
+                          key={link.href}
+                          to={link.href}
+                          onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                          className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <button
+                          key={link.href}
+                          className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                          onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                        >
+                          {link.label}
+                        </button>
+                      )
                     ))}
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
