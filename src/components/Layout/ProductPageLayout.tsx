@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Layout/Header';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { AuthGatedCtaLink } from '@/components/auth/AuthGatedCtaLink';
 
 const ALL_PRODUCTS = [
   { href: '/products/my-events', heading: 'My Events', text: 'Manage all your weddings and events from one dashboard.' },
@@ -106,21 +107,39 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {lead}
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link
-                to={primaryCta.href}
-                onClick={() => window.scrollTo(0, 0)}
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#967A59] text-white font-semibold text-base hover:bg-[#7a6347] transition-colors shadow-sm"
-              >
-                {primaryCta.label}
-              </Link>
-              {secondaryCta && (
-                <Link
-                  to={secondaryCta.href}
-                  onClick={() => window.scrollTo(0, 0)}
-                  className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
+              {primaryCta.href === '/dashboard' ? (
+                <AuthGatedCtaLink
+                  to={primaryCta.href}
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#967A59] text-white font-semibold text-base hover:bg-[#7a6347] transition-colors shadow-sm"
                 >
-                  {secondaryCta.label}
+                  {primaryCta.label}
+                </AuthGatedCtaLink>
+              ) : (
+                <Link
+                  to={primaryCta.href}
+                  onClick={() => window.scrollTo(0, 0)}
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#967A59] text-white font-semibold text-base hover:bg-[#7a6347] transition-colors shadow-sm"
+                >
+                  {primaryCta.label}
                 </Link>
+              )}
+              {secondaryCta && (
+                secondaryCta.href === '/dashboard' ? (
+                  <AuthGatedCtaLink
+                    to={secondaryCta.href}
+                    className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
+                  >
+                    {secondaryCta.label}
+                  </AuthGatedCtaLink>
+                ) : (
+                  <Link
+                    to={secondaryCta.href}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
+                  >
+                    {secondaryCta.label}
+                  </Link>
+                )
               )}
             </div>
           </div>
@@ -177,13 +196,22 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {finalCtaHeading}
             </h2>
             <p className="text-lg text-white/90 mb-8 leading-relaxed">{finalCtaText}</p>
-            <Link
-              to={finalCtaHref}
-              onClick={() => window.scrollTo(0, 0)}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
-            >
-              {finalCtaLabel}
-            </Link>
+            {finalCtaHref === '/dashboard' ? (
+              <AuthGatedCtaLink
+                to={finalCtaHref}
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
+              >
+                {finalCtaLabel}
+              </AuthGatedCtaLink>
+            ) : (
+              <Link
+                to={finalCtaHref}
+                onClick={() => window.scrollTo(0, 0)}
+                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
+              >
+                {finalCtaLabel}
+              </Link>
+            )}
           </div>
         </section>
       </main>
@@ -215,7 +243,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-white/90">Get Started</h3>
             <ul className="space-y-2">
-              <li><Link to="/dashboard" onClick={() => window.scrollTo(0, 0)} className="text-sm text-white/70 hover:text-white">Start Planning</Link></li>
+              <li><AuthGatedCtaLink to="/dashboard" className="text-sm text-white/70 hover:text-white">Start Planning</AuthGatedCtaLink></li>
               <li><Link to="/" onClick={() => window.scrollTo(0, 0)} className="text-sm text-white/70 hover:text-white">Home</Link></li>
             </ul>
           </div>
