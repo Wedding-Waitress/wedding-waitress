@@ -227,7 +227,14 @@ export const EmbeddedSignUpForm: React.FC = () => {
             <div className="text-center">
               <span className="text-sm text-gray-500">
                 {t('form.alreadyHaveAccount')}{' '}
-                <a href="/#" className="font-bold hover:underline" style={{ color: '#856A4C' }}>{t('form.signInLink')}</a>
+                <button
+                  type="button"
+                  onClick={() => setSignInOpen(true)}
+                  className="font-bold hover:underline"
+                  style={{ color: '#856A4C' }}
+                >
+                  {t('form.signInLink')}
+                </button>
               </span>
             </div>
           </div>
