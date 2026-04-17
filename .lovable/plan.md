@@ -1,28 +1,28 @@
 
-## Plan: Public SEO Page `/products/tables`
+## Plan: Public SEO Page `/products/guest-list`
 
 ### Files
-- **Create** `src/pages/products/ProductTables.tsx` — uses `ProductPageLayout` with the supplied copy.
-- **Edit** `src/App.tsx` — register `<Route path="/products/tables" element={<ProductTables />} />` above the catch-all.
-- **Edit** `public/sitemap.xml` — add `/products/tables` (priority 0.9, today's lastmod).
+- **Create** `src/pages/products/ProductGuestList.tsx` — uses `ProductPageLayout` with supplied copy.
+- **Edit** `src/App.tsx` — register route + import.
+- **Edit** `public/sitemap.xml` — add `/products/guest-list` (priority 0.9).
 
-### Component (preview)
+### Component
 ```tsx
 import { ProductPageLayout } from '@/components/Layout/ProductPageLayout';
 
-export const ProductTables = () => (
+export const ProductGuestList = () => (
   <ProductPageLayout
-    pageTitle="Wedding Tables Planner | Create & Manage Tables Easily"
-    metaDescription="Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly."
-    breadcrumbLabel="Tables"
-    h1="Create & Manage Your Event Tables"
-    lead="Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease."
+    pageTitle="Wedding Guest List Manager | Track RSVPs Easily"
+    metaDescription="Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event."
+    breadcrumbLabel="Guest List"
+    h1="Manage Your Guest List & RSVPs"
+    lead="Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly."
     primaryCta={{ label: 'Start Planning Your Event', href: '/dashboard' }}
     highlights={[
-      { heading: 'Add and customise tables', text: 'Create as many tables as you need and customise them to match your event.' },
-      { heading: 'Set guest limits per table', text: 'Control how many guests can sit at each table.' },
-      { heading: 'Rename tables to match your theme', text: 'Use names like "Family", "Friends", or custom table names.' },
-      { heading: 'Organise your seating layout easily', text: 'Keep your event structured and easy to manage.' },
+      { heading: 'Add and organise your guests', text: 'Easily manage individuals, couples, and families.' },
+      { heading: 'Track RSVP responses in real-time', text: 'Stay updated on who is attending.' },
+      { heading: 'Send invitations via SMS or email', text: 'Communicate with guests instantly.' },
+      { heading: 'Stay organised and in control', text: 'Everything in one simple dashboard.' },
     ]}
     finalCtaLabel="Start Planning Your Event"
     finalCtaHref="/dashboard"
@@ -30,8 +30,8 @@ export const ProductTables = () => (
 );
 ```
 
-`ProductPageLayout` already handles SeoHead (title, description, canonical), WebPage + BreadcrumbList JSON-LD, header, footer, and is **indexable by default** (no `noIndex`) — matches the My Events pattern exactly.
+Indexable by default (no `noIndex`), JSON-LD + canonical handled by layout — same pattern as My Events and Tables.
 
-### Out of scope
-- Photo & Video Sharing module from the project-knowledge prompt — separate, much larger build. Flag and tackle when you're ready.
-- `/features/tables` vs `/products/tables` duplication — still pending your a/b/c decision from the My Events plan.
+### Still pending (flagged previously, no action needed yet)
+- `/features/*` vs `/products/*` duplication decision (a/b/c).
+- Photo & Video Sharing module from project knowledge — separate large build.
