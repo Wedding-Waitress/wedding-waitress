@@ -38,6 +38,7 @@ import { FeatureKiosk } from "./pages/features/FeatureKiosk";
 import { FeatureDjMc } from "./pages/features/FeatureDjMc";
 import { FeatureFloorPlan } from "./pages/features/FeatureFloorPlan";
 import { ProductMyEvents } from "./pages/products/ProductMyEvents";
+import { ProductTables } from "./pages/products/ProductTables";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -106,6 +107,7 @@ const App = () => (
           <Route path="/features/floor-plan" element={<FeatureFloorPlan />} />
           {/* Public /products/* SEO landing pages (indexable) */}
           <Route path="/products/my-events" element={<ProductMyEvents />} />
+          <Route path="/products/tables" element={<ProductTables />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
