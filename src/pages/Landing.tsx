@@ -13,11 +13,17 @@ import { BLOG_POSTS } from '@/content/blogPosts';
 import blogQrScanning from '@/assets/blog-qr-scanning.jpg';
 import blogPlanningLaptop from '@/assets/blog-planning-laptop.jpg';
 import blogWeddingSignage from '@/assets/blog-wedding-signage.jpg';
+import blogOlderGuest from '@/assets/blog-older-guest.jpg';
+import blogLastMinuteChanges from '@/assets/blog-last-minute-changes.jpg';
+import blogRunningSheet from '@/assets/blog-running-sheet.jpg';
 
 const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-qr-scanning': blogQrScanning,
   'blog-planning-laptop': blogPlanningLaptop,
   'blog-wedding-signage': blogWeddingSignage,
+  'blog-older-guest': blogOlderGuest,
+  'blog-last-minute-changes': blogLastMinuteChanges,
+  'blog-running-sheet': blogRunningSheet,
 };
 
 import heroImg from "@/assets/hero-wedding.jpg";

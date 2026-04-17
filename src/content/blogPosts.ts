@@ -225,7 +225,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-06',
     readingTime: '5 min read',
     coverEmoji: '👵',
-    intro:
+    coverImage: 'blog-older-guest',
       'The most common worry couples have about digital seating charts is "what about our older guests?" The honest answer: digital is usually easier for them, not harder — but a small backup makes everyone feel comfortable.',
     sections: [
       {
@@ -274,7 +274,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-04',
     readingTime: '4 min read',
     coverEmoji: '⚡',
-    intro:
+    coverImage: 'blog-last-minute-changes',
       'Almost every wedding has at least one last-minute change. A guest gets sick, a plus-one falls through, a family member arrives unexpectedly. The difference between stress and calm is whether your seating chart can update live.',
     sections: [
       {
