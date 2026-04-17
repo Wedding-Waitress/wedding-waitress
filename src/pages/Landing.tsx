@@ -251,6 +251,24 @@ export const Landing = () => {
     floorPlan: '/features/floor-plan',
   };
 
+  // Product page routes used by the "wedding platform your guests will love" cards.
+  // Matches the URLs used in the "Explore the Platform" section below.
+  const productRoutes: Record<string, string> = {
+    guestList: '/products/guest-list',
+    tables: '/products/tables',
+    qr: '/products/qr-code-seating-chart',
+    invitations: '/products/invitations-cards',
+    runningSheet: '/products/running-sheet',
+    floorPlan: '/products/floor-plan',
+    myEvents: '/products/my-events',
+    placeCards: '/products/name-place-cards',
+    tableCharts: '/products/individual-table-charts',
+    dietary: '/products/dietary-requirements',
+    seatingChart: '/products/full-seating-chart',
+    kiosk: '/products/kiosk-live-view',
+    djmc: '/products/dj-mc-questionnaire',
+  };
+
   const alternatingFeatures = [
     { id: "guest-list", key: "guestList", img: featureGuestlist },
     { id: "tables-seating", key: "tables", img: featureTables },
