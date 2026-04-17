@@ -40,6 +40,7 @@ import { FeatureFloorPlan } from "./pages/features/FeatureFloorPlan";
 import { ProductMyEvents } from "./pages/products/ProductMyEvents";
 import { ProductTables } from "./pages/products/ProductTables";
 import { ProductGuestList } from "./pages/products/ProductGuestList";
+import { ProductQrCodeSeatingChart } from "./pages/products/ProductQrCodeSeatingChart";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -110,6 +111,7 @@ const App = () => (
           <Route path="/products/my-events" element={<ProductMyEvents />} />
           <Route path="/products/tables" element={<ProductTables />} />
           <Route path="/products/guest-list" element={<ProductGuestList />} />
+          <Route path="/products/qr-code-seating-chart" element={<ProductQrCodeSeatingChart />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
