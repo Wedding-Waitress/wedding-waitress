@@ -21,6 +21,7 @@ import { EventsTable } from './EventsTable';
 import { useEvents, Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { SeoHead } from '@/components/SEO/SeoHead';
 export const MyEventsPage: React.FC = () => {
   const {
     events,
