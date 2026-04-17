@@ -180,6 +180,22 @@ export const Landing = () => {
   const [contactSent, setContactSent] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // Scroll to section when arriving with a hash (e.g. /#pricing from another page)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash?.replace('#', '');
+    if (!hash) return;
+    const tryScroll = (attempt = 0) => {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (attempt < 10) {
+        setTimeout(() => tryScroll(attempt + 1), 100);
+      }
+    };
+    tryScroll();
+  }, []);
+
   const featureCardAlts: Record<string, string> = {
     guestList: "Wedding guest list manager with RSVP tracking",
     tables: "Wedding table seating arrangement planner",

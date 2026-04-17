@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Globe, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { SignInModal } from "@/components/auth/SignInModal";
@@ -45,6 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
   const { t, i18n } = useTranslation('landing');
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
   const { currency, setCurrency } = useCurrencyContext();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -57,20 +59,34 @@ export const Header: React.FC<HeaderProps> = ({
     }, 100);
   };
 
+  // Navigate to a homepage section. Works from any page (blog, product, etc.).
+  const goToHash = (hashId: string) => {
+    if (location.pathname === '/') {
+      const el = document.getElementById(hashId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.location.hash = hashId;
+      }
+    } else {
+      navigate(`/#${hashId}`);
+    }
+  };
+
   const productLinks = [
-    { label: "My Events", href: "/products/my-events", isRoute: true },
-    { label: "Guest List", href: "/products/guest-list", isRoute: true },
-    { label: "Tables", href: "/products/tables", isRoute: true },
-    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart", isRoute: true },
-    { label: "Invitations & Cards", href: "/products/invitations-cards", isRoute: true },
-    { label: "Name Place Cards", href: "/products/name-place-cards", isRoute: true },
-    { label: "Individual Table Charts", href: "#table-charts", isRoute: false },
-    { label: "Floor Plan", href: "#floor-plan", isRoute: false },
-    { label: "Dietary Requirements", href: "#dietary", isRoute: false },
-    { label: "Full Seating Chart", href: "#seating-chart", isRoute: false },
-    { label: "Kiosk Live View", href: "#kiosk", isRoute: false },
-    { label: "DJ-MC Questionnaire", href: "#dj-mc", isRoute: false },
-    { label: "Running Sheet", href: "#running-sheet", isRoute: false },
+    { label: "My Events", href: "/products/my-events" },
+    { label: "Guest List", href: "/products/guest-list" },
+    { label: "Tables", href: "/products/tables" },
+    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart" },
+    { label: "Invitations & Cards", href: "/products/invitations-cards" },
+    { label: "Name Place Cards", href: "/products/name-place-cards" },
+    { label: "Individual Table Charts", href: "/products/individual-table-charts" },
+    { label: "Floor Plan", href: "/products/floor-plan" },
+    { label: "Dietary Requirements", href: "/products/dietary-requirements" },
+    { label: "Full Seating Chart", href: "/products/full-seating-chart" },
+    { label: "Kiosk Live View", href: "/products/kiosk-live-view" },
+    { label: "DJ-MC Questionnaire", href: "/products/dj-mc-questionnaire" },
+    { label: "Running Sheet", href: "/products/running-sheet" },
   ];
 
   return (
@@ -91,9 +107,9 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Desktop Nav — right side (lg+ only) */}
               <div className="hidden lg:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
-                  <a href="#how-it-works" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <button type="button" onClick={() => goToHash('how-it-works')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.howItWorks')}
-                  </a>
+                  </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
@@ -104,31 +120,29 @@ export const Header: React.FC<HeaderProps> = ({
                     <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
                       {productLinks.map((link) => (
                         <DropdownMenuItem key={link.href} asChild>
-                          {link.isRoute ? (
-                            <Link to={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
-                              {link.label}
-                            </Link>
-                          ) : (
-                            <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
-                              {link.label}
-                            </a>
-                          )}
+                          <Link
+                            to={link.href}
+                            onClick={() => window.scrollTo(0, 0)}
+                            className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80"
+                          >
+                            {link.label}
+                          </Link>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <a href="#pricing" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <button type="button" onClick={() => goToHash('pricing')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.pricing')}
-                  </a>
-                  <Link to="/blog" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  </button>
+                  <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     Blog
                   </Link>
-                  <a href="#faq" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <button type="button" onClick={() => goToHash('faq')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.faq')}
-                  </a>
-                  <a href="#contact" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  </button>
+                  <button type="button" onClick={() => goToHash('contact')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.contact')}
-                  </a>
+                  </button>
                 </nav>
 
                 {!hideDashboardElements && (
@@ -197,33 +211,23 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="my-0.5 h-px bg-gray-100"></div>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('how-it-works'); }}
                     >
                       {t('nav.howItWorks')}
                     </button>
                     {productLinks.map((link) => (
-                      link.isRoute ? (
-                        <Link
-                          key={link.href}
-                          to={link.href}
-                          onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                          className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                        >
-                          {link.label}
-                        </Link>
-                      ) : (
-                        <button
-                          key={link.href}
-                          className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                          onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById(link.href.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
-                        >
-                          {link.label}
-                        </button>
-                      )
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                        className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      >
+                        {link.label}
+                      </Link>
                     ))}
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('pricing'); }}
                     >
                       {t('nav.pricing')}
                     </button>
@@ -236,13 +240,13 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('faq'); }}
                     >
                       {t('nav.faq')}
                     </button>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); setTimeout(() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }, 50); }}
+                      onClick={() => { setMobileMenuOpen(false); goToHash('contact'); }}
                     >
                       {t('nav.contact')}
                     </button>
