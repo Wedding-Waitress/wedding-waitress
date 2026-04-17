@@ -609,7 +609,7 @@ export const Landing = () => {
                   <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
                   <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
-                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-40 pb-6' : 'max-h-0'}`}>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-[500px] pb-6' : 'max-h-0'}`}>
                   <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
                 </div>
               </div>
