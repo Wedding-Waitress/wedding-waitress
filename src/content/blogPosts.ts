@@ -316,6 +316,70 @@ export const BLOG_POSTS: BlogPost[] = [
       { label: 'Printed vs digital seating chart costs', href: '/blog/wedding-signage-cost-australia' },
     ],
   },
+  {
+    slug: 'why-every-wedding-needs-a-running-sheet',
+    title: 'Why Every Wedding Needs a Running Sheet (And How to Create One)',
+    metaTitle: 'Why Every Wedding Needs a Running Sheet | Wedding Waitress',
+    metaDescription:
+      'A well-planned wedding running sheet keeps your day on track. Learn how to build a timeline that avoids delays and keeps every vendor aligned.',
+    excerpt:
+      'A well-planned running sheet keeps your entire wedding day on track. Learn how to organise your timeline, avoid delays, and coordinate your vendors seamlessly.',
+    date: '2026-04-17',
+    readingTime: '5 min read',
+    coverEmoji: '🗓️',
+    coverImage: 'blog-running-sheet',
+    intro:
+      'Planning a wedding without a running sheet is one of the biggest mistakes couples make. Without a clear timeline, delays, confusion, and miscommunication can quickly take over your special day.',
+    sections: [
+      {
+        heading: 'The Problem: No Clear Timeline',
+        paragraphs: [
+          'Without a running sheet, vendors don’t know when to act, the event runs late, guests feel confused, and key moments can be missed.',
+          'A simple printed schedule helps, but it gets outdated the moment something shifts — and on a wedding day, things almost always shift.',
+        ],
+      },
+      {
+        heading: 'Why This Causes Stress on the Day',
+        paragraphs: [
+          'From late entrances to delayed meals, small timing issues quickly snowball into a stressful experience for everyone involved.',
+          'When the timeline isn’t clear, the couple ends up making last-minute decisions instead of enjoying the day they planned for months.',
+        ],
+      },
+      {
+        heading: 'The Solution: A Digital Running Sheet',
+        paragraphs: [
+          'With Wedding Waitress, you can plan your entire timeline in one place, update your schedule instantly, and keep everything organised and accessible.',
+          'Every change is reflected in real time, so the latest version is always the source of truth — no more outdated PDFs flying around in group chats.',
+        ],
+      },
+      {
+        heading: 'Share With Your Team',
+        paragraphs: [
+          'One of the biggest advantages is sharing. You can easily share your running sheet with your wedding planner, venue staff, chef, DJ and MC.',
+          'Everyone stays aligned in real-time, which means fewer questions, fewer mistakes, and a much smoother day.',
+        ],
+      },
+      {
+        heading: 'Stay Flexible on the Day',
+        paragraphs: [
+          'Things change — and that’s okay. With a digital running sheet, you can adjust timings instantly, notify everyone quickly, and keep your event running smoothly.',
+          'Whether the ceremony starts 10 minutes late or speeches run long, your team can see the updates immediately.',
+        ],
+      },
+      {
+        heading: 'Final Tip',
+        paragraphs: [
+          'A well-structured running sheet gives you peace of mind and allows you to actually enjoy your wedding day.',
+          'Start planning your wedding timeline with Wedding Waitress today.',
+        ],
+      },
+    ],
+    internalLinks: [
+      { label: 'Running Sheet', href: '/products/running-sheet' },
+      { label: 'DJ & MC Questionnaire', href: '/products/dj-mc-questionnaire' },
+      { label: 'My Events', href: '/products/my-events' },
+    ],
+  },
 ];
 
 export const getBlogPostBySlug = (slug: string): BlogPost | undefined =>
