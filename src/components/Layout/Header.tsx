@@ -104,9 +104,15 @@ export const Header: React.FC<HeaderProps> = ({
                     <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
                       {productLinks.map((link) => (
                         <DropdownMenuItem key={link.href} asChild>
-                          <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
-                            {link.label}
-                          </a>
+                          {link.isRoute ? (
+                            <Link to={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
+                              {link.label}
+                            </Link>
+                          ) : (
+                            <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
+                              {link.label}
+                            </a>
+                          )}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
