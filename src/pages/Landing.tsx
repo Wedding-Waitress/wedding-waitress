@@ -251,6 +251,24 @@ export const Landing = () => {
     floorPlan: '/features/floor-plan',
   };
 
+  // Product page routes used by the "wedding platform your guests will love" cards.
+  // Matches the URLs used in the "Explore the Platform" section below.
+  const productRoutes: Record<string, string> = {
+    guestList: '/products/guest-list',
+    tables: '/products/tables',
+    qr: '/products/qr-code-seating-chart',
+    invitations: '/products/invitations-cards',
+    runningSheet: '/products/running-sheet',
+    floorPlan: '/products/floor-plan',
+    myEvents: '/products/my-events',
+    placeCards: '/products/name-place-cards',
+    tableCharts: '/products/individual-table-charts',
+    dietary: '/products/dietary-requirements',
+    seatingChart: '/products/full-seating-chart',
+    kiosk: '/products/kiosk-live-view',
+    djmc: '/products/dj-mc-questionnaire',
+  };
+
   const alternatingFeatures = [
     { id: "guest-list", key: "guestList", img: featureGuestlist },
     { id: "tables-seating", key: "tables", img: featureTables },
@@ -364,20 +382,32 @@ export const Landing = () => {
             {t('featureCards.sectionSubtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featureCards.map((card, cardIdx) => (
-              <div key={card.key} className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer">
-                <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading={cardIdx < 3 ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <card.icon className="w-5 h-5 text-white/80" />
-                    <h3 className="text-xl font-semibold text-white">{t(`featureCards.${card.key}.title`)}</h3>
+            {featureCards.map((card, cardIdx) => {
+              const href = productRoutes[card.key] || '#';
+              return (
+                <Link
+                  to={href}
+                  key={card.key}
+                  aria-label={`${t(`featureCards.${card.key}.title`)} – Learn more`}
+                  className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer block focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-transform duration-300 hover:scale-[1.03]"
+                >
+                  <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading={cardIdx < 3 ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-black/80 group-hover:via-black/40" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <card.icon className="w-5 h-5 text-white/80" />
+                      <h3 className="text-xl font-semibold text-white">{t(`featureCards.${card.key}.title`)}</h3>
+                    </div>
+                    <p className="text-white/70 text-sm">{t(`featureCards.${card.key}.desc`)}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm text-white/80 group-hover:text-white transition-colors">
+                      Learn more
+                      <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+                    </span>
                   </div>
-                  <p className="text-white/70 text-sm">{t(`featureCards.${card.key}.desc`)}</p>
-                </div>
-              </div>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
