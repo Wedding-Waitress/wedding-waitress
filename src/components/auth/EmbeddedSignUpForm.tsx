@@ -175,6 +175,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
   };
 
   return (
+    <>
     <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-8 w-full max-w-[420px]">
       <h2 className="text-xl font-semibold text-center text-gray-900">
         {step === 'form' ? t('form.createFreeAccount') : t('form.enterCode')}
