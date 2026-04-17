@@ -220,13 +220,13 @@ export const Landing = () => {
   };
 
   const featureCards = [
+    { key: "myEvents", img: featureMyevents, icon: ClipboardList },
     { key: "guestList", img: featureGuestlist, icon: Users },
     { key: "tables", img: featureTables, icon: MapPin },
     { key: "qr", img: featureQr, icon: QrCode },
     { key: "invitations", img: featureInvitations, icon: Mail },
     { key: "runningSheet", img: featureTimeline, icon: Calendar },
     { key: "floorPlan", img: featureFloorplan, icon: Layout },
-    { key: "myEvents", img: featureMyevents, icon: ClipboardList },
     { key: "placeCards", img: featurePlacecards, icon: CreditCard },
     { key: "tableCharts", img: featureTablecharts, icon: Grid3X3 },
     { key: "dietary", img: featureDietary, icon: UtensilsCrossed },
