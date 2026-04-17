@@ -58,19 +58,19 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const productLinks = [
-    { label: "My Events", href: "#my-events" },
-    { label: "Tables", href: "#tables-seating" },
-    { label: "Guest List", href: "#guest-list" },
-    { label: "QR Code Seating Chart", href: "#qr-seating" },
-    { label: "Invitations & Cards", href: "#invitations" },
-    { label: "Name Place Cards", href: "#place-cards" },
-    { label: "Individual Table Charts", href: "#table-charts" },
-    { label: "Floor Plan", href: "#floor-plan" },
-    { label: "Dietary Requirements", href: "#dietary" },
-    { label: "Full Seating Chart", href: "#seating-chart" },
-    { label: "Kiosk Live View", href: "#kiosk" },
-    { label: "DJ-MC Questionnaire", href: "#dj-mc" },
-    { label: "Running Sheet", href: "#running-sheet" },
+    { label: "My Events", href: "/products/my-events", isRoute: true },
+    { label: "Guest List", href: "/products/guest-list", isRoute: true },
+    { label: "Tables", href: "/products/tables", isRoute: true },
+    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart", isRoute: true },
+    { label: "Invitations & Cards", href: "/products/invitations-cards", isRoute: true },
+    { label: "Name Place Cards", href: "/products/name-place-cards", isRoute: true },
+    { label: "Individual Table Charts", href: "#table-charts", isRoute: false },
+    { label: "Floor Plan", href: "#floor-plan", isRoute: false },
+    { label: "Dietary Requirements", href: "#dietary", isRoute: false },
+    { label: "Full Seating Chart", href: "#seating-chart", isRoute: false },
+    { label: "Kiosk Live View", href: "#kiosk", isRoute: false },
+    { label: "DJ-MC Questionnaire", href: "#dj-mc", isRoute: false },
+    { label: "Running Sheet", href: "#running-sheet", isRoute: false },
   ];
 
   return (
