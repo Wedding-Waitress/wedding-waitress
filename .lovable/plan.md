@@ -1,35 +1,33 @@
 
-## Plan: Homepage SEO Optimisation
+Plan: 3 changes to Blog page + add 6th post.
 
-### Files
-- **Edit** `src/pages/Landing.tsx`
-  1. Import `SeoHead` from `@/components/SEO/SeoHead` and `Link` (already imported).
-  2. Inside the top-level `Landing` return (just after `<Header />`, line 268), render:
-     ```tsx
-     <SeoHead
-       title="Wedding Planning App | Guest List, Seating Chart & Invitations"
-       description="Plan your wedding or event with ease. Manage your guest list, seating chart, invitations, and more — all in one simple platform."
-       canonicalPath="/"
-     />
-     ```
-     (Indexable — no `noIndex`. `HelmetProvider` confirmed in `src/main.tsx`.)
-  3. Replace the hero `<h1>` block (lines 135–144) with the exact requested copy:
-     - H1: **"All-In-One Wedding Planning Made Simple"**
-     - Lead `<p>`: **"Plan your entire wedding or event from one place. Manage guests, create seating charts, send invitations, and stay organised every step of the way."**
-     - Keep existing white text + drop-shadow styling so it stays legible over the hero video.
-     - Remove the i18n `t('hero.title1/2/3/trustLine')` calls in this block (kept elsewhere).
-  4. Update hero CTA area (lines 145–152): keep the existing `SignUpModal` "Start Planning Your Event" button, and add a secondary `<Link to="/products/my-events">` button styled as outline white → "View All Features".
-  5. Insert a new section directly after `<HeroSection />` (line 271), before the existing Feature Cards section, called **"Explore the Platform"** — a responsive grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`) of 5 white `rounded-2xl` cards, each a `<Link>` to its product page:
-     - Manage Your Guest List Easily → `/products/guest-list` (icon: `Users`)
-     - Plan Your Tables → `/products/tables` (icon: `MapPin`)
-     - QR Code Seating Chart → `/products/qr-code-seating-chart` (icon: `QrCode`)
-     - Send Digital Invitations → `/products/invitations-cards` (icon: `Mail`)
-     - Name Place Cards → `/products/name-place-cards` (icon: `CreditCard`)
-     - Each card: brand brown `#967A59` icon circle, bold heading, muted text, hover lift.
-  6. No other sections (pricing, testimonials, video, footer) touched.
+**1. Heading one-line fix** (`src/pages/Blog.tsx`)
+- Add `whitespace-nowrap` to the H1 and reduce font sizes slightly so "Wedding Tips & Ideas" stays on one line at all breakpoints. Use `text-3xl sm:text-4xl md:text-5xl lg:text-6xl whitespace-nowrap`.
 
-### Notes
-- Indexable by default; canonical = `https://weddingwaitress.com/`.
-- All 5 internal product links exist (`/products/guest-list`, `/tables`, `/qr-code-seating-chart`, `/invitations-cards`, `/name-place-cards`).
-- Brand-consistent styling: white cards, brown accent, rounded-2xl, subtle shadow — matches `mem://design/design-system`.
-- Hero H1/lead become hard-coded English (per spec); rest of Landing keeps i18n.
+**2. Replace emojis on bottom 2 cards with real images**
+- Generate 2 new images via Nano banana and save to `src/assets/`:
+  - `blog-older-guest.jpg` — older guest using phone at elegant wedding
+  - `blog-last-minute-changes.jpg` — wedding planner with laptop adjusting plans
+- Update `src/content/blogPosts.ts` to add `coverImage` field for the two existing posts:
+  - `digital-seating-charts-older-guests` → `blog-older-guest`
+  - `last-minute-wedding-seating-changes` → `blog-last-minute-changes`
+- Update `BLOG_COVER_IMAGES` map in both `src/pages/Blog.tsx` and `src/pages/Landing.tsx` to import + register the 2 new images.
+
+**3. Add 6th blog post: "Why Every Wedding Needs a Running Sheet"**
+- Generate 1 image: `blog-running-sheet.jpg` — clipboard/tablet with wedding timeline schedule.
+- Add new entry to `BLOG_POSTS` in `src/content/blogPosts.ts`:
+  - slug: `why-every-wedding-needs-a-running-sheet`
+  - title, excerpt, readingTime "5 min read", coverImage `blog-running-sheet`
+  - Full structured content body matching the section outline (Intro → Problem → Stress → Solution → Share → Flexibility → Final tip → CTA).
+- Register image in `BLOG_COVER_IMAGES` maps on both Blog.tsx and Landing.tsx.
+- The existing `BlogPost.tsx` page renders any slug from `BLOG_POSTS`, so no routing changes needed. CTA already uses `SignUpModal` (auth-gated) from prior work — preserved.
+
+**Files touched:**
+- `src/pages/Blog.tsx` (heading + image map)
+- `src/pages/Landing.tsx` (image map only — keeps homepage in sync)
+- `src/content/blogPosts.ts` (add coverImage to 2 posts, add 6th post entry with full content)
+- `src/assets/blog-older-guest.jpg` (new)
+- `src/assets/blog-last-minute-changes.jpg` (new)
+- `src/assets/blog-running-sheet.jpg` (new)
+
+No layout, styling, routing, or auth changes elsewhere. CTA on the new post inherits the existing `SignUpModal` gate in `BlogPost.tsx`.
