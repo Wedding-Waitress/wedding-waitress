@@ -35,7 +35,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-17',
     readingTime: '8 min read',
     coverEmoji: '📱',
-    coverImage: '/src/assets/blog-qr-scanning.jpg',
+    coverImage: 'blog-qr-scanning',
     intro:
       'It’s 48 hours before your wedding. You’ve just received a text from your cousin saying they can no longer make it, and another from your bridesmaid asking if she can bring a last-minute plus-one. Your heart sinks—not because of the guest list change, but because your expensive printed seating chart is now wrong. This "11th-hour panic" is exactly why the QR code wedding seating chart has become the breakout trend for Australian weddings in 2026. From the rustic vineyards of the Yarra Valley to the chic waterfront venues of Sydney Harbour, couples are ditching traditional boards and embracing a smarter, digital solution.',
     sections: [
@@ -113,7 +113,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-15',
     readingTime: '5 min read',
     coverEmoji: '💰',
-    coverImage: '/src/assets/blog-wedding-signage.jpg',
+    coverImage: 'blog-wedding-signage',
     intro:
       'Wedding signage in Australia is one of those costs that quietly grows. The seating chart alone can run $150–$400, and that is before welcome signs, table numbers, and menus. Here is a clear printed-vs-digital comparison so you know exactly where your money is going.',
     sections: [
@@ -167,7 +167,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: '2026-04-16',
     readingTime: '5 min read',
     coverEmoji: '✨',
-    coverImage: '/src/assets/blog-planning-laptop.jpg',
+    coverImage: 'blog-planning-laptop',
     intro:
       'You do not need to be tech-savvy to set up a QR code wedding seating chart. The whole process takes about 5 minutes, and once it is live, every update happens automatically. Here is exactly how to do it.',
     sections: [
