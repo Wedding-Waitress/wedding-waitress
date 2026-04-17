@@ -5,6 +5,7 @@ import { SignUpModal } from "@/components/auth/SignUpModal";
 import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
+import { SeoHead } from "@/components/SEO/SeoHead";
 import { useTranslation } from 'react-i18next';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
@@ -132,23 +133,24 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
         <div className="absolute inset-0 bg-black/50" />
       </div>
       <div className="relative z-10 text-center px-5 max-w-4xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4">
-          {t('hero.title1')}<br />
-          <span className="text-white/90">{t('hero.title2')}</span>
+        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+          All-In-One Wedding Planning Made Simple
         </h1>
-        <p className="text-lg sm:text-xl md:text-3xl font-semibold text-white/90 mb-4">
-          {t('hero.title3')}
+        <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-8 max-w-3xl mx-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          Plan your entire wedding or event from one place. Manage guests, create seating charts, send invitations, and stay organised every step of the way.
         </p>
-        <p className="text-sm sm:text-base md:text-lg text-white font-medium mb-8 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-          {t('hero.trustLine')}
-        </p>
-        <div className="flex justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <SignUpModal>
             <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
-              {t('hero.cta')}
+              Start Planning Your Event
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </SignUpModal>
+          <Link to="/products/my-events" className="w-full sm:w-auto max-w-xs sm:max-w-none">
+            <Button size="lg" variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold transition-all hover:scale-105 w-full sm:w-auto">
+              View All Features
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
@@ -265,10 +267,51 @@ export const Landing = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
+      <SeoHead
+        title="Wedding Planning App | Guest List, Seating Chart & Invitations"
+        description="Plan your wedding or event with ease. Manage your guest list, seating chart, invitations, and more — all in one simple platform."
+        canonicalPath="/"
+      />
       <Header />
 
       {/* Hero Section */}
       <HeroSection signUpRef={signUpRef} />
+
+      {/* Explore the Platform — internal links for SEO */}
+      <section className="py-16 md:py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            Explore the Platform
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-12 max-w-2xl mx-auto">
+            Everything you need to plan your wedding or event in one place.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { icon: Users, heading: 'Manage Your Guest List Easily', text: 'Track RSVPs, organise guests, and send invitations in seconds.', href: '/products/guest-list' },
+              { icon: MapPin, heading: 'Plan Your Tables', text: 'Create tables, set guest limits, and organise your layout.', href: '/products/tables' },
+              { icon: QrCode, heading: 'QR Code Seating Chart', text: 'Let guests scan and find their seat instantly.', href: '/products/qr-code-seating-chart' },
+              { icon: Mail, heading: 'Send Digital Invitations', text: 'Create and send beautiful invites via SMS or email.', href: '/products/invitations-cards' },
+              { icon: CreditCard, heading: 'Name Place Cards', text: 'Organise seating with clean and elegant place cards.', href: '/products/name-place-cards' },
+            ].map(({ icon: Icon, heading, text, href }) => (
+              <Link
+                key={href}
+                to={href}
+                className="group bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              >
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ backgroundColor: '#967A59' }}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{heading}</h3>
+                <p className="text-gray-500 mb-4">{text}</p>
+                <span className="inline-flex items-center text-sm font-semibold" style={{ color: '#967A59' }}>
+                  Learn more <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Feature Cards Row */}
       <section className="py-16 md:py-20 px-4">
