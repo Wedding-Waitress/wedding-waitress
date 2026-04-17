@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { SignInModal } from './SignInModal';
 
 interface FormData {
   first_name: string;
@@ -19,6 +20,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
   const { t } = useTranslation('common');
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     first_name: '',
     last_name: '',
@@ -173,6 +175,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
   };
 
   return (
+    <>
     <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-8 w-full max-w-[420px]">
       <h2 className="text-xl font-semibold text-center text-gray-900">
         {step === 'form' ? t('form.createFreeAccount') : t('form.enterCode')}
@@ -225,7 +228,14 @@ export const EmbeddedSignUpForm: React.FC = () => {
             <div className="text-center">
               <span className="text-sm text-gray-500">
                 {t('form.alreadyHaveAccount')}{' '}
-                <a href="/#" className="font-bold hover:underline" style={{ color: '#856A4C' }}>{t('form.signInLink')}</a>
+                <button
+                  type="button"
+                  onClick={() => setSignInOpen(true)}
+                  className="font-bold hover:underline"
+                  style={{ color: '#856A4C' }}
+                >
+                  {t('form.signInLink')}
+                </button>
               </span>
             </div>
           </div>
@@ -263,5 +273,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
         </div>
       )}
     </div>
+    <SignInModal open={signInOpen} onOpenChange={setSignInOpen} onBackToSignUp={() => setSignInOpen(false)} />
+    </>
   );
 };
