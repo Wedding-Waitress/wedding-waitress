@@ -1,19 +1,35 @@
 
-## Plan (PENDING AUTHORISATION): Homepage SEO Optimisation
+## Plan: Homepage SEO Optimisation
 
-**Blocked:** `src/pages/Landing.tsx` is locked. Requires `AUTHORISED CHANGE – HOMEPAGE` phrase in the prompt before I can edit it.
-
-### Files (once authorised)
+### Files
 - **Edit** `src/pages/Landing.tsx`
-  - Add `<SeoHead>` at top with title `"Wedding Planning App | Guest List, Seating Chart & Invitations"` and the supplied meta description (indexable — no `noIndex`).
-  - Update H1 to `"All-In-One Wedding Planning Made Simple"` and lead paragraph to the supplied supporting text.
-  - Insert a new "Explore the Platform" section with 5 internal-link cards (Guest List, Tables, QR Seating, Invitations, Name Place Cards) each linking to its `/products/*` page using `<Link>` from `react-router-dom`. Cards styled to match existing Landing aesthetic (white card, brown accent, rounded-2xl).
-  - Ensure both CTAs exist: `Start Planning Your Event → /dashboard` and `View All Features → /products/my-events`.
-- **Verify** `src/App.tsx` already has `HelmetProvider` wrapping `<BrowserRouter>` (needed for `SeoHead`). If missing, wrap it — `react-helmet-async` is already used by `SeoHead.tsx`.
+  1. Import `SeoHead` from `@/components/SEO/SeoHead` and `Link` (already imported).
+  2. Inside the top-level `Landing` return (just after `<Header />`, line 268), render:
+     ```tsx
+     <SeoHead
+       title="Wedding Planning App | Guest List, Seating Chart & Invitations"
+       description="Plan your wedding or event with ease. Manage your guest list, seating chart, invitations, and more — all in one simple platform."
+       canonicalPath="/"
+     />
+     ```
+     (Indexable — no `noIndex`. `HelmetProvider` confirmed in `src/main.tsx`.)
+  3. Replace the hero `<h1>` block (lines 135–144) with the exact requested copy:
+     - H1: **"All-In-One Wedding Planning Made Simple"**
+     - Lead `<p>`: **"Plan your entire wedding or event from one place. Manage guests, create seating charts, send invitations, and stay organised every step of the way."**
+     - Keep existing white text + drop-shadow styling so it stays legible over the hero video.
+     - Remove the i18n `t('hero.title1/2/3/trustLine')` calls in this block (kept elsewhere).
+  4. Update hero CTA area (lines 145–152): keep the existing `SignUpModal` "Start Planning Your Event" button, and add a secondary `<Link to="/products/my-events">` button styled as outline white → "View All Features".
+  5. Insert a new section directly after `<HeroSection />` (line 271), before the existing Feature Cards section, called **"Explore the Platform"** — a responsive grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`) of 5 white `rounded-2xl` cards, each a `<Link>` to its product page:
+     - Manage Your Guest List Easily → `/products/guest-list` (icon: `Users`)
+     - Plan Your Tables → `/products/tables` (icon: `MapPin`)
+     - QR Code Seating Chart → `/products/qr-code-seating-chart` (icon: `QrCode`)
+     - Send Digital Invitations → `/products/invitations-cards` (icon: `Mail`)
+     - Name Place Cards → `/products/name-place-cards` (icon: `CreditCard`)
+     - Each card: brand brown `#967A59` icon circle, bold heading, muted text, hover lift.
+  6. No other sections (pricing, testimonials, video, footer) touched.
 
 ### Notes
-- I'll preserve all existing Landing sections (hero video, pricing, testimonials, etc.) and only update the H1/lead, add SEO head, and append the internal-links grid.
-- No structural rewrite, no removal of existing copy beyond the H1/lead replacement you specified.
-- Will need to read `src/pages/Landing.tsx` and `src/App.tsx` first to confirm exact insertion points and HelmetProvider status before editing.
-
-**Next step from you:** Reply with `AUTHORISED CHANGE – HOMEPAGE` to proceed.
+- Indexable by default; canonical = `https://weddingwaitress.com/`.
+- All 5 internal product links exist (`/products/guest-list`, `/tables`, `/qr-code-seating-chart`, `/invitations-cards`, `/name-place-cards`).
+- Brand-consistent styling: white cards, brown accent, rounded-2xl, subtle shadow — matches `mem://design/design-system`.
+- Hero H1/lead become hard-coded English (per spec); rest of Landing keeps i18n.
