@@ -597,7 +597,16 @@ export const Dashboard = () => {
       case 'signage':
         return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
       case 'qr-code':
-        return <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} />;
+        return (
+          <>
+            <SeoHead
+              title="QR Code Seating Chart | Digital Wedding Seating Plan"
+              description="Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed — simple, modern, and stress-free."
+              noIndex
+            />
+            <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} />
+          </>
+        );
       case 'kiosk-live-view':
         return <KioskSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'dietary-chart':
