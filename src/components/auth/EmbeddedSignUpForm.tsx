@@ -273,7 +273,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
         </div>
       )}
     </div>
-    <SignInModal open={signInOpen} onOpenChange={setSignInOpen} />
+    <SignInModal open={signInOpen} onOpenChange={setSignInOpen} onBackToSignUp={() => setSignInOpen(false)} />
     </>
   );
 };
