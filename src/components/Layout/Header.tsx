@@ -107,9 +107,9 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Desktop Nav — right side (lg+ only) */}
               <div className="hidden lg:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
-                  <a href="#how-it-works" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <button type="button" onClick={() => goToHash('how-it-works')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.howItWorks')}
-                  </a>
+                  </button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
@@ -120,31 +120,29 @@ export const Header: React.FC<HeaderProps> = ({
                     <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
                       {productLinks.map((link) => (
                         <DropdownMenuItem key={link.href} asChild>
-                          {link.isRoute ? (
-                            <Link to={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
-                              {link.label}
-                            </Link>
-                          ) : (
-                            <a href={link.href} className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80">
-                              {link.label}
-                            </a>
-                          )}
+                          <Link
+                            to={link.href}
+                            onClick={() => window.scrollTo(0, 0)}
+                            className="cursor-pointer rounded-xl px-4 py-2.5 text-[14px] font-medium text-gray-700 hover:text-gray-950 hover:bg-gray-50/80"
+                          >
+                            {link.label}
+                          </Link>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <a href="#pricing" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <button type="button" onClick={() => goToHash('pricing')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.pricing')}
-                  </a>
-                  <Link to="/blog" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  </button>
+                  <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     Blog
                   </Link>
-                  <a href="#faq" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <button type="button" onClick={() => goToHash('faq')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.faq')}
-                  </a>
-                  <a href="#contact" className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  </button>
+                  <button type="button" onClick={() => goToHash('contact')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.contact')}
-                  </a>
+                  </button>
                 </nav>
 
                 {!hideDashboardElements && (
