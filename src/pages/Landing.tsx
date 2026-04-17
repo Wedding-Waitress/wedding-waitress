@@ -370,6 +370,7 @@ export const Landing = () => {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
+              { icon: ClipboardList, heading: 'My Events', text: 'Manage all your events in one place.', href: '/products/my-events' },
               { icon: Users, heading: 'Manage Your Guest List Easily', text: 'Track RSVPs, organise guests, and send invitations in seconds.', href: '/products/guest-list' },
               { icon: MapPin, heading: 'Plan Your Tables', text: 'Create tables, set guest limits, and organise your layout.', href: '/products/tables' },
               { icon: QrCode, heading: 'QR Code Seating Chart', text: 'Let guests scan and find their seat instantly.', href: '/products/qr-code-seating-chart' },
