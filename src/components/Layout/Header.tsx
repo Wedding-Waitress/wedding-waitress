@@ -45,6 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
   const { t, i18n } = useTranslation('landing');
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
   const { currency, setCurrency } = useCurrencyContext();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -57,20 +59,34 @@ export const Header: React.FC<HeaderProps> = ({
     }, 100);
   };
 
+  // Navigate to a homepage section. Works from any page (blog, product, etc.).
+  const goToHash = (hashId: string) => {
+    if (location.pathname === '/') {
+      const el = document.getElementById(hashId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.location.hash = hashId;
+      }
+    } else {
+      navigate(`/#${hashId}`);
+    }
+  };
+
   const productLinks = [
-    { label: "My Events", href: "/products/my-events", isRoute: true },
-    { label: "Guest List", href: "/products/guest-list", isRoute: true },
-    { label: "Tables", href: "/products/tables", isRoute: true },
-    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart", isRoute: true },
-    { label: "Invitations & Cards", href: "/products/invitations-cards", isRoute: true },
-    { label: "Name Place Cards", href: "/products/name-place-cards", isRoute: true },
-    { label: "Individual Table Charts", href: "#table-charts", isRoute: false },
-    { label: "Floor Plan", href: "#floor-plan", isRoute: false },
-    { label: "Dietary Requirements", href: "#dietary", isRoute: false },
-    { label: "Full Seating Chart", href: "#seating-chart", isRoute: false },
-    { label: "Kiosk Live View", href: "#kiosk", isRoute: false },
-    { label: "DJ-MC Questionnaire", href: "#dj-mc", isRoute: false },
-    { label: "Running Sheet", href: "#running-sheet", isRoute: false },
+    { label: "My Events", href: "/products/my-events" },
+    { label: "Guest List", href: "/products/guest-list" },
+    { label: "Tables", href: "/products/tables" },
+    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart" },
+    { label: "Invitations & Cards", href: "/products/invitations-cards" },
+    { label: "Name Place Cards", href: "/products/name-place-cards" },
+    { label: "Individual Table Charts", href: "/products/individual-table-charts" },
+    { label: "Floor Plan", href: "/products/floor-plan" },
+    { label: "Dietary Requirements", href: "/products/dietary-requirements" },
+    { label: "Full Seating Chart", href: "/products/full-seating-chart" },
+    { label: "Kiosk Live View", href: "/products/kiosk-live-view" },
+    { label: "DJ-MC Questionnaire", href: "/products/dj-mc-questionnaire" },
+    { label: "Running Sheet", href: "/products/running-sheet" },
   ];
 
   return (
