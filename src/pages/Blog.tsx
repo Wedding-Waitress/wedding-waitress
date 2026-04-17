@@ -6,11 +6,17 @@ import { BLOG_POSTS } from '@/content/blogPosts';
 import blogQrScanning from '@/assets/blog-qr-scanning.jpg';
 import blogPlanningLaptop from '@/assets/blog-planning-laptop.jpg';
 import blogWeddingSignage from '@/assets/blog-wedding-signage.jpg';
+import blogOlderGuest from '@/assets/blog-older-guest.jpg';
+import blogLastMinuteChanges from '@/assets/blog-last-minute-changes.jpg';
+import blogRunningSheet from '@/assets/blog-running-sheet.jpg';
 
 const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-qr-scanning': blogQrScanning,
   'blog-planning-laptop': blogPlanningLaptop,
   'blog-wedding-signage': blogWeddingSignage,
+  'blog-older-guest': blogOlderGuest,
+  'blog-last-minute-changes': blogLastMinuteChanges,
+  'blog-running-sheet': blogRunningSheet,
 };
 
 export const Blog = () => {
@@ -38,8 +44,8 @@ export const Blog = () => {
         {/* Hero */}
         <section className="w-full bg-[#f3efe9] pt-24 pb-14 md:pt-32 md:pb-20">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#1D1D1F] leading-tight">
-              Wedding Planning Tips & Ideas
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#1D1D1F] leading-tight whitespace-nowrap">
+              Wedding Tips &amp; Ideas
             </h1>
             <p className="mt-6 text-lg md:text-xl text-[#6E6E73] leading-relaxed max-w-2xl mx-auto">
               Helpful guides, tips, and ideas to make planning your wedding or event simple and stress-free.
