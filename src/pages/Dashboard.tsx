@@ -24,6 +24,7 @@ import { useRealtimeTables } from '@/hooks/useRealtimeTables';
 import { useProfile } from '@/hooks/useProfile';
 import { useUndoStack } from '@/hooks/useUndoStack';
 import { useToast } from '@/hooks/use-toast';
+import { SeoHead } from '@/components/SEO/SeoHead';
 
 // Lazy-loaded tab pages for faster initial load
 const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
