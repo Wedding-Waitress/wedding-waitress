@@ -4,6 +4,15 @@ import { Header } from '@/components/Layout/Header';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
 
+const ALL_PRODUCTS = [
+  { href: '/products/my-events', heading: 'My Events', text: 'Manage all your weddings and events from one dashboard.' },
+  { href: '/products/guest-list', heading: 'Guest List', text: 'Track RSVPs and organise guests in seconds.' },
+  { href: '/products/tables', heading: 'Tables', text: 'Create tables, set guest limits, and plan your layout.' },
+  { href: '/products/qr-code-seating-chart', heading: 'QR Code Seating Chart', text: 'Let guests scan and find their seat instantly.' },
+  { href: '/products/invitations-cards', heading: 'Invitations & Cards', text: 'Send beautiful digital invites via SMS or email.' },
+  { href: '/products/name-place-cards', heading: 'Name Place Cards', text: 'Clean, elegant place cards for organised seating.' },
+];
+
 export interface ProductFeatureHighlight {
   heading: string;
   text?: string;
