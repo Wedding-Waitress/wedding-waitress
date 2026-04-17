@@ -46,6 +46,7 @@ import { ProductNamePlaceCards } from "./pages/products/ProductNamePlaceCards";
 import { ProductFullSeatingChart } from "./pages/products/ProductFullSeatingChart";
 import { ProductFloorPlan } from "./pages/products/ProductFloorPlan";
 import { ProductIndividualTableCharts } from "./pages/products/ProductIndividualTableCharts";
+import { ProductDietaryRequirements } from "./pages/products/ProductDietaryRequirements";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -122,6 +123,7 @@ const App = () => (
           <Route path="/products/full-seating-chart" element={<ProductFullSeatingChart />} />
           <Route path="/products/floor-plan" element={<ProductFloorPlan />} />
           <Route path="/products/individual-table-charts" element={<ProductIndividualTableCharts />} />
+          <Route path="/products/dietary-requirements" element={<ProductDietaryRequirements />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
