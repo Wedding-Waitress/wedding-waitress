@@ -43,6 +43,7 @@ import { ProductGuestList } from "./pages/products/ProductGuestList";
 import { ProductQrCodeSeatingChart } from "./pages/products/ProductQrCodeSeatingChart";
 import { ProductInvitationsCards } from "./pages/products/ProductInvitationsCards";
 import { ProductNamePlaceCards } from "./pages/products/ProductNamePlaceCards";
+import { ProductFullSeatingChart } from "./pages/products/ProductFullSeatingChart";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -116,6 +117,7 @@ const App = () => (
           <Route path="/products/qr-code-seating-chart" element={<ProductQrCodeSeatingChart />} />
           <Route path="/products/invitations-cards" element={<ProductInvitationsCards />} />
           <Route path="/products/name-place-cards" element={<ProductNamePlaceCards />} />
+          <Route path="/products/full-seating-chart" element={<ProductFullSeatingChart />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
           {/* Kiosk mode */}
           <Route path="/kiosk/:eventSlug" element={<KioskView />} />
