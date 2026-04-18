@@ -1,20 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import { ProductPageLayout } from '@/components/Layout/ProductPageLayout';
 
-export const ProductNamePlaceCards = () => (
-  <ProductPageLayout
-    pageTitle="Wedding Name Place Cards | Table Seating Cards Made Easy"
-    metaDescription="Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional."
-    breadcrumbLabel="Name Place Cards"
-    h1="Create Wedding Name Place Cards"
-    lead="Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size."
-    primaryCta={{ label: 'Start Planning Your Event', href: '/dashboard' }}
-    highlights={[
-      { heading: 'Create name place cards instantly', text: 'Quickly generate cards for all your guests.' },
-      { heading: 'Keep seating organised and clear', text: 'Help guests find their seats with ease.' },
-      { heading: 'Clean and elegant design', text: 'Perfect for weddings and formal events.' },
-      { heading: 'Works with your guest list and tables', text: 'Everything stays connected and organised.' },
-    ]}
-    finalCtaLabel="Start Planning Your Event"
-    finalCtaHref="/dashboard"
-  />
-);
+export const ProductNamePlaceCards = () => {
+  const { t } = useTranslation('landing');
+  const h = t('products.placeCards.h', { returnObjects: true }) as string[][];
+  return (
+    <ProductPageLayout
+      pageTitle={t('products.placeCards.pageTitle')}
+      metaDescription={t('products.placeCards.metaDescription')}
+      breadcrumbLabel={t('explore.cards.placeCards.heading')}
+      h1={t('products.placeCards.h1')}
+      lead={t('products.placeCards.lead')}
+      primaryCta={{ label: t('products.placeCards.primaryCta'), href: '/dashboard' }}
+      highlights={h.map(([heading, text]) => ({ heading, text }))}
+      finalCtaLabel={t('products.placeCards.finalCtaLabel')}
+      finalCtaHref="/dashboard"
+    />
+  );
+};
