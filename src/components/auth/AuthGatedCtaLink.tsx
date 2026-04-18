@@ -36,6 +36,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   children,
   onClick,
   asChild = false,
+  alwaysSignUp = false,
 }) => {
   const navigate = useNavigate();
   const [, setIsAuthed] = useState<boolean>(false);
@@ -59,6 +60,11 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
     async (e: React.MouseEvent) => {
       e.preventDefault();
       onClick?.();
+      if (alwaysSignUp) {
+        // Marketing CTAs: always show SignUp modal, never auto-navigate.
+        hiddenTriggerRef.current?.click();
+        return;
+      }
       // Re-verify auth at click time — eliminates any stale-state bypass.
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -70,7 +76,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
         hiddenTriggerRef.current?.click();
       }
     },
-    [navigate, onClick, to]
+    [navigate, onClick, to, alwaysSignUp]
   );
 
   const hiddenTrigger = (
