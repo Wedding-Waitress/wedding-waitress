@@ -14,6 +14,12 @@ interface AuthGatedCtaLinkProps {
    * preserve existing Button JSX/styling exactly (e.g. Landing hero, Header).
    */
   asChild?: boolean;
+  /**
+   * When true, ALWAYS open the SignUp modal regardless of auth state —
+   * never navigate to `to`. Used for marketing CTAs like
+   * "Start Planning Free" / "Start Planning Your Event".
+   */
+  alwaysSignUp?: boolean;
 }
 
 /**
