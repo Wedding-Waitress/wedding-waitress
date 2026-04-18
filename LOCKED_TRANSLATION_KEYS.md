@@ -162,3 +162,28 @@ The dashboard Account page and its profile-dropdown wiring are PRODUCTION-LOCKED
 - `src/pages/Dashboard.tsx` — `account` tab render branch + StatsBar exclusion
 
 Sidebar is intentionally NOT linked — Account is reachable only via the header avatar dropdown.
+
+---
+
+## 🔒 Locked transactional emails + trial countdown (2026-04-18)
+
+Wedding Waitress free-trial countdown, welcome email, and admin notifications.
+Sender domain: `notify.weddingwaitress.com`. Admin recipient: `support@weddingwaitress.com`.
+All email sends are fire-and-forget — failures must NEVER break signup or payment flows.
+
+### Files (PRODUCTION-LOCKED)
+- `src/components/Account/SubscriptionCard.tsx` — Free trial countdown ("Free (X days left)" / "Free (Expired)") + 60s auto-refresh
+- `src/components/auth/EmbeddedSignUpForm.tsx` — fire-and-forget welcome + admin-signup email after OTP verification
+- `supabase/functions/verify-payment/index.ts` — fire-and-forget admin-payment email after subscription update
+- `supabase/functions/_shared/transactional-email-templates/welcome.tsx`
+- `supabase/functions/_shared/transactional-email-templates/admin-new-signup.tsx`
+- `supabase/functions/_shared/transactional-email-templates/admin-new-payment.tsx`
+- `supabase/functions/_shared/transactional-email-templates/registry.ts`
+- `src/pages/Unsubscribe.tsx` + `/unsubscribe` route in `src/App.tsx`
+
+### Rules
+- Trial duration is 7 days. Source of truth: `user_subscriptions.expires_at`, fallback to `created_at + 7 days`.
+- Welcome email goes to the new user; admin-signup goes to `support@weddingwaitress.com`.
+- Admin-payment email idempotency key: `admin-payment-${stripe_session_id}`.
+- Stripe receipts/invoices for the user are configured in the Stripe Dashboard, not in code.
+- Any change requires explicit owner approval.
