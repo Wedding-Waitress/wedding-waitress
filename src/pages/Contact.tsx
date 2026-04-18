@@ -89,13 +89,12 @@ export const Contact = () => {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center">
             <img 
-              src="/wedding-waitress-new-logo.png" 
+              src="/wedding-waitress-logo-full.png" 
               alt="Wedding Waitress Logo" 
-              className="h-10 w-auto"
+              className="h-12 lg:h-14 w-auto"
             />
-            <span className="font-semibold text-lg">Wedding Waitress</span>
           </Link>
           <Link to="/">
             <Button variant="outline" className="gap-2">
