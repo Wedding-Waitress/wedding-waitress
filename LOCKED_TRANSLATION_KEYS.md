@@ -123,3 +123,16 @@ JSON locale files are locked via this registry only (JSON has no comments).
 
 **Out of scope** (not locked by this section): authenticated dashboard,
 admin, kiosk, guest-lookup, Supabase edge functions.
+
+---
+
+## Locked auth email templates (2026-04-18)
+
+Brown (#967A59) brand palette + new logo. Approved by owner.
+
+| File | What is locked |
+|------|---------------|
+| `supabase/functions/send-auth-email/index.ts` | OTP email HTML template, brown color palette, logo URL, sender name |
+| `public/wedding-waitress-logo-brown.png` | Brand logo asset referenced by the OTP email header |
+
+⚠️ Any change requires explicit owner approval. After ANY edit, the `send-auth-email` edge function MUST be redeployed.
