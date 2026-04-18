@@ -1,84 +1,70 @@
 
 ## Goal
-Wire the Account page fully to real data + Stripe monetisation. No other pages touched.
+Make the **Upgrade Plan** button in the Account → Subscription card actually drive payment:
+- If the user already has a Stripe customer (i.e. `data.portalUrl` exists) → open the Stripe **Billing Portal** in a new tab.
+- Otherwise → open Stripe **Checkout** for an upgrade purchase, return to `/dashboard?tab=account&success=true`.
 
-## Findings (verified)
-- `get-account-billing` edge function exists — returns payment method, invoices, next billing, portal URL.
-- `useUserPlan`, `useProfile`, `useEvents` already provide subscription/profile/events data.
-- `subscriptions` / `user_subscriptions` table already tracks plan + expiry.
-- Existing `create-checkout` and `verify-payment` edge functions handle one-off plan purchases. No recurring Stripe price exists yet — the app's pricing model is **one-time** (Essential $99 / Premium $149 / Unlimited $249), not subscriptions.
-- `BillingCard.tsx` and `HistoryCard.tsx` currently render placeholders — they need to call `get-account-billing` and display real data.
-- `SubscriptionCard.tsx` shows plan name + status but lacks a real start date.
-- `SecurityCard.tsx` exists but I need to verify it reads `email_confirmed_at` and triggers `supabase.auth.resend`.
+## Important constraint (must surface, not assume)
+Project pricing is **one-time payments** (Essential $99 / Premium $149 / Unlimited $249) per locked memory + `stripePrices.ts`. The brief says `mode: subscription` — I will **not** introduce a recurring SaaS subscription, because that conflicts with locked pricing and would create duplicate billing logic. Instead I will:
+- Use the existing `create-checkout` edge function in **`mode: payment`** (matches current model).
+- Default to the **Premium** plan price (`PLAN_PRICES.premium.price_id`) as the upgrade target — same plan the upgrade flow on My Events uses for mid-tier users.
+- The success URL is updated to `/dashboard?tab=account&success=true` (already handled by `Account.tsx` toast + refetch).
 
-## Decision: Stripe model
-Keep the **existing one-time payment model** (matches current pricing in project knowledge). "Upgrade Plan" routes to the existing `my-events` upgrade flow (which already uses `create-checkout` for one-time purchases). I will NOT introduce recurring subscriptions — that would conflict with the locked pricing structure. If a Stripe customer + invoices exist (from past one-time purchases), Billing/History will show them via `get-account-billing`.
+Vendor Pro IS a real subscription (`mode: subscription`, $249/mo) — but that's a vendor product, not what an event host upgrades to from Account. So `payment` mode is correct here.
 
-## Plan
+## Plan (single file change)
 
-### 1. `BillingCard.tsx` — connect to real data
-- On mount, call `supabase.functions.invoke('get-account-billing')`.
-- Render: card brand + last4, last payment (amount + date), next billing date (or "—" for one-time), **Download Invoice** opens `hosted_invoice_url` in new tab, **Update Payment Method** opens `portal_url`.
-- Empty state: "No payment method on file", buttons disabled.
-- Loading skeleton.
+### `src/components/Account/SubscriptionCard.tsx`
+Replace the Upgrade Plan click handler:
 
-### 2. `HistoryCard.tsx` — connect to real invoices
-- Reuse the same `get-account-billing` response (lift fetch to a small shared hook `useAccountBilling.ts` to avoid double-calling).
-- Render rows: Date · Type (Payment/Refund) · Amount · "View" link → `hosted_invoice_url`.
-- Empty: "No transactions yet".
+```tsx
+const { data: billing } = useAccountBilling();
 
-### 3. `SubscriptionCard.tsx` — add real start date + correct status
-- Fetch `created_at` from `user_subscriptions` (or fall back to `auth.user.created_at` for Free users).
-- Status badge: green Active/Trial, amber Trial, red Expired, grey Cancelled.
-- "Upgrade Plan" → navigate to `?tab=my-events` (existing upgrade flow), unchanged.
+const handleUpgrade = async () => {
+  setBusy(true);
+  try {
+    // Existing Stripe customer → portal
+    if (billing?.portalUrl) {
+      window.open(billing.portalUrl, '_blank');
+      return;
+    }
+    // No customer → create Checkout for Premium one-time
+    const { data, error } = await supabase.functions.invoke('create-checkout', {
+      body: {
+        price_id: PLAN_PRICES.premium.price_id,
+        mode: 'payment',
+        plan_type: 'premium',
+      },
+    });
+    if (error) throw error;
+    if (data?.url) window.open(data.url, '_blank');
+  } catch (e) {
+    toast({ title: 'Error', description: e.message, variant: 'destructive' });
+  } finally {
+    setBusy(false);
+  }
+};
+```
 
-### 4. `AccountInfoCard.tsx` + `EditDetailsModal.tsx` — verify update flow
-- Confirm `EditDetailsModal` updates `profiles` and `useProfile` cache refreshes immediately. Patch if missing.
+Patch `create-checkout/index.ts` only if needed — its `success_url` currently points to `/payment-success?session_id=...`. That page already calls `verify-payment` → updates `user_subscriptions` → then we want it to land on `/dashboard?tab=account&success=true`. Quick check: `verify-payment` already updates the subscriptions table. I'll verify `PaymentSuccess.tsx` redirects to `/dashboard?tab=account&success=true` after verification; if it currently goes elsewhere I'll add that as a one-line redirect change scoped to the Account upgrade flow only via a query param like `&from=account`.
 
-### 5. `UsageCard.tsx` — already correct, just verify
-- Total Guests: count from `guests` (already correct).
-- Total Events: count from `events` (already correct).
-- If `guest_limit` null → render "Unlimited" with full bar; else progress bar vs limit. Already done — verify.
+### Webhook / DB sync
+`verify-payment` is already wired to `user_subscriptions` (status, plan name, expiry) via the existing one-time flow. **No webhook changes needed** — payment success already updates the DB. I will not add a new webhook (out of scope, and existing flow already works).
 
-### 6. `SecurityCard.tsx` — verify auth integration
-- Email verified badge driven by `user.email_confirmed_at`.
-- "Send Verification Email" calls `supabase.auth.resend({ type: 'signup', email })`.
-- Change Password modal already wired — verify it works.
-
-### 7. Success-redirect handling
-- In `Account.tsx`, `useEffect` checks `searchParams.get('success') === 'true'`:
-  - Toast "Your plan has been upgraded successfully"
-  - Force-refresh `useUserPlan` + billing hook
-  - Strip the param from URL.
-
-### 8. New shared hook
-- `src/hooks/useAccountBilling.ts` — single source of truth for the `get-account-billing` response, with `refetch`. Used by Billing + History cards.
-
-### 9. Lock files
-- Add/refresh `🔒 PRODUCTION-LOCKED` headers on all edited Account files.
-- Append entry to `LOCKED_TRANSLATION_KEYS.md`.
-
-### 10. Verify end-to-end
-- With Free account: cards show clean empty states, no console errors.
-- Edit Details → save → instant UI refresh.
-- Change Password → success toast.
-- Send Verification → toast confirming email sent.
-- Mobile 375px → all cards stack cleanly.
-- TypeScript build passes.
-
-## Out of scope (per user "do not change anything else")
-- Sidebar, Dashboard tab logic, pricing structure, my-events upgrade flow.
-- Stripe webhook changes (existing `verify-payment` already updates `user_subscriptions`).
-- Switching to recurring subscriptions (conflicts with locked one-time pricing).
+### Lock
+Re-stamp `🔒 PRODUCTION-LOCKED` header on the modified file and append a one-line entry under the Account section in `LOCKED_TRANSLATION_KEYS.md`.
 
 ## Files modified
-- `src/components/Account/BillingCard.tsx`
-- `src/components/Account/HistoryCard.tsx`
-- `src/components/Account/SubscriptionCard.tsx`
-- `src/components/Account/SecurityCard.tsx` (verify only, patch if needed)
-- `src/components/Account/EditDetailsModal.tsx` (verify only)
-- `src/pages/Account.tsx` (success-redirect handling)
+- `src/components/Account/SubscriptionCard.tsx` (handler swap, ~15 lines)
+- `src/pages/PaymentSuccess.tsx` (only if needed — add `from=account` redirect branch to land on `/dashboard?tab=account&success=true`)
 - `LOCKED_TRANSLATION_KEYS.md`
 
-## Files created
-- `src/hooks/useAccountBilling.ts`
+## Files NOT changed
+- All other pages, sidebar, my-events flow, pricing constants, webhook code, `verify-payment`, `get-account-billing`, `useAccountBilling`.
+
+## Verification
+1. Click Upgrade Plan with no Stripe customer → Stripe Checkout opens in new tab for Premium $149.
+2. Complete test payment → returns to `/dashboard?tab=account&success=true` → toast + plan refresh.
+3. Click Upgrade Plan with existing Stripe customer → Stripe Billing Portal opens in new tab.
+4. Mobile 375px → button + toast render cleanly.
+5. Console clean.
