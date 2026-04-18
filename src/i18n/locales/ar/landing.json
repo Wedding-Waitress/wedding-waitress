@@ -637,345 +637,345 @@
   "featureCardsLearnMore": "اعرف المزيد",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "إنشاء وإدارة مناسبات متعددة",
+          "أدر حفلات الزفاف والخطوبة والاستقبال جنبًا إلى جنب دون أن تفقد أي تفصيلة."
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "حافظ على تنظيم جميع تفاصيل مناسبتك",
+          "التواريخ، الأماكن، قوائم الضيوف، والتوقيتات - كل ما تحتاجه موجود في مكان واحد مرتب."
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "الوصول إلى كل شيء من لوحة تحكم واحدة",
+          "انتقل بين المناسبات والأدوات والتقارير على الفور من واجهة واحدة نظيفة."
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "بسيط وسهل الاستخدام",
+          "مصمم ليكون بديهيًا من أول نقرة. لا تدريب، لا فوضى - فقط خطط."
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaText": "أنشئ مناسبتك الأولى في دقائق واجمع كل شيء في مكان واحد.",
+      "h1": "أدر حفل زفافك أو مناسبتك بسهولة",
+      "metaDescription": "أنشئ وأدر حفل زفافك أو مناسبتك بسهولة في مكان واحد. حافظ على تنظيمك، وتتبع التفاصيل، وخطط لحدثك بسهولة مع Wedding Waitress.",
+      "lead": "خطط ونظم مناسبتك بأكملها من لوحة تحكم واحدة بسيطة. احتفظ بكل شيء في مكان واحد وتحكم في كل التفاصيل.",
+      "secondaryCta": "عرض الميزات",
+      "finalCtaLabel": "ابدأ في تخطيط مناسبتك",
+      "pageTitle": "إدارة مناسباتك عبر الإنترنت | أداة تخطيط حفلات الزفاف والمناسبات",
+      "primaryCta": "ابدأ في تخطيط مناسبتك",
+      "finalCtaHeading": "ابدأ في تخطيط مناسبتك اليوم"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "قم بإدارة قائمة ضيوف حفل الزفاف الخاص بك، وتتبع RSVP، وإرسال الدعوات عبر الرسائل القصيرة أو البريد الإلكتروني. كن منظمًا ومتحكمًا في مناسبتك.",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "إضافة وتنظيم ضيوفك",
+          "يمكنك بسهولة إدارة الأفراد والأزواج والعائلات."
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "تتبع ردود RSVP في الوقت الفعلي",
+          "كن على اطلاع دائم بمن سيحضر."
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "إرسال الدعوات عبر الرسائل النصية القصيرة أو البريد الإلكتروني",
+          "تواصل مع الضيوف على الفور."
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "ابقَ منظمًا ومتحكمًا بالزمام",
+          "كل شيء في لوحة تحكم واحدة بسيطة."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "إدارة قائمة المدعوين وتأكيدات الحضور (RSVP)",
+      "pageTitle": "إدارة قائمة ضيوف الزفاف | تتبع RSVP بسهولة",
+      "finalCtaLabel": "ابدأ التخطيط لحدثك",
+      "primaryCta": "ابدأ التخطيط لحدثك",
+      "lead": "تتبع جميع ضيوفك في مكان واحد. أرسل الدعوات وراقب RSVP ونظّم مناسبتك بسهولة."
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "مخطط طاولات الزفاف | أنشئ وادِر الطاولات بسهولة",
+      "h1": "أنشئ وادِر طاولات مناسبتك",
+      "primaryCta": "ابدأ التخطيط لمناسبتك",
+      "finalCtaLabel": "ابدأ التخطيط لمناسبتك",
+      "lead": "أعد طاولاتك في دقائق. نظّم مخططك، وخصص أسماء الطاولات، وتحكم في عدد المدعوين بسهولة.",
+      "metaDescription": "أنشئ وادِر طاولات زفافك أو مناسباتك بكل سهولة. أضف الطاولات، وحدد عدد المدعوين، ونظّم مخطط جلوسك بدون عناء.",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "أضف الطاولات وخصصها",
+          "أنشئ العدد الذي تحتاجه من الطاولات وخصصها لتناسب مناسبتك."
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "حدد عدد المدعوين لكل طاولة",
+          "تحكم في عدد المدعوين الذين يمكنهم الجلوس على كل طاولة."
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "أعد تسمية الطاولات لتناسب تصميمك",
+          "استخدم أسماء مثل العائلة، الأصدقاء، أو أسماء طاولات مخصصة."
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "نظّم مخطط جلوسك بسهولة",
+          "اجعل مناسبتك منظمة وسهلة الإدارة."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "يمسح الضيوف QR code للعثور على مقعدهم على الفور",
+          "لا يوجد ارتباك أو انتظار."
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "أنشئ QR code فريدًا لحدثك",
+          "سهل المشاركة والعرض في مكانك."
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "لا يلزم طباعة",
+          "وفر المال وانتقل إلى الرقمنة بالكامل."
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "حل عصري وخالٍ من الإجهاد",
+          "مثالي لحفلات الزفاف والمناسبات اليوم."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "ابدأ التخطيط لحدثك",
+      "h1": "QR Code Seating Chart لحفل الزفاف الخاص بك",
+      "metaDescription": "أنشئ مخطط جلوس زفاف رقمي باستخدام QR code. يمكن للضيوف المسح الضوئي للعثور على طاولتهم على الفور. لا حاجة للطباعة.",
+      "pageTitle": "QR Code Seating Chart | خطة جلوس رقمية للزفاف",
+      "lead": "دع ضيوفك يجدون مقاعدهم على الفور. ما عليك سوى إنشاء QR code والسماح للضيوف بالمسح الضوئي وعرض طاولتهم في ثوانٍ.",
+      "finalCtaLabel": "ابدأ التخطيط لحدثك"
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "أنشئ وأرسل دعوات الزفاف عبر الإنترنت",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "أرسل الدعوات عبر الرسائل القصيرة أو البريد الإلكتروني",
+          "تواصل مع ضيوفك على الفور."
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "بطاقات رقمية جميلة وعصرية",
+          "أبهر ضيوفك من البداية."
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "بسيط وسهل الاستخدام",
+          "لا تحتاج إلى مهارات تصميم."
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "يعمل مع قائمة المدعوين الخاصة بك",
+          "حافظ على كل شيء متصلاً في مكان واحد."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "أنشئ وأرسل دعوات زفاف وبطاقات رقمية جميلة عبر الإنترنت. شارك تفاصيل مناسبتك وأبهر ضيوفك.",
+      "lead": "صمم وأرسل دعوات رقمية مذهلة في دقائق. شارك تفاصيل زفافك وامنح ضيوفك انطباعًا أوليًا رائعًا.",
+      "primaryCta": "ابدأ في التخطيط لمناسبتك",
+      "finalCtaLabel": "ابدأ في التخطيط لمناسبتك",
+      "pageTitle": "دعوات الزفاف والبطاقات الرقمية | أرسل الدعوات عبر الإنترنت"
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "بطاقات أسماء لمقاعد الزفاف | تسهيل بطاقات الجلوس على الطاولات",
+      "finalCtaLabel": "ابدأ في تخطيط مناسبتك",
+      "primaryCta": "ابدأ في تخطيط مناسبتك",
+      "lead": "نظّم بسهولة مقاعد الضيوف باستخدام Place Cards نظيفة وأنيقة. مثالية لحفلات الزفاف والمناسبات من أي حجم.",
+      "metaDescription": "أنشئ ونظم بطاقات أسماء مقاعد الزفاف لضيوفك. حافظ على تنظيم مقاعدك واجعل مناسبتك تبدو أنيقة واحترافية.",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "أنشئ Place Cards على الفور",
+          "أنشئ البطاقات بسرعة لجميع ضيوفك."
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "حافظ على تنظيم المقاعد ووضوحها",
+          "ساعد الضيوف في العثور على مقاعدهم بسهولة."
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "تصميم نظيف وأنيق",
+          "مثالي لحفلات الزفاف والمناسبات الرسمية."
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "يعمل مع قائمة الضيوف والجداول الخاصة بك",
+          "يبقى كل شيء متصلاً ومنظمًا."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "أنشئ بطاقات أسماء مقاعد الزفاف"
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "أنشئ خرائط جلوس الطاولات الفردية",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "أنشئ مقاعد لكل طاولة",
+          "ركّز على طاولة واحدة في كل مرة."
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "خصّص الضيوف بسهولة",
+          "اسحب ونظّم الضيوف لكل طاولة."
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "حافظ على الجلوس واضحًا ومنظمًا",
+          "تجنب الارتباك في اليوم."
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "يعمل مع خريطة الجلوس الكاملة",
+          "كل شيء يبقى متصلاً."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "صانع خرائط جلوس الطاولات | خطط الطاولات الفردية",
+      "metaDescription": "أنشئ خرائط جلوس فردية لطاولات حفل الزفاف أو الفعالية الخاصة بك. نظّم الضيوف لكل طاولة واجعل الجلوس بسيطًا وواضحًا.",
+      "lead": "نظّم كل طاولة بسهولة. خصّص الضيوف، وأدر الجلوس، وحافظ على كل طاولة واضحة ومنظمة جيدًا.",
+      "primaryCta": "ابدأ في تخطيط فعاليتك",
+      "finalCtaLabel": "ابدأ في تخطيط فعاليتك"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "أنشئ خريطة طابق حفل الزفاف الخاص بك",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "صمم تخطيط الحدث الكامل الخاص بك",
+          "تصور كيف ستبدو مساحة الحدث الخاص بك."
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "رتب الطاولات والمقاعد بسهولة",
+          "أنشئ الإعداد المثالي لضيوفك."
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "تحسين المساحة والتدفق",
+          "ضمان تجربة ضيف سلسة وممتعة."
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "يعمل مع Seating Chart الخاص بك",
+          "كل شيء يبقى متصلاً ومنظمًا."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "صانع خرائط طوابق الزفاف | خطط لتخطيط الحدث الخاص بك عبر الإنترنت",
+      "metaDescription": "صمم خريطة طابق حفل الزفاف الخاص بك عبر الإنترنت. رتب الطاولات والمقاعد والتخطيط بسهولة وأنشئ إعداد الحدث المثالي.",
+      "lead": "خطط لتخطيط الحدث الخاص بك بسهولة. رتب الطاولات والمقاعد والمسافات لإنشاء التدفق المثالي لحفل الزفاف أو الحدث الخاص بك.",
+      "primaryCta": "ابدأ في تخطيط الحدث الخاص بك",
+      "finalCtaLabel": "ابدأ في تخطيط الحدث الخاص بك"
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "متتبع المتطلبات الغذائية للزفاف | إدارة احتياجات الضيوف",
+      "h1": "إدارة المتطلبات الغذائية للضيوف",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "تتبع الاحتياجات الغذائية للضيوف",
+          "سجل الحساسيات والتفضيلات بسهولة."
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "كن منظمًا ومستعدًا",
+          "تجنب المفاجآت في اللحظة الأخيرة."
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "مثالي لتنسيق الطعام",
+          "شارك التفاصيل مع مكان إقامتك أو متعهد تقديم الطعام."
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "يعمل مع قائمة الضيوف الخاصة بك",
+          "يبقى كل شيء متصلًا."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "تتبع المتطلبات الغذائية لضيوف حفل الزفاف الخاص بك. قم بإدارة الحساسيات والتفضيلات والطلبات الخاصة بسهولة في مكان واحد.",
+      "lead": "تتبع احتياجات ضيوفك الغذائية بكل سهولة. قم بإدارة الحساسيات والتفضيلات والطلبات الخاصة في نظام واحد منظم.",
+      "primaryCta": "ابدأ التخطيط لحدثك",
+      "finalCtaLabel": "ابدأ التخطيط لحدثك"
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "ابدأ في تخطيط مناسبتك",
+      "primaryCta": "ابدأ في تخطيط مناسبتك",
+      "lead": "صمم ونظّم خطة الجلوس بأكملها بسهولة. أدر الضيوف والطاولات والجلوس في عرض واحد بسيط.",
+      "metaDescription": "أنشئ خريطة جلوس كاملة لحفل الزفاف عبر الإنترنت. نظّم الضيوف والطاولات وترتيبات الجلوس بسهولة في مكان واحد.",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "شاهد خريطة الجلوس بأكملها في مكان واحد",
+          "احصل على نظرة عامة كاملة لتخطيط مناسبتك."
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "نظّم الضيوف والطاولات بسهولة",
+          "اجعل كل شيء منظمًا وواضحًا."
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "مثالي لحفلات الزفاف والمناسبات الكبيرة",
+          "تعامل مع أي حجم من المناسبات بسهولة."
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "يعمل مع قائمة الضيوف والطاولات",
+          "يبقى كل شيء متصلاً ومحدثًا."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "أنشئ خريطة الجلوس الكاملة لحفل الزفاف الخاص بك",
+      "pageTitle": "صانع خرائط الجلوس لحفلات الزفاف | خطة الجلوس الكاملة عبر الإنترنت"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "عرض Kiosk لمقاعد الزفاف | عرض مباشر للضيوف",
+      "h1": "عرض مقاعد Kiosk المباشر لحدثك",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "اعرض المقاعد على شاشة عرض حية",
+          "مثالي لمداخل الأماكن."
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "يجد الضيوف طاولتهم على الفور",
+          "لا يوجد ارتباك أو انتظار."
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "تجربة عصرية وتفاعلية",
+          "قم بترقية إعداد حدثك."
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "يعمل مع نظام المقاعد QR الخاص بك",
+          "تجربة متصلة بالكامل."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "اعرض مخطط مقاعد الزفاف الخاص بك على شاشة أو Kiosk. يمكن للضيوف بسهولة العثور على طاولتهم في الوقت الفعلي في حدثك.",
+      "primaryCta": "ابدأ التخطيط لحدثك",
+      "lead": "اعرض مخطط المقاعد الخاص بك على شاشة في مكانك. دع الضيوف يجدون طاولتهم بسرعة بطريقة عصرية وتفاعلية.",
+      "finalCtaLabel": "ابدأ التخطيط لحدثك"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "خطط للموسيقى واللحظات الرئيسية",
+          "تأكد من أن كل شيء يحدث في الوقت المناسب."
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "قدم تعليمات واضحة لـ Wedding Waitress",
+          "تجنب الارتباك في يومك الكبير."
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "خصص سير فعاليتك",
+          "اجعل حفل زفافك ملكًا لك حقًا."
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "يعمل مع Running Sheet الخاص بك",
+          "يبقى كل شيء متصلاً."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "خطط للموسيقى والإعلانات واللحظات الرئيسية بسهولة. امنح QR Code Wedding Waitress كل ما يحتاجونه لحدث سلس ومثالي.",
+      "metaDescription": "أنشئ QR Code لـ Wedding Waitress لحفل زفافك أو فعاليتك. خطط للموسيقى والإعلانات واللحظات الرئيسية لضمان أن يسير كل شيء بسلاسة.",
+      "finalCtaLabel": "ابدأ في تخطيط فعاليتك",
+      "primaryCta": "ابدأ في تخطيط فعاليتك",
+      "h1": "Wedding Waitress QR Code لجميع الضيوف",
+      "pageTitle": "QR Code Wedding Waitress | تخطيط وتنسيق فعاليات الزفاف"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "ابدأ في التخطيط لفعاليتك",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "خطط لجدولك الزمني للفعالية بالكامل",
+          "ابقَ منظمًا من البداية إلى النهاية."
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "حافظ على سير كل شيء بسلاسة",
+          "تجنب التأخير والارتباك."
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "مثالي لحفلات الزفاف والفعاليات",
+          "تأكد من تخطيط كل لحظة."
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "يعمل مع إعداد فعاليتك بالكامل",
+          "يبقى كل شيء متصلاً."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "أنشئ ورقة تشغيل الزفاف الخاصة بك",
+      "lead": "خطط لجدول فعاليتك الزمني بالكامل بسهولة. نظم كل لحظة من حفل زفافك أو فعاليتك وتأكد من سير كل شيء بشكل مثالي.",
+      "primaryCta": "ابدأ في التخطيط لفعاليتك",
+      "metaDescription": "أنشئ ورقة تشغيل زفاف وجدولًا زمنيًا للفعالية بسهولة. خطط لكل لحظة من يومك وحافظ على سير كل شيء بسلاسة.",
+      "pageTitle": "قالب ورقة تشغيل الزفاف | مخطط الجدول الزمني للفعالية"
     }
   },
   "blog": {

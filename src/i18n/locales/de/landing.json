@@ -652,345 +652,345 @@
   "featureCardsLearnMore": "Mehr erfahren",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "lead": "Planen und organisieren Sie Ihr gesamtes Event über ein einziges, einfaches Dashboard. Behalten Sie alles an einem Ort und haben Sie die Kontrolle.",
+      "secondaryCta": "Funktionen ansehen",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "Erstellen und verwalten Sie mehrere Veranstaltungen",
+          "Führen Sie Hochzeiten, Verlobungen und Empfänge parallel durch, ohne ein einziges Detail aus den Augen zu verlieren."
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "Halten Sie alle Ihre Veranstaltungsdetails organisiert",
+          "Daten, Veranstaltungsorte, Gästelisten und Zeitpläne – alles, was Sie brauchen, befindet sich an einem übersichtlichen Ort."
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "Greifen Sie über ein Dashboard auf alles zu",
+          "Wechseln Sie sofort zwischen Veranstaltungen, Tools und Berichten über eine einzige, übersichtliche Benutzeroberfläche."
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "Einfach und benutzerfreundlich",
+          "Von Anfang an intuitiv gestaltet. Keine Schulung, keine Unordnung – einfach planen."
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Beginnen Sie mit der Planung Ihres Events",
+      "metaDescription": "Erstellen und verwalten Sie Ihre Hochzeit oder Veranstaltung ganz einfach an einem Ort. Bleiben Sie organisiert, verfolgen Sie Details und planen Sie Ihr Event mühelos mit Wedding Waitress.",
+      "pageTitle": "Verwalten Sie Ihre Veranstaltungen online | Hochzeits- & Eventplaner-Tool",
+      "finalCtaHeading": "Beginnen Sie noch heute mit der Planung Ihres Events",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihres Events",
+      "finalCtaText": "Erstellen Sie Ihre erste Veranstaltung in wenigen Minuten und fassen Sie alles an einem Ort zusammen.",
+      "h1": "Verwalten Sie Ihre Hochzeit oder Veranstaltung ganz einfach"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Verwalten Sie Ihre Hochzeitsgästeliste, verfolgen Sie RSVPs und versenden Sie Einladungen per SMS oder E-Mail. Bleiben Sie organisiert und haben Sie die Kontrolle über Ihre Veranstaltung.",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "lead": "Behalten Sie alle Ihre Gäste an einem Ort im Blick. Versenden Sie Einladungen, überwachen Sie RSVPs und organisieren Sie Ihre Veranstaltung mühelos.",
+      "h1": "Verwalten Sie Ihre Gästeliste & RSVPs",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "Fügen Sie Ihre Gäste hinzu und organisieren Sie sie",
+          "Verwalten Sie ganz einfach Einzelpersonen, Paare und Familien."
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "Verfolgen Sie RSVP-Antworten in Echtzeit",
+          "Bleiben Sie auf dem Laufenden, wer teilnimmt."
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "Senden Sie Einladungen per SMS oder E-Mail",
+          "Kommunizieren Sie sofort mit den Gästen."
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "Bleiben Sie organisiert und haben Sie die Kontrolle",
+          "Alles in einem einfachen Dashboard."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "pageTitle": "Hochzeitsgästelisten-Manager | RSVPs einfach verfolgen"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "pageTitle": "Hochzeitstischplaner | Tische einfach erstellen und verwalten",
+      "metaDescription": "Erstellen und verwalten Sie Ihre Hochzeits- oder Veranstaltungstische mit Leichtigkeit. Fügen Sie Tische hinzu, legen Sie Gastlimits fest und organisieren Sie mühelos Ihre Sitzordnung.",
+      "lead": "Richten Sie Ihre Tische in wenigen Minuten ein. Organisieren Sie Ihr Layout, passen Sie Tischnamen an und steuern Sie die Gästeanzahl mit Leichtigkeit.",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "Tische hinzufügen und anpassen",
+          "Erstellen Sie so viele Tische, wie Sie benötigen, und passen Sie sie an Ihre Veranstaltung an."
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "Gastlimits pro Tisch festlegen",
+          "Steuern Sie, wie viele Gäste an jedem Tisch sitzen können."
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "Tische umbenennen, passend zu Ihrem Thema",
+          "Verwenden Sie Namen wie Familie, Freunde oder individuelle Tischnamen."
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "Sitzordnung einfach organisieren",
+          "Halten Sie Ihre Veranstaltung strukturiert und einfach zu verwalten."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Erstellen und Verwalten Sie Ihre Veranstaltungstische"
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "pageTitle": "QR Code Seating Chart | Digitaler Hochzeits-Sitzplan",
+      "h1": "QR Code Seating Chart für Ihre Hochzeit",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "Gäste scannen, um ihren Platz sofort zu finden",
+          "Keine Verwirrung oder Wartezeiten."
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "Generieren Sie einen einzigartigen QR Code für Ihre Veranstaltung",
+          "Einfach zu teilen und an Ihrem Veranstaltungsort anzuzeigen."
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "Kein Drucken erforderlich",
+          "Sparen Sie Geld und gehen Sie komplett digital."
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "Moderne und stressfreie Lösung",
+          "Perfekt für die Hochzeiten und Veranstaltungen von heute."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "metaDescription": "Erstellen Sie einen digitalen Hochzeits-Sitzplan mit einem QR Code. Gäste können scannen, um ihren Tisch sofort zu finden. Kein Drucken erforderlich.",
+      "lead": "Lassen Sie Ihre Gäste ihren Platz sofort finden. Erstellen Sie einfach einen QR Code und lassen Sie die Gäste in Sekundenschnelle ihren Tisch scannen und anzeigen."
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "lead": "Entwerfen und versenden Sie atemberaubende digitale Einladungen in wenigen Minuten. Teilen Sie Ihre Hochzeitsdetails und hinterlassen Sie einen wunderschönen ersten Eindruck bei Ihren Gästen.",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "h1": "Hochzeitseinladungen online erstellen und versenden",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "Einladungen per SMS oder E-Mail versenden",
+          "Erreichen Sie Ihre Gäste sofort."
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "Schöne und moderne digitale Karten",
+          "Beeindrucken Sie Ihre Gäste von Anfang an."
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "Einfach und benutzerfreundlich",
+          "Keine Designkenntnisse erforderlich."
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "Funktioniert mit Ihrer Gästeliste",
+          "Behalten Sie alles an einem Ort verbunden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Hochzeitseinladungen & Digitale Karten | Einladungen online versenden",
+      "metaDescription": "Erstellen und versenden Sie wunderschöne Hochzeitseinladungen und digitale Karten online. Teilen Sie Ihre Veranstaltungsdetails und beeindrucken Sie Ihre Gäste."
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "Erstellen Sie Hochzeits-Tischkarten",
+      "lead": "Organisieren Sie die Sitzordnung der Gäste ganz einfach mit sauberen und eleganten Tischkarten. Perfekt für Hochzeiten und Veranstaltungen jeder Größe.",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "Erstellen Sie sofort Namensschilder",
+          "Generieren Sie schnell Karten für alle Ihre Gäste."
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "Halten Sie die Sitzordnung organisiert und übersichtlich",
+          "Helfen Sie den Gästen, ihren Platz leicht zu finden."
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "Sauberes und elegantes Design",
+          "Perfekt für Hochzeiten und formelle Anlässe."
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "Funktioniert mit Ihrer Gästeliste und Ihren Tischen",
+          "Alles bleibt verbunden und organisiert."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "pageTitle": "Hochzeits-Tischkarten | Tischplatzierung leicht gemacht",
+      "metaDescription": "Erstellen und organisieren Sie Hochzeits-Tischkarten für Ihre Gäste. Halten Sie Ihre Sitzordnung organisiert und lassen Sie Ihre Veranstaltung elegant und professionell aussehen."
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Organisieren Sie jeden Tisch mit Leichtigkeit. Weisen Sie Gästen Plätze zu, verwalten Sie die Sitzordnung und halten Sie jeden Tisch klar und gut strukturiert.",
+      "metaDescription": "Erstellen Sie individuelle Tischsitzpläne für Ihre Hochzeit oder Veranstaltung. Organisieren Sie Gäste pro Tisch und gestalten Sie die Sitzordnung einfach und übersichtlich.",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "Sitzplätze für jeden Tisch erstellen",
+          "Konzentrieren Sie sich auf einen Tisch nach dem anderen."
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "Gäste einfach zuweisen",
+          "Ziehen und organisieren Sie Gäste pro Tisch."
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "Sitzordnung klar und organisiert halten",
+          "Vermeiden Sie Verwirrung am Tag."
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "Funktioniert mit vollständigem Sitzplan",
+          "Alles bleibt verbunden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Individuelle Tischsitzpläne erstellen",
+      "pageTitle": "Tischsitzplan-Ersteller | Individuelle Tischpläne",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "Gestalten Sie Ihr gesamtes Event-Layout",
+          "Visualisieren Sie, wie Ihr Veranstaltungsraum aussehen wird."
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "Ordnen Sie Tische und Sitzgelegenheiten einfach an",
+          "Schaffen Sie das perfekte Setup für Ihre Gäste."
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "Optimieren Sie Raum und Fluss",
+          "Sorgen Sie für ein reibungsloses und angenehmes Gästeerlebnis."
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "Funktioniert mit Ihrem Seating Chart",
+          "Alles bleibt verbunden und organisiert."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihres Events",
+      "primaryCta": "Beginnen Sie mit der Planung Ihres Events",
+      "lead": "Planen Sie Ihr Event-Layout mit Leichtigkeit. Ordnen Sie Tische, Sitzgelegenheiten und Abstände an, um den perfekten Ablauf für Ihre Hochzeit oder Veranstaltung zu schaffen.",
+      "pageTitle": "Hochzeits-Floor Plan Creator | Planen Sie Ihr Event-Layout online",
+      "h1": "Erstellen Sie Ihren Hochzeits-Floor Plan",
+      "metaDescription": "Gestalten Sie Ihren Hochzeits-Floor Plan online. Ordnen Sie Tische, Sitzgelegenheiten und Layout einfach an und erstellen Sie das perfekte Event-Setup."
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Hochzeits-Ernährungsanforderungen-Tracker | Gästebedürfnisse verwalten",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "h1": "Verwalten Sie die Ernährungsanforderungen Ihrer Gäste",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "Gästespezifische Ernährungsbedürfnisse verfolgen",
+          "Erfassen Sie ganz einfach Allergien und Vorlieben."
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "Bleiben Sie organisiert und vorbereitet",
+          "Vermeiden Sie Überraschungen in letzter Minute."
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "Perfekt für die Catering-Koordination",
+          "Teilen Sie Details mit Ihrem Veranstaltungsort oder Caterer."
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "Funktioniert mit Ihrer Gästeliste",
+          "Alles bleibt verbunden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "lead": "Behalten Sie die Ernährungsbedürfnisse Ihrer Gäste mühelos im Blick. Verwalten Sie Allergien, Vorlieben und Sonderwünsche in einem organisierten System.",
+      "metaDescription": "Verfolgen Sie die Ernährungsbedürfnisse Ihrer Hochzeitsgäste. Verwalten Sie Allergien, Vorlieben und Sonderwünsche einfach an einem Ort."
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Gestalten und organisieren Sie Ihren gesamten Sitzplan mit Leichtigkeit. Verwalten Sie Gäste, Tische und Bestuhlung in einer einfachen Ansicht.",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "h1": "Erstellen Sie Ihren vollständigen Hochzeits-Sitzplan",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "Sehen Sie Ihren gesamten Sitzplan an einem Ort",
+          "Verschaffen Sie sich einen vollständigen Überblick über das Layout Ihrer Veranstaltung."
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "Organisieren Sie Gäste und Tische einfach",
+          "Halten Sie alles strukturiert und übersichtlich."
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "Perfekt für große Hochzeiten und Veranstaltungen",
+          "Bewältigen Sie Veranstaltungen jeder Größe mit Leichtigkeit."
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "Funktioniert mit Gästeliste und Tischen",
+          "Alles bleibt verbunden und wird aktualisiert."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "pageTitle": "Hochzeits-Sitzplan-Ersteller | Vollständiger Sitzplan online",
+      "metaDescription": "Erstellen Sie online einen vollständigen Hochzeits-Sitzplan. Organisieren Sie Gäste, Tische und Sitzordnungen einfach an einem Ort."
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Zeigen Sie Ihren Sitzplan auf einem Bildschirm in Ihrem Veranstaltungsort an. Lassen Sie die Gäste ihren Tisch schnell auf moderne und interaktive Weise finden.",
+      "pageTitle": "Hochzeits-Sitzplan Kiosk Anzeige | Live Gastansicht",
+      "metaDescription": "Zeigen Sie Ihren Hochzeits-Sitzplan auf einem Bildschirm oder Kiosk an. Gäste können ihren Tisch bei Ihrer Veranstaltung in Echtzeit leicht finden.",
+      "h1": "Kiosk Live Sitzansicht für Ihr Event",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihres Events",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "Sitzplätze auf einem Live-Bildschirm anzeigen",
+          "Perfekt für den Eingangsbereich des Veranstaltungsortes."
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "Gäste finden ihren Tisch sofort",
+          "Keine Verwirrung oder Wartezeiten."
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "Modernes und interaktives Erlebnis",
+          "Werten Sie Ihr Event-Setup auf."
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "Funktioniert mit Ihrem QR Sitzsystem",
+          "Vollständig vernetztes Erlebnis."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Beginnen Sie mit der Planung Ihres Events"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Planen Sie Ihre Musik, Ankündigungen und Schlüsselmomente mit Leichtigkeit. Geben Sie Ihrem DJ oder MC alles, was sie für eine reibungslose und perfekte Veranstaltung benötigen.",
+      "primaryCta": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "h1": "DJ & MC Fragebogen für Ihre Hochzeit",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihrer Veranstaltung",
+      "metaDescription": "Erstellen Sie einen DJ- und MC-Fragebogen für Ihre Hochzeit oder Veranstaltung. Planen Sie Musik, Ankündigungen und Schlüsselmomente, um sicherzustellen, dass alles perfekt abläuft.",
+      "pageTitle": "Hochzeits-DJ & MC Fragebogen | Planen Sie Ihre Event-Musik",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "Planen Sie Ihre Musik und Schlüsselmomente",
+          "Stellen Sie sicher, dass alles zur richtigen Zeit geschieht."
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "Geben Sie Ihrem DJ oder MC klare Anweisungen",
+          "Vermeiden Sie Verwirrung an Ihrem großen Tag."
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "Passen Sie Ihren Veranstaltungsablauf an",
+          "Machen Sie Ihre Hochzeit wirklich zu Ihrer eigenen."
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "Funktioniert mit Ihrem Running Sheet",
+          "Alles bleibt verbunden."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "Planen Sie Ihren gesamten Event-Zeitplan",
+          "Bleiben Sie von Anfang bis Ende organisiert."
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "Halten Sie alles reibungslos am Laufen",
+          "Vermeiden Sie Verzögerungen und Verwirrung."
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "Perfekt für Hochzeiten und Veranstaltungen",
+          "Stellen Sie sicher, dass jeder Moment geplant ist."
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "Funktioniert mit Ihrem gesamten Event-Setup",
+          "Alles bleibt verbunden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Beginnen Sie mit der Planung Ihres Events",
+      "h1": "Erstellen Sie Ihr Hochzeitsablauf-Blatt",
+      "finalCtaLabel": "Beginnen Sie mit der Planung Ihres Events",
+      "metaDescription": "Erstellen Sie ganz einfach ein Hochzeitsablauf- und Event-Zeitplan. Planen Sie jeden Moment Ihres Tages und sorgen Sie dafür, dass alles reibungslos abläuft.",
+      "pageTitle": "Hochzeitsablauf-Vorlage | Event-Zeitplan-Planer",
+      "lead": "Planen Sie Ihren gesamten Event-Zeitplan mit Leichtigkeit. Organisieren Sie jeden Moment Ihrer Hochzeit oder Veranstaltung und stellen Sie sicher, dass alles perfekt abläuft."
     }
   },
   "blog": {

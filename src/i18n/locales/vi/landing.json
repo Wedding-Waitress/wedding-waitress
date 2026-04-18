@@ -637,345 +637,345 @@
   "featureCardsLearnMore": "Tìm hiểu thêm",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "h1": "Quản lý đám cưới hoặc sự kiện của bạn dễ dàng",
+      "pageTitle": "Quản lý sự kiện của bạn trực tuyến | Công cụ lập kế hoạch đám cưới & sự kiện",
+      "finalCtaHeading": "Bắt đầu lập kế hoạch sự kiện của bạn ngay hôm nay",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "Tạo và quản lý nhiều sự kiện",
+          "Điều hành đám cưới, lễ đính hôn và tiệc chiêu đãi song song mà không bỏ sót một chi tiết nào."
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "Giữ tất cả các chi tiết sự kiện của bạn được sắp xếp",
+          "Ngày, địa điểm, danh sách khách mời và thời gian - mọi thứ bạn cần đều ở một nơi gọn gàng."
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "Truy cập mọi thứ từ một bảng điều khiển",
+          "Chuyển đổi tức thì giữa các sự kiện, công cụ và báo cáo từ một giao diện duy nhất, gọn gàng."
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "Đơn giản và dễ sử dụng",
+          "Được thiết kế để trực quan ngay từ cú nhấp chuột đầu tiên. Không cần đào tạo, không lộn xộn - chỉ cần lên kế hoạch thôi."
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "secondaryCta": "Xem tính năng",
+      "primaryCta": "Bắt đầu lập kế hoạch sự kiện của bạn",
+      "lead": "Lập kế hoạch và tổ chức toàn bộ sự kiện của bạn từ một bảng điều khiển đơn giản. Giữ mọi thứ ở một nơi và giữ quyền kiểm soát.",
+      "metaDescription": "Dễ dàng tạo và quản lý đám cưới hoặc sự kiện của bạn tại một nơi. Luôn ngăn nắp, theo dõi chi tiết và lên kế hoạch cho sự kiện của bạn một cách dễ dàng với Wedding Waitress.",
+      "finalCtaText": "Tạo sự kiện đầu tiên của bạn trong vài phút và đưa mọi thứ lại với nhau ở một nơi.",
+      "finalCtaLabel": "Bắt đầu lập kế hoạch sự kiện của bạn"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Quản lý danh sách khách mời đám cưới của bạn, theo dõi RSVP và gửi lời mời qua SMS hoặc email. Luôn ngăn nắp và kiểm soát sự kiện của bạn.",
+      "finalCtaLabel": "Bắt đầu lập kế hoạch sự kiện của bạn",
+      "h1": "Quản lý danh sách khách mời & RSVP của bạn",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "Thêm và sắp xếp khách của bạn",
+          "Dễ dàng quản lý các cá nhân, cặp đôi và gia đình."
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "Theo dõi phản hồi RSVP trong thời gian thực",
+          "Luôn cập nhật về những người sẽ tham dự."
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "Gửi lời mời qua SMS hoặc email",
+          "Giao tiếp với khách ngay lập tức."
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "Luôn ngăn nắp và kiểm soát",
+          "Mọi thứ trong một bảng điều khiển đơn giản."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Bắt đầu lập kế hoạch sự kiện của bạn",
+      "lead": "Theo dõi tất cả khách của bạn ở cùng một nơi. Gửi lời mời, theo dõi RSVP và tổ chức sự kiện của bạn một cách dễ dàng.",
+      "pageTitle": "Quản lý danh sách khách mời đám cưới | Theo dõi RSVP dễ dàng"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "pageTitle": "Công Cụ Lập Kế Hoạch Bàn Tiệc Cưới | Tạo & Quản Lý Bàn Dễ Dàng",
+      "metaDescription": "Tạo và quản lý bàn tiệc cưới hoặc sự kiện của bạn một cách dễ dàng. Thêm bàn, đặt giới hạn khách và tổ chức sơ đồ chỗ ngồi của bạn thật dễ dàng.",
+      "primaryCta": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "lead": "Thiết lập bàn của bạn trong vài phút. Sắp xếp bố cục, tùy chỉnh tên bàn và kiểm soát số lượng khách dễ dàng.",
+      "h1": "Tạo & Quản Lý Bàn Sự Kiện Của Bạn",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "Thêm và tùy chỉnh bàn",
+          "Tạo bao nhiêu bàn tùy thích và tùy chỉnh chúng để phù hợp với sự kiện của bạn."
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "Đặt giới hạn khách cho mỗi bàn",
+          "Kiểm soát số lượng khách có thể ngồi vào mỗi bàn."
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "Đổi tên bàn để phù hợp với chủ đề của bạn",
+          "Sử dụng các tên như Gia đình, Bạn bè hoặc tên bàn tùy chỉnh."
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "Sắp xếp sơ đồ chỗ ngồi của bạn dễ dàng",
+          "Giữ cho sự kiện của bạn có cấu trúc và dễ quản lý."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "Sơ đồ chỗ ngồi mã QR cho đám cưới của bạn",
+      "primaryCta": "Bắt đầu lên kế hoạch cho sự kiện của bạn",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "Khách quét để tìm chỗ ngồi ngay lập tức",
+          "Không gây nhầm lẫn hay chờ đợi."
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "Tạo mã QR duy nhất cho sự kiện của bạn",
+          "Dễ dàng chia sẻ và hiển thị tại địa điểm của bạn."
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "Không cần in ấn",
+          "Tiết kiệm tiền và chuyển sang kỹ thuật số hoàn toàn."
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "Giải pháp hiện đại và không căng thẳng",
+          "Hoàn hảo cho các đám cưới và sự kiện ngày nay."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Tạo sơ đồ chỗ ngồi đám cưới kỹ thuật số bằng mã QR. Khách có thể quét để tìm bàn của mình ngay lập tức. Không cần in ấn.",
+      "pageTitle": "Sơ đồ chỗ ngồi mã QR | Kế hoạch chỗ ngồi đám cưới kỹ thuật số",
+      "finalCtaLabel": "Bắt đầu lên kế hoạch cho sự kiện của bạn",
+      "lead": "Hãy để khách của bạn tìm chỗ ngồi ngay lập tức. Chỉ cần tạo mã QR và cho phép khách quét và xem bàn của họ trong vài giây."
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "Gửi lời mời qua SMS hoặc email",
+          "Tiếp cận khách mời của bạn ngay lập tức."
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "Thiệp kỹ thuật số đẹp và hiện đại",
+          "Gây ấn tượng với khách mời ngay từ đầu."
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "Đơn giản và dễ sử dụng",
+          "Không cần kỹ năng thiết kế."
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "Hoạt động với danh sách khách mời của bạn",
+          "Giữ mọi thứ được kết nối ở cùng một nơi."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Tạo & Gửi Lời Mời Đám Cưới Trực Tuyến",
+      "lead": "Thiết kế và gửi những lời mời kỹ thuật số tuyệt đẹp chỉ trong vài phút. Chia sẻ chi tiết đám cưới của bạn và mang đến cho khách mời ấn tượng đầu tiên đáng nhớ.",
+      "primaryCta": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "metaDescription": "Tạo và gửi những lời mời đám cưới và thiệp kỹ thuật số đẹp mắt trực tuyến. Chia sẻ chi tiết sự kiện của bạn và gây ấn tượng với khách mời.",
+      "pageTitle": "Lời Mời Đám Cưới & Thiệp Kỹ Thuật Số | Gửi Lời Mời Trực Tuyến",
+      "finalCtaLabel": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn"
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Bắt đầu lên kế hoạch cho sự kiện của bạn",
+      "lead": "Dễ dàng sắp xếp chỗ ngồi của khách với thẻ đặt tên gọn gàng và thanh lịch. Hoàn hảo cho đám cưới và các sự kiện thuộc mọi quy mô.",
+      "metaDescription": "Tạo và sắp xếp thẻ đặt tên tiệc cưới cho khách của bạn. Giữ cho chỗ ngồi của bạn được sắp xếp và làm cho sự kiện của bạn trông thanh lịch và chuyên nghiệp.",
+      "h1": "Tạo thẻ đặt tên tiệc cưới",
+      "finalCtaLabel": "Bắt đầu lên kế hoạch cho sự kiện của bạn",
+      "pageTitle": "Thẻ đặt tên tiệc cưới | Sắp xếp chỗ ngồi tại bàn dễ dàng",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "Tạo thẻ đặt tên ngay lập tức",
+          "Nhanh chóng tạo thẻ cho tất cả khách của bạn."
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "Giữ chỗ ngồi được sắp xếp và rõ ràng",
+          "Giúp khách dễ dàng tìm thấy chỗ ngồi của họ."
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "Thiết kế gọn gàng và thanh lịch",
+          "Hoàn hảo cho đám cưới và các sự kiện trang trọng."
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "Hoạt động với danh sách khách mời và bàn của bạn",
+          "Mọi thứ luôn được kết nối và sắp xếp."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Bắt Đầu Lập Kế Hoạch Sự Kiện Của Bạn",
+      "pageTitle": "Công Cụ Tạo Sơ Đồ Chỗ Ngồi Bàn Cá Nhân | Kế Hoạch Bàn Riêng Lẻ",
+      "metaDescription": "Tạo sơ đồ chỗ ngồi bàn cá nhân cho đám cưới hoặc sự kiện của bạn. Sắp xếp khách mời theo từng bàn và làm cho việc sắp xếp chỗ ngồi trở nên đơn giản và rõ ràng.",
+      "lead": "Sắp xếp từng bàn một cách dễ dàng. Chỉ định khách mời, quản lý chỗ ngồi và giữ cho mọi bàn rõ ràng và có cấu trúc tốt.",
+      "primaryCta": "Bắt Đầu Lập Kế Hoạch Sự Kiện Của Bạn",
+      "h1": "Tạo Sơ Đồ Chỗ Ngồi Bàn Cá Nhân",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "Tạo chỗ ngồi cho từng bàn",
+          "Tập trung vào từng bàn một."
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "Chỉ định khách mời dễ dàng",
+          "Kéo và sắp xếp khách mời theo từng bàn."
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "Giữ chỗ ngồi rõ ràng và có tổ chức",
+          "Tránh nhầm lẫn vào ngày diễn ra sự kiện."
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "Hoạt động với sơ đồ chỗ ngồi đầy đủ",
+          "Mọi thứ vẫn được kết nối."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Bắt Đầu Lập Kế Hoạch Sự Kiện Của Bạn",
+      "pageTitle": "Tạo Sơ Đồ Mặt Bằng Đám Cưới | Lập Kế Hoạch Bố Trí Sự Kiện Trực Tuyến",
+      "h1": "Tạo Sơ Đồ Mặt Bằng Đám Cưới Của Bạn",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "Thiết kế toàn bộ bố cục sự kiện của bạn",
+          "Hình dung không gian sự kiện của bạn sẽ trông như thế nào."
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "Sắp xếp bàn và chỗ ngồi dễ dàng",
+          "Tạo ra cách bố trí hoàn hảo cho khách của bạn."
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "Tối ưu hóa không gian và luồng di chuyển",
+          "Đảm bảo trải nghiệm khách hàng suôn sẻ và thú vị."
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "Hoạt động với Seating Chart của bạn",
+          "Mọi thứ luôn kết nối và được tổ chức."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Bắt Đầu Lập Kế Hoạch Sự Kiện Của Bạn",
+      "lead": "Lập kế hoạch bố trí sự kiện của bạn một cách dễ dàng. Sắp xếp bàn, chỗ ngồi và không gian để tạo ra luồng di chuyển hoàn hảo cho đám cưới hoặc sự kiện của bạn.",
+      "metaDescription": "Thiết kế sơ đồ mặt bằng đám cưới của bạn trực tuyến. Sắp xếp bàn, chỗ ngồi và bố cục dễ dàng để tạo ra cách bố trí sự kiện hoàn hảo."
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Theo dõi yêu cầu ăn uống của khách dự đám cưới của bạn. Dễ dàng quản lý dị ứng, sở thích và các yêu cầu đặc biệt tại một nơi.",
+      "pageTitle": "Theo Dõi Yêu Cầu Ăn Uống Của Khách Mời Đám Cưới | Quản Lý Nhu Cầu Của Khách",
+      "finalCtaLabel": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "primaryCta": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "h1": "Quản Lý Yêu Cầu Ăn Uống Của Khách",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "Theo dõi nhu cầu ăn uống của khách",
+          "Dễ dàng ghi lại các dị ứng và sở thích."
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "Luôn có tổ chức và chuẩn bị",
+          "Tránh những bất ngờ vào phút cuối."
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "Hoàn hảo cho việc điều phối tiệc",
+          "Chia sẻ thông tin chi tiết với địa điểm hoặc nhà cung cấp dịch vụ ăn uống của bạn."
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "Hoạt động với danh sách khách mời của bạn",
+          "Mọi thứ đều được kết nối."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "Dễ dàng theo dõi nhu cầu ăn uống của khách. Quản lý dị ứng, sở thích và các yêu cầu đặc biệt trong một hệ thống có tổ chức."
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "Tạo Sơ Đồ Chỗ Ngồi Đám Cưới Hoàn Chỉnh Của Bạn",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "Xem toàn bộ sơ đồ chỗ ngồi của bạn tại một nơi",
+          "Có được cái nhìn tổng quan hoàn chỉnh về bố cục sự kiện của bạn."
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "Sắp xếp khách mời và bàn dễ dàng",
+          "Giữ mọi thứ có cấu trúc và rõ ràng."
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "Hoàn hảo cho đám cưới và sự kiện lớn",
+          "Xử lý mọi sự kiện với mọi quy mô một cách dễ dàng."
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "Hoạt động với danh sách khách mời và bàn",
+          "Mọi thứ luôn được kết nối và cập nhật."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "lead": "Thiết kế và sắp xếp toàn bộ kế hoạch chỗ ngồi của bạn một cách dễ dàng. Quản lý khách mời, bàn và chỗ ngồi chỉ trong một giao diện đơn giản.",
+      "metaDescription": "Tạo sơ đồ chỗ ngồi đám cưới hoàn chỉnh trực tuyến. Sắp xếp khách mời, bàn và bố trí chỗ ngồi dễ dàng tại một nơi.",
+      "pageTitle": "Tạo Sơ Đồ Chỗ Ngồi Đám Cưới | Toàn Bộ Kế Hoạch Sắp Xếp Chỗ Ngồi Trực Tuyến",
+      "finalCtaLabel": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Bắt đầu Lập kế hoạch cho Sự kiện của Bạn",
+      "pageTitle": "Hiển thị Kiosk chỗ ngồi đám cưới | Chế độ xem khách trực tiếp",
+      "h1": "Kiosk Live Seating View cho sự kiện của bạn",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "Hiển thị chỗ ngồi trên màn hình trực tiếp",
+          "Hoàn hảo cho lối vào địa điểm."
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "Khách tìm thấy bàn của họ ngay lập tức",
+          "Không nhầm lẫn hay chờ đợi."
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "Trải nghiệm hiện đại và tương tác",
+          "Nâng cấp thiết lập sự kiện của bạn."
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "Hoạt động với hệ thống chỗ ngồi QR của bạn",
+          "Trải nghiệm được kết nối đầy đủ."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Bắt đầu Lập kế hoạch cho Sự kiện của Bạn",
+      "lead": "Hiển thị sơ đồ chỗ ngồi của bạn trên màn hình tại địa điểm của bạn. Cho phép khách nhanh chóng tìm thấy bàn của họ một cách hiện đại và tương tác.",
+      "metaDescription": "Hiển thị sơ đồ chỗ ngồi đám cưới của bạn trên màn hình hoặc Kiosk. Khách có thể dễ dàng tìm thấy bàn của mình trong thời gian thực tại sự kiện của bạn."
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Bắt đầu lập kế hoạch sự kiện của bạn",
+      "metaDescription": "Tạo bảng câu hỏi DJ và MC cho đám cưới hoặc sự kiện của bạn. Lập kế hoạch âm nhạc, thông báo và các khoảnh khắc quan trọng để đảm bảo mọi thứ diễn ra hoàn hảo.",
+      "h1": "Bảng câu hỏi DJ & MC cho đám cưới của bạn",
+      "primaryCta": "Bắt đầu lập kế hoạch sự kiện của bạn",
+      "lead": "Lập kế hoạch âm nhạc, thông báo và các khoảnh khắc quan trọng một cách dễ dàng. Cung cấp cho DJ hoặc MC của bạn mọi thứ họ cần để có một sự kiện suôn sẻ và hoàn hảo.",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "Lên kế hoạch âm nhạc và những khoảnh khắc quan trọng của bạn",
+          "Đảm bảo mọi thứ diễn ra đúng lúc."
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "Cung cấp hướng dẫn rõ ràng cho DJ hoặc MC của bạn",
+          "Tránh nhầm lẫn trong ngày trọng đại của bạn."
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "Tùy chỉnh luồng sự kiện của bạn",
+          "Làm cho đám cưới của bạn thực sự là của riêng bạn."
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "Hoạt động với Running Sheet của bạn",
+          "Mọi thứ luôn được kết nối."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Bảng câu hỏi DJ & MC đám cưới | Lập kế hoạch âm nhạc sự kiện của bạn"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Tạo running sheet đám cưới và dòng thời gian sự kiện dễ dàng. Lập kế hoạch mọi khoảnh khắc trong ngày của bạn và giữ mọi thứ diễn ra suôn sẻ.",
+      "primaryCta": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "h1": "Tạo Running Sheet Đám Cưới Của Bạn",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "Lập kế hoạch toàn bộ dòng thời gian sự kiện của bạn",
+          "Luôn ngăn nắp từ đầu đến cuối."
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "Giữ mọi thứ diễn ra suôn sẻ",
+          "Tránh sự chậm trễ và nhầm lẫn."
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "Hoàn hảo cho đám cưới và sự kiện",
+          "Đảm bảo mọi khoảnh khắc đều được lên kế hoạch."
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "Hoạt động với thiết lập sự kiện đầy đủ của bạn",
+          "Mọi thứ luôn được kết nối."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn",
+      "lead": "Lập kế hoạch toàn bộ dòng thời gian sự kiện của bạn một cách dễ dàng. Tổ chức mọi khoảnh khắc trong đám cưới hoặc sự kiện của bạn và đảm bảo mọi thứ diễn ra hoàn hảo.",
+      "pageTitle": "Mẫu Running Sheet Đám Cưới | Kế Hoạch Dòng Thời Gian Sự Kiện"
     }
   },
   "blog": {

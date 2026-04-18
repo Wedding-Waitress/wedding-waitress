@@ -652,345 +652,345 @@
   "featureCardsLearnMore": "詳しく見る",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "lead": "シンプルばダッシュボードからイベント全体を計画・整理できます。すべてを1か所にまとめ、管理下に置きましょう。",
+      "secondaryCta": "機能を見る",
+      "metaDescription": "ウェディングやイベントを1か所で簡単に作成・管理できます。Wedding Waitressで整理整頓し、詳細を追跡し、楽にイベントを計画しましょう。",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "複数のイベントを作成・管理",
+          "細部を見落とすことなく、ウェディング、婚約、披露宴を並行して運営できます。"
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "すべてのイベント詳細を整理",
+          "日付、会場、ゲストリスト、タイミング - 必要なものはすべて1か所にきれいにまとめられています。"
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "1つのダッシュボードからすべてにアクセス",
+          "1つのすっきりとしたインターフェースから、イベント、ツール、レポート間を瞬時に移動できます。"
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "シンプルで使いやすい",
+          "最初のクリックから直感的に使えるように設計されています。トレーニングも煩雑さもなし - ただ計画するだけです。"
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "イベントの計画を始める",
+      "pageTitle": "イベントをオンラインで管理 | Wedding & Event Planner Tool",
+      "h1": "ウェディングやイベントを簡単に管理",
+      "finalCtaLabel": "イベントの計画を始める",
+      "finalCtaText": "数分で最初のイベントを作成し、すべてを1か所にまとめましょう。",
+      "finalCtaHeading": "今日からイベントの計画を始めましょう"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "ゲストを追加して整理",
+          "個人、カップル、家族を簡単に管理します。"
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "RSVPの返信をリアルタイムで追跡",
+          "誰が参加しているかについて最新情報を入手します。"
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "SMSまたはEメールで招待状を送信",
+          "ゲストと即座に連絡を取り合います。"
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "整理された状態を保ち、管理します",
+          "すべてを1つのシンプルなダッシュボードで。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "ゲストリストとRSVPを管理",
+      "primaryCta": "イベントの計画を開始",
+      "metaDescription": "ウェディングゲストリストを管理し、RSVPを追跡し、SMSまたはEメールで招待状を送信します。イベントを整理し、管理します。",
+      "pageTitle": "ウェディングゲストリストマネージャー | RSVPを簡単に追跡",
+      "lead": "すべてのゲストを1か所で追跡します。招待状を送信し、RSVPを監視し、イベントを楽に整理します。",
+      "finalCtaLabel": "イベントの計画を開始"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "イベントの計画を始める",
+      "pageTitle": "ウェディングテーブルプランナー | テーブルを簡単に作成・管理",
+      "h1": "イベントテーブルの作成・管理",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "テーブルの追加とカスタマイズ",
+          "必要な数のテーブルを作成し、イベントに合わせてカスタマイズします。"
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "テーブルごとのゲスト制限を設定",
+          "各テーブルに座れるゲストの数をコントロールします。"
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "テーマに合わせてテーブル名を変更",
+          "家族、友人などの名前やカスタムテーブル名を使用します。"
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "座席レイアウトを簡単に整理",
+          "イベントを構造化し、管理しやすく保ちます。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "イベントの計画を始める",
+      "lead": "数分でテーブルをセットアップ。レイアウトを整理し、テーブル名をカスタマイズし、ゲスト数を簡単にコントロールできます。",
+      "metaDescription": "結婚式やイベントのテーブルを簡単に作成・管理できます。テーブルの追加、ゲスト制限の設定、座席レイアウトの整理も楽々。"
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "イベントの計画を始める",
+      "lead": "ゲストが瞬時に席を見つけられるようにしましょう。QRコードを生成するだけで、ゲストは数秒でスキャンして自分のテーブルを見ることができます。",
+      "metaDescription": "QRコードを使ってデジタルウェディングシーティングチャートを作成しましょう。ゲストはスキャンするだけで瞬時に自分のテーブルを見つけられます。印刷は不要です。",
+      "finalCtaLabel": "イベントの計画を始める",
+      "h1": "あなたのウェディングのためのQRコードシーティングチャート",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "ゲストはスキャンして瞬時に席を見つけられます",
+          "混乱や待ち時間はありません。"
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "イベント固有のQRコードを生成します",
+          "会場での共有や表示が簡単です。"
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "印刷は不要です",
+          "費用を節約し、完全にデジタル化しましょう。"
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "モダンでストレスフリーなソリューション",
+          "今日の結婚式やイベントに最適です。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "QRコードシーティングチャート | デジタルウェディングシーティングプラン"
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "ウェディング招待状 & デジタルカード | 招待状をオンラインで送信",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "SMSまたはEメールで招待状を送信",
+          "ゲストに即座に届けましょう。"
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "美しくモダンなデジタルカード",
+          "最初からゲストを感動させましょう。"
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "シンプルで使いやすい",
+          "デザインスキルは不要です。"
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "ゲストリストと連携",
+          "すべてを1か所で連携させましょう。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "数分で素晴らしいデジタル招待状をデザインして送信しましょう。ウェディングの詳細を共有し、ゲストに美しい第一印象を与えましょう。",
+      "primaryCta": "イベントの計画を始める",
+      "finalCtaLabel": "イベントの計画を始める",
+      "metaDescription": "美しいウェディング招待状やデジタルカードをオンラインで作成・送信しましょう。イベントの詳細を共有してゲストを感動させましょう。",
+      "h1": "ウェディング招待状をオンラインで作成・送信"
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "結婚式のネームプレースカードを作成",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "ネームプレースカードを即座に作成",
+          "すべてのゲストのカードを素早く生成します。"
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "座席を整理し、明確に保つ",
+          "ゲストが簡単に自分の席を見つけられるようにします。"
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "清潔でエレガントなデザイン",
+          "結婚式やフォーマルなイベントに最適です。"
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "ゲストリストとテーブルで機能",
+          "すべてが接続され、整理された状態を保ちます。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "ゲストのために結婚式のネームプレースカードを作成し、整理しましょう。座席を整理し、イベントをエレガントでプロフェッショナルに見せましょう。",
+      "lead": "クリーンでエレガントなネームプレースカードでゲストの座席を簡単に整理できます。あらゆる規模の結婚式やイベントに最適です。",
+      "primaryCta": "イベントの計画を始める",
+      "finalCtaLabel": "イベントの計画を始める",
+      "pageTitle": "結婚式のネーム प्लेसカード | 席次表を簡単に"
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "イベントの計画を始める",
+      "h1": "個別のテーブル座席表を作成",
+      "pageTitle": "テーブル座席表作成 | 個別のテーブルプラン",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "各テーブルの座席を作成",
+          "一度に1つのテーブルに集中します。"
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "ゲストを簡単に割り当てる",
+          "ゲストをテーブルごとにドラッグ＆整理します。"
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "座席を明確かつ整理された状態に保つ",
+          "当日の混乱を避けます。"
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "完全なSeating Chartと連携",
+          "すべてが接続された状態を保ちます。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "各テーブルを簡単に整理できます。ゲストを割り当て、座席を管理し、すべてのテーブルを明確かつ構造化された状態に保ちます。",
+      "metaDescription": "結婚式やイベント用の個別のテーブル座席表を作成します。ゲストをテーブルごとに整理し、シンプルでわかりやすい座席表を作成できます。",
+      "finalCtaLabel": "イベントの計画を始める"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "イベントの全体レイアウトをデザイン",
+          "イベントスペースがどのように見えるかを視覚化します。"
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "テーブルと座席を簡単に配置",
+          "ゲストに最適な設定を作成します。"
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "スペースと流れを最適化",
+          "スムーズで楽しいゲスト体験を保証します。"
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "Seating Chartと連携",
+          "すべてが接続され、整理された状態を保ちます。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "ウェディング フロアプラン作成 | イベントレイアウトをオンラインで計画",
+      "h1": "ウェディングフロアプランを作成",
+      "finalCtaLabel": "イベントの計画を始める",
+      "metaDescription": "結婚式のフロアプランをオンラインでデザイン。テーブル、座席、レイアウトを簡単に配置し、完璧なイベント設定を作成します。",
+      "primaryCta": "イベントの計画を始める",
+      "lead": "イベントのレイアウトを簡単に計画。結婚式やイベントに最適な流れを作るために、テーブル、座席、スペースを配置します。"
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "ゲストの食事ニーズを追跡",
+          "アレルギーや好みを簡単に記録できます。"
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "整理整頓して準備万端に",
+          "土壇場での驚きを回避します。"
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "ケータリング調整に最適",
+          "会場やケータリング業者と詳細を共有します。"
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "ゲストリストと連携",
+          "すべてが接続されたままになります。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "ゲストの食事制限を管理",
+      "pageTitle": "結婚式の食事制限トラッカー | ゲストのニーズを管理",
+      "metaDescription": "結婚式のゲストの食事制限を追跡します。アレルギー、好み、特別なリクエストをすべて1か所で簡単に管理できます。",
+      "lead": "ゲストの食事に関するニーズを簡単に把握できます。アレルギー、好み、特別なリクエストをすべて1つの整理されたシステムで管理します。",
+      "primaryCta": "イベントの計画を開始する",
+      "finalCtaLabel": "イベントの計画を開始する"
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "すべてのシーティングチャートを1か所で表示",
+          "イベントのレイアウトを完全に把握できます。"
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "ゲストとテーブルを簡単に整理",
+          "すべてを構造化し、明確に保ちます。"
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "大規模な結婚式やイベントに最適",
+          "どんな規模のイベントでも簡単に対応できます。"
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "ゲストリストやテーブルと連携",
+          "すべてが接続され、最新の状態に保たれます。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "ウェディングシーティングチャートメーカー | オンラインで完全な座席表を作成",
+      "primaryCta": "イベントの計画を開始する",
+      "lead": "イベント全体の座席プランを簡単にデザインし、整理できます。ゲスト、テーブル、座席をすべて1つのシンプルなビューで管理します。",
+      "metaDescription": "オンラインで完全な結婚式の座席表を作成します。ゲスト、テーブル、座席配置をすべて1か所で簡単に整理できます。",
+      "finalCtaLabel": "イベントの計画を開始する",
+      "h1": "ウェディングシーティングチャートを簡単に作成"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "イベントの計画を始める",
+      "lead": "会場のスクリーンに座席表を表示しましょう。モダンでインタラクティブな方法で、ゲストがすぐに自分のテーブルを見つけられるようにします。",
+      "finalCtaLabel": "イベントの計画を始める",
+      "h1": "イベントのための Kiosk Live Seating View",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "ライブスクリーンに座席を表示",
+          "会場のエントランスに最適です。"
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "ゲストはすぐに自分のテーブルを見つけられます",
+          "混乱や待ち時間はありません。"
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "モダンでインタラクティブな体験",
+          "イベントのセットアップをアップグレードしましょう。"
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "QR シーティングシステムと連携",
+          "完全に接続された体験。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "ウェディングシーティング Kiosk Live View | ゲストをリアルタイムで案内",
+      "metaDescription": "結婚式の座席表を画面または Kiosk に表示。ゲストはイベント会場で自分のテーブルをリアルタイムで簡単に見つけることができます。"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "あなたの結婚式のための DJ & MC アンケート",
+      "lead": "音楽、アナウンス、重要な瞬間を簡単に計画しましょう。DJまたはMCに、スムーズで完璧なイベントに必要なすべてを提供します。",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "音楽と重要な瞬間を計画する",
+          "すべてが適切なタイミングで行われるようにします。"
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "DJまたはMCに明確な指示を与える",
+          "大切な日の混乱を避けます。"
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "イベントの流れをカスタマイズする",
+          "ウェディングを本当にあなただけのものにしましょう。"
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "Running Sheetと連携",
+          "すべてがつながります。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "イベントの計画を始める",
+      "finalCtaLabel": "イベントの計画を始める",
+      "pageTitle": "ウェディング DJ & MC アンケート | イベントミュージックの計画",
+      "metaDescription": "結婚式やイベントのためのDJおよびMCアンケートを作成します。音楽、アナウンス、重要な瞬間を計画し、すべてが完璧に進行するようにします。"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "イベントの計画を始める",
+      "primaryCta": "イベントの計画を始める",
+      "lead": "イベント全体のタイムラインを簡単に計画できます。結婚式やイベントのすべての瞬間を整理し、すべてが完璧に進むようにします。",
+      "metaDescription": "ウェディングの運行表とイベントのタイムラインを簡単に作成。一日のすべての瞬間を計画し、すべてがスムーズに進むようにします。",
+      "pageTitle": "ウェディング運行表テンプレート | イベントタイムラインプランナー",
+      "h1": "ウェディング運行表を作成",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "イベントの全タイムラインを計画",
+          "最初から最後まで整理整頓。"
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "すべてをスムーズに進行させる",
+          "遅延や混乱を避ける。"
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "結婚式やイベントに最適",
+          "すべての瞬間が計画されていることを確認。"
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "イベントのセットアップ全体で機能",
+          "すべてが接続されたままになります。"
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     }
   },
   "blog": {

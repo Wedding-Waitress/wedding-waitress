@@ -637,345 +637,345 @@
   "featureCardsLearnMore": "Μάθετε περισσότερα",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "finalCtaHeading": "Ξεκινήστε να σχεδιάζετε την εκδήλωσή σας σήμερα",
+      "finalCtaText": "Δημιουργήστε την πρώτη σας εκδήλωση μέσα σε λίγα λεπτά και συγκεντρώστε τα πάντα σε ένα μέρος.",
+      "finalCtaLabel": "Ξεκινήστε να Σχεδιάζετε την Εκδήλωσή σας",
+      "pageTitle": "Διαχειριστείτε τις Εκδηλώσεις σας Online | Εργαλείο Οργάνωσης Γάμων & Εκδηλώσεων",
+      "h1": "Διαχειριστείτε τον Γάμο ή την Εκδήλωσή σας Εύκολα",
+      "lead": "Σχεδιάστε και οργανώστε ολόκληρη την εκδήλωσή σας από έναν απλό πίνακα ελέγχου. Κρατήστε τα πάντα σε ένα μέρος και μείνετε σε έλεγχο.",
+      "secondaryCta": "Προβολή Λειτουργιών",
+      "metaDescription": "Δημιουργήστε και διαχειριστείτε εύκολα τον γάμο ή την εκδήλωσή σας σε ένα μέρος. Μείνετε οργανωμένοι, παρακολουθήστε λεπτομέρειες και σχεδιάστε την εκδήλωσή σας αβίαστα με το Wedding Waitress.",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "Δημιουργήστε και διαχειριστείτε πολλαπλές εκδηλώσεις",
+          "Διαχειριστείτε γάμους, αρραβώνες και δεξιώσεις παράλληλα χωρίς να χάσετε ούτε μία λεπτομέρεια."
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "Κρατήστε όλες τις λεπτομέρειες της εκδήλωσής σας οργανωμένες",
+          "Ημερομηνίες, χώροι, λίστες καλεσμένων και χρονοδιαγράμματα – όλα όσα χρειάζεστε βρίσκονται σε ένα τακτοποιημένο μέρος."
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "Πρόσβαση σε όλα από έναν πίνακα ελέγχου",
+          "Μεταπηδήστε μεταξύ εκδηλώσεων, εργαλείων και αναφορών άμεσα από μια ενιαία, καθαρή διεπαφή."
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "Απλό και εύκολο στη χρήση",
+          "Σχεδιασμένο να είναι διαισθητικό από το πρώτο κλικ. Χωρίς εκπαίδευση, χωρίς ακαταστασία – απλά σχεδιάστε."
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Ξεκινήστε να Σχεδιάζετε την Εκδήλωσή σας"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "Προσθέστε και οργανώστε τους καλεσμένους σας",
+          "Διαχειριστείτε εύκολα άτομα, ζευγάρια και οικογένειες."
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "Παρακολουθήστε τις απαντήσεις RSVP σε πραγματικό χρόνο",
+          "Μείνετε ενήμεροι για το ποιος παρευρίσκεται."
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "Στείλτε προσκλήσεις μέσω SMS ή email",
+          "Επικοινωνήστε με τους καλεσμένους άμεσα."
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "Μείνετε οργανωμένοι και έχετε τον έλεγχο",
+          "Όλα σε ένα απλό ταμπλό."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Ξεκινήστε τον προγραμματισμό της εκδήλωσής σας",
+      "metaDescription": "Διαχειριστείτε τη λίστα καλεσμένων του γάμου σας, παρακολουθήστε τα RSVP και στείλτε προσκλήσεις μέσω SMS ή email. Μείνετε οργανωμένοι και έχετε τον έλεγχο της εκδήλωσής σας.",
+      "h1": "Διαχειριστείτε τη λίστα καλεσμένων και τα RSVP σας",
+      "finalCtaLabel": "Ξεκινήστε τον προγραμματισμό της εκδήλωσής σας",
+      "lead": "Παρακολουθήστε όλους τους καλεσμένους σας σε ένα μέρος. Στείλτε προσκλήσεις, παρακολουθήστε τα RSVP και οργανώστε την εκδήλωσή σας χωρίς κόπο.",
+      "pageTitle": "Διαχείριση Λίστας Καλεσμένων Γάμου | Παρακολουθήστε τα RSVP Εύκολα"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "pageTitle": "Οργάνωση Τραπεζιών Γάμου | Δημιουργήστε & Διαχειριστείτε Τραπέζια Εύκολα",
+      "h1": "Δημιουργήστε & Διαχειριστείτε τα Τραπέζια της Εκδήλωσής σας",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "Προσθέστε και προσαρμόστε τραπέζια",
+          "Δημιουργήστε όσα τραπέζια χρειάζεστε και προσαρμόστε τα ώστε να ταιριάζουν με την εκδήλωσή σας."
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "Ορίστε όρια επισκεπτών ανά τραπέζι",
+          "Ελέγξτε πόσοι επισκέπτες μπορούν να καθίσουν σε κάθε τραπέζι."
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "Μετονομάστε τα τραπέζια για να ταιριάζουν με το θέμα σας",
+          "Χρησιμοποιήστε ονόματα όπως Οικογένεια, Φίλοι ή προσαρμοσμένα ονόματα τραπεζιών."
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "Οργανώστε εύκολα τη διάταξη των θέσεων",
+          "Διατηρήστε την εκδήλωσή σας δομημένη και εύκολη στη διαχείριση."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "metaDescription": "Δημιουργήστε και διαχειριστείτε τα τραπέζια του γάμου ή της εκδήλωσής σας με ευκολία. Προσθέστε τραπέζια, ορίστε όρια επισκεπτών και οργανώστε τη διάταξη των θέσεων χωρίς κόπο.",
+      "lead": "Δημιουργήστε τα τραπέζια σας μέσα σε λίγα λεπτά. Οργανώστε τη διάταξή σας, προσαρμόστε τα ονόματα των τραπεζιών και ελέγξτε τον αριθμό των επισκεπτών με ευκολία."
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Δημιουργήστε ένα ψηφιακό σχέδιο θέσεων γάμου με έναν QR κωδικό. Οι καλεσμένοι μπορούν να σκανάρουν για να βρουν άμεσα το τραπέζι τους. Δεν απαιτείται εκτύπωση.",
+      "h1": "QR Code Seating Chart για το Γάμο σας",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "lead": "Αφήστε τους καλεσμένους σας να βρουν τη θέση τους άμεσα. Απλώς δημιουργήστε έναν QR κωδικό και επιτρέψτε στους καλεσμένους να σκανάρουν και να δουν το τραπέζι τους σε δευτερόλεπτα.",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "Οι καλεσμένοι σκανάρουν για να βρουν άμεσα τη θέση τους",
+          "Καμία σύγχυση ή αναμονή."
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "Δημιουργήστε έναν μοναδικό QR κωδικό για την εκδήλωσή σας",
+          "Εύκολο να τον μοιραστείτε και να τον εμφανίσετε στον χώρο σας."
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "Δεν απαιτείται εκτύπωση",
+          "Εξοικονομήστε χρήματα και γίνετε πλήρως ψηφιακοί."
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "Μοντέρνα και χωρίς άγχος λύση",
+          "Ιδανική για τους σημερινούς γάμους και εκδηλώσεις."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "QR Code Seating Chart | Ψηφιακό Σχέδιο Θέσεων Γάμου"
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "Δημιουργήστε & Στείλτε Προσκλήσεις Γάμου Online",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "Στείλτε προσκλήσεις μέσω SMS ή email",
+          "Προσεγγίστε τους καλεσμένους σας άμεσα."
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "Όμορφες και σύγχρονες ψηφιακές κάρτες",
+          "Εντυπωσιάστε τους καλεσμένους σας από την αρχή."
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "Απλό και εύκολο στη χρήση",
+          "Δεν απαιτούνται δεξιότητες σχεδιασμού."
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "Λειτουργεί με τη λίστα καλεσμένων σας",
+          "Διατηρήστε τα πάντα συνδεδεμένα σε ένα μέρος."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Δημιουργήστε και στείλτε όμορφες προσκλήσεις γάμου και ψηφιακές κάρτες online. Μοιραστείτε τις λεπτομέρειες της εκδήλωσής σας και εντυπωσιάστε τους καλεσμένους σας.",
+      "lead": "Σχεδιάστε και στείλτε εκπληκτικές ψηφιακές προσκλήσεις μέσα σε λίγα λεπτά. Μοιραστείτε τις λεπτομέρειες του γάμου σας και δώστε στους καλεσμένους σας μια όμορφη πρώτη εντύπωση.",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήνωσής σας",
+      "pageTitle": "Προσκλήσεις Γάμου & Ψηφιακές Κάρτες | Στείλτε Προσκλήσεις Online"
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "Δημιουργήστε κάρτες ονομάτων θέσεων άμεσα",
+          "Δημιουργήστε γρήγορα κάρτες για όλους τους καλεσμένους σας."
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "Διατηρήστε τις θέσεις οργανωμένες και σαφείς",
+          "Βοηθήστε τους καλεσμένους να βρουν εύκολα τις θέσεις τους."
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "Καθαρός και κομψός σχεδιασμός",
+          "Ιδανικό για γάμους και επίσημες εκδηλώσεις."
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "Συνεργάζεται με τη λίστα καλεσμένων και τα τραπέζια σας",
+          "Όλα παραμένουν συνδεδεμένα και οργανωμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "Οργανώστε εύκολα τις θέσεις των καλεσμένων με καθαρές και κομψές κάρτες ονομάτων θέσεων. Ιδανικό για γάμους και εκδηλώσεις οποιουδήποτε μεγέθους.",
+      "h1": "Δημιουργήστε Κάρτες Ονομάτων Θέσεων Γάμου",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "metaDescription": "Δημιουργήστε και οργανώστε κάρτες ονομάτων θέσεων γάμου για τους καλεσμένους σας. Διατηρήστε την οργάνωση των θέσεων και κάντε την εκδήλωσή σας να φαίνεται κομψή και επαγγελματική.",
+      "pageTitle": "Κάρτες Ονομάτων Θέσεων Γάμου | Κάρτες Θέσεων Τραπεζιού με Ευκολία"
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Δημιουργία Ατομικού Διαγράμματος Θέσεων Τραπεζιού | Μεμονωμένα Σχέδια Τραπεζιών",
+      "metaDescription": "Δημιουργήστε ατομικά διαγράμματα θέσεων τραπεζιού για τον γάμο ή την εκδήλωσή σας. Οργανώστε τους καλεσμένους ανά τραπέζι και κάντε την τοποθέτηση απλή και ξεκάθαρη.",
+      "lead": "Οργανώστε κάθε τραπέζι με ευκολία. Αναθέστε καλεσμένους, διαχειριστείτε τις θέσεις, και διατηρήστε κάθε τραπέζι ξεκάθαρο και καλά δομημένο.",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "Δημιουργήστε θέσεις για κάθε τραπέζι",
+          "Εστιάστε σε ένα τραπέζι κάθε φορά."
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "Αναθέστε καλεσμένους εύκολα",
+          "Σύρετε και οργανώστε τους καλεσμένους ανά τραπέζι."
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "Διατηρήστε τις θέσεις ξεκάθαρες και οργανωμένες",
+          "Αποφύγετε τη σύγχυση την ημέρα της εκδήλωσης."
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "Λειτουργεί με πλήρες διάγραμμα θέσεων",
+          "Όλα παραμένουν συνδεδεμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Δημιουργήστε Ατομικά Διαγράμματα Θέσεων Τραπεζιού",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Σχεδιάστε τη διάταξη της εκδήλωσής σας με ευκολία. Τακτοποιήστε τραπέζια, καθίσματα και αποστάσεις για να δημιουργήσετε την τέλεια ροή για τον γάμο ή την εκδήλωσή σας.",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "pageTitle": "Δημιουργία Wedding Floor Plan | Οργανώστε την Εκδήλωσή σας Online",
+      "metaDescription": "Σχεδιάστε το κάτοψη του γάμου σας online. Τακτοποιήστε τραπέζια, καθίσματα και τη διάταξη εύκολα και δημιουργήστε την τέλεια διάταξη εκδήλωσης.",
+      "h1": "Δημιουργήστε το Wedding Floor Plan σας",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "Σχεδιάστε την πλήρη διάταξη της εκδήλωσής σας",
+          "Οραματιστείτε πώς θα μοιάζει ο χώρος της εκδήλωσής σας."
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "Τακτοποιήστε τραπέζια και καθίσματα εύκολα",
+          "Δημιουργήστε την τέλεια διάταξη για τους καλεσμένους σας."
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "Βελτιστοποιήστε τον χώρο και τη ροή",
+          "Εξασφαλίστε μια ομαλή και ευχάριστη εμπειρία για τους καλεσμένους."
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "Λειτουργεί με το Seating Chart σας",
+          "Όλα παραμένουν συνδεδεμένα και οργανωμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας"
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Wedding Dietary Requirements Tracker | Διαχείριση Αναγκών Επισκεπτών",
+      "h1": "Διαχειριστείτε τις Διατροφικές Απαιτήσεις των Καλεσμένων",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "Παρακολουθήστε τις διατροφικές ανάγκες των καλεσμένων",
+          "Καταγράψτε εύκολα αλλεργίες και προτιμήσεις."
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "Μείνετε οργανωμένοι και προετοιμασμένοι",
+          "Αποφύγετε εκπλήξεις της τελευταίας στιγμής."
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "Ιδανικό για συντονισμό catering",
+          "Μοιραστείτε λεπτομέρειες με τον χώρο εκδήλωσης ή τον τροφοδότη σας."
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "Λειτουργεί με τη λίστα καλεσμένων σας",
+          "Όλα παραμένουν συνδεδεμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Παρακολουθήστε τις διατροφικές απαιτήσεις για τους καλεσμένους του γάμου σας. Διαχειριστείτε εύκολα αλλεργίες, προτιμήσεις και ειδικά αιτήματα σε ένα μέρος.",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "lead": "Παρακολουθήστε με ευκολία τις διατροφικές ανάγκες των καλεσμένων σας. Διαχειριστείτε αλλεργίες, προτιμήσεις και ειδικά αιτήματα σε ένα οργανωμένο σύστημα.",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας"
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής Σας",
+      "h1": "Δημιουργήστε το Πλήρες Seating Chart του Γάμου Σας",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "Δείτε ολόκληρο το Seating Chart σας σε ένα μέρος",
+          "Αποκτήστε μια πλήρη επισκόπηση της διάταξης της εκδήλωσής σας."
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "Οργανώστε τους καλεσμένους και τα τραπέζια εύκολα",
+          "Διατηρήστε τα πάντα δομημένα και σαφή."
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "Ιδανικό για μεγάλους γάμους και εκδηλώσεις",
+          "Αντιμετωπίστε εκδηλώσεις οποιουδήποτε μεγέθους με ευκολία."
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "Λειτουργεί με τη λίστα καλεσμένων και τα τραπέζια",
+          "Όλα παραμένουν συνδεδεμένα και ενημερωμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Δημιουργήστε ένα ολοκληρωμένο Seating Chart γάμου online. Οργανώστε τους καλεσμένους, τα τραπέζια και τις θέσεις εύκολα σε ένα μέρος.",
+      "pageTitle": "Δημιουργία Seating Chart Γάμου | Ολοκληρωμένο Seating Plan Online",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής Σας",
+      "lead": "Σχεδιάστε και οργανώστε ολόκληρο το Seating Plan σας με ευκολία. Διαχειριστείτε τους καλεσμένους, τα τραπέζια και τις θέσεις, όλα σε μία απλή προβολή."
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "lead": "Προβάλετε το διάγραμμα θέσεων σας σε μια οθόνη στον χώρο σας. Αφήστε τους καλεσμένους να βρουν γρήγορα το τραπέζι τους με έναν σύγχρονο και διαδραστικό τρόπο.",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "metaDescription": "Προβάλετε το διάγραμμα θέσεων του γάμου σας σε οθόνη ή Kiosk. Οι καλεσμένοι μπορούν να βρουν εύκολα το τραπέζι τους σε πραγματικό χρόνο στην εκδήλωσή σας.",
+      "h1": "Live Προβολή Θέσεων Kiosk για την Εκδήλωσή σας",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "Προβολή θέσεων σε ζωντανή οθόνη",
+          "Ιδανικό για εισόδους χώρων εκδηλώσεων."
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "Οι καλεσμένοι βρίσκουν το τραπέζι τους αμέσως",
+          "Χωρίς σύγχυση ή αναμονή."
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "Μοντέρνα και διαδραστική εμπειρία",
+          "Αναβαθμίστε τη ρύθμιση της εκδήλωσής σας."
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "Λειτουργεί με το σύστημα θέσεων QR σας",
+          "Πλήρως συνδεδεμένη εμπειρία."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Οθόνη Kiosk για το Wedding Seating | Προβολή Ζωντανών Επισκεπτών"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Δημιουργήστε ένα ερωτηματολόγιο DJ και MC για τον γάμο ή την εκδήλωσή σας. Σχεδιάστε μουσική, ανακοινώσεις και βασικές στιγμές για να διασφαλίσετε ότι όλα θα πάνε τέλεια.",
+      "h1": "Ερωτηματολόγιο DJ & MC για τον Γάμο σας",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "lead": "Σχεδιάστε τη μουσική, τις ανακοινώσεις και τις βασικές στιγμές με ευκολία. Δώστε στον DJ ή MC σας όλα όσα χρειάζονται για μια ομαλή και τέλεια εκδήλωση.",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "Σχεδιάστε τη μουσική και τις βασικές σας στιγμές",
+          "Διασφαλίστε ότι όλα θα συμβούν την κατάλληλη στιγμή."
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "Παρέχετε σαφείς οδηγίες στον DJ ή MC σας",
+          "Αποφύγετε τη σύγχυση τη μεγάλη σας μέρα."
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "Προσαρμόστε τη ροή της εκδήλωσής σας",
+          "Κάντε τον γάμο σας πραγματικά δικό σας."
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "Λειτουργεί με το Running Sheet σας",
+          "Όλα παραμένουν συνδεδεμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Ερωτηματολόγιο DJ & MC Γάμου | Σχεδιάστε τη Μουσική της Εκδήλωσής σας"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Σχεδιάστε ολόκληρο το χρονοδιάγραμμα της εκδήλωσής σας με ευκολία. Οργανώστε κάθε στιγμή του γάμου ή της εκδήλωσής σας και εξασφαλίστε ότι όλα θα κυλήσουν τέλεια.",
+      "finalCtaLabel": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "pageTitle": "Πρότυπο Wedding Running Sheet | Χρονοδιάγραμμα Εκδήλωσης",
+      "metaDescription": "Δημιουργήστε ένα Wedding Running Sheet και ένα χρονοδιάγραμμα εκδήλωσης εύκολα. Σχεδιάστε κάθε στιγμή της ημέρας σας και διατηρήστε τα πάντα ομαλά.",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "Σχεδιάστε το πλήρες χρονοδιάγραμμα της εκδήλωσής σας",
+          "Μείνετε οργανωμένοι από την αρχή μέχρι το τέλος."
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "Διατηρήστε τα πάντα ομαλά",
+          "Αποφύγετε καθυστερήσεις και σύγχυση."
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "Ιδανικό για γάμους και εκδηλώσεις",
+          "Εξασφαλίστε ότι κάθε στιγμή έχει προγραμματιστεί."
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "Λειτουργεί με την πλήρη ρύθμιση της εκδήλωσής σας",
+          "Όλα παραμένουν συνδεδεμένα."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Ξεκινήστε τον Σχεδιασμό της Εκδήλωσής σας",
+      "h1": "Δημιουργήστε το Wedding Running Sheet σας"
     }
   },
   "blog": {

@@ -652,345 +652,345 @@
   "featureCardsLearnMore": "Daha fazla bilgi",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "pageTitle": "Etkinliklerinizi Çevrimiçi Yönetin | Düğün ve Etkinlik Planlama Aracı",
+      "finalCtaHeading": "Etkinliğinizi bugün planlamaya başlayın",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "Birden fazla etkinlik oluşturun ve yönetin",
+          "Tek bir ayrıntıyı bile kaçırmadan düğünleri, nişanları ve resepsiyonları yan yana yürütün."
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "Tüm etkinlik ayrıntılarınızı düzenli tutun",
+          "Tarihler, mekanlar, davetli listeleri ve zamanlamalar - ihtiyacınız olan her şey tek bir düzenli yerde yaşar."
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "Her şeye tek bir kontrol panelinden erişin",
+          "Tek, temiz bir arayüzden etkinlikler, araçlar ve raporlar arasında anında geçiş yapın."
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "Basit ve kullanımı kolay",
+          "İlk tıklamadan itibaren sezgisel olacak şekilde tasarlandı. Eğitim yok, karmaşa yok - sadece planlayın."
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "secondaryCta": "Özellikleri Görüntüle",
+      "finalCtaText": "İlk etkinliğinizi dakikalar içinde oluşturun ve her şeyi tek bir yerde bir araya getirin.",
+      "metaDescription": "Düğün veya etkinliğinizi tek bir yerden kolayca oluşturun ve yönetin. Wedding Waitress ile düzenli kalın, ayrıntıları takip edin ve etkinliğinizi zahmetsizce planlayın.",
+      "h1": "Düğününüzü veya Etkinliğinizi Kolayca Yönetin",
+      "lead": "Tüm etkinliğinizi tek bir basit kontrol panelinden planlayın ve düzenleyin. Her şeyi tek bir yerde tutun ve kontrol sizde olsun."
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Tüm misafirlerinizi tek bir yerden takip edin. Davetiyeleri gönderin, RSVP'leri izleyin ve etkinliğinizi zahmetsizce düzenleyin.",
+      "metaDescription": "Düğün misafir listenizi yönetin, RSVP'leri takip edin ve SMS veya e-posta yoluyla davetiye gönderin. Etkinliğinizin kontrolünü elinizde tutun ve düzenli kalın.",
+      "pageTitle": "Düğün Misafir Listesi Yöneticisi | RSVP'leri Kolayca Takip Edin",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "Misafirlerinizi ekleyin ve düzenleyin",
+          "Bireyleri, çiftleri ve aileleri kolayca yönetin."
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "RSVP yanıtlarını gerçek zamanlı olarak takip edin",
+          "Kimlerin katıldığından haberdar olun."
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "SMS veya e-posta yoluyla davetiye gönderin",
+          "Misafirlerinizle anında iletişim kurun."
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "Düzenli ve kontrol altında kalın",
+          "Her şey tek bir basit kontrol panelinde."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Misafir Listenizi ve RSVP'lerinizi Yönetin"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Düğün veya etkinlik masalarınızı kolayca oluşturun ve yönetin. Masa ekleyin, misafir limitleri belirleyin ve oturma düzeninizi zahmetsizce organize edin.",
+      "pageTitle": "Düğün Masaları Planlayıcısı | Masaları Kolayca Oluşturun ve Yönetin",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "Masa Ekleyin ve Özelleştirin",
+          "İhtiyacınız kadar masa oluşturun ve etkinliğinize uyacak şekilde özelleştirin."
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "Masa Başına Misafir Limitleri Belirleyin",
+          "Her masada kaç misafirin oturabileceğini kontrol edin."
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "Masaları Temanıza Uyacak Şekilde Yeniden Adlandırın",
+          "Aile, Arkadaşlar gibi isimler veya özel masa adları kullanın."
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "Oturma Düzeninizi Kolayca Organize Edin",
+          "Etkinliğinizi düzenli ve yönetimi kolay tutun."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Etkinlik Masalarınızı Oluşturun ve Yönetin",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Masalarınızı dakikalar içinde kurun. Düzeninizi organize edin, masa adlarını özelleştirin ve misafir sayılarını kolayca kontrol edin.",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın"
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "QR Code Oturma Planı | Dijital Düğün Oturma Planı",
+      "lead": "Misafirlerinizin yerlerini anında bulmalarını sağlayın. Sadece bir QR Code oluşturun ve misafirlerinizin saniyeler içinde masalarını tarayıp görmelerini sağlayın.",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "Misafirler yerlerini anında bulmak için tarar",
+          "Kafa karışıklığı veya bekleme yok."
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "Etkinliğiniz için benzersiz bir QR Code oluşturun",
+          "Mekanınızda paylaşması ve sergilemesi kolay."
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "Yazdırma gerektirmez",
+          "Tasarruf edin ve tamamen dijitalleşin."
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "Modern ve stressiz çözüm",
+          "Günümüz düğünleri ve etkinlikleri için mükemmel."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Düğününüz İçin QR Code Oturma Planı",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "metaDescription": "QR Code ile dijital bir düğün oturma planı oluşturun. Misafirler masalarını anında bulmak için tarayabilir. Yazdırmaya gerek yok."
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Çevrimiçi ortamda güzel düğün davetiyeleri ve dijital kartlar oluşturun ve gönderin. Etkinlik detaylarınızı paylaşın ve misafirlerinizi etkileyin.",
+      "pageTitle": "Düğün Davetiyeleri ve Dijital Kartlar | Online Davetiye Gönderin",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "SMS veya e-posta ile davetiye gönderin",
+          "Misafirlerinize anında ulaşın."
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "Güzel ve modern dijital kartlar",
+          "Misafirlerinizi en başından etkileyin."
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "Basit ve kullanımı kolay",
+          "Tasarım becerilerine gerek yok."
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "Misafir listenizle uyumludur",
+          "Her şeyi tek bir yerde bağlı tutun."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Online Düğün Davetiyeleri Oluşturun ve Gönderin",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Dakikalar içinde çarpıcı dijital davetiyeler tasarlayın ve gönderin. Düğün detaylarınızı paylaşın ve misafirlerinize güzel bir ilk izlenim bırakın."
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Düğün İsim Yeri Kartları | Masa Oturma Kartları Artık Çok Kolay",
+      "lead": "Şık ve zarif isim yeri kartları ile misafir oturma düzenini kolayca organize edin. Her büyüklükteki düğün ve etkinlik için mükemmel.",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "İsim yeri kartlarını anında oluşturun",
+          "Tüm misafirleriniz için hızlıca kartlar oluşturun."
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "Oturma düzenini düzenli ve net tutun",
+          "Misafirlerin kolayca yerlerini bulmalarına yardımcı olun."
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "Temiz ve zarif tasarım",
+          "Düğünler ve resmi etkinlikler için mükemmel."
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "Misafir listeniz ve masalarınızla uyumlu çalışır",
+          "Her şey bağlantılı ve düzenli kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Düğün İsim Yeri Kartları Oluşturun",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "metaDescription": "Misafirleriniz için düğün isim yeri kartları oluşturun ve düzenleyin. Oturma düzeninizi organize edin ve etkinliğinizin zarif ve profesyonel görünmesini sağlayın."
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "pageTitle": "Masa Oturma Düzeni Oluşturucu | Bireysel Masa Planları",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "Her masa için oturma düzeni oluşturun",
+          "Her seferinde bir masaya odaklanın."
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "Misafirleri kolayca atayın",
+          "Misafirleri sürükleyip masalara göre düzenleyin."
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "Oturma düzenini açık ve düzenli tutun",
+          "Gün içinde kafa karışıklığını önleyin."
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "Tam oturma düzeniyle çalışır",
+          "Her şey bağlı kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Bireysel Masa Oturma Düzenleri Oluşturun",
+      "metaDescription": "Düğününüz veya etkinliğiniz için bireysel masa oturma düzenleri oluşturun. Misafirleri masalara göre düzenleyin ve oturmayı basit ve anlaşılır hale getirin.",
+      "lead": "Her masayı kolaylıkla düzenleyin. Misafirleri atayın, oturma düzenini yönetin ve her masayı açık ve iyi yapılandırılmış tutun.",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Düğün kat planınızı çevrimiçi tasarlayın. Masaları, oturma düzenini ve yerleşimi kolayca düzenleyerek mükemmel etkinlik kurulumunu oluşturun.",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "Tüm etkinlik düzeninizi tasarlayın",
+          "Etkinlik alanınızın nasıl görüneceğini görselleştirin."
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "Masaları ve oturma düzenini kolayca ayarlayın",
+          "Misafirleriniz için mükemmel kurulumu oluşturun."
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "Alanı ve akışı optimize edin",
+          "Sorunsuz ve keyifli bir misafir deneyimi sağlayın."
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "Oturma düzeninizle çalışır",
+          "Her şey bağlantılı ve düzenli kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Düğün Kat Planınızı Oluşturun",
+      "pageTitle": "Düğün Kat Planı Oluşturucu | Etkinlik Düzeninizi Çevrimiçi Planlayın",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Etkinlik düzeninizi kolaylıkla planlayın. Düğününüz veya etkinliğiniz için mükemmel akışı oluşturmak üzere masaları, oturma düzenini ve boşlukları ayarlayın."
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "Misafir diyet ihtiyaçlarını takip edin",
+          "Alerjileri ve tercihleri kolayca kaydedin."
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "Düzenli ve hazırlıklı kalın",
+          "Son dakika sürprizlerinden kaçının."
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "Catering koordinasyonu için mükemmel",
+          "Detayları mekanınız veya catering firmasıyla paylaşın."
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "Misafir listenizle uyumlu çalışır",
+          "Her şey bağlantılı kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Düğün misafirlerinizin diyet gereksinimlerini takip edin. Alerjileri, tercihleri ve özel istekleri tek bir yerden kolayca yönetin.",
+      "lead": "Misafirlerinizin diyet ihtiyaçlarını kolayca takip edin. Alerjileri, tercihleri ve özel istekleri tek bir düzenli sistemde yönetin.",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "h1": "Misafir Diyet Gereksinimlerini Yönetin",
+      "pageTitle": "Düğün Diyet Gereksinimleri Takipçisi | Misafir İhtiyaçlarını Yönetin"
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "Tüm oturma planınızı tek bir yerde görüntüleyin",
+          "Etkinlik düzeninize eksiksiz bir genel bakış elde edin."
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "Misafirleri ve masaları kolayca düzenleyin",
+          "Her şeyi yapılandırılmış ve açık tutun."
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "Büyük düğünler ve etkinlikler için mükemmel",
+          "Her boyuttaki etkinliği kolaylıkla yönetin."
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "Misafir listesi ve masalarla çalışır",
+          "Her şey bağlı ve güncel kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Tam Düğün Oturma Planınızı Oluşturun",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Tüm oturma planınızı kolaylıkla tasarlayın ve düzenleyin. Misafirleri, masaları ve oturma düzenini tek bir basit görünümde yönetin.",
+      "metaDescription": "Online olarak eksiksiz bir düğün oturma planı oluşturun. Misafirleri, masaları ve oturma düzenini tek bir yerden kolayca organize edin.",
+      "pageTitle": "Düğün Oturma Planı Hazırlayıcı | Online Oturma Planı",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Oturma düzeninizi mekanınızdaki bir ekranda sergileyin. Misafirler masalarını modern ve etkileşimli bir şekilde hızlıca bulsun.",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "h1": "Etkinliğiniz İçin Kiosk Canlı Oturma Görüntüsü",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "metaDescription": "Düğün oturma düzeninizi bir ekranda veya kioskunuzda sergileyin. Misafirleriniz etkinliğinizde masalarını gerçek zamanlı olarak kolayca bulabilir.",
+      "pageTitle": "Düğün Oturma Kiosk Ekranı | Canlı Misafir Görüntüsü",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "Canlı bir ekranda oturma düzenini görüntüleyin",
+          "Mekan girişleri için mükemmeldir."
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "Misafirler masalarını anında bulur",
+          "Karışıklık veya bekleme yok."
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "Modern ve etkileşimli deneyim",
+          "Etkinlik kurulumunuzu yükseltin."
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "QR oturma sisteminizle çalışır",
+          "Tamamen bağlantılı deneyim."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Düğün DJ & MC Anketi | Etkinlik Müziğinizi Planlayın",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "Müziğinizi ve önemli anları planlayın",
+          "Her şeyin doğru zamanda gerçekleştiğinden emin olun."
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "DJ veya MC'nize net talimatlar verin",
+          "Büyük gününüzde karışıklığı önleyin."
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "Etkinlik akışınızı özelleştirin",
+          "Düğününüzü gerçekten size özel yapın."
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "Running Sheet ile uyumludur",
+          "Her şey bağlantıda kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Düğününüz İçin DJ & MC Anketi",
+      "metaDescription": "Düğününüz veya etkinliğiniz için bir DJ ve MC anketi oluşturun. Her şeyin mükemmel bir şekilde yürümesini sağlamak için müzik, duyurular ve önemli anları planlayın.",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Müziğinizi, duyurularınızı ve önemli anlarınızı kolaylıkla planlayın. DJ veya MC'nize sorunsuz ve mükemmel bir etkinlik için ihtiyaç duydukları her şeyi verin.",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "Düğün Akışınızı Oluşturun",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "Tüm etkinlik zaman çizelgenizi planlayın",
+          "Baştan sona düzenli kalın."
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "Her şeyin sorunsuz ilerlemesini sağlayın",
+          "Gecikmeleri ve karışıklığı önleyin."
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "Düğünler ve etkinlikler için mükemmel",
+          "Her anın planlandığından emin olun."
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "Tüm etkinlik kurulumunuzla çalışır",
+          "Her şey bağlı kalır."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Bir düğün akışı ve etkinlik zaman çizelgesini kolayca oluşturun. Gününüzün her anını planlayın ve her şeyin sorunsuz ilerlemesini sağlayın.",
+      "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
+      "lead": "Tüm etkinlik zaman çizelgenizi kolayca planlayın. Düğününüzün veya etkinliğinizin her anını düzenleyin ve her şeyin mükemmel ilerlemesini sağlayın.",
+      "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
+      "pageTitle": "Düğün Akışı Şablonu | Etkinlik Zaman Çizelgesi Planlayıcısı"
     }
   },
   "blog": {

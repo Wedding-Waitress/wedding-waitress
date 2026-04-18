@@ -652,345 +652,345 @@
   "featureCardsLearnMore": "और जानें",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "pageTitle": "अपनी इवेंट्स ऑनलाइन मैनेज करें | वेडिंग और इवेंट प्लानर टूल",
+      "h1": "अपनी शादी या इवेंट आसानी से मैनेज करें",
+      "finalCtaLabel": "अपनी इवेंट प्लान करना शुरू करें",
+      "finalCtaHeading": "आज ही अपनी इवेंट प्लान करना शुरू करें",
+      "finalCtaText": "कुछ ही मिनटों में अपनी पहली इवेंट बनाएं और सब कुछ एक ही जगह पर एक साथ लाएं।",
+      "lead": "एक ही सरल डैशबोर्ड से अपनी पूरी इवेंट को प्लान और व्यवस्थित करें। सब कुछ एक ही जगह पर रखें और कंट्रोल में रहें।",
+      "metaDescription": "अपनी शादी या इवेंट को एक ही जगह पर आसानी से बनाएं और मैनेज करें। Wedding Waitress के साथ व्यवस्थित रहें, डिटेल्स ट्रैक करें और अपनी इवेंट को आसानी से प्लान करें।",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "कई इवेंट्स बनाएं और मैनेज करें",
+          "बिना किसी डिटेल को खोए शादी, सगाई और रिसेप्शन को साथ-साथ चलाएं।"
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "अपनी सभी इवेंट डिटेल्स को व्यवस्थित रखें",
+          "तारीखें, वेन्यू, गेस्ट लिस्ट और टाइमिंग्स - आपको जो कुछ भी चाहिए वह एक साफ-सुथरी जगह पर रहता है।"
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "एक ही डैशबोर्ड से सब कुछ एक्सेस करें",
+          "एक ही, साफ इंटरफ़ेस से तुरंत इवेंट्स, टूल्स और रिपोर्ट्स के बीच स्विच करें।"
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "सरल और उपयोग में आसान",
+          "पहले क्लिक से सहज होने के लिए डिज़ाइन किया गया। कोई ट्रेनिंग नहीं, कोई अव्यवस्था नहीं - बस प्लान करें।"
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "अपनी इवेंट प्लान करना शुरू करें",
+      "secondaryCta": "View Features"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "अपने कार्यक्रम की योजना बनाना शुरू करें",
+      "metaDescription": "अपनी शादी की मेहमान सूची प्रबंधित करें, RSVP ट्रैक करें, और SMS या ईमेल के माध्यम से निमंत्रण भेजें। व्यवस्थित रहें और अपने कार्यक्रम को नियंत्रण में रखें।",
+      "h1": "अपनी मेहमान सूची और RSVP प्रबंधित करें",
+      "lead": "अपने सभी मेहमानों को एक ही स्थान पर ट्रैक करें। निमंत्रण भेजें, RSVP की निगरानी करें, और अपने कार्यक्रम को सहजता से व्यवस्थित करें।",
+      "primaryCta": "अपने कार्यक्रम की योजना बनाना शुरू करें",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "अपने मेहमानों को जोड़ें और व्यवस्थित करें",
+          "व्यक्तियों, जोड़ों और परिवारों को आसानी से प्रबंधित करें।"
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "वास्तविक समय में RSVP प्रतिक्रियाओं को ट्रैक करें",
+          "कौन उपस्थित हो रहा है, इस बारे में अपडेट रहें।"
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "SMS या ईमेल के माध्यम से निमंत्रण भेजें",
+          "मेहमानों के साथ तुरंत संवाद करें।"
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "व्यवस्थित रहें और नियंत्रण में रहें",
+          "सब कुछ एक साधारण डैशबोर्ड में।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "वेडिंग गेस्ट लिस्ट मैनेजर | RSVP आसानी से ट्रैक करें"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "अपने इवेंट की योजना बनाना शुरू करें",
+      "primaryCta": "अपने इवेंट की योजना बनाना शुरू करें",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "टेबल्स जोड़ें और अनुकूलित करें",
+          "जितनी चाहें उतनी टेबल्स बनाएं और उन्हें अपने इवेंट से मेल खाने के लिए अनुकूलित करें।"
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "प्रति टेबल मेहमानों की सीमा निर्धारित करें",
+          "नियंत्रित करें कि प्रत्येक टेबल पर कितने मेहमान बैठ सकते हैं।"
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "अपनी थीम से मेल खाने के लिए टेबल्स का नाम बदलें",
+          "फैमिली, फ्रेंड्स, या कस्टम टेबल नामों जैसे नामों का उपयोग करें।"
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "अपनी बैठने की व्यवस्था को आसानी से व्यवस्थित करें",
+          "अपने इवेंट को संरचित और प्रबंधित करने में आसान रखें।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "कुछ ही मिनटों में अपनी टेबल्स सेट करें। अपनी व्यवस्था को व्यवस्थित करें, टेबल के नामों को अनुकूलित करें, और मेहमानों की संख्या को आसानी से नियंत्रित करें।",
+      "h1": "अपने इवेंट टेबल्स बनाएं और प्रबंधित करें",
+      "metaDescription": "अपने वेडिंग या इवेंट टेबल्स को आसानी से बनाएं और प्रबंधित करें। टेबल्स जोड़ें, मेहमानों की सीमा निर्धारित करें, और अपनी बैठने की व्यवस्था को सहजता से व्यवस्थित करें।",
+      "pageTitle": "वेडिंग टेबल्स प्लानर | टेबल्स को आसानी से बनाएं और प्रबंधित करें"
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "अपने मेहमानों को तुरंत अपनी सीट ढूंढने दें। बस एक QR कोड जनरेट करें और मेहमानों को स्कैन करके कुछ सेकंड में अपनी टेबल देखने दें।",
+      "pageTitle": "QR Code Seating Chart | डिजिटल वेडिंग सीटिंग प्लान",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "मेहमान अपनी सीट तुरंत ढूंढने के लिए स्कैन करते हैं",
+          "कोई भ्रम या इंतजार नहीं।"
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "अपने इवेंट के लिए एक अद्वितीय QR कोड जनरेट करें",
+          "आपके स्थान पर साझा करना और प्रदर्शित करना आसान है।"
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "किसी प्रिंटिंग की आवश्यकता नहीं है",
+          "पैसे बचाएं और पूरी तरह से डिजिटल बनें।"
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "आधुनिक और तनाव-मुक्त समाधान",
+          "आज की शादियों और इवेंट के लिए बिल्कुल सही।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "अपने इवेंट की योजना बनाना शुरू करें",
+      "metaDescription": "एक QR कोड के साथ एक डिजिटल वेडिंग सीटिंग चार्ट बनाएं। मेहमान तुरंत अपनी टेबल ढूंढने के लिए स्कैन कर सकते हैं। किसी प्रिंटिंग की आवश्यकता नहीं है।",
+      "h1": "आपकी शादी के लिए QR Code Seating Chart",
+      "finalCtaLabel": "अपने इवेंट की योजना बनाना शुरू करें"
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "वेडिंग आमंत्रण और डिजिटल कार्ड | ऑनलाइन निमंत्रण भेजें",
+      "metaDescription": "सुंदर वेडिंग आमंत्रण और डिजिटल कार्ड ऑनलाइन बनाएं और भेजें। अपने कार्यक्रम का विवरण साझा करें और अपने मेहमानों को प्रभावित करें।",
+      "lead": "कुछ ही मिनटों में शानदार डिजिटल आमंत्रण डिज़ाइन करें और भेजें। अपनी शादी का विवरण साझा करें और अपने मेहमानों को एक सुंदर पहला प्रभाव दें।",
+      "h1": "ऑनलाइन वेडिंग आमंत्रण बनाएं और भेजें",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "SMS या ईमेल के माध्यम से निमंत्रण भेजें",
+          "अपने मेहमानों तक तुरंत पहुंचें।"
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "सुंदर और आधुनिक डिजिटल कार्ड",
+          "शुरुआत से ही अपने मेहमानों को प्रभावित करें।"
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "सरल और उपयोग में आसान",
+          "किसी डिज़ाइन कौशल की आवश्यकता नहीं है।"
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "आपकी अतिथि सूची के साथ काम करता है",
+          "सब कुछ एक ही स्थान पर कनेक्टेड रखें।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "अपने कार्यक्रम की योजना बनाना शुरू करें",
+      "finalCtaLabel": "अपने कार्यक्रम की योजना बनाना शुरू करें"
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "तुरंत नेम प्लेस कार्ड बनाएं",
+          "अपने सभी मेहमानों के लिए तुरंत कार्ड बनाएं।"
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "सीटिंग को व्यवस्थित और स्पष्ट रखें",
+          "मेहमानों को आसानी से अपनी सीटें ढूंढने में मदद करें।"
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "स्वच्छ और सुंदर डिज़ाइन",
+          "शादियों और औपचारिक इवेंट के लिए बिल्कुल सही।"
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "आपकी अतिथि सूची और टेबलों के साथ काम करता है",
+          "सब कुछ जुड़ा रहता है और व्यवस्थित रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "वेडिंग नेम प्लेस कार्ड बनाएं",
+      "lead": "स्वच्छ और सुंदर नेम प्लेस कार्ड के साथ मेहमानों की सीटिंग को आसानी से व्यवस्थित करें। शादियों और किसी भी आकार के इवेंट के लिए बिल्कुल सही।",
+      "primaryCta": "अपने इवेंट की योजना बनाना शुरू करें",
+      "metaDescription": "अपने मेहमानों के लिए वेडिंग नेम प्लेस कार्ड बनाएं और व्यवस्थित करें। अपनी सीटिंग को व्यवस्थित रखें और अपने इवेंट को सुंदर और पेशेवर बनाएं।",
+      "pageTitle": "वेडिंग नेम प्लेस कार्ड्स | टेबल सीटिंग कार्ड्स को आसान बनाएं",
+      "finalCtaLabel": "अपने इवेंट की योजना बनाना शुरू करें"
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "टेबल सीटिंग चार्ट मेकर | व्यक्तिगत टेबल प्लान",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "प्रत्येक टेबल के लिए बैठने की व्यवस्था बनाएं",
+          "एक समय में एक टेबल पर ध्यान केंद्रित करें।"
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "मेहमानों को आसानी से असाइन करें",
+          "मेहमानों को प्रति टेबल खींचें और व्यवस्थित करें।"
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "बैठने की व्यवस्था स्पष्ट और व्यवस्थित रखें",
+          "दिन में भ्रम से बचें।"
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "पूर्ण सीटिंग चार्ट के साथ काम करता है",
+          "सब कुछ जुड़ा रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "अपने कार्यक्रम की योजना बनाना शुरू करें",
+      "metaDescription": "अपनी शादी या कार्यक्रम के लिए व्यक्तिगत टेबल सीटिंग चार्ट बनाएं। मेहमानों को प्रति टेबल व्यवस्थित करें और बैठने को सरल और स्पष्ट बनाएं।",
+      "h1": "व्यक्तिगत टेबल सीटिंग चार्ट बनाएं",
+      "lead": "प्रत्येक टेबल को आसानी से व्यवस्थित करें। मेहमानों को असाइन करें, बैठने का प्रबंधन करें, और प्रत्येक टेबल को स्पष्ट और सुव्यवस्थित रखें।",
+      "primaryCta": "अपने कार्यक्रम की योजना बनाना शुरू करें"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "अपनी वेडिंग फ्लोर प्लान ऑनलाइन डिज़ाइन करें। टेबलों, सीटों और लेआउट को आसानी से व्यवस्थित करें और उत्तम ईवेंट सेटअप बनाएं।",
+      "pageTitle": "वेडिंग फ्लोर प्लान क्रिएटर | अपनी ईवेंट लेआउट ऑनलाइन प्लान करें",
+      "finalCtaLabel": "अपने ईवेंट की योजना बनाना शुरू करें",
+      "primaryCta": "अपने ईवेंट की योजना बनाना शुरू करें",
+      "h1": "अपना वेडिंग फ्लोर प्लान बनाएं",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "अपने पूरे इवेंट लेआउट को डिज़ाइन करें",
+          "कल्पना करें कि आपकी इवेंट की जगह कैसी दिखेगी।"
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "टेबल और सीटिंग को आसानी से व्यवस्थित करें",
+          "अपने मेहमानों के लिए उत्तम सेटअप बनाएं।"
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "जगह और फ्लो को ऑप्टिमाइज़ करें",
+          "एक सहज और आनंददायक मेहमान अनुभव सुनिश्चित करें।"
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "आपकी Seating Chart के साथ काम करता है",
+          "सब कुछ जुड़ा हुआ और व्यवस्थित रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "अपने ईवेंट लेआउट को आसानी से प्लान करें। अपनी वेडिंग या ईवेंट के लिए सही फ्लो बनाने के लिए टेबल, सीटिंग और स्पेसिंग की व्यवस्था करें।"
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "अपने कार्यक्रम की योजना बनाना शुरू करें",
+      "lead": "अपने मेहमानों की आहार संबंधी ज़रूरतों को आसानी से ट्रैक करें। एलर्जी, पसंद और विशेष अनुरोधों को एक संगठित प्रणाली में प्रबंधित करें।",
+      "metaDescription": "अपने शादी के मेहमानों के लिए आहार संबंधी आवश्यकताओं को ट्रैक करें। एलर्जी, पसंद और विशेष अनुरोधों को एक ही स्थान पर आसानी से प्रबंधित करें।",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "मेहमानों की आहार संबंधी ज़रूरतों को ट्रैक करें",
+          "एलर्जी और पसंद को आसानी से रिकॉर्ड करें।"
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "व्यवस्थित और तैयार रहें",
+          "आखिरी मिनट के आश्चर्य से बचें।"
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "खानपान समन्वय के लिए बिल्कुल सही",
+          "अपनेLVenue या कैटरर के साथ विवरण साझा करें।"
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "आपकी मेहमान सूची के साथ काम करता है",
+          "सब कुछLजुड़ा रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "मेहमानों की आहार संबंधी आवश्यकताओं को प्रबंधित करें",
+      "pageTitle": "वेडिंग आहार संबंधी आवश्यकताएं ट्रैकर | मेहमानों की ज़रूरतें प्रबंधित करें",
+      "finalCtaLabel": "अपने कार्यक्रम की योजना बनाना शुरू करें"
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "अपने पूरे सीटिंग प्लान को आसानी से डिज़ाइन और व्यवस्थित करें। मेहमानों, टेबल और बैठने की व्यवस्था को एक ही सरल दृश्य में प्रबंधित करें।",
+      "pageTitle": "वेडिंग सीटिंग चार्ट मेकर | पूरा सीटिंग प्लान ऑनलाइन",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "अपने पूरे सीटिंग चार्ट को एक ही जगह पर देखें",
+          "अपने इवेंट लेआउट का पूरा अवलोकन प्राप्त करें।"
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "मेहमानों और टेबल को आसानी से व्यवस्थित करें",
+          "सब कुछBव्यवस्थित और स्पष्ट रखें।"
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "बड़ी शादियों और आयोजनों के लिए बिल्कुल सही",
+          "किसी भी आकार के इवेंट को आसानी से संभालें।"
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "गेस्ट लिस्ट और टेबल के साथ काम करता है",
+          "सब कुछ जुड़ा और अपडेटेड रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "अपने इवेंट की योजना बनाना शुरू करें",
+      "metaDescription": "एक पूरा वेडिंग सीटिंग चार्ट ऑनलाइन बनाएं। मेहमानों, टेबल और बैठने की व्यवस्था को एक ही जगह पर आसानी से व्यवस्थित करें।",
+      "h1": "अपना पूरा वेडिंग सीटिंग चार्ट बनाएं",
+      "finalCtaLabel": "अपने इवेंट की योजना बनाना शुरू करें"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "अपनी शादी का सीटिंग चार्ट स्क्रीन या कियोस्क पर प्रदर्शित करें। मेहमान आपके कार्यक्रम में वास्तविक समय में अपनी मेज आसानी से ढूंढ सकते हैं।",
+      "pageTitle": "वेडिंग सीटिंग कियोस्क डिस्प्ले | लाइव गेस्ट व्यू",
+      "finalCtaLabel": "अपने इवेंट की योजना बनाना शुरू करें",
+      "primaryCta": "अपने इवेंट की योजना बनाना शुरू करें",
+      "lead": "अपने कार्यक्रम स्थल पर एक स्क्रीन पर अपना सीटिंग चार्ट प्रदर्शित करें। मेहमानों को आधुनिक और इंटरैक्टिव तरीके से अपनी मेज तुरंत ढूंढने दें।",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "सीटिंग को लाइव स्क्रीन पर प्रदर्शित करें",
+          "कार्यक्रम स्थल के प्रवेश द्वार के लिए बिल्कुल सही।"
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "मेहमान तुरंत अपनी मेज ढूंढ लेते हैं",
+          "कोई भ्रम या प्रतीक्षा नहीं।"
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "आधुनिक और इंटरैक्टिव अनुभव",
+          "अपने इवेंट सेटअप को अपग्रेड करें।"
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "आपके QR सीटिंग सिस्टम के साथ काम करता है",
+          "पूरी तरह से कनेक्टेड अनुभव।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "आपके इवेंट के लिए कियोस्क लाइव सीटिंग व्यू"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "अपनी शादी या कार्यक्रम के लिए एक DJ और MC प्रश्नावली बनाएं। संगीत, घोषणाओं और1 मुख्य क्षणों की योजना बनाएं ताकि सब कुछ सही ढंग से चले।",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "अपने संगीत और मुख्य क्षणों की योजना बनाएं",
+          "सुनिश्चित करें कि सब कुछ सही समय पर हो।"
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "अपने DJ या MC को स्पष्ट निर्देश प्रदान करें",
+          "अपने बड़े दिन पर भ्रम से बचें।"
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "अपने कार्यक्रम प्रवाह को अनुकूलित करें",
+          "अपनी शादी को1 वास्तव में1 अपना बनाएं।"
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "आपकी Running Sheet के साथ काम करता है",
+          "सब कुछ1 जुड़ा रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "अपने कार्यक्रम की योजना बनाना शुरू करें",
+      "h1": "अपनी शादी के लिए DJ और MC प्रश्नावली",
+      "lead": "अपने संगीत, घोषणाओं और मुख्य क्षणों की आसानी से योजना बनाएं। अपने DJ या MC को एक सहज और111 सही कार्यक्रम के लिए1 आवश्यक सब कुछ दें।",
+      "finalCtaLabel": "अपने कार्यक्रम की योजना बनाना शुरू करें",
+      "pageTitle": "वेडिंग DJ और MC प्रश्नावली | अपने ईवेंट संगीत की योजना बनाएं"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "अपने पूरे इवेंट की टाइमलाइन प्लान करें",
+          "शुरू से अंत तक व्यवस्थित रहें।"
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "सब कुछ सुचारू रूप से चलता रहे",
+          "देरी और भ्रम से बचें।"
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "शादियों और कार्यक्रमों के लिए बिल्कुल सही",
+          "सुनिश्चित करें कि हर पल की योजना बनाई गई है।"
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "आपके पूरे इवेंट सेटअप के साथ काम करता है",
+          "सब कुछ जुड़ा रहता है।"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "अपनी वेडिंग रनिंग शीट बनाएं",
+      "pageTitle": "वेडिंग रनिंग शीट टेम्प्लेट | इवेंट टाइमलाइन प्लानर",
+      "metaDescription": "अपनी वेडिंग रनिंग शीट और इवेंट टाइमलाइन आसानी से बनाएं। अपने दिन के हर पल की योजना बनाएं और सब कुछ सुचारू रूप से चलाएं।",
+      "lead": "अपने पूरे इवेंट की टाइमलाइन आसानी से प्लान करें। अपनी शादी या कार्यक्रम के हर पल को व्यवस्थित करें और सुनिश्चित करें कि सब कुछ सही ढंग से चले।",
+      "primaryCta": "अपने इवेंट की योजना बनाना शुरू करें",
+      "finalCtaLabel": "अपने इवेंट की योजना बनाना शुरू करें"
     }
   },
   "blog": {

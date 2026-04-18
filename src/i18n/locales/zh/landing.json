@@ -659,345 +659,345 @@
   "featureCardsLearnMore": "了解更多",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
+      "h1": "轻松管理您的婚礼或活动",
+      "metaDescription": "在一个地方轻松创建和管理您的婚礼或活动。使用 Wedding Waitress，让您井井有条，跟踪细节，轻松策划您的活动。",
+      "finalCtaText": "在几分钟内创建您的第一个活动，并将所有内容整合到一个地方。",
+      "lead": "从一个简单的仪表板计划和组织您的整个活动。将所有内容集中在一个地方，并保持掌控。",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "创建和管理多个活动",
+          "并行处理婚礼、订婚和招待会，不会丢失任何一个细节。"
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "整理所有活动细节",
+          "日期、场地、宾客名单和时间——您需要的一切都集中在一个整洁的地方。"
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "从一个仪表板访问所有内容",
+          "通过一个简洁的界面即时切换活动、工具和报告。"
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "简单易用",
+          "从第一次点击开始就设计得直观。无需培训，不 Ang 杂乱——只管策划。"
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "在线管理您的活动 | Wedding Waitress 婚礼策划工具",
+      "finalCtaHeading": "立即开始策划您的活动",
+      "primaryCta": "开始策划您的活动",
+      "secondaryCta": "查看功能",
+      "finalCtaLabel": "开始策划您的活动"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "婚礼宾客名单管理器 | 轻松追踪 RSVP",
+      "lead": "在一个地方追踪所有宾客。发送请柬，监控 RSVP，轻松组织您的活动。",
+      "h1": "管理您的宾客名单和 RSVP",
+      "finalCtaLabel": "开始策划您的活动",
+      "metaDescription": "管理您的婚礼宾客名单，追踪 RSVP，并通过短信或电子邮件发送请柬。保持井然有序，掌控您的活动。",
+      "primaryCta": "开始策划您的活动",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "添加和组织您的宾客",
+          "轻松管理个人、夫妇和家庭。"
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "实时追踪 RSVP 回复",
+          "随时了解谁将参加。"
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "通过短信或电子邮件发送请柬",
+          "即时与宾客沟通。"
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "保持井然有序，掌控一切",
+          "一切尽在一个简单仪表板中。"
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "在几分钟内设置好您的餐桌。轻松组织您的布局，自定义餐桌名称，并控制宾客人数。",
+      "primaryCta": "开始策划您的活动",
+      "h1": "创建和管理您的活动餐桌",
+      "finalCtaLabel": "开始策划您的活动",
+      "metaDescription": "轻松创建和管理您的婚礼或活动餐桌。添加餐桌，设置宾客限制，毫不费力地组织您的座位布局。",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "添加和自定义餐桌",
+          "根据您的活动需求，创建任意数量的餐桌并进行自定义。"
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "设置每桌宾客限制",
+          "控制每张餐桌可容纳的宾客人数。"
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "根据您的主题重命名餐桌",
+          "使用如“家人”、“朋友”或自定义餐桌名称。"
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "轻松组织您的座位布局",
+          "让您的活动有条不紊，易于管理。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "婚宴餐桌策划 | 轻松创建与管理餐桌"
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "QR Code 座位表 | 数字化婚礼座位安排",
+      "lead": "让您的宾客即刻找到自己的座位。只需生成一个 QR Code，宾客即可在几秒钟内扫描并查看他们的桌位。",
+      "primaryCta": "开始策划您的活动",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "宾客扫描即可立即找到座位",
+          "没有困惑或等待。"
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "为您的活动生成独一无二的 QR Code",
+          "易于在您的场地分享和展示。"
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "无需打印",
+          "省钱并实现全面数字化。"
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "现代化且轻松的解决方案",
+          "非常适合当今的婚礼和活动。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "您的婚礼专属 QR Code 座位表",
+      "finalCtaLabel": "开始策划您的活动",
+      "metaDescription": "使用 QR Code 创建数字化婚礼座位表。宾客可扫描立即找到自己的桌位，无需打印。"
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "婚礼请柬和数字卡片 | 在线发送请柬",
+      "finalCtaLabel": "开始策划您的活动",
+      "h1": "在线创建和发送婚礼请柬",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "通过短信或电子邮件发送请柬",
+          "即时联系您的宾客。"
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "精美现代的数字卡片",
+          "从一开始就给您的宾客留下深刻印象。"
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "简单易用",
+          "无需设计技能。"
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "与您的宾客名单配合使用",
+          "将所有内容集中连接在一个地方。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "开始策划您的活动",
+      "lead": "在几分钟内设计并发送精美的数字请柬。分享您的婚礼详情，给您的宾客留下美好的第一印象。",
+      "metaDescription": "在线创建并发送精美的婚礼请柬和数字卡片。分享您的活动详情，给您的宾客留下深刻印象。"
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "为您的宾客创建和整理婚礼姓名席位卡。保持您的座位井然有序，让您的活动看起来优雅而专业。",
+      "lead": "使用简洁优雅的姓名席位卡，轻松组织宾客座位。完美适用于任何规模的婚礼和活动。",
+      "primaryCta": "开始规划您的活动",
+      "h1": "创建婚礼姓名席位卡",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "即时创建姓名席位卡",
+          "快速为所有宾客生成卡片。"
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "保持座位井然有序且清晰",
+          "帮助宾客轻松找到座位。"
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "干净典雅的设计",
+          "非常适合婚礼和正式活动。"
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "与您的宾客名单和餐桌配合使用",
+          "一切都保持连接和有序。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "开始规划您的活动",
+      "pageTitle": "婚礼席位卡 | 餐桌位次卡制作简单"
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "开始策划您的活动",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "为每张餐桌创建座位",
+          "一次只关注一张餐桌。"
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "轻松分配宾客",
+          "按餐桌拖放和组织宾客。"
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "保持座位清晰有序",
+          "避免当天混乱。"
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "与完整的Seating Chart配合使用",
+          "一切都保持关联。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "为您的婚礼或活动创建独立的餐桌座位表。按桌组织宾客，使座位安排简单明了。",
+      "h1": "创建独立的餐桌座位表",
+      "pageTitle": "餐桌座位表制作 | 独立餐桌方案",
+      "lead": "轻松组织每张餐桌。分配宾客，管理座位，让每张餐桌都清晰且结构良好。",
+      "primaryCta": "开始策划您的活动"
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "开始规划您的活动",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "设计您完整的活动布局",
+          "可视化您的活动空间将如何呈现。"
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "轻松安排桌子和座位",
+          "为您的客人创建完美的设置。"
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "优化空间和流程",
+          "确保流畅愉快的宾客体验。"
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "与您的 Seating Chart 配合使用",
+          "一切都保持连接和有序。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "创建您的婚礼平面图",
+      "metaDescription": "在线设计您的婚礼平面图。轻松安排桌子、座位和布局，创建完美的活动设置。",
+      "pageTitle": "婚礼平面图创建器 | 在线规划您的活动布局",
+      "primaryCta": "开始规划您的活动",
+      "lead": "轻松规划您的活动布局。安排桌子、座位和间距，为您的婚礼或活动创造完美的流程。"
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "管理宾客饮食要求",
+      "lead": "轻松追踪您宾客的饮食需求。在一个有组织的系统中管理过敏、偏好和特殊要求。",
+      "primaryCta": "开始策划您的活动",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "追踪宾客饮食需求",
+          "轻松记录过敏和偏好。"
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "保持井然有序，做好准备",
+          "避免最后一刻的意外。"
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "非常适合餐饮协调",
+          "与您的场地或餐饮服务商分享详情。"
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "与您的宾客名单配合使用",
+          "一切都保持关联。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "开始策划您的活动",
+      "pageTitle": "婚宴饮食要求追踪器 | 管理宾客需求",
+      "metaDescription": "追溯您婚宴宾客的饮食要求。在一个地方轻松管理过敏、偏好和特殊要求。"
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "开始策划您的活动",
+      "lead": "轻松设计和组织您的整个座位方案。在一个简单的视图中管理宾客、桌子和座位。",
+      "finalCtaLabel": "开始策划您的活动",
+      "pageTitle": "婚礼座位表制作工具 | 完整座位方案在线生成",
+      "h1": "创建您的完整婚礼座位表",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "在一个地方查看您的整个座位表",
+          "全面了解您的活动布局。"
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "轻松组织宾客和桌子",
+          "让一切井然有序，清晰明了。"
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "非常适合大型婚礼和活动",
+          "轻松处理任何规模的活动。"
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "与宾客名单和桌子配合使用",
+          "一切都保持连接和更新。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "在线创建完整的婚礼座位表。在一个地方轻松组织宾客、桌子和座位安排。"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "婚礼入座 Kiosk 显示 | 宾客实时视图",
+      "metaDescription": "在屏幕或 Kiosk 上显示您的婚礼座位表。宾客可以在您的活动中实时轻松找到自己的餐桌。",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "在实时屏幕上显示座位",
+          "非常适合场馆入口。"
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "宾客即时找到自己的餐桌",
+          "没有混乱或等待。"
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "现代互动体验",
+          "升级您的活动设置。"
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "与您的 QR 入座系统配合使用",
+          "全面互联的体验。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "lead": "在您的场地屏幕上显示您的座位表。让宾客以现代互动的方式快速找到自己的餐桌。",
+      "h1": "活动 Kiosk 实时入座视图",
+      "primaryCta": "开始规划您的活动",
+      "finalCtaLabel": "开始规划您的活动"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "婚礼 DJ & MC 问卷 | 策划您的活动音乐",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "规划您的音乐和关键时刻",
+          "确保一切都在正确的时间发生。"
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "向您的 DJ 或 MC 提供清晰的指示",
+          "避免在您的重要日子出现混乱。"
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "定制您的活动流程",
+          "让您的婚礼真正独一无二。"
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "与您的 Running Sheet 配合使用",
+          "一切都保持连接。"
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "您的婚礼 DJ & MC 问卷",
+      "metaDescription": "为您的婚礼或活动创建 DJ 和 MC 问卷。策划音乐、公告和关键时刻，确保一切完美进行。",
+      "lead": "轻松规划您的音乐、公告和关键时刻。为您的 DJ 或 MC 提供他们所需的一切，以确保活动顺利而完美进行。",
+      "primaryCta": "开始策划您的活动",
+      "finalCtaLabel": "开始策划您的活动"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "轻松规划您的整个活动时间轴。组织婚礼或活动的每个时刻，确保一切完美运行。",
+      "pageTitle": "婚礼流程表模板 | 活动时间轴规划器",
+      "metaDescription": "轻松创建婚礼流程表和活动时间轴。计划您一天中的每个时刻，让一切顺利进行。",
+      "h1": "创建您的婚礼流程表",
+      "finalCtaLabel": "开始规划您的活动",
+      "primaryCta": "开始规划您的活动",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "规划您的完整活动时间轴",
+          "从开始到结束都保持井然有序。"
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "让一切顺利进行",
+          "避免延误和混乱。"
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "适用于婚礼和活动",
+          "确保每个时刻都有计划。"
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "与您的完整活动设置配合使用",
+          "一切都保持连接。"
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     }
   },
   "blog": {
