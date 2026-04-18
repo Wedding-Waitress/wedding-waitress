@@ -49,7 +49,8 @@ export const PaymentSuccess = () => {
   // Auto-redirect after 8 seconds for success
   useEffect(() => {
     if (status === "success" || status === "approval") {
-      const timer = setTimeout(() => navigate("/dashboard", { replace: true }), 8000);
+      const dest = '/dashboard?tab=account&success=true';
+      const timer = setTimeout(() => navigate(dest, { replace: true }), 8000);
       return () => clearTimeout(timer);
     }
   }, [status, navigate]);
