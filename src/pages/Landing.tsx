@@ -11,7 +11,7 @@ import { SeoHead } from "@/components/SEO/SeoHead";
 import { useTranslation } from 'react-i18next';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
-import { BLOG_POSTS } from '@/content/blogPosts';
+import { useBlogPosts } from '@/content/blogPosts';
 import blogQrScanning from '@/assets/blog-qr-scanning.jpg';
 import blogPlanningLaptop from '@/assets/blog-planning-laptop.jpg';
 import blogWeddingSignage from '@/assets/blog-wedding-signage.jpg';
