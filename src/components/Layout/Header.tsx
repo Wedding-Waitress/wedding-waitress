@@ -4,6 +4,7 @@ import { Globe, ChevronDown } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
+import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 import { SignInModal } from "@/components/auth/SignInModal";
 import { useTranslation } from 'react-i18next';
 import { CurrencySelector } from "@/components/ui/CurrencySelector";
@@ -162,11 +163,11 @@ export const Header: React.FC<HeaderProps> = ({
                     <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950">
                       {t('nav.signIn')}
                     </Button>
-                    <SignUpModal>
+                    <AuthGatedCtaLink to="/dashboard" asChild>
                       <Button ref={signUpButtonRef} size="sm" className="min-h-[44px] text-sm bg-primary hover:bg-primary/90 text-white rounded-xl px-6">
                         {t('nav.getStarted')}
                       </Button>
-                    </SignUpModal>
+                    </AuthGatedCtaLink>
                     <CurrencySelector currency={currency} onCurrencyChange={setCurrency} />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

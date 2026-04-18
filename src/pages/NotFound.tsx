@@ -1,6 +1,7 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/enhanced-button";
+import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 
 const NotFound = () => {
   const location = useLocation();
@@ -23,9 +24,9 @@ const NotFound = () => {
           <Button variant="gradient" asChild>
             <Link to="/">Return Home</Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link to="/dashboard">Go to Dashboard</Link>
-          </Button>
+          <AuthGatedCtaLink to="/dashboard" asChild>
+            <Button variant="outline">Go to Dashboard</Button>
+          </AuthGatedCtaLink>
         </div>
       </div>
     </div>

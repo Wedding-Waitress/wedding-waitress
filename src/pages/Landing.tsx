@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
+import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
@@ -158,12 +159,12 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           Plan your entire wedding or event from one place. Manage guests, create seating charts, and send invitations — all without the stress of printed seating boards.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <SignUpModal>
+          <AuthGatedCtaLink to="/dashboard" asChild>
             <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
               Start Planning Your Event
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </SignUpModal>
+          </AuthGatedCtaLink>
           <Link to="/products/my-events" className="w-full sm:w-auto max-w-xs sm:max-w-none">
             <Button size="lg" variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold transition-all hover:scale-105 w-full sm:w-auto">
               View All Features
@@ -515,9 +516,9 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <SignUpModal>
+              <AuthGatedCtaLink to="/dashboard" asChild>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
-              </SignUpModal>
+              </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
               <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
@@ -546,9 +547,9 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <SignUpModal>
+              <AuthGatedCtaLink to="/dashboard" asChild>
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
-              </SignUpModal>
+              </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
               <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
@@ -573,9 +574,9 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <SignUpModal>
+              <AuthGatedCtaLink to="/dashboard" asChild>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
-              </SignUpModal>
+              </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
               <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
@@ -602,9 +603,9 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <SignUpModal>
+              <AuthGatedCtaLink to="/dashboard" asChild>
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
-              </SignUpModal>
+              </AuthGatedCtaLink>
               <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
             </div>
           </div>
@@ -836,12 +837,12 @@ export const Landing = () => {
             {t('finalCta.title1')}<br />{t('finalCta.title2')}
           </h2>
           <p className="text-white/70 text-lg md:text-xl mb-12">{t('finalCta.subtitle')}</p>
-          <SignUpModal>
+          <AuthGatedCtaLink to="/dashboard" asChild>
             <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
               {t('finalCta.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </SignUpModal>
+          </AuthGatedCtaLink>
           <p className="text-sm text-white/60 mt-4">{t('finalCta.ctaSub')}</p>
         </div>
       </section>
