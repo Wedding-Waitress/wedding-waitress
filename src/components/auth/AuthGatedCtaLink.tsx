@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SignUpModal } from './SignUpModal';
 
@@ -11,9 +11,16 @@ interface AuthGatedCtaLinkProps {
 }
 
 /**
- * CTA that links to a protected route (e.g. /dashboard) only when the user
- * is authenticated. Otherwise it opens the SignUp modal — preventing any
- * unauthenticated bypass to the dashboard.
+ * CTA that links to a protected route (e.g. /dashboard) ONLY when the user
+ * is authenticated. For logged-out users it opens the existing SignUpModal —
+ * preventing any unauthenticated bypass to the dashboard.
+ *
+ * Behaviour:
+ *  - Logged out  → click opens "Create your free account" popup
+ *  - Logged in   → click navigates to `to` (e.g. /dashboard)
+ *
+ * Auth state is verified on click (not just on mount) to avoid any stale
+ * state allowing logged-out users to slip through to /dashboard.
  */
 export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   to,
@@ -21,7 +28,9 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   children,
   onClick,
 }) => {
-  const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
+  const navigate = useNavigate();
+  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+  const [signUpOpen, setSignUpOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -37,27 +46,32 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
     };
   }, []);
 
-  // While loading auth state, render a non-navigating button to avoid bypass.
-  if (isAuthed) {
-    return (
-      <Link
-        to={to}
-        onClick={() => {
-          window.scrollTo(0, 0);
-          onClick?.();
-        }}
-        className={className}
-      >
-        {children}
-      </Link>
-    );
-  }
+  const handleClick = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      onClick?.();
+      // Re-verify auth at click time to eliminate stale-state bypass.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.scrollTo(0, 0);
+        navigate(to);
+      } else {
+        setIsAuthed(false);
+        setSignUpOpen(true);
+      }
+    },
+    [navigate, onClick, to]
+  );
 
   return (
-    <SignUpModal>
-      <button type="button" className={className} onClick={onClick}>
+    <>
+      <button type="button" className={className} onClick={handleClick}>
         {children}
       </button>
-    </SignUpModal>
+      {/* Controlled SignUpModal — opened only for unauthenticated clicks. */}
+      <SignUpModal open={signUpOpen} onOpenChange={setSignUpOpen}>
+        <span style={{ display: 'none' }} />
+      </SignUpModal>
+    </>
   );
 };
