@@ -122,6 +122,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {isDashboardHref(resolvedPrimaryCta.href) ? (
                 <AuthGatedCtaLink
                   to={resolvedPrimaryCta.href}
+                  alwaysSignUp
                   className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#967A59] text-white font-semibold text-base hover:bg-[#7a6347] transition-colors shadow-sm"
                 >
                   {resolvedPrimaryCta.label}
