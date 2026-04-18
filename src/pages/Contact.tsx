@@ -106,138 +106,89 @@ export const Contact = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="w-full max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-12">
-        <Card className="p-8 md:p-12">
-          <div className="space-y-8">
-            {/* Title */}
-            <div className="text-center space-y-4">
-              <h1 className="text-4xl font-bold tracking-tight">Contact Us</h1>
-              <p className="text-lg text-muted-foreground">
-                We're here to help with your wedding planning needs
-              </p>
-            </div>
-
-            {/* Contact Information */}
-            <div className="grid gap-6 md:grid-cols-2 mt-8">
-              {/* Company Info */}
-              <div className="space-y-4 p-6 rounded-lg bg-secondary/50">
-                <div className="flex items-start gap-3">
-                  <Building2 className="w-5 h-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-2">Company Details</h3>
-                    <p className="text-sm text-muted-foreground">Wedding Waitress</p>
-                    <p className="text-sm text-muted-foreground">ABN: 60 418 261 323</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Email Support */}
-              <div className="space-y-4 p-6 rounded-lg bg-secondary/50">
-                <div className="flex items-start gap-3">
-                  <Mail className="w-5 h-5 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-2">Email Support</h3>
-                    <a 
-                      href="mailto:support@weddingwaitress.com"
-                      className="text-sm text-primary hover:underline"
-                    >
-                      support@weddingwaitress.com
-                    </a>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      We typically respond within 24 hours
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="mt-8 p-6 rounded-lg bg-primary/5 border border-primary/20">
-              <h3 className="font-semibold mb-3">How Can We Help?</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• Technical support with your event setup</li>
-                <li>• Questions about features and functionality</li>
-                <li>• Billing and subscription inquiries</li>
-                <li>• General wedding planning assistance</li>
-                <li>• Feedback and suggestions</li>
-              </ul>
-            </div>
-
-            {/* Contact Form */}
-            <div className="mt-8 p-6 md:p-8 rounded-lg border border-border bg-background">
-              <h3 className="font-semibold text-xl mb-1">Send us a message</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Fill in the form below and we'll get back to you within 24 hours.
-              </p>
-              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                <div className="space-y-2">
-                  <Label htmlFor="contact-name">Name</Label>
-                  <Input
+      {/* Main Content — mirrors homepage "Get in Touch" */}
+      <main>
+        <section id="contact" className="py-16 md:py-20 px-4">
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+              {t('contact.title')}
+            </h1>
+            <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+              {t('contact.subtitle')}
+            </p>
+            <form onSubmit={handleSubmit} className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]" noValidate>
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.name')}</label>
+                  <input
                     id="contact-name"
                     type="text"
+                    maxLength={100}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    maxLength={100}
                     disabled={submitting}
-                    placeholder="Your full name"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    placeholder={t('contact.namePlaceholder')}
                     aria-invalid={!!errors.name}
+                    required
                   />
-                  {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                  {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contact-email">Email</Label>
-                  <Input
+                <div>
+                  <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.email')}</label>
+                  <input
                     id="contact-email"
                     type="email"
+                    maxLength={255}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    maxLength={255}
                     disabled={submitting}
-                    placeholder="you@example.com"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                    placeholder={t('contact.emailPlaceholder')}
                     aria-invalid={!!errors.email}
+                    required
                   />
-                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                  {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contact-message">Message</Label>
-                  <Textarea
+                <div>
+                  <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.message')}</label>
+                  <textarea
                     id="contact-message"
+                    maxLength={2000}
+                    rows={5}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    maxLength={2000}
                     disabled={submitting}
-                    placeholder="How can we help?"
-                    rows={6}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
+                    placeholder={t('contact.messagePlaceholder')}
                     aria-invalid={!!errors.message}
+                    required
                   />
-                  {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
+                  {errors.message && <p className="text-xs text-destructive mt-1">{errors.message}</p>}
                 </div>
-                <Button type="submit" disabled={submitting} className="w-full sm:w-auto gap-2">
-                  <Send className="w-4 h-4" />
-                  {submitting ? "Sending…" : "Send Message"}
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
+                >
+                  {submitting ? t('contact.sending') : (
+                    <>
+                      {t('contact.sendButton')}
+                      <Send className="w-4 h-4 ml-2" />
+                    </>
+                  )}
                 </Button>
-              </form>
-            </div>
-
-            {/* CTA */}
-            <div className="text-center pt-4">
-              <Link to="/">
-                <Button size="lg" className="gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
+              </div>
+            </form>
           </div>
-        </Card>
+        </section>
       </main>
 
       {/* Footer */}
       <footer className="border-t mt-12">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-muted-foreground">
-            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Wedding Waitress. All rights reserved.</p>
             <div className="flex items-center justify-center gap-4 mt-2">
               <Link to="/privacy" className="hover:text-primary transition-colors">
                 Privacy Policy
