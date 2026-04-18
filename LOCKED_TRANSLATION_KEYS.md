@@ -191,3 +191,6 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 ## 2026-04-18 — Contact form wiring
 - `src/pages/Contact.tsx` — contact form added and wired to `send-transactional-email` (template `contact-form-message`). LOCKED.
 - `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx` — admin notification template. LOCKED.
+
+## 2026-04-18 — Contact page redesign
+- `src/pages/Contact.tsx` — body replaced to mirror homepage "Get in Touch" form (centered heading, white rounded-[20px] card, FAFAFA inputs, primary button). Company Details, ABN, Email Support, "How Can We Help?" list, and bottom CTA removed. Uses `landing.json contact.*` keys for all 16 locales. Email wiring to support@weddingwaitress.com unchanged. LOCKED.
