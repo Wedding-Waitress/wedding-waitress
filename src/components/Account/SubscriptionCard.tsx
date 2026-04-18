@@ -1,11 +1,14 @@
-// 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-18)
+// 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-18) — Stripe upgrade flow
 import React, { useEffect, useState } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Loader2, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SectionCard } from './SectionCard';
 import { useUserPlan } from '@/hooks/useUserPlan';
+import { useAccountBilling } from '@/hooks/useAccountBilling';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { PLAN_PRICES } from '@/lib/stripePrices';
 
 interface Props {
   icon: LucideIcon;
