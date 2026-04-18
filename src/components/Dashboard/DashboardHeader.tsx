@@ -96,22 +96,26 @@ export const DashboardHeader: React.FC = () => {
           </div>
         )}
         
-        {/* Custom hamburger menu button - mobile only */}
+        {/* Mobile right side: avatar + hamburger */}
         {isMobile && (
-          <button
-            onClick={toggleSidebar}
-            className="h-12 w-12 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-0.5 bg-white rounded-sm" />
-            <div className="w-6 h-0.5 bg-white rounded-sm" />
-            <div className="w-6 h-0.5 bg-white rounded-sm" />
-          </button>
+          <div className="flex items-center gap-2">
+            {ProfileMenu}
+            <button
+              onClick={toggleSidebar}
+              className="h-12 w-12 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
+              aria-label="Toggle menu"
+            >
+              <div className="w-6 h-0.5 bg-white rounded-sm" />
+              <div className="w-6 h-0.5 bg-white rounded-sm" />
+              <div className="w-6 h-0.5 bg-white rounded-sm" />
+            </button>
+          </div>
         )}
-        
-        {/* Original sidebar trigger for desktop */}
+
+        {/* Desktop right side: avatar + sidebar trigger */}
         {!isMobile && (
-          <div className="absolute right-2 sm:right-4">
+          <div className="absolute right-2 sm:right-4 flex items-center gap-3">
+            {ProfileMenu}
             <SidebarTrigger />
           </div>
         )}
