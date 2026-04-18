@@ -52,6 +52,7 @@ import { ProductKioskLiveView } from "./pages/products/ProductKioskLiveView";
 import { ProductDjMcQuestionnaire } from "./pages/products/ProductDjMcQuestionnaire";
 import { Blog } from "./pages/Blog";
 import { BlogPost } from "./pages/BlogPost";
+import Unsubscribe from "./pages/Unsubscribe";
 const queryClient = new QueryClient();
 
 // Scroll to top on route change
@@ -152,6 +153,8 @@ const App = () => (
           <Route path="/qr/:code" element={<QRRedirect />} />
            {/* Payment success */}
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          {/* Email unsubscribe */}
+          <Route path="/unsubscribe" element={<Unsubscribe />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>

@@ -101,6 +101,37 @@ export const EmbeddedSignUpForm: React.FC = () => {
           email: formData.email,
           mobile: formData.mobile || null
         });
+
+        // Fire-and-forget welcome + admin-signup emails. Failures must NOT block signup.
+        const userId = data.user.id;
+        const fullName = `${formData.first_name} ${formData.last_name}`.trim();
+        const nowIso = new Date().toISOString();
+        try {
+          supabase.functions.invoke('send-transactional-email', {
+            body: {
+              templateName: 'welcome',
+              recipientEmail: formData.email,
+              idempotencyKey: `welcome-${userId}`,
+              templateData: { firstName: formData.first_name },
+            },
+          }).then(({ error }) => {
+            if (error) console.error('welcome email failed', error);
+          }).catch((e) => console.error('welcome email failed', e));
+
+          supabase.functions.invoke('send-transactional-email', {
+            body: {
+              templateName: 'admin-new-signup',
+              recipientEmail: 'support@weddingwaitress.com',
+              idempotencyKey: `admin-signup-${userId}`,
+              templateData: { fullName, email: formData.email, date: nowIso },
+            },
+          }).then(({ error }) => {
+            if (error) console.error('admin signup email failed', error);
+          }).catch((e) => console.error('admin signup email failed', e));
+        } catch (e) {
+          console.error('email dispatch failed', e);
+        }
+
         toast({
           title: t('form.welcomeTitle'),
           description: t('form.welcomeDesc')
