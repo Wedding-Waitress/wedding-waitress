@@ -1,105 +1,76 @@
 
 ## Goal
-Three pieces, scoped tightly:
-1. **Free trial countdown** in Subscription card → "Free (X days left)" or "Free (Expired)".
-2. **Welcome email** to new user on signup.
-3. **Admin notifications** to support@weddingwaitress.com on signup + payment.
-All failsafe — email errors must never block signup or payment.
+Add a working contact form to `/contact` that emails `support@weddingwaitress.com` with Name / Email / Message, shows the success toast, and does NOT change the existing UI/layout of the page or anything else in the app.
 
 ## Findings
-- `useUserPlan` already fetches `user_subscriptions.created_at`-derived data + `expires_at` + `status`. Good base.
-- `SubscriptionCard.tsx` already renders status badges (Active/Trial/Expired/Cancelled) and pulls `startDate` from `user_subscriptions.created_at`.
-- No transactional email infra exists yet — must scaffold Lovable's transactional email system (`scaffold_transactional_email`) which depends on `setup_email_infra` + a verified sender domain.
-- `weddingwaitress.com` is the published custom domain → need to check if email domain is configured. If not, show the email setup dialog first.
-- Signup: `EmbeddedSignUpForm.tsx` uses `supabase.auth.signUp` + OTP. Best trigger point for welcome + admin-signup emails = right after successful OTP verification (when `data.session` exists), client-side invocation of `send-transactional-email`. This avoids needing auth webhooks.
-- Payment: `verify-payment` edge function runs after Stripe checkout → ideal place to invoke admin payment notification (server-side, one-shot, idempotent via session_id).
+- `src/pages/Contact.tsx` is **PRODUCTION-LOCKED** but currently has NO form — only static contact info cards. User is asking to add functionality, which by definition requires touching the locked file. This is in scope of their explicit request.
+- Email infra is already set up (`notify.weddingwaitress.com`, `send-transactional-email` deployed, registry exists with welcome / admin-new-signup / admin-new-payment templates).
+- Per transactional-email rules: contact form confirmation is a valid transactional use case. But user wants the email to go to **admin** (`support@weddingwaitress.com`) containing the visitor's details — this is "contact form notification to site owner", also valid transactional (1:1, triggered by specific user action).
+- User did NOT ask for a confirmation email back to the submitter — only an in-page toast. So we send ONE email: to support.
 
 ## Plan
 
-### Part 1 — Trial countdown (scoped to Subscription card only)
-File: `src/components/Account/SubscriptionCard.tsx`
-- Compute `daysLeft = max(0, ceil((expires_at - now) / 1day))` for Free/Starter plan.
-- If plan is Free/Starter and not expired → label = `"Free (${daysLeft} days left)"` (singular "1 day left"), green Active badge.
-- If expired → label = `"Free (Expired)"`, red Expired badge.
-- Auto-refresh: small `useEffect` with `setInterval(60_000)` to recompute `daysLeft` (cheap, no fetch needed; date math only).
-- Source of truth for trial expiry: `plan.expires_at` from `useUserPlan` (already wired). If null for legacy free users, fall back to `user.created_at + 7 days`.
+### 1. New transactional template
+File: `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx`
+- Subject: `New contact message from {name}`
+- Body (brand styled, white bg, brown #967A59 accents, Inter): Name, Email (as mailto link), Message (preserve line breaks), submitted timestamp.
+- Props: `{ name, email, message, date }`.
 
-### Part 2 — Email infrastructure setup
-Sequence (no shortcuts):
-1. Check email domain status. If no domain configured → show `<lov-open-email-setup>` dialog and stop. (Required before any send works.)
-2. If domain exists (any status) → call `setup_email_infra` (idempotent), then `scaffold_transactional_email`.
-3. Create three React Email templates in `supabase/functions/_shared/transactional-email-templates/`:
-   - `welcome.tsx` — user welcome (uses `firstName`)
-   - `admin-new-signup.tsx` — to admin (uses `fullName`, `email`, `date`)
-   - `admin-new-payment.tsx` — to admin (uses `name`, `email`, `amount`, `plan`, `date`)
-4. Register all three in `registry.ts`.
-5. Style templates with Wedding Waitress brand: white body, `#967A59` brown buttons, Inter font.
-6. Deploy `send-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`.
+Update `registry.ts` — add import + `'contact-form-message'` entry. Keep all existing entries untouched.
 
-### Part 3 — Wire triggers
-
-**Welcome + admin-signup email** (client-side, after successful OTP verification):
-File: `src/components/auth/EmbeddedSignUpForm.tsx`
-- After `supabase.auth.verifyOtp` success and profile creation, fire-and-forget two invocations wrapped in try/catch (errors → `console.error` only, never thrown):
+### 2. Contact page form (minimal addition, no layout change to existing cards)
+File: `src/pages/Contact.tsx`
+- Add a new `<Card>` BELOW the existing "How Can We Help?" block (and above the CTA button) containing:
+  - Heading "Send us a message"
+  - Name input, Email input, Message textarea
+  - Submit button (uses existing `Button` primitive, brown brand styling consistent with site)
+- Validation with zod: name 1–100, email valid 1–255, message 1–2000, all `.trim()`.
+- On submit:
   ```ts
-  supabase.functions.invoke('send-transactional-email', {
+  await supabase.functions.invoke('send-transactional-email', {
     body: {
-      templateName: 'welcome',
-      recipientEmail: email,
-      idempotencyKey: `welcome-${user.id}`,
-      templateData: { firstName },
-    },
-  }).catch(e => console.error('welcome email failed', e));
-
-  supabase.functions.invoke('send-transactional-email', {
-    body: {
-      templateName: 'admin-new-signup',
+      templateName: 'contact-form-message',
       recipientEmail: 'support@weddingwaitress.com',
-      idempotencyKey: `admin-signup-${user.id}`,
-      templateData: { fullName: `${firstName} ${lastName}`, email, date: new Date().toISOString() },
+      idempotencyKey: `contact-${crypto.randomUUID()}`,
+      templateData: { name, email, message, date: new Date().toISOString() },
     },
-  }).catch(e => console.error('admin signup email failed', e));
+  });
   ```
-- No await blocking. Signup flow continues regardless.
+- Wrap in try/catch. On success: toast "Thank you, your message has been sent. We will reply within 24 hours." + reset form.
+- On failure: error toast, log to console. Form state remains so user can retry.
+- Loading state on button (disabled + "Sending…").
+- Fully responsive: stacks on mobile (already inside `max-w-4xl` container with px padding).
 
-**Admin-payment email** (server-side, in `verify-payment`):
-File: `supabase/functions/verify-payment/index.ts`
-- After successful Stripe session verification + `user_subscriptions` update, invoke `send-transactional-email` for admin only (user receipt comes from Stripe per the brief).
-- Idempotency key: `admin-payment-${session_id}` so retries don't duplicate.
-- Wrap in try/catch — payment success response must not fail if email fails.
+**No other change to Contact.tsx** — header, contact info grid, "How Can We Help?", footer, SEO, lock comment all preserved.
 
-### Part 4 — Lock
-- Stamp `🔒 PRODUCTION-LOCKED` on `SubscriptionCard.tsx`, `EmbeddedSignUpForm.tsx`, `verify-payment/index.ts`, and the three new templates.
-- Append entries under Account/Auth section in `LOCKED_TRANSLATION_KEYS.md`.
+### 3. Lock
+- Update the existing lock comment header on `Contact.tsx` to reflect the form addition is now part of the locked surface.
+- Append to `LOCKED_TRANSLATION_KEYS.md`:
+  - New row in "Locked transactional emails" section listing `contact-form-message.tsx` template.
+  - New row noting the Contact form wiring on `src/pages/Contact.tsx` is locked as of 2026-04-18.
+- Stamp lock comment on the new template file.
+
+### 4. Deploy
+Deploy `send-transactional-email` after registry update.
 
 ## Files modified
-- `src/components/Account/SubscriptionCard.tsx` — trial countdown label + auto-refresh.
-- `src/components/auth/EmbeddedSignUpForm.tsx` — fire-and-forget welcome + admin-signup email after OTP success.
-- `supabase/functions/verify-payment/index.ts` — fire-and-forget admin payment email after sub update.
-- `LOCKED_TRANSLATION_KEYS.md`
+- `src/pages/Contact.tsx` — add form section + submit handler. NO change to existing cards, header, footer, SEO, layout.
+- `supabase/functions/_shared/transactional-email-templates/registry.ts` — register new template.
+- `LOCKED_TRANSLATION_KEYS.md` — log new locks.
 
 ## Files created
-- `supabase/functions/_shared/transactional-email-templates/welcome.tsx`
-- `supabase/functions/_shared/transactional-email-templates/admin-new-signup.tsx`
-- `supabase/functions/_shared/transactional-email-templates/admin-new-payment.tsx`
-- `supabase/functions/_shared/transactional-email-templates/registry.ts` (updated by scaffold + extended)
-- `supabase/functions/send-transactional-email/` (scaffolded)
-- `supabase/functions/handle-email-unsubscribe/` (scaffolded)
-- `supabase/functions/handle-email-suppression/` (scaffolded)
+- `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx`
 
 ## Out of scope
-- Stripe receipt/invoice emails (user toggles those in Stripe Dashboard per brief).
-- Daily cron for trial expiry — countdown is computed live, no cron needed.
-- Auth email customization (separate system).
-- Any other page, sidebar, or pricing change.
-
-## Prerequisite check (first action in implementation)
-Confirm sender domain is configured for `weddingwaitress.com`. If not, surface the email setup dialog before scaffolding — implementation pauses until domain is set.
+- Confirmation email to submitter (not requested).
+- Storing submissions in DB (not requested).
+- Any change to other pages, sidebar, navigation, pricing, header.
+- Any visual change to existing Contact page sections.
 
 ## Verification
-1. Free user → Subscription card shows "Free (7 days left)" → green Active.
-2. Wait past expiry → shows "Free (Expired)" → red Expired badge.
-3. New signup → welcome email arrives in user inbox + admin-signup email at support@weddingwaitress.com.
-4. Test payment → admin-payment email at support@weddingwaitress.com.
-5. Disconnect email infra mid-test → signup + payment still complete; only console errors.
-6. Mobile 375px → Subscription card label wraps cleanly.
+1. Visit `/contact` → existing layout unchanged → new "Send us a message" card visible below help list.
+2. Submit valid form → button shows "Sending…" → success toast appears → form resets.
+3. Inbox at support@weddingwaitress.com receives branded email with Name / Email (clickable) / Message / timestamp.
+4. Submit invalid (empty message, bad email) → inline validation errors, no send.
+5. Mobile 375px → form stacks, inputs full width, button full width.
+6. Email service down → error toast, no crash, console logged.
