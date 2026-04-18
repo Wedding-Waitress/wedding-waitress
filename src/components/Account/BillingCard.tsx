@@ -1,19 +1,12 @@
 // 🔒 PRODUCTION-LOCKED — Billing Card (2026-04-18)
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { LucideIcon, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SectionCard } from './SectionCard';
-import { supabase } from '@/integrations/supabase/client';
+import { useAccountBilling } from '@/hooks/useAccountBilling';
 
 interface Props {
   icon: LucideIcon;
-}
-
-interface BillingData {
-  paymentMethod: { brand: string; last4: string } | null;
-  lastInvoice: { amount: number; currency: string; date: string; hostedUrl: string | null; pdfUrl: string | null } | null;
-  nextBillingDate: string | null;
-  portalUrl: string | null;
 }
 
 const formatDate = (iso: string | null) => {
@@ -30,26 +23,9 @@ const formatMoney = (amount: number, currency: string) => {
 };
 
 export const BillingCard: React.FC<Props> = ({ icon }) => {
-  const [data, setData] = useState<BillingData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const { data: res } = await supabase.functions.invoke('get-account-billing');
-        if (active && res) setData(res as BillingData);
-      } catch (e) {
-        console.error('billing fetch failed', e);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => { active = false; };
-  }, []);
-
-  const pm = data?.paymentMethod;
-  const last = data?.lastInvoice;
+  const { data, loading } = useAccountBilling();
+  const pm = data.paymentMethod;
+  const last = data.lastInvoice;
 
   return (
     <SectionCard icon={icon} title="Billing" description="Payment method and recent invoice">
@@ -66,7 +42,7 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
               label="Last payment"
               value={last ? `${formatMoney(last.amount, last.currency)} on ${formatDate(last.date)}` : '—'}
             />
-            <Row label="Next billing date" value={formatDate(data?.nextBillingDate ?? null)} />
+            <Row label="Next billing date" value={formatDate(data.nextBillingDate)} />
           </div>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button
@@ -85,8 +61,8 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
             <Button
               size="sm"
               className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
-              disabled={!data?.portalUrl}
-              onClick={() => data?.portalUrl && window.open(data.portalUrl, '_blank', 'noopener')}
+              disabled={!data.portalUrl}
+              onClick={() => data.portalUrl && window.open(data.portalUrl, '_blank', 'noopener')}
             >
               Update Payment Method
               <ExternalLink className="ml-1 w-3.5 h-3.5" />
