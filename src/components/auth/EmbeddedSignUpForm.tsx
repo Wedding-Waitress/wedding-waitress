@@ -201,19 +201,19 @@ export const EmbeddedSignUpForm: React.FC = () => {
           <div className="space-y-3">
             <div>
               <Label htmlFor="feat_first_name" className="text-sm font-medium">{t('form.firstNameLabel')}</Label>
-              <Input id="feat_first_name" type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="mt-1" disabled={loading} />
+              <Input id="feat_first_name" type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
             </div>
             <div>
               <Label htmlFor="feat_last_name" className="text-sm font-medium">{t('form.lastNameLabel')}</Label>
-              <Input id="feat_last_name" type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="mt-1" disabled={loading} />
+              <Input id="feat_last_name" type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
             </div>
             <div>
               <Label htmlFor="feat_email" className="text-sm font-medium">{t('form.emailLabel')}</Label>
-              <Input id="feat_email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" disabled={loading} />
+              <Input id="feat_email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
             </div>
             <div>
               <Label htmlFor="feat_mobile" className="text-sm font-medium">{t('form.mobileLabel')}</Label>
-              <Input id="feat_mobile" type="tel" placeholder={t('form.mobilePlaceholder')} value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className="mt-1" disabled={loading} />
+              <Input id="feat_mobile" type="tel" placeholder={t('form.mobilePlaceholder')} value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
             </div>
           </div>
 
@@ -255,7 +255,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
                 type="text"
                 inputMode="numeric"
                 maxLength={6}
-                className="w-12 h-12 text-center text-lg font-semibold"
+                className="w-12 h-12 text-center text-lg font-semibold border-2 border-[#967A59]/70 focus-visible:border-[#967A59]"
                 value={digit}
                 onChange={(e) => handleCodeChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
