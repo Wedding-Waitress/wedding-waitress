@@ -1,44 +1,81 @@
 
 ## Goal
-Fix the auth OTP email so it matches screenshot #1's layout: visible Wedding Waitress brown logo at top, then heading, greeting, instruction, brown OTP code, "expires in 10 minutes" line, plain "Or click the button below to sign in directly:" text (no highlight), then magic-link button. Then test by triggering a real sign-in and verifying the rendered email.
+Add a new **Account** page to the dashboard, accessible via a profile icon dropdown in the top-right of the dashboard header (not the sidebar). Then lock the new files.
 
-## Findings
-Current email (`supabase/functions/send-auth-email/index.ts`) already has the correct structure (logo → heading → greeting → instruction → OTP → expiry line → divider → "Or click..." text → button). Two real issues from screenshot #2:
-
-1. **Logo broken** — the `<img src="https://weddingwaitress.com/wedding-waitress-logo-brown.png">` is not loading in Outlook (shows placeholder box "Wedding Waitress"). Cause: the file at that public URL is either missing, blocked, or not the brown logo. The previously-created `public/wedding-waitress-logo-brown.png` may not have published yet, or Outlook is blocking the host. Fix: upload the brown logo to Supabase Storage (publicly hosted, CDN-backed, never blocked) and use that URL — same pattern Resend recommends.
-
-2. **"Sign In with Magic Link" appears highlighted** — in screenshot #2 it renders as a yellow-highlighted text link, not as a brown button. Likely because the Outlook client is mangling the inline `<a>` styles. Looking again: the user wants the line *above* the button ("Or click the button below to sign in directly:") to be plain dark-gray text with no highlight/background. The current code already has it as plain text — but in screenshot #2, what looks highlighted is actually the **button itself** rendering oddly. The user's instruction is clear: keep the layout from screenshot #1 (which has the proper brown button). So the button must render as a solid brown button, and the lead-in line stays plain.
-
-The countdown ("This code expires in 10 minutes") in email cannot literally tick down — email HTML is static. Screenshot #1 shows static text "This code expires in **10 minutes**" — that's what we keep. (A live countdown is not possible in email.)
+## Findings (need to verify before building)
+- `src/pages/Dashboard.tsx` uses `activeTab` state to switch sections — I'll add `"account"` as a new tab value, render conditionally, but keep it OUT of the sidebar.
+- `src/components/Dashboard/DashboardHeader.tsx` is where the profile dropdown will live (top-right).
+- Existing hooks I'll reuse (no new fetching logic):
+  - `useProfile` — name, email, phone, update details
+  - `useUserPlan` — plan name, status, start, expiry
+  - `useEvents` — total events count
+  - `useGuests` (or aggregate query) — total guests across events
+- Stripe billing data: `verify-payment` / `create-checkout` edge functions already exist. For invoices/payment method/history I'll call a small read-only edge function (or surface what's already on `useUserPlan` + a Stripe Customer Portal link via `create-checkout` style redirect).
 
 ## Plan
 
-1. **Upload brown logo to Supabase Storage** (bucket: `email-assets`, public read) — file: `wedding-waitress-logo-brown.png` from `user-uploads://Wedding_Waitress._Brown._PNG-5.png`. Get the public URL.
+### 1. New page component
+`src/pages/Account.tsx` — composes 6 cards in a single vertical column, max-width container, generous padding, soft shadow, rounded-2xl, brand brown `#967A59` accents.
 
-2. **Update `supabase/functions/send-auth-email/index.ts`** (override its lock for this approved fix):
-   - Replace the logo `<img src>` with the new Supabase Storage public URL.
-   - Keep the existing heading / greeting / instruction / brown OTP / "expires in 10 minutes" structure as-is (matches screenshot #1).
-   - Keep "Or click the button below to sign in directly:" as plain `color: #71717a` text (no background, no highlight) — already correct, just verify.
-   - Keep the magic-link `<a>` rendered as a solid `#967A59` brown button with white text and `display: inline-block` + padding (already correct, just verify it renders properly).
-   - Re-apply the production-lock comment header.
+### 2. New section components (one file per card, kept small)
+`src/components/Account/`
+- `AccountInfoCard.tsx` — Name, Email, Phone + **Edit Details** button → opens `EditDetailsModal`
+- `SubscriptionCard.tsx` — Plan name + status badge (green Active / red Expired), Start, Expiry, **Upgrade Plan** CTA
+- `BillingCard.tsx` — Payment method (masked), Last payment, Next billing, **Download Invoice** + **Update Payment Method** (opens Stripe Customer Portal)
+- `UsageCard.tsx` — Progress bars for Total Guests (vs plan limit), Total Events, Storage (placeholder "Coming soon")
+- `HistoryCard.tsx` — Date / Type / Amount table
+- `SecurityCard.tsx` — Masked password, email verified badge, **Change Password** modal + **Send Verification Email** button
+- `EditDetailsModal.tsx` — form for first/last/phone, calls profile update
+- `ChangePasswordModal.tsx` — current + new password, calls `supabase.auth.updateUser`
 
-3. **Deploy** the `send-auth-email` Edge Function.
+### 3. Header profile dropdown
+Add to `src/components/Dashboard/DashboardHeader.tsx` (top-right):
+- Circular avatar button with user initials, brown background `#967A59`, white text
+- Radix `DropdownMenu` with items: **Account**, **Sign out**
+- Clicking **Account** sets `activeTab="account"` in Dashboard
 
-4. **Test end-to-end**: trigger a real sign-in OTP request to the user's email via the auth flow (or directly via curl to the function's hook endpoint with a sample payload), then check function logs to confirm successful Resend delivery (200 + message ID). Confirm zero errors.
+### 4. Wire into Dashboard
+- `src/pages/Dashboard.tsx`: add `{activeTab === "account" && <Account />}` render branch
+- Add `"account"` to the StatsBar exclusion list (no stats bar on Account page)
+- **Sidebar untouched** — Account is reachable only via the header dropdown
 
-5. **Re-lock**: confirm the lock comment is in place at the top of the file. The lock entry in `LOCKED_TRANSLATION_KEYS.md` from the previous turn already covers this file — no change needed there.
+### 5. Billing data source
+Create one tiny new edge function `supabase/functions/get-account-billing/index.ts` that:
+- Reads the user's Stripe customer ID from existing `subscriptions` table
+- Returns: payment method last4 + brand, last invoice (amount + date + hosted URL), next billing date, history (last 10 invoices)
+- Returns gracefully empty data if no Stripe customer yet (Free plan)
 
-## Files to modify
-- `supabase/functions/send-auth-email/index.ts` (logo URL swap + verify button/text styles)
-- New asset uploaded to Supabase Storage `email-assets/wedding-waitress-logo-brown.png`
+For "Update Payment Method", reuse Stripe Customer Portal via a small `create-portal-session` function (or extend `get-account-billing` to also return a portal URL).
+
+### 6. Lock the new files
+- Add `🔒 PRODUCTION-LOCKED` header comment to all new `.tsx`/`.ts` files
+- Append "Locked Account page (2026-04-18)" section to `LOCKED_TRANSLATION_KEYS.md`
+- Update `mem://standards/locked-translations.md`
+
+### 7. Verify end-to-end (before reporting done)
+- Click avatar → dropdown opens → click Account → page renders
+- Each card shows real data (or graceful empty state)
+- Edit Details modal saves and reflects
+- Change Password modal works
+- Send Verification Email triggers `supabase.auth.resend`
+- Mobile (375px) — cards stack cleanly, no overflow
+- Sidebar and Dashboard tab unchanged
+- TypeScript build passes
+- Confirm lock headers present
 
 ## Out of scope
-- Sender avatar circle (purple "WW") — controlled by Outlook/BIMI, not our code (explained previously).
-- Live countdown timer — not possible in static email HTML.
-- Any other email template, color, or copy.
+- Sidebar changes (forbidden by user)
+- Dashboard layout/content changes (forbidden by user)
+- Real storage-usage calculation (placeholder progress bar with "Coming soon" label)
+- Refund processing UI (display-only in History)
 
-## Verification (will run before reporting done)
-1. Confirm the Supabase Storage public URL returns the brown logo (HTTP 200, image content-type).
-2. Re-read the deployed function code → confirm new logo URL, brown button, plain lead-in text.
-3. Invoke the Edge Function with a test webhook payload → confirm 200 response and Resend message ID in logs.
-4. Report the changes confirmed deployed and tested.
+## Files created
+- `src/pages/Account.tsx`
+- `src/components/Account/{AccountInfoCard,SubscriptionCard,BillingCard,UsageCard,HistoryCard,SecurityCard,EditDetailsModal,ChangePasswordModal}.tsx`
+- `supabase/functions/get-account-billing/index.ts`
+
+## Files modified
+- `src/components/Dashboard/DashboardHeader.tsx` (add profile dropdown)
+- `src/pages/Dashboard.tsx` (add `account` tab render branch + StatsBar exclusion)
+- `LOCKED_TRANSLATION_KEYS.md` (new lock section)
+- `mem://standards/locked-translations.md` and `mem://index.md` (memory update)
