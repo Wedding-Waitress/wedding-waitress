@@ -122,6 +122,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
               {isDashboardHref(resolvedPrimaryCta.href) ? (
                 <AuthGatedCtaLink
                   to={resolvedPrimaryCta.href}
+                  alwaysSignUp
                   className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-[#967A59] text-white font-semibold text-base hover:bg-[#7a6347] transition-colors shadow-sm"
                 >
                   {resolvedPrimaryCta.label}
@@ -139,6 +140,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
                 secondaryCta.href && isDashboardHref(secondaryCta.href) ? (
                   <AuthGatedCtaLink
                     to={secondaryCta.href}
+                    alwaysSignUp
                     className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
                   >
                     {secondaryCta.label}
@@ -215,6 +217,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
             {isDashboardHref(finalCtaHref) ? (
               <AuthGatedCtaLink
                 to={finalCtaHref}
+                alwaysSignUp
                 className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
               >
                 {resolvedFinalCtaLabel}

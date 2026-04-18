@@ -14,6 +14,12 @@ interface AuthGatedCtaLinkProps {
    * preserve existing Button JSX/styling exactly (e.g. Landing hero, Header).
    */
   asChild?: boolean;
+  /**
+   * When true, ALWAYS open the SignUp modal regardless of auth state —
+   * never navigate to `to`. Used for marketing CTAs like
+   * "Start Planning Free" / "Start Planning Your Event".
+   */
+  alwaysSignUp?: boolean;
 }
 
 /**
@@ -30,6 +36,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   children,
   onClick,
   asChild = false,
+  alwaysSignUp = false,
 }) => {
   const navigate = useNavigate();
   const [, setIsAuthed] = useState<boolean>(false);
@@ -53,6 +60,11 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
     async (e: React.MouseEvent) => {
       e.preventDefault();
       onClick?.();
+      if (alwaysSignUp) {
+        // Marketing CTAs: always show SignUp modal, never auto-navigate.
+        hiddenTriggerRef.current?.click();
+        return;
+      }
       // Re-verify auth at click time — eliminates any stale-state bypass.
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -64,7 +76,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
         hiddenTriggerRef.current?.click();
       }
     },
-    [navigate, onClick, to]
+    [navigate, onClick, to, alwaysSignUp]
   );
 
   const hiddenTrigger = (

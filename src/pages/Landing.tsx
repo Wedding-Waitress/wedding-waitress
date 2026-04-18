@@ -159,7 +159,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           {t('heroMain.subtitle')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <AuthGatedCtaLink to="/dashboard" asChild>
+          <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
             <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
               {t('heroMain.ctaPrimary')}
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -517,7 +517,7 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <AuthGatedCtaLink to="/dashboard" asChild>
+              <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
@@ -548,7 +548,7 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <AuthGatedCtaLink to="/dashboard" asChild>
+              <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
@@ -575,7 +575,7 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <AuthGatedCtaLink to="/dashboard" asChild>
+              <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
@@ -604,7 +604,7 @@ export const Landing = () => {
                   </li>
                 ))}
               </ul>
-              <AuthGatedCtaLink to="/dashboard" asChild>
+              <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
@@ -838,7 +838,7 @@ export const Landing = () => {
             {t('finalCta.title1')}<br />{t('finalCta.title2')}
           </h2>
           <p className="text-white/70 text-lg md:text-xl mb-12">{t('finalCta.subtitle')}</p>
-          <AuthGatedCtaLink to="/dashboard" asChild>
+          <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
             <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
               {t('finalCta.cta')}
               <ArrowRight className="w-5 h-5 ml-2" />

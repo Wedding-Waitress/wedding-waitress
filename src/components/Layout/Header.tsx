@@ -163,7 +163,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950">
                       {t('nav.signIn')}
                     </Button>
-                    <AuthGatedCtaLink to="/dashboard" asChild>
+                    <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
                       <Button ref={signUpButtonRef} size="sm" className="min-h-[44px] text-sm bg-primary hover:bg-primary/90 text-white rounded-xl px-6">
                         {t('nav.getStarted')}
                       </Button>
