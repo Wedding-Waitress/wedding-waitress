@@ -1,3 +1,8 @@
+/**
+ * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
+ * Part of the approved public homepage surface (locked 2026-04-18).
+ * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
+ */
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
