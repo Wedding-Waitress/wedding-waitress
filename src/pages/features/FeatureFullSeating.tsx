@@ -1,3 +1,8 @@
+/**
+ * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
+ * Part of the approved public homepage surface (locked 2026-04-18).
+ * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
+ */
 import { Link } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { FeaturePageLayout } from '@/components/Layout/FeaturePageLayout';

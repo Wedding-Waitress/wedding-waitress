@@ -1,3 +1,8 @@
+/**
+ * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
+ * Part of the approved public homepage surface (locked 2026-04-18).
+ * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
+ */
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';

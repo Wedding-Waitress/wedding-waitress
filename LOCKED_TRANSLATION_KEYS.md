@@ -45,3 +45,81 @@ check this list before editing.
 **Files:** `src/i18n/locales/{en,de,es,fr,it,nl,tr,vi,ja,zh,ar,hi,el}/landing.json` → `nav.blog`
 **Wiring:** `src/components/Layout/Header.tsx` desktop + mobile Blog link uses `t('nav.blog')`.
 DO NOT MODIFY without explicit owner approval.
+
+---
+
+## 🔒 Locked public pages & components (2026-04-18)
+
+The entire public-facing homepage surface and all pages connected to it are
+**PRODUCTION-LOCKED**. Every TSX/TS file below carries a header lock comment.
+JSON locale files are locked via this registry only (JSON has no comments).
+
+**Any change to any file in this list requires explicit owner approval.**
+
+### Pages
+- `src/pages/Landing.tsx`
+- `src/pages/Blog.tsx`
+- `src/pages/BlogPost.tsx`
+- `src/pages/Contact.tsx`
+- `src/pages/PrivacyPolicy.tsx`
+- `src/pages/TermsOfService.tsx`
+- `src/pages/CookiePolicy.tsx`
+- `src/pages/NotFound.tsx`
+
+### Feature pages (13)
+- `src/pages/features/FeatureDietary.tsx`
+- `src/pages/features/FeatureEvents.tsx`
+- `src/pages/features/FeatureFloorPlan.tsx`
+- `src/pages/features/FeatureFullSeating.tsx`
+- `src/pages/features/FeatureGuestList.tsx`
+- `src/pages/features/FeatureInvitations.tsx`
+- `src/pages/features/FeaturePlaceCards.tsx`
+- `src/pages/features/FeaturePlanning.tsx`
+- `src/pages/features/FeatureQrSeating.tsx`
+- `src/pages/features/FeatureSeating.tsx`
+- `src/pages/features/FeatureTableCharts.tsx`
+- `src/pages/features/FeatureDjMc.tsx`
+- `src/pages/features/FeatureKiosk.tsx`
+
+### Product pages (13)
+- `src/pages/products/ProductTables.tsx`
+- `src/pages/products/ProductDjMcQuestionnaire.tsx`
+- `src/pages/products/ProductMyEvents.tsx`
+- `src/pages/products/ProductFloorPlan.tsx`
+- `src/pages/products/ProductGuestList.tsx`
+- `src/pages/products/ProductDietaryRequirements.tsx`
+- `src/pages/products/ProductNamePlaceCards.tsx`
+- `src/pages/products/ProductQrCodeSeatingChart.tsx`
+- `src/pages/products/ProductFullSeatingChart.tsx`
+- `src/pages/products/ProductRunningSheet.tsx`
+- `src/pages/products/ProductIndividualTableCharts.tsx`
+- `src/pages/products/ProductKioskLiveView.tsx`
+- `src/pages/products/ProductInvitationsCards.tsx`
+
+### Layout & shared components
+- `src/components/Layout/Header.tsx`
+- `src/components/Layout/FeaturePageLayout.tsx`
+- `src/components/Layout/ProductPageLayout.tsx`
+- `src/components/SEO/SeoHead.tsx`
+- `src/components/auth/AuthGatedCtaLink.tsx`
+- `src/components/auth/SignUpModal.tsx`
+- `src/components/auth/SignInModal.tsx`
+- `src/components/auth/EmbeddedSignUpForm.tsx`
+- `src/components/ui/CookieBanner.tsx`
+- `src/components/ui/LanguageSelector.tsx`
+- `src/components/ui/CurrencySelector.tsx`
+- `src/components/ui/Reveal.tsx`
+- `src/components/Redirect.tsx`
+
+### Content & i18n
+- `src/content/blogPosts.ts`
+- `src/i18n/config.ts`
+- `src/i18n/locales/{en,de,es,fr,it,nl,tr,vi,ja,zh,ar,hi,el}/landing.json` (all 13)
+
+### Routing wiring (do not alter public routes in `src/App.tsx`)
+- `/`, `/blog`, `/blog/:slug`, `/contact`, `/privacy`, `/terms`, `/cookies`
+- All `/features/*` routes
+- All `/products/*` routes
+
+**Out of scope** (not locked by this section): authenticated dashboard,
+admin, kiosk, guest-lookup, Supabase edge functions.
