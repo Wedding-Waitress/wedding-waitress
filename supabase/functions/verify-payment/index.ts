@@ -222,6 +222,39 @@ serve(async (req) => {
 
     logStep("Subscription updated", { plan: planInfo.name, status, expiresAt: expiresAt.toISOString() });
 
+    // Fire-and-forget admin payment notification. Failures must NOT break payment success.
+    try {
+      const amountPaid = ((session.amount_total || 0) / 100).toFixed(2);
+      const userEmail = userData.user.email || "";
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", userId)
+        .maybeSingle();
+      const fullName = profile
+        ? `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || userEmail
+        : userEmail;
+
+      supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "admin-new-payment",
+          recipientEmail: "support@weddingwaitress.com",
+          idempotencyKey: `admin-payment-${session_id}`,
+          templateData: {
+            name: fullName,
+            email: userEmail,
+            amount: amountPaid,
+            plan: planInfo.name,
+            date: now.toISOString(),
+          },
+        },
+      }).then(({ error }) => {
+        if (error) console.error("[VERIFY-PAYMENT] admin payment email failed", error);
+      }).catch((e) => console.error("[VERIFY-PAYMENT] admin payment email failed", e));
+    } catch (e) {
+      console.error("[VERIFY-PAYMENT] admin payment email dispatch failed", e);
+    }
+
     return new Response(JSON.stringify({
       type: "plan",
       status,
