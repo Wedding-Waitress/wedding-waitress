@@ -25,7 +25,10 @@ const formatDate = (iso: string | null) => {
 
 export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { plan, isTrialExpired } = useUserPlan();
+  const { data: billing } = useAccountBilling();
+  const { toast } = useToast();
   const [startDate, setStartDate] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let active = true;
