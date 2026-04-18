@@ -178,6 +178,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
 
 export const Landing = () => {
   const { t } = useTranslation('landing');
+  const blogPosts = useBlogPosts();
   const signUpRef = useRef<HTMLButtonElement>(null);
   const { currency } = useCurrencyContext();
   const plans = PLAN_PRICING[currency];
