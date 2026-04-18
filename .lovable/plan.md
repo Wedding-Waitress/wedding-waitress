@@ -1,63 +1,60 @@
 
 ## Goal
-Three small, independent fixes — no other changes:
-
-1. **QR Seating hero heading**: still contains the Latin fragment "QR Code" (or "QR") in non-English `products.qrSeating.h1` — replace with the native-script equivalent in each language.
-2. **"Start Planning Free"** header button: when clicked it currently goes straight to `/dashboard` for logged-in users. Make it ALWAYS open the Create Account (SignUp) modal regardless of auth state.
-3. **"Start Planning Your Event"** buttons (used in Landing hero, Landing repeat sections, all 13 product pages, NotFound, etc.): same change — ALWAYS open the SignUp modal instead of routing to `/dashboard`.
+Fix the Arabic (and other non-English) translations on the DJ-MC Questionnaire product page where the wrong content is showing — currently it displays QR-code copy and leftover English fragments ("Wedding Waitress", "Running Sheet"). Then lock the fixed translation keys against accidental future regression.
 
 ## Findings
 
-### Issue 1 — `products.qrSeating.h1`
-Current values still embed Latin "QR" or "QR Code":
-- zh: `您的婚礼专属 QR 码座位表` → user sees "QR Code" in screenshot (likely older cache, but to fully localize will use `二维码` which is the standard Chinese term — matches sidebar nav already using `二维码座位表`).
-- ja: `QRコード座席表` (already native — keep).
-- ar: `مخطط الجلوس برمز QR` → replace `QR` with `كيو آر` or keep brand-style; using fully native `رمز الاستجابة السريعة` is too long — keep `QR` since Arabic commonly uses Latin "QR". User wants it changed → use `مخطط الجلوس برمز كيو آر`.
-- hi: `QR कोड` → `क्यूआर कोड` (native Devanagari).
-- de/es/fr/it/nl/tr/vi/el: "QR" is universally used as-is in these Latin/Greek-script languages and is not "English" — these read naturally. But user explicitly asked for it changed on the QR page, so for el: `Κωδικό QR` is already mixed; will keep "QR" in Latin-script langs (de, es, fr, it, nl, tr, vi) and Greek (el) since "QR" is the international standard term used natively in those languages — same convention as "PDF", "USB". Will only change zh, ja, ar, hi where a native-script equivalent exists and is in common use.
+### Issue — `products.djMc.*` contains wrong / mixed content in non-English locales
+From the Arabic screenshot on `/products/dj-mc-questionnaire`:
+- Hero `h1` shows "Wedding Waitress QR Code لجميع الضيوف" — this is the QR-Code page heading, not the DJ-MC heading. Same key collision likely affects `lead`, `h[]`, `finalCtaHeading`, `finalCtaText` in Arabic.
+- Lead paragraph still mentions "QR Code Wedding Waitress" in Latin script.
+- Highlight cards still contain Latin words "Wedding" and "Running Sheet".
 
-Final mapping for `products.qrSeating.h1`:
-| lang | new h1 |
-|---|---|
-| zh | `您的婚礼专属二维码座位表` |
-| ja | `あなたのウェディングのためのQRコード座席表` (unchanged — already native katakana+kanji) |
-| ar | `مخطط الجلوس برمز كيو آر لحفل زفافك` |
-| hi | `आपकी शादी के लिए क्यूआर कोड सीटिंग चार्ट` |
-| de, es, fr, it, nl, tr, vi, el | unchanged ("QR" is the native term in these languages) |
+Need to verify across all 12 non-English `landing.json` files whether `products.djMc.*` is correct, partially wrong, or copied from the wrong product. I'll audit and fix every locale where any `products.djMc.*` value contains:
+- The strings "QR", "QR Code", "Running Sheet", or any leftover Latin words other than the brand "Wedding Waitress" (which gets transliterated for non-Latin scripts as established previously: AR `ويدينغ ويتريس`, ZH `婚礼女侍`, JA `ウェディングウェイトレス`, HI `वेडिंग वेट्रेस`).
 
-### Issue 2 & 3 — CTA buttons go to dashboard for logged-in users
-`AuthGatedCtaLink` (`src/components/auth/AuthGatedCtaLink.tsx`) currently:
-- If session exists → `navigate(to)` (goes to /dashboard).
-- If no session → opens SignUpModal.
+English source of truth (from `src/i18n/locales/en/landing.json` → `products.djMc`):
+- `h1`: "DJ & MC Questionnaire for Your Wedding"
+- `lead`: "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event."
+- `primaryCta`: "Start Planning Your Event"
+- `h`: 4 [heading, text] pairs about music planning, instructions to DJ/MC, sharing, PDF export.
+- `finalCtaHeading` / `finalCtaText` / `finalCtaLabel`
 
-User wants the SignUpModal to open **always** for these two CTAs.
+### Lock request
+User wants the fixed keys "locked" so future edits don't accidentally regress them. Approach:
+1. Create a tracking doc `LOCKED_TRANSLATION_KEYS.md` listing every translation key set that has been signed off, with the date, the affected locales, and a "DO NOT MODIFY without owner approval" warning — same convention already used for Full Seating Chart and Place Cards.
+2. Add a short header comment block at the top of each touched non-English `landing.json` is not possible (JSON disallows comments). Instead, the `LOCKED_TRANSLATION_KEYS.md` doc plus a memory entry (`mem://standards/locked-translations`) act as the lock.
+3. Save a project memory rule so every future change automatically respects the lock list.
 
-Approach: Add a new opt-in prop `alwaysSignUp?: boolean` to `AuthGatedCtaLink`. When true, skip the auth check and always trigger the hidden SignUpModal. Default `false` preserves existing behavior everywhere else (so we don't accidentally break other flows).
+## Plan
 
-Apply `alwaysSignUp` to:
-- **Header.tsx** line 166 — the "Start Planning Free" / `nav.getStarted` button.
-- **Landing.tsx** lines 162, 520, 551, 578, 607, 841 — every "Start Planning Your Event" / hero / final CTA button.
-- **ProductPageLayout.tsx** lines 123, 140, 216 — primary CTA + final CTA on every product page (these render the "Start Planning Your Event" button).
-
-Do **NOT** touch:
-- `NotFound.tsx` (different button "Go to Dashboard").
-- Any other links to `/dashboard`.
+1. **Audit** `products.djMc.*` in all 12 non-English `landing.json` files — identify which are wrong (especially AR which clearly has the QR-page content).
+2. **Translate** the correct English DJ-MC content into each affected locale, using the same conventions already applied (transliterate "Wedding Waitress" only in non-Latin scripts; localize all other prose; keep "DJ", "MC", "PDF" as common international terms).
+3. **Write back** ONLY the `products.djMc.*` subtree in each affected `landing.json`. No other keys touched.
+4. **Create `LOCKED_TRANSLATION_KEYS.md`** at project root listing:
+   - Blog posts body content (12 locales)
+   - All `products.*` subtrees (12 locales)
+   - `products.qrSeating.h1` native-script overrides (zh, ar, hi)
+   - `products.djMc.*` (12 locales) ← this fix
+   - Header/Landing/ProductPageLayout `alwaysSignUp` CTA wiring
+   With clear "DO NOT MODIFY without explicit owner approval" warning.
+5. **Save memory** `mem://standards/locked-translations` so all future sessions automatically check the lock list before touching translation files.
+6. **Update `mem://index.md`** to reference the new memory file.
 
 ## Files to modify
-1. `src/components/auth/AuthGatedCtaLink.tsx` — add `alwaysSignUp` prop, when true short-circuit to open SignUpModal.
-2. `src/components/Layout/Header.tsx` — pass `alwaysSignUp` to the getStarted CTA.
-3. `src/pages/Landing.tsx` — pass `alwaysSignUp` to all 6 AuthGatedCtaLink usages.
-4. `src/components/Layout/ProductPageLayout.tsx` — pass `alwaysSignUp` to all 3 AuthGatedCtaLink usages.
-5. `src/i18n/locales/{zh,ar,hi}/landing.json` — update `products.qrSeating.h1` only.
+- `src/i18n/locales/{de,es,fr,it,nl,ja,ar,vi,zh,tr,el,hi}/landing.json` — only `products.djMc.*` subtree (only locales where audit shows incorrect content; Arabic is confirmed wrong).
+- `LOCKED_TRANSLATION_KEYS.md` — new file (root).
+- `mem://standards/locked-translations` — new memory file.
+- `mem://index.md` — add reference line.
 
 ## Out of scope
 - English file.
-- ja, de, es, fr, it, nl, tr, vi, el (already native).
-- NotFound page CTA.
-- Any other code, layout, or text.
+- Any other `products.*` page (other product pages were translated in prior approved passes and are now considered locked).
+- Any code/layout/component/route changes.
+- Other non-DJ-MC translation keys.
 
 ## Verification
-- Click "Start Planning Free" in header (logged in or out) → SignUp modal opens.
-- Click "Start Planning Your Event" on Landing hero, every product page, and final CTA → SignUp modal opens.
-- Switch to ZH/AR/HI → `/products/qr-code-seating-chart` → hero shows fully native heading.
-- Existing English copy unchanged.
+- Switch to AR → `/products/dj-mc-questionnaire` → hero shows correct DJ-MC heading + lead in Arabic (no "QR Code", no leftover Latin "Wedding"/"Running Sheet" in highlight cards).
+- Spot-check ZH, JA, HI, TR, EL on the same page.
+- Switch back to EN → unchanged.
+- `LOCKED_TRANSLATION_KEYS.md` exists at project root.
