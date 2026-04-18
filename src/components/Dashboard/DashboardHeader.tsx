@@ -1,14 +1,66 @@
 import React from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, UserCircle, LogOut } from 'lucide-react';
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
 
 export const DashboardHeader: React.FC = () => {
   const { profile } = useProfile();
   const isMobile = useIsMobile();
   const { toggleSidebar } = useSidebar();
+  const navigate = useNavigate();
+  const [, setSearchParams] = useSearchParams();
+
+  const initials = (() => {
+    const f = profile?.first_name?.[0] || '';
+    const l = profile?.last_name?.[0] || '';
+    if (f || l) return (f + l).toUpperCase();
+    return (profile?.email?.[0] || 'U').toUpperCase();
+  })();
+
+  const handleAccount = () => {
+    setSearchParams({ tab: 'account' }, { replace: true });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
+  const ProfileMenu = (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          aria-label="Open account menu"
+          className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#967A59]"
+          style={{ backgroundColor: '#967A59' }}
+        >
+          {initials}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={handleAccount} className="cursor-pointer">
+          <UserCircle className="mr-2 h-4 w-4" />
+          Account
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
   
   const getDisplayName = () => {
     if (profile?.first_name) {
@@ -44,22 +96,26 @@ export const DashboardHeader: React.FC = () => {
           </div>
         )}
         
-        {/* Custom hamburger menu button - mobile only */}
+        {/* Mobile right side: avatar + hamburger */}
         {isMobile && (
-          <button
-            onClick={toggleSidebar}
-            className="h-12 w-12 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-0.5 bg-white rounded-sm" />
-            <div className="w-6 h-0.5 bg-white rounded-sm" />
-            <div className="w-6 h-0.5 bg-white rounded-sm" />
-          </button>
+          <div className="flex items-center gap-2">
+            {ProfileMenu}
+            <button
+              onClick={toggleSidebar}
+              className="h-12 w-12 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
+              aria-label="Toggle menu"
+            >
+              <div className="w-6 h-0.5 bg-white rounded-sm" />
+              <div className="w-6 h-0.5 bg-white rounded-sm" />
+              <div className="w-6 h-0.5 bg-white rounded-sm" />
+            </button>
+          </div>
         )}
-        
-        {/* Original sidebar trigger for desktop */}
+
+        {/* Desktop right side: avatar + sidebar trigger */}
         {!isMobile && (
-          <div className="absolute right-2 sm:right-4">
+          <div className="absolute right-2 sm:right-4 flex items-center gap-3">
+            {ProfileMenu}
             <SidebarTrigger />
           </div>
         )}
