@@ -136,3 +136,28 @@ Brown (#967A59) brand palette + new logo. Approved by owner.
 | `public/wedding-waitress-logo-brown.png` | Brand logo asset referenced by the OTP email header |
 
 ⚠️ Any change requires explicit owner approval. After ANY edit, the `send-auth-email` edge function MUST be redeployed.
+
+---
+
+## 🔒 Locked Account page (2026-04-18)
+
+The dashboard Account page and its profile-dropdown wiring are PRODUCTION-LOCKED. Any change requires explicit owner approval.
+
+### Files
+- `src/pages/Account.tsx`
+- `src/components/Account/SectionCard.tsx`
+- `src/components/Account/AccountInfoCard.tsx`
+- `src/components/Account/EditDetailsModal.tsx`
+- `src/components/Account/SubscriptionCard.tsx`
+- `src/components/Account/BillingCard.tsx`
+- `src/components/Account/UsageCard.tsx`
+- `src/components/Account/HistoryCard.tsx`
+- `src/components/Account/SecurityCard.tsx`
+- `src/components/Account/ChangePasswordModal.tsx`
+- `supabase/functions/get-account-billing/index.ts`
+
+### Wiring (locked)
+- `src/components/Dashboard/DashboardHeader.tsx` — profile dropdown (avatar → Account / Sign out)
+- `src/pages/Dashboard.tsx` — `account` tab render branch + StatsBar exclusion
+
+Sidebar is intentionally NOT linked — Account is reachable only via the header avatar dropdown.
