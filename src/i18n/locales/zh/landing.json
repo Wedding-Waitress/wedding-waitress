@@ -26,19 +26,58 @@
   "featureCards": {
     "sectionTitle": "您的宾客会爱上的婚礼平台。",
     "sectionSubtitle": "我们的平台整合了强大的婚礼宾客名单管理器、座位图工具、QR码座位图、RSVP追踪器和电子婚礼请柬 — 您所需的一切尽在一处。",
-    "guestList": { "title": "宾客名单", "desc": "在一个地方管理所有宾客" },
-    "tables": { "title": "桌位和座位", "desc": "轻松组织桌位和座位" },
-    "qr": { "title": "二维码座位", "desc": "宾客扫描即刻找到桌位" },
-    "invitations": { "title": "请柬", "desc": "发送请柬并追踪回复" },
-    "runningSheet": { "title": "流程表", "desc": "规划完整的婚礼时间线" },
-    "floorPlan": { "title": "平面图", "desc": "可视化场地布局" },
-    "myEvents": { "title": "我的活动", "desc": "轻松管理所有活动" },
-    "placeCards": { "title": "席位卡", "desc": "精美的印刷名片" },
-    "tableCharts": { "title": "单桌图表", "desc": "每桌的座位图" },
-    "dietary": { "title": "饮食要求", "desc": "追踪每位宾客的饮食需求" },
-    "seatingChart": { "title": "完整座位表", "desc": "可打印的完整座位表" },
-    "kiosk": { "title": "自助终端实时视图", "desc": "场地自助签到" },
-    "djmc": { "title": "DJ-MC问卷", "desc": "与DJ分享音乐和时间安排" }
+    "guestList": {
+      "title": "宾客名单",
+      "desc": "在一个地方管理所有宾客"
+    },
+    "tables": {
+      "title": "桌位和座位",
+      "desc": "轻松组织桌位和座位"
+    },
+    "qr": {
+      "title": "二维码座位",
+      "desc": "宾客扫描即刻找到桌位"
+    },
+    "invitations": {
+      "title": "请柬",
+      "desc": "发送请柬并追踪回复"
+    },
+    "runningSheet": {
+      "title": "流程表",
+      "desc": "规划完整的婚礼时间线"
+    },
+    "floorPlan": {
+      "title": "平面图",
+      "desc": "可视化场地布局"
+    },
+    "myEvents": {
+      "title": "我的活动",
+      "desc": "轻松管理所有活动"
+    },
+    "placeCards": {
+      "title": "席位卡",
+      "desc": "精美的印刷名片"
+    },
+    "tableCharts": {
+      "title": "单桌图表",
+      "desc": "每桌的座位图"
+    },
+    "dietary": {
+      "title": "饮食要求",
+      "desc": "追踪每位宾客的饮食需求"
+    },
+    "seatingChart": {
+      "title": "完整座位表",
+      "desc": "可打印的完整座位表"
+    },
+    "kiosk": {
+      "title": "自助终端实时视图",
+      "desc": "场地自助签到"
+    },
+    "djmc": {
+      "title": "DJ-MC问卷",
+      "desc": "与DJ分享音乐和时间安排"
+    }
   },
   "howItWorks": {
     "title": "使用方法",
@@ -55,38 +94,119 @@
     "bottomNote": "无需信用卡 • 无需下载应用 • 60秒设置 • 任何设备可用 • 随时取消"
   },
   "alternating": {
-    "guestList": { "title": "宾客名单管理", "desc": "通过RSVP追踪、宾客分组和完整的宾客名单管理器轻松管理您的婚礼宾客名单，旨在简化您的策划工作。" },
-    "tables": { "title": "座位安排变简单", "desc": "使用易用的座位规划器创建婚礼座位图。组织桌位、分配宾客并可视化您的整个座位布局。" },
-    "qr": { "title": "即时宾客入座", "desc": "宾客扫描QR码即可使用现代QR码座位图立即找到自己的桌位 — 非常适合婚礼和活动。" },
-    "runningSheet": { "title": "规划每一个时刻", "desc": "使用完整的活动日程工具规划您的婚礼时间表，实现无缝的婚礼协调。" },
-    "invitations": { "title": "请柬与回复", "desc": "发送带有RSVP追踪的电子婚礼请柬，使用简单而强大的在线RSVP系统管理回复。" },
-    "myEvents": { "title": "您的活动，您做主", "desc": "从一个仪表板创建和管理多个活动。追踪倒计时，设置场地，将每个细节精美地组织起来。" },
-    "placeCards": { "title": "优雅席位卡", "desc": "使用自定义字体、颜色和背景设计精美的印刷名片。以300 DPI高分辨率导出，用于专业印刷。" },
-    "tableCharts": { "title": "单桌图表", "desc": "生成宾客一目了然的精美单桌座位图。非常适合在每桌打印和展示。" },
-    "dietary": { "title": "饮食要求变简单", "desc": "追踪每位宾客的饮食需求，生成厨房可用的图表。确保不遗漏任何宾客。" },
-    "seatingChart": { "title": "完整座位表", "desc": "创建显示每位宾客和桌位的完整可打印座位表。以自定义样式和活动品牌导出PDF。" },
-    "kiosk": { "title": "自助终端实时视图", "desc": "在场地入口设置自助签到终端。宾客搜索姓名即刻查看桌位分配。" },
-    "djmc": { "title": "DJ和MC问卷", "desc": "直接与DJ或MC分享音乐偏好、发音指南和活动时间线。" },
-    "floorPlan": { "title": "场地平面图", "desc": "使用可视化婚礼平面图构建器和座位规划器设计您的场地布局。" },
+    "guestList": {
+      "title": "宾客名单管理",
+      "desc": "通过RSVP追踪、宾客分组和完整的宾客名单管理器轻松管理您的婚礼宾客名单，旨在简化您的策划工作。"
+    },
+    "tables": {
+      "title": "座位安排变简单",
+      "desc": "使用易用的座位规划器创建婚礼座位图。组织桌位、分配宾客并可视化您的整个座位布局。"
+    },
+    "qr": {
+      "title": "即时宾客入座",
+      "desc": "宾客扫描QR码即可使用现代QR码座位图立即找到自己的桌位 — 非常适合婚礼和活动。"
+    },
+    "runningSheet": {
+      "title": "规划每一个时刻",
+      "desc": "使用完整的活动日程工具规划您的婚礼时间表，实现无缝的婚礼协调。"
+    },
+    "invitations": {
+      "title": "请柬与回复",
+      "desc": "发送带有RSVP追踪的电子婚礼请柬，使用简单而强大的在线RSVP系统管理回复。"
+    },
+    "myEvents": {
+      "title": "您的活动，您做主",
+      "desc": "从一个仪表板创建和管理多个活动。追踪倒计时，设置场地，将每个细节精美地组织起来。"
+    },
+    "placeCards": {
+      "title": "优雅席位卡",
+      "desc": "使用自定义字体、颜色和背景设计精美的印刷名片。以300 DPI高分辨率导出，用于专业印刷。"
+    },
+    "tableCharts": {
+      "title": "单桌图表",
+      "desc": "生成宾客一目了然的精美单桌座位图。非常适合在每桌打印和展示。"
+    },
+    "dietary": {
+      "title": "饮食要求变简单",
+      "desc": "追踪每位宾客的饮食需求，生成厨房可用的图表。确保不遗漏任何宾客。"
+    },
+    "seatingChart": {
+      "title": "完整座位表",
+      "desc": "创建显示每位宾客和桌位的完整可打印座位表。以自定义样式和活动品牌导出PDF。"
+    },
+    "kiosk": {
+      "title": "自助终端实时视图",
+      "desc": "在场地入口设置自助签到终端。宾客搜索姓名即刻查看桌位分配。"
+    },
+    "djmc": {
+      "title": "DJ和MC问卷",
+      "desc": "直接与DJ或MC分享音乐偏好、发音指南和活动时间线。"
+    },
+    "floorPlan": {
+      "title": "场地平面图",
+      "desc": "使用可视化婚礼平面图构建器和座位规划器设计您的场地布局。"
+    },
     "learnMore": "了解更多"
   },
   "extraGrid": {
     "title": "完美一天所需的一切",
     "subtitle": "从婚礼宾客名单管理和座位图到QR码座位、RSVP追踪和电子请柬 — 一切都旨在简化您的整个婚礼策划体验。",
-    "djmc": { "title": "DJ和MC规划器", "desc": "策划您的完美播放列表" },
-    "dietary": { "title": "饮食要求", "desc": "追踪每位宾客的需求" },
-    "placeCards": { "title": "席位卡", "desc": "精美的印刷名片" },
-    "kiosk": { "title": "实时自助终端", "desc": "宾客自助签到" },
-    "seatingCharts": { "title": "座位表", "desc": "可打印的桌位布局" },
-    "myEvents": { "title": "我的活动", "desc": "管理所有活动" },
-    "tables": { "title": "桌位设置", "desc": "创建和组织桌位" },
-    "guestList": { "title": "宾客名单", "desc": "完整宾客管理" },
-    "qr": { "title": "二维码座位", "desc": "扫描找到您的桌位" },
-    "invitations": { "title": "请柬与卡片", "desc": "发送和追踪请柬" },
-    "tableCharts": { "title": "单桌图表", "desc": "每桌宾客展示" },
-    "floorPlan": { "title": "平面图", "desc": "可视化场地布局" },
-    "fullSeatingChart": { "title": "完整座位表", "desc": "完整座位总览" },
-    "runningSheet": { "title": "流程表", "desc": "规划完整时间线" }
+    "djmc": {
+      "title": "DJ和MC规划器",
+      "desc": "策划您的完美播放列表"
+    },
+    "dietary": {
+      "title": "饮食要求",
+      "desc": "追踪每位宾客的需求"
+    },
+    "placeCards": {
+      "title": "席位卡",
+      "desc": "精美的印刷名片"
+    },
+    "kiosk": {
+      "title": "实时自助终端",
+      "desc": "宾客自助签到"
+    },
+    "seatingCharts": {
+      "title": "座位表",
+      "desc": "可打印的桌位布局"
+    },
+    "myEvents": {
+      "title": "我的活动",
+      "desc": "管理所有活动"
+    },
+    "tables": {
+      "title": "桌位设置",
+      "desc": "创建和组织桌位"
+    },
+    "guestList": {
+      "title": "宾客名单",
+      "desc": "完整宾客管理"
+    },
+    "qr": {
+      "title": "二维码座位",
+      "desc": "扫描找到您的桌位"
+    },
+    "invitations": {
+      "title": "请柬与卡片",
+      "desc": "发送和追踪请柬"
+    },
+    "tableCharts": {
+      "title": "单桌图表",
+      "desc": "每桌宾客展示"
+    },
+    "floorPlan": {
+      "title": "平面图",
+      "desc": "可视化场地布局"
+    },
+    "fullSeatingChart": {
+      "title": "完整座位表",
+      "desc": "完整座位总览"
+    },
+    "runningSheet": {
+      "title": "流程表",
+      "desc": "规划完整时间线"
+    }
   },
   "pricing": {
     "title": "简单透明的定价",
@@ -106,10 +226,22 @@
     "forProfessionals": "专业版",
     "approvalRequired": "需要审批",
     "perMonth": "/月",
-    "essential": { "name": "Essential", "guests": "最多100位宾客 · 12个月访问" },
-    "premium": { "name": "Premium", "guests": "最多300位宾客 · 12个月访问" },
-    "unlimited": { "name": "Unlimited", "guests": "无限宾客 · 12个月访问" },
-    "vendorPro": { "name": "Vendor Pro", "guests": "面向场地和活动专业人士" },
+    "essential": {
+      "name": "Essential",
+      "guests": "最多100位宾客 · 12个月访问"
+    },
+    "premium": {
+      "name": "Premium",
+      "guests": "最多300位宾客 · 12个月访问"
+    },
+    "unlimited": {
+      "name": "Unlimited",
+      "guests": "无限宾客 · 12个月访问"
+    },
+    "vendorPro": {
+      "name": "Vendor Pro",
+      "guests": "面向场地和活动专业人士"
+    },
     "features": {
       "oneEvent": "1个活动",
       "fullAccess": "完全访问所有婚礼和活动规划工具",
@@ -127,27 +259,72 @@
     "subtitle": "看看新人们对Wedding Waitress的评价。",
     "intro": "新人们用它来简化宾客、座位、回复和活动流程。",
     "items": [
-      { "name": "Sarah & James", "text": "这让我们的婚礼策划变得如此轻松。我们毫无压力地管理了200位宾客！" },
-      { "name": "Emily & Tom", "text": "二维码座位太棒了 — 我们的宾客喜欢即刻找到自己的桌位。" },
-      { "name": "Jessica & Michael", "text": "一切都组织得完美无缺。流程表让所有供应商都按计划进行。" },
-      { "name": "Olivia & Daniel", "text": "宾客名单管理节省了我们很多时间。绝对是改变者！" },
-      { "name": "Sophie & Chris", "text": "席位卡和座位表看起来无比专业。物超所值。" },
-      { "name": "Mia & Liam", "text": "我们的协调员对一切的组织程度印象深刻。感谢Wedding Waitress！" }
+      {
+        "name": "Sarah & James",
+        "text": "这让我们的婚礼策划变得如此轻松。我们毫无压力地管理了200位宾客！"
+      },
+      {
+        "name": "Emily & Tom",
+        "text": "二维码座位太棒了 — 我们的宾客喜欢即刻找到自己的桌位。"
+      },
+      {
+        "name": "Jessica & Michael",
+        "text": "一切都组织得完美无缺。流程表让所有供应商都按计划进行。"
+      },
+      {
+        "name": "Olivia & Daniel",
+        "text": "宾客名单管理节省了我们很多时间。绝对是改变者！"
+      },
+      {
+        "name": "Sophie & Chris",
+        "text": "席位卡和座位表看起来无比专业。物超所值。"
+      },
+      {
+        "name": "Mia & Liam",
+        "text": "我们的协调员对一切的组织程度印象深刻。感谢Wedding Waitress！"
+      }
     ]
   },
   "faq": {
     "title": "常见问题",
     "subtitle": "还有疑问？我们为您解答。",
     "items": [
-      { "q": "什么是婚礼宾客名单管理器？", "a": "婚礼宾客名单管理器帮助您组织所有宾客、追踪RSVP、分组家庭并管理饮食需求 — 一站式管理。" },
-      { "q": "婚礼座位图如何运作？", "a": "我们的座位图让您创建桌位、拖放宾客并可视化整个场地布局。导出可打印的图表。" },
-      { "q": "我可以使用QR码安排婚礼座位吗？", "a": "可以！通过我们的QR码座位图，宾客扫描即可即时查看桌位分配 — 无需下载应用。" },
-      { "q": "在线婚礼RSVP如何运作？", "a": "通过电子邮件或短信发送带有内置RSVP链接的电子请柬。宾客在线回复，您实时追踪一切。" },
-      { "q": "我可以发送电子婚礼请柬吗？", "a": "当然。设计精美的电子请柬，添加QR码，直接发送并内置RSVP追踪。" },
-      { "q": "宾客需要下载应用吗？", "a": "不需要。宾客扫描QR码或点击链接 — 无需登录、应用或下载。" },
-      { "q": "Wedding Waitress适合场地和策划师吗？", "a": "是的。我们的Vendor Pro计划专为场地、策划师、DJ和活动专业人士打造。" },
-      { "q": "7天免费试用后会怎样？", "a": "您可以随时升级。如果不升级，您的数据仍然安全，您可以稍后回来。" },
-      { "q": "我可以获得退款吗？", "a": "如果您未超出免费试用限制，我们在购买后14天内提供全额退款。" }
+      {
+        "q": "什么是婚礼宾客名单管理器？",
+        "a": "婚礼宾客名单管理器帮助您组织所有宾客、追踪RSVP、分组家庭并管理饮食需求 — 一站式管理。"
+      },
+      {
+        "q": "婚礼座位图如何运作？",
+        "a": "我们的座位图让您创建桌位、拖放宾客并可视化整个场地布局。导出可打印的图表。"
+      },
+      {
+        "q": "我可以使用QR码安排婚礼座位吗？",
+        "a": "可以！通过我们的QR码座位图，宾客扫描即可即时查看桌位分配 — 无需下载应用。"
+      },
+      {
+        "q": "在线婚礼RSVP如何运作？",
+        "a": "通过电子邮件或短信发送带有内置RSVP链接的电子请柬。宾客在线回复，您实时追踪一切。"
+      },
+      {
+        "q": "我可以发送电子婚礼请柬吗？",
+        "a": "当然。设计精美的电子请柬，添加QR码，直接发送并内置RSVP追踪。"
+      },
+      {
+        "q": "宾客需要下载应用吗？",
+        "a": "不需要。宾客扫描QR码或点击链接 — 无需登录、应用或下载。"
+      },
+      {
+        "q": "Wedding Waitress适合场地和策划师吗？",
+        "a": "是的。我们的Vendor Pro计划专为场地、策划师、DJ和活动专业人士打造。"
+      },
+      {
+        "q": "7天免费试用后会怎样？",
+        "a": "您可以随时升级。如果不升级，您的数据仍然安全，您可以稍后回来。"
+      },
+      {
+        "q": "我可以获得退款吗？",
+        "a": "如果您未超出免费试用限制，我们在购买后14天内提供全额退款。"
+      }
     ]
   },
   "contact": {
@@ -399,6 +576,428 @@
       "related1": "座位表规划器",
       "related2": "完整座位表",
       "related3": "自助签到终端"
+    }
+  },
+  "heroMain": {
+    "title1": "一站式婚礼与活动策划，",
+    "title2": "包含二维码座位图等",
+    "subtitle": "在一个地方策划整场婚礼或活动。管理宾客、创建座位图、发送邀请函 - 无需印刷座位牌。",
+    "ctaPrimary": "开始策划您的活动",
+    "ctaSecondary": "查看所有功能"
+  },
+  "explore": {
+    "title": "探索平台",
+    "subtitle": "策划婚礼或活动所需的一切，都在一个地方。",
+    "learnMore": "了解更多",
+    "cards": {
+      "myEvents": {
+        "heading": "我的活动",
+        "text": "在一个地方管理您所有的活动。"
+      },
+      "guestList": {
+        "heading": "轻松管理宾客名单",
+        "text": "跟踪回复、整理宾客、几秒钟内发送邀请。"
+      },
+      "tables": {
+        "heading": "规划您的桌位",
+        "text": "创建桌位、设置宾客上限、整理布局。"
+      },
+      "qrSeating": {
+        "heading": "二维码座位图",
+        "text": "宾客扫码即可立即找到座位。"
+      },
+      "invitationsCards": {
+        "heading": "发送电子邀请",
+        "text": "通过短信或邮件创建并发送精美邀请函。"
+      },
+      "placeCards": {
+        "heading": "席位卡",
+        "text": "用简洁优雅的席位卡组织座位。"
+      },
+      "tableCharts": {
+        "heading": "单桌座位图",
+        "text": "为每张桌子打印优雅的座位图。"
+      },
+      "floorPlan": {
+        "heading": "婚礼平面图工具",
+        "text": "可视化设计仪式和招待会场地布局。"
+      },
+      "dietary": {
+        "heading": "饮食要求",
+        "text": "在一个地方跟踪每位宾客的餐饮需求。"
+      },
+      "fullSeating": {
+        "heading": "完整座位图",
+        "text": "生成完整的可打印主座位图。"
+      },
+      "kioskLiveView": {
+        "heading": "电子屏实时视图",
+        "text": "让宾客在场地立即找到座位。"
+      },
+      "djMc": {
+        "heading": "DJ和司仪问卷",
+        "text": "用结构化数字表单为DJ和司仪做简报。"
+      },
+      "runningSheet": {
+        "heading": "流程表规划器",
+        "text": "创建并分享分钟级婚礼日程表。"
+      }
+    }
+  },
+  "productPage": {
+    "exploreMore": "探索更多功能",
+    "footerTagline": "一站式婚礼与活动策划，简单易用。",
+    "footerFeatures": "功能",
+    "footerGetStarted": "开始使用",
+    "startPlanning": "开始策划",
+    "home": "首页",
+    "copyright": "(c) {{year}} Wedding Waitress. 保留所有权利。",
+    "learnMore": "了解更多",
+    "finalDefaultHeading": "准备好开始了吗？",
+    "finalDefaultText": "加入数千对正在用Wedding Waitress策划重要日子的情侣。"
+  },
+  "featureCardsLearnMore": "了解更多",
+  "products": {
+    "myEvents": {
+      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
+      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
+      "h1": "Manage Your Wedding or Event Easily",
+      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
+      "primaryCta": "Start Planning Your Event",
+      "secondaryCta": "View Features",
+      "h": [
+        [
+          "Create and manage multiple events",
+          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+        ],
+        [
+          "Keep all your event details organised",
+          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+        ],
+        [
+          "Access everything from one dashboard",
+          "Jump between events, tools, and reports instantly from a single, clean interface."
+        ],
+        [
+          "Simple and easy to use",
+          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+        ]
+      ],
+      "finalCtaHeading": "Start planning your event today",
+      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "guestList": {
+      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
+      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
+      "h1": "Manage Your Guest List & RSVPs",
+      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Add and organise your guests",
+          "Easily manage individuals, couples, and families."
+        ],
+        [
+          "Track RSVP responses in real-time",
+          "Stay updated on who is attending."
+        ],
+        [
+          "Send invitations via SMS or email",
+          "Communicate with guests instantly."
+        ],
+        [
+          "Stay organised and in control",
+          "Everything in one simple dashboard."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "tables": {
+      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
+      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
+      "h1": "Create & Manage Your Event Tables",
+      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Add and customise tables",
+          "Create as many tables as you need and customise them to match your event."
+        ],
+        [
+          "Set guest limits per table",
+          "Control how many guests can sit at each table."
+        ],
+        [
+          "Rename tables to match your theme",
+          "Use names like Family, Friends, or custom table names."
+        ],
+        [
+          "Organise your seating layout easily",
+          "Keep your event structured and easy to manage."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "qrSeating": {
+      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
+      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
+      "h1": "QR Code Seating Chart for Your Wedding",
+      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Guests scan to find their seat instantly",
+          "No confusion or waiting around."
+        ],
+        [
+          "Generate a unique QR code for your event",
+          "Easy to share and display at your venue."
+        ],
+        [
+          "No printing required",
+          "Save money and go fully digital."
+        ],
+        [
+          "Modern and stress-free solution",
+          "Perfect for today's weddings and events."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "invitationsCards": {
+      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
+      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
+      "h1": "Create & Send Wedding Invitations Online",
+      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Send invitations via SMS or email",
+          "Reach your guests instantly."
+        ],
+        [
+          "Beautiful and modern digital cards",
+          "Impress your guests from the start."
+        ],
+        [
+          "Simple and easy to use",
+          "No design skills needed."
+        ],
+        [
+          "Works with your guest list",
+          "Keep everything connected in one place."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "placeCards": {
+      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
+      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
+      "h1": "Create Wedding Name Place Cards",
+      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Create name place cards instantly",
+          "Quickly generate cards for all your guests."
+        ],
+        [
+          "Keep seating organised and clear",
+          "Help guests find their seats with ease."
+        ],
+        [
+          "Clean and elegant design",
+          "Perfect for weddings and formal events."
+        ],
+        [
+          "Works with your guest list and tables",
+          "Everything stays connected and organised."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "tableCharts": {
+      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
+      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
+      "h1": "Create Individual Table Seating Charts",
+      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Create seating for each table",
+          "Focus on one table at a time."
+        ],
+        [
+          "Assign guests easily",
+          "Drag and organise guests per table."
+        ],
+        [
+          "Keep seating clear and organised",
+          "Avoid confusion on the day."
+        ],
+        [
+          "Works with full seating chart",
+          "Everything stays connected."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "floorPlan": {
+      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
+      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
+      "h1": "Create Your Wedding Floor Plan",
+      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Design your full event layout",
+          "Visualise how your event space will look."
+        ],
+        [
+          "Arrange tables and seating easily",
+          "Create the perfect setup for your guests."
+        ],
+        [
+          "Optimise space and flow",
+          "Ensure a smooth and enjoyable guest experience."
+        ],
+        [
+          "Works with your seating chart",
+          "Everything stays connected and organised."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "dietary": {
+      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
+      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
+      "h1": "Manage Guest Dietary Requirements",
+      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Track guest dietary needs",
+          "Easily record allergies and preferences."
+        ],
+        [
+          "Stay organised and prepared",
+          "Avoid last-minute surprises."
+        ],
+        [
+          "Perfect for catering coordination",
+          "Share details with your venue or caterer."
+        ],
+        [
+          "Works with your guest list",
+          "Everything stays connected."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "fullSeating": {
+      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
+      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
+      "h1": "Create Your Full Wedding Seating Chart",
+      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "View your entire seating chart in one place",
+          "Get a complete overview of your event layout."
+        ],
+        [
+          "Organise guests and tables easily",
+          "Keep everything structured and clear."
+        ],
+        [
+          "Perfect for large weddings and events",
+          "Handle any size event with ease."
+        ],
+        [
+          "Works with guest list and tables",
+          "Everything stays connected and updated."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "kioskLiveView": {
+      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
+      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
+      "h1": "Kiosk Live Seating View for Your Event",
+      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Display seating on a live screen",
+          "Perfect for venue entrances."
+        ],
+        [
+          "Guests find their table instantly",
+          "No confusion or waiting."
+        ],
+        [
+          "Modern and interactive experience",
+          "Upgrade your event setup."
+        ],
+        [
+          "Works with your QR seating system",
+          "Fully connected experience."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "djMc": {
+      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
+      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
+      "h1": "DJ & MC Questionnaire for Your Wedding",
+      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Plan your music and key moments",
+          "Ensure everything happens at the right time."
+        ],
+        [
+          "Provide clear instructions to your DJ or MC",
+          "Avoid confusion on your big day."
+        ],
+        [
+          "Customise your event flow",
+          "Make your wedding truly yours."
+        ],
+        [
+          "Works with your running sheet",
+          "Everything stays connected."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
+    },
+    "runningSheet": {
+      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
+      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
+      "h1": "Create Your Wedding Running Sheet",
+      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
+      "primaryCta": "Start Planning Your Event",
+      "h": [
+        [
+          "Plan your full event timeline",
+          "Stay organised from start to finish."
+        ],
+        [
+          "Keep everything running smoothly",
+          "Avoid delays and confusion."
+        ],
+        [
+          "Perfect for weddings and events",
+          "Ensure every moment is planned."
+        ],
+        [
+          "Works with your full event setup",
+          "Everything stays connected."
+        ]
+      ],
+      "finalCtaLabel": "Start Planning Your Event"
     }
   }
 }

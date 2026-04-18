@@ -152,22 +152,22 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
       </div>
       <div className="relative z-10 text-center px-5 max-w-6xl mx-auto">
         <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-          All-In-One Wedding & Event Planning Made Simple with<br />
-          QR Code Seating Charts & More
+          {t('heroMain.title1')}<br />
+          {t('heroMain.title2')}
         </h1>
         <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-8 max-w-4xl mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-          Plan your entire wedding or event from one place. Manage guests, create seating charts, and send invitations — all without the stress of printed seating boards.
+          {t('heroMain.subtitle')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <AuthGatedCtaLink to="/dashboard" asChild>
             <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
-              Start Planning Your Event
+              {t('heroMain.ctaPrimary')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </AuthGatedCtaLink>
           <Link to="/products/my-events" className="w-full sm:w-auto max-w-xs sm:max-w-none">
             <Button size="lg" variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold transition-all hover:scale-105 w-full sm:w-auto">
-              View All Features
+              {t('heroMain.ctaSecondary')}
             </Button>
           </Link>
         </div>
@@ -364,27 +364,27 @@ export const Landing = () => {
       <section className="py-16 md:py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            Explore the Platform
+            {t('explore.title')}
           </h2>
           <p className="text-lg text-gray-500 text-center mb-12 max-w-2xl mx-auto">
-            Everything you need to plan your wedding or event in one place.
+            {t('explore.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: ClipboardList, heading: 'My Events', text: 'Manage all your events in one place.', href: '/products/my-events' },
-              { icon: Users, heading: 'Manage Your Guest List Easily', text: 'Track RSVPs, organise guests, and send invitations in seconds.', href: '/products/guest-list' },
-              { icon: MapPin, heading: 'Plan Your Tables', text: 'Create tables, set guest limits, and organise your layout.', href: '/products/tables' },
-              { icon: QrCode, heading: 'QR Code Seating Chart', text: 'Let guests scan and find their seat instantly.', href: '/products/qr-code-seating-chart' },
-              { icon: Mail, heading: 'Send Digital Invitations', text: 'Create and send beautiful invites via SMS or email.', href: '/products/invitations-cards' },
-              { icon: CreditCard, heading: 'Name Place Cards', text: 'Organise seating with clean and elegant place cards.', href: '/products/name-place-cards' },
-              { icon: LayoutGrid, heading: 'Individual Table Charts', text: 'Print elegant per-table seating charts for every guest.', href: '/products/individual-table-charts' },
-              { icon: Map, heading: 'Wedding Floor Plan Tool', text: 'Design your ceremony and reception venue layout visually.', href: '/products/floor-plan' },
-              { icon: ChefHat, heading: 'Dietary Requirements', text: "Track every guest's meal and dietary needs in one place.", href: '/products/dietary-requirements' },
-              { icon: FileText, heading: 'Full Seating Chart', text: 'Generate a complete printable master seating chart.', href: '/products/full-seating-chart' },
-              { icon: Monitor, heading: 'Kiosk Live View', text: 'Let guests find their seat instantly at the venue.', href: '/products/kiosk-live-view' },
-              { icon: Music, heading: 'DJ & MC Questionnaire', text: 'Brief your DJ and MC with a structured digital form.', href: '/products/dj-mc-questionnaire' },
-              { icon: ListChecks, heading: 'Wedding Running Sheet Planner', text: 'Build and share a minute-by-minute wedding day timeline.', href: '/products/running-sheet' },
-            ].map(({ icon: Icon, heading, text, href }) => (
+              { icon: ClipboardList, key: 'myEvents', href: '/products/my-events' },
+              { icon: Users, key: 'guestList', href: '/products/guest-list' },
+              { icon: MapPin, key: 'tables', href: '/products/tables' },
+              { icon: QrCode, key: 'qrSeating', href: '/products/qr-code-seating-chart' },
+              { icon: Mail, key: 'invitationsCards', href: '/products/invitations-cards' },
+              { icon: CreditCard, key: 'placeCards', href: '/products/name-place-cards' },
+              { icon: LayoutGrid, key: 'tableCharts', href: '/products/individual-table-charts' },
+              { icon: Map, key: 'floorPlan', href: '/products/floor-plan' },
+              { icon: ChefHat, key: 'dietary', href: '/products/dietary-requirements' },
+              { icon: FileText, key: 'fullSeating', href: '/products/full-seating-chart' },
+              { icon: Monitor, key: 'kioskLiveView', href: '/products/kiosk-live-view' },
+              { icon: Music, key: 'djMc', href: '/products/dj-mc-questionnaire' },
+              { icon: ListChecks, key: 'runningSheet', href: '/products/running-sheet' },
+            ].map(({ icon: Icon, key, href }) => (
               <Link
                 key={href}
                 to={href}
@@ -393,10 +393,10 @@ export const Landing = () => {
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ backgroundColor: '#967A59' }}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{heading}</h3>
-                <p className="text-gray-500 mb-4">{text}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t(`explore.cards.${key}.heading`)}</h3>
+                <p className="text-gray-500 mb-4">{t(`explore.cards.${key}.text`)}</p>
                 <span className="inline-flex items-center text-sm font-semibold" style={{ color: '#967A59' }}>
-                  Learn more <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                  {t('explore.learnMore')} <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
             ))}
@@ -433,7 +433,7 @@ export const Landing = () => {
                     </div>
                     <p className="text-white/70 text-sm">{t(`featureCards.${card.key}.desc`)}</p>
                     <span className="mt-3 inline-flex items-center gap-1 text-sm text-white/80 group-hover:text-white transition-colors">
-                      Learn more
+                      {t('featureCardsLearnMore')}
                       <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
                     </span>
                   </div>
