@@ -4,6 +4,9 @@
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
 import React, { useRef, useState, useEffect } from 'react';
+import { z } from 'zod';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
@@ -312,16 +315,45 @@ export const Landing = () => {
   const testimonialItems = t('testimonials.items', { returnObjects: true }) as Array<{ name: string; text: string }>;
   const faqItems = t('faq.items', { returnObjects: true }) as Array<{ q: string; a: string }>;
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  // 🔒 Locked 2026-04-18 — wired to send-transactional-email → support@weddingwaitress.com
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) return;
+    const schema = z.object({
+      name: z.string().trim().min(1).max(100),
+      email: z.string().trim().email().max(255),
+      message: z.string().trim().min(1).max(2000),
+    });
+    const parsed = schema.safeParse(contactForm);
+    if (!parsed.success) {
+      toast.error("Please fill in all fields with valid information.");
+      return;
+    }
     setContactSending(true);
-    setTimeout(() => {
-      setContactSending(false);
+    try {
+      const { error } = await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'contact-form-message',
+          recipientEmail: 'support@weddingwaitress.com',
+          idempotencyKey: `contact-${crypto.randomUUID()}`,
+          templateData: {
+            name: parsed.data.name,
+            email: parsed.data.email,
+            message: parsed.data.message,
+            date: new Date().toISOString(),
+          },
+        },
+      });
+      if (error) throw error;
+      toast.success("Your message has been sent successfully. We will reply within 24 hours.");
       setContactSent(true);
       setContactForm({ name: '', email: '', message: '' });
       setTimeout(() => setContactSent(false), 4000);
-    }, 1000);
+    } catch (err) {
+      console.error('Contact form send failed', err);
+      toast.error("Something went wrong. Please try again or email support@weddingwaitress.com");
+    } finally {
+      setContactSending(false);
+    }
   };
 
   return (

@@ -29,6 +29,7 @@ check this list before editing.
 | `src/pages/Landing.tsx` | `alwaysSignUp` on all hero/repeat/final CTAs | 2026-04-18 |
 | `src/components/Layout/ProductPageLayout.tsx` | `alwaysSignUp` on primary + final CTAs | 2026-04-18 |
 | `src/pages/Account.tsx` + `src/components/Account/*` + `src/hooks/useAccountBilling.ts` + `supabase/functions/get-account-billing/index.ts` | Account page wiring: profile, subscription, Stripe billing, history, usage, security, success-redirect refetch | 2026-04-18 |
+| `src/pages/Landing.tsx` (`handleContactSubmit`) + `src/pages/Contact.tsx` (`handleSubmit`) | Both contact forms wired to `send-transactional-email` template `contact-form-message` → `support@weddingwaitress.com`. Identical zod validation + identical success/error toast strings. | 2026-04-18 |
 
 ---
 
