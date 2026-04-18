@@ -1,22 +1,84 @@
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
+ * Includes contact form wired to send-transactional-email (locked 2026-04-18).
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
-import { ArrowLeft, Mail, Building2, Phone } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Mail, Building2, Send } from "lucide-react";
 import { Link } from "react-router-dom";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { SeoHead } from "@/components/SEO/SeoHead";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
+  message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
+});
 
 export const Contact = () => {
   const currentYear = new Date().getFullYear();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const contactJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
     name: 'Contact Wedding Waitress',
     url: 'https://weddingwaitress.com/contact',
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    const result = contactSchema.safeParse({ name, email, message });
+    if (!result.success) {
+      const fieldErrors: typeof errors = {};
+      result.error.issues.forEach((issue) => {
+        const key = issue.path[0] as keyof typeof errors;
+        if (key && !fieldErrors[key]) fieldErrors[key] = issue.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'contact-form-message',
+          recipientEmail: 'support@weddingwaitress.com',
+          idempotencyKey: `contact-${crypto.randomUUID()}`,
+          templateData: {
+            name: result.data.name,
+            email: result.data.email,
+            message: result.data.message,
+            date: new Date().toISOString(),
+          },
+        },
+      });
+      if (error) throw error;
+      toast.success("Thank you, your message has been sent. We will reply within 24 hours.");
+      setName("");
+      setEmail("");
+      setMessage("");
+    } catch (err) {
+      console.error('Contact form send failed', err);
+      toast.error("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -102,6 +164,62 @@ export const Contact = () => {
                 <li>• General wedding planning assistance</li>
                 <li>• Feedback and suggestions</li>
               </ul>
+            </div>
+
+            {/* Contact Form */}
+            <div className="mt-8 p-6 md:p-8 rounded-lg border border-border bg-background">
+              <h3 className="font-semibold text-xl mb-1">Send us a message</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Fill in the form below and we'll get back to you within 24 hours.
+              </p>
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-name">Name</Label>
+                  <Input
+                    id="contact-name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    maxLength={100}
+                    disabled={submitting}
+                    placeholder="Your full name"
+                    aria-invalid={!!errors.name}
+                  />
+                  {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-email">Email</Label>
+                  <Input
+                    id="contact-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    maxLength={255}
+                    disabled={submitting}
+                    placeholder="you@example.com"
+                    aria-invalid={!!errors.email}
+                  />
+                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-message">Message</Label>
+                  <Textarea
+                    id="contact-message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    maxLength={2000}
+                    disabled={submitting}
+                    placeholder="How can we help?"
+                    rows={6}
+                    aria-invalid={!!errors.message}
+                  />
+                  {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
+                </div>
+                <Button type="submit" disabled={submitting} className="w-full sm:w-auto gap-2">
+                  <Send className="w-4 h-4" />
+                  {submitting ? "Sending…" : "Send Message"}
+                </Button>
+              </form>
             </div>
 
             {/* CTA */}

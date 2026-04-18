@@ -187,3 +187,7 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 - Admin-payment email idempotency key: `admin-payment-${stripe_session_id}`.
 - Stripe receipts/invoices for the user are configured in the Stripe Dashboard, not in code.
 - Any change requires explicit owner approval.
+
+## 2026-04-18 — Contact form wiring
+- `src/pages/Contact.tsx` — contact form added and wired to `send-transactional-email` (template `contact-form-message`). LOCKED.
+- `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx` — admin notification template. LOCKED.
