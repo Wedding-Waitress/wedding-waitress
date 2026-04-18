@@ -1,20 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import { ProductPageLayout } from '@/components/Layout/ProductPageLayout';
 
-export const ProductKioskLiveView = () => (
-  <ProductPageLayout
-    pageTitle="Wedding Seating Kiosk Display | Live Guest View"
-    metaDescription="Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event."
-    breadcrumbLabel="Kiosk Live View"
-    h1="Kiosk Live Seating View for Your Event"
-    lead="Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way."
-    primaryCta={{ label: 'Start Planning Your Event', href: '/dashboard' }}
-    highlights={[
-      { heading: 'Display seating on a live screen', text: 'Perfect for venue entrances.' },
-      { heading: 'Guests find their table instantly', text: 'No confusion or waiting.' },
-      { heading: 'Modern and interactive experience', text: 'Upgrade your event setup.' },
-      { heading: 'Works with your QR seating system', text: 'Fully connected experience.' },
-    ]}
-    finalCtaLabel="Start Planning Your Event"
-    finalCtaHref="/dashboard"
-  />
-);
+export const ProductKioskLiveView = () => {
+  const { t } = useTranslation('landing');
+  const h = t('products.kioskLiveView.h', { returnObjects: true }) as string[][];
+  return (
+    <ProductPageLayout
+      pageTitle={t('products.kioskLiveView.pageTitle')}
+      metaDescription={t('products.kioskLiveView.metaDescription')}
+      breadcrumbLabel={t('explore.cards.kioskLiveView.heading')}
+      h1={t('products.kioskLiveView.h1')}
+      lead={t('products.kioskLiveView.lead')}
+      primaryCta={{ label: t('products.kioskLiveView.primaryCta'), href: '/dashboard' }}
+      highlights={h.map(([heading, text]) => ({ heading, text }))}
+      finalCtaLabel={t('products.kioskLiveView.finalCtaLabel')}
+      finalCtaHref="/dashboard"
+    />
+  );
+};
