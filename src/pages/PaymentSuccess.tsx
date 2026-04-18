@@ -49,7 +49,8 @@ export const PaymentSuccess = () => {
   // Auto-redirect after 8 seconds for success
   useEffect(() => {
     if (status === "success" || status === "approval") {
-      const timer = setTimeout(() => navigate("/dashboard", { replace: true }), 8000);
+      const dest = '/dashboard?tab=account&success=true';
+      const timer = setTimeout(() => navigate(dest, { replace: true }), 8000);
       return () => clearTimeout(timer);
     }
   }, [status, navigate]);
@@ -81,7 +82,7 @@ export const PaymentSuccess = () => {
                 Valid until {new Date(details.expires_at).toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" })}
               </p>
             )}
-            <Button onClick={() => navigate("/dashboard", { replace: true })} className="rounded-full">
+            <Button onClick={() => navigate("/dashboard?tab=account&success=true", { replace: true })} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
@@ -101,7 +102,7 @@ export const PaymentSuccess = () => {
               An admin will review and approve your account within <strong>24 hours</strong>.
               You'll receive full access once approved.
             </div>
-            <Button onClick={() => navigate("/dashboard", { replace: true })} className="rounded-full">
+            <Button onClick={() => navigate("/dashboard?tab=account&success=true", { replace: true })} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
