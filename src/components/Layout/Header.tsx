@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {t('nav.pricing')}
                   </button>
                   <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
-                    Blog
+                    {t('nav.blog')}
                   </Link>
                   <button type="button" onClick={() => goToHash('faq')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.faq')}
@@ -249,7 +249,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
-                      Blog
+                      {t('nav.blog')}
                     </Link>
                     <button
                       className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
