@@ -8,6 +8,12 @@ interface AuthGatedCtaLinkProps {
   className?: string;
   children: React.ReactNode;
   onClick?: () => void;
+  /**
+   * When true, do not render a wrapper <button>. Instead, clone the single
+   * child element and inject the auth-gated click handler. Use this to
+   * preserve existing Button JSX/styling exactly (e.g. Landing hero, Header).
+   */
+  asChild?: boolean;
 }
 
 /**
@@ -23,9 +29,10 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   className,
   children,
   onClick,
+  asChild = false,
 }) => {
   const navigate = useNavigate();
-  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+  const [, setIsAuthed] = useState<boolean>(false);
   const hiddenTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -43,7 +50,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   }, []);
 
   const handleClick = useCallback(
-    async (e: React.MouseEvent<HTMLButtonElement>) => {
+    async (e: React.MouseEvent) => {
       e.preventDefault();
       onClick?.();
       // Re-verify auth at click time — eliminates any stale-state bypass.
@@ -60,21 +67,40 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
     [navigate, onClick, to]
   );
 
+  const hiddenTrigger = (
+    <SignUpModal>
+      <button
+        ref={hiddenTriggerRef}
+        type="button"
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ position: 'absolute', width: 0, height: 0, padding: 0, margin: 0, border: 0, opacity: 0, pointerEvents: 'none' }}
+      />
+    </SignUpModal>
+  );
+
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<any>;
+    const cloned = React.cloneElement(child, {
+      onClick: (e: React.MouseEvent) => {
+        child.props.onClick?.(e);
+        if (!e.defaultPrevented) handleClick(e);
+      },
+    });
+    return (
+      <>
+        {cloned}
+        {hiddenTrigger}
+      </>
+    );
+  }
+
   return (
     <>
       <button type="button" className={className} onClick={handleClick}>
         {children}
       </button>
-      {/* Existing SignUpModal — opened via hidden trigger for logged-out clicks. */}
-      <SignUpModal>
-        <button
-          ref={hiddenTriggerRef}
-          type="button"
-          aria-hidden="true"
-          tabIndex={-1}
-          style={{ position: 'absolute', width: 0, height: 0, padding: 0, margin: 0, border: 0, opacity: 0, pointerEvents: 'none' }}
-        />
-      </SignUpModal>
+      {hiddenTrigger}
     </>
   );
 };
