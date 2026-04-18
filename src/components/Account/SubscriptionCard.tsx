@@ -64,6 +64,38 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     statusLabel = 'Active';
   }
 
+  const handleUpgrade = async () => {
+    setBusy(true);
+    try {
+      if (billing?.portalUrl) {
+        window.open(billing.portalUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          price_id: PLAN_PRICES.premium.price_id,
+          mode: 'payment',
+          plan_type: 'premium',
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (data?.url) {
+        window.open(data.url, '_blank', 'noopener,noreferrer');
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (e) {
+      toast({
+        title: 'Error',
+        description: e instanceof Error ? e.message : 'Could not start upgrade',
+        variant: 'destructive',
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <SectionCard icon={icon} title="Subscription" description="Your current plan">
       <div className="space-y-3 text-sm">
@@ -80,11 +112,13 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
       </div>
       <div className="mt-6">
         <Button
-          onClick={() => window.location.assign('/dashboard?tab=my-events')}
+          onClick={handleUpgrade}
+          disabled={busy}
           className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
           size="sm"
         >
-          Upgrade Plan
+          {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+          {billing?.portalUrl ? 'Manage Billing' : 'Upgrade Plan'}
         </Button>
       </div>
     </SectionCard>
