@@ -68,13 +68,13 @@ export const Contact = () => {
         },
       });
       if (error) throw error;
-      toast.success("Thank you, your message has been sent. We will reply within 24 hours.");
+      toast.success("Your message has been sent successfully. We will reply within 24 hours.");
       setName("");
       setEmail("");
       setMessage("");
     } catch (err) {
       console.error('Contact form send failed', err);
-      toast.error("Something went wrong. Please try again or email us directly.");
+      toast.error("Something went wrong. Please try again or email support@weddingwaitress.com");
     } finally {
       setSubmitting(false);
     }
