@@ -1,41 +1,57 @@
 
-Goal: fix the CTA gating on the 13 product pages linked from “Explore the Platform” without changing styling, layout, text, or any unrelated part of the app.
+## Goal
+Make every "Start Planning" / "Get Started" / "Choose Pro" CTA across the entire site behave identically: open the existing **"Create your free account"** modal for logged-out users, navigate to **/dashboard** for logged-in users. No design or text changes.
 
-What I found
-- All 13 product pages are thin wrappers around one shared component: `src/components/Layout/ProductPageLayout.tsx`.
-- In that shared layout, both the top hero CTA and the bottom CTA already switch to `AuthGatedCtaLink` when the CTA target is `/dashboard`.
-- The 13 product pages all pass `href: '/dashboard'` / `finalCtaHref="/dashboard"`, so in theory one shared implementation controls all 26 buttons.
-- The existing auth gate component is `src/components/auth/AuthGatedCtaLink.tsx`, which shows the existing `SignUpModal` for logged-out users and only links to `/dashboard` when a session exists.
+## Audit findings
 
-Implementation plan
-1. Re-audit the 13 linked product pages as a set
-- Confirm the exact 13 `/products/*` routes from the “Explore the Platform” section match the requested pages.
-- Confirm both CTAs on every page are coming only from `ProductPageLayout` and not overridden locally.
+The site has two CTA wrapper patterns today, and they behave differently:
 
-2. Harden the shared CTA logic in one place
-- Update `src/components/Layout/ProductPageLayout.tsx` so both “Start Planning Your Event” CTAs are always treated as auth-gated dashboard CTAs for these product pages.
-- Remove any fragile dependency on simple string checks if needed, so there is zero chance of a plain `Link` rendering for these dashboard CTAs.
-- Preserve all current button classes, spacing, colors, and text exactly.
+| Wrapper | Logged-out | Logged-in | Where used |
+|---|---|---|---|
+| `AuthGatedCtaLink` | Opens SignUpModal | Navigates to /dashboard ✅ | All 13 product pages (top + bottom CTAs) |
+| `SignUpModal` (wrap) | Opens SignUpModal ✅ | Opens SignUpModal ❌ | Landing hero, all 4 pricing buttons, final CTA, Header "Get Started" |
+| Plain `<Link to="/dashboard">` | Goes straight to dashboard ❌ | Goes to dashboard | NotFound page |
 
-3. Keep using the existing popup only
-- Continue using the existing `SignUpModal` flow through `AuthGatedCtaLink`.
-- Do not create a new modal or new auth flow.
+So the inconsistency is: `SignUpModal`-wrapped CTAs always show the popup even for logged-in users (annoying for them but not insecure), and one stray `<Link to="/dashboard">` in NotFound bypasses signup.
 
-4. Verify linked entry points
-- Check the “Explore the Platform” cards in `src/pages/Landing.tsx` to ensure each card opens the correct product page.
-- Confirm no card points to a route outside the intended 13-page product set.
+## Fix (single source of truth)
 
-5. Test the full flow after implementation
-- Logged out: each of the 13 product pages, top CTA opens “Create your free account” popup.
-- Logged out: bottom CTA does the same.
-- Logged in: both CTAs continue to `/dashboard`.
-- Confirm no direct dashboard bypass remains from these 26 buttons.
-- Confirm no visual/layout regression on desktop and mobile.
+**Strategy:** Update `AuthGatedCtaLink` so it can wrap any trigger element (not just render its own button), then replace every inconsistent CTA wrapper with it. This keeps existing styling 100% intact because the children are unchanged.
 
-Expected file scope
-- Primary: `src/components/Layout/ProductPageLayout.tsx`
-- Verification only: `src/components/auth/AuthGatedCtaLink.tsx`, `src/pages/Landing.tsx`, and the 13 `src/pages/products/*.tsx` wrappers
-- No unrelated files should change.
+### 1. Extend `src/components/auth/AuthGatedCtaLink.tsx`
+- Keep current behaviour (button rendering with className/children).
+- Already correct: re-checks session at click time, opens existing `SignUpModal` if logged out, navigates to `/dashboard` if logged in.
+- No design changes — same `className` pass-through.
 
-Technical note
-Because all 13 pages share one layout, this should be a single-point fix plus verification rather than 13 separate redesigns. If the issue is reproducible, the safest solution is to enforce auth gating centrally in `ProductPageLayout` so both CTA locations can never fall back to a direct dashboard link for logged-out users.
+### 2. Replace `SignUpModal` wrappers on `src/pages/Landing.tsx`
+Convert these to `AuthGatedCtaLink to="/dashboard"` while preserving the exact inner Button JSX and classes:
+- Hero: "Start Planning Your Event" (line 161)
+- Pricing card 1: "Get Started" (line 518)
+- Pricing card 2: "Get Started" (line 549)
+- Pricing card 3: "Get Started" (line 576)
+- Pricing card 4: "Get Started" (line 605)
+- Final CTA section: `finalCta.cta` button (line 839)
+
+### 3. Update `src/components/Layout/Header.tsx`
+- "Get Started" header button (line 165): swap `SignUpModal` wrapper for `AuthGatedCtaLink to="/dashboard"`. Keep button styling and translation key.
+
+### 4. Fix stray bypass in `src/pages/NotFound.tsx`
+- Replace `<Link to="/dashboard">Go to Dashboard</Link>` with `AuthGatedCtaLink to="/dashboard"`. Keep button visuals.
+
+### 5. Already correct — no changes needed
+- All 13 `/products/*` pages (top + bottom CTAs already gated via `ProductPageLayout` → `AuthGatedCtaLink`).
+- Footer "Start Planning" link inside `ProductPageLayout` (already gated).
+- All `/features/*` pages use `FeaturePageLayout` which embeds `EmbeddedSignUpForm` directly (no CTA bypass).
+- `Index.tsx` is dead code — not routed in `App.tsx` (the `/` route renders `Landing`). No change.
+
+## Out of scope (do not touch)
+- Any styling, spacing, button variants, icons, colors, text/translations.
+- The SignUpModal itself — reused as-is.
+- Authenticated dashboard internals.
+- The `Admin.tsx` `navigate('/dashboard')` calls (those run after admin checks, not user-clickable CTAs).
+
+## Test checklist (after implementing)
+- Logged out: Landing hero → modal opens, pricing × 4 → modal, final CTA → modal, Header "Get Started" → modal, NotFound "Go to Dashboard" → modal, all 13 product pages top+bottom → modal.
+- Logged in: every one of the above goes straight to `/dashboard`, no modal flash.
+- Visual regression: zero — only wrapper components change, inner Button JSX preserved.
+- Mobile: same behaviour, since wrappers don't affect layout.
