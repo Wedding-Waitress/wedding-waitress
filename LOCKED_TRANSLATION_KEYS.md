@@ -39,3 +39,9 @@ check this list before editing.
 3. When adding a new locked key set, append a row — do not rewrite history.
 4. The English source (`src/i18n/locales/en/landing.json`) is the source of
    truth; non-English locked keys must stay semantically aligned with EN.
+
+## nav.blog (Header navigation) — 13 locales
+**Locked:** 2026-04-18
+**Files:** `src/i18n/locales/{en,de,es,fr,it,nl,tr,vi,ja,zh,ar,hi,el}/landing.json` → `nav.blog`
+**Wiring:** `src/components/Layout/Header.tsx` desktop + mobile Blog link uses `t('nav.blog')`.
+DO NOT MODIFY without explicit owner approval.
