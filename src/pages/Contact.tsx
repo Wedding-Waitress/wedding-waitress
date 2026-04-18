@@ -22,7 +22,7 @@ const contactSchema = z.object({
 });
 
 export const Contact = () => {
-  const currentYear = new Date().getFullYear();
+  const { t } = useTranslation('landing');
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
