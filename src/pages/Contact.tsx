@@ -2,6 +2,7 @@
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
  * Body redesigned 2026-04-18 to mirror homepage "Get in Touch" form (locked).
+ * Header logo swapped 2026-04-18 to brown wordmark (matches homepage); adjacent text removed.
  * Includes contact form wired to send-transactional-email → support@weddingwaitress.com.
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
