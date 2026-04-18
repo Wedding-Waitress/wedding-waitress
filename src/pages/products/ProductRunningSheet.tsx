@@ -1,20 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import { ProductPageLayout } from '@/components/Layout/ProductPageLayout';
 
-export const ProductRunningSheet = () => (
-  <ProductPageLayout
-    pageTitle="Wedding Running Sheet Template | Event Timeline Planner"
-    metaDescription="Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly."
-    breadcrumbLabel="Running Sheet"
-    h1="Create Your Wedding Running Sheet"
-    lead="Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly."
-    primaryCta={{ label: 'Start Planning Your Event', href: '/dashboard' }}
-    highlights={[
-      { heading: 'Plan your full event timeline', text: 'Stay organised from start to finish.' },
-      { heading: 'Keep everything running smoothly', text: 'Avoid delays and confusion.' },
-      { heading: 'Perfect for weddings and events', text: 'Ensure every moment is planned.' },
-      { heading: 'Works with your full event setup', text: 'Everything stays connected.' },
-    ]}
-    finalCtaLabel="Start Planning Your Event"
-    finalCtaHref="/dashboard"
-  />
-);
+export const ProductRunningSheet = () => {
+  const { t } = useTranslation('landing');
+  const h = t('products.runningSheet.h', { returnObjects: true }) as string[][];
+  return (
+    <ProductPageLayout
+      pageTitle={t('products.runningSheet.pageTitle')}
+      metaDescription={t('products.runningSheet.metaDescription')}
+      breadcrumbLabel={t('explore.cards.runningSheet.heading')}
+      h1={t('products.runningSheet.h1')}
+      lead={t('products.runningSheet.lead')}
+      primaryCta={{ label: t('products.runningSheet.primaryCta'), href: '/dashboard' }}
+      highlights={h.map(([heading, text]) => ({ heading, text }))}
+      finalCtaLabel={t('products.runningSheet.finalCtaLabel')}
+      finalCtaHref="/dashboard"
+    />
+  );
+};
