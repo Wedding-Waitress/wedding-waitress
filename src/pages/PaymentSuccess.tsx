@@ -82,7 +82,7 @@ export const PaymentSuccess = () => {
                 Valid until {new Date(details.expires_at).toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" })}
               </p>
             )}
-            <Button onClick={() => navigate("/dashboard", { replace: true })} className="rounded-full">
+            <Button onClick={() => navigate("/dashboard?tab=account&success=true", { replace: true })} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
