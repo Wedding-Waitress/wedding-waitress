@@ -652,345 +652,345 @@
   "featureCardsLearnMore": "Meer weten",
   "products": {
     "myEvents": {
-      "pageTitle": "Manage Your Events Online | Wedding & Event Planner Tool",
-      "metaDescription": "Easily create and manage your wedding or event in one place. Stay organised, track details, and plan your event effortlessly with Wedding Waitress.",
-      "h1": "Manage Your Wedding or Event Easily",
-      "lead": "Plan and organise your entire event from one simple dashboard. Keep everything in one place and stay in control.",
-      "primaryCta": "Start Planning Your Event",
-      "secondaryCta": "View Features",
       "h": [
         [
-          "Create and manage multiple events",
-          "Run weddings, engagements, and receptions side by side without losing track of a single detail."
+          "Creëer en beheer meerdere evenementen",
+          "Organiseer bruiloften, verlovingen en recepties naast elkaar zonder één detail uit het oog te verliezen."
         ],
         [
-          "Keep all your event details organised",
-          "Dates, venues, guest lists, and timings - everything you need lives in one tidy place."
+          "Houd al je evenementdetails georganiseerd",
+          "Datums, locaties, gastenlijsten en tijdschema's - alles wat je nodig hebt, bevindt zich op één overzichtelijke plek."
         ],
         [
-          "Access everything from one dashboard",
-          "Jump between events, tools, and reports instantly from a single, clean interface."
+          "Toegang tot alles vanuit één dashboard",
+          "Schakel direct tussen evenementen, tools en rapporten vanuit één overzichtelijke interface."
         ],
         [
-          "Simple and easy to use",
-          "Designed to be intuitive from the first click. No training, no clutter - just plan."
+          "Eenvoudig en gemakkelijk te gebruiken",
+          "Ontworpen om intuïtief te zijn vanaf de eerste klik. Geen training, geen rommel - gewoon plannen."
         ]
       ],
-      "finalCtaHeading": "Start planning your event today",
-      "finalCtaText": "Create your first event in minutes and bring everything together in one place.",
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Begin met het Plannen van Je Evenement",
+      "metaDescription": "Creëer en beheer eenvoudig je bruiloft of evenement op één plek. Blijf georganiseerd, houd details bij en plan je evenement moeiteloos met Wedding Waitress.",
+      "secondaryCta": "Bekijk Functies",
+      "lead": "Plan en organiseer je hele evenement vanuit één eenvoudig dashboard. Houd alles op één plek en blijf de controle behouden.",
+      "finalCtaText": "Creëer je eerste evenement binnen enkele minuten en breng alles samen op één plek.",
+      "finalCtaHeading": "Begin vandaag nog met het plannen van je evenement",
+      "finalCtaLabel": "Begin met het Plannen van Je Evenement",
+      "h1": "Beheer Eenvoudig Je Bruiloft of Evenement",
+      "pageTitle": "Beheer Je Evenementen Online | Wedding & Event Planner Tool"
     },
     "guestList": {
-      "pageTitle": "Wedding Guest List Manager | Track RSVPs Easily",
-      "metaDescription": "Manage your wedding guest list, track RSVPs, and send invitations via SMS or email. Stay organised and in control of your event.",
-      "h1": "Manage Your Guest List & RSVPs",
-      "lead": "Keep track of all your guests in one place. Send invitations, monitor RSVPs, and organise your event effortlessly.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Beheer uw bruiloftsgastenlijst, volg RSVP's en verstuur uitnodigingen via sms of e-mail. Blijf georganiseerd en houd de controle over uw evenement.",
+      "h1": "Beheer uw gastenlijst & RSVP's",
+      "primaryCta": "Begin met het plannen van uw evenement",
       "h": [
         [
-          "Add and organise your guests",
-          "Easily manage individuals, couples, and families."
+          "Voeg uw gasten toe en organiseer ze",
+          "Beheer eenvoudig individuen, stellen en families."
         ],
         [
-          "Track RSVP responses in real-time",
-          "Stay updated on who is attending."
+          "Volg RSVP-reacties in realtime",
+          "Blijf op de hoogte van wie aanwezig is."
         ],
         [
-          "Send invitations via SMS or email",
-          "Communicate with guests instantly."
+          "Verstuur uitnodigingen via sms of e-mail",
+          "Communiceer direct met gasten."
         ],
         [
-          "Stay organised and in control",
-          "Everything in one simple dashboard."
+          "Blijf georganiseerd en in controle",
+          "Alles in één eenvoudig dashboard."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Begin met het plannen van uw evenement",
+      "lead": "Houd al uw gasten op één plek bij. Verstuur uitnodigingen, volg RSVP's en organiseer uw evenement moeiteloos.",
+      "pageTitle": "Bruiloft Gastenlijst Manager | Volg eenvoudig RSVP's"
     },
     "tables": {
-      "pageTitle": "Wedding Tables Planner | Create & Manage Tables Easily",
-      "metaDescription": "Create and manage your wedding or event tables with ease. Add tables, set guest limits, and organise your seating layout effortlessly.",
-      "h1": "Create & Manage Your Event Tables",
-      "lead": "Set up your tables in minutes. Organise your layout, customise table names, and control guest numbers with ease.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Begin met het Plannen van Uw Evenement",
+      "primaryCta": "Begin met het Plannen van Uw Evenement",
+      "lead": "Zet uw tafels binnen enkele minuten op. Organiseer uw indeling, pas tafelnamen aan en beheer eenvoudig het aantal gasten.",
+      "metaDescription": "Creëer en beheer eenvoudig de tafels voor uw bruiloft of evenement. Voeg tafels toe, stel gastlimieten in en organiseer moeiteloos uw zitplaatsindeling.",
+      "h1": "Creëer & Beheer Uw Evenementtafels",
       "h": [
         [
-          "Add and customise tables",
-          "Create as many tables as you need and customise them to match your event."
+          "Voeg tafels toe en pas ze aan",
+          "Creëer zoveel tafels als u nodig heeft en pas ze aan uw evenement aan."
         ],
         [
-          "Set guest limits per table",
-          "Control how many guests can sit at each table."
+          "Stel gastlimieten per tafel in",
+          "Bepaal hoeveel gasten aan elke tafel kunnen zitten."
         ],
         [
-          "Rename tables to match your theme",
-          "Use names like Family, Friends, or custom table names."
+          "Hernoem tafels om bij uw thema te passen",
+          "Gebruik namen zoals Familie, Vrienden, of aangepaste tafelnamen."
         ],
         [
-          "Organise your seating layout easily",
-          "Keep your event structured and easy to manage."
+          "Organiseer eenvoudig uw zitplaatsindeling",
+          "Houd uw evenement gestructureerd en gemakkelijk te beheren."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Bruiloft Tafels Planner | Creëer & Beheer Tafels Eenvoudig"
     },
     "qrSeating": {
-      "pageTitle": "QR Code Seating Chart | Digital Wedding Seating Plan",
-      "metaDescription": "Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed.",
-      "h1": "QR Code Seating Chart for Your Wedding",
-      "lead": "Let your guests find their seat instantly. Simply generate a QR code and allow guests to scan and view their table in seconds.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "QR Code Seating Chart | Digitaal Seating Plan voor Bruiloften",
       "h": [
         [
-          "Guests scan to find their seat instantly",
-          "No confusion or waiting around."
+          "Gasten scannen om direct hun plaats te vinden",
+          "Geen verwarring of wachttijden."
         ],
         [
-          "Generate a unique QR code for your event",
-          "Easy to share and display at your venue."
+          "Genereer een unieke QR-code voor je evenement",
+          "Eenvoudig te delen en weer te geven op je locatie."
         ],
         [
-          "No printing required",
-          "Save money and go fully digital."
+          "Printen is niet nodig",
+          "Bespaar geld en ga volledig digitaal."
         ],
         [
-          "Modern and stress-free solution",
-          "Perfect for today's weddings and events."
+          "Moderne en stressvrije oplossing",
+          "Perfect voor de bruiloften en evenementen van vandaag."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "QR Code Seating Chart voor je Bruiloft",
+      "metaDescription": "Maak een digitaal Seating Chart voor je bruiloft met een QR-code. Gasten kunnen scannen om direct hun tafel te vinden. Printen is niet nodig.",
+      "primaryCta": "Begin met het Plannen van Je Evenement",
+      "lead": "Laat je gasten direct hun plaats vinden. Genereer eenvoudig een QR-code en laat gasten binnen enkele seconden hun tafel scannen en bekijken.",
+      "finalCtaLabel": "Begin met het Plannen van Je Evenement"
     },
     "invitationsCards": {
-      "pageTitle": "Wedding Invitations & Digital Cards | Send Invites Online",
-      "metaDescription": "Create and send beautiful wedding invitations and digital cards online. Share your event details and impress your guests.",
-      "h1": "Create & Send Wedding Invitations Online",
-      "lead": "Design and send stunning digital invitations in minutes. Share your wedding details and give your guests a beautiful first impression.",
-      "primaryCta": "Start Planning Your Event",
+      "metaDescription": "Creëer en verstuur prachtige trouwkaarten en digitale kaarten online. Deel de details van je evenement en maak indruk op je gasten.",
+      "pageTitle": "Trouwkaarten & Digitale Kaarten | Stuur Uitnodigingen Online",
       "h": [
         [
-          "Send invitations via SMS or email",
-          "Reach your guests instantly."
+          "Verstuur uitnodigingen via sms of e-mail",
+          "Bereik je gasten direct."
         ],
         [
-          "Beautiful and modern digital cards",
-          "Impress your guests from the start."
+          "Mooie en moderne digitale kaarten",
+          "Maak vanaf het begin indruk op je gasten."
         ],
         [
-          "Simple and easy to use",
-          "No design skills needed."
+          "Eenvoudig en gemakkelijk te gebruiken",
+          "Geen ontwerpvaardigheden nodig."
         ],
         [
-          "Works with your guest list",
-          "Keep everything connected in one place."
+          "Werkt met je gastenlijst",
+          "Houd alles op één plek verbonden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Creëer & Verstuur Trouwkaarten Online",
+      "finalCtaLabel": "Begin met het plannen van je evenement",
+      "primaryCta": "Begin met het plannen van je evenement",
+      "lead": "Ontwerp en verstuur binnen enkele minuten prachtige digitale uitnodigingen. Deel de details van je bruiloft en geef je gasten een prachtige eerste indruk."
     },
     "placeCards": {
-      "pageTitle": "Wedding Name Place Cards | Table Seating Cards Made Easy",
-      "metaDescription": "Create and organise wedding name place cards for your guests. Keep your seating organised and make your event look elegant and professional.",
-      "h1": "Create Wedding Name Place Cards",
-      "lead": "Easily organise guest seating with clean and elegant name place cards. Perfect for weddings and events of any size.",
-      "primaryCta": "Start Planning Your Event",
+      "lead": "Organiseer eenvoudig gastenplaatsen met strakke en elegante naam Place Cards. Perfect voor bruiloften en evenementen van elke omvang.",
+      "primaryCta": "Begin met het plannen van uw evenement",
+      "finalCtaLabel": "Begin met het plannen van uw evenement",
+      "h1": "Creëer Wedding Name Place Cards",
       "h": [
         [
-          "Create name place cards instantly",
-          "Quickly generate cards for all your guests."
+          "Maak direct naam Place Cards",
+          "Genereer snel kaarten voor al uw gasten."
         ],
         [
-          "Keep seating organised and clear",
-          "Help guests find their seats with ease."
+          "Houd de zitplaatsen georganiseerd en duidelijk",
+          "Help gasten gemakkelijk hun plaatsen te vinden."
         ],
         [
-          "Clean and elegant design",
-          "Perfect for weddings and formal events."
+          "Schoon en elegant ontwerp",
+          "Perfect voor bruiloften en formele evenementen."
         ],
         [
-          "Works with your guest list and tables",
-          "Everything stays connected and organised."
+          "Werkt met uw gastenlijst en tafels",
+          "Alles blijft verbonden en georganiseerd."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Bruiloft Naam Place Cards | Tafel Zitkaarten Eenvoudig Gemaakt",
+      "metaDescription": "Maak en organiseer Wedding Name Place Cards voor uw gasten. Houd uw zitplaatsen georganiseerd en laat uw evenement er elegant en professioneel uitzien."
     },
     "tableCharts": {
-      "pageTitle": "Table Seating Chart Maker | Individual Table Plans",
-      "metaDescription": "Create individual table seating charts for your wedding or event. Organise guests per table and make seating simple and clear.",
-      "h1": "Create Individual Table Seating Charts",
-      "lead": "Organise each table with ease. Assign guests, manage seating, and keep every table clear and well-structured.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Begin met het plannen van uw evenement",
+      "lead": "Organiseer elke tafel met gemak. Wijs gasten toe, beheer de zitplaatsen en houd elke tafel duidelijk en goed gestructureerd.",
+      "finalCtaLabel": "Begin met het plannen van uw evenement",
       "h": [
         [
-          "Create seating for each table",
-          "Focus on one table at a time."
+          "Maak zitplaatsen voor elke tafel",
+          "Concentreer u op één tafel tegelijk."
         ],
         [
-          "Assign guests easily",
-          "Drag and organise guests per table."
+          "Wijs gasten eenvoudig toe",
+          "Sleep en organiseer gasten per tafel."
         ],
         [
-          "Keep seating clear and organised",
-          "Avoid confusion on the day."
+          "Houd de zitplaatsen duidelijk en georganiseerd",
+          "Voorkom verwarring op de dag zelf."
         ],
         [
-          "Works with full seating chart",
-          "Everything stays connected."
+          "Werkt met volledige Seating Chart",
+          "Alles blijft verbonden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Maak Individuele Tafelindelingen",
+      "pageTitle": "Tafel Seating Chart Maker | Individuele Tafelplannen",
+      "metaDescription": "Maak individuele tafelindelingen voor uw bruiloft of evenement. Organiseer gasten per tafel en maak de zitplaatsen eenvoudig en duidelijk."
     },
     "floorPlan": {
-      "pageTitle": "Wedding Floor Plan Creator | Plan Your Event Layout Online",
-      "metaDescription": "Design your wedding floor plan online. Arrange tables, seating, and layout easily and create the perfect event setup.",
-      "h1": "Create Your Wedding Floor Plan",
-      "lead": "Plan your event layout with ease. Arrange tables, seating, and spacing to create the perfect flow for your wedding or event.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Bruiloft Floor Plan Creator | Plan Je Evenement Layout Online",
+      "finalCtaLabel": "Begin Met Het Plannen Van Je Evenement",
+      "lead": "Plan je evenementindeling met gemak. Schik tafels, zitplaatsen en ruimte om de perfecte flow voor je bruiloft of evenement te creëren.",
+      "primaryCta": "Begin Met Het Plannen Van Je Evenement",
+      "h1": "Creëer Je Bruiloft Floor Plan",
       "h": [
         [
-          "Design your full event layout",
-          "Visualise how your event space will look."
+          "Ontwerp je volledige evenementindeling",
+          "Visualiseer hoe je evenementruimte eruit zal zien."
         ],
         [
-          "Arrange tables and seating easily",
-          "Create the perfect setup for your guests."
+          "Schik tafels en zitplaatsen eenvoudig",
+          "Creëer de perfecte opstelling voor je gasten."
         ],
         [
-          "Optimise space and flow",
-          "Ensure a smooth and enjoyable guest experience."
+          "Optimaliseer ruimte en flow",
+          "Zorg voor een soepele en plezierige gastervaring."
         ],
         [
-          "Works with your seating chart",
-          "Everything stays connected and organised."
+          "Werkt met je Seating Chart",
+          "Alles blijft verbonden en georganiseerd."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "metaDescription": "Ontwerp je bruiloft Floor Plan online. Schik tafels, zitplaatsen en indeling eenvoudig en creëer de perfecte evenementopstelling."
     },
     "dietary": {
-      "pageTitle": "Wedding Dietary Requirements Tracker | Manage Guest Needs",
-      "metaDescription": "Track dietary requirements for your wedding guests. Manage allergies, preferences, and special requests easily in one place.",
-      "h1": "Manage Guest Dietary Requirements",
-      "lead": "Keep track of your guests' dietary needs with ease. Manage allergies, preferences, and special requests in one organised system.",
-      "primaryCta": "Start Planning Your Event",
+      "h1": "Beheer dieetwensen van gasten",
+      "pageTitle": "Bruiloft Dieetwensen Tracker | Beheer Gastbehoeften",
+      "primaryCta": "Begin met het plannen van uw evenement",
+      "metaDescription": "Volg dieetwensen voor uw bruiloftsgasten. Beheer allergieën, voorkeuren en speciale verzoeken eenvoudig op één plek.",
+      "lead": "Houd moeiteloos de dieetwensen van uw gasten bij. Beheer allergieën, voorkeuren en speciale verzoeken in één georganiseerd systeem.",
+      "finalCtaLabel": "Begin met het plannen van uw evenement",
       "h": [
         [
-          "Track guest dietary needs",
-          "Easily record allergies and preferences."
+          "Volg dieetwensen van gasten",
+          "Registreer eenvoudig allergieën en voorkeuren."
         ],
         [
-          "Stay organised and prepared",
-          "Avoid last-minute surprises."
+          "Blijf georganiseerd en voorbereid",
+          "Vermijd verrassingen op het laatste moment."
         ],
         [
-          "Perfect for catering coordination",
-          "Share details with your venue or caterer."
+          "Perfect voor cateringcoördinatie",
+          "Deel details met uw locatie of cateraar."
         ],
         [
-          "Works with your guest list",
-          "Everything stays connected."
+          "Werkt met uw gastenlijst",
+          "Alles blijft verbonden."
         ]
-      ],
-      "finalCtaLabel": "Start Planning Your Event"
+      ]
     },
     "fullSeating": {
-      "pageTitle": "Wedding Seating Chart Maker | Full Seating Plan Online",
-      "metaDescription": "Create a complete wedding seating chart online. Organise guests, tables, and seating arrangements easily in one place.",
-      "h1": "Create Your Full Wedding Seating Chart",
-      "lead": "Design and organise your entire seating plan with ease. Manage guests, tables, and seating all in one simple view.",
-      "primaryCta": "Start Planning Your Event",
+      "pageTitle": "Bruiloft Plattegrond Maker | Volledige Plattegrond Online",
       "h": [
         [
-          "View your entire seating chart in one place",
-          "Get a complete overview of your event layout."
+          "Bekijk je volledige plattegrond op één plek",
+          "Krijg een compleet overzicht van de indeling van je evenement."
         ],
         [
-          "Organise guests and tables easily",
-          "Keep everything structured and clear."
+          "Organiseer eenvoudig gasten en tafels",
+          "Houd alles gestructureerd en duidelijk."
         ],
         [
-          "Perfect for large weddings and events",
-          "Handle any size event with ease."
+          "Perfect voor grote bruiloften en evenementen",
+          "Beheer elk evenement moeiteloos, ongeacht de grootte."
         ],
         [
-          "Works with guest list and tables",
-          "Everything stays connected and updated."
+          "Werkt met gastenlijst en tafels",
+          "Alles blijft verbonden en up-to-date."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "h1": "Creëer Je Volledige Bruiloft Plattegrond",
+      "metaDescription": "Maak online een complete bruiloft plattegrond. Organiseer gasten, tafels en zitplaatsen eenvoudig op één plek.",
+      "primaryCta": "Begin met het plannen van je evenement",
+      "lead": "Ontwerp en organiseer je complete plattegrond met gemak. Beheer gasten, tafels en zitplaatsen allemaal in één eenvoudig overzicht.",
+      "finalCtaLabel": "Begin met het plannen van je evenement"
     },
     "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
-      "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
-      "primaryCta": "Start Planning Your Event",
+      "finalCtaLabel": "Begin met het plannen van je evenement",
+      "lead": "Toon je plattegrond op een scherm op je locatie. Laat gasten snel en op een moderne, interactieve manier hun tafel vinden.",
+      "h1": "Kiosk Live Seating View voor je evenement",
       "h": [
         [
-          "Display seating on a live screen",
-          "Perfect for venue entrances."
+          "Toon de zitplaatsen op een live scherm",
+          "Perfect voor ingangen van locaties."
         ],
         [
-          "Guests find their table instantly",
-          "No confusion or waiting."
+          "Gasten vinden direct hun tafel",
+          "Geen verwarring of wachten meer."
         ],
         [
-          "Modern and interactive experience",
-          "Upgrade your event setup."
+          "Moderne en interactieve ervaring",
+          "Upgrade de opzet van je evenement."
         ],
         [
-          "Works with your QR seating system",
-          "Fully connected experience."
+          "Werkt met je QR-zitplaatsensysteem",
+          "Volledig verbonden ervaring."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "primaryCta": "Begin met het plannen van je evenement",
+      "metaDescription": "Toon de plattegrond van je bruiloft op een scherm of Kiosk. Gasten kunnen eenvoudig en real-time hun tafel vinden op je evenement.",
+      "pageTitle": "Wedding Seating Kiosk Display | Live Gastenoverzicht"
     },
     "djMc": {
-      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Your Event Music",
-      "metaDescription": "Create a DJ and MC questionnaire for your wedding or event. Plan music, announcements, and key moments to ensure everything runs perfectly.",
-      "h1": "DJ & MC Questionnaire for Your Wedding",
-      "lead": "Plan your music, announcements, and key moments with ease. Give your DJ or MC everything they need for a smooth and perfect event.",
-      "primaryCta": "Start Planning Your Event",
+      "primaryCta": "Begin met het plannen van uw evenement",
+      "lead": "Plan eenvoudig uw muziek, aankondigingen en belangrijke momenten. Geef uw DJ of MC alles wat ze nodig hebben voor een soepel en perfect evenement.",
+      "h1": "DJ & MC Questionnaire voor Uw Bruiloft",
+      "finalCtaLabel": "Begin met het plannen van uw evenement",
+      "metaDescription": "Maak een DJ en MC questionnaire voor uw bruiloft of evenement. Plan muziek, aankondigingen en belangrijke momenten om ervoor te zorgen dat alles perfect verloopt.",
       "h": [
         [
-          "Plan your music and key moments",
-          "Ensure everything happens at the right time."
+          "Plan uw muziek en belangrijke momenten",
+          "Zorg ervoor dat alles op het juiste moment gebeurt."
         ],
         [
-          "Provide clear instructions to your DJ or MC",
-          "Avoid confusion on your big day."
+          "Geef duidelijke instructies aan uw DJ of MC",
+          "Voorkom verwarring op uw grote dag."
         ],
         [
-          "Customise your event flow",
-          "Make your wedding truly yours."
+          "Pas de flow van uw evenement aan",
+          "Maak uw bruiloft echt van u."
         ],
         [
-          "Works with your running sheet",
-          "Everything stays connected."
+          "Werkt met uw Running Sheet",
+          "Alles blijft verbonden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "pageTitle": "Wedding DJ & MC Questionnaire | Plan Uw Evenement Muziek"
     },
     "runningSheet": {
-      "pageTitle": "Wedding Running Sheet Template | Event Timeline Planner",
-      "metaDescription": "Create a wedding running sheet and event timeline easily. Plan every moment of your day and keep everything running smoothly.",
-      "h1": "Create Your Wedding Running Sheet",
-      "lead": "Plan your entire event timeline with ease. Organise every moment of your wedding or event and ensure everything runs perfectly.",
-      "primaryCta": "Start Planning Your Event",
       "h": [
         [
-          "Plan your full event timeline",
-          "Stay organised from start to finish."
+          "Plan je volledige evenement tijdlijn",
+          "Blijf georganiseerd van begin tot eind."
         ],
         [
-          "Keep everything running smoothly",
-          "Avoid delays and confusion."
+          "Laat alles soepel verlopen",
+          "Voorkom vertragingen en verwarring."
         ],
         [
-          "Perfect for weddings and events",
-          "Ensure every moment is planned."
+          "Perfect voor bruiloften en evenementen",
+          "Zorg dat elk moment gepland is."
         ],
         [
-          "Works with your full event setup",
-          "Everything stays connected."
+          "Werkt met je volledige evenement setup",
+          "Alles blijft verbonden."
         ]
       ],
-      "finalCtaLabel": "Start Planning Your Event"
+      "finalCtaLabel": "Begin met het Plannen van Je Evenement",
+      "lead": "Plan je volledige evenement tijdlijn met gemak. Organiseer elk moment van je bruiloft of evenement en zorg dat alles perfect verloopt.",
+      "metaDescription": "Creëer eenvoudig een huwelijk running sheet en evenement tijdlijn. Plan elk moment van je dag en zorg dat alles soepel verloopt.",
+      "primaryCta": "Begin met het Plannen van Je Evenement",
+      "pageTitle": "Huwelijk Running Sheet Sjabloon | Evenement Tijdlijn Planner",
+      "h1": "Creëer Je Huwelijk Running Sheet"
     }
   },
   "blog": {
