@@ -1,18 +1,16 @@
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
- * Includes contact form wired to send-transactional-email (locked 2026-04-18).
+ * Body redesigned 2026-04-18 to mirror homepage "Get in Touch" form (locked).
+ * Includes contact form wired to send-transactional-email → support@weddingwaitress.com.
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
 import { useState } from "react";
-import { ArrowLeft, Mail, Building2, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { SeoHead } from "@/components/SEO/SeoHead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
