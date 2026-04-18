@@ -41,9 +41,20 @@ export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
       return;
     }
+    // Refresh profile from DB so AccountInfoCard updates instantly
+    const { data: fresh } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', profile.id)
+      .single();
+    if (fresh) {
+      // Mutate the cached profile object in place so all consumers see the new values
+      Object.assign(profile, fresh);
+    }
     toast({ title: 'Saved', description: 'Your details have been updated.' });
     onOpenChange(false);
-    window.location.reload();
+    // Soft refresh — re-render consumers without full reload
+    window.dispatchEvent(new Event('profile-updated'));
   };
 
   return (

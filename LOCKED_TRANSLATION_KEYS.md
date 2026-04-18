@@ -28,6 +28,7 @@ check this list before editing.
 | `src/components/Layout/Header.tsx` | `alwaysSignUp` on getStarted CTA | 2026-04-18 |
 | `src/pages/Landing.tsx` | `alwaysSignUp` on all hero/repeat/final CTAs | 2026-04-18 |
 | `src/components/Layout/ProductPageLayout.tsx` | `alwaysSignUp` on primary + final CTAs | 2026-04-18 |
+| `src/pages/Account.tsx` + `src/components/Account/*` + `src/hooks/useAccountBilling.ts` + `supabase/functions/get-account-billing/index.ts` | Account page wiring: profile, subscription, Stripe billing, history, usage, security, success-redirect refetch | 2026-04-18 |
 
 ---
 

@@ -1,20 +1,11 @@
 // 🔒 PRODUCTION-LOCKED — History Card (2026-04-18)
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { LucideIcon, ExternalLink } from 'lucide-react';
 import { SectionCard } from './SectionCard';
-import { supabase } from '@/integrations/supabase/client';
+import { useAccountBilling } from '@/hooks/useAccountBilling';
 
 interface Props {
   icon: LucideIcon;
-}
-
-interface Row {
-  id: string;
-  date: string;
-  type: string;
-  amount: number;
-  currency: string;
-  hostedUrl: string | null;
 }
 
 const formatDate = (iso: string) =>
@@ -28,21 +19,8 @@ const formatMoney = (a: number, c: string) => {
 };
 
 export const HistoryCard: React.FC<Props> = ({ icon }) => {
-  const [history, setHistory] = useState<Row[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const { data } = await supabase.functions.invoke('get-account-billing');
-        if (active && data?.history) setHistory(data.history);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => { active = false; };
-  }, []);
+  const { data, loading } = useAccountBilling();
+  const history = data.history;
 
   return (
     <SectionCard icon={icon} title="History" description="Past payments and changes">
