@@ -1,82 +1,44 @@
 
 ## Goal
-Rebrand the auth OTP email (sign-in code) from purple to the new brown (#967A59), swap the embedded logo to the new brown logo, and replace the sender avatar with a brown-circle favicon containing the white silhouette of the Wedding Waitress figure. Then lock the email templates.
+Fix the auth OTP email so it matches screenshot #1's layout: visible Wedding Waitress brown logo at top, then heading, greeting, instruction, brown OTP code, "expires in 10 minutes" line, plain "Or click the button below to sign in directly:" text (no highlight), then magic-link button. Then test by triggering a real sign-in and verifying the rendered email.
 
 ## Findings
+Current email (`supabase/functions/send-auth-email/index.ts`) already has the correct structure (logo → heading → greeting → instruction → OTP → expiry line → divider → "Or click..." text → button). Two real issues from screenshot #2:
 
-The auth email scaffold exists:
-- `supabase/functions/auth-email-hook/index.ts` — routes auth events to templates
-- `supabase/functions/_shared/email-templates/magic-link.tsx` — the screenshotted "Sign in to Wedding Waitress" 6-digit OTP email
-- Plus 5 sibling templates: `signup.tsx`, `recovery.tsx`, `invite.tsx`, `email-change.tsx`, `reauthentication.tsx`
+1. **Logo broken** — the `<img src="https://weddingwaitress.com/wedding-waitress-logo-brown.png">` is not loading in Outlook (shows placeholder box "Wedding Waitress"). Cause: the file at that public URL is either missing, blocked, or not the brown logo. The previously-created `public/wedding-waitress-logo-brown.png` may not have published yet, or Outlook is blocking the host. Fix: upload the brown logo to Supabase Storage (publicly hosted, CDN-backed, never blocked) and use that URL — same pattern Resend recommends.
 
-I need to verify by reading the templates to find:
-1. Existing purple hex/HSL values (likely `#7c3aed` / `#8b5cf6` / `262.1 83.3% 57.8%`)
-2. Current logo URL/img element
-3. Whether all 6 templates share styling (probably yes — same brand)
+2. **"Sign In with Magic Link" appears highlighted** — in screenshot #2 it renders as a yellow-highlighted text link, not as a brown button. Likely because the Outlook client is mangling the inline `<a>` styles. Looking again: the user wants the line *above* the button ("Or click the button below to sign in directly:") to be plain dark-gray text with no highlight/background. The current code already has it as plain text — but in screenshot #2, what looks highlighted is actually the **button itself** rendering oddly. The user's instruction is clear: keep the layout from screenshot #1 (which has the proper brown button). So the button must render as a solid brown button, and the lead-in line stays plain.
 
-The new brown is **#967A59** (confirmed in the color-picker screenshot and matches Core memory).
+The countdown ("This code expires in 10 minutes") in email cannot literally tick down — email HTML is static. Screenshot #1 shows static text "This code expires in **10 minutes**" — that's what we keep. (A live countdown is not possible in email.)
 
 ## Plan
 
-### 1. Inspect templates
-Read `magic-link.tsx` and the other 5 to find every purple color and every logo `<Img src=...>`. Also read `auth-email-hook/index.ts` to confirm no inline branding lives there.
+1. **Upload brown logo to Supabase Storage** (bucket: `email-assets`, public read) — file: `wedding-waitress-logo-brown.png` from `user-uploads://Wedding_Waitress._Brown._PNG-5.png`. Get the public URL.
 
-### 2. Upload the two new brand assets
-Both are PNGs already provided:
-- `user-uploads://Wedding_Waitress._Brown._PNG-4.png` → email header logo
-- `user-uploads://Favicon._Brown._PNG-3.png` → silhouette source for the sender avatar
+2. **Update `supabase/functions/send-auth-email/index.ts`** (override its lock for this approved fix):
+   - Replace the logo `<img src>` with the new Supabase Storage public URL.
+   - Keep the existing heading / greeting / instruction / brown OTP / "expires in 10 minutes" structure as-is (matches screenshot #1).
+   - Keep "Or click the button below to sign in directly:" as plain `color: #71717a` text (no background, no highlight) — already correct, just verify.
+   - Keep the magic-link `<a>` rendered as a solid `#967A59` brown button with white text and `display: inline-block` + padding (already correct, just verify it renders properly).
+   - Re-apply the production-lock comment header.
 
-For the **email header logo**: upload to the existing `email-assets` Supabase Storage bucket (or create it) and use the public URL in the `<Img>` tag. This must be a hosted URL — emails can't reference local files.
+3. **Deploy** the `send-auth-email` Edge Function.
 
-For the **sender avatar circle (WW → silhouette)**: this is the avatar Outlook/Gmail shows next to the sender name. It's controlled by either:
-- a Gravatar on `onboarding@resend.dev` (we don't control), OR  
-- a BIMI record on the sending domain (requires verified DMARC + SVG Tiny PS logo), OR
-- the recipient's address book.
+4. **Test end-to-end**: trigger a real sign-in OTP request to the user's email via the auth flow (or directly via curl to the function's hook endpoint with a sample payload), then check function logs to confirm successful Resend delivery (200 + message ID). Confirm zero errors.
 
-**Honest constraint**: Since the email currently sends from `onboarding@resend.dev` (Resend's shared sandbox domain — visible in the screenshot), we cannot set the sender avatar. The purple "WW" circle is generated by Outlook from the display name "Wedding Waitress". To replace it with the brown silhouette favicon, the project needs a verified custom sender domain with a BIMI DNS record. Without that, Outlook will keep auto-generating an initials circle.
-
-I'll note this in the response and proceed with what IS controllable: the in-body logo and color.
-
-### 3. Recolor the email templates
-In all 6 template files, replace every purple value with brown:
-- `#7c3aed`, `#8b5cf6`, `#a855f7`, `rgb(124,58,237)`, `hsl(262...)` → `#967A59`
-- Button background, OTP code color, accent borders, link colors → `#967A59`
-- Button text stays white (`#ffffff`)
-- Body background stays white (per email infra rules)
-
-### 4. Swap the logo
-Upload `Wedding_Waitress._Brown._PNG-4.png` to the project's Supabase Storage `email-assets` bucket (public read). Replace the existing `<Img src="...">` in every template's header with the new public URL. Keep dimensions ~ width 200px, auto height, centered.
-
-### 5. Lock the email templates
-- Add the standard `🔒 PRODUCTION-LOCKED` header comment block to all 6 template files and `auth-email-hook/index.ts`.
-- Append a new section "Locked auth email templates (2026-04-18)" to `LOCKED_TRANSLATION_KEYS.md`.
-- Update `mem://standards/locked-translations.md` to include auth email templates in the locked surface.
-
-### 6. Deploy & verify
-- Redeploy the `auth-email-hook` edge function (required — Edge Functions serve the LAST DEPLOYED code).
-- Send a test sign-in OTP to confirm the email renders with brown OTP code, brown button, and the new logo.
-- Report back the in-body fixes confirmed working, and the BIMI/sender-avatar limitation honestly.
+5. **Re-lock**: confirm the lock comment is in place at the top of the file. The lock entry in `LOCKED_TRANSLATION_KEYS.md` from the previous turn already covers this file — no change needed there.
 
 ## Files to modify
-- `supabase/functions/_shared/email-templates/magic-link.tsx` (purple → brown, logo swap, lock header)
-- `supabase/functions/_shared/email-templates/signup.tsx` (same)
-- `supabase/functions/_shared/email-templates/recovery.tsx` (same)
-- `supabase/functions/_shared/email-templates/invite.tsx` (same)
-- `supabase/functions/_shared/email-templates/email-change.tsx` (same)
-- `supabase/functions/_shared/email-templates/reauthentication.tsx` (same)
-- `supabase/functions/auth-email-hook/index.ts` (lock header only)
-- `LOCKED_TRANSLATION_KEYS.md` (append section)
-- `mem://standards/locked-translations.md` (broaden scope)
-- New asset uploaded to Supabase Storage `email-assets` bucket: `wedding-waitress-logo-brown.png`
+- `supabase/functions/send-auth-email/index.ts` (logo URL swap + verify button/text styles)
+- New asset uploaded to Supabase Storage `email-assets/wedding-waitress-logo-brown.png`
 
 ## Out of scope
-- The sender avatar circle (controlled by Outlook/BIMI, not our code — explained above).
-- App favicon at `/favicon.png` (separate from email; not requested in this turn).
-- Any other purple→brown work outside the auth emails.
-- Body background color (must stay white per email standards).
+- Sender avatar circle (purple "WW") — controlled by Outlook/BIMI, not our code (explained previously).
+- Live countdown timer — not possible in static email HTML.
+- Any other email template, color, or copy.
 
 ## Verification (will run before reporting done)
-1. Read all 6 template files → confirm zero remaining purple hex codes.
-2. Trigger a real sign-in OTP via the preview → confirm email arrives with brown OTP, brown button, new brown logo.
-3. Confirm `LOCKED_TRANSLATION_KEYS.md` lists the 6 templates and the hook.
-4. Honestly report the sender-avatar limitation and the path to fix it (custom domain + BIMI).
+1. Confirm the Supabase Storage public URL returns the brown logo (HTTP 200, image content-type).
+2. Re-read the deployed function code → confirm new logo URL, brown button, plain lead-in text.
+3. Invoke the Edge Function with a test webhook payload → confirm 200 response and Resend message ID in logs.
+4. Report the changes confirmed deployed and tested.
