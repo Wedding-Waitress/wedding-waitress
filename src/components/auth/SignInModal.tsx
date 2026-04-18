@@ -367,7 +367,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                   type="text"
                   inputMode="numeric"
                   maxLength={6}
-                  className="w-12 h-12 text-center text-lg font-semibold"
+                  className="w-12 h-12 text-center text-lg font-semibold border-2 border-[#967A59]/70 focus-visible:border-[#967A59]"
                   value={digit}
                   onChange={(e) => handleCodeChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
