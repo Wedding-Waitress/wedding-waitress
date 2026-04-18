@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SignUpModal } from './SignUpModal';
 
@@ -11,9 +11,12 @@ interface AuthGatedCtaLinkProps {
 }
 
 /**
- * CTA that links to a protected route (e.g. /dashboard) only when the user
- * is authenticated. Otherwise it opens the SignUp modal — preventing any
- * unauthenticated bypass to the dashboard.
+ * CTA that links to a protected route (e.g. /dashboard) ONLY when the user
+ * is authenticated. For logged-out users it opens the existing SignUpModal —
+ * preventing any unauthenticated bypass to the dashboard.
+ *
+ * Auth state is re-verified at click time (not just on mount) so stale state
+ * cannot let logged-out users slip through to /dashboard.
  */
 export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   to,
@@ -21,7 +24,9 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   children,
   onClick,
 }) => {
-  const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
+  const navigate = useNavigate();
+  const [isAuthed, setIsAuthed] = useState<boolean>(false);
+  const hiddenTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -37,27 +42,39 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
     };
   }, []);
 
-  // While loading auth state, render a non-navigating button to avoid bypass.
-  if (isAuthed) {
-    return (
-      <Link
-        to={to}
-        onClick={() => {
-          window.scrollTo(0, 0);
-          onClick?.();
-        }}
-        className={className}
-      >
-        {children}
-      </Link>
-    );
-  }
+  const handleClick = useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      onClick?.();
+      // Re-verify auth at click time — eliminates any stale-state bypass.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.scrollTo(0, 0);
+        navigate(to);
+      } else {
+        setIsAuthed(false);
+        // Programmatically open the existing SignUpModal via its hidden trigger.
+        hiddenTriggerRef.current?.click();
+      }
+    },
+    [navigate, onClick, to]
+  );
 
   return (
-    <SignUpModal>
-      <button type="button" className={className} onClick={onClick}>
+    <>
+      <button type="button" className={className} onClick={handleClick}>
         {children}
       </button>
-    </SignUpModal>
+      {/* Existing SignUpModal — opened via hidden trigger for logged-out clicks. */}
+      <SignUpModal>
+        <button
+          ref={hiddenTriggerRef}
+          type="button"
+          aria-hidden="true"
+          tabIndex={-1}
+          style={{ position: 'absolute', width: 0, height: 0, padding: 0, margin: 0, border: 0, opacity: 0, pointerEvents: 'none' }}
+        />
+      </SignUpModal>
+    </>
   );
 };
