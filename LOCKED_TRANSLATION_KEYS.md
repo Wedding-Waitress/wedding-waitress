@@ -194,3 +194,9 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 
 ## 2026-04-18 — Contact page redesign
 - `src/pages/Contact.tsx` — body replaced to mirror homepage "Get in Touch" form (centered heading, white rounded-[20px] card, FAFAFA inputs, primary button). Company Details, ABN, Email Support, "How Can We Help?" list, and bottom CTA removed. Uses `landing.json contact.*` keys for all 16 locales. Email wiring to support@weddingwaitress.com unchanged. LOCKED.
+
+## 2026-04-18 — Contact page header logo swap
+- Replaced purple `/wedding-waitress-new-logo.png` with brown wordmark `/wedding-waitress-logo-full.png` in `src/pages/Contact.tsx` header (h-12 lg:h-14, matches homepage).
+- Removed adjacent "Wedding Waitress" text span (logo includes wordmark).
+- Logo still links to `/`. Top-right "Back to Home" button untouched.
+- Locked.
