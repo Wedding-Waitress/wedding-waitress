@@ -69,6 +69,12 @@ export const Dashboard = () => {
     setActiveTabState(tab);
     setSearchParams({ tab }, { replace: true });
   }, [setSearchParams]);
+
+  // Keep activeTab in sync when URL ?tab= changes (header dropdown, back/forward)
+  useEffect(() => {
+    const urlTab = searchParams.get('tab') || 'dashboard';
+    if (urlTab !== activeTab) setActiveTabState(urlTab);
+  }, [searchParams, activeTab]);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [globalSelectedEventId, setGlobalSelectedEventId] = useState<string | null>(null);
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
