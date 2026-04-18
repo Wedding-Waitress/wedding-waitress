@@ -1,3 +1,8 @@
+/**
+ * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
+ * Branded auth OTP email (logo + brown #967A59 palette). Locked 2026-04-18.
+ * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
+ */
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
@@ -41,8 +46,8 @@ function generateEmailHtml(firstName: string | null, otp: string, magicLink: str
         <table role="presentation" style="width: 100%; max-width: 480px; border-collapse: collapse; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);">
           <!-- Header with gradient -->
           <tr>
-            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 40px; text-align: center;">
-              <img src="https://weddingwaitress.com/wedding-waitress-logo-full-hq.png" alt="Wedding Waitress" width="200" height="auto" style="max-width: 200px; height: auto; display: block; margin: 0 auto;" />
+            <td style="background-color: #ffffff; padding: 32px 40px; text-align: center; border-bottom: 1px solid #f0ebe3;">
+              <img src="https://weddingwaitress.com/wedding-waitress-logo-brown.png" alt="Wedding Waitress" width="220" height="auto" style="max-width: 220px; height: auto; display: block; margin: 0 auto;" />
             </td>
           </tr>
           
@@ -60,8 +65,8 @@ function generateEmailHtml(firstName: string | null, otp: string, magicLink: str
               </p>
               
               <!-- OTP Code Display -->
-              <div style="background: linear-gradient(135deg, #f8f7ff 0%, #f3f1ff 100%); border: 2px solid #e9e5ff; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
-                <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #667eea; font-family: 'Courier New', monospace;">
+              <div style="background: linear-gradient(135deg, #faf7f2 0%, #f5efe5 100%); border: 2px solid #e8dcc7; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;">
+                <span style="font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #967A59; font-family: 'Courier New', monospace;">
                   ${otp}
                 </span>
               </div>
@@ -81,7 +86,7 @@ function generateEmailHtml(firstName: string | null, otp: string, magicLink: str
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td align="center">
-                    <a href="${magicLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 32px; border-radius: 8px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                    <a href="${magicLink}" style="display: inline-block; background-color: #967A59; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 14px 32px; border-radius: 8px; box-shadow: 0 4px 12px rgba(150, 122, 89, 0.3);">
                       Sign In with Magic Link
                     </a>
                   </td>
