@@ -647,7 +647,7 @@
     "copyright": "(c) {{year}} Wedding Waitress. All rights reserved.",
     "learnMore": "詳しく見る",
     "finalDefaultHeading": "始める準備はできましたか？",
-    "finalDefaultText": "Wedding Waitressで大切な日を計画する何千ものカップルに加わってください。"
+    "finalDefaultText": "ウェディングウェイトレスで大切な日を計画する何千ものカップルに加わってください。"
   },
   "featureCardsLearnMore": "詳しく見る",
   "products": {
@@ -737,7 +737,7 @@
       "lead": "ゲストが瞬時に席を見つけられるようにしましょう。QRコードを生成するだけで、ゲストは数秒でスキャンして自分のテーブルを見ることができます。",
       "metaDescription": "QRコードを使ってデジタルウェディングシーティングチャートを作成しましょう。ゲストはスキャンするだけで瞬時に自分のテーブルを見つけられます。印刷は不要です。",
       "finalCtaLabel": "イベントの計画を始める",
-      "h1": "あなたのウェディングのためのQRコードシーティングチャート",
+      "h1": "あなたのウェディングのためのQRコード座席表",
       "h": [
         [
           "ゲストはスキャンして瞬時に席を見つけられます",
