@@ -47,11 +47,41 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     return () => { active = false; };
   }, []);
 
-  const isExpired = !!isTrialExpired;
+  // Tick every minute so the countdown stays fresh without re-fetching.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const planName = plan?.plan_name || 'Free';
+  const isFreeOrStarter = !plan || /^(free|starter)$/i.test(planName);
+
+  // Compute days left for free/starter trial.
+  const trialExpiry = plan?.expires_at
+    ? new Date(plan.expires_at)
+    : startDate
+      ? new Date(new Date(startDate).getTime() + 7 * 24 * 60 * 60 * 1000)
+      : null;
+  const msLeft = trialExpiry ? trialExpiry.getTime() - Date.now() : null;
+  const daysLeft = msLeft != null ? Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))) : null;
+
+  const isExpired = !!isTrialExpired || (isFreeOrStarter && daysLeft === 0);
   const status = plan?.status || 'active';
   let badgeClass = 'bg-green-100 text-green-700 hover:bg-green-100 border-green-200';
   let statusLabel: string = 'Active';
-  if (isExpired || status === 'expired') {
+  let displayPlanName = planName;
+
+  if (isFreeOrStarter) {
+    if (isExpired) {
+      badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
+      statusLabel = 'Expired';
+      displayPlanName = 'Free (Expired)';
+    } else if (daysLeft != null) {
+      displayPlanName = `Free (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`;
+      statusLabel = 'Active';
+    }
+  } else if (isExpired || status === 'expired') {
     badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
     statusLabel = 'Expired';
   } else if (status === 'trial') {
@@ -60,8 +90,6 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   } else if (status === 'cancelled' || status === 'canceled') {
     badgeClass = 'bg-gray-100 text-gray-700 hover:bg-gray-100 border-gray-200';
     statusLabel = 'Cancelled';
-  } else if (status === 'active') {
-    statusLabel = 'Active';
   }
 
   const handleUpgrade = async () => {
@@ -101,8 +129,8 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between gap-3 py-2 border-b border-border/50">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-base font-semibold text-foreground">
-              {plan?.plan_name || 'Free'}
+            <span className="text-base font-semibold text-foreground break-words">
+              {displayPlanName}
             </span>
             <Badge className={badgeClass}>{statusLabel}</Badge>
           </div>
