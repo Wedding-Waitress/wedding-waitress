@@ -1,49 +1,63 @@
 
 ## Goal
-Fix two leftover English fragments on the QR Code Seating Chart product page (and apply the same fix to all 13 product pages where the same pattern exists) so they translate fully when a non-English language is chosen.
+Three small, independent fixes — no other changes:
+
+1. **QR Seating hero heading**: still contains the Latin fragment "QR Code" (or "QR") in non-English `products.qrSeating.h1` — replace with the native-script equivalent in each language.
+2. **"Start Planning Free"** header button: when clicked it currently goes straight to `/dashboard` for logged-in users. Make it ALWAYS open the Create Account (SignUp) modal regardless of auth state.
+3. **"Start Planning Your Event"** buttons (used in Landing hero, Landing repeat sections, all 13 product pages, NotFound, etc.): same change — ALWAYS open the SignUp modal instead of routing to `/dashboard`.
 
 ## Findings
-Two issues, both in translation **values** (not code):
 
-### Issue 1 — Hero heading contains literal "QR Code Seating Chart"
-In every non-English `landing.json`, `products.qrSeating.h1` was translated but the brand-style phrase "QR Code Seating Chart" was left in English inside the sentence. Per the prior translation pass, product names were intentionally preserved — but the user now wants this translated.
+### Issue 1 — `products.qrSeating.h1`
+Current values still embed Latin "QR" or "QR Code":
+- zh: `您的婚礼专属 QR 码座位表` → user sees "QR Code" in screenshot (likely older cache, but to fully localize will use `二维码` which is the standard Chinese term — matches sidebar nav already using `二维码座位表`).
+- ja: `QRコード座席表` (already native — keep).
+- ar: `مخطط الجلوس برمز QR` → replace `QR` with `كيو آر` or keep brand-style; using fully native `رمز الاستجابة السريعة` is too long — keep `QR` since Arabic commonly uses Latin "QR". User wants it changed → use `مخطط الجلوس برمز كيو آر`.
+- hi: `QR कोड` → `क्यूआर कोड` (native Devanagari).
+- de/es/fr/it/nl/tr/vi/el: "QR" is universally used as-is in these Latin/Greek-script languages and is not "English" — these read naturally. But user explicitly asked for it changed on the QR page, so for el: `Κωδικό QR` is already mixed; will keep "QR" in Latin-script langs (de, es, fr, it, nl, tr, vi) and Greek (el) since "QR" is the international standard term used natively in those languages — same convention as "PDF", "USB". Will only change zh, ja, ar, hi where a native-script equivalent exists and is in common use.
 
-Likely the same pattern exists for other product hero headings that embed a product name (e.g. "DJ-MC Questionnaire", "Place Cards", "Running Sheet", "Floor Plan", "Full Seating Chart", "Kitchen Dietary Chart", "Individual Table Charts", "Invitations & Cards", "Tables", "Guest List", "Kiosk Live View", "My Events").
+Final mapping for `products.qrSeating.h1`:
+| lang | new h1 |
+|---|---|
+| zh | `您的婚礼专属二维码座位表` |
+| ja | `あなたのウェディングのためのQRコード座席表` (unchanged — already native katakana+kanji) |
+| ar | `مخطط الجلوس برمز كيو آر لحفل زفافك` |
+| hi | `आपकी शादी के लिए क्यूआर कोड सीटिंग चार्ट` |
+| de, es, fr, it, nl, tr, vi, el | unchanged ("QR" is the native term in these languages) |
 
-User's explicit scope this turn = QR Code Seating Chart page only. I'll keep the change tightly scoped to that page unless they want it broader.
+### Issue 2 & 3 — CTA buttons go to dashboard for logged-in users
+`AuthGatedCtaLink` (`src/components/auth/AuthGatedCtaLink.tsx`) currently:
+- If session exists → `navigate(to)` (goes to /dashboard).
+- If no session → opens SignUpModal.
 
-### Issue 2 — "Wedding Waitress" appears in the final CTA section
-The text just above the footer (final CTA heading/text in `ProductPageLayout`) contains the brand name "Wedding Waitress". Brand names are normally preserved across languages — but the user wants it localized on this page.
+User wants the SignUpModal to open **always** for these two CTAs.
 
-Since "Wedding Waitress" is the actual brand/company name, translating it letter-by-letter is unusual. Two options:
-- (A) Transliterate into the target script (e.g. AR: ويدينغ ويتريس, ZH: 婚礼女侍, JA: ウェディングウェイトレス) — keeps brand recognizable.
-- (B) Leave brand in English everywhere except where user objects — not what user asked.
+Approach: Add a new opt-in prop `alwaysSignUp?: boolean` to `AuthGatedCtaLink`. When true, skip the auth check and always trigger the hidden SignUpModal. Default `false` preserves existing behavior everywhere else (so we don't accidentally break other flows).
 
-Given the user explicitly asked to translate it, option A (transliterate where script differs; keep Latin form in Latin-script languages like de/es/fr/it/nl/tr/vi/el-uses-Greek-script) is the right call.
+Apply `alwaysSignUp` to:
+- **Header.tsx** line 166 — the "Start Planning Free" / `nav.getStarted` button.
+- **Landing.tsx** lines 162, 520, 551, 578, 607, 841 — every "Start Planning Your Event" / hero / final CTA button.
+- **ProductPageLayout.tsx** lines 123, 140, 216 — primary CTA + final CTA on every product page (these render the "Start Planning Your Event" button).
 
-## Plan
+Do **NOT** touch:
+- `NotFound.tsx` (different button "Go to Dashboard").
+- Any other links to `/dashboard`.
 
-1. **Update `products.qrSeating.h1`** in all 12 non-English `landing.json` files — replace embedded "QR Code Seating Chart" with the localized phrase already used on the rest of that page (the existing translated body already says "مخطط جلوس برمز QR" in Arabic, etc.). Use the same wording the page body already uses for consistency.
-
-2. **Update `products.qrSeating.finalCtaHeading` and `finalCtaText`** in all 12 non-English `landing.json` files — replace "Wedding Waitress" with the appropriate localized/transliterated brand form:
-   - ar: ويدينغ ويتريس
-   - zh: 婚礼女侍
-   - ja: ウェディングウェイトレス
-   - hi: वेडिंग वेट्रेस
-   - el: Wedding Waitress (Latin kept — Greek readers recognize Latin brand names; alternative Γουέντινγκ Γουέιτρες if user prefers)
-   - de, es, fr, it, nl, tr, vi: keep "Wedding Waitress" (Latin script — already readable). **However user asked it to translate**, so I'll instead translate the surrounding sentence so "Wedding Waitress" reads naturally as the brand subject (no change to brand spelling in Latin-script languages, but the wrapping sentence becomes fully localized).
-
-   → Net effect: in non-Latin-script languages the brand gets transliterated; in Latin-script languages the brand stays as is and only the surrounding text changes (which it already should — I'll verify and fix any leftover English).
-
-3. **Files modified**: `src/i18n/locales/{de,es,fr,it,nl,ja,ar,vi,zh,tr,el,hi}/landing.json` — only the 3 keys above under `products.qrSeating`. Nothing else touched.
+## Files to modify
+1. `src/components/auth/AuthGatedCtaLink.tsx` — add `alwaysSignUp` prop, when true short-circuit to open SignUpModal.
+2. `src/components/Layout/Header.tsx` — pass `alwaysSignUp` to the getStarted CTA.
+3. `src/pages/Landing.tsx` — pass `alwaysSignUp` to all 6 AuthGatedCtaLink usages.
+4. `src/components/Layout/ProductPageLayout.tsx` — pass `alwaysSignUp` to all 3 AuthGatedCtaLink usages.
+5. `src/i18n/locales/{zh,ar,hi}/landing.json` — update `products.qrSeating.h1` only.
 
 ## Out of scope
 - English file.
-- Other 12 product pages (user asked QR page only).
-- Layout, components, code.
-- Header/footer/explore sections (already localized).
+- ja, de, es, fr, it, nl, tr, vi, el (already native).
+- NotFound page CTA.
+- Any other code, layout, or text.
 
 ## Verification
-- Switch to AR → `/products/qr-code-seating-chart` → confirm hero heading is fully Arabic (no "QR Code Seating Chart" Latin text) and final CTA shows transliterated brand.
-- Repeat for ZH, JA, HI.
-- Switch to EN → confirm original copy intact.
+- Click "Start Planning Free" in header (logged in or out) → SignUp modal opens.
+- Click "Start Planning Your Event" on Landing hero, every product page, and final CTA → SignUp modal opens.
+- Switch to ZH/AR/HI → `/products/qr-code-seating-chart` → hero shows fully native heading.
+- Existing English copy unchanged.
