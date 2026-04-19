@@ -86,8 +86,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   };
 
 
+  // 🔒 LOCKED DASHBOARD UI (2026-04-19) — DO NOT MODIFY without explicit owner approval
   return (
-    {/* 🔒 LOCKED DASHBOARD UI (2026-04-19) — DO NOT MODIFY without explicit owner approval */}
     <Sidebar collapsible="icon" className="border-r border-[#E8E1D6]/60 shadow-[2px_0_16px_-6px_rgba(150,122,89,0.14)]">
       <SidebarHeader className="pt-16 pb-12">
         <div className="flex items-center justify-center px-4">
