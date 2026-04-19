@@ -26,7 +26,7 @@ export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
       <div className="mt-6">
         <Button
           onClick={() => setOpen(true)}
-          className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
+          className="dashboard-btn-primary"
           size="sm"
         >
           Edit Details
