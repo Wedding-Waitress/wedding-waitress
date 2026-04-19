@@ -27,56 +27,56 @@
     "sectionTitle": "Het bruiloftsplatform waar je gasten van zullen houden.",
     "sectionSubtitle": "Ons platform combineert een krachtige bruiloft gastenlijst manager, zitschema-tool, QR-code zitschema, RSVP-tracker en digitale bruiloftsuitnodigingen — alles wat je nodig hebt op één plek.",
     "guestList": {
-      "title": "Gastenlijst",
-      "desc": "Beheer al je gasten op één plek"
+      "title": "Beheer je gastenlijst eenvoudig",
+      "desc": "Volg RSVPs, organiseer gasten en verstuur uitnodigingen in seconden."
     },
     "tables": {
-      "title": "Tafels & zitplaatsen",
-      "desc": "Organiseer tafels en zitplaatsen moeiteloos"
+      "title": "Plan je tafels",
+      "desc": "Maak tafels aan, stel gastenlimieten in en organiseer je indeling."
     },
     "qr": {
-      "title": "QR-code zitplaatsen",
-      "desc": "Gasten scannen en vinden direct hun tafel"
+      "title": "QR-code zitplan",
+      "desc": "Gasten scannen en vinden direct hun plaats."
     },
     "invitations": {
-      "title": "Uitnodigingen",
-      "desc": "Stuur uitnodigingen en volg RSVP's"
+      "title": "Verstuur digitale uitnodigingen",
+      "desc": "Maak en verstuur prachtige uitnodigingen via sms of e-mail."
     },
     "runningSheet": {
-      "title": "Draaiboek",
-      "desc": "Plan je volledige bruiloftstijdlijn"
+      "title": "Bruiloft draaiboek planner",
+      "desc": "Bouw en deel een minuut-voor-minuut tijdlijn voor de trouwdag."
     },
     "floorPlan": {
-      "title": "Plattegrond",
-      "desc": "Visualiseer je locatie-indeling"
+      "title": "Bruiloft plattegrond tool",
+      "desc": "Ontwerp visueel de indeling van je ceremonie en receptie."
     },
     "myEvents": {
       "title": "Mijn evenementen",
-      "desc": "Beheer al je evenementen met gemak"
+      "desc": "Beheer al je evenementen op één plek."
     },
     "placeCards": {
-      "title": "Plaatskaarten",
-      "desc": "Mooie gedrukte naamkaarten"
+      "title": "Naamkaarten",
+      "desc": "Organiseer zitplaatsen met strakke en elegante naamkaarten."
     },
     "tableCharts": {
       "title": "Individuele tafelschema's",
-      "desc": "Zitschema's per tafel"
+      "desc": "Druk elegante zitschema's per tafel af."
     },
     "dietary": {
       "title": "Dieetwensen",
-      "desc": "Volg de dieetbehoeften van elke gast"
+      "desc": "Volg maaltijden en dieetbehoeften van elke gast op één plek."
     },
     "seatingChart": {
       "title": "Volledig zitschema",
-      "desc": "Compleet printklaar zitschema"
+      "desc": "Genereer een compleet printklaar hoofd-zitschema."
     },
     "kiosk": {
       "title": "Kiosk live weergave",
-      "desc": "Zelfbediening check-in op locatie"
+      "desc": "Gasten vinden direct hun plaats op locatie."
     },
     "djmc": {
-      "title": "DJ-MC vragenlijst",
-      "desc": "Deel muziek en timing met je DJ"
+      "title": "DJ & MC vragenlijst",
+      "desc": "Brief je DJ en MC met een gestructureerd digitaal formulier."
     }
   },
   "alternating": {

@@ -27,56 +27,56 @@
     "sectionTitle": "Konuklarınızın seveceği düğün platformu.",
     "sectionSubtitle": "Platformumuz güçlü bir düğün konuk listesi yöneticisi, oturma düzeni aracı, QR kod oturma tablosu, RSVP takipçisi ve dijital düğün davetiyeleri birleştirir — ihtiyacınız olan her şey tek yerde.",
     "guestList": {
-      "title": "Konuk Listesi",
-      "desc": "Tüm konuklarınızı tek bir yerde yönetin"
+      "title": "Konuk listenizi kolayca yönetin",
+      "desc": "RSVP'leri takip edin, konukları organize edin ve saniyeler içinde davetiye gönderin."
     },
     "tables": {
-      "title": "Masalar ve Oturma",
-      "desc": "Masaları ve oturma düzenini zahmetsizce düzenleyin"
+      "title": "Masalarınızı planlayın",
+      "desc": "Masalar oluşturun, konuk limitleri belirleyin ve düzeninizi organize edin."
     },
     "qr": {
-      "title": "QR Kod Oturma",
-      "desc": "Konuklar tarayıp masalarını anında bulur"
+      "title": "QR Kod Oturma Düzeni",
+      "desc": "Konuklar tarayıp anında yerlerini bulsun."
     },
     "invitations": {
-      "title": "Davetiyeler",
-      "desc": "Davetiye gönderin ve RSVP'leri takip edin"
+      "title": "Dijital davetiye gönderin",
+      "desc": "SMS veya e-posta ile güzel davetiyeler oluşturun ve gönderin."
     },
     "runningSheet": {
-      "title": "İşleyiş Planı",
-      "desc": "Düğün zaman çizelgenizi planlayın"
+      "title": "Düğün akış planlayıcı",
+      "desc": "Düğün gününün dakika dakika zaman çizelgesini oluşturun ve paylaşın."
     },
     "floorPlan": {
-      "title": "Zemin Planı",
-      "desc": "Mekan düzeninizi görselleştirin"
+      "title": "Düğün kat planı aracı",
+      "desc": "Tören ve resepsiyon mekanı düzeninizi görsel olarak tasarlayın."
     },
     "myEvents": {
       "title": "Etkinliklerim",
-      "desc": "Tüm etkinliklerinizi kolayca yönetin"
+      "desc": "Tüm etkinliklerinizi tek bir yerde yönetin."
     },
     "placeCards": {
-      "title": "Masa Kartları",
-      "desc": "Güzel basılı isim kartları"
+      "title": "İsim Kartları",
+      "desc": "Şık ve zarif isim kartlarıyla oturma düzenini organize edin."
     },
     "tableCharts": {
-      "title": "Bireysel Masa Grafikleri",
-      "desc": "Her masa için oturma grafikleri"
+      "title": "Bireysel Masa Şemaları",
+      "desc": "Her masa için şık oturma şemaları yazdırın."
     },
     "dietary": {
-      "title": "Diyet Gereksinimleri",
-      "desc": "Her konuğun diyet ihtiyaçlarını takip edin"
+      "title": "Diyet gereksinimleri",
+      "desc": "Her konuğun yemek ve diyet ihtiyaçlarını tek yerden takip edin."
     },
     "seatingChart": {
-      "title": "Tam Oturma Planı",
-      "desc": "Baskıya hazır tam oturma planı"
+      "title": "Tam Oturma Şeması",
+      "desc": "Komple yazdırılabilir ana oturma şeması oluşturun."
     },
     "kiosk": {
       "title": "Kiosk Canlı Görünüm",
-      "desc": "Mekanda self-servis check-in"
+      "desc": "Konuklar mekanda anında yerlerini bulsun."
     },
     "djmc": {
-      "title": "DJ-MC Anketi",
-      "desc": "DJ'nizle müzik ve zamanlama paylaşın"
+      "title": "DJ ve MC Anketi",
+      "desc": "DJ ve MC'nizi yapılandırılmış dijital bir formla bilgilendirin."
     }
   },
   "alternating": {

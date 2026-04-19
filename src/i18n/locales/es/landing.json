@@ -27,56 +27,56 @@
     "sectionTitle": "La plataforma de bodas que tus invitados amarán.",
     "sectionSubtitle": "Nuestra plataforma combina un potente gestor de lista de invitados, herramienta de plano de asientos, plano con código QR, seguimiento de RSVP e invitaciones digitales — todo lo que necesitas en un solo lugar.",
     "guestList": {
-      "title": "Lista de invitados",
-      "desc": "Gestiona todos tus invitados en un solo lugar"
+      "title": "Gestiona tu lista de invitados fácilmente",
+      "desc": "Rastrea confirmaciones, organiza invitados y envía invitaciones en segundos."
     },
     "tables": {
-      "title": "Mesas y asientos",
-      "desc": "Organiza mesas y asientos sin esfuerzo"
+      "title": "Planifica tus mesas",
+      "desc": "Crea mesas, establece límites de invitados y organiza tu distribución."
     },
     "qr": {
-      "title": "Asientos QR",
-      "desc": "Los invitados escanean y encuentran su mesa al instante"
+      "title": "Plano de asientos con QR",
+      "desc": "Los invitados escanean y encuentran su asiento al instante."
     },
     "invitations": {
-      "title": "Invitaciones",
-      "desc": "Envía invitaciones y rastrea confirmaciones"
+      "title": "Envía invitaciones digitales",
+      "desc": "Crea y envía hermosas invitaciones por SMS o correo."
     },
     "runningSheet": {
-      "title": "Hoja de ruta",
-      "desc": "Planifica toda la línea de tiempo de tu boda"
+      "title": "Planificador de cronograma de boda",
+      "desc": "Crea y comparte una línea de tiempo minuto a minuto del día de la boda."
     },
     "floorPlan": {
-      "title": "Plano del venue",
-      "desc": "Visualiza el diseño de tu venue"
+      "title": "Herramienta de plano de boda",
+      "desc": "Diseña visualmente la distribución de la ceremonia y recepción."
     },
     "myEvents": {
       "title": "Mis eventos",
-      "desc": "Gestiona todos tus eventos con facilidad"
+      "desc": "Gestiona todos tus eventos en un solo lugar."
     },
     "placeCards": {
-      "title": "Tarjetas de mesa",
-      "desc": "Hermosas tarjetas impresas con nombres"
+      "title": "Tarjetas de nombre",
+      "desc": "Organiza los asientos con tarjetas elegantes y limpias."
     },
     "tableCharts": {
-      "title": "Gráficos por mesa",
-      "desc": "Planos de asientos por mesa"
+      "title": "Planos individuales por mesa",
+      "desc": "Imprime elegantes planos de asientos para cada mesa."
     },
     "dietary": {
       "title": "Requisitos dietéticos",
-      "desc": "Rastrea las necesidades dietéticas de cada invitado"
+      "desc": "Rastrea las comidas y necesidades dietéticas de cada invitado en un solo lugar."
     },
     "seatingChart": {
       "title": "Plano completo de asientos",
-      "desc": "Plano de asientos completo listo para imprimir"
+      "desc": "Genera un plano maestro de asientos completo e imprimible."
     },
     "kiosk": {
-      "title": "Vista kiosco en vivo",
-      "desc": "Check-in autoservicio en el venue"
+      "title": "Vista en vivo de quiosco",
+      "desc": "Los invitados encuentran su asiento al instante en el lugar."
     },
     "djmc": {
-      "title": "Cuestionario DJ-MC",
-      "desc": "Comparte música y horarios con tu DJ"
+      "title": "Cuestionario DJ y MC",
+      "desc": "Informa a tu DJ y MC con un formulario digital estructurado."
     }
   },
   "alternating": {

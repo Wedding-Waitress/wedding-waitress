@@ -201,3 +201,8 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 - Removed adjacent "Wedding Waitress" text span (logo includes wordmark).
 - Logo still links to `/`. Top-right "Back to Home" button untouched.
 - Locked.
+
+## 2026-04-19 — Homepage "Explore the Platform" removal + featureCards copy upgrade
+- `src/pages/Landing.tsx` — entire "Explore the Platform" `<section>` (heading, subtitle, 13 icon link cards) DELETED. Lower image-card section "The wedding platform your guests will love." preserved exactly (heading, subtitle, images, links, order).
+- `src/i18n/locales/{en,ar,de,el,es,fr,hi,it,ja,nl,tr,vi,zh}/landing.json` → `featureCards.{myEvents,guestList,tables,qr,invitations,placeCards,tableCharts,floorPlan,dietary,seatingChart,kiosk,djmc,runningSheet}.{title,desc}` updated with owner-approved upgraded copy across all 13 locales. `featureCards.sectionTitle` and `featureCards.sectionSubtitle` UNCHANGED.
+- LOCKED. Any future change requires explicit owner approval.

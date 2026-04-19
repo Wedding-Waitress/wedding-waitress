@@ -398,50 +398,6 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* Explore the Platform — internal links for SEO */}
-      <section className="py-16 md:py-20 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('explore.title')}
-          </h2>
-          <p className="text-lg text-gray-500 text-center mb-12 max-w-2xl mx-auto">
-            {t('explore.subtitle')}
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: ClipboardList, key: 'myEvents', href: '/products/my-events' },
-              { icon: Users, key: 'guestList', href: '/products/guest-list' },
-              { icon: MapPin, key: 'tables', href: '/products/tables' },
-              { icon: QrCode, key: 'qrSeating', href: '/products/qr-code-seating-chart' },
-              { icon: Mail, key: 'invitationsCards', href: '/products/invitations-cards' },
-              { icon: CreditCard, key: 'placeCards', href: '/products/name-place-cards' },
-              { icon: LayoutGrid, key: 'tableCharts', href: '/products/individual-table-charts' },
-              { icon: Map, key: 'floorPlan', href: '/products/floor-plan' },
-              { icon: ChefHat, key: 'dietary', href: '/products/dietary-requirements' },
-              { icon: FileText, key: 'fullSeating', href: '/products/full-seating-chart' },
-              { icon: Monitor, key: 'kioskLiveView', href: '/products/kiosk-live-view' },
-              { icon: Music, key: 'djMc', href: '/products/dj-mc-questionnaire' },
-              { icon: ListChecks, key: 'runningSheet', href: '/products/running-sheet' },
-            ].map(({ icon: Icon, key, href }) => (
-              <Link
-                key={href}
-                to={href}
-                className="group bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-              >
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110" style={{ backgroundColor: '#967A59' }}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{t(`explore.cards.${key}.heading`)}</h3>
-                <p className="text-gray-500 mb-4">{t(`explore.cards.${key}.text`)}</p>
-                <span className="inline-flex items-center text-sm font-semibold" style={{ color: '#967A59' }}>
-                  {t('explore.learnMore')} <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Feature Cards Row */}
       <section className="py-16 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">

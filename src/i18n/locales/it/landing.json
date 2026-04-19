@@ -27,56 +27,56 @@
     "sectionTitle": "La piattaforma per matrimoni che i tuoi ospiti ameranno.",
     "sectionSubtitle": "La nostra piattaforma combina un potente gestore lista invitati, strumento piano tavoli, piano con codice QR, tracker RSVP e inviti digitali — tutto ciò di cui hai bisogno in un unico posto.",
     "guestList": {
-      "title": "Lista ospiti",
-      "desc": "Gestisci tutti i tuoi ospiti in un unico posto"
+      "title": "Gestisci facilmente la tua lista ospiti",
+      "desc": "Traccia gli RSVP, organizza gli ospiti e invia inviti in pochi secondi."
     },
     "tables": {
-      "title": "Tavoli e posti",
-      "desc": "Organizza tavoli e posti a sedere senza sforzo"
+      "title": "Pianifica i tuoi tavoli",
+      "desc": "Crea tavoli, imposta limiti di ospiti e organizza il layout."
     },
     "qr": {
-      "title": "Posti QR",
-      "desc": "Gli ospiti scansionano e trovano il loro tavolo istantaneamente"
+      "title": "Piano posti con QR Code",
+      "desc": "Gli ospiti scansionano e trovano il loro posto istantaneamente."
     },
     "invitations": {
-      "title": "Inviti",
-      "desc": "Invia inviti e traccia le conferme"
+      "title": "Invia inviti digitali",
+      "desc": "Crea e invia bellissimi inviti via SMS o email."
     },
     "runningSheet": {
-      "title": "Scaletta",
-      "desc": "Pianifica l'intera cronologia del tuo matrimonio"
+      "title": "Pianificatore scaletta del matrimonio",
+      "desc": "Crea e condividi una cronologia minuto per minuto del giorno del matrimonio."
     },
     "floorPlan": {
-      "title": "Planimetria",
-      "desc": "Visualizza il layout del tuo locale"
+      "title": "Strumento planimetria del matrimonio",
+      "desc": "Progetta visivamente il layout della cerimonia e del ricevimento."
     },
     "myEvents": {
       "title": "I miei eventi",
-      "desc": "Gestisci tutti i tuoi eventi con facilità"
+      "desc": "Gestisci tutti i tuoi eventi in un unico posto."
     },
     "placeCards": {
       "title": "Segnaposto",
-      "desc": "Bellissimi cartellini stampati"
+      "desc": "Organizza i posti con segnaposto eleganti e raffinati."
     },
     "tableCharts": {
-      "title": "Grafici per tavolo",
-      "desc": "Piani posti per ogni tavolo"
+      "title": "Grafici individuali per tavolo",
+      "desc": "Stampa eleganti piani posti per ogni tavolo."
     },
     "dietary": {
       "title": "Requisiti dietetici",
-      "desc": "Traccia le esigenze dietetiche di ogni ospite"
+      "desc": "Traccia i pasti e le esigenze dietetiche di ogni ospite in un unico posto."
     },
     "seatingChart": {
       "title": "Piano posti completo",
-      "desc": "Piano posti completo pronto per la stampa"
+      "desc": "Genera un piano posti master completo e stampabile."
     },
     "kiosk": {
       "title": "Vista kiosk dal vivo",
-      "desc": "Check-in self-service al locale"
+      "desc": "Gli ospiti trovano il loro posto istantaneamente al locale."
     },
     "djmc": {
-      "title": "Questionario DJ-MC",
-      "desc": "Condividi musica e orari con il tuo DJ"
+      "title": "Questionario DJ e MC",
+      "desc": "Informa il tuo DJ e MC con un modulo digitale strutturato."
     }
   },
   "alternating": {
