@@ -518,7 +518,7 @@ export const Landing = () => {
             </div>
 
             {/* Premium — highlighted */}
-            <div className="bg-white rounded-[20px] p-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary lg:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
+            <div className="bg-white rounded-[20px] p-8 pt-6 lg:pt-8 shadow-[0_8px_40px_rgba(0,0,0,0.12)] border-2 border-primary lg:scale-105 relative hover:-translate-y-2 hover:shadow-[0_12px_50px_rgba(0,0,0,0.15)] transition-all duration-300">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-primary text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.mostPopular')}</span>
               </div>
@@ -576,7 +576,7 @@ export const Landing = () => {
             </div>
 
             {/* Vendor Pro */}
-            <div className="bg-gray-900 text-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
+            <div className="bg-gray-900 text-white rounded-[20px] p-8 pt-6 lg:pt-8 shadow-[0_4px_30px_rgba(0,0,0,0.2)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)] transition-all duration-300 relative">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <span className="bg-white text-gray-900 text-xs font-semibold px-4 py-1.5 rounded-full shadow-md">{t('pricing.forVenuesAndPros')}</span>
               </div>
