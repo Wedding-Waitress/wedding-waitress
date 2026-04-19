@@ -374,7 +374,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('howItWorks.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto whitespace-nowrap">
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto">
             {t('howItWorks.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
