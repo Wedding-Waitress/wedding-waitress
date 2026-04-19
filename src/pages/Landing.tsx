@@ -841,6 +841,7 @@ export const Landing = () => {
         </div>
       </section>
 
+      {/* 🔒 LOCKED FOOTER (2026-04-19) — DO NOT MODIFY without explicit owner approval. See LOCKED_TRANSLATION_KEYS.md */}
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16 px-4">
         <div className="max-w-7xl mx-auto">
@@ -897,6 +898,7 @@ export const Landing = () => {
           </div>
         </div>
       </footer>
+      {/* 🔒 END LOCKED FOOTER */}
       <CookieBanner />
     </div>
   );
