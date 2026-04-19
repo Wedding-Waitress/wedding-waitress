@@ -1,19 +1,16 @@
 
 ## Goal
-Remove `whitespace-nowrap` from the "How It Works" subtitle paragraph so it wraps naturally on mobile.
-
-## Investigation needed
-Locate the exact element in `src/pages/Landing.tsx` (the homepage). The "How It Works" section subtitle currently has `whitespace-nowrap` forcing it onto one line, which causes horizontal overflow on small screens.
+Make the footer's inner navigation grid stack on mobile and return to 3 columns at `sm:` breakpoint and above.
 
 ## Change
 - **File:** `src/pages/Landing.tsx`
-- **Edit:** In the "How It Works" section's subtitle `<p>`, remove only the `whitespace-nowrap` class. Keep all other classes (font, size, color, spacing, alignment) untouched.
+- **Edit:** Replace `grid grid-cols-3 gap-6` with `grid grid-cols-1 gap-6 sm:grid-cols-3` on the footer's inner navigation grid (Explore / Support / Legal columns).
+- No other classes, markup, copy, or files touched.
 
 ## Out of scope
-- No other text, classes, sections, or files changed.
-- Locked public-surface rules: this is a class-only fix to restore proper mobile wrapping (a bug fix, not a copy/layout redesign), affecting only the offending utility.
+Header, hero, all other sections, footer brand block, footer bottom bar, copy, colors, spacing.
 
 ## Verification
-1. Desktop (≥1024px): subtitle visually unchanged.
-2. Mobile (375px): subtitle wraps across multiple lines, no horizontal scroll.
+1. Mobile (<640px): Explore, Support, Legal stack vertically.
+2. ≥640px: three columns side-by-side, visually identical to current desktop.
 3. No other section affected.
