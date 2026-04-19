@@ -1,26 +1,21 @@
 
 ## Goal
-Ensure the Landing page footer link grid stacks on mobile and switches back to 3 columns from `sm` upward.
+Increase footer link tap targets to ≥44px on mobile by adding vertical padding to the Explore / Support / Legal link `<a>` tags.
 
-## What I found
-In `src/pages/Landing.tsx`, the footer inner links grid is already set to:
-```tsx
-<div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-```
-So the exact mobile-first fix you requested is already present in code.
+## Investigation needed
+Locate the footer link blocks in `src/pages/Landing.tsx` and confirm the current `<a>` class strings so I add `block py-3` without conflicting with existing classes.
 
-## Plan
-1. Treat this as a verification task rather than a new code change.
-2. In implementation mode, confirm there is no second footer grid using `grid-cols-3` without a breakpoint.
-3. Verify the preview at a mobile width (around 375px) to confirm Explore / Support / Legal stack vertically and links like “Cookie Policy” are not cramped.
-4. If the preview still shows 3 cramped columns despite the code, investigate whether:
-   - the preview is stale/cached, or
-   - a different footer/component is being rendered than `src/pages/Landing.tsx`.
+## Change
+- **File:** `src/pages/Landing.tsx`
+- **Edit:** On every `<a>` inside the three footer columns (Explore, Support, Legal), append `block py-3` to the existing className. No other classes, copy, hrefs, or markup touched.
 
-## Expected outcome
-- Mobile: footer link groups stack vertically.
-- `sm` and above: footer link groups display in 3 columns.
-- No other footer styles or layout change.
+## Why `py-3`
+`py-3` = 12px top + 12px bottom + ~20px line-height ≈ 44px, hitting the WCAG/Apple HIG minimum. `py-2` would only reach ~36px.
 
-## Technical note
-This is a class-only responsive layout check on a locked public page, but it falls within the same safe bug-fix pattern already used in prior approved Landing page responsiveness adjustments.
+## Out of scope
+Footer brand block, bottom bar, copy, colors, link order, grid layout, any other section.
+
+## Verification
+1. Mobile (375px): each footer link is ≥44px tall and easy to tap; no visual overlap between links thanks to existing `gap-6` on the column.
+2. Desktop: links remain visually grouped per column; spacing slightly more generous but layout unchanged structurally.
+3. No translation keys or hrefs altered.
