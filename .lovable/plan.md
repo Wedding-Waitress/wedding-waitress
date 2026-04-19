@@ -1,18 +1,26 @@
 
 ## Goal
-Add top padding to Premium and Vendor Pro pricing cards so their `-top-4` badges aren't clipped on mobile.
+Ensure the Landing page footer link grid stacks on mobile and switches back to 3 columns from `sm` upward.
 
-## Investigation
-Need to locate the Premium and Vendor Pro card divs in `src/pages/Landing.tsx` and check their current padding classes to merge `pt-6 lg:pt-8` correctly without conflicting with existing `p-*` utilities.
+## What I found
+In `src/pages/Landing.tsx`, the footer inner links grid is already set to:
+```tsx
+<div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+```
+So the exact mobile-first fix you requested is already present in code.
 
-## Change
-- **File:** `src/pages/Landing.tsx`
-- **Edit:** On the Premium card div and the Vendor Pro card div, add `pt-6 lg:pt-8` (placed after any existing `p-*` shorthand so the top-padding override wins). No other classes touched.
+## Plan
+1. Treat this as a verification task rather than a new code change.
+2. In implementation mode, confirm there is no second footer grid using `grid-cols-3` without a breakpoint.
+3. Verify the preview at a mobile width (around 375px) to confirm Explore / Support / Legal stack vertically and links like “Cookie Policy” are not cramped.
+4. If the preview still shows 3 cramped columns despite the code, investigate whether:
+   - the preview is stale/cached, or
+   - a different footer/component is being rendered than `src/pages/Landing.tsx`.
 
-## Out of scope
-All other cards, badges, copy, logic, translations, other sections.
+## Expected outcome
+- Mobile: footer link groups stack vertically.
+- `sm` and above: footer link groups display in 3 columns.
+- No other footer styles or layout change.
 
-## Verification
-1. Mobile (<640px): "Most Popular" and "For Venues & Pros" badges fully visible above the cards, not clipped.
-2. Desktop (≥1024px): card spacing visually unchanged.
-3. Other pricing cards (Essential, Unlimited, Vendor Basic) untouched.
+## Technical note
+This is a class-only responsive layout check on a locked public page, but it falls within the same safe bug-fix pattern already used in prior approved Landing page responsiveness adjustments.
