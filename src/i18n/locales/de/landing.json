@@ -27,56 +27,56 @@
     "sectionTitle": "Die Hochzeitsplattform, die deine Gäste lieben werden.",
     "sectionSubtitle": "Unsere Plattform vereint einen leistungsstarken Hochzeits-Gästelisten-Manager, Sitzplan-Tool, QR-Code-Sitzplan, RSVP-Tracker und digitale Hochzeitseinladungen — alles was du brauchst an einem Ort.",
     "guestList": {
-      "title": "Gästeliste",
-      "desc": "Verwalte alle Gäste an einem Ort"
+      "title": "Verwalte deine Gästeliste mühelos",
+      "desc": "Verfolge RSVPs, organisiere Gäste und versende Einladungen in Sekunden."
     },
     "tables": {
-      "title": "Tische & Sitzordnung",
-      "desc": "Organisiere Tische und Sitzplätze mühelos"
+      "title": "Plane deine Tische",
+      "desc": "Erstelle Tische, lege Gästelimits fest und organisiere dein Layout."
     },
     "qr": {
       "title": "QR-Code Sitzplan",
-      "desc": "Gäste scannen und finden sofort ihren Tisch"
+      "desc": "Gäste scannen und finden sofort ihren Platz."
     },
     "invitations": {
-      "title": "Einladungen",
-      "desc": "Einladungen senden und RSVPs verfolgen"
+      "title": "Digitale Einladungen versenden",
+      "desc": "Erstelle und versende wunderschöne Einladungen per SMS oder E-Mail."
     },
     "runningSheet": {
-      "title": "Ablaufplan",
-      "desc": "Plane deinen kompletten Hochzeitstag"
+      "title": "Hochzeits-Ablaufplaner",
+      "desc": "Erstelle und teile einen minutengenauen Zeitplan für den Hochzeitstag."
     },
     "floorPlan": {
-      "title": "Raumplan",
-      "desc": "Visualisiere dein Veranstaltungslayout"
+      "title": "Hochzeits-Raumplan-Tool",
+      "desc": "Gestalte das Layout deiner Trauung und Feier visuell."
     },
     "myEvents": {
       "title": "Meine Events",
-      "desc": "Verwalte alle Events mit Leichtigkeit"
+      "desc": "Verwalte alle deine Events an einem Ort."
     },
     "placeCards": {
       "title": "Tischkarten",
-      "desc": "Wunderschöne gedruckte Namenskarten"
+      "desc": "Organisiere die Sitzordnung mit eleganten Tischkarten."
     },
     "tableCharts": {
       "title": "Einzelne Tischpläne",
-      "desc": "Sitzpläne pro Tisch"
+      "desc": "Drucke elegante Sitzpläne für jeden Tisch."
     },
     "dietary": {
       "title": "Ernährungsanforderungen",
-      "desc": "Verfolge die Ernährungsbedürfnisse jedes Gastes"
+      "desc": "Verfolge die Mahlzeiten und Ernährungsbedürfnisse jedes Gastes an einem Ort."
     },
     "seatingChart": {
       "title": "Gesamter Sitzplan",
-      "desc": "Druckfertiger kompletter Sitzplan"
+      "desc": "Erstelle einen vollständigen druckfertigen Master-Sitzplan."
     },
     "kiosk": {
       "title": "Kiosk Live-Ansicht",
-      "desc": "Self-Service-Check-in am Veranstaltungsort"
+      "desc": "Gäste finden sofort ihren Platz am Veranstaltungsort."
     },
     "djmc": {
-      "title": "DJ-MC Fragebogen",
-      "desc": "Teile Musik und Timing mit deinem DJ"
+      "title": "DJ & MC Fragebogen",
+      "desc": "Briefe deinen DJ und MC mit einem strukturierten digitalen Formular."
     }
   },
   "alternating": {

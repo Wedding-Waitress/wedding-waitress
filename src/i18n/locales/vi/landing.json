@@ -27,56 +27,56 @@
     "sectionTitle": "Nền tảng đám cưới mà khách mời sẽ yêu thích.",
     "sectionSubtitle": "Nền tảng của chúng tôi kết hợp trình quản lý danh sách khách mạnh mẽ, công cụ sơ đồ chỗ ngồi, sơ đồ mã QR, theo dõi RSVP và thiệp mời kỹ thuật số — mọi thứ bạn cần ở một nơi.",
     "guestList": {
-      "title": "Danh sách khách",
-      "desc": "Quản lý tất cả khách mời tại một nơi"
+      "title": "Quản lý danh sách khách dễ dàng",
+      "desc": "Theo dõi RSVP, sắp xếp khách và gửi lời mời trong vài giây."
     },
     "tables": {
-      "title": "Bàn & Chỗ ngồi",
-      "desc": "Sắp xếp bàn và chỗ ngồi dễ dàng"
+      "title": "Lập kế hoạch bàn của bạn",
+      "desc": "Tạo bàn, đặt giới hạn khách và sắp xếp bố cục."
     },
     "qr": {
-      "title": "Chỗ ngồi QR",
-      "desc": "Khách quét và tìm bàn ngay lập tức"
+      "title": "Sơ đồ chỗ ngồi mã QR",
+      "desc": "Khách quét và tìm chỗ ngồi ngay lập tức."
     },
     "invitations": {
-      "title": "Thiệp mời",
-      "desc": "Gửi thiệp mời và theo dõi RSVP"
+      "title": "Gửi thiệp mời kỹ thuật số",
+      "desc": "Tạo và gửi thiệp mời tuyệt đẹp qua SMS hoặc email."
     },
     "runningSheet": {
-      "title": "Lịch trình",
-      "desc": "Lên kế hoạch lịch trình đám cưới đầy đủ"
+      "title": "Trình lập kế hoạch lịch trình đám cưới",
+      "desc": "Xây dựng và chia sẻ lịch trình từng phút của ngày cưới."
     },
     "floorPlan": {
-      "title": "Sơ đồ sàn",
-      "desc": "Hình dung bố trí địa điểm"
+      "title": "Công cụ sơ đồ mặt bằng đám cưới",
+      "desc": "Thiết kế trực quan bố cục địa điểm lễ và tiệc."
     },
     "myEvents": {
       "title": "Sự kiện của tôi",
-      "desc": "Quản lý tất cả sự kiện dễ dàng"
+      "desc": "Quản lý tất cả sự kiện của bạn ở một nơi."
     },
     "placeCards": {
       "title": "Thẻ tên",
-      "desc": "Thẻ tên in đẹp"
+      "desc": "Sắp xếp chỗ ngồi với thẻ tên thanh lịch và gọn gàng."
     },
     "tableCharts": {
-      "title": "Biểu đồ bàn riêng",
-      "desc": "Biểu đồ chỗ ngồi theo từng bàn"
+      "title": "Sơ đồ bàn riêng lẻ",
+      "desc": "In sơ đồ chỗ ngồi thanh lịch cho từng bàn."
     },
     "dietary": {
-      "title": "Yêu cầu ăn uống",
-      "desc": "Theo dõi nhu cầu ăn uống của từng khách"
+      "title": "Yêu cầu ăn kiêng",
+      "desc": "Theo dõi bữa ăn và nhu cầu ăn kiêng của mọi khách ở một nơi."
     },
     "seatingChart": {
-      "title": "Biểu đồ chỗ ngồi đầy đủ",
-      "desc": "Biểu đồ chỗ ngồi sẵn sàng in"
+      "title": "Sơ đồ chỗ ngồi đầy đủ",
+      "desc": "Tạo sơ đồ chỗ ngồi tổng thể có thể in hoàn chỉnh."
     },
     "kiosk": {
-      "title": "Kiosk trực tiếp",
-      "desc": "Check-in tự phục vụ tại địa điểm"
+      "title": "Chế độ xem trực tiếp Kiosk",
+      "desc": "Khách tìm chỗ ngồi ngay lập tức tại địa điểm."
     },
     "djmc": {
-      "title": "Bảng câu hỏi DJ-MC",
-      "desc": "Chia sẻ nhạc và lịch trình với DJ"
+      "title": "Bảng câu hỏi DJ & MC",
+      "desc": "Hướng dẫn DJ và MC của bạn bằng biểu mẫu kỹ thuật số có cấu trúc."
     }
   },
   "alternating": {

@@ -28,56 +28,56 @@
     "sectionTitle": "The wedding platform your guests will love.",
     "sectionSubtitle": "Our platform combines a powerful wedding guest list manager, wedding seating chart tool, QR code seating chart, RSVP tracker, and digital wedding invitations — everything you need in one place.",
     "guestList": {
-      "title": "Guest List",
-      "desc": "Manage all your guests in one place"
+      "title": "Manage Your Guest List Easily",
+      "desc": "Track RSVPs, organise guests, and send invitations in seconds."
     },
     "tables": {
-      "title": "Tables & Seating",
-      "desc": "Organise tables and seating effortlessly"
+      "title": "Plan Your Tables",
+      "desc": "Create tables, set guest limits, and organise your layout."
     },
     "qr": {
-      "title": "QR Code Seating",
-      "desc": "Guests scan and find their table instantly"
+      "title": "QR Code Seating Chart",
+      "desc": "Let guests scan and find their seat instantly."
     },
     "invitations": {
-      "title": "Invitations",
-      "desc": "Send invites and track RSVPs"
+      "title": "Send Digital Invitations",
+      "desc": "Create and send beautiful invites via SMS or email."
     },
     "runningSheet": {
-      "title": "Running Sheet",
-      "desc": "Plan your full wedding timeline"
+      "title": "Wedding Running Sheet Planner",
+      "desc": "Build and share a minute-by-minute wedding day timeline."
     },
     "floorPlan": {
-      "title": "Floor Plan",
-      "desc": "Visualise your venue layout"
+      "title": "Wedding Floor Plan Tool",
+      "desc": "Design your ceremony and reception venue layout visually."
     },
     "myEvents": {
       "title": "My Events",
-      "desc": "Manage all your events with ease"
+      "desc": "Manage all your events in one place."
     },
     "placeCards": {
       "title": "Name Place Cards",
-      "desc": "Beautiful printed name cards"
+      "desc": "Organise seating with clean and elegant place cards."
     },
     "tableCharts": {
       "title": "Individual Table Charts",
-      "desc": "Per-table seating charts for each table"
+      "desc": "Print elegant per-table seating charts for every table."
     },
     "dietary": {
       "title": "Dietary Requirements",
-      "desc": "Track every guest's dietary needs"
+      "desc": "Track every guest's meal and dietary needs in one place."
     },
     "seatingChart": {
       "title": "Full Seating Chart",
-      "desc": "Complete print-ready seating chart"
+      "desc": "Generate a complete printable master seating chart."
     },
     "kiosk": {
       "title": "Kiosk Live View",
-      "desc": "Self-service guest check-in at venue"
+      "desc": "Let guests find their seat instantly at the venue."
     },
     "djmc": {
-      "title": "DJ-MC Questionnaire",
-      "desc": "Share music and timing with your DJ"
+      "title": "DJ & MC Questionnaire",
+      "desc": "Brief your DJ and MC with a structured digital form."
     }
   },
   "howItWorks": {

@@ -27,56 +27,56 @@
     "sectionTitle": "La plateforme de mariage que vos invités vont adorer.",
     "sectionSubtitle": "Notre plateforme combine un puissant gestionnaire de liste d'invités, outil de plan de table, plan par QR code, suivi RSVP et invitations numériques — tout ce dont vous avez besoin en un seul endroit.",
     "guestList": {
-      "title": "Liste d'invités",
-      "desc": "Gérez tous vos invités en un seul endroit"
+      "title": "Gérez votre liste d'invités facilement",
+      "desc": "Suivez les RSVP, organisez les invités et envoyez des invitations en quelques secondes."
     },
     "tables": {
-      "title": "Tables et places",
-      "desc": "Organisez tables et places sans effort"
+      "title": "Planifiez vos tables",
+      "desc": "Créez des tables, définissez des limites et organisez votre disposition."
     },
     "qr": {
-      "title": "QR Code places",
-      "desc": "Les invités scannent et trouvent leur table instantanément"
+      "title": "Plan de table avec QR Code",
+      "desc": "Les invités scannent et trouvent leur place instantanément."
     },
     "invitations": {
-      "title": "Invitations",
-      "desc": "Envoyez des invitations et suivez les RSVP"
+      "title": "Envoyez des invitations numériques",
+      "desc": "Créez et envoyez de belles invitations par SMS ou e-mail."
     },
     "runningSheet": {
-      "title": "Feuille de route",
-      "desc": "Planifiez le programme complet de votre mariage"
+      "title": "Planificateur de déroulé de mariage",
+      "desc": "Créez et partagez un calendrier minute par minute du jour du mariage."
     },
     "floorPlan": {
-      "title": "Plan de salle",
-      "desc": "Visualisez l'agencement de votre lieu"
+      "title": "Outil de plan de salle de mariage",
+      "desc": "Concevez visuellement la disposition de la cérémonie et de la réception."
     },
     "myEvents": {
       "title": "Mes événements",
-      "desc": "Gérez tous vos événements facilement"
+      "desc": "Gérez tous vos événements en un seul endroit."
     },
     "placeCards": {
       "title": "Cartons de table",
-      "desc": "De beaux cartons de table imprimés"
+      "desc": "Organisez les places avec des cartons de table élégants et soignés."
     },
     "tableCharts": {
       "title": "Plans de table individuels",
-      "desc": "Plans de table par table"
+      "desc": "Imprimez des plans de table élégants pour chaque table."
     },
     "dietary": {
       "title": "Régimes alimentaires",
-      "desc": "Suivez les besoins alimentaires de chaque invité"
+      "desc": "Suivez les repas et besoins alimentaires de chaque invité en un seul endroit."
     },
     "seatingChart": {
       "title": "Plan de table complet",
-      "desc": "Plan de table complet prêt à imprimer"
+      "desc": "Générez un plan de table maître complet et imprimable."
     },
     "kiosk": {
-      "title": "Vue kiosque",
-      "desc": "Enregistrement en libre-service sur le lieu"
+      "title": "Vue kiosque en direct",
+      "desc": "Les invités trouvent leur place instantanément sur place."
     },
     "djmc": {
-      "title": "Questionnaire DJ-MC",
-      "desc": "Partagez musique et planning avec votre DJ"
+      "title": "Questionnaire DJ & MC",
+      "desc": "Briefez votre DJ et MC avec un formulaire numérique structuré."
     }
   },
   "alternating": {
