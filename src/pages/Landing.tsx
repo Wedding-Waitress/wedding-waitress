@@ -470,7 +470,7 @@ export const Landing = () => {
       })}
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 md:py-20 px-4">
+      <section id="pricing" className="py-16 md:py-20 px-4 overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('pricing.title')}
@@ -853,7 +853,7 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
