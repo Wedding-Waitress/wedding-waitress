@@ -168,12 +168,12 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
-            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-xs sm:max-w-none">
+            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-sm sm:max-w-none">
               {t('heroMain.ctaPrimary')}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </AuthGatedCtaLink>
-          <Link to="/products/my-events" className="w-full sm:w-auto max-w-xs sm:max-w-none">
+          <Link to="/products/my-events" className="w-full sm:w-auto max-w-sm sm:max-w-none">
             <Button size="lg" variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold transition-all hover:scale-105 w-full sm:w-auto">
               {t('heroMain.ctaSecondary')}
             </Button>
