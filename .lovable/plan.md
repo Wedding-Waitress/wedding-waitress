@@ -1,26 +1,18 @@
 
 ## Goal
-Three targeted mobile fixes in `src/pages/Landing.tsx`. Items 1 and 2 are already done in prior turns — only item 3 needs work.
+Add top padding to Premium and Vendor Pro pricing cards so their `-top-4` badges aren't clipped on mobile.
 
 ## Investigation
-- **Item 1 (footer grid)**: Already updated to `grid-cols-2 gap-6 sm:grid-cols-3` per user's later instruction. User now asks for `grid-cols-1 sm:grid-cols-3`. Need to confirm whether to revert to `grid-cols-1` (this contradicts the most recent prior approval which set `grid-cols-2`).
-- **Item 2 (Final CTA h2)**: Already updated to `text-3xl sm:text-5xl md:text-7xl`. No change needed.
-- **Item 3 (Pricing scale overflow)**: Need to locate the Premium pricing card and either wrap its grid container in `overflow-x-hidden` or remove `lg:scale-105`.
+Need to locate the Premium and Vendor Pro card divs in `src/pages/Landing.tsx` and check their current padding classes to merge `pt-6 lg:pt-8` correctly without conflicting with existing `p-*` utilities.
 
-## Changes
+## Change
 - **File:** `src/pages/Landing.tsx`
-- **Edit A (footer):** Change the inner footer grid from `grid grid-cols-2 gap-6 sm:grid-cols-3` → `grid grid-cols-1 gap-6 sm:grid-cols-3`.
-- **Edit B (Final CTA):** No-op — already at `text-3xl sm:text-5xl md:text-7xl`.
-- **Edit C (Pricing):** Add `overflow-x-hidden` to the wrapper `div` of the pricing cards grid (the parent of the `grid` containing the Premium card with `lg:scale-105`). Keep `lg:scale-105` intact so the visual emphasis stays on desktop.
+- **Edit:** On the Premium card div and the Vendor Pro card div, add `pt-6 lg:pt-8` (placed after any existing `p-*` shorthand so the top-padding override wins). No other classes touched.
 
 ## Out of scope
-Logic, copy, translation keys, other sections, other classes.
-
-## Conflict to confirm
-The user's prior approved instruction set the footer to `grid-cols-2` on mobile (so Explore/Support/Legal sit side-by-side as 2-up). This new instruction reverts it to `grid-cols-1` (full vertical stack). I will apply `grid-cols-1` as the most recent instruction wins — please flag if you'd rather keep `grid-cols-2`.
+All other cards, badges, copy, logic, translations, other sections.
 
 ## Verification
-1. Mobile (<640px): footer columns stack vertically; Final CTA fits without overflow.
-2. Tablet (~768–1023px): pricing grid no longer triggers horizontal scroll from the scaled Premium card.
-3. Desktop (≥1024px): Premium card still visually emphasized via `lg:scale-105`; layout unchanged.
-4. No other section affected.
+1. Mobile (<640px): "Most Popular" and "For Venues & Pros" badges fully visible above the cards, not clipped.
+2. Desktop (≥1024px): card spacing visually unchanged.
+3. Other pricing cards (Essential, Unlimited, Vendor Basic) untouched.
