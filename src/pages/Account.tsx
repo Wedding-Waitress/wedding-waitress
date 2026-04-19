@@ -31,18 +31,19 @@ export const Account: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 🔒 LOCKED DASHBOARD UI (2026-04-19) — DO NOT MODIFY without explicit owner approval
   return (
     <div className="w-full max-w-3xl mx-auto px-1 sm:px-2 pb-12">
-      <header className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+      <header className="mb-10 sm:mb-12">
+        <h1 className="dashboard-section-title">
           Account
         </h1>
-        <p className="mt-2 text-sm sm:text-base text-muted-foreground">
+        <p className="dashboard-section-subtitle">
           Manage your account, subscription, and billing
         </p>
       </header>
 
-      <div className="space-y-5 sm:space-y-6">
+      <div className="space-y-6 sm:space-y-8">
         <AccountInfoCard icon={User} />
         <SubscriptionCard icon={CreditCard} />
         <BillingCard icon={Receipt} />

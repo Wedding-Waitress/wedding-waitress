@@ -142,7 +142,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
         <Button
           onClick={handleUpgrade}
           disabled={busy}
-          className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
+          className="dashboard-btn-primary"
           size="sm"
         >
           {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

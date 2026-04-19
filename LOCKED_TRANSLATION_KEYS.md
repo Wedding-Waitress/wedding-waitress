@@ -213,3 +213,16 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
   1. Inner links container must remain `grid grid-cols-1 gap-6 sm:grid-cols-3` (mobile = single column, desktop = 3 columns).
   2. Each Explore / Support / Legal link (`<a>` and `<Link>`) must keep `block py-3` for ≥44px mobile tap targets.
 - Any change requires explicit owner approval.
+
+## 2026-04-19 — Dashboard UI shell (LOCKED)
+PRODUCTION-LOCKED visual shell for the entire authenticated dashboard. Functionality, data, routing, and locked feature internals (Full Seating Chart, Place Cards) are unchanged.
+
+Locked files (sentinel comment `🔒 LOCKED DASHBOARD UI (2026-04-19)`):
+- `src/index.css` — `.dashboard-surface`, `.dashboard-card`, `.dashboard-btn-primary`, `.dashboard-btn-outline`, `.dashboard-section-title`, `.dashboard-section-subtitle` utility block.
+- `src/pages/Dashboard.tsx` — outer wrapper uses `dashboard-surface` (cream→beige gradient) and `py-6 sm:py-10` main padding.
+- `src/components/Dashboard/AppSidebar.tsx` — `border-r border-[#E8E1D6]/60` + soft right shadow; `SidebarMenu gap-2`; non-Start-Here active item uses `!bg-[#967A59]/10 !text-[#967A59]` with 3px left accent; default `py-2.5`.
+- `src/components/Account/SectionCard.tsx` — uses `.dashboard-card` shell, larger title (`text-xl sm:text-2xl`), 11×11 icon block.
+- `src/pages/Account.tsx` — header uses `.dashboard-section-title` / `.dashboard-section-subtitle`; card stack `space-y-6 sm:space-y-8`; header margin `mb-10 sm:mb-12`.
+- `src/components/Account/{AccountInfoCard,SubscriptionCard,BillingCard,SecurityCard}.tsx` — buttons use `.dashboard-btn-primary` / `.dashboard-btn-outline`.
+
+Any change to the above utility classes, sentinel-marked blocks, or button/card class swaps requires explicit owner approval.

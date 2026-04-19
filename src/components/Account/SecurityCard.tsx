@@ -64,7 +64,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
         <Button
           size="sm"
           onClick={() => setOpen(true)}
-          className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
+          className="dashboard-btn-primary"
         >
           Change Password
         </Button>
@@ -72,7 +72,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
           <Button
             size="sm"
             variant="outline"
-            className="rounded-full"
+            className="dashboard-btn-outline"
             onClick={sendVerification}
             disabled={sending}
           >

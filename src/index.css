@@ -93,6 +93,47 @@ html {
   transform: scale(0.98);
 }
 
+/* 🔒 LOCKED DASHBOARD UI (2026-04-19) — DO NOT MODIFY without explicit owner approval */
+.dashboard-surface {
+  background: linear-gradient(to bottom, #FBF7F0 0%, #F7F1E6 50%, #F3EBDC 100%);
+  min-height: 100vh;
+}
+.dashboard-card {
+  @apply bg-white rounded-2xl border p-7 sm:p-9 transition-all duration-200;
+  border-color: rgba(232, 225, 214, 0.6);
+  box-shadow: 0 4px 24px -8px rgba(150, 122, 89, 0.14);
+}
+.dashboard-card:hover {
+  box-shadow: 0 8px 32px -8px rgba(150, 122, 89, 0.22);
+}
+.dashboard-btn-primary {
+  @apply rounded-full px-5 py-2.5 text-white shadow-sm transition-all duration-200;
+  background-color: #967A59;
+}
+.dashboard-btn-primary:hover {
+  background-color: #7d6649;
+  box-shadow: 0 4px 12px -2px rgba(150, 122, 89, 0.3);
+  transform: scale(1.02);
+}
+.dashboard-btn-outline {
+  @apply rounded-full px-5 py-2.5 border bg-transparent transition-all duration-200;
+  color: #967A59;
+  border-color: rgba(150, 122, 89, 0.3);
+}
+.dashboard-btn-outline:hover {
+  background-color: rgba(150, 122, 89, 0.05);
+  transform: scale(1.02);
+}
+.dashboard-section-title {
+  @apply text-3xl sm:text-4xl font-semibold tracking-tight;
+  color: #1D1D1F;
+}
+.dashboard-section-subtitle {
+  @apply text-sm sm:text-base mt-2;
+  color: #6E6E73;
+}
+/* 🔒 END LOCKED DASHBOARD UI */
+
 /* Custom Place Card Fonts */
 @font-face {
   font-family: 'Beauty Mountains';

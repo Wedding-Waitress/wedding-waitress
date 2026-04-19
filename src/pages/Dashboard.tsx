@@ -691,7 +691,8 @@ export const Dashboard = () => {
   return <SidebarProvider>
     {/* Defensive page-level noIndex — protects every dashboard tab even if a tab forgets its own SeoHead. */}
     <SeoHead title="Dashboard | Wedding Waitress" description="Wedding Waitress dashboard" noIndex />
-    <div className="relative min-h-screen bg-gradient-subtle w-full mobile-contain">
+    {/* 🔒 LOCKED DASHBOARD UI (2026-04-19) — DO NOT MODIFY without explicit owner approval */}
+    <div className="relative min-h-screen dashboard-surface w-full mobile-contain">
       {/* Universal Header - Full Width */}
       <DashboardHeader />
       
@@ -708,7 +709,7 @@ export const Dashboard = () => {
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main className="flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden">
+        <main className="flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-10 min-w-0 overflow-x-hidden">
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'account' && <div className="print:hidden">
