@@ -470,7 +470,7 @@ export const Landing = () => {
       })}
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 md:py-20 px-4">
+      <section id="pricing" className="py-16 md:py-20 px-4 overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('pricing.title')}
