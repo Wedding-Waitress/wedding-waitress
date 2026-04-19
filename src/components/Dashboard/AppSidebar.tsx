@@ -86,9 +86,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   };
 
 
-  // 🔒 LOCKED DASHBOARD UI (2026-04-19) — DO NOT MODIFY without explicit owner approval
   return (
-    <Sidebar collapsible="icon" className="border-r border-[#E8E1D6]/60 shadow-[2px_0_16px_-6px_rgba(150,122,89,0.14)]">
+    <Sidebar collapsible="icon" className="border-r border-border shadow-2xl">
       <SidebarHeader className="pt-16 pb-12">
         <div className="flex items-center justify-center px-4">
           <img 
@@ -101,7 +100,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-2">
+            <SidebarMenu className="gap-1">
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -114,9 +113,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   return null;
                 };
                 const badgeNumber = getBadgeNumber();
-                const activeStyles = isActive && !isGreenItem
-                  ? '!bg-[#967A59]/10 !text-[#967A59] border-l-[3px] border-[#967A59] rounded-md'
-                  : 'hover:bg-[#967A59]/5';
                 
                 return (
                 <SidebarMenuItem key={item.id}>
@@ -124,7 +120,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-[#F5F0EB] border border-[#967A59] rounded-md hover:!bg-[#EDE5DB]' : activeStyles} ${isMobile ? 'py-4' : 'py-2.5'}`}
+                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-[#F5F0EB] border border-[#967A59] rounded-md hover:!bg-[#EDE5DB]' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
                     <span className={`${isGreenItem ? 'text-black' : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>

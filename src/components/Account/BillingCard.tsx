@@ -48,7 +48,7 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
             <Button
               size="sm"
               variant="outline"
-              className="dashboard-btn-outline"
+              className="rounded-full"
               disabled={!last?.pdfUrl && !last?.hostedUrl}
               onClick={() => {
                 const url = last?.pdfUrl || last?.hostedUrl;
@@ -60,7 +60,7 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
             </Button>
             <Button
               size="sm"
-              className="dashboard-btn-primary"
+              className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
               disabled={!data.portalUrl}
               onClick={() => data.portalUrl && window.open(data.portalUrl, '_blank', 'noopener')}
             >
