@@ -1,58 +1,58 @@
 
 ## Goal
-Provision the missing email infrastructure so both contact forms (homepage "Get in Touch" and `/contact`) actually deliver to support@weddingwaitress.com. No UI changes.
+On the public homepage:
+1. Delete the entire "Explore the Platform" section (heading, subtitle, 13 icon link cards).
+2. Update the existing 13 image cards in "The wedding platform your guests will love." section with the exact new titles and descriptions provided.
+3. Keep all images, links, order, layout, and surrounding sections untouched.
+4. Lock the change.
 
-## Findings
-- Edge function logs confirm: `Could not find the table 'public.suppressed_emails' in the schema cache` → infra never provisioned.
-- Domain `notify.weddingwaitress.com` is already verified and wired into `send-transactional-email` (`SENDER_DOMAIN`, `FROM_DOMAIN` correct).
-- `send-transactional-email/index.ts` already has full error handling, suppression check, token mgmt, queue enqueue, and `email_send_log` writes — code is fine; only the DB objects are missing.
-- Both forms (`Landing.tsx`, `Contact.tsx`) are already wired to `supabase.functions.invoke('send-transactional-email', ...)` with template `contact-form-message`.
-- Per Lovable rules: **never hand-write the email infra SQL**. The managed setup tool creates pgmq queues, all 4 tables (`suppressed_emails`, `email_send_log`, `email_send_state`, `email_unsubscribe_tokens`) with RLS, the `enqueue_email` / `read_email_batch` / `delete_email` / `move_to_dlq` RPCs (SECURITY DEFINER), the `process-email-queue` Edge Function, the vault secret, and the pg_cron job (every 5s).
-- Resend is NOT used. Lovable's built-in email infrastructure handles delivery via the verified domain — no `RESEND_API_KEY` needed. (The user's request mentions Resend, but Lovable Emails is already configured and verified; switching to Resend would break the existing NS delegation. I'll note this clearly.)
+## Card mapping (lower image cards → new copy)
+The lower section renders `featureCards` in this order (from `featureCards` array, current order in code):
+1. `guestList` → My Events? NO. Need to verify order. Code shows `featureCards.map((card)…)` — need to check actual order.
 
-## Plan
+I'll match by feature key (the link target is the source of truth; titles are copy only):
 
-### 1. Provision email infrastructure (managed tool)
-Run the Lovable managed setup that idempotently creates:
-- pgmq extension + `auth_emails` and `transactional_emails` queues
-- Tables: `suppressed_emails`, `email_send_log`, `email_send_state`, `email_unsubscribe_tokens` (with RLS)
-- RPCs: `enqueue_email`, `read_email_batch`, `delete_email`, `move_to_dlq` (all SECURITY DEFINER)
-- Vault secret: `email_queue_service_role_key`
-- Edge Function: `process-email-queue` (queue dispatcher)
-- pg_cron job running every 5s to drain the queue
+| key | Route | New Title | New Description |
+|---|---|---|---|
+| myEvents | /products/my-events | My Events | Manage all your events in one place. |
+| guestList | /products/guest-list | Manage Your Guest List Easily | Track RSVPs, organise guests, and send invitations in seconds. |
+| tables | /products/tables | Plan Your Tables | Create tables, set guest limits, and organise your layout. |
+| qr | /products/qr-code-seating-chart | QR Code Seating Chart | Let guests scan and find their seat instantly. |
+| invitations | /products/invitations-cards | Send Digital Invitations | Create and send beautiful invites via SMS or email. |
+| placeCards | /products/name-place-cards | Name Place Cards | Organise seating with clean and elegant place cards. |
+| tableCharts | /products/individual-table-charts | Individual Table Charts | Print elegant per-table seating charts for every table. |
+| floorPlan | /products/floor-plan | Wedding Floor Plan Tool | Design your ceremony and reception venue layout visually. |
+| dietary | /products/dietary-requirements | Dietary Requirements | Track every guest's meal and dietary needs in one place. |
+| seatingChart | /products/full-seating-chart | Full Seating Chart | Generate a complete printable master seating chart. |
+| kiosk | /products/kiosk-live-view | Kiosk Live View | Let guests find their seat instantly at the venue. |
+| djmc | /products/dj-mc-questionnaire | DJ & MC Questionnaire | Brief your DJ and MC with a structured digital form. |
+| runningSheet | /products/running-sheet | Wedding Running Sheet Planner | Build and share a minute-by-minute wedding day timeline. |
 
-### 2. Redeploy Edge Functions
-Redeploy `send-transactional-email` and `process-email-queue` so they pick up the new schema.
+Card order in the JSX array stays as currently coded — only text changes. Section heading and subtitle are kept verbatim.
 
-### 3. Internal end-to-end verification
-- Curl `send-transactional-email` with `templateName: 'contact-form-message'` → expect `{ success: true, queued: true }`.
-- Wait one cron cycle, then `SELECT * FROM email_send_log ORDER BY created_at DESC LIMIT 5` → expect a row with `status = 'sent'` for support@weddingwaitress.com.
-- Check `process-email-queue` logs → no errors.
+## Files to change
 
-### 4. Lock
-- Append a 2026-04-18 entry to `LOCKED_TRANSLATION_KEYS.md` covering the infra + both contact-form wirings.
-- Refresh 🔒 lock comment on `send-transactional-email/index.ts` (no code change — the file is already correct).
+1. **`src/pages/Landing.tsx`** — delete lines 401–443 (entire "Explore the Platform" `<section>` block including comment). No other JSX edits.
 
-## Files modified
-- `LOCKED_TRANSLATION_KEYS.md` — append lock entry.
-- `supabase/functions/send-transactional-email/index.ts` — refresh lock-date comment only (no logic change).
+2. **`src/i18n/locales/en/landing.json`** — update the 13 entries inside `featureCards.*` with the new title/desc strings above. Leave `sectionTitle` and `sectionSubtitle` unchanged. Optionally remove the now-unused `explore` block (lines ~613+) to keep the locale clean.
 
-## Files created (by managed tool, not hand-written)
-- pgmq queues, 4 email tables, 4 RPCs, vault secret, cron job, `process-email-queue/` Edge Function.
+3. **Other 16 locale files** (`{ar,de,el,es,fr,hi,it,ja,nl,tr,vi,zh}/landing.json`) — update the same `featureCards.*` title/desc keys with translated equivalents of the new copy so non-English visitors see the upgraded copy too. (If you'd rather leave non-English unchanged for now and translate later, say the word — but the keys won't visually drift since the structure is identical.)
 
-## About Resend
-Lovable's built-in email service is already active on the verified domain `notify.weddingwaitress.com`. Switching to Resend would require removing the existing NS delegation at the registrar and re-verifying — and would lose the unified queue/suppression/unsubscribe pipeline. I'll proceed with Lovable Emails (recommended). If you specifically want Resend instead, say the word and I'll lay out the migration plan separately.
+4. **`LOCKED_TRANSLATION_KEYS.md`** — append a 2026-04-19 entry locking: (a) removal of "Explore the Platform" section from `Landing.tsx`, (b) the new `featureCards.*` titles/descriptions across all locales.
+
+5. **Memory `mem://standards/locked-translations.md`** — refresh date and note the new lock entry.
 
 ## Out of scope
-- Any UI/layout/styling change (forms remain identical).
-- Any change to other pages, templates, or features.
-- Resend integration (unless explicitly requested).
+Header, footer, hero, How It Works, alternating sections, pricing, FAQ, CTA, contact form, all other pages, all backend logic, SEO, fonts, colors, spacing outside this section.
 
-## Verification checklist
-1. `email_send_log`, `suppressed_emails`, `email_unsubscribe_tokens`, `email_send_state` tables exist.
-2. `enqueue_email` RPC exists with SECURITY DEFINER.
-3. pg_cron job `process-email-queue` is scheduled and active.
-4. Test invoke of `send-transactional-email` returns `{ success: true, queued: true }`.
-5. Within ~10s, `email_send_log` shows status `sent` for the test send.
-6. Real email arrives at support@weddingwaitress.com from both homepage and `/contact` forms.
-7. UI of both pages visually unchanged.
+## Verification
+1. Homepage: "Explore the Platform" section is fully gone (no heading, no subtitle, no 13 icon cards, no extra whitespace gap).
+2. Lower image-card section "The wedding platform your guests will love." still renders with all 13 image thumbnails, original layout, original order, original links.
+3. Each image card shows the new title + description from the table above.
+4. Clicking each card lands on its existing `/products/*` page.
+5. Mobile (375px), tablet, desktop layouts all render cleanly with no clipped or overflowing titles.
+6. Language switcher: EN shows new copy; other locales show updated translated copy.
+7. No other page or component changed.
+
+## Question before I proceed
+Should I translate the new copy into the other 12 non-English locales (recommended), or only update English and leave other languages with their current `featureCards` strings until you provide translations?
