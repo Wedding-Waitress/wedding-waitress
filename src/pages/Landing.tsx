@@ -514,7 +514,7 @@ export const Landing = () => {
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
+              <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Premium — highlighted */}
@@ -545,7 +545,7 @@ export const Landing = () => {
                 <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
+              <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Unlimited */}
@@ -572,7 +572,7 @@ export const Landing = () => {
                 <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>
               </AuthGatedCtaLink>
               <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-              <p className="text-[10px] text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
+              <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
             </div>
 
             {/* Vendor Pro */}
