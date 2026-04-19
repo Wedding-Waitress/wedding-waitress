@@ -206,3 +206,10 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 - `src/pages/Landing.tsx` — entire "Explore the Platform" `<section>` (heading, subtitle, 13 icon link cards) DELETED. Lower image-card section "The wedding platform your guests will love." preserved exactly (heading, subtitle, images, links, order).
 - `src/i18n/locales/{en,ar,de,el,es,fr,hi,it,ja,nl,tr,vi,zh}/landing.json` → `featureCards.{myEvents,guestList,tables,qr,invitations,placeCards,tableCharts,floorPlan,dietary,seatingChart,kiosk,djmc,runningSheet}.{title,desc}` updated with owner-approved upgraded copy across all 13 locales. `featureCards.sectionTitle` and `featureCards.sectionSubtitle` UNCHANGED.
 - LOCKED. Any future change requires explicit owner approval.
+
+## 2026-04-19 — Landing Footer (LOCKED)
+- `src/pages/Landing.tsx` footer block (wrapped by `🔒 LOCKED FOOTER` / `🔒 END LOCKED FOOTER` sentinel comments) is PRODUCTION-LOCKED.
+- Locked rules:
+  1. Inner links container must remain `grid grid-cols-1 gap-6 sm:grid-cols-3` (mobile = single column, desktop = 3 columns).
+  2. Each Explore / Support / Legal link (`<a>` and `<Link>`) must keep `block py-3` for ≥44px mobile tap targets.
+- Any change requires explicit owner approval.
