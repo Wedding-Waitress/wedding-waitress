@@ -678,7 +678,7 @@ export const Landing = () => {
               {t('blog.subtitle')}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
             {[...blogPosts]
               .sort((a, b) => b.date.localeCompare(a.date))
               .slice(0, 3)
@@ -753,7 +753,7 @@ export const Landing = () => {
           <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
             {t('contact.subtitle')}
           </p>
-          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
+          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-5 sm:p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
             <div className="space-y-5">
               <div>
                 <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.name')}</label>
@@ -827,7 +827,7 @@ export const Landing = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/50" />
         </div>
         <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-[ctaFadeIn_1.5s_ease-out_both]">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
             {t('finalCta.title1')}<br />{t('finalCta.title2')}
           </h2>
           <p className="text-white/70 text-lg md:text-xl mb-12">{t('finalCta.subtitle')}</p>
@@ -853,7 +853,7 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
