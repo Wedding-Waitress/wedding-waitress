@@ -1,0 +1,1 @@
+UPDATE public.subscription_plans SET guest_limit = 200 WHERE id = '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8' AND name = 'Premium';
