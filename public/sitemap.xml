@@ -1,177 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://weddingwaitress.com/</loc>
+    <loc>https://weddingwaitress.netlify.app/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/seating</loc>
+    <loc>https://weddingwaitress.netlify.app/features/seating</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/qr-seating</loc>
+    <loc>https://weddingwaitress.netlify.app/features/qr-seating</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/planning</loc>
+    <loc>https://weddingwaitress.netlify.app/features/planning</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/invitations</loc>
+    <loc>https://weddingwaitress.netlify.app/features/invitations</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/place-cards</loc>
+    <loc>https://weddingwaitress.netlify.app/features/place-cards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/table-charts</loc>
+    <loc>https://weddingwaitress.netlify.app/features/table-charts</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/full-seating</loc>
+    <loc>https://weddingwaitress.netlify.app/features/full-seating</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/dietary</loc>
+    <loc>https://weddingwaitress.netlify.app/features/dietary</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/kiosk</loc>
+    <loc>https://weddingwaitress.netlify.app/features/kiosk</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/dj-mc</loc>
+    <loc>https://weddingwaitress.netlify.app/features/dj-mc</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/floor-plan</loc>
+    <loc>https://weddingwaitress.netlify.app/features/floor-plan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/guest-list</loc>
+    <loc>https://weddingwaitress.netlify.app/features/guest-list</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/features/events</loc>
+    <loc>https://weddingwaitress.netlify.app/features/events</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/products/my-events</loc>
+    <loc>https://weddingwaitress.netlify.app/products/my-events</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/products/tables</loc>
+    <loc>https://weddingwaitress.netlify.app/products/tables</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/products/guest-list</loc>
+    <loc>https://weddingwaitress.netlify.app/products/guest-list</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/products/qr-code-seating-chart</loc>
+    <loc>https://weddingwaitress.netlify.app/products/qr-code-seating-chart</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/products/invitations-cards</loc>
+    <loc>https://weddingwaitress.netlify.app/products/invitations-cards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/products/name-place-cards</loc>
+    <loc>https://weddingwaitress.netlify.app/products/name-place-cards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/privacy</loc>
+    <loc>https://weddingwaitress.netlify.app/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/terms</loc>
+    <loc>https://weddingwaitress.netlify.app/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/contact</loc>
+    <loc>https://weddingwaitress.netlify.app/contact</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/cookies</loc>
+    <loc>https://weddingwaitress.netlify.app/cookies</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog</loc>
+    <loc>https://weddingwaitress.netlify.app/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog/qr-code-wedding-seating-chart-australia</loc>
+    <loc>https://weddingwaitress.netlify.app/blog/qr-code-wedding-seating-chart-australia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog/wedding-signage-cost-australia</loc>
+    <loc>https://weddingwaitress.netlify.app/blog/wedding-signage-cost-australia</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog/how-to-create-qr-code-seating-chart</loc>
+    <loc>https://weddingwaitress.netlify.app/blog/how-to-create-qr-code-seating-chart</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog/digital-wedding-seating-chart-accessibility</loc>
+    <loc>https://weddingwaitress.netlify.app/blog/digital-wedding-seating-chart-accessibility</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog/last-minute-wedding-seating-changes</loc>
+    <loc>https://weddingwaitress.netlify.app/blog/last-minute-wedding-seating-changes</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://weddingwaitress.com/blog/why-australian-couples-switching-qr-seating-charts-2026</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://weddingwaitress.com/blog/how-to-create-a-wedding-seating-chart-step-by-step</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://weddingwaitress.com/blog/wedding-seating-chart-etiquette-who-sits-where</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://weddingwaitress.com/blog/best-wedding-seating-chart-templates-australia</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://weddingwaitress.com/blog/common-wedding-seating-chart-mistakes</loc>
+    <loc>https://weddingwaitress.netlify.app/blog/why-australian-couples-switching-qr-seating-charts-2026</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
