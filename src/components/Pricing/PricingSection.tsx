@@ -77,7 +77,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
                 </li>
               ))}
             </ul>
-            {renderCta('essential', <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>)}
+            {renderCta('essential', <Button variant="outline" className="w-full rounded-xl">{ctaLabel}</Button>)}
             <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
           </div>
@@ -106,7 +106,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
                 </li>
               ))}
             </ul>
-            {renderCta('premium', <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>)}
+            {renderCta('premium', <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{ctaLabel}</Button>)}
             <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
           </div>
@@ -131,7 +131,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
                 </li>
               ))}
             </ul>
-            {renderCta('unlimited', <Button variant="outline" className="w-full rounded-xl">{t('pricing.getStarted')}</Button>)}
+            {renderCta('unlimited', <Button variant="outline" className="w-full rounded-xl">{ctaLabel}</Button>)}
             <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
             <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
           </div>
@@ -158,7 +158,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
                 </li>
               ))}
             </ul>
-            {renderCta('vendor_pro', <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{t('pricing.getStarted')}</Button>)}
+            {renderCta('vendor_pro', <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{ctaLabel}</Button>)}
             <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
           </div>
         </div>
