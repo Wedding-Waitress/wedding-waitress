@@ -9,6 +9,7 @@ import { useAccountBilling } from '@/hooks/useAccountBilling';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLAN_PRICES } from '@/lib/stripePrices';
+import { UpgradePlanModal } from './UpgradePlanModal';
 
 interface Props {
   icon: LucideIcon;
