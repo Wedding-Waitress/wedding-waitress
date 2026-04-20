@@ -155,4 +155,29 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://weddingwaitress.netlify.app/blog/why-every-wedding-needs-a-running-sheet</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.netlify.app/blog/how-to-create-a-wedding-seating-chart-step-by-step</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.netlify.app/blog/wedding-seating-chart-etiquette-who-sits-where</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.netlify.app/blog/best-wedding-seating-chart-templates-australia</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.netlify.app/blog/common-wedding-seating-chart-mistakes</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
