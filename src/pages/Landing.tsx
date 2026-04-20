@@ -4,14 +4,12 @@
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
 import React, { useRef, useState, useEffect } from 'react';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
+import { ContactForm } from "@/components/ContactForm";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Reveal } from "@/components/ui/Reveal";
@@ -192,9 +190,7 @@ export const Landing = () => {
   const plans = PLAN_PRICING[currency];
   const vendor = VENDOR_PRICING[currency];
   const sym = CURRENCIES[currency].symbol;
-  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
-  const [contactSending, setContactSending] = useState(false);
-  const [contactSent, setContactSent] = useState(false);
+  const [openFaq2, setOpenFaq2] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Scroll to section when arriving with a hash (e.g. /#pricing from another page)
