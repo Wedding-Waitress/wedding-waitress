@@ -9,6 +9,7 @@ import { useAccountBilling } from '@/hooks/useAccountBilling';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PLAN_PRICES } from '@/lib/stripePrices';
+import { UpgradePlanModal } from './UpgradePlanModal';
 
 interface Props {
   icon: LucideIcon;
@@ -29,6 +30,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { toast } = useToast();
   const [startDate, setStartDate] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -76,10 +78,12 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     if (isExpired) {
       badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
       statusLabel = 'Expired';
-      displayPlanName = 'Free (Expired)';
+      displayPlanName = '7-Day Free Trial (Expired)';
     } else if (daysLeft != null) {
-      displayPlanName = `Free (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`;
+      displayPlanName = `7-Day Free Trial (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`;
       statusLabel = 'Active';
+    } else {
+      displayPlanName = '7-Day Free Trial';
     }
   } else if (isExpired || status === 'expired') {
     badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
@@ -92,36 +96,14 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     statusLabel = 'Cancelled';
   }
 
-  const handleUpgrade = async () => {
-    setBusy(true);
-    try {
-      if (billing?.portalUrl) {
-        window.open(billing.portalUrl, '_blank', 'noopener,noreferrer');
-        return;
-      }
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          price_id: PLAN_PRICES.premium.price_id,
-          mode: 'payment',
-          plan_type: 'premium',
-        },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      if (data?.url) {
-        window.open(data.url, '_blank', 'noopener,noreferrer');
-      } else {
-        throw new Error('No checkout URL returned');
-      }
-    } catch (e) {
-      toast({
-        title: 'Error',
-        description: e instanceof Error ? e.message : 'Could not start upgrade',
-        variant: 'destructive',
-      });
-    } finally {
-      setBusy(false);
+  const handleUpgrade = () => {
+    // Existing paying customers go to Stripe portal directly to manage billing.
+    if (billing?.portalUrl) {
+      window.open(billing.portalUrl, '_blank', 'noopener,noreferrer');
+      return;
     }
+    // New / trial users see the plan selection modal first.
+    setUpgradeOpen(true);
   };
 
   return (
@@ -149,6 +131,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           {billing?.portalUrl ? 'Manage Billing' : 'Upgrade Plan'}
         </Button>
       </div>
+      <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </SectionCard>
   );
 };
