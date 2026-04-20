@@ -1,27 +1,49 @@
 
 ## Goal
-Make `https://weddingwaitress.netlify.app/blog` load correctly instead of returning 404 on direct navigation / refresh.
+Polish the Account page + profile dropdown: rename "Account" → "My Profile" in 2 places, add a tooltip on the NE avatar, rename the trial label, and gate the Upgrade flow behind a 3-plan selection modal before redirecting to Stripe.
 
-## Findings
-- The route is already correctly wired in `src/App.tsx`: `<Route path="/blog" element={<Blog />} />` and `<Route path="/blog/:slug" element={<BlogPost />} />`. So in-app navigation works; the 404 only happens on direct URL hit / refresh.
-- The site is being served from Netlify (`weddingwaitress.netlify.app`), not Lovable hosting. Netlify does NOT auto-fallback SPA routes — it requires a `public/_redirects` file.
-- There is currently no `public/_redirects` file in the project (only `manifest.json`, `placeholder.svg`, `robots.txt`, `sitemap.xml`, and a `videos/` folder).
-- Note: Lovable's own docs say `_redirects` is a no-op on Lovable hosting, but it IS required and respected by Netlify. Since this site is deployed to Netlify, adding it is the correct fix and harmless on Lovable.
+## Findings (from codebase)
+- **Profile dropdown**: lives in the dashboard header. Need to confirm exact file — likely `src/components/Dashboard/DashboardHeader.tsx`. The "Account" item routes to `/dashboard?tab=account`. The NE avatar is the dropdown trigger.
+- **Account page title**: `src/pages/Account.tsx` line 41 — hardcoded `"Account"` and subtitle `"Manage your account, subscription, and billing"`.
+- **Subscription label + Upgrade button**: `src/components/Account/SubscriptionCard.tsx`. Currently shows the plan name (e.g. `"Free (Expired)"`) and an "Upgrade Plan" button that calls `create-checkout` directly with a single price.
+- **3 plans available**: Per project knowledge — Essential $99 AUD (≤100 guests), Premium $149 AUD (≤300 guests), Unlimited $249 AUD (unlimited). Stripe price IDs already exist in `src/lib/stripePrices.ts`.
 
-## Change (single file, additive)
-Create **`public/_redirects`** with:
-```
-/*    /index.html   200
-```
-That's it. SPA fallback — every unmatched path serves `index.html` so React Router can handle `/blog`, `/blog/:slug`, `/products/*`, `/features/*`, etc.
+I will read `SubscriptionCard.tsx`, `DashboardHeader.tsx` (or wherever the dropdown lives), and `stripePrices.ts` at implementation time to use the correct existing price IDs and existing checkout invocation pattern (no new edge function needed — reuse `create-checkout`).
+
+## Changes (scoped, additive only)
+
+### 1. Profile dropdown — `src/components/Dashboard/DashboardHeader.tsx` (or equivalent)
+- Rename dropdown item label `"Account"` → `"My Profile"`.
+- Wrap the NE avatar trigger in a `<Tooltip>` with content `"My Profile"` (using existing `@/components/ui/tooltip`).
+- No route or behavior change — still navigates to `/dashboard?tab=account`.
+
+### 2. Account page heading — `src/pages/Account.tsx`
+- Line 41: `Account` → `My Profile`.
+- Subtitle untouched.
+
+### 3. Subscription label — `src/components/Account/SubscriptionCard.tsx`
+- When `plan_name === 'Free'` (or trial/expired state), render `"7-Day Free Trial"` instead of `"Free"`. Keep the `(Expired)` suffix logic and the existing red "Expired" badge exactly as-is for non-trial plans display.
+- Only the displayed string changes; underlying `plan.plan_name` value is not modified.
+
+### 4. Upgrade flow — new modal + wiring
+- **New file**: `src/components/Account/UpgradePlanModal.tsx`
+  - Dialog with 3 plan cards (Essential / Premium / Unlimited).
+  - Each card: name, AUD price, one-line description, "Choose Plan" button styled with existing `dashboard-btn-primary`.
+  - On "Choose Plan" click → invoke existing `create-checkout` edge function with the corresponding Stripe `price_id` from `src/lib/stripePrices.ts`, then `window.location.href = url` (matches current pattern).
+- **`SubscriptionCard.tsx`**: change "Upgrade Plan" button `onClick` to open the modal instead of calling checkout directly. Remove the direct single-price checkout call from this button only.
+
+### 5. Untouched
+Billing, Usage, History, Security cards. All other layout/styling.
 
 ## Out of scope
-- No router/code changes (route is already correct).
-- No design/layout/content changes.
-- No changes to `sitemap.xml`, `robots.txt`, or SEO files.
+- No new edge functions, DB migrations, or pricing changes.
+- No i18n key changes (these labels are not in landing locked files).
+- No changes to the trial logic / `useUserPlan` hook.
 
-## Verification after publish + Netlify redeploy
-1. `https://weddingwaitress.netlify.app/blog` loads the Blog index (no 404).
-2. Refreshing on `/blog/best-wedding-seating-chart-templates-australia` keeps the post (no 404).
-3. Deep links to `/products/*`, `/features/*`, `/contact`, `/privacy` all load on refresh.
-4. Static assets (`/sitemap.xml`, `/robots.txt`, images) still resolve normally — the `200` rule only applies when no real file matches.
+## Verification
+1. `/dashboard?tab=account` heading reads **My Profile**.
+2. Hovering the NE avatar shows tooltip "My Profile"; opening the dropdown shows menu item "My Profile" that still navigates to the Account page.
+3. Subscription card shows **7-Day Free Trial (Expired)** with the red Expired badge intact.
+4. Clicking **Upgrade Plan** opens a modal with 3 plans (Essential $99, Premium $149, Unlimited $249), each with a "Choose Plan" button.
+5. Clicking "Choose Plan" on any tier opens the matching Stripe Checkout URL in the same tab (existing pattern).
+6. Billing / Usage / History / Security sections render identically to before.
