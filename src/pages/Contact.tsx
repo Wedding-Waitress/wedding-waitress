@@ -20,7 +20,7 @@ export const Contact = () => {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
     name: 'Contact Wedding Waitress',
-    url: 'https://weddingwaitress.com/contact',
+    url: 'https://weddingwaitress.netlify.app/contact',
   };
 
   return (

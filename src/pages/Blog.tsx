@@ -35,7 +35,7 @@ export const Blog = () => {
     itemListElement: posts.map((post, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      url: `https://weddingwaitress.com/blog/${post.slug}`,
+      url: `https://weddingwaitress.netlify.app/blog/${post.slug}`,
       name: post.title,
     })),
   };
