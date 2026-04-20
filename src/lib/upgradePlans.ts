@@ -36,8 +36,8 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
     original_price_aud: PLAN_PRICES.premium.original_price_aud,
     price_id: PLAN_PRICES.premium.price_id,
     mode: 'payment',
-    description: 'Up to 300 guests · One event · Full access',
-    features: ['One event', 'Full platform access', 'Easy setup', 'Up to 300 guests'],
+    description: 'Up to 200 guests · One event · Full access',
+    features: ['One event', 'Full platform access', 'Easy setup', 'Up to 200 guests'],
   },
   unlimited: {
     key: 'unlimited',

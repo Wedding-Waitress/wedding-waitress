@@ -405,7 +405,7 @@ export default function Index() {
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" style={{ color: PRIMARY_COLOR }} />
-                    <span>Up to 300 guests</span>
+                    <span>Up to 200 guests</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" style={{ color: PRIMARY_COLOR }} />
