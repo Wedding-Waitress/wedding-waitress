@@ -35,7 +35,7 @@ export const Account: React.FC = () => {
     <div className="w-full max-w-3xl mx-auto px-1 sm:px-2 pb-12">
       <header className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
-          Account
+          My Profile
         </h1>
         <p className="mt-2 text-sm sm:text-base text-muted-foreground">
           Manage your account, subscription, and billing
