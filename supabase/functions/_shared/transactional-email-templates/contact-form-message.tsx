@@ -13,6 +13,7 @@ import type { TemplateEntry } from './registry.ts'
 interface ContactFormMessageProps {
   name?: string
   email?: string
+  eventType?: string
   message?: string
   date?: string
 }
@@ -29,7 +30,7 @@ const formatDate = (iso?: string) => {
   }
 }
 
-const ContactFormMessageEmail = ({ name, email, message, date }: ContactFormMessageProps) => (
+const ContactFormMessageEmail = ({ name, email, eventType, message, date }: ContactFormMessageProps) => (
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>New contact message from {name || 'a visitor'}</Preview>
@@ -39,13 +40,16 @@ const ContactFormMessageEmail = ({ name, email, message, date }: ContactFormMess
         <Text style={intro}>You have received a new message via the Wedding Waitress contact form.</Text>
 
         <Section style={card}>
-          <Text style={label}>Name</Text>
+          <Text style={label}>Full Name</Text>
           <Text style={value}>{name || '—'}</Text>
 
           <Text style={label}>Email</Text>
           <Text style={value}>
             {email ? <Link href={`mailto:${email}`} style={linkStyle}>{email}</Link> : '—'}
           </Text>
+
+          <Text style={label}>Type of Event</Text>
+          <Text style={value}>{eventType || '—'}</Text>
 
           <Text style={label}>Submitted</Text>
           <Text style={value}>{formatDate(date)}</Text>
@@ -68,6 +72,7 @@ export const template = {
   previewData: {
     name: 'Jane Smith',
     email: 'jane@example.com',
+    eventType: 'Wedding',
     message: 'Hi, I have a question about your premium plan.\n\nThanks!',
     date: new Date().toISOString(),
   },
