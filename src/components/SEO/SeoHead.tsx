@@ -20,7 +20,7 @@ interface SeoHeadProps {
   noIndex?: boolean;
 }
 
-const SITE_URL = 'https://weddingwaitress.com';
+const SITE_URL = 'https://weddingwaitress.netlify.app';
 const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-logo.png`;
 
 /**
