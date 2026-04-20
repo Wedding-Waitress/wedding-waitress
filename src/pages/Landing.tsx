@@ -4,14 +4,12 @@
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
 import React, { useRef, useState, useEffect } from 'react';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
+import { ContactForm } from "@/components/ContactForm";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Reveal } from "@/components/ui/Reveal";
@@ -192,9 +190,7 @@ export const Landing = () => {
   const plans = PLAN_PRICING[currency];
   const vendor = VENDOR_PRICING[currency];
   const sym = CURRENCIES[currency].symbol;
-  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
-  const [contactSending, setContactSending] = useState(false);
-  const [contactSent, setContactSent] = useState(false);
+  const [openFaq2, setOpenFaq2] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Scroll to section when arriving with a hash (e.g. /#pricing from another page)
@@ -315,46 +311,7 @@ export const Landing = () => {
   const testimonialItems = t('testimonials.items', { returnObjects: true }) as Array<{ name: string; text: string }>;
   const faqItems = t('faq.items', { returnObjects: true }) as Array<{ q: string; a: string }>;
 
-  // 🔒 Locked 2026-04-18 — wired to send-transactional-email → support@weddingwaitress.com
-  const handleContactSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const schema = z.object({
-      name: z.string().trim().min(1).max(100),
-      email: z.string().trim().email().max(255),
-      message: z.string().trim().min(1).max(2000),
-    });
-    const parsed = schema.safeParse(contactForm);
-    if (!parsed.success) {
-      toast.error("Please fill in all fields with valid information.");
-      return;
-    }
-    setContactSending(true);
-    try {
-      const { error } = await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'contact-form-message',
-          recipientEmail: 'support@weddingwaitress.com',
-          idempotencyKey: `contact-${crypto.randomUUID()}`,
-          templateData: {
-            name: parsed.data.name,
-            email: parsed.data.email,
-            message: parsed.data.message,
-            date: new Date().toISOString(),
-          },
-        },
-      });
-      if (error) throw error;
-      toast.success("Your message has been sent successfully. We will reply within 24 hours.");
-      setContactSent(true);
-      setContactForm({ name: '', email: '', message: '' });
-      setTimeout(() => setContactSent(false), 4000);
-    } catch (err) {
-      console.error('Contact form send failed', err);
-      toast.error("Something went wrong. Please try again or email support@weddingwaitress.com");
-    } finally {
-      setContactSending(false);
-    }
-  };
+  // Contact form is now in shared component <ContactForm /> — see src/components/ContactForm.tsx
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -753,61 +710,7 @@ export const Landing = () => {
           <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
             {t('contact.subtitle')}
           </p>
-          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-5 sm:p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
-            <div className="space-y-5">
-              <div>
-                <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.name')}</label>
-                <input
-                  id="contact-name"
-                  type="text"
-                  maxLength={100}
-                  value={contactForm.name}
-                  onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  placeholder={t('contact.namePlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.email')}</label>
-                <input
-                  id="contact-email"
-                  type="email"
-                  maxLength={255}
-                  value={contactForm.email}
-                  onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  placeholder={t('contact.emailPlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.message')}</label>
-                <textarea
-                  id="contact-message"
-                  maxLength={1000}
-                  rows={5}
-                  value={contactForm.message}
-                  onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
-                  placeholder={t('contact.messagePlaceholder')}
-                  required
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={contactSending}
-                className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
-              >
-                {contactSending ? t('contact.sending') : contactSent ? t('contact.sent') : (
-                  <>
-                    {t('contact.sendButton')}
-                    <Send className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
+          <ContactForm />
         </div>
       </section>
 

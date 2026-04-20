@@ -213,3 +213,35 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
   1. Inner links container must remain `grid grid-cols-1 gap-6 sm:grid-cols-3` (mobile = single column, desktop = 3 columns).
   2. Each Explore / Support / Legal link (`<a>` and `<Link>`) must keep `block py-3` for ≥44px mobile tap targets.
 - Any change requires explicit owner approval.
+
+---
+
+## Shared Contact Form (LOCKED 2026-04-20)
+
+**Component:** `src/components/ContactForm.tsx`
+
+This component is the **single source of truth** for the contact form rendered in:
+- The homepage Get-in-Touch section (`src/pages/Landing.tsx`)
+- The standalone `/contact` page (`src/pages/Contact.tsx`)
+
+**Locked rules — any change requires explicit owner approval:**
+
+1. **Field order:** Full Name → Email → Type of Event → Message → Submit
+2. **Labels (i18n keys):**
+   - `contact.fullName` → "Full Name"
+   - `contact.email` → "Email"
+   - `contact.eventType` → "Type of Event"
+   - `contact.message` → "Message"
+3. **Placeholders (i18n keys):**
+   - `contact.fullNamePlaceholder` → "Your full name"
+   - `contact.emailPlaceholder` → "username@example.com"
+   - `contact.eventTypePlaceholder` → "Wedding, Engagement, Birthday, etc."
+   - `contact.messagePlaceholder` → "How can we help?"
+4. **Styling:** White card `rounded-[20px]`, padding `p-5 sm:p-8 md:p-10`, shadow `shadow-[0_4px_30px_rgba(0,0,0,0.08)]`. Inputs use `bg-[#FAFAFA]`, `border-gray-200`, `rounded-xl`, focus ring `primary/30`.
+5. **Submit wiring:** Calls `send-transactional-email` edge function with template `contact-form-message` → `support@weddingwaitress.com`, including `eventType` in `templateData`.
+6. **Validation:** zod schema, all four fields required, inline error messages.
+
+**Do NOT:**
+- Re-introduce inline forms in `Landing.tsx` or `Contact.tsx`.
+- Add or remove fields without owner approval.
+- Change the submit button design or layout.
