@@ -7,7 +7,7 @@
 export const PLAN_PRICES = {
   essential: {
     product_id: 'prod_TyszqD3HJQ7LPR',
-    price_id: 'price_1T0vD35GzTmqOxGK3k6EQZee',
+    price_id: 'price_1TOGeX5GzTmqOxGKNtttFMhv',
     name: 'Essential Plan',
     price_aud: 99,
     original_price_aud: 199, // strikethrough marketing price
@@ -16,7 +16,7 @@ export const PLAN_PRICES = {
   },
   premium: {
     product_id: 'prod_TyszkELp5UKjnp',
-    price_id: 'price_1T0vDN5GzTmqOxGKf3kyvjxs',
+    price_id: 'price_1TOGhC5GzTmqOxGKNMnWh8k5',
     name: 'Premium Plan',
     price_aud: 149,
     original_price_aud: 299,
@@ -25,7 +25,7 @@ export const PLAN_PRICES = {
   },
   unlimited: {
     product_id: 'prod_TyszWQhDuEzn8c',
-    price_id: 'price_1T0vDj5GzTmqOxGKxVXhCfub',
+    price_id: 'price_1TOGjY5GzTmqOxGKSpGNJJdU',
     name: 'Unlimited Plan',
     price_aud: 249,
     original_price_aud: 499,
@@ -37,7 +37,7 @@ export const PLAN_PRICES = {
 // ── Vendor Pro (monthly subscription) ──────────────────────────────
 export const VENDOR_PRO = {
   product_id: 'prod_Tyt0ynptjt0lqh',
-  price_id: 'price_1T0vEC5GzTmqOxGK9AK1MNLL',
+  price_id: 'price_1TOGn05GzTmqOxGKPhBNhnPr',
   name: 'Vendor Pro',
   price_aud: 249,
   plan_db_id: '632b476a-39da-4f6f-8457-9ba104d571da',
