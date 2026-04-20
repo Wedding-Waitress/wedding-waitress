@@ -45,19 +45,26 @@ export const DashboardHeader: React.FC = () => {
 
   const ProfileMenu = (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          aria-label="Open account menu"
-          className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#967A59]"
-          style={{ backgroundColor: '#967A59' }}
-        >
-          {initials}
-        </button>
-      </DropdownMenuTrigger>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="My Profile"
+                className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#967A59]"
+                style={{ backgroundColor: '#967A59' }}
+              >
+                {initials}
+              </button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">My Profile</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={handleAccount} className="cursor-pointer">
           <UserCircle className="mr-2 h-4 w-4" />
-          Account
+          My Profile
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
