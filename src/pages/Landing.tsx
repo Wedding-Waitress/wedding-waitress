@@ -710,61 +710,7 @@ export const Landing = () => {
           <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
             {t('contact.subtitle')}
           </p>
-          <form onSubmit={handleContactSubmit} className="bg-white rounded-[20px] p-5 sm:p-8 md:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.08)]">
-            <div className="space-y-5">
-              <div>
-                <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.name')}</label>
-                <input
-                  id="contact-name"
-                  type="text"
-                  maxLength={100}
-                  value={contactForm.name}
-                  onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  placeholder={t('contact.namePlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.email')}</label>
-                <input
-                  id="contact-email"
-                  type="email"
-                  maxLength={255}
-                  value={contactForm.email}
-                  onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
-                  placeholder={t('contact.emailPlaceholder')}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">{t('contact.message')}</label>
-                <textarea
-                  id="contact-message"
-                  maxLength={1000}
-                  rows={5}
-                  value={contactForm.message}
-                  onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FAFAFA] text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
-                  placeholder={t('contact.messagePlaceholder')}
-                  required
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={contactSending}
-                className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
-              >
-                {contactSending ? t('contact.sending') : contactSent ? t('contact.sent') : (
-                  <>
-                    {t('contact.sendButton')}
-                    <Send className="w-4 h-4 ml-2" />
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
+          <ContactForm />
         </div>
       </section>
 
