@@ -78,10 +78,12 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     if (isExpired) {
       badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
       statusLabel = 'Expired';
-      displayPlanName = 'Free (Expired)';
+      displayPlanName = '7-Day Free Trial (Expired)';
     } else if (daysLeft != null) {
-      displayPlanName = `Free (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`;
+      displayPlanName = `7-Day Free Trial (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`;
       statusLabel = 'Active';
+    } else {
+      displayPlanName = '7-Day Free Trial';
     }
   } else if (isExpired || status === 'expired') {
     badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
