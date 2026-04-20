@@ -23,6 +23,8 @@ import { DJMCPublicView } from "./pages/DJMCPublicView";
 import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
 import { SeatingChartPublicView } from "./pages/SeatingChartPublicView";
 import { PaymentSuccess } from "./pages/PaymentSuccess";
+import { UpgradePricing } from "./pages/UpgradePricing";
+import { UpgradeCheckout } from "./pages/UpgradeCheckout";
 import { QRRedirect } from "./pages/QRRedirect";
 import { FeatureGuestList } from "./pages/features/FeatureGuestList";
 import { FeatureSeating } from "./pages/features/FeatureSeating";
@@ -97,6 +99,8 @@ const App = () => (
           <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
+          <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
           {/* Running Sheet is now a dashboard tab, no standalone route */}
           <Route path="/admin" element={<Admin />} />
           <Route path="/reset-password" element={<ResetPassword />} />
