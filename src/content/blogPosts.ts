@@ -137,6 +137,19 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
       { label: 'Why couples are switching to QR code seating', href: '/blog/qr-code-wedding-seating-chart-australia' },
     ],
   },
+  {
+    slug: 'best-wedding-seating-chart-templates-australia',
+    date: '2026-04-20',
+    coverEmoji: '🎨',
+    coverImage: 'blog-planning-laptop',
+    internalLinks: [
+      { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
+      { label: 'Full Seating Chart', href: '/products/full-seating-chart' },
+      { label: 'Guest List Manager', href: '/products/guest-list' },
+      { label: 'How to create a wedding seating chart (step-by-step)', href: '/blog/how-to-create-a-wedding-seating-chart-step-by-step' },
+      { label: 'Wedding seating chart etiquette', href: '/blog/wedding-seating-chart-etiquette-who-sits-where' },
+    ],
+  },
 ];
 
 /**
