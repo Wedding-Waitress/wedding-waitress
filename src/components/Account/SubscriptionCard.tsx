@@ -30,6 +30,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { toast } = useToast();
   const [startDate, setStartDate] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
