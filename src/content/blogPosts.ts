@@ -150,6 +150,20 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
       { label: 'Wedding seating chart etiquette', href: '/blog/wedding-seating-chart-etiquette-who-sits-where' },
     ],
   },
+  {
+    slug: 'common-wedding-seating-chart-mistakes',
+    date: '2026-04-20',
+    coverEmoji: '⚠️',
+    coverImage: 'blog-planning-laptop',
+    internalLinks: [
+      { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
+      { label: 'Guest List Manager', href: '/products/guest-list' },
+      { label: 'Tables & Seating', href: '/products/tables' },
+      { label: 'How to create a wedding seating chart (step-by-step)', href: '/blog/how-to-create-a-wedding-seating-chart-step-by-step' },
+      { label: 'Best wedding seating chart templates', href: '/blog/best-wedding-seating-chart-templates-australia' },
+      { label: 'Wedding seating chart etiquette', href: '/blog/wedding-seating-chart-etiquette-who-sits-where' },
+    ],
+  },
 ];
 
 /**
