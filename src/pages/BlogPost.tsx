@@ -53,7 +53,7 @@ export const BlogPost = () => {
 
   if (!post) return <NotFound />;
 
-  const url = `https://weddingwaitress.com/blog/${post.slug}`;
+  const url = `https://weddingwaitress.netlify.app/blog/${post.slug}`;
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -68,7 +68,7 @@ export const BlogPost = () => {
       name: 'Wedding Waitress',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://weddingwaitress.com/wedding-waitress-logo.png',
+        url: 'https://weddingwaitress.netlify.app/wedding-waitress-logo.png',
       },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
