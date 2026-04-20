@@ -20,7 +20,7 @@ export const PLAN_PRICES = {
     name: 'Premium Plan',
     price_aud: 149,
     original_price_aud: 299,
-    guest_limit: 300,
+    guest_limit: 200,
     plan_db_id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8',
   },
   unlimited: {
