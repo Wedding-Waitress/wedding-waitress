@@ -1,53 +1,65 @@
 
 ## Goal
-Add a new blog post: "Best Wedding Seating Chart Templates (Australia Guide)" — content-only addition matching the existing blog template.
+Add 2–4 natural internal links inside the body content of every blog post for SEO — linking to the homepage, the QR code feature page, and other relevant blog posts.
 
 ## Heads-up: locked surface
-`src/content/blogPosts.ts` and `src/i18n/locales/en/landing.json` are part of the LOCKED PUBLIC SURFACE. Your approval authorizes this addition. No edits to existing posts, components, or styling.
+`src/i18n/locales/en/landing.json` and `src/pages/BlogPost.tsx` are LOCKED PUBLIC SURFACE. Your approval here authorizes editing the post body strings only. The existing internal-links sidebar (`post.internalLinks`) stays untouched — this work adds inline links **inside paragraph text**.
+
+## Investigation needed
+The current `BlogPost.tsx` renders `section.paragraphs` as plain `<p>{p}</p>` — it does NOT parse HTML or markdown, so raw `<a>` tags would render as visible text. To add inline links without modifying the locked template, I need to confirm the rendering approach.
+
+Two viable paths:
+
+**Option A — Minimal template change (recommended)**
+Change one line in `BlogPost.tsx` to render paragraphs via a small inline helper that converts a simple `[text](url)` markdown-style token into a `<Link>` (internal) or `<a>` (external). This is a tiny, surgical edit to the locked file — purely additive rendering logic, no visual or layout change. Then add the inline tokens directly into the existing paragraph strings in `landing.json`.
+
+**Option B — No template change**
+Restructure every section's `paragraphs` into a richer shape (array of text/link parts). This requires changing the TypeScript type in `blogPosts.ts` AND every existing post entry — much larger blast radius on locked content.
+
+I recommend **Option A** — smallest, safest change.
 
 ## Changes
 
-### 1. `src/content/blogPosts.ts`
-Append one new entry to `BLOG_POSTS_STATIC`:
-- `slug`: `"best-wedding-seating-chart-templates-australia"`
-- `date`: `"2026-04-20"`
-- `coverEmoji`: `"🎨"`
-- `coverImage`: reuse existing `"blog-planning-laptop"`
-- `internalLinks`:
-  - QR Code Seating Chart → `/products/qr-code-seating-chart`
-  - Full Seating Chart → `/products/full-seating-chart`
-  - Guest List Manager → `/products/guest-list`
-  - How to create a wedding seating chart (step-by-step) → `/blog/how-to-create-a-wedding-seating-chart-step-by-step`
-  - Wedding seating chart etiquette → `/blog/wedding-seating-chart-etiquette-who-sits-where`
+### 1. `src/pages/BlogPost.tsx` (one surgical edit)
+Replace the single line:
+```tsx
+<p key={j} className="...">{p}</p>
+```
+with a render that parses `[anchor](path)` tokens:
+- `/...` paths → React Router `<Link>` (internal, scroll-to-top on click)
+- `http...` → `<a target="_blank" rel="noopener">`
+- Link styling: `text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]` (matches existing site link style used on feature pages)
 
-### 2. `src/i18n/locales/en/landing.json`
-Add new entry under `blog.posts.best-wedding-seating-chart-templates-australia`:
-- `title`: "Best Wedding Seating Chart Templates (Australia Guide)"
-- `metaTitle`: "Best Wedding Seating Chart Templates (Australia Guide 2026)"
-- `metaDescription`: "Looking for wedding seating chart templates? Discover the best options, ideas, and digital solutions for Australian weddings."
-- `excerpt`: 1–2 sentence summary derived from intro
-- `readingTime`: "6 min read"
-- `intro`: 3-paragraph introduction provided
-- `sections[]`: 9 H2 sections matching the user's outline:
-  1. What is a Wedding Seating Chart Template?
-  2. Popular Wedding Seating Chart Template Styles (covers the 5 styles)
-  3. Why Digital Templates Are Taking Over
-  4. QR Code Wedding Seating Templates
-  5. How to Choose the Right Template
-  6. Common Template Mistakes
-  7. The Smart Way to Create Your Seating Chart
-  8. Start Planning Your Seating Chart
+No other JSX, layout, or styling changes. Plain text without tokens renders identically to today.
 
-Only English locale updated (matches established pattern).
+### 2. `src/i18n/locales/en/landing.json` — inline links per post
+Add 2–4 natural inline links inside the existing paragraph strings of all 10 posts. Anchors blend into sentences (no "click here"). Targets per post:
 
-## CTA & SEO
-Existing `BlogPost.tsx` template already renders the bottom CTA routing to start-planning, and `SeoHead` auto-picks up `metaTitle`/`metaDescription` plus Article + Breadcrumb JSON-LD. No template changes.
+| Post slug | Inline links added |
+|---|---|
+| `how-to-create-qr-code-seating-chart` | homepage ("wedding seating chart tool"), `/products/qr-code-seating-chart` ("QR code wedding seating chart"), `/blog/how-to-create-a-wedding-seating-chart-step-by-step` |
+| `last-minute-wedding-seating-changes` | homepage, `/products/qr-code-seating-chart`, `/blog/common-wedding-seating-chart-mistakes` |
+| `qr-code-wedding-seating-chart-australia` | homepage, `/products/qr-code-seating-chart`, `/blog/how-to-create-a-wedding-seating-chart-step-by-step` |
+| `digital-vs-printed-seating-charts` | homepage, `/products/qr-code-seating-chart`, `/blog/best-wedding-seating-chart-templates-australia` |
+| `wedding-planning-checklist-australia` | homepage, `/products/qr-code-seating-chart`, `/blog/how-to-create-a-wedding-seating-chart-step-by-step` |
+| `how-to-organise-wedding-guest-list` | homepage, `/products/guest-list`, `/blog/wedding-seating-chart-etiquette-who-sits-where` |
+| `how-to-create-a-wedding-seating-chart-step-by-step` | homepage, `/products/qr-code-seating-chart` ("QR code wedding seating chart"), `/blog/wedding-seating-chart-etiquette-who-sits-where` |
+| `wedding-seating-chart-etiquette-who-sits-where` | homepage, `/products/qr-code-seating-chart`, `/blog/common-wedding-seating-chart-mistakes` |
+| `best-wedding-seating-chart-templates-australia` | homepage, `/products/qr-code-seating-chart`, `/blog/how-to-create-a-wedding-seating-chart-step-by-step` |
+| `common-wedding-seating-chart-mistakes` | homepage ("wedding seating chart tool"), `/products/qr-code-seating-chart` ("QR code wedding seating chart"), `/blog/how-to-create-a-wedding-seating-chart-step-by-step` |
+
+Each post: 3 links placed naturally — one in an early/middle section, two later in the article. Anchor text is woven into existing sentences (e.g. "…using a dedicated [wedding seating chart tool](/) keeps everything in one place…"). No new sentences invented where avoidable; minor rephrasing only when needed for natural flow.
+
+Existing `post.internalLinks` sidebar entries are NOT changed.
 
 ## Out of scope
-No edits to `BlogPost.tsx`, `Blog.tsx`, design tokens, other locales, or other posts. No new images.
+- No design, layout, or color changes
+- No edits to `Blog.tsx`, `blogPosts.ts`, other locales, or images
+- No changes to existing sidebar related-links block or bottom CTA
+- No new posts
 
 ## Verification after apply
-1. `/blog` lists the new post card.
-2. `/blog/best-wedding-seating-chart-templates-australia` renders with H1, intro, 8 H2 sections, internal links sidebar, and CTA.
-3. Browser tab title + meta description match the new SEO copy.
-4. No visual diff on existing pages.
+1. Each blog post shows 3 inline brown underlined links inside body paragraphs.
+2. Internal links navigate via React Router (no full page reload) and scroll to top.
+3. Plain paragraphs in any post still render identically (no stray brackets/parens visible).
+4. No visual diff on `/blog` index, sidebar, or CTA section.
