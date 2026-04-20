@@ -33,13 +33,15 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { price_id, mode, event_id, plan_type } = await req.json();
+    const { price_id, mode, event_id, plan_type, ui_mode } = await req.json();
     if (!price_id) throw new Error("price_id is required");
 
     const checkoutMode = mode === "subscription" ? "subscription" : "payment";
-    logStep("Checkout params", { price_id, checkoutMode, event_id, plan_type });
+    const isEmbedded = ui_mode === "embedded";
+    logStep("Checkout params", { price_id, checkoutMode, event_id, plan_type, isEmbedded });
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2025-08-27.basil",
     });
 
@@ -60,8 +62,6 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: price_id, quantity: 1 }],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
-      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/dashboard`,
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
@@ -69,8 +69,35 @@ serve(async (req) => {
       },
     };
 
+    if (isEmbedded) {
+      sessionParams.ui_mode = "embedded";
+      sessionParams.return_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+    } else {
+      sessionParams.success_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
+      sessionParams.cancel_url = `${origin}/dashboard`;
+    }
+
     const session = await stripe.checkout.sessions.create(sessionParams);
     logStep("Checkout session created", { sessionId: session.id });
+
+    // Derive Stripe publishable key from the secret-key environment so the
+    // embedded client can initialise Stripe.js without a separate build secret.
+    // Pattern: sk_<env>_... -> pk_<env>_... is NOT a 1:1 swap, so we require
+    // STRIPE_PUBLISHABLE_KEY when using embedded mode.
+    const publishableKey = Deno.env.get("STRIPE_PUBLISHABLE_KEY") || "";
+
+    if (isEmbedded) {
+      if (!publishableKey) {
+        throw new Error("STRIPE_PUBLISHABLE_KEY secret is required for embedded checkout");
+      }
+      return new Response(
+        JSON.stringify({ client_secret: session.client_secret, publishable_key: publishableKey }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

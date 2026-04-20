@@ -1,5 +1,6 @@
 // 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-18) — Stripe upgrade flow
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Loader2, LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +9,6 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { useAccountBilling } from '@/hooks/useAccountBilling';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { PLAN_PRICES } from '@/lib/stripePrices';
-import { UpgradePlanModal } from './UpgradePlanModal';
 
 interface Props {
   icon: LucideIcon;
@@ -28,9 +27,9 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { plan, isTrialExpired } = useUserPlan();
   const { data: billing } = useAccountBilling();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [startDate, setStartDate] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [busy] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -102,8 +101,8 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
       window.open(billing.portalUrl, '_blank', 'noopener,noreferrer');
       return;
     }
-    // New / trial users see the plan selection modal first.
-    setUpgradeOpen(true);
+    // New / trial users see the full pricing screen.
+    navigate('/dashboard/upgrade');
   };
 
   return (
@@ -131,7 +130,6 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           {billing?.portalUrl ? 'Manage Billing' : 'Upgrade Plan'}
         </Button>
       </div>
-      <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </SectionCard>
   );
 };
