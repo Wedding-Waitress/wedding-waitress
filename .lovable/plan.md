@@ -1,49 +1,53 @@
 
 ## Goal
-Polish the Account page + profile dropdown: rename "Account" → "My Profile" in 2 places, add a tooltip on the NE avatar, rename the trial label, and gate the Upgrade flow behind a 3-plan selection modal before redirecting to Stripe.
+Kill the current 3-card "Choose your plan" modal and replace it with a flow that (a) shows the EXACT homepage pricing section, then (b) routes the chosen plan to a dedicated checkout screen — Left = plan summary, Right = Stripe Checkout — with dynamic price IDs for Essential / Premium / Unlimited / Vendor Pro.
 
-## Findings (from codebase)
-- **Profile dropdown**: lives in the dashboard header. Need to confirm exact file — likely `src/components/Dashboard/DashboardHeader.tsx`. The "Account" item routes to `/dashboard?tab=account`. The NE avatar is the dropdown trigger.
-- **Account page title**: `src/pages/Account.tsx` line 41 — hardcoded `"Account"` and subtitle `"Manage your account, subscription, and billing"`.
-- **Subscription label + Upgrade button**: `src/components/Account/SubscriptionCard.tsx`. Currently shows the plan name (e.g. `"Free (Expired)"`) and an "Upgrade Plan" button that calls `create-checkout` directly with a single price.
-- **3 plans available**: Per project knowledge — Essential $99 AUD (≤100 guests), Premium $149 AUD (≤300 guests), Unlimited $249 AUD (unlimited). Stripe price IDs already exist in `src/lib/stripePrices.ts`.
+## Findings (from exploration so far)
+- Current modal: `src/components/Account/UpgradePlanModal.tsx` (3 hardcoded cards). Triggered from `src/components/Account/SubscriptionCard.tsx`.
+- Stripe price IDs already exist in `src/lib/stripePrices.ts` (Essential / Premium / Unlimited) and `src/lib/stripeExtensionPrices.ts`. Vendor Pro pricing exists on the homepage but I need to confirm whether a Vendor Pro price ID is already wired or needs to be referenced from the existing landing CTA — I will verify in `Landing.tsx` / `stripePrices.ts` at implementation time.
+- Homepage pricing lives inside the LOCKED public surface (`src/pages/Landing.tsx` + `src/i18n/locales/*/landing.json`). Per the locked-surface rule I will NOT modify it. Instead I will extract the existing pricing JSX into a small reusable component **without changing markup, classes, copy, or behavior on the homepage**, then reuse it in the new authenticated flow.
+- `create-checkout` edge function already accepts `{ price_id, mode, plan_type }` and returns a Stripe Checkout URL — no backend changes needed.
 
-I will read `SubscriptionCard.tsx`, `DashboardHeader.tsx` (or wherever the dropdown lives), and `stripePrices.ts` at implementation time to use the correct existing price IDs and existing checkout invocation pattern (no new edge function needed — reuse `create-checkout`).
+## Plan
 
-## Changes (scoped, additive only)
+### 1. Extract homepage pricing into a shared component (zero visual change)
+- New file: `src/components/Pricing/PricingSection.tsx` containing the EXACT JSX currently in `Landing.tsx`'s pricing section (heading, subheading, all support lines, 4 cards, footer lines).
+- Add a prop `onPlanSelect?: (planKey: 'essential' | 'premium' | 'unlimited' | 'vendor_pro') => void`.
+  - When `onPlanSelect` is provided → all 4 CTA buttons call it instead of the current "Start Planning Free" sign-up behavior.
+  - When omitted → component behaves IDENTICALLY to today (default Landing.tsx behavior preserved).
+- Replace the inline pricing JSX in `Landing.tsx` with `<PricingSection />`. Pure refactor, no copy / class / layout change.
 
-### 1. Profile dropdown — `src/components/Dashboard/DashboardHeader.tsx` (or equivalent)
-- Rename dropdown item label `"Account"` → `"My Profile"`.
-- Wrap the NE avatar trigger in a `<Tooltip>` with content `"My Profile"` (using existing `@/components/ui/tooltip`).
-- No route or behavior change — still navigates to `/dashboard?tab=account`.
+### 2. Delete the old modal
+- Remove `src/components/Account/UpgradePlanModal.tsx`.
+- Remove its import + `<UpgradePlanModal />` usage + `upgradeOpen` state from `SubscriptionCard.tsx`.
 
-### 2. Account page heading — `src/pages/Account.tsx`
-- Line 41: `Account` → `My Profile`.
-- Subtitle untouched.
+### 3. New "Upgrade" route — pricing screen
+- New route: `/dashboard/upgrade` → renders a simple authenticated page that mounts `<PricingSection onPlanSelect={...} />`.
+- "Upgrade Plan" button in `SubscriptionCard.tsx` → `navigate('/dashboard/upgrade')` (existing paying customers with `billing.portalUrl` keep going to Stripe portal — unchanged).
+- On plan click → `navigate(\`/dashboard/upgrade/checkout?plan=\${planKey}\`)`.
 
-### 3. Subscription label — `src/components/Account/SubscriptionCard.tsx`
-- When `plan_name === 'Free'` (or trial/expired state), render `"7-Day Free Trial"` instead of `"Free"`. Keep the `(Expired)` suffix logic and the existing red "Expired" badge exactly as-is for non-trial plans display.
-- Only the displayed string changes; underlying `plan.plan_name` value is not modified.
+### 4. Checkout screen — Left summary + Right Stripe
+- New route: `/dashboard/upgrade/checkout?plan=<key>`.
+- Two-column layout (stacks on mobile):
+  - **Left**: Selected plan card — name, price (e.g. A$149), description, and the same feature bullets shown on the homepage card. Sourced from a single `PLAN_DETAILS` map so left summary + Stripe line item can never drift.
+  - **Right**: Embedded Stripe Checkout via `@stripe/stripe-js` + `@stripe/react-stripe-js` `EmbeddedCheckoutProvider`.
+- Backend: extend `create-checkout` (small, additive) to support `ui_mode: 'embedded'` when the new screen calls it — returns `client_secret` instead of a redirect URL. The existing redirect flow stays intact for any other caller. Vendor Pro uses `mode: 'subscription'`; the other three stay `mode: 'payment'` (matches current Stripe price configuration).
+- On success → Stripe redirects to existing `/payment-success` page (already wired).
 
-### 4. Upgrade flow — new modal + wiring
-- **New file**: `src/components/Account/UpgradePlanModal.tsx`
-  - Dialog with 3 plan cards (Essential / Premium / Unlimited).
-  - Each card: name, AUD price, one-line description, "Choose Plan" button styled with existing `dashboard-btn-primary`.
-  - On "Choose Plan" click → invoke existing `create-checkout` edge function with the corresponding Stripe `price_id` from `src/lib/stripePrices.ts`, then `window.location.href = url` (matches current pattern).
-- **`SubscriptionCard.tsx`**: change "Upgrade Plan" button `onClick` to open the modal instead of calling checkout directly. Remove the direct single-price checkout call from this button only.
+### 5. Files touched
+- **New**: `src/components/Pricing/PricingSection.tsx`, `src/pages/UpgradePricing.tsx`, `src/pages/UpgradeCheckout.tsx`
+- **Edit**: `src/pages/Landing.tsx` (swap inline pricing for `<PricingSection />` — no visual change), `src/components/Account/SubscriptionCard.tsx` (remove modal, navigate to `/dashboard/upgrade`), `src/App.tsx` (add 2 routes), `supabase/functions/create-checkout/index.ts` (add embedded mode branch)
+- **Delete**: `src/components/Account/UpgradePlanModal.tsx`
 
-### 5. Untouched
-Billing, Usage, History, Security cards. All other layout/styling.
+### 6. Out of scope
+- No homepage visual/copy/i18n changes (locked surface respected via pure refactor).
+- No changes to the Account page billing/usage/history/security cards.
+- No new pricing or new plans — Vendor Pro reuses the existing homepage Vendor Pro CTA target.
 
-## Out of scope
-- No new edge functions, DB migrations, or pricing changes.
-- No i18n key changes (these labels are not in landing locked files).
-- No changes to the trial logic / `useUserPlan` hook.
-
-## Verification
-1. `/dashboard?tab=account` heading reads **My Profile**.
-2. Hovering the NE avatar shows tooltip "My Profile"; opening the dropdown shows menu item "My Profile" that still navigates to the Account page.
-3. Subscription card shows **7-Day Free Trial (Expired)** with the red Expired badge intact.
-4. Clicking **Upgrade Plan** opens a modal with 3 plans (Essential $99, Premium $149, Unlimited $249), each with a "Choose Plan" button.
-5. Clicking "Choose Plan" on any tier opens the matching Stripe Checkout URL in the same tab (existing pattern).
-6. Billing / Usage / History / Security sections render identically to before.
+### 7. Verification
+1. `/` homepage pricing section is pixel-identical to today (same heading, subheading, all 4 cards, both footer lines).
+2. Account → "Upgrade Plan" navigates to `/dashboard/upgrade` showing the same pricing section.
+3. Clicking any of the 4 "Start Planning Free" buttons (when logged in) routes to `/dashboard/upgrade/checkout?plan=<key>`.
+4. Checkout screen shows the matching plan summary on the left and an embedded Stripe Checkout on the right with the correct AUD amount (Essential $99, Premium $149, Unlimited $249, Vendor Pro $249/mo subscription).
+5. Successful payment lands on `/payment-success`.
+6. Existing paying users still hit the Stripe billing portal directly (unchanged).
