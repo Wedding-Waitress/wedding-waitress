@@ -87,7 +87,7 @@ export const BlogPost = () => {
                 </h2>
                 {section.paragraphs.map((p, j) => (
                   <p key={j} className="text-base md:text-lg text-[#3a3a3c] leading-relaxed mb-4">
-                    {p}
+                    {renderParagraphWithLinks(p)}
                   </p>
                 ))}
               </section>
