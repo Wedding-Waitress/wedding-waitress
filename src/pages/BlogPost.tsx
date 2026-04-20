@@ -11,6 +11,39 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { SignUpModal } from '@/components/auth/SignUpModal';
 import { useBlogPosts, useBlogPostBySlug } from '@/content/blogPosts';
 import NotFound from '@/pages/NotFound';
+import type { ReactNode } from 'react';
+
+// Parses [anchor](url) tokens in paragraph text and renders them as links.
+// Internal paths (starting with "/") use React Router <Link> + scroll-to-top.
+// External URLs (http...) open in a new tab.
+const renderParagraphWithLinks = (text: string): ReactNode => {
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+  const linkClass = 'text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]';
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
+    const [, label, href] = match;
+    if (href.startsWith('/')) {
+      nodes.push(
+        <Link key={`l-${key++}`} to={href} onClick={() => window.scrollTo(0, 0)} className={linkClass}>
+          {label}
+        </Link>
+      );
+    } else {
+      nodes.push(
+        <a key={`a-${key++}`} href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+          {label}
+        </a>
+      );
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) nodes.push(text.slice(lastIndex));
+  return nodes.length ? nodes : text;
+};
 
 export const BlogPost = () => {
   const { t } = useTranslation('landing');
@@ -87,7 +120,7 @@ export const BlogPost = () => {
                 </h2>
                 {section.paragraphs.map((p, j) => (
                   <p key={j} className="text-base md:text-lg text-[#3a3a3c] leading-relaxed mb-4">
-                    {p}
+                    {renderParagraphWithLinks(p)}
                   </p>
                 ))}
               </section>
