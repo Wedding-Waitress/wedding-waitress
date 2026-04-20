@@ -111,6 +111,19 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
       { label: 'My Events', href: '/products/my-events' },
     ],
   },
+  {
+    slug: 'how-to-create-a-wedding-seating-chart-step-by-step',
+    date: '2026-04-20',
+    coverEmoji: '📝',
+    coverImage: 'blog-planning-laptop',
+    internalLinks: [
+      { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
+      { label: 'Guest List Manager', href: '/products/guest-list' },
+      { label: 'Tables & Seating', href: '/products/tables' },
+      { label: 'How to create a QR code seating chart in 5 minutes', href: '/blog/how-to-create-qr-code-seating-chart' },
+      { label: 'How to handle last-minute seating changes', href: '/blog/last-minute-wedding-seating-changes' },
+    ],
+  },
 ];
 
 /**
