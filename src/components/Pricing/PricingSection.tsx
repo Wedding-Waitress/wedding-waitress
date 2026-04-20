@@ -23,6 +23,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
   const { currency } = useCurrencyContext();
   const plans = PLAN_PRICING[currency];
   const vendor = VENDOR_PRICING[currency];
+  const ctaLabel = onPlanSelect ? 'Upgrade Now' : t('pricing.getStarted');
 
   const renderCta = (plan: PlanKey, button: React.ReactElement) => {
     if (onPlanSelect) {
