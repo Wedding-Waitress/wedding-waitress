@@ -25,7 +25,7 @@
     "watchDemo": "Watch Demo"
   },
   "featureCards": {
-    "sectionTitle": "The wedding platform your guests will love.",
+    "sectionTitle": "Wedding Seating Chart Made Simple",
     "sectionSubtitle": "Our platform combines a powerful wedding guest list manager, wedding seating chart tool, QR code seating chart, RSVP tracker, and digital wedding invitations — everything you need in one place.",
     "guestList": {
       "title": "Manage Your Guest List Easily",
@@ -81,7 +81,7 @@
     }
   },
   "howItWorks": {
-    "title": "How It Works",
+    "title": "QR Code Wedding Seating Chart for Guests",
     "subtitle": "Plan your wedding or event in just a few simple steps ● Everything you need all in one place",
     "stepLabel": "Step",
     "step1Title": "Create Your Event",
@@ -147,7 +147,8 @@
       "title": "Venue Floor Plan",
       "desc": "Design your venue layout with a visual wedding floor plan builder and seating chart planner."
     },
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "title": "Manage Your Wedding Guest List Easily"
   },
   "extraGrid": {
     "title": "Everything you need for your perfect day",
@@ -370,8 +371,8 @@
     "sent": "✓ Message Sent!"
   },
   "finalCta": {
-    "title1": "Plan Your Wedding the Smart Way",
-    "title2": "All the tools you need. None of the stress.",
+    "title1": "Plan Your Wedding or Event in One Place",
+    "title2": "",
     "subtitle": "Start planning your perfect day — it's free.",
     "cta": "Start Planning Your Wedding Free",
     "ctaSub": "No credit card required · Instant access"
@@ -608,9 +609,9 @@
     }
   },
   "heroMain": {
-    "title1": "All-In-One Wedding & Event Planning Made Simple with",
-    "title2": "QR Code Seating Charts & More",
-    "subtitle": "Plan your entire wedding or event from one place. Manage guests, create seating charts, and send invitations - all without the stress of printed seating boards.",
+    "title1": "All-In-One Wedding Seating Chart & Event Planning Tool (Australia)",
+    "title2": "",
+    "subtitle": "Create your wedding seating chart, manage guests, and plan your entire event — all in one place.",
     "ctaPrimary": "Start Planning Your Event",
     "ctaSecondary": "View All Features"
   },
