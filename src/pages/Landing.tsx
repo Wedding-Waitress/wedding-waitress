@@ -161,8 +161,11 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           {t('heroMain.title1')}<br />
           {t('heroMain.title2')}
         </h1>
-        <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-8 max-w-4xl mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+        <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-3 max-w-4xl mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
           {t('heroMain.subtitle')}
+        </p>
+        <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-8 max-w-4xl mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          {t('heroMain.tagline')}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
