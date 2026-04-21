@@ -1,50 +1,33 @@
 
+## Root Cause
+The `STRIPE_PUBLISHABLE_KEY` Edge Function secret is set to an invalid value (`mk_1T0eM…`, 27 chars). Stripe.js requires `pk_live_…` or `pk_test_…`. Because the embedded checkout receives this bad key, `loadStripe()` fails silently and the right-hand panel stays blank. No code change can fix this — the secret itself must be replaced with the real **live publishable key** from your Stripe dashboard.
 
-## Goal
-Change Premium plan guest limit from **300 → 200** everywhere it's user-visible (frontend) and in the backend constants/database, while leaving Essential, Unlimited, and Vendor Pro untouched.
+The price IDs, the `create-checkout` Edge Function, the client secret flow, and the `<EmbeddedCheckoutProvider>` mount logic are all already correct. The secret key (`STRIPE_SECRET_KEY`) on the server side is presumed valid because the function returns a `client_secret` without error — only the publishable key is broken.
 
-## Locked-Surface Override
-The user is explicitly requesting changes to homepage pricing copy in `src/i18n/locales/*/landing.json` (normally locked per `LOCKED_TRANSLATION_KEYS.md`). Since the request directly demands "Apply this change EVERYWHERE… Homepage pricing section", we will treat this as owner-approved override **for the single key `pricing.premium.guests`** in every locale. No other locked content is touched.
+## Plan
 
-## Changes
+### 1. Replace the `STRIPE_PUBLISHABLE_KEY` secret (required user action)
+Open Stripe Dashboard → Developers → API keys → copy the **Publishable key** that starts with `pk_live_` (toggle the dashboard to **Live mode** first). Then update the secret in Lovable Cloud → Edge Function Secrets, replacing the current `mk_1T0eM…` value.
 
-### 1. Frontend — Display strings
-- **`src/lib/upgradePlans.ts`** (powers `/dashboard/upgrade` cards + `/dashboard/upgrade/checkout` summary)
-  - `premium.description`: `Up to 300 guests · One event · Full access` → `Up to 200 guests · One event · Full access`
-  - `premium.features`: replace `'Up to 300 guests'` with `'Up to 200 guests'`
+I will trigger the secret-update modal for you so you can paste it directly. (No code edit needed for this step.)
 
-- **`src/pages/Index.tsx`** line 408
-  - `<span>Up to 300 guests</span>` → `<span>Up to 200 guests</span>`
+### 2. Add a friendly client-side guard in `src/pages/UpgradeCheckout.tsx`
+If the function ever returns a non-`pk_` key again, surface a clear error in the right-hand panel instead of a blank box:
+- After receiving `publishable_key`, validate `startsWith('pk_live_') || startsWith('pk_test_')`.
+- If invalid, show: "Payment system is misconfigured. Please contact support." (and log details to console).
 
-- **`src/i18n/locales/{en,fr,de,es,it,nl,pt,ar,el,hi,ja,tr,vi,zh}/landing.json`** (all 14 locale files that ship a Premium card)
-  - Key `pricing.premium.guests`: replace the literal `300` with `200` while preserving the surrounding translated text (e.g. `"Up to 300 guests · 12-month access"` → `"Up to 200 guests · 12-month access"`, `"Jusqu'à 300 invités · Accès 12 mois"` → `"Jusqu'à 200 invités · Accès 12 mois"`, etc.).
-  - **No other keys in landing.json change.** SEO/blog paragraphs that mention `$300` etc. are untouched.
+### 3. Add a server-side guard in `supabase/functions/create-checkout/index.ts`
+Before returning the embedded payload, validate `STRIPE_PUBLISHABLE_KEY` starts with `pk_`. If not, return a 500 with a clear message ("STRIPE_PUBLISHABLE_KEY is invalid — must start with pk_live_ or pk_test_") so future misconfigurations fail loudly instead of rendering a blank checkout.
 
-### 2. Backend — Plan constants & database
-- **`src/lib/stripePrices.ts`**
-  - `PLAN_PRICES.premium.guest_limit`: `300` → `200`
+### 4. Verify live mode end-to-end
+After the secret is replaced:
+- Reload `/dashboard/upgrade/checkout?plan=essential`.
+- Confirm the embedded Stripe checkout mounts on the right with the A$99 line item.
+- Confirm the Stripe form shows "Powered by Stripe" with no test-mode banner.
+- GST/tax behaviour follows your Stripe **Tax** settings — once Stripe Checkout renders, any tax rules you have configured in the live Stripe dashboard will apply automatically.
 
-- **Database** (`subscription_plans` table) — create a Supabase migration:
-  ```sql
-  UPDATE public.subscription_plans
-  SET guest_limit = 200
-  WHERE id = '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8'  -- Premium
-    AND name = 'Premium';
-  ```
-  This propagates to anywhere the app reads `plans.guest_limit` at runtime (e.g. `useUserPlan`, `check_guest_limit` RPC, `UsageCard`).
-
-### 3. Out of Scope (NOT changed)
-- Pricing amounts (`price_aud`, `original_price_aud`, currency-specific prices in `currencyPricing.ts`).
-- Stripe price IDs / product IDs.
-- Layout, styling, component structure, CTA wiring.
-- Essential / Unlimited / Vendor Pro guest values.
-- Other "300" occurrences (300 DPI references, $300 cost-comparison paragraphs, RSVP tier `201–300 guests` bundle, debounce timers, CSS transitions). These are unrelated.
-
-## Verification After Implementation
-1. Homepage `/` (every supported language) → Premium card reads "Up to 200 guests".
-2. `/dashboard/upgrade` → Premium card reads "Up to 200 guests".
-3. `/dashboard/upgrade/checkout?plan=premium` → left summary lists "Up to 200 guests".
-4. Account → Usage card guest progress for users on the Premium plan shows `X / 200`.
-5. Creating/editing a Premium event enforces the new 200-guest limit via `check_guest_limit` RPC.
-6. No remaining "300 guests" / "Up to 300" string anywhere except the unrelated $300 cost paragraphs and 300 DPI place-card copy.
-
+## Out of Scope
+- No UI changes (layout, copy, styling untouched).
+- No changes to price IDs, plan list, or `upgradePlans.ts`.
+- No changes to the `/dashboard/upgrade` pricing cards.
+- Tax/GST configuration itself lives in the Stripe Dashboard (Tax settings) — not in app code.
