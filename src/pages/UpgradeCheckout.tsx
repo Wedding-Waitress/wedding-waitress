@@ -47,8 +47,13 @@ export const UpgradeCheckout: React.FC = () => {
         if (!data?.client_secret || !data?.publishable_key) {
           throw new Error('Checkout session did not return a client secret.');
         }
+        const pk: string = data.publishable_key;
+        if (!pk.startsWith('pk_live_') && !pk.startsWith('pk_test_')) {
+          console.error('[UpgradeCheckout] Invalid publishable key prefix:', pk.slice(0, 8));
+          throw new Error('Payment system is misconfigured. Please contact support.');
+        }
         setClientSecret(data.client_secret);
-        setPublishableKey(data.publishable_key);
+        setPublishableKey(pk);
       } catch (e: any) {
         const msg = e?.message || 'Failed to start checkout';
         setError(msg);
