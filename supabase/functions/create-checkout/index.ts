@@ -90,6 +90,11 @@ serve(async (req) => {
       if (!publishableKey) {
         throw new Error("STRIPE_PUBLISHABLE_KEY secret is required for embedded checkout");
       }
+      if (!publishableKey.startsWith("pk_live_") && !publishableKey.startsWith("pk_test_")) {
+        throw new Error(
+          "STRIPE_PUBLISHABLE_KEY is invalid — must start with pk_live_ or pk_test_"
+        );
+      }
       return new Response(
         JSON.stringify({ client_secret: session.client_secret, publishable_key: publishableKey }),
         {
