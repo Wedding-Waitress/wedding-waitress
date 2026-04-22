@@ -34,6 +34,15 @@ export const UpgradeCheckout: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
+        // Explicitly fetch session and pass JWT so the edge function always
+        // receives a valid Authorization header.
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData?.session;
+        if (!session?.access_token) {
+          setError('Please sign in again to continue with checkout.');
+          return;
+        }
+
         const { data, error: fnError } = await supabase.functions.invoke('create-checkout', {
           body: {
             price_id: plan.price_id,
@@ -41,9 +50,16 @@ export const UpgradeCheckout: React.FC = () => {
             plan_type: plan.key,
             ui_mode: 'embedded',
           },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         });
-        if (fnError) throw fnError;
         if (cancelled) return;
+        // Surface backend error message if present (invoke returns data even on non-2xx)
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+        if (fnError) throw fnError;
         if (!data?.client_secret || !data?.publishable_key) {
           throw new Error('Checkout session did not return a client secret.');
         }
