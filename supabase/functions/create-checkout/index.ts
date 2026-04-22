@@ -26,11 +26,30 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const authHeader = req.headers.get("Authorization")!;
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      logStep("Missing Authorization header");
+      return new Response(
+        JSON.stringify({ error: "Not authenticated. Please sign in again." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
+    const { data, error: userError } = await supabaseClient.auth.getUser(token);
+    if (userError) {
+      logStep("Auth error", { message: userError.message });
+      return new Response(
+        JSON.stringify({ error: "Your session has expired. Please sign in again." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     const user = data.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
+    if (!user?.email) {
+      return new Response(
+        JSON.stringify({ error: "Not authenticated. Please sign in again." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
     const { price_id, mode, event_id, plan_type, ui_mode } = await req.json();
