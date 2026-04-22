@@ -1,33 +1,59 @@
 
-## Root Cause
-The `STRIPE_PUBLISHABLE_KEY` Edge Function secret is set to an invalid value (`mk_1T0eM…`, 27 chars). Stripe.js requires `pk_live_…` or `pk_test_…`. Because the embedded checkout receives this bad key, `loadStripe()` fails silently and the right-hand panel stays blank. No code change can fix this — the secret itself must be replaced with the real **live publishable key** from your Stripe dashboard.
 
-The price IDs, the `create-checkout` Edge Function, the client secret flow, and the `<EmbeddedCheckoutProvider>` mount logic are all already correct. The secret key (`STRIPE_SECRET_KEY`) on the server side is presumed valid because the function returns a `client_secret` without error — only the publishable key is broken.
+## Root Cause
+
+The edge function logs reveal the actual error: **`Cannot read properties of null (reading 'replace')`**. This happens at line 33 of `supabase/functions/create-checkout/index.ts`:
+
+```ts
+const authHeader = req.headers.get("Authorization")!;
+const token = authHeader.replace("Bearer ", "");  // ← authHeader is null
+```
+
+The Authorization header is missing from the request. `supabase.functions.invoke()` only attaches the user's JWT automatically when an active session exists in the client. The user's session is either expired or wasn't picked up by `invoke()` at the moment of the click, so the function receives no token and crashes — the frontend then shows the generic "Edge Function returned a non-2xx status code" toast.
+
+Stripe itself, the price IDs, and the publishable key are all fine — the request never reaches Stripe.
 
 ## Plan
 
-### 1. Replace the `STRIPE_PUBLISHABLE_KEY` secret (required user action)
-Open Stripe Dashboard → Developers → API keys → copy the **Publishable key** that starts with `pk_live_` (toggle the dashboard to **Live mode** first). Then update the secret in Lovable Cloud → Edge Function Secrets, replacing the current `mk_1T0eM…` value.
+### 1. Frontend: explicitly attach the session JWT (`src/pages/UpgradeCheckout.tsx`)
+Before calling `supabase.functions.invoke('create-checkout', …)`:
+- Call `supabase.auth.getSession()`.
+- If no session, show a clear error in the right-hand panel ("Please sign in again to continue") and offer a "Sign in" button that routes to the auth flow.
+- If a session exists, pass it explicitly via the `headers` option:
+  ```ts
+  supabase.functions.invoke('create-checkout', {
+    body: { … },
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+  ```
+This guarantees the token reaches the edge function even if the SDK's auto-injection misses it.
 
-I will trigger the secret-update modal for you so you can paste it directly. (No code edit needed for this step.)
+### 2. Edge function: graceful auth failure (`supabase/functions/create-checkout/index.ts`)
+Replace the unsafe non-null assertion with a proper guard so the function never crashes on a null header and returns a meaningful 401:
+```ts
+const authHeader = req.headers.get("Authorization");
+if (!authHeader) {
+  return new Response(
+    JSON.stringify({ error: "Not authenticated. Please sign in again." }),
+    { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+const token = authHeader.replace("Bearer ", "");
+```
+Also surface the underlying Stripe/auth error message in the JSON response (already done) so future failures are diagnosable from the toast.
 
-### 2. Add a friendly client-side guard in `src/pages/UpgradeCheckout.tsx`
-If the function ever returns a non-`pk_` key again, surface a clear error in the right-hand panel instead of a blank box:
-- After receiving `publishable_key`, validate `startsWith('pk_live_') || startsWith('pk_test_')`.
-- If invalid, show: "Payment system is misconfigured. Please contact support." (and log details to console).
+### 3. Frontend: show the real error message in the right-hand panel
+Currently `UpgradeCheckout.tsx` only writes the error to state when an exception is thrown locally. When `supabase.functions.invoke` returns a non-2xx, surface `data?.error || error.message` in the panel (not just the toast) so the user can see why checkout failed instead of a blank box.
 
-### 3. Add a server-side guard in `supabase/functions/create-checkout/index.ts`
-Before returning the embedded payload, validate `STRIPE_PUBLISHABLE_KEY` starts with `pk_`. If not, return a 500 with a clear message ("STRIPE_PUBLISHABLE_KEY is invalid — must start with pk_live_ or pk_test_") so future misconfigurations fail loudly instead of rendering a blank checkout.
-
-### 4. Verify live mode end-to-end
-After the secret is replaced:
-- Reload `/dashboard/upgrade/checkout?plan=essential`.
-- Confirm the embedded Stripe checkout mounts on the right with the A$99 line item.
-- Confirm the Stripe form shows "Powered by Stripe" with no test-mode banner.
-- GST/tax behaviour follows your Stripe **Tax** settings — once Stripe Checkout renders, any tax rules you have configured in the live Stripe dashboard will apply automatically.
+### 4. Verify end-to-end
+- Reload `/dashboard/upgrade/checkout?plan=essential` while signed in.
+- Confirm the embedded Stripe form mounts on the right with the A$99 line item.
+- Repeat for Premium (A$149), Unlimited (A$249), Vendor Pro (A$249/mo).
+- Sign out, revisit the URL: confirm the friendly "Please sign in again" message appears instead of a blank panel.
 
 ## Out of Scope
-- No UI changes (layout, copy, styling untouched).
-- No changes to price IDs, plan list, or `upgradePlans.ts`.
-- No changes to the `/dashboard/upgrade` pricing cards.
-- Tax/GST configuration itself lives in the Stripe Dashboard (Tax settings) — not in app code.
+- No UI / layout / copy / styling changes to the pricing cards or summary panel.
+- No changes to price IDs, plan list, `upgradePlans.ts`, or `stripePrices.ts`.
+- No Stripe dashboard / tax / GST configuration changes (those live in the Stripe dashboard).
+- No changes to `verify_jwt` in `config.toml` (current `false` is correct — we validate the JWT in code).
+
