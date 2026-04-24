@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { PLAN_DETAILS, type PlanKey } from '@/lib/upgradePlans';
-import { PaymentProcessingOverlay } from '@/components/Checkout/PaymentProcessingOverlay';
+import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 const getStripe = (publishableKey: string) => {
@@ -26,21 +26,23 @@ export const UpgradeCheckout: React.FC = () => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [processing, setProcessing] = useState(false);
+  const { processing, startProcessing } = usePaymentProcessing();
 
   // Fallback: when Stripe begins redirecting after Pay, the iframe takes
   // focus then the window navigates. Listening for visibility/blur lets
   // us catch the redirect even if the iframe pointerdown was missed.
   useEffect(() => {
     const onVisibility = () => {
-      if (document.visibilityState === 'hidden') setProcessing(true);
+      if (document.visibilityState === 'hidden') startProcessing();
     };
-    window.addEventListener('beforeunload', () => setProcessing(true));
+    const onBeforeUnload = () => startProcessing();
+    window.addEventListener('beforeunload', onBeforeUnload);
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, []);
+  }, [startProcessing]);
 
   useEffect(() => {
     if (!plan) {
@@ -104,7 +106,7 @@ export const UpgradeCheckout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FBF9F4] to-[#F4EDE0]">
       <SeoHead title={`Checkout – ${plan.name}`} description={plan.description} />
-      {processing && <PaymentProcessingOverlay />}
+      {/* Overlay is mounted globally in App.tsx — no local render here */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Button
           variant="ghost"
@@ -154,13 +156,9 @@ export const UpgradeCheckout: React.FC = () => {
               // Stripe's Pay button lives inside an iframe. When the user
               // clicks anywhere inside the embedded checkout iframe, the
               // browser fires a pointerdown on the iframe element itself.
-              // We use this to surface the overlay immediately — well
-              // before Stripe's onComplete callback fires.
               const target = e.target as HTMLElement;
               if (target?.tagName === 'IFRAME') {
-                // Slight delay so non-Pay clicks (form fields) don't keep
-                // the overlay stuck — we hide it again on window focus.
-                setProcessing(true);
+                startProcessing();
               }
             }}
           >
@@ -179,7 +177,7 @@ export const UpgradeCheckout: React.FC = () => {
                 stripe={getStripe(publishableKey)}
                 options={{
                   clientSecret,
-                  onComplete: () => setProcessing(true),
+                  onComplete: () => startProcessing(),
                 }}
               >
                 <EmbeddedCheckout />

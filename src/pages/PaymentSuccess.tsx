@@ -3,12 +3,13 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, AlertCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
+import { usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
 
 export const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const sessionId = searchParams.get("session_id");
+  const { startProcessing, stopProcessing } = usePaymentProcessing();
 
   const [status, setStatus] = useState<"loading" | "success" | "approval" | "error">("loading");
   const [details, setDetails] = useState<{
@@ -20,8 +21,14 @@ export const PaymentSuccess = () => {
   }>({});
   const [error, setError] = useState("");
 
+  // Ensure overlay is visible while we verify (covers direct loads of this page).
+  useEffect(() => {
+    startProcessing();
+  }, [startProcessing]);
+
   useEffect(() => {
     if (!sessionId) {
+      stopProcessing();
       setStatus("error");
       setError("No session ID found");
       return;
@@ -41,11 +48,15 @@ export const PaymentSuccess = () => {
       } catch (err) {
         setError(err instanceof Error ? err.message : "Verification failed");
         setStatus("error");
+      } finally {
+        // Hide the global overlay only when verification finishes — the
+        // success/approval/error UI takes over from here.
+        stopProcessing();
       }
     };
 
     verify();
-  }, [sessionId]);
+  }, [sessionId, stopProcessing]);
 
   // Auto-redirect after 8 seconds for success
   useEffect(() => {
@@ -56,13 +67,9 @@ export const PaymentSuccess = () => {
     }
   }, [status, navigate]);
 
+  // While loading, render nothing — the global overlay is already covering the screen.
   if (status === "loading") {
-    return (
-      <PaymentProcessingOverlay
-        title="Verifying your payment..."
-        subtitle="Please wait while we confirm your purchase"
-      />
-    );
+    return null;
   }
 
   return (
