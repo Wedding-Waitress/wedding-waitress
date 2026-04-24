@@ -33,12 +33,23 @@ export const PaymentProcessingOverlay: React.FC<Props> = ({
             willChange: 'transform',
           }}
         />
-        <img
-          src="/wedding-waitress-logo-full.png"
-          alt="Wedding Waitress"
-          className="relative"
-          style={{ height: 64, width: 'auto' }}
-        />
+        <div
+          className="relative flex items-center justify-center"
+          style={{ width: '75%', height: '75%' }}
+        >
+          <img
+            src="/wedding-waitress-icon.png"
+            alt="Wedding Waitress"
+            className="block"
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              width: 'auto',
+              height: 'auto',
+              objectFit: 'contain',
+            }}
+          />
+        </div>
       </div>
 
       <h1 className="text-lg sm:text-xl font-semibold text-foreground text-center px-6">
