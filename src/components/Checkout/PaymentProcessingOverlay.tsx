@@ -21,16 +21,23 @@ export const PaymentProcessingOverlay: React.FC<Props> = ({
       role="status"
       aria-live="polite"
     >
-      {/* Spinning ring around logo */}
-      <div className="relative mb-8 flex items-center justify-center">
+      {/* Fixed-size container prevents layout shift / size change between states */}
+      <div
+        className="relative mb-8 flex items-center justify-center"
+        style={{ width: 140, height: 140 }}
+      >
         <div
-          className="absolute inset-0 -m-4 rounded-full border-2 border-[#E8E1D6] border-t-[#967A59]"
-          style={{ animation: 'payment-spin 1s linear infinite' }}
+          className="absolute inset-0 rounded-full border-2 border-[#E8E1D6] border-t-[#967A59]"
+          style={{
+            animation: 'payment-spin 1s linear infinite',
+            willChange: 'transform',
+          }}
         />
         <img
           src="/wedding-waitress-logo-full.png"
           alt="Wedding Waitress"
-          className="h-14 sm:h-16 w-auto relative"
+          className="relative"
+          style={{ height: 64, width: 'auto' }}
         />
       </div>
 
