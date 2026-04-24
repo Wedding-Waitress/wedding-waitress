@@ -6,8 +6,8 @@
 // ── Wedding Plans (one-time payments) ──────────────────────────────
 export const PLAN_PRICES = {
   essential: {
-    product_id: 'prod_TyszqD3HJQ7LPR',
-    price_id: 'price_1TOGeX5GzTmqOxGKNtttFMhv',
+    product_id: 'prod_UOQhHcOhFdrhOs',
+    price_id: 'price_1TPdpf5GzTmqOxGKTiE9x3RG',
     name: 'Essential Plan',
     price_aud: 99,
     original_price_aud: 199, // strikethrough marketing price
@@ -15,8 +15,8 @@ export const PLAN_PRICES = {
     plan_db_id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47',
   },
   premium: {
-    product_id: 'prod_TyszkELp5UKjnp',
-    price_id: 'price_1TOGhC5GzTmqOxGKNMnWh8k5',
+    product_id: 'prod_UOQhTWnFzXV1FK',
+    price_id: 'price_1TPdq05GzTmqOxGKEPamRNNq',
     name: 'Premium Plan',
     price_aud: 149,
     original_price_aud: 299,
@@ -24,8 +24,8 @@ export const PLAN_PRICES = {
     plan_db_id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8',
   },
   unlimited: {
-    product_id: 'prod_TyszWQhDuEzn8c',
-    price_id: 'price_1TOGjY5GzTmqOxGKSpGNJJdU',
+    product_id: 'prod_UOQhLIYTxQAd7U',
+    price_id: 'price_1TPdqZ5GzTmqOxGKRUn5rKbD',
     name: 'Unlimited Plan',
     price_aud: 249,
     original_price_aud: 499,
@@ -36,8 +36,8 @@ export const PLAN_PRICES = {
 
 // ── Vendor Pro (monthly subscription) ──────────────────────────────
 export const VENDOR_PRO = {
-  product_id: 'prod_Tyt0ynptjt0lqh',
-  price_id: 'price_1TOGn05GzTmqOxGKPhBNhnPr',
+  product_id: 'prod_UOQiLXxbgeXKZu',
+  price_id: 'price_1TPdqw5GzTmqOxGKLqFbLHHe',
   name: 'Vendor Pro',
   price_aud: 249,
   plan_db_id: '632b476a-39da-4f6f-8457-9ba104d571da',
