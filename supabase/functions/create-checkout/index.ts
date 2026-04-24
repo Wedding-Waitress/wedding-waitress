@@ -81,6 +81,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [{ price: price_id, quantity: 1 }],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
+      automatic_tax: { enabled: true },
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
