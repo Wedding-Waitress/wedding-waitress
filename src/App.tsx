@@ -55,7 +55,16 @@ import { ProductDjMcQuestionnaire } from "./pages/products/ProductDjMcQuestionna
 import { Blog } from "./pages/Blog";
 import { BlogPost } from "./pages/BlogPost";
 import Unsubscribe from "./pages/Unsubscribe";
+import { PaymentProcessingProvider, usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
+import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
 const queryClient = new QueryClient();
+
+// Single global overlay mount — never unmounts/remounts, animation never resets.
+const GlobalPaymentOverlay = () => {
+  const { processing } = usePaymentProcessing();
+  if (!processing) return null;
+  return <PaymentProcessingOverlay />;
+};
 
 // Scroll to top on route change
 const ScrollToTop = () => {
@@ -91,11 +100,13 @@ const App = () => (
     >
       <AppErrorBoundary>
         <CurrencyProvider>
+        <PaymentProcessingProvider>
         <BrowserRouter>
           <ScrollToTop />
           <RouteTracker />
           <Toaster />
           <Sonner />
+          <GlobalPaymentOverlay />
           <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -163,6 +174,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </PaymentProcessingProvider>
         </CurrencyProvider>
       </AppErrorBoundary>
     </ThemeProvider>
