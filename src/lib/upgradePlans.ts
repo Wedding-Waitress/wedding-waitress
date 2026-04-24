@@ -24,7 +24,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
     name: PLAN_PRICES.essential.name,
     price_aud: PLAN_PRICES.essential.price_aud,
     original_price_aud: PLAN_PRICES.essential.original_price_aud,
-    price_id: "price_1TOGeX5GzTmqOxGKNtttFMhv",
+    price_id: PLAN_PRICES.essential.price_id,
     mode: "payment",
     description: "Up to 100 guests · One event · Full access",
     features: ["One event", "Full platform access", "Easy setup", "Up to 100 guests"],
