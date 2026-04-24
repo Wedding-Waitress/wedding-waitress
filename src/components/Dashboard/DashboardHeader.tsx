@@ -50,7 +50,7 @@ export const DashboardHeader: React.FC = () => {
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <button
-                aria-label="My Profile"
+                aria-label="My Account"
                 className="h-9 w-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#967A59]"
                 style={{ backgroundColor: '#967A59' }}
               >
@@ -58,13 +58,13 @@ export const DashboardHeader: React.FC = () => {
               </button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="bottom">My Profile</TooltipContent>
+          <TooltipContent side="bottom">My Account</TooltipContent>
         </Tooltip>
       </TooltipProvider>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem onClick={handleAccount} className="cursor-pointer">
           <UserCircle className="mr-2 h-4 w-4" />
-          My Profile
+          My Account
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
