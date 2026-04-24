@@ -6,34 +6,31 @@ interface Props {
 }
 
 /**
- * Full-screen branded loading overlay shown during Stripe payment processing
- * and verification. Renders instantly to prevent the blank-screen gap between
- * Stripe redirect and our success page mounting.
+ * Full-screen branded loading overlay shown the instant a user clicks Pay,
+ * through Stripe processing, redirect, and verification on the success page.
+ * Renders synchronously (no transitions delayed by JS) so the user never
+ * sees a blank white screen between checkout and success.
  */
 export const PaymentProcessingOverlay: React.FC<Props> = ({
-  title = 'Processing your payment securely...',
-  subtitle = 'Please do not close this page',
+  title = 'Processing your payment...',
+  subtitle = 'This will only take a few seconds',
 }) => {
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b from-[#FBF9F4] to-[#F4EDE0] animate-fade-in"
+      className="fixed inset-0 z-[2147483647] flex flex-col items-center justify-center bg-gradient-to-b from-[#FBF9F4] to-[#F4EDE0]"
       role="status"
       aria-live="polite"
     >
-      <img
-        src="/wedding-waitress-logo-full.png"
-        alt="Wedding Waitress"
-        className="h-16 sm:h-20 w-auto mb-8 animate-scale-in"
-      />
-
-      {/* Animated progress bar */}
-      <div className="w-64 sm:w-80 h-1.5 bg-[#E8E1D6] rounded-full overflow-hidden mb-6">
+      {/* Spinning ring around logo */}
+      <div className="relative mb-8 flex items-center justify-center">
         <div
-          className="h-full w-1/3 rounded-full"
-          style={{
-            background: 'linear-gradient(90deg, transparent, #967A59, transparent)',
-            animation: 'payment-progress 1.4s ease-in-out infinite',
-          }}
+          className="absolute inset-0 -m-4 rounded-full border-2 border-[#E8E1D6] border-t-[#967A59]"
+          style={{ animation: 'payment-spin 1s linear infinite' }}
+        />
+        <img
+          src="/wedding-waitress-logo-full.png"
+          alt="Wedding Waitress"
+          className="h-14 sm:h-16 w-auto relative"
         />
       </div>
 
@@ -45,9 +42,9 @@ export const PaymentProcessingOverlay: React.FC<Props> = ({
       </p>
 
       <style>{`
-        @keyframes payment-progress {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
+        @keyframes payment-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
