@@ -1,87 +1,60 @@
 
 
 ## Goal
-Force Stripe to calculate AU GST (10%) on the embedded checkout **without** asking the user for any address, billing field, or country selector.
+Fix the "Edge Function returned a non-2xx status code" shown after a successful payment, without touching pricing, tax, or UI.
 
-## Reality Check on the Requested Options
-Before proposing a fix, here is why the three options in the request don't work as written — this matters because picking the wrong one will silently re-introduce the bug or break checkout entirely:
+## Root Cause
+The Stripe payment itself succeeds (Stripe returns `payment_status: paid` and shows the correct GST). The error comes from `supabase/functions/verify-payment/index.ts`, which the success page calls to confirm the purchase and activate the user's plan.
 
-1. **`customer_details: { address: { country: "AU" } }`** — Not a valid parameter on `checkout.sessions.create`. `customer_details` is a *response* field Stripe populates after the session completes; it cannot be set as input. Stripe will reject the request.
+`verify-payment` keeps its own hardcoded `PRODUCT_TO_PLAN` map of Stripe product IDs (lines 17–22). That map still contains the **old** product IDs (`prod_Tysz...`, `prod_Tyt0...`) from a previous Stripe configuration. Meanwhile `src/lib/stripePrices.ts` — the single source of truth used to *create* checkout sessions — has the **new** product IDs (`prod_UOQh...`, `prod_UOQi...`) tied to the current GST-enabled prices.
 
-2. **`shipping_address_collection: { allowed_countries: ["AU"] }`** — This *does* render a shipping address form in the embedded checkout (name + street + city + postcode), which violates the "no address fields in UI" requirement. Same UX problem as `billing_address_collection`.
+So: checkout is created with new product → payment succeeds → `verify-payment` looks up the new product ID in its stale map → not found → throws `Unknown product: prod_UOQhHcOhFdrhOs` → returns 500 → frontend shows "Edge Function returned a non-2xx status code".
 
-3. **`default_tax_rates`** — Works, but **disables Stripe automatic tax**. You'd be hard-coding a manual 10% rate. It also conflicts with `automatic_tax: { enabled: true }` (Stripe rejects the session if both are set on the same line item). You'd lose the dashboard-managed tax setup you already configured.
+This is confirmed by the live edge logs:
+```
+[VERIFY-PAYMENT] Product identified - {"productId":"prod_UOQhHcOhFdrhOs","eventId":""}
+[VERIFY-PAYMENT] ERROR - {"message":"Unknown product: prod_UOQhHcOhFdrhOs"}
+```
 
-## What Actually Works
-The correct way to force a location for `automatic_tax` without any UI is to **pre-set the address on the Stripe Customer object server-side** before creating the checkout session. Stripe's automatic tax then uses the customer's stored address as the location, and no address UI is shown.
+The `success_url` and `cancel_url` are both fine (`/payment-success` is a real route, page loads, just the verify call fails).
 
-Concretely, in `supabase/functions/create-checkout/index.ts`:
+## Change (single file)
+**File:** `supabase/functions/verify-payment/index.ts`
 
-1. **Remove** `billing_address_collection: "required"` (added in the previous step) and the conditional `customer_update: { address: "auto", name: "auto" }` block. These were what triggered the address form.
-2. **Always ensure a Stripe Customer exists** for the user (currently we only look one up; if none is found we let Checkout create it). Change this to: if no customer found, create one explicitly via `stripe.customers.create({ email: user.email, address: { country: "AU" } })`.
-3. **If the customer exists but has no address** (or a non-AU address) on file, call `stripe.customers.update(customerId, { address: { country: "AU" } })` before creating the session. This is idempotent and invisible to the user.
-4. Pass `customer: customerId` to the session (already done) and **drop** `customer_email` since we now always have a customer.
-5. Keep `automatic_tax: { enabled: true }` exactly as-is.
-
-Stripe accepts `address: { country: "AU" }` with only the country field — no street/city/postcode required for tax-location purposes. GST will compute against the AU country.
-
-## Change Summary (single file)
-**File:** `supabase/functions/create-checkout/index.ts`
+Update **only** the `PRODUCT_TO_PLAN` constant (lines 17–22) so its product IDs match the current ones in `src/lib/stripePrices.ts`. The `plan_db_id` UUIDs already match — only the Stripe product IDs are wrong.
 
 ```ts
-// Find OR create the Stripe customer, and ensure address.country = "AU"
-const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-let customerId: string;
-if (customers.data.length > 0) {
-  customerId = customers.data[0].id;
-  const existing = customers.data[0];
-  if (!existing.address || existing.address.country !== "AU") {
-    await stripe.customers.update(customerId, { address: { country: "AU" } });
-    logStep("Customer address forced to AU", { customerId });
-  }
-} else {
-  const created = await stripe.customers.create({
-    email: user.email,
-    address: { country: "AU" },
-    metadata: { user_id: user.id },
-  });
-  customerId = created.id;
-  logStep("Created Stripe customer with AU address", { customerId });
-}
-
-const sessionParams: Stripe.Checkout.SessionCreateParams = {
-  customer: customerId,
-  line_items: [{ price: price_id, quantity: 1 }],
-  mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
-  automatic_tax: { enabled: true },
-  metadata: {
-    user_id: user.id,
-    plan_type: plan_type || "",
-    event_id: event_id || "",
-  },
+const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string; is_vendor: boolean }> = {
+  "prod_UOQhHcOhFdrhOs": { plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47", name: "Essential",  is_vendor: false },
+  "prod_UOQhTWnFzXV1FK": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium",    is_vendor: false },
+  "prod_UOQhLIYTxQAd7U": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited",  is_vendor: false },
+  "prod_UOQiLXxbgeXKZu": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
 };
 ```
 
-Removed from the previous version:
-- `customer_email: customerId ? undefined : user.email` (no longer needed — customer always exists)
-- `billing_address_collection: "required"`
-- `...(customerId ? { customer_update: { address: "auto", name: "auto" } } : {})`
+Nothing else in the file is touched: auth, session retrieval, RSVP branch, extension branch, plan-activation logic, admin notification email, success response shape, error handling — all unchanged.
 
-The embedded vs hosted branching, return/success/cancel URLs, error handling, and response shape are untouched.
-
-## Prerequisite (Stripe dashboard — unchanged from before)
-The current test-mode prices must have `tax_behavior` set to `inclusive` or `exclusive`. From your screenshot the Stripe price preview is already showing `Subtotal $99 + GST $9.90 = $108.90`, which means `tax_behavior` is already set correctly. No price changes needed.
-
-## Verification
-- Reload `/dashboard/upgrade/checkout?plan=essential`.
-- Confirm the embedded form shows **only the card field** — no address, no country dropdown.
-- Confirm the order summary on the right shows: Subtotal $99.00, **GST $9.90**, Total $108.90.
-- Confirm test card `4242 4242 4242 4242` completes checkout.
-- Confirm hitting checkout a second time as the same user still shows GST (i.e. the existing customer with the AU address is reused without prompting).
+## Why Not the Other Items in the Request
+- `success_url`/`cancel_url` — already valid (`/payment-success?session_id={CHECKOUT_SESSION_ID}` and `/dashboard`). The success page renders; the failure is *inside* the verify call. No change needed.
+- Webhook — this project doesn't use Stripe webhooks; activation is done synchronously in `verify-payment`. No change needed.
+- Edge function returning 200 — it already returns 200 on the happy path; the 500 here is the correct behavior for an unrecoverable "unknown product" error. Fixing the lookup makes the happy path execute and returns 200.
+- Undefined variables — none; the bug is a stale lookup table, not undefined state.
 
 ## Out of Scope
-- No UI / copy / styling changes anywhere in the app.
-- No changes to `upgradePlans.ts`, `stripePrices.ts`, `UpgradeCheckout.tsx`, `verify-payment`, or webhooks.
-- No changes to plan amounts, price IDs, or tax_behavior.
-- No `default_tax_rates`, no `shipping_address_collection`, no `billing_address_collection` — all explicitly avoided.
+- No changes to pricing, tax, or any UI.
+- No changes to `create-checkout`, `stripePrices.ts`, `PaymentSuccess.tsx`, or `UpgradeCheckout.tsx`.
+- No changes to the RSVP or extension product ID sets in `verify-payment` (those are unrelated and already correct for their flows).
+- No new webhook setup.
+
+## Verification
+1. Reload `/dashboard/upgrade/checkout?plan=essential`, complete checkout with `4242 4242 4242 4242`.
+2. After Stripe redirects to `/payment-success?session_id=...`, the page should show "Payment Successful! 🎉" with `Essential` plan name and a 12-month expiry.
+3. Edge logs for `verify-payment` should show:
+   ```
+   [VERIFY-PAYMENT] Product identified - {"productId":"prod_UOQhHcOhFdrhOs",...}
+   [VERIFY-PAYMENT] Subscription updated - {"plan":"Essential","status":"active",...}
+   ```
+   and **no** "Unknown product" error.
+4. Auto-redirect to `/dashboard?tab=account&success=true` after 8s; account page should show the Essential plan as active.
+5. Repeat once for Premium and Unlimited if you want full coverage (optional — same code path).
 
