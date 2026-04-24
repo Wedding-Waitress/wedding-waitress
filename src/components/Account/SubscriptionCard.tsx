@@ -96,12 +96,6 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   }
 
   const handleUpgrade = () => {
-    // Existing paying customers go to Stripe portal directly to manage billing.
-    if (billing?.portalUrl) {
-      window.open(billing.portalUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    // New / trial users see the full pricing screen.
     navigate('/dashboard/upgrade');
   };
 
@@ -127,7 +121,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           size="sm"
         >
           {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {billing?.portalUrl ? 'Manage Billing' : 'Upgrade Plan'}
+          Change Plan
         </Button>
       </div>
     </SectionCard>
