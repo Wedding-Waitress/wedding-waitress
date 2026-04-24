@@ -121,7 +121,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           size="sm"
         >
           {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {billing?.portalUrl ? 'Manage Billing' : 'Upgrade Plan'}
+          Change Plan
         </Button>
       </div>
     </SectionCard>
