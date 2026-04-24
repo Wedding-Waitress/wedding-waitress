@@ -83,6 +83,13 @@ serve(async (req) => {
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
       billing_address_collection: "required",
+      // When a customer is reused, Stripe will NOT save the address collected
+      // at checkout (and therefore won't use it for automatic tax) unless we
+      // opt in via customer_update. Required for GST to compute on returning
+      // customers whose Stripe customer record has no AU address yet.
+      ...(customerId
+        ? { customer_update: { address: "auto", name: "auto" } }
+        : {}),
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
