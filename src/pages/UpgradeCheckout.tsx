@@ -28,6 +28,20 @@ export const UpgradeCheckout: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
 
+  // Fallback: when Stripe begins redirecting after Pay, the iframe takes
+  // focus then the window navigates. Listening for visibility/blur lets
+  // us catch the redirect even if the iframe pointerdown was missed.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') setProcessing(true);
+    };
+    window.addEventListener('beforeunload', () => setProcessing(true));
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
+
   useEffect(() => {
     if (!plan) {
       setError('Unknown plan');
