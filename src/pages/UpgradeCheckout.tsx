@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { PLAN_DETAILS, type PlanKey } from '@/lib/upgradePlans';
+import { PaymentProcessingOverlay } from '@/components/Checkout/PaymentProcessingOverlay';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 const getStripe = (publishableKey: string) => {
@@ -25,6 +26,7 @@ export const UpgradeCheckout: React.FC = () => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (!plan) {
@@ -88,6 +90,7 @@ export const UpgradeCheckout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FBF9F4] to-[#F4EDE0]">
       <SeoHead title={`Checkout – ${plan.name}`} description={plan.description} />
+      {processing && <PaymentProcessingOverlay />}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Button
           variant="ghost"
@@ -145,7 +148,10 @@ export const UpgradeCheckout: React.FC = () => {
             {!error && clientSecret && publishableKey && (
               <EmbeddedCheckoutProvider
                 stripe={getStripe(publishableKey)}
-                options={{ clientSecret }}
+                options={{
+                  clientSecret,
+                  onComplete: () => setProcessing(true),
+                }}
               >
                 <EmbeddedCheckout />
               </EmbeddedCheckoutProvider>
