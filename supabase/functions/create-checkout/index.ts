@@ -64,32 +64,37 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Find or create Stripe customer
+    // Find OR create the Stripe customer, and ensure address.country = "AU"
+    // so Stripe automatic_tax has a location to calculate GST against without
+    // collecting a billing address from the user in the embedded checkout UI.
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    let customerId: string | undefined;
+    let customerId: string;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      logStep("Existing Stripe customer", { customerId });
+      const existing = customers.data[0];
+      if (!existing.address || existing.address.country !== "AU") {
+        await stripe.customers.update(customerId, { address: { country: "AU" } });
+        logStep("Customer address forced to AU", { customerId });
+      } else {
+        logStep("Existing Stripe customer already AU", { customerId });
+      }
     } else {
-      logStep("No existing customer, will create via checkout");
+      const created = await stripe.customers.create({
+        email: user.email,
+        address: { country: "AU" },
+        metadata: { user_id: user.id },
+      });
+      customerId = created.id;
+      logStep("Created Stripe customer with AU address", { customerId });
     }
 
     const origin = req.headers.get("origin") || "https://wedding-waitress.lovable.app";
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
       line_items: [{ price: price_id, quantity: 1 }],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
-      billing_address_collection: "required",
-      // When a customer is reused, Stripe will NOT save the address collected
-      // at checkout (and therefore won't use it for automatic tax) unless we
-      // opt in via customer_update. Required for GST to compute on returning
-      // customers whose Stripe customer record has no AU address yet.
-      ...(customerId
-        ? { customer_update: { address: "auto", name: "auto" } }
-        : {}),
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
