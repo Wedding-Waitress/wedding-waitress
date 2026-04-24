@@ -28,6 +28,20 @@ export const UpgradeCheckout: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
 
+  // Fallback: when Stripe begins redirecting after Pay, the iframe takes
+  // focus then the window navigates. Listening for visibility/blur lets
+  // us catch the redirect even if the iframe pointerdown was missed.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') setProcessing(true);
+    };
+    window.addEventListener('beforeunload', () => setProcessing(true));
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
+
   useEffect(() => {
     if (!plan) {
       setError('Unknown plan');
@@ -134,7 +148,22 @@ export const UpgradeCheckout: React.FC = () => {
           </div>
 
           {/* RIGHT: Embedded Stripe Checkout */}
-          <div className="bg-white rounded-2xl p-2 shadow-[0_4px_30px_rgba(0,0,0,0.08)] border border-[#E8E1D6]/60 min-h-[600px]">
+          <div
+            className="bg-white rounded-2xl p-2 shadow-[0_4px_30px_rgba(0,0,0,0.08)] border border-[#E8E1D6]/60 min-h-[600px]"
+            onPointerDownCapture={(e) => {
+              // Stripe's Pay button lives inside an iframe. When the user
+              // clicks anywhere inside the embedded checkout iframe, the
+              // browser fires a pointerdown on the iframe element itself.
+              // We use this to surface the overlay immediately — well
+              // before Stripe's onComplete callback fires.
+              const target = e.target as HTMLElement;
+              if (target?.tagName === 'IFRAME') {
+                // Slight delay so non-Pay clicks (form fields) don't keep
+                // the overlay stuck — we hide it again on window focus.
+                setProcessing(true);
+              }
+            }}
+          >
             {error && (
               <div className="p-6 text-center text-sm text-red-600">
                 {error}
