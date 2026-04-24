@@ -15,10 +15,10 @@ const logStep = (step: string, details?: unknown) => {
 
 // Product-to-plan mapping (duplicated from stripePrices.ts for edge function context)
 const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string; is_vendor: boolean }> = {
-  "prod_TyszqD3HJQ7LPR": { plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47", name: "Essential", is_vendor: false },
-  "prod_TyszkELp5UKjnp": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium", is_vendor: false },
-  "prod_TyszWQhDuEzn8c": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited", is_vendor: false },
-  "prod_Tyt0ynptjt0lqh": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true },
+  "prod_UOQhHcOhFdrhOs": { plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47", name: "Essential",  is_vendor: false },
+  "prod_UOQhTWnFzXV1FK": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium",    is_vendor: false },
+  "prod_UOQhLIYTxQAd7U": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited",  is_vendor: false },
+  "prod_UOQiLXxbgeXKZu": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
 };
 
 // RSVP product IDs
