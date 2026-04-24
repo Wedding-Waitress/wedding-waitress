@@ -82,6 +82,7 @@ serve(async (req) => {
       line_items: [{ price: price_id, quantity: 1 }],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
+      billing_address_collection: "required",
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
