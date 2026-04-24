@@ -380,7 +380,7 @@
 
     "@stripe/react-stripe-js": ["@stripe/react-stripe-js@6.2.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@stripe/react-stripe-js/-/react-stripe-js-6.2.0.tgz", { "dependencies": { "prop-types": "^15.7.2" }, "peerDependencies": { "@stripe/stripe-js": ">=9.2.0 <10.0.0", "react": ">=16.8.0 <20.0.0", "react-dom": ">=16.8.0 <20.0.0" } }, "sha512-GSCErjljZEQv9LaxP30xGOwstcMyyUzb5JyihXwvjOU95yrfhbiPG4K2KkwxYxn+WY0/AyHsRhPPoGRw7urBzg=="],
 
-    "@stripe/stripe-js": ["@stripe/stripe-js@9.2.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@stripe/stripe-js/-/stripe-js-9.2.0.tgz", {}, "sha512-YSzLC0t6VS9MDdPTynSMqU8IxrItFUjkDORALFT6sSMR/XZ5Vgm3RDp/Gk7z727MC4A9s4MFVel0gF0c7+kdrg=="],
+    "@stripe/stripe-js": ["@stripe/stripe-js@9.3.1", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@stripe/stripe-js/-/stripe-js-9.3.1.tgz", {}, "sha512-oWpAEENuVg8aw4W2OUAM9WxRDtIV2YTLr2nr6qHT+D8tHPW7bya61ufinPpUespyRNUVXqesnHo+jQdUNsGywA=="],
 
     "@supabase/auth-js": ["@supabase/auth-js@2.72.0", "", { "dependencies": { "@supabase/node-fetch": "^2.6.14" } }, "sha512-4+bnUrtTDK1YD0/FCx2YtMiQH5FGu9Jlf4IQi5kcqRwRwqp2ey39V61nHNdH86jm3DIzz0aZKiWfTW8qXk1swQ=="],
 
