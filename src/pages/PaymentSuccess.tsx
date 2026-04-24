@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, Loader2, AlertCircle, Clock } from "lucide-react";
+import { Check, AlertCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
 
 export const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -55,16 +56,19 @@ export const PaymentSuccess = () => {
     }
   }, [status, navigate]);
 
+  if (status === "loading") {
+    return (
+      <PaymentProcessingOverlay
+        title="Verifying your payment..."
+        subtitle="Please wait while we confirm your purchase"
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-card rounded-2xl shadow-lg border border-border p-8 text-center space-y-6">
-        {status === "loading" && (
-          <>
-            <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto" />
-            <h1 className="text-xl font-semibold">Verifying your payment…</h1>
-            <p className="text-sm text-muted-foreground">Please wait while we confirm your purchase.</p>
-          </>
-        )}
+
 
         {status === "success" && (
           <>
