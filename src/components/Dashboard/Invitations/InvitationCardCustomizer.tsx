@@ -533,7 +533,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                               await handleSettingChange('background_image_url', null);
                               toast({ title: "Image Removed", description: "Background image has been removed" });
                             }}
-                            className="w-full rounded-full flex items-center justify-center gap-2"
+                            className="w-full rounded-full flex items-center justify-center gap-2 bg-destructive/85 hover:bg-destructive/95"
                           >
                             <Trash2 className="h-4 w-4" />
                             Remove Image
