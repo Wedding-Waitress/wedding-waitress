@@ -412,8 +412,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetDesignDefaults} 
-                  variant="destructive" 
-                  className="w-full rounded-full"
+                  variant="outline" 
+                  className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   Reset to Default
                 </Button>
@@ -463,8 +463,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       description: "All text positions have been reset to default"
                     });
                   }} 
-                  variant="destructive" 
-                  className="w-full rounded-full"
+                  variant="outline" 
+                  className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   Reset to Default
                 </Button>
@@ -595,7 +595,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                               description: "Background image has been removed"
                             });
                           }}
-                          className="w-full rounded-full flex items-center justify-center gap-2"
+                          className="w-full rounded-full flex items-center justify-center gap-2 bg-destructive/85 hover:bg-destructive/95"
                         >
                           <Trash2 className="h-4 w-4" />
                           Remove Image
@@ -679,8 +679,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetBackgroundDefaults} 
-                  variant="destructive" 
-                  className="w-full rounded-full"
+                  variant="outline" 
+                  className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   Reset to Default
                 </Button>
@@ -704,7 +704,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
                 <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Individual Messages</span>
                 
-                <Button variant="success" className="w-full rounded-full">
+                <Button className="w-full rounded-full bg-primary text-white hover:bg-primary/90">
                   Guest Name Search
                 </Button>
                 
@@ -755,8 +755,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetMessagesDefaults} 
-                  variant="destructive" 
-                  className="w-full rounded-full"
+                  variant="outline" 
+                  className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   Reset to Default
                 </Button>
