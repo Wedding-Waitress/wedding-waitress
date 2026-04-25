@@ -106,7 +106,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeNames: checked })
               }
-              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -118,7 +117,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ showSeatNumbers: checked })
               }
-              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -130,7 +128,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeGuestList: checked })
               }
-              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -142,7 +139,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeDietary: checked })
               }
-              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -154,7 +150,6 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               onCheckedChange={(checked) => 
                 onSettingsChange({ includeRelation: checked })
               }
-              className="data-[state=unchecked]:bg-destructive"
             />
           </div>
 
@@ -178,7 +173,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 onCheckedChange={(checked) => 
                   onSettingsChange({ largerTableNames: checked })
                 }
-                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-destructive"
+                className="data-[state=checked]:bg-success"
               />
             </div>
 
@@ -253,7 +248,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                   onCheckedChange={(checked) => 
                     onSettingsChange({ enableEndSeats: checked })
                   }
-                  className="data-[state=unchecked]:bg-destructive"
+                  
                 />
               </div>
 

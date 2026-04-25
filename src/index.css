@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  [role="switch"][data-state="checked"] {
+    background-color: hsl(var(--success)) !important;
+    border-color: transparent !important;
+  }
+
+  [role="switch"][data-state="checked"]:hover,
+  [role="switch"][data-state="checked"]:focus {
+    background-color: hsl(var(--success)) !important;
+  }
+
+  [role="switch"][data-state="unchecked"] {
+    background-color: hsl(var(--accent)) !important;
+    border-color: hsl(var(--input-border)) !important;
+  }
+
+  [role="switch"][data-state="unchecked"]:hover,
+  [role="switch"][data-state="unchecked"]:focus {
+    background-color: hsl(var(--accent)) !important;
+    border-color: hsl(var(--input-border)) !important;
+  }
+}
+
 /* Compact mobile/tablet nav menu */
 .mobile-nav-menu [role="menuitem"],
 .mobile-nav-menu div[role="menuitem"],
