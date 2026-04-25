@@ -18,7 +18,7 @@ import { format } from 'date-fns';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
-const weddingWaitressLogo = '/wedding-waitress-pdf-footer-logo.png';
+const weddingWaitressLogo = '/wedding-waitress-logo-brown.png';
 
 interface IndividualTableChartPreviewProps {
   settings: IndividualChartSettings;
