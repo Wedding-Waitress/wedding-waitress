@@ -1,4 +1,4 @@
-// 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-18) — Stripe upgrade flow
+// 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-25) — Stripe upgrade flow
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, LucideIcon } from 'lucide-react';
@@ -117,7 +117,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
         <Button
           onClick={handleUpgrade}
           disabled={busy}
-          className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
+          className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
           size="sm"
         >
           {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
