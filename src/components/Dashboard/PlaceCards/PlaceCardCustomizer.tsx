@@ -463,8 +463,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       description: "All text positions have been reset to default"
                     });
                   }} 
-                  variant="destructive" 
-                  className="w-full rounded-full"
+                  variant="outline" 
+                  className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   Reset to Default
                 </Button>
