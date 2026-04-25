@@ -230,11 +230,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="px-4 sm:px-6 py-4 border-b-2 border-primary bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-bold text-foreground truncate">
+              <h3 className="text-2xl font-extrabold text-foreground truncate tracking-tight">
                 My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}
               </h3>
-              <div className="flex items-start gap-2 mt-3">
-                <p className="text-xs sm:text-sm text-muted-foreground">
+              <div className="flex items-start gap-2 mt-4">
+                <p className="text-xs sm:text-sm text-muted-foreground/80">
                   {isMobile ? "Create & manage events here." : (
                     <>
                       <span className="bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
@@ -244,7 +244,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 </p>
               </div>
               {selectedEvent && !isMobile && (
-                <p className="text-sm mt-1">
+                <p className="text-xs mt-2">
                   <span className="text-green-500">
                     Your account was created on {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)}
                   </span>
