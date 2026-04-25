@@ -378,12 +378,13 @@
     "ctaSub": "No credit card required · Instant access"
   },
   "footer": {
-    "tagline": "The all-in-one wedding planning platform trusted by couples across Australia.",
+    "tagline": "The all-in-one wedding planning platform trusted by couples across Australia and internationally.",
     "explore": "Explore",
     "support": "Support",
     "features": "Features",
     "pricing": "Pricing",
     "faq": "FAQ",
+    "adminPanel": "ADMIN PANEL",
     "contactUs": "Contact Us",
     "privacy": "Privacy",
     "terms": "Terms",
