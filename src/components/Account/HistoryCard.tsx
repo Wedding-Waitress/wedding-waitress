@@ -1,4 +1,4 @@
-// 🔒 PRODUCTION-LOCKED — History Card (2026-04-18)
+// 🔒 PRODUCTION-LOCKED — History Card (2026-04-25)
 import React from 'react';
 import { LucideIcon, ExternalLink } from 'lucide-react';
 import { SectionCard } from './SectionCard';
@@ -53,7 +53,7 @@ export const HistoryCard: React.FC<Props> = ({ icon }) => {
                         href={row.hostedUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-[#967A59] hover:underline text-xs"
+                        className="inline-flex items-center text-[#7d6649] hover:text-[#967A59] hover:underline text-xs font-medium"
                       >
                         View <ExternalLink className="ml-1 w-3 h-3" />
                       </a>

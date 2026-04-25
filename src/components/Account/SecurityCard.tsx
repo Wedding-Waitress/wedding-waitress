@@ -1,4 +1,4 @@
-// 🔒 PRODUCTION-LOCKED — Security Card (2026-04-18)
+// 🔒 PRODUCTION-LOCKED — Security Card (2026-04-25)
 import React, { useEffect, useState } from 'react';
 import { LucideIcon, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
         <Button
           size="sm"
           onClick={() => setOpen(true)}
-          className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
+          className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
         >
           Change Password
         </Button>
@@ -72,7 +72,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
           <Button
             size="sm"
             variant="outline"
-            className="rounded-full"
+            className="rounded-full border-[#C9A87A]/50 text-[#7d6649] hover:bg-[#FBF3E5] hover:text-[#7d6649]"
             onClick={sendVerification}
             disabled={sending}
           >

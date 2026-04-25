@@ -1,4 +1,4 @@
-// 🔒 PRODUCTION-LOCKED — Account Info Card (2026-04-18)
+// 🔒 PRODUCTION-LOCKED — Account Info Card (2026-04-25)
 import React, { useState } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
       <div className="mt-6">
         <Button
           onClick={() => setOpen(true)}
-          className="bg-[#967A59] hover:bg-[#7d6649] text-white rounded-full"
+          className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
           size="sm"
         >
           Edit Details

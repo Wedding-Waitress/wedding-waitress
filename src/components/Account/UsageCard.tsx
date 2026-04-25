@@ -1,4 +1,4 @@
-// 🔒 PRODUCTION-LOCKED — Usage Card (2026-04-18)
+// 🔒 PRODUCTION-LOCKED — Usage Card (2026-04-25)
 import React, { useEffect, useState } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { SectionCard } from './SectionCard';
@@ -61,7 +61,7 @@ const Bar: React.FC<{ label: string; value: string; pct: number; muted?: boolean
     </div>
     <Progress
       value={pct}
-      className="h-2 [&>div]:bg-[#967A59]"
+      className="h-2 bg-[#E8E1D6]/50 [&>div]:bg-gradient-to-r [&>div]:from-[#C9A87A] [&>div]:to-[#967A59]"
     />
   </div>
 );
