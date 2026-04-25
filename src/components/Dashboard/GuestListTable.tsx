@@ -1528,7 +1528,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-[hsl(25_35%_22%)] mb-0.5">Step 1: Set Up Your Event</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 1: Set Up Your Event</h3>
                   <p className="text-sm text-muted-foreground mb-4">Select your event and customise settings</p>
 
                   {/* Choose Event */}
@@ -1591,7 +1591,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 2: Step 2 - Guest Relationship Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-[hsl(25_35%_22%)] mb-0.5">Step 2: Guest Relationship Settings</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 2: Guest Relationship Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Optionally define how guests are related to you</p>
 
                   {selectedEventId ? (
@@ -1714,7 +1714,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 3: Step 3 - Add Your Guests */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-[hsl(25_35%_22%)] mb-0.5">Step 3: Add Your Guests</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 3: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
                   <Button
