@@ -309,8 +309,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 <Button
                   onClick={addCustomZone}
-                  variant="outline"
-                  className="w-full text-foreground"
+                  className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Custom Text Zone
@@ -534,7 +533,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                               await handleSettingChange('background_image_url', null);
                               toast({ title: "Image Removed", description: "Background image has been removed" });
                             }}
-                            className="w-full rounded-full flex items-center justify-center gap-2"
+                            className="w-full rounded-full flex items-center justify-center gap-2 bg-destructive/85 hover:bg-destructive/95"
                           >
                             <Trash2 className="h-4 w-4" />
                             Remove Image
