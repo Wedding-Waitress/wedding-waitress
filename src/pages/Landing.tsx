@@ -614,8 +614,8 @@ export const Landing = () => {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
+            <div className="md:col-span-4">
               <div className="flex items-center gap-2 mb-4">
                 <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto brightness-0 invert" />
               </div>
@@ -623,13 +623,14 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div className="md:col-span-6 md:col-start-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
                   <li><a href="#guest-list" className="block py-3 hover:text-white transition-colors">{t('footer.features')}</a></li>
                   <li><a href="#pricing" className="block py-3 hover:text-white transition-colors">{t('footer.pricing')}</a></li>
                   <li><a href="#faq" className="block py-3 hover:text-white transition-colors">{t('footer.faq')}</a></li>
+                  <li><Link to="/admin" className="block py-3 hover:text-white transition-colors uppercase">{t('footer.adminPanel')}</Link></li>
                 </ul>
               </div>
               <div>
