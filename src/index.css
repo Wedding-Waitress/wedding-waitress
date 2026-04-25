@@ -493,11 +493,96 @@ html {
     }
   }
 
-  /* Wedding Waitress Standardized Box/Card Styling */
+  /* ===== Wedding Waitress Premium Dashboard Design System ===== */
+  /* Cream + gold treatment, applied globally via shell + .ww-box primitive */
+
+  .dashboard-surface {
+    background:
+      radial-gradient(circle at 30% 0%, rgba(201,168,122,0.10), transparent 55%),
+      radial-gradient(circle at 85% 100%, rgba(150,122,89,0.08), transparent 50%),
+      linear-gradient(180deg, #FBF7F0 0%, #F5EFE4 100%);
+  }
+
+  .dashboard-card {
+    background: linear-gradient(180deg, #FFFFFF 0%, #FBF7F0 100%);
+    border: 1px solid rgba(232, 225, 214, 0.7);
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 2px rgba(150, 122, 89, 0.06),
+      0 8px 24px -12px rgba(150, 122, 89, 0.18);
+  }
+
+  .dashboard-btn-primary {
+    background: linear-gradient(135deg, #B8946A 0%, #967A59 50%, #7d6649 100%);
+    color: #fff;
+    border-radius: 9999px;
+    box-shadow: 0 4px 12px -4px rgba(150, 122, 89, 0.45);
+    transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .dashboard-btn-primary:hover {
+    filter: brightness(0.95);
+    box-shadow: 0 6px 16px -4px rgba(150, 122, 89, 0.55);
+  }
+
+  .dashboard-btn-outline {
+    background: transparent;
+    border: 1px solid #E8D9C2;
+    color: #7d6649;
+    border-radius: 9999px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .dashboard-btn-outline:hover {
+    background: #FBF5EC;
+    border-color: #C9A87A;
+  }
+
+  .dashboard-section-title {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    background: linear-gradient(90deg, #967A59, #B8946A, #7d6649);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .dashboard-section-subtitle {
+    color: #6E6E73;
+  }
+
+  /* Sidebar premium polish (non-structural) */
+  .dashboard-sidebar [data-sidebar="sidebar"],
+  .dashboard-sidebar {
+    background: linear-gradient(180deg, #FBF7F0 0%, #F5EFE4 100%) !important;
+    border-right: 1px solid rgba(201, 168, 122, 0.25) !important;
+  }
+  .dashboard-sidebar [data-sidebar="menu-button"][data-active="true"] {
+    background: linear-gradient(135deg, rgba(184,148,106,0.18), rgba(150,122,89,0.12)) !important;
+    border-left: 3px solid #967A59 !important;
+    color: #5a4a36 !important;
+  }
+  .dashboard-sidebar [data-sidebar="menu-button"]:hover {
+    background: rgba(201, 168, 122, 0.10) !important;
+  }
+
+  /* Table row polish (opt-in) */
+  .dashboard-table-row {
+    border-bottom: 1px solid #EFE8DA;
+    transition: background-color 0.15s ease;
+  }
+  .dashboard-table-row:hover {
+    background: rgba(251, 247, 240, 0.7);
+  }
+
+  /* Wedding Waitress Standardized Box/Card Styling
+     Upgraded to the premium cream + gold treatment.
+     Used globally across dashboard pages — single source of truth. */
   .ww-box {
-    border: 2px solid hsl(var(--primary));
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: linear-gradient(180deg, #FFFFFF 0%, #FBF7F0 100%) !important;
+    border: 1px solid rgba(232, 225, 214, 0.8) !important;
+    border-radius: 1rem !important;
+    box-shadow:
+      0 1px 2px rgba(150, 122, 89, 0.06),
+      0 10px 28px -14px rgba(150, 122, 89, 0.22) !important;
   }
 
   /* Full Seating Chart - Brown Theme Override */
