@@ -623,14 +623,18 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:pl-8 lg:pl-16">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-4 md:pl-8 lg:pl-16">
+              <div>
+                <Link to="/admin" className="font-semibold text-sm uppercase tracking-wider text-gray-300 hover:text-white transition-colors">
+                  {t('footer.adminPanel')}
+                </Link>
+              </div>
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
                   <li><a href="#guest-list" className="block py-3 hover:text-white transition-colors">{t('footer.features')}</a></li>
                   <li><a href="#pricing" className="block py-3 hover:text-white transition-colors">{t('footer.pricing')}</a></li>
                   <li><a href="#faq" className="block py-3 hover:text-white transition-colors">{t('footer.faq')}</a></li>
-                  <li><Link to="/admin" className="block py-3 hover:text-white transition-colors uppercase">{t('footer.adminPanel')}</Link></li>
                 </ul>
               </div>
               <div>
