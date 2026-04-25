@@ -765,7 +765,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     <Switch
                       checked={visibilitySettings?.show_rsvp_invite || false}
                       onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-success"
                     />
                   </div>
                 </div>
@@ -978,7 +978,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     <Switch
                       checked={visibilitySettings?.show_welcome_video || false}
                       onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-success"
                     />
                   </div>
                 </div>
@@ -1115,7 +1115,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     <Switch
                       checked={visibilitySettings?.show_floor_plan || false}
                       onCheckedChange={(checked) => updateVisibility('show_floor_plan', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-success"
                     />
                   </div>
                 </div>
@@ -1331,7 +1331,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     <Switch
                       checked={visibilitySettings?.show_reception_floor_plan || false}
                       onCheckedChange={(checked) => updateVisibility('show_reception_floor_plan', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-success"
                     />
                   </div>
                 </div>
@@ -1552,7 +1552,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     <Switch
                       checked={visibilitySettings?.show_menu || false}
                       onCheckedChange={(checked) => updateVisibility('show_menu', checked)}
-                      className="data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-red-600"
+                      className="data-[state=checked]:bg-success"
                     />
                   </div>
                 </div>
