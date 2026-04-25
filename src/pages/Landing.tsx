@@ -622,13 +622,11 @@ export const Landing = () => {
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
                 {t('footer.tagline')}
               </p>
+              <Link to="/admin" className="mt-6 inline-block text-sm uppercase tracking-wider text-white hover:text-gray-300 transition-colors whitespace-nowrap">
+                {t('footer.adminPanel')}
+              </Link>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-4 md:gap-8 lg:gap-12">
-              <div>
-                <Link to="/admin" className="font-semibold text-sm uppercase tracking-wider text-gray-300 hover:text-white transition-colors whitespace-nowrap">
-                  {t('footer.adminPanel')}
-                </Link>
-              </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:gap-8 lg:gap-12">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-1 text-sm text-gray-400">
