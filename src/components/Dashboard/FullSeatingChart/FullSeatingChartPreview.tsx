@@ -46,7 +46,7 @@ import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Users, ChevronLeft, ChevronRight } from 'lucide-react';
-import weddingWaitressLogoFull from '@/assets/wedding-waitress-logo-full.png';
+
 import {
   PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_TOP_MM, MARGIN_LEFT_MM,
   HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
@@ -592,7 +592,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               {settings.showLogo && (
                 <div className="flex justify-center">
                   <img 
-                    src={weddingWaitressLogoFull}
+                    src="/wedding-waitress-logo-brown.png?v=2"
                     alt="Wedding Waitress" 
                     style={{ height: '12mm', width: 'auto' }}
                     className="object-contain"
