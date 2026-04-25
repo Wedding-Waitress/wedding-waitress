@@ -14,16 +14,20 @@ import {
   Shield,
   ClipboardList,
   Music,
-  Mail
+  Mail,
+  UserCircle,
+  ChevronUp
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useProfile } from '@/hooks/useProfile';
 // Feature flags removed
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
@@ -31,6 +35,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 
 interface AppSidebarProps {
@@ -69,6 +80,23 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { profile } = useProfile();
+
+  const userInitials = (() => {
+    const f = profile?.first_name?.[0] || '';
+    const l = profile?.last_name?.[0] || '';
+    if (f || l) return (f + l).toUpperCase();
+    return (profile?.email?.[0] || 'U').toUpperCase();
+  })();
+
+  const userDisplayName = (() => {
+    const f = profile?.first_name || '';
+    const l = profile?.last_name || '';
+    const full = `${f} ${l}`.trim();
+    if (full) return full;
+    if (profile?.email) return profile.email.split('@')[0];
+    return 'User';
+  })();
 
   // Mobile-friendly label shortening
   const getMobileLabel = (id: string, label: string) => {
@@ -180,6 +208,55 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-[#E8E1D6]/70 p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  tooltip={userDisplayName}
+                  className="data-[state=open]:bg-[#F5F0EB] hover:bg-[#F5F0EB] rounded-lg"
+                >
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white text-xs font-semibold shadow-sm"
+                    style={{ backgroundColor: '#967A59' }}
+                  >
+                    {userInitials}
+                  </div>
+                  <div className="flex flex-col text-left leading-tight overflow-hidden">
+                    <span className="text-sm font-medium truncate text-foreground">
+                      {userDisplayName}
+                    </span>
+                  </div>
+                  <ChevronUp className="ml-auto h-4 w-4 opacity-60" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                className="w-[--radix-popper-anchor-width] min-w-56 rounded-lg shadow-lg"
+              >
+                <DropdownMenuItem
+                  onClick={() => onTabChange('account')}
+                  className="cursor-pointer"
+                >
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  My Account
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={onSignOut}
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 };
