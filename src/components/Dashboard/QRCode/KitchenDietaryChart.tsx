@@ -32,7 +32,7 @@ import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
 import { exportDietaryChartToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
-import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';
+const dietaryLogo = '/wedding-waitress-logo-brown.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
 import { Event } from '@/hooks/useEvents';
 

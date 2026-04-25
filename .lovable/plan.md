@@ -1,73 +1,85 @@
 ## Goal
-Eliminate every purple element from the **Floor Plan** page and its PDF export, replacing with brand brown `#967A59` (RGB `150, 122, 89`) — matching the Individual Table Chart PDF and the rest of the app. Also swap the purple footer logo for the brown one.
+Eliminate every purple element from the **Dietary Requirements** page (on-screen A4 preview + both PDFs) and replace with brand brown `#967A59` (RGB `150, 122, 89`) — matching the Individual Table Chart, Floor Plan, and Invitations PDFs. Swap the purple footer logo for the brown one in **both** the preview and PDF.
 
-> Note: Both files are marked "PRODUCTION LOCKED" in their headers. This plan proceeds because you have explicitly authorized the color/logo correction. No layout, sizing, geometry, fonts, spacing, or logic will change — colors and the logo path only.
-
----
-
-## 1. On-screen fix — `src/components/Dashboard/FloorPlan/CeremonyFloorPlan/CeremonyFloorPlanVisual.tsx`
-
-Currently the "Bride's Walkway - Aisle" text is hardcoded to purple `hsl(262, 83%, 58%)` (line 429).
-
-- Change `color: 'hsl(262, 83%, 58%)'` → `color: '#967A59'` so it matches the brown circular borders around the couple names (which already use `border-primary` = brown).
-
-No other on-screen color changes needed — all other Floor Plan UI elements already use `border-primary` / `text-primary` tokens which resolve to brand brown.
+Scope: Dietary Requirements only. No other page, component, or exporter is touched.
 
 ---
 
-## 2. PDF export fix — `src/lib/ceremonyFloorPlanPdfExporter.ts`
+## 1. PDF Exporter — `src/lib/dietaryChartPdfExporter.ts`
 
-The exporter currently uses two purple values:
-- `(109, 40, 217)` — title + divider
-- `(114, 72, 230)` — section labels, seat borders, couple circles, walkway text
-- `(240, 235, 250)` — light-purple seat fill
-- `(196, 181, 253)` — light-purple unassigned seat border
+The root cause: line 202 declares
+```ts
+const purple = { r: 109, g: 40, b: 217 }; // #967A59  ← misleading comment, RGB is real purple
+```
+…and that variable is reused for the title (line 289), the divider line under the subtitle (line 315), and every dietary label in the table (line 488). That's why the title, divider, and dietary column all still print purple.
 
-Replace **all** with brand brown system:
-- Brown primary `(150, 122, 89)` → titles, dividers, section labels, seat borders, couple circles, walkway text
-- Soft brown tint `(245, 240, 232)` → seat fill (cream/beige, matches the dashboard cream surfaces)
-- Light brown border `(211, 196, 174)` → unassigned seat outline
+**Fix:** Change those RGB values to brand brown so every reference flips at once.
 
-Specific line-level replacements (colors only, geometry untouched):
-
-| Line(s) | Current | New |
+| Line | Current | New |
 |---|---|---|
-| 81 | `setTextColor(109, 40, 217)` (event name) | `setTextColor(150, 122, 89)` |
-| 124 | `setDrawColor(109, 40, 217)` (divider) | `setDrawColor(150, 122, 89)` |
-| 219 | `setDrawColor(114, 72, 230)` (bridal box border w/ name) | `setDrawColor(150, 122, 89)` |
-| 253 | `setTextColor(114, 72, 230)` (bridal party labels) | `setTextColor(150, 122, 89)` |
-| 291 | `setDrawColor(114, 72, 230)` (left couple circle) | `setDrawColor(150, 122, 89)` |
-| 310 | `setDrawColor(114, 72, 230)` (right couple circle) | `setDrawColor(150, 122, 89)` |
-| 332 | `setTextColor(114, 72, 230)` (side labels: Groom's/Bride's Family) | `setTextColor(150, 122, 89)` |
-| 374, 377, 414, 417 | `setFillColor(240, 235, 250)` (seat fill) | `setFillColor(245, 240, 232)` |
-| 375, 415 | `setDrawColor(114, 72, 230)` (assigned seat border) | `setDrawColor(150, 122, 89)` |
-| 378, 418 | `setDrawColor(196, 181, 253)` (unassigned border) | `setDrawColor(211, 196, 174)` |
-| 480 | `setTextColor(114, 72, 230)` (walkway text) | `setTextColor(150, 122, 89)` |
+| 202 | `const purple = { r: 109, g: 40, b: 217 };` | `const brandBrown = { r: 150, g: 122, b: 89 };` |
+| 289, 315, 488 | `purple.r, purple.g, purple.b` | `brandBrown.r, brandBrown.g, brandBrown.b` |
+| 222, 286, 320, 485 | `// purple …` comments | rename to `// brand brown …` so future readers aren't misled |
 
-Comments referencing "Purple" / "Light purple" will be updated to "Brown" / "Soft brown" so future readers aren't misled.
+After this single rename:
+- ✅ "Mahmoud & Linda's Wedding" title → brown
+- ✅ Divider line under subtitle → brown
+- ✅ All dietary labels (Vegan, Gluten Free, Halal, etc.) in the table → brown
 
----
+**Footer logo** (line 100):
+- `fetch('/wedding-waitress-pdf-footer-logo.png')` → `fetch('/wedding-waitress-logo-brown.png')`
 
-## 3. Footer logo swap — same file, line 505
+This is the same brown asset already confirmed working in Individual Table Charts and Floor Plan PDFs.
 
-- `logoImg.src = '/wedding-waitress-new-logo.png'` → `logoImg.src = '/wedding-waitress-logo-brown.png'`
-
-This is the same brown asset already used by the Individual Table Chart PDF (confirmed correct in the previous logo fix). Existing scaling logic preserves aspect ratio at 12 mm height, centered — so it stays sharp and properly sized.
-
----
-
-## 4. What is NOT changing
-
-- No geometry, sizes, spacing, fonts, page layout, totals, labels, or logic
-- No other pages, components, or PDF exporters touched
-- No design tokens or global theme changes
-- "PRODUCTION LOCKED" header comments preserved (only color literals + logo path change)
+**Already correct (no change needed):**
+- "Kitchen Dietary Requirements" subtitle (black, line 296)
+- Ceremony/Reception lines (gray, line 302)
+- "Total Dietary Guest Requirements" (black, line 325)
+- Category summary row + table headers (light gray fill, black text, lines 340–403)
+- Page footer text (light gray, line 550)
 
 ---
 
-## 5. Verification
+## 2. On-Screen A4 Preview — `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx`
 
-After implementation:
-1. Open `/dashboard?tab=floor-plan` → confirm "Bride's Walkway - Aisle" text is brown.
-2. Click **Download PDF** → open the file and confirm: title, divider, all section headings, seat outlines, couple circles, walkway text, and footer logo are all brand brown — zero purple anywhere.
-3. Visual parity check against the Individual Table Chart PDF.
+Currently imports:
+```ts
+import dietaryLogo from '@/assets/wedding-waitress-dietary-logo.png';  // ← purple version
+```
+…and uses it at line 784 (preview footer) and line 936 (export-only mirror).
+
+**Fix:** Switch the import to the brown public asset and use it via `<img src="/wedding-waitress-logo-brown.png">` instead. Same approach Individual Table Chart now uses.
+
+- Replace the import with a direct string constant: `const dietaryLogo = '/wedding-waitress-logo-brown.png';` (one-line change, both `<img src={dietaryLogo}>` references keep working unchanged — same size, same alignment, same centering classes).
+
+No on-screen text colors need changing — inspecting the preview file shows all on-screen text already uses neutral/brown brand tokens. The only purple element on screen is the footer logo image itself.
+
+---
+
+## 3. What is NOT changing
+
+- No layout, geometry, fonts, sizes, spacing, sort logic, pagination, or table structure
+- No other pages, exporters, components, or shared assets
+- DOCX exporter (`dietaryChartDocxExporter.ts`) — already inspected, does not contain purple values; out of scope unless purple appears there
+- The old purple asset files stay on disk (no delete) — we just stop referencing them from this page
+
+---
+
+## 4. Verification checklist
+
+1. `/dashboard?tab=dietary-chart` → on-screen A4 preview footer shows the **brown** Wedding Waitress logo (centered, sharp, same size).
+2. **Download Single Page PDF** → open the file:
+   - Title "Mahmoud & Linda's Wedding" = brown
+   - Divider line under "Kitchen Dietary Requirements" = brown
+   - Every dietary label in the right column (Vegan, Halal, Vendor, etc.) = brown
+   - Footer logo = brown
+   - Zero purple anywhere
+3. **Download All Pages PDF** → repeat the same checks across pages 2 and 3.
+4. Visual parity check vs. the Individual Table Chart and Floor Plan PDFs — colors and logo should look identical.
+
+---
+
+## 5. Files to be edited (2 total)
+
+- `src/lib/dietaryChartPdfExporter.ts` — rename `purple` → `brandBrown`, change RGB to `(150, 122, 89)`, update logo fetch path, update misleading comments
+- `src/components/Dashboard/QRCode/KitchenDietaryChart.tsx` — swap the `dietaryLogo` import to the brown public asset

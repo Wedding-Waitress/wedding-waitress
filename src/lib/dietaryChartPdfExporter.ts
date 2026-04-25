@@ -97,7 +97,7 @@ const formatGeneratedTimestamp = (): string => {
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/wedding-waitress-pdf-footer-logo.png');
+    const response = await fetch('/wedding-waitress-logo-brown.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -198,8 +198,8 @@ export const exportDietaryChartToPdf = async (
   // Use the actual total dietary count (for single page, this is passed separately)
   const displayTotalCount = totalDietaryCount ?? guests.length;
 
-  // Purple color for event name and dietary info
-  const purple = { r: 109, g: 40, b: 217 }; // #967A59
+  // Brand brown color for event name and dietary info (#967A59)
+  const purple = { r: 150, g: 122, b: 89 };
   const gray = { r: 107, g: 114, b: 128 }; // #6B7280
 
   // Get table columns
