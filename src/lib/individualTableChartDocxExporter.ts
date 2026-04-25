@@ -62,7 +62,7 @@ const formatGeneratedTimestamp = (): string => {
 // Load Wedding Waitress logo
 const loadTableLogo = async (): Promise<Uint8Array | null> => {
   try {
-    const response = await fetch('/wedding-waitress-new-logo.png');
+    const response = await fetch('/wedding-waitress-pdf-footer-logo.png');
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     return new Uint8Array(arrayBuffer);

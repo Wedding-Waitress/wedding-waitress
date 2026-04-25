@@ -17,7 +17,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { format } from 'date-fns';
-import weddingWaitressLogoFull from '@/assets/wedding-waitress-new-logo.png';
+const weddingWaitressLogoFull = '/wedding-waitress-pdf-footer-logo.png';
 
 // Paper size constants (in mm)
 const PAPER_SIZES = {
