@@ -183,19 +183,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 );
               })}
               
-              {/* Admin Panel moved to homepage footer */}
-              
-              {/* Logout button */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={onSignOut}
-                  tooltip="Logout"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium text-base">Logout</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {/* Admin Panel moved to user dropdown; logout lives in dropdown only */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
