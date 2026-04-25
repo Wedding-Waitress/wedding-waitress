@@ -44,6 +44,13 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   const canonicalUrl = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith('http') ? image : `${SITE_URL}${image}`;
 
+  // Force noindex on non-canonical hostnames (Netlify, Lovable previews, etc.)
+  const isNonCanonicalHost =
+    typeof window !== 'undefined' &&
+    window.location.hostname !== 'weddingwaitress.com' &&
+    window.location.hostname !== 'www.weddingwaitress.com';
+  const shouldNoIndex = noIndex || isNonCanonicalHost;
+
   const jsonLdArray = jsonLd
     ? Array.isArray(jsonLd)
       ? jsonLd
@@ -55,7 +62,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
-      {noIndex && <meta name="robots" content="noindex,nofollow" />}
+      {shouldNoIndex && <meta name="robots" content="noindex,nofollow" />}
 
       {/* Open Graph */}
       <meta property="og:title" content={title} />
