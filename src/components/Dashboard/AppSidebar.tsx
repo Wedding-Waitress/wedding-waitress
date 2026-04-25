@@ -148,10 +148,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => onTabChange(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-1 ${isGreenItem ? '!bg-[#F5F0EB] border border-[#967A59] rounded-md hover:!bg-[#EDE5DB]' : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`flex items-center gap-1 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
-                    <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} />
-                    <span className={`${isGreenItem ? 'text-black' : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>
+                    <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} style={isGreenItem ? { color: '#967A59' } : undefined} />
+                    <span className={`${isActive ? 'font-bold' : 'font-normal'} text-base`} style={isGreenItem ? { color: '#967A59' } : undefined}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
@@ -160,17 +160,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                        </span>
                     )}
                     {item.id === 'table-list' && (
-                       <span className="text-black text-sm font-normal ml-auto">
+                       <span className="text-sm font-normal ml-auto" style={{ color: '#967A59' }}>
                         Create
                       </span>
                     )}
                     {item.id === 'guest-list' && (
-                       <span className="text-black text-sm font-normal ml-auto">
+                       <span className="text-sm font-normal ml-auto" style={{ color: '#967A59' }}>
                         Add
                       </span>
                     )}
                     {badgeNumber && (
-                      <span className="flex items-center justify-center w-6 h-6 bg-[#F5F0EB] rounded-full text-black text-sm font-normal ml-1">
+                      <span className="flex items-center justify-center w-6 h-6 bg-[#F5F0EB] rounded-full text-sm font-normal ml-1" style={{ color: '#967A59' }}>
                         {badgeNumber}
                       </span>
                     )}
@@ -208,7 +208,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-[#E8E1D6]/70 p-2">
+      <SidebarFooter className="border-t border-[#E8E1D6]/70 mt-3 pt-3 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -216,7 +216,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 <SidebarMenuButton
                   size="lg"
                   tooltip={userDisplayName}
-                  className="data-[state=open]:bg-[#F5F0EB] hover:bg-[#F5F0EB] rounded-lg"
+                  className="data-[state=open]:bg-[#F5F0EB] hover:bg-[#F5F0EB] rounded-lg transition-colors duration-200 py-3"
                 >
                   <div
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white text-xs font-semibold shadow-sm"
@@ -235,19 +235,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <DropdownMenuContent
                 side="top"
                 align="start"
-                className="w-[--radix-popper-anchor-width] min-w-56 rounded-lg shadow-lg"
+                sideOffset={8}
+                className="w-[--radix-popper-anchor-width] min-w-56 rounded-xl shadow-xl border border-[#E8E1D6]/70 p-1.5"
               >
                 <DropdownMenuItem
                   onClick={() => onTabChange('account')}
-                  className="cursor-pointer"
+                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <UserCircle className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
                   onClick={onSignOut}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="cursor-pointer py-2.5 px-3 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log Out
