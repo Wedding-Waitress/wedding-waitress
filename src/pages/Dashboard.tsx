@@ -691,7 +691,7 @@ export const Dashboard = () => {
   return <SidebarProvider>
     {/* Defensive page-level noIndex — protects every dashboard tab even if a tab forgets its own SeoHead. */}
     <SeoHead title="Dashboard | Wedding Waitress" description="Wedding Waitress dashboard" noIndex />
-    <div className="relative min-h-screen bg-gradient-subtle w-full mobile-contain">
+    <div className="dashboard-shell relative min-h-screen dashboard-surface w-full mobile-contain">
       {/* Universal Header - Full Width */}
       <DashboardHeader />
       
