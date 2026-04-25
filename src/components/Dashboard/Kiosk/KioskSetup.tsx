@@ -132,7 +132,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             <Calendar className="w-5 h-5 text-foreground" />
             Event Selection
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="mb-2">
             Choose which event to display on the kiosk
           </CardDescription>
         </CardHeader>

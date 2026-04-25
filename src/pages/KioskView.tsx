@@ -11,7 +11,6 @@ import {
   User,
   HelpCircle
 } from 'lucide-react';
-import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { KioskGuestCard } from '@/components/Kiosk/KioskGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
@@ -385,9 +384,9 @@ export const KioskView: React.FC = () => {
               rel="noopener noreferrer"
             >
               <img 
-                src={weddingWaitressFooterLogo} 
+                src="/wedding-waitress-logo-full.png" 
                 alt="Wedding Waitress" 
-                className="h-10 md:h-12 w-auto mx-auto"
+                className="h-10 md:h-12 w-auto mx-auto brightness-0 invert"
               />
             </a>
           </div>
