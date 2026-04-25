@@ -208,7 +208,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-[#E8E1D6]/70 p-2">
+      <SidebarFooter className="border-t border-[#E8E1D6]/70 mt-3 pt-3 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -216,7 +216,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 <SidebarMenuButton
                   size="lg"
                   tooltip={userDisplayName}
-                  className="data-[state=open]:bg-[#F5F0EB] hover:bg-[#F5F0EB] rounded-lg"
+                  className="data-[state=open]:bg-[#F5F0EB] hover:bg-[#F5F0EB] rounded-lg transition-colors duration-200 py-3"
                 >
                   <div
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white text-xs font-semibold shadow-sm"
@@ -235,19 +235,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <DropdownMenuContent
                 side="top"
                 align="start"
-                className="w-[--radix-popper-anchor-width] min-w-56 rounded-lg shadow-lg"
+                sideOffset={8}
+                className="w-[--radix-popper-anchor-width] min-w-56 rounded-xl shadow-xl border border-[#E8E1D6]/70 p-1.5"
               >
                 <DropdownMenuItem
                   onClick={() => onTabChange('account')}
-                  className="cursor-pointer"
+                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <UserCircle className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
                   onClick={onSignOut}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="cursor-pointer py-2.5 px-3 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log Out
