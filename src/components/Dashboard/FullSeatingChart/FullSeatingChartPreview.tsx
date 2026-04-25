@@ -246,7 +246,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         <span 
           className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap ${getFontSizeClass()}`}
           style={{ 
-            color: isUnassigned ? '#9333ea' : '#000000'
+            color: isUnassigned ? '#967A59' : '#000000'
           }}
         >
           {tableText}
@@ -447,7 +447,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-table-unassigned {
-            color: #9333ea;
+            color: #967A59;
           }
           
         }
@@ -692,7 +692,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {/* Print Footer */}
             <div className="print-footer-section">
               {settings.showLogo && (
-                <img src="/wedding-waitress-print-footer.png?v=1" alt="Wedding Waitress" />
+                <img src="/wedding-waitress-logo-brown.png?v=2" alt="Wedding Waitress" />
               )}
               <div className="print-footer-meta">
                 <span>Page {pageIndex + 1} of {paginationInfo.pages.length}</span>

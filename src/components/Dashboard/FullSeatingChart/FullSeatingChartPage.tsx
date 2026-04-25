@@ -241,7 +241,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <span className="text-lg font-normal bg-gradient-to-r from-[#967A59] to-[#9333EA] bg-clip-text text-transparent">
+              <span className="text-lg font-normal text-[#967A59]">
                 Full Seating Chart for {selectedEvent.name}
               </span>
             )}
