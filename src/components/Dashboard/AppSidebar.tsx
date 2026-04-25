@@ -179,19 +179,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 );
               })}
               
-              {/* Admin Panel button (only for admins) */}
-              {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => navigate('/admin')}
-                    tooltip="Admin Panel"
-                    style={{ borderLeft: '3px solid #967A59' }}
-                  >
-                    <Shield className="w-5 h-5" style={{ color: '#967A59' }} />
-                    <span className="font-medium text-base" style={{ color: '#967A59' }}>Admin Panel</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
+              {/* Admin Panel moved to homepage footer */}
               
               {/* Logout button */}
               <SidebarMenuItem>
