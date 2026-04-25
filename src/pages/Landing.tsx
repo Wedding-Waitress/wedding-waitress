@@ -648,7 +648,7 @@ export const Landing = () => {
                 </ul>
               </div>
             </div>
-            <div>
+            <div className="md:pl-8 lg:pl-16">
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.followUs')}</h4>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
