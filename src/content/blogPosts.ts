@@ -115,7 +115,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
     slug: 'how-to-create-a-wedding-seating-chart-step-by-step',
     date: '2026-04-20',
     coverEmoji: '📝',
-    coverImage: 'blog-planning-laptop',
+    coverImage: 'blog-seating-chart-step-by-step',
     internalLinks: [
       { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
       { label: 'Guest List Manager', href: '/products/guest-list' },
@@ -128,7 +128,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
     slug: 'wedding-seating-chart-etiquette-who-sits-where',
     date: '2026-04-20',
     coverEmoji: '💺',
-    coverImage: 'blog-planning-laptop',
+    coverImage: 'blog-seating-etiquette',
     internalLinks: [
       { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
       { label: 'Guest List Manager', href: '/products/guest-list' },
@@ -141,7 +141,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
     slug: 'best-wedding-seating-chart-templates-australia',
     date: '2026-04-20',
     coverEmoji: '🎨',
-    coverImage: 'blog-planning-laptop',
+    coverImage: 'blog-seating-templates',
     internalLinks: [
       { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
       { label: 'Full Seating Chart', href: '/products/full-seating-chart' },
@@ -154,7 +154,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
     slug: 'common-wedding-seating-chart-mistakes',
     date: '2026-04-20',
     coverEmoji: '⚠️',
-    coverImage: 'blog-planning-laptop',
+    coverImage: 'blog-seating-mistakes',
     internalLinks: [
       { label: 'QR Code Seating Chart', href: '/products/qr-code-seating-chart' },
       { label: 'Guest List Manager', href: '/products/guest-list' },
