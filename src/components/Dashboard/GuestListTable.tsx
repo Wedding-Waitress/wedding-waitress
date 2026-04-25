@@ -1591,7 +1591,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 2: Step 2 - Guest Relationship Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-foreground mb-0.5">Step 2: Guest Relationship Settings</h3>
+                  <h3 className="text-lg font-bold text-[hsl(25_35%_22%)] mb-0.5">Step 2: Guest Relationship Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Optionally define how guests are related to you</p>
 
                   {selectedEventId ? (
