@@ -679,8 +679,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="pt-4 border-t">
                 <Button 
                   onClick={handleResetBackgroundDefaults} 
-                  variant="destructive" 
-                  className="w-full rounded-full"
+                  variant="outline" 
+                  className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   Reset to Default
                 </Button>
