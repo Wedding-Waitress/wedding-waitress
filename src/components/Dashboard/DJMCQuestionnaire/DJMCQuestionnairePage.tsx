@@ -95,7 +95,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       await exportEntireQuestionnairePDF(questionnaire, selectedEvent);
       toast({
         title: "PDF Downloaded",
-        description: "Your DJ-MC Questionnaire has been downloaded.",
+        description: "Your DJ & MC Questionnaire has been downloaded.",
       });
     } catch (error) {
       console.error('Failed to download PDF:', error);
@@ -137,7 +137,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             <Music className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">DJ-MC Questionnaire</h1>
+            <h1 className="text-2xl font-bold">DJ & MC Questionnaire</h1>
             <p className="text-sm text-muted-foreground">
               Plan your music and entertainment details
             </p>
@@ -168,7 +168,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ-MC or any of your vendors.</span>
+                  <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ & MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
