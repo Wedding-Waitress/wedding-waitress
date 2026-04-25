@@ -95,7 +95,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                 id="show-mobile"
                 checked={settings.showMobile}
                 onCheckedChange={checked => onSettingsChange({ showMobile: checked })}
-                className={!settings.showMobile ? 'data-[state=unchecked]:bg-destructive' : ''}
+                
               />
             </div>
             <div className="flex items-center justify-between">
@@ -104,7 +104,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                 id="show-relation"
                 checked={settings.showRelation}
                 onCheckedChange={checked => onSettingsChange({ showRelation: checked })}
-                className={!settings.showRelation ? 'data-[state=unchecked]:bg-destructive' : ''}
+                
               />
             </div>
             <div className="flex items-center justify-between">
@@ -113,7 +113,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                 id="show-seat-no"
                 checked={settings.showSeatNo}
                 onCheckedChange={checked => onSettingsChange({ showSeatNo: checked })}
-                className={!settings.showSeatNo ? 'data-[state=unchecked]:bg-destructive' : ''}
+                
               />
             </div>
           </div>
