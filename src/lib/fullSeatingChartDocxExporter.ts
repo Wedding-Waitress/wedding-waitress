@@ -99,7 +99,7 @@ const formatTableAssignment = (guest: Guest, tableNameMap?: Record<number, strin
 // Load logo image as buffer
 const loadLogoImage = async (): Promise<Uint8Array | null> => {
   try {
-    const response = await fetch('/jpeg-2.jpg');
+    const response = await fetch('/wedding-waitress-logo-brown.png');
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     return new Uint8Array(arrayBuffer);
@@ -140,7 +140,7 @@ export const exportFullSeatingChartToDocx = async (
     const col1Guests = pageGuests.slice(0, guestsPerColumn);
     const col2Guests = pageGuests.slice(guestsPerColumn);
 
-    // Header - Event Name (16pt, bold, purple #967A59)
+    // Header - Event Name (16pt, bold, brand brown #967A59)
     sections.push(
       new Paragraph({
         alignment: AlignmentType.CENTER,
@@ -150,7 +150,7 @@ export const exportFullSeatingChartToDocx = async (
             text: event.name,
             bold: true,
             size: 32, // 16pt
-            color: '6D28D9',
+            color: '967A59',
           }),
         ],
       })
@@ -268,7 +268,7 @@ export const exportFullSeatingChartToDocx = async (
       
       // Single row: checkbox + name + inline info + table
       const children: TextRun[] = [
-        new TextRun({ text: '◯ ', size: fontSize, color: '6D28D9' }),
+        new TextRun({ text: '◯ ', size: fontSize, color: '967A59' }),
         new TextRun({ text: formatGuestName(guest, settings.sortBy), size: fontSize, bold: true }),
       ];
       
@@ -350,7 +350,7 @@ export const exportFullSeatingChartToDocx = async (
           spacing: { before: 400 },
           children: [
             new ImageRun({
-              type: 'jpg',
+              type: 'png',
               data: logoBuffer,
               transformation: {
                 width: 132, // 35mm ≈ 132 points

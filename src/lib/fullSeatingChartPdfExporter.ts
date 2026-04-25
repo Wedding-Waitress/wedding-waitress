@@ -1,5 +1,4 @@
 import jsPDF from 'jspdf';
-import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 import {
   PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_LEFT_MM, MARGIN_TOP_MM,
   HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
@@ -114,7 +113,7 @@ const isGuestUnassigned = (guest: Guest): boolean => !guest.table_no && !guest.t
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
   try {
-    const response = await fetch(weddingWaitressLogo);
+    const response = await fetch('/wedding-waitress-logo-brown.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -190,7 +189,9 @@ export const exportFullSeatingChartToPdf = async (
     logoBase64 = await loadLogoAsBase64();
   }
 
-  const purple = { r: 150, g: 122, b: 89 };
+  const brandBrown = { r: 150, g: 122, b: 89 };
+  // Local alias kept to minimize churn in references below
+  const purple = brandBrown;
 
   const startPage = pageNum || 1;
   const endPage = pageNum || totalPages;
@@ -347,7 +348,7 @@ export const exportFullSeatingChartToPdf = async (
         pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
         if (isGuestUnassigned(guest)) {
-          pdf.setTextColor(147, 51, 234);
+          pdf.setTextColor(brandBrown.r, brandBrown.g, brandBrown.b);
         } else {
           pdf.setTextColor(0, 0, 0);
         }
@@ -357,7 +358,7 @@ export const exportFullSeatingChartToPdf = async (
         
         // Underline for table text
         if (settings.isUnderline) {
-          pdf.setDrawColor(!guest.table_no ? 147 : 0, !guest.table_no ? 51 : 0, !guest.table_no ? 234 : 0);
+          pdf.setDrawColor(!guest.table_no ? brandBrown.r : 0, !guest.table_no ? brandBrown.g : 0, !guest.table_no ? brandBrown.b : 0);
           pdf.setLineWidth(0.2);
           pdf.line(tableX, baselineY + 0.5, tableX + tableWidth, baselineY + 0.5);
         }
