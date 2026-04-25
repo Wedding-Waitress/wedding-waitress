@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, ArrowLeft } from 'lucide-react';
-import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminOverview } from '@/components/Admin/AdminOverview';
 import { AdminUsers } from '@/components/Admin/AdminUsers';
@@ -16,8 +16,9 @@ import { AdminSubscriptions } from '@/components/Admin/AdminSubscriptions';
 import { AdminInvitationTemplates } from '@/components/Admin/AdminInvitationTemplates';
 
 export const Admin = () => {
-  const { isAdmin, loading: adminLoading } = useIsAdmin();
+  const { isOwnerAdmin, loading: adminLoading } = useIsOwnerAdmin();
   const [authLoading, setAuthLoading] = useState(true);
+  const [grantValid, setGrantValid] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,18 +28,39 @@ export const Admin = () => {
         navigate('/');
         return;
       }
+      // Validate OTP grant from sessionStorage
+      const grant = sessionStorage.getItem('ww_admin_grant');
+      if (grant) {
+        try {
+          const parsed = JSON.parse(atob(grant));
+          if (parsed.user_id === session.user.id && parsed.exp > Date.now()) {
+            setGrantValid(true);
+          } else {
+            sessionStorage.removeItem('ww_admin_grant');
+            sessionStorage.removeItem('ww_admin_grant_sig');
+          }
+        } catch {
+          sessionStorage.removeItem('ww_admin_grant');
+        }
+      }
       setAuthLoading(false);
     };
 
     checkAuth();
   }, [navigate]);
 
-  // Redirect non-admins
+  // Redirect non-admins or unverified admins
   useEffect(() => {
-    if (!adminLoading && !authLoading && !isAdmin) {
+    if (adminLoading || authLoading) return;
+    if (!isOwnerAdmin) {
+      navigate('/dashboard');
+      return;
+    }
+    if (!grantValid) {
+      // Admin reached /admin without SMS verification — bounce to dashboard
       navigate('/dashboard');
     }
-  }, [isAdmin, adminLoading, authLoading, navigate]);
+  }, [isOwnerAdmin, adminLoading, authLoading, grantValid, navigate]);
 
   if (adminLoading || authLoading) {
     return (
@@ -48,7 +70,7 @@ export const Admin = () => {
     );
   }
 
-  if (!isAdmin) {
+  if (!isOwnerAdmin || !grantValid) {
     return null;
   }
 

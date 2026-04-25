@@ -622,9 +622,6 @@ export const Landing = () => {
               <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
                 {t('footer.tagline')}
               </p>
-              <Link to="/admin" className="mt-6 inline-block text-sm uppercase tracking-wider text-white hover:text-gray-300 transition-colors whitespace-nowrap">
-                {t('footer.adminPanel')}
-              </Link>
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:gap-8 lg:gap-12">
               <div>

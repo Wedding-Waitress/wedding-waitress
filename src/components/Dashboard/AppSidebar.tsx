@@ -19,6 +19,8 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
+import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProfile } from '@/hooks/useProfile';
@@ -77,6 +79,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 }) => {
   const { open } = useSidebar();
   const { isAdmin } = useIsAdmin();
+  const { isOwnerAdmin } = useIsOwnerAdmin();
+  const [otpOpen, setOtpOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -233,6 +237,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   <UserCircle className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
+                {isOwnerAdmin && (
+                  <DropdownMenuItem
+                    onClick={() => setOtpOpen(true)}
+                    className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                  >
+                    <Shield className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
+                    Admin Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
                   onClick={onSignOut}
@@ -246,6 +259,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
     </Sidebar>
   );
 };
