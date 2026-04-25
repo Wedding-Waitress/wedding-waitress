@@ -1,37 +1,47 @@
-## Kiosk Live View — Three Targeted Fixes
+# Kiosk Live View Fixes
 
-### 1. Event Selection spacing (`src/components/Dashboard/Kiosk/KioskSetup.tsx`)
-The helper text **"Choose which event to display on the kiosk"** sits inside `CardHeader` with no bottom spacing, so it visually crowds the "Choose Event" dropdown.
+## 1. Fix "Janet & John" Header in Kiosk Views
 
-**Fix:** Add `mb-2` to the `CardDescription` (line 135-137) so it has clean breathing room above the dropdown row. No other layout/color changes.
+**Root cause** (verified via DB query): The selected event row in the database is:
+- `name`: "Mahmoud & Linda's Wedding" ✅
+- `partner1_name`: "Janet" ❌ (stale)
+- `partner2_name`: "John" ❌ (stale)
 
-### 2. Dynamic event name in Kiosk public view (`src/pages/KioskView.tsx`)
-The kiosk header already renders dynamically using `event.partner1_name & event.partner2_name` (or fallback to `event.name`) fetched from the selected event's slug. However, the user is reporting hardcoded "Janet & John" still appearing.
+`src/pages/KioskView.tsx` currently renders:
+```tsx
+{event.partner1_name && event.partner2_name 
+  ? `${event.partner1_name} & ${event.partner2_name}`
+  : event.name}
+```
+So it shows "Janet & John" because both partner fields are populated (with stale data).
 
-**Root cause:** The header IS dynamic — but the title in the `<head>` browser tab (visible in screenshot as "Wedding Seating Chart Australia…") and the displayed couple names depend on the event's `partner1_name`/`partner2_name` fields stored in the DB. The **on-page** display already uses the live event data (lines 266-271). The reason "Janet & John" appears in the screenshot is because the slug `jason-lindas-wedidng` resolves to that event's stored partner names — which is correct dynamic behavior.
+**Fix**: Update `src/pages/KioskView.tsx` header to **always display `event.name`** (the synced Event Selection name). This is the value the user explicitly chose in the Event Selection dropdown and guarantees sync across Open Kiosk / Launch Fullscreen / Generate QR — all three use the same `/kiosk/:slug` route.
 
-**Verification action:** Re-check the kiosk URL builder and confirm it includes the currently-selected event's slug. Looking at `KioskSetup.tsx` line 44, `kioskUrl = buildKioskUrl(selectedEvent.slug)` — so Open Kiosk / Launch Fullscreen / Generate QR all already point to the correct event-specific URL. **No code change needed for sync** — the system is already correct. The "Janet & John" name shown is simply the actual stored couple name for that event's slug.
+```tsx
+<h1 className="text-3xl font-bold">{event.name}</h1>
+```
 
-If after deployment the user still sees a mismatch, the fix would be to update the event's `partner1_name`/`partner2_name` in **My Events → Edit Event** rather than in code.
+This removes reliance on the partner_name fields entirely for the kiosk header, ensuring the name always matches what's selected in "Choose Event".
 
-### 3. Kiosk footer logo — switch to white version (`src/pages/KioskView.tsx`)
-The kiosk footer (lines 387-391) currently imports `weddingWaitressFooterLogo` from `@/assets/wedding-waitress-footer-logo.png` (the purple version), which displays poorly on the dark brown gradient background.
+## 2. Rebrand "Pro Tips" Box to Brown Theme
 
-**Fix (matches homepage footer pattern):**
-- Remove the import on line 14: `import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';`
-- Replace the `<img>` (lines 387-391) with the same approach used in `Landing.tsx` line 628 and `ProductPageLayout.tsx` line 249:
-  ```tsx
-  <img 
-    src="/wedding-waitress-logo-full.png" 
-    alt="Wedding Waitress" 
-    className="h-10 md:h-12 w-auto mx-auto brightness-0 invert" 
-  />
-  ```
-  The `brightness-0 invert` Tailwind classes render the logo pure white — exactly matching the homepage footer style — and provide proper contrast on the dark brown background. Center alignment and existing `space-y-3` spacing above/below are preserved.
+**File**: `src/components/Dashboard/Kiosk/KioskSetup.tsx` (lines 297–310)
 
-### Files to edit
-- `src/components/Dashboard/Kiosk/KioskSetup.tsx` — add `mb-2` to helper text
-- `src/pages/KioskView.tsx` — swap footer logo to white inverted version
+**Current** (blue warning style):
+- `bg-blue-50`, `border-blue-200`
+- `text-blue-600` (icon), `text-blue-800` (heading), `text-blue-700` (list)
 
-### Out of scope
-No layout, color, or structural changes beyond the three items above.
+**Change to** (warm brown soft info card):
+- Background: `bg-[#FAF6F0]` (cream/beige matching dashboard cards)
+- Border: `border-primary/30` (soft brown tone)
+- Icon (`Info`): `text-primary` (brand brown #967A59)
+- Heading text: `text-foreground` (dark brown body color)
+- List text: `text-foreground/80` (slightly muted dark brown)
+- Keep: rounded corners, padding, layout, spacing — unchanged
+
+## Files to Edit
+- `src/pages/KioskView.tsx` — header line displays `event.name` only
+- `src/components/Dashboard/Kiosk/KioskSetup.tsx` — Pro Tips color tokens
+
+## Out of Scope
+No changes to layout, structure, dropdown, URL building, or any other section.
