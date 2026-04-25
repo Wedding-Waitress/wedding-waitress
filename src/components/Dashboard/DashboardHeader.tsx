@@ -43,10 +43,9 @@ export const DashboardHeader: React.FC = () => {
           </div>
         )}
         
-        {/* Mobile right side: avatar + hamburger */}
+        {/* Mobile right side: hamburger only */}
         {isMobile && (
           <div className="flex items-center gap-2">
-            {ProfileMenu}
             <button
               onClick={toggleSidebar}
               className="h-12 w-12 rounded-xl shadow-lg flex flex-col items-center justify-center gap-1.5 p-2 transition-all hover:shadow-xl active:scale-95 touch-target bg-primary"
@@ -59,10 +58,9 @@ export const DashboardHeader: React.FC = () => {
           </div>
         )}
 
-        {/* Desktop right side: avatar + sidebar trigger */}
+        {/* Desktop right side: sidebar trigger only */}
         {!isMobile && (
           <div className="absolute right-2 sm:right-4 flex items-center gap-3">
-            {ProfileMenu}
             <SidebarTrigger />
           </div>
         )}
