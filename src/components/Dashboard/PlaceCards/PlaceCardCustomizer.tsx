@@ -435,7 +435,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch
                     checked={textEditMode}
                     onCheckedChange={(checked) => onTextEditModeChange?.(checked)}
-                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -510,7 +509,6 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     id="bg-names-toggle"
                     checked={currentSettings.background_behind_names || false} 
                     onCheckedChange={value => handleSettingChange('background_behind_names', value)}
-                    className="data-[state=unchecked]:bg-destructive"
                   />
                 </div>
 
@@ -520,7 +518,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     id="bg-table-seats-toggle"
                     checked={currentSettings.background_behind_table_seats || false} 
                     onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)}
-                    className="data-[state=unchecked]:bg-destructive"
+                    
                   />
                 </div>
               </div>
