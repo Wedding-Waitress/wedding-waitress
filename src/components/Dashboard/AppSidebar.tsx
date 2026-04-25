@@ -80,6 +80,23 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { profile } = useProfile();
+
+  const userInitials = (() => {
+    const f = profile?.first_name?.[0] || '';
+    const l = profile?.last_name?.[0] || '';
+    if (f || l) return (f + l).toUpperCase();
+    return (profile?.email?.[0] || 'U').toUpperCase();
+  })();
+
+  const userDisplayName = (() => {
+    const f = profile?.first_name || '';
+    const l = profile?.last_name || '';
+    const full = `${f} ${l}`.trim();
+    if (full) return full;
+    if (profile?.email) return profile.email.split('@')[0];
+    return 'User';
+  })();
 
   // Mobile-friendly label shortening
   const getMobileLabel = (id: string, label: string) => {
