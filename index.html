@@ -12,6 +12,19 @@
     <!-- Google Search Console verification -->
     <meta name="google-site-verification" content="IqL3MkuXJEMJzRNMQxbA-FTpfexD9TsMe5Vsv5xVJxY" />
 
+    <!-- Block indexing on non-canonical hostnames (Netlify, Lovable previews) -->
+    <script>
+      (function () {
+        var h = window.location.hostname;
+        if (h !== 'weddingwaitress.com' && h !== 'www.weddingwaitress.com') {
+          var m = document.createElement('meta');
+          m.name = 'robots';
+          m.content = 'noindex, nofollow';
+          document.head.appendChild(m);
+        }
+      })();
+    </script>
+
     <!-- Preconnect to improve performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
