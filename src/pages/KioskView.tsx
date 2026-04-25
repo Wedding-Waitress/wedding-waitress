@@ -262,12 +262,7 @@ export const KioskView: React.FC = () => {
         <div className="w-full px-8 py-6">
           <div className="text-center">
             <div className="flex items-center justify-center mb-3">
-              <h1 className="text-3xl font-bold">
-                {event.partner1_name && event.partner2_name 
-                  ? `${event.partner1_name} & ${event.partner2_name}`
-                  : event.name
-                }
-              </h1>
+              <h1 className="text-3xl font-bold">{event.name}</h1>
             </div>
             <div className="flex items-center justify-center gap-6 text-white/90 text-lg">
               <div className="flex items-center">

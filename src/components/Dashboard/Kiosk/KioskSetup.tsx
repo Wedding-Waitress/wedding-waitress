@@ -294,12 +294,12 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             </div>
           </div>
 
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="p-4 bg-[#FAF6F0] rounded-lg border border-primary/30">
             <div className="flex items-start gap-2">
-              <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <Info className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-blue-800 mb-1">Pro Tips:</p>
-                <ul className="text-sm text-blue-700 space-y-1">
+                <p className="text-sm font-medium text-foreground mb-1">Pro Tips:</p>
+                <ul className="text-sm text-foreground/80 space-y-1">
                   <li>• The kiosk automatically clears searches after 30 seconds of inactivity</li>
                   <li>• Use landscape orientation for tablets for the best experience</li>
                   <li>• Ensure the device has a stable internet connection</li>
