@@ -704,7 +704,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
                 <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Individual Messages</span>
                 
-                <Button variant="success" className="w-full rounded-full">
+                <Button className="w-full rounded-full bg-primary text-white hover:bg-primary/90">
                   Guest Name Search
                 </Button>
                 
