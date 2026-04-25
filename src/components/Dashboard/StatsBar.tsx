@@ -96,7 +96,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({
       label: "Full Tables",
       value: stats.tablesAtCapacity,
       icon: <Target className="w-6 h-6" />,
-      color: "text-primary"
+      color: stats.tablesAtCapacity > 0 ? "text-emerald-600" : "text-primary"
     },
     {
       label: "Sent Invites",
