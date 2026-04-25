@@ -623,32 +623,32 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-4 md:pl-8 lg:pl-16">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-4 md:gap-8 lg:gap-12">
               <div>
-                <Link to="/admin" className="font-semibold text-sm uppercase tracking-wider text-gray-300 hover:text-white transition-colors">
+                <Link to="/admin" className="font-semibold text-sm uppercase tracking-wider text-gray-300 hover:text-white transition-colors whitespace-nowrap">
                   {t('footer.adminPanel')}
                 </Link>
               </div>
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
-                <ul className="space-y-3 text-sm text-gray-400">
-                  <li><a href="#guest-list" className="block py-3 hover:text-white transition-colors">{t('footer.features')}</a></li>
-                  <li><a href="#pricing" className="block py-3 hover:text-white transition-colors">{t('footer.pricing')}</a></li>
-                  <li><a href="#faq" className="block py-3 hover:text-white transition-colors">{t('footer.faq')}</a></li>
+                <ul className="space-y-1 text-sm text-gray-400">
+                  <li><a href="#guest-list" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</a></li>
+                  <li><a href="#pricing" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</a></li>
+                  <li><a href="#faq" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.faq')}</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.support')}</h4>
-                <ul className="space-y-3 text-sm text-gray-400">
-                  <li><Link to="/contact" className="block py-3 hover:text-white transition-colors">{t('footer.contactUs')}</Link></li>
+                <ul className="space-y-1 text-sm text-gray-400">
+                  <li><Link to="/contact" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.contactUs')}</Link></li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.legal')}</h4>
-                <ul className="space-y-3 text-sm text-gray-400">
-                  <li><Link to="/privacy" className="block py-3 hover:text-white transition-colors">{t('footer.privacy')}</Link></li>
-                  <li><Link to="/terms" className="block py-3 hover:text-white transition-colors">{t('footer.terms')}</Link></li>
-                  <li><Link to="/cookies" className="block py-3 hover:text-white transition-colors">{t('footer.cookiePolicy')}</Link></li>
+                <ul className="space-y-1 text-sm text-gray-400">
+                  <li><Link to="/privacy" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.privacy')}</Link></li>
+                  <li><Link to="/terms" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.terms')}</Link></li>
+                  <li><Link to="/cookies" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.cookiePolicy')}</Link></li>
                 </ul>
               </div>
             </div>
