@@ -435,10 +435,10 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 </div>
 
                 {textZones.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <div className="text-center py-8 text-muted-foreground/80 border-2 border-dashed rounded-lg px-4">
                     <Layers className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No text zones added yet</p>
-                    <p className="text-xs">Add preset or custom zones above</p>
+                    <p className="text-sm font-medium">No text zones added yet</p>
+                    <p className="text-xs mt-1">Start by adding a preset or custom text zone to build your invitation.</p>
                   </div>
                 )}
 
@@ -448,8 +448,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       await onSettingsChange({ text_zones: [] });
                       toast({ title: "Text Zones Reset", description: "All text zones have been removed" });
                     }}
-                    variant="destructive"
-                    className="w-full rounded-full"
+                    variant="outline"
+                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     Reset to Default
                   </Button>
@@ -585,8 +585,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       });
                       toast({ title: "Background Reset", description: "Background settings reset to defaults" });
                     }}
-                    variant="destructive"
-                    className="w-full rounded-full"
+                    variant="outline"
+                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     Reset to Default
                   </Button>
@@ -662,8 +662,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       onQrEventChange?.(null);
                       toast({ title: "QR Code Reset", description: "QR code removed from invitation" });
                     }}
-                    variant="destructive"
-                    className="w-full rounded-full"
+                    variant="outline"
+                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     Reset to Default
                   </Button>
@@ -696,8 +696,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       setLocalNotes('');
                       toast({ title: "Messages Reset", description: "Notes and captions have been cleared" });
                     }}
-                    variant="destructive"
-                    className="w-full rounded-full"
+                    variant="outline"
+                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     Reset to Default
                   </Button>

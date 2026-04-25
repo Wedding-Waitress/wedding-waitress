@@ -313,9 +313,12 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
 
         {/* Zoom controls on right side, vertically centered */}
         <div
-          className="flex flex-col items-center gap-2 rounded-lg border border-border bg-card px-1.5 py-3 shadow-sm self-center"
+          className="flex flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card/70 px-1.5 py-3 shadow-sm self-center opacity-90"
           onClick={(e) => e.stopPropagation()}
         >
+          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
+            Zoom
+          </span>
           <button
             type="button"
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
