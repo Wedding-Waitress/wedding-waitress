@@ -426,7 +426,7 @@ export const CeremonyFloorPlanVisual = ({
             style={{ 
               writingMode: 'vertical-rl', 
               transform: 'rotate(180deg)',
-              color: 'hsl(262, 83%, 58%)',
+              color: '#967A59',
               letterSpacing: '0.5px'
             }}
           >

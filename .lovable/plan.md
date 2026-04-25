@@ -1,31 +1,73 @@
-## Why the logo is still purple
+## Goal
+Eliminate every purple element from the **Floor Plan** page and its PDF export, replacing with brand brown `#967A59` (RGB `150, 122, 89`) — matching the Individual Table Chart PDF and the rest of the app. Also swap the purple footer logo for the brown one.
 
-The previous change updated the code references to `/wedding-waitress-pdf-footer-logo.png` — but **that file in `public/` is still the old purple logo**. The genuinely brown asset is `/wedding-waitress-logo-brown.png` (verified visually).
+> Note: Both files are marked "PRODUCTION LOCKED" in their headers. This plan proceeds because you have explicitly authorized the color/logo correction. No layout, sizing, geometry, fonts, spacing, or logic will change — colors and the logo path only.
 
-So the on-screen preview, the Single Page PDF, and the All Pages PDF are all loading a purple PNG even though the path was "updated".
+---
 
-## Fix (3 one-line changes, scoped only to Individual Table Charts)
+## 1. On-screen fix — `src/components/Dashboard/FloorPlan/CeremonyFloorPlan/CeremonyFloorPlanVisual.tsx`
 
-Repoint all three Individual Table Chart references from `/wedding-waitress-pdf-footer-logo.png` → `/wedding-waitress-logo-brown.png`:
+Currently the "Bride's Walkway - Aisle" text is hardcoded to purple `hsl(262, 83%, 58%)` (line 429).
 
-1. **`src/components/Dashboard/IndividualTableChart/IndividualTableChartPreview.tsx`** (line 21)
-   - On-screen A4 preview logo at the bottom of the page.
+- Change `color: 'hsl(262, 83%, 58%)'` → `color: '#967A59'` so it matches the brown circular borders around the couple names (which already use `border-primary` = brown).
 
-2. **`src/lib/individualTableChartEngine.ts`** (line 20)
-   - Used by both **Download Single Page PDF** and **Download All Pages PDF** (shared `weddingWaitressLogoFull` constant in the SVG-to-canvas engine).
+No other on-screen color changes needed — all other Floor Plan UI elements already use `border-primary` / `text-primary` tokens which resolve to brand brown.
 
-3. **`src/lib/individualTableChartDocxExporter.ts`** (line 65)
-   - DOCX export footer logo (kept consistent so all exports match).
+---
 
-## Out of scope (will not touch)
+## 2. PDF export fix — `src/lib/ceremonyFloorPlanPdfExporter.ts`
 
-- No layout, sizing, positioning, typography, or functionality changes.
-- No changes to other pages (Full Seating Chart, Place Cards, Invitations, etc.) — they continue using whatever asset they currently reference.
-- The old purple PNG file is left in place to avoid breaking any other consumer; we simply stop pointing the Individual Table Charts code at it.
+The exporter currently uses two purple values:
+- `(109, 40, 217)` — title + divider
+- `(114, 72, 230)` — section labels, seat borders, couple circles, walkway text
+- `(240, 235, 250)` — light-purple seat fill
+- `(196, 181, 253)` — light-purple unassigned seat border
 
-## Confirmation I will give you after the fix
+Replace **all** with brand brown system:
+- Brown primary `(150, 122, 89)` → titles, dividers, section labels, seat borders, couple circles, walkway text
+- Soft brown tint `(245, 240, 232)` → seat fill (cream/beige, matches the dashboard cream surfaces)
+- Light brown border `(211, 196, 174)` → unassigned seat outline
 
-Once applied, I will confirm explicitly that the brown logo is now used in all three places on the Individual Table Charts page:
-1. ✅ On-screen A4 preview (bottom of page)
-2. ✅ Download Single Page PDF
-3. ✅ Download All Pages PDF
+Specific line-level replacements (colors only, geometry untouched):
+
+| Line(s) | Current | New |
+|---|---|---|
+| 81 | `setTextColor(109, 40, 217)` (event name) | `setTextColor(150, 122, 89)` |
+| 124 | `setDrawColor(109, 40, 217)` (divider) | `setDrawColor(150, 122, 89)` |
+| 219 | `setDrawColor(114, 72, 230)` (bridal box border w/ name) | `setDrawColor(150, 122, 89)` |
+| 253 | `setTextColor(114, 72, 230)` (bridal party labels) | `setTextColor(150, 122, 89)` |
+| 291 | `setDrawColor(114, 72, 230)` (left couple circle) | `setDrawColor(150, 122, 89)` |
+| 310 | `setDrawColor(114, 72, 230)` (right couple circle) | `setDrawColor(150, 122, 89)` |
+| 332 | `setTextColor(114, 72, 230)` (side labels: Groom's/Bride's Family) | `setTextColor(150, 122, 89)` |
+| 374, 377, 414, 417 | `setFillColor(240, 235, 250)` (seat fill) | `setFillColor(245, 240, 232)` |
+| 375, 415 | `setDrawColor(114, 72, 230)` (assigned seat border) | `setDrawColor(150, 122, 89)` |
+| 378, 418 | `setDrawColor(196, 181, 253)` (unassigned border) | `setDrawColor(211, 196, 174)` |
+| 480 | `setTextColor(114, 72, 230)` (walkway text) | `setTextColor(150, 122, 89)` |
+
+Comments referencing "Purple" / "Light purple" will be updated to "Brown" / "Soft brown" so future readers aren't misled.
+
+---
+
+## 3. Footer logo swap — same file, line 505
+
+- `logoImg.src = '/wedding-waitress-new-logo.png'` → `logoImg.src = '/wedding-waitress-logo-brown.png'`
+
+This is the same brown asset already used by the Individual Table Chart PDF (confirmed correct in the previous logo fix). Existing scaling logic preserves aspect ratio at 12 mm height, centered — so it stays sharp and properly sized.
+
+---
+
+## 4. What is NOT changing
+
+- No geometry, sizes, spacing, fonts, page layout, totals, labels, or logic
+- No other pages, components, or PDF exporters touched
+- No design tokens or global theme changes
+- "PRODUCTION LOCKED" header comments preserved (only color literals + logo path change)
+
+---
+
+## 5. Verification
+
+After implementation:
+1. Open `/dashboard?tab=floor-plan` → confirm "Bride's Walkway - Aisle" text is brown.
+2. Click **Download PDF** → open the file and confirm: title, divider, all section headings, seat outlines, couple circles, walkway text, and footer logo are all brand brown — zero purple anywhere.
+3. Visual parity check against the Individual Table Chart PDF.
