@@ -25,6 +25,10 @@ import blogWeddingSignage from '@/assets/blog-wedding-signage.jpg';
 import blogOlderGuest from '@/assets/blog-older-guest.jpg';
 import blogLastMinuteChanges from '@/assets/blog-last-minute-changes.jpg';
 import blogRunningSheet from '@/assets/blog-running-sheet.jpg';
+import blogSeatingChartStepByStep from '@/assets/blog-seating-chart-step-by-step.jpg';
+import blogSeatingEtiquette from '@/assets/blog-seating-etiquette.jpg';
+import blogSeatingTemplates from '@/assets/blog-seating-templates.jpg';
+import blogSeatingMistakes from '@/assets/blog-seating-mistakes.jpg';
 
 const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-qr-scanning': blogQrScanning,
@@ -33,6 +37,10 @@ const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-older-guest': blogOlderGuest,
   'blog-last-minute-changes': blogLastMinuteChanges,
   'blog-running-sheet': blogRunningSheet,
+  'blog-seating-chart-step-by-step': blogSeatingChartStepByStep,
+  'blog-seating-etiquette': blogSeatingEtiquette,
+  'blog-seating-templates': blogSeatingTemplates,
+  'blog-seating-mistakes': blogSeatingMistakes,
 };
 
 import heroImg from "@/assets/hero-wedding.jpg";
