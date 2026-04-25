@@ -75,10 +75,10 @@ export const generateCeremonyFloorPlanPDF = async (
 
   // === HEADER (matching Running Sheet style) ===
   
-  // Event Name - Purple, Bold, ~22px = ~16.5pt
+  // Event Name - Brand Brown, Bold, ~22px = ~16.5pt
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(16.5);
-  pdf.setTextColor(109, 40, 217); // #967A59
+  pdf.setTextColor(150, 122, 89); // #967A59
   pdf.text(event.name, PAGE_WIDTH / 2, yPos, { align: 'center' });
   yPos += 7;
 
@@ -120,8 +120,8 @@ export const generateCeremonyFloorPlanPDF = async (
   );
   yPos += 4;
 
-  // Purple divider line
-  pdf.setDrawColor(109, 40, 217);
+  // Brand brown divider line
+  pdf.setDrawColor(150, 122, 89);
   pdf.setLineWidth(0.5);
   pdf.line(MARGIN_LEFT, yPos, PAGE_WIDTH - MARGIN_RIGHT, yPos);
   yPos += 8;
@@ -216,7 +216,7 @@ export const generateCeremonyFloorPlanPDF = async (
       // Draw box
       if (name) {
         pdf.setFillColor(255, 255, 255);
-        pdf.setDrawColor(114, 72, 230);
+        pdf.setDrawColor(150, 122, 89);
       } else {
         pdf.setFillColor(245, 245, 245);
         pdf.setDrawColor(180, 180, 180);
@@ -247,10 +247,10 @@ export const generateCeremonyFloorPlanPDF = async (
     }
   };
   
-  // Labels for bridal party - purple to match side labels
+  // Labels for bridal party - brand brown to match side labels
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(9);
-  pdf.setTextColor(114, 72, 230);
+  pdf.setTextColor(150, 122, 89);
   
   // Left bridal party label with count
   if (leftCount > 0) {
@@ -288,7 +288,7 @@ export const generateCeremonyFloorPlanPDF = async (
   // Left person circle (beside celebrant)
   const leftPersonX = celebrantX - celebrantRadius - coupleCircleRadius - 2;
   pdf.setFillColor(255, 255, 255);
-  pdf.setDrawColor(114, 72, 230);
+  pdf.setDrawColor(150, 122, 89);
   pdf.setLineWidth(0.4);
   pdf.circle(leftPersonX, coupleCircleY, coupleCircleRadius, 'FD');
   pdf.setFontSize(8);
@@ -307,7 +307,7 @@ export const generateCeremonyFloorPlanPDF = async (
   // Right person circle (beside celebrant)
   const rightPersonX = celebrantX + celebrantRadius + coupleCircleRadius + 2;
   pdf.setFillColor(255, 255, 255);
-  pdf.setDrawColor(114, 72, 230);
+  pdf.setDrawColor(150, 122, 89);
   pdf.setLineWidth(0.4);
   pdf.circle(rightPersonX, coupleCircleY, coupleCircleRadius, 'FD');
   pdf.setFontSize(8);
@@ -323,13 +323,13 @@ export const generateCeremonyFloorPlanPDF = async (
   }
 
 
-  // Side labels - dark purple
+  // Side labels - brand brown
   const leftSideCenter = startX + (sideWidth / 2);
   const rightSideCenter = startX + sideWidth + aisleWidth + (sideWidth / 2);
   
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(9);
-  pdf.setTextColor(114, 72, 230); // Purple
+  pdf.setTextColor(150, 122, 89); // Brand brown
   const familySeatsPerSide = floorPlan.total_rows * floorPlan.chairs_per_row;
   pdf.text(`${floorPlan.left_side_label} (${familySeatsPerSide})`, leftSideCenter, yPos, { align: 'center' });
   pdf.text(`${floorPlan.right_side_label} (${familySeatsPerSide})`, rightSideCenter, yPos, { align: 'center' });
@@ -371,11 +371,11 @@ export const generateCeremonyFloorPlanPDF = async (
 
       // Seat box
       if (seatName) {
-        pdf.setFillColor(240, 235, 250); // Light purple bg
-        pdf.setDrawColor(114, 72, 230);  // Purple border
+        pdf.setFillColor(245, 240, 232); // Soft brown tint
+        pdf.setDrawColor(150, 122, 89);  // Brand brown border
       } else if (isAssignedRow) {
-        pdf.setFillColor(240, 235, 250); // Light purple bg
-        pdf.setDrawColor(196, 181, 253); // Light purple border
+        pdf.setFillColor(245, 240, 232); // Soft brown tint
+        pdf.setDrawColor(211, 196, 174); // Light brown border
       } else {
         pdf.setFillColor(250, 250, 250);
         pdf.setDrawColor(220, 220, 220);
@@ -411,11 +411,11 @@ export const generateCeremonyFloorPlanPDF = async (
 
       // Seat box
       if (seatName) {
-        pdf.setFillColor(240, 235, 250); // Light purple bg
-        pdf.setDrawColor(114, 72, 230);  // Purple border
+        pdf.setFillColor(245, 240, 232); // Soft brown tint
+        pdf.setDrawColor(150, 122, 89);  // Brand brown border
       } else if (isAssignedRow) {
-        pdf.setFillColor(240, 235, 250); // Light purple bg
-        pdf.setDrawColor(196, 181, 253); // Light purple border
+        pdf.setFillColor(245, 240, 232); // Soft brown tint
+        pdf.setDrawColor(211, 196, 174); // Light brown border
       } else {
         pdf.setFillColor(250, 250, 250);
         pdf.setDrawColor(220, 220, 220);
@@ -477,7 +477,7 @@ export const generateCeremonyFloorPlanPDF = async (
 
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(11);
-  pdf.setTextColor(114, 72, 230);
+  pdf.setTextColor(150, 122, 89);
   
   // Draw rotated text at the TRUE center of the page, facing Groom's side
   pdf.text(walkwayText, trueCenterX, walkwayTextY, { align: 'center', angle: -90 });
@@ -502,7 +502,7 @@ export const generateCeremonyFloorPlanPDF = async (
     await new Promise<void>((resolve, reject) => {
       logoImg.onload = () => resolve();
       logoImg.onerror = () => reject(new Error('Failed to load logo'));
-      logoImg.src = '/wedding-waitress-new-logo.png';
+      logoImg.src = '/wedding-waitress-logo-brown.png';
     });
 
     const logoHeight = 12;
