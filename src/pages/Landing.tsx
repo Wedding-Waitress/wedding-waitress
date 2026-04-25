@@ -623,13 +623,14 @@ export const Landing = () => {
                 {t('footer.tagline')}
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:pl-8 lg:pl-16">
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-3 text-sm text-gray-400">
                   <li><a href="#guest-list" className="block py-3 hover:text-white transition-colors">{t('footer.features')}</a></li>
                   <li><a href="#pricing" className="block py-3 hover:text-white transition-colors">{t('footer.pricing')}</a></li>
                   <li><a href="#faq" className="block py-3 hover:text-white transition-colors">{t('footer.faq')}</a></li>
+                  <li><Link to="/admin" className="block py-3 hover:text-white transition-colors uppercase">{t('footer.adminPanel')}</Link></li>
                 </ul>
               </div>
               <div>
@@ -647,7 +648,7 @@ export const Landing = () => {
                 </ul>
               </div>
             </div>
-            <div>
+            <div className="md:pl-8 lg:pl-16">
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.followUs')}</h4>
               <div className="flex gap-4">
                 <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
