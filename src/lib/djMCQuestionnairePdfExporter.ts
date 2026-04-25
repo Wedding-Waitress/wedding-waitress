@@ -12,7 +12,6 @@
  */
 import jsPDF from 'jspdf';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
-import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
 
 interface Event {
   id: string;
@@ -27,8 +26,8 @@ interface Event {
   ceremony_finish_time?: string | null;
 }
 
-// Purple color for branding
-const PURPLE = { r: 109, g: 40, b: 217 }; // #967A59
+// Brown brand color for branding (matches Floor Plan / Seating / Dietary PDFs)
+const PURPLE = { r: 150, g: 122, b: 89 }; // #967A59 (kept variable name to minimize diff)
 
 // --- Layout constants (mm) matching running sheet ---
 const PDF_WIDTH_MM = 210;
@@ -80,10 +79,10 @@ const formatGeneratedTimestamp = (): string => {
   return `${day}/${month}/${year} ${displayHour}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`;
 };
 
-// Load logo image as data URL for jsPDF
+// Load brown logo image as data URL for jsPDF (matches sibling PDFs)
 const loadLogoAsDataUrl = async (): Promise<string | null> => {
   try {
-    const response = await fetch(weddingWaitressLogo);
+    const response = await fetch('/wedding-waitress-logo-brown.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -326,7 +325,7 @@ const drawSectionTable = (
       if (isMusicUrlColumn && value) {
         // Render as clickable link
         const displayText = truncateText(pdf, 'Click to open', colWidth - 4);
-        pdf.setTextColor(109, 40, 217); // Purple color for links
+        pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b); // Brown color for links
         pdf.textWithLink(displayText, xPos, yPos + 5, { url: value });
         pdf.setTextColor(0, 0, 0); // Reset to black
       } else {
@@ -369,7 +368,7 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(12);
   pdf.setTextColor(34, 34, 34);
-  pdf.text('DJ-MC Questionnaire', PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+  pdf.text('DJ & MC Questionnaire', PDF_WIDTH_MM / 2, yPos, { align: 'center' });
   yPos += 5;
 
   // Event details - matching running sheet format

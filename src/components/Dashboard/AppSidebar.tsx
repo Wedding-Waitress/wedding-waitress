@@ -66,7 +66,7 @@ interface AppSidebarProps {
     { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-    { id: "dj-mc-questionnaire", label: "DJ-MC Questionnaire", icon: Music },
+    { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
     { id: "running-sheet", label: "Running Sheet", icon: ClipboardList },
   ];
   

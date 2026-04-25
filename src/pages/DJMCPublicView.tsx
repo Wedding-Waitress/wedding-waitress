@@ -521,7 +521,7 @@ export function DJMCPublicView() {
                 <Music className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the DJ-MC questionnaire of</p>
+                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the DJ & MC questionnaire of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
               </div>
             </div>
@@ -637,7 +637,7 @@ export function DJMCPublicView() {
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
           <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
             <img 
-              src="/wedding-waitress-share-logo.png" 
+              src="/wedding-waitress-logo-brown.png" 
               alt="Wedding Waitress" 
               className="h-10 mx-auto"
             />
