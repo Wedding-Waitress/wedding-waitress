@@ -237,6 +237,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   <UserCircle className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
+                {isOwnerAdmin && (
+                  <DropdownMenuItem
+                    onClick={() => setOtpOpen(true)}
+                    className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                  >
+                    <Shield className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
+                    Admin Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
                   onClick={onSignOut}
@@ -250,6 +259,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
     </Sidebar>
   );
 };
