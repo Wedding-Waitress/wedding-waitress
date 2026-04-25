@@ -153,7 +153,7 @@ export const TableCard: React.FC<TableCardProps> = ({
           table.guest_count > table.limit_seats
             ? 'border-4 border-destructive'
             : isFull 
-              ? 'border-4 border-green-500' 
+              ? 'border-[3px] border-emerald-600/70' 
               : 'border-2 border-primary'
         } ${
           isOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
