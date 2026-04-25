@@ -45,10 +45,28 @@ Deno.serve(async (req) => {
 
     const admin = createClient(supabaseUrl, serviceKey);
     const { data: profile } = await admin.from('profiles').select('mobile').eq('id', userId).maybeSingle();
-    const phone = profile?.mobile?.trim();
-    if (!phone) {
+    const rawPhone = profile?.mobile?.trim();
+    if (!rawPhone) {
       return new Response(JSON.stringify({ error: 'Admin phone number required. Please add a mobile number in My Account.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
+
+    // Normalise to E.164. Default region: AU (+61). Strip spaces/dashes/parens first.
+    const cleaned = rawPhone.replace(/[\s\-()]/g, '');
+    let formattedPhone: string;
+    if (cleaned.startsWith('+')) {
+      formattedPhone = cleaned;
+    } else if (cleaned.startsWith('00')) {
+      formattedPhone = '+' + cleaned.slice(2);
+    } else if (cleaned.startsWith('0')) {
+      formattedPhone = '+61' + cleaned.slice(1);
+    } else if (cleaned.startsWith('61')) {
+      formattedPhone = '+' + cleaned;
+    } else {
+      formattedPhone = '+61' + cleaned;
+    }
+
+    console.log('TWILIO CHECK:', { sid: !!twilioSid, token: !!twilioToken, phone: !!twilioPhone });
+    console.log('Sending SMS to:', formattedPhone);
 
     if (!twilioSid || !twilioToken || !twilioPhone) {
       return new Response(JSON.stringify({ error: 'SMS is not configured.' }), { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -71,7 +89,7 @@ Deno.serve(async (req) => {
 
     // Send via Twilio
     const body = new URLSearchParams({
-      To: phone.startsWith('+') ? phone : `+${phone}`,
+      To: formattedPhone,
       From: twilioPhone,
       Body: `Wedding Waitress Admin verification code: ${code}. Expires in 10 minutes.`,
     });
@@ -86,11 +104,11 @@ Deno.serve(async (req) => {
     if (!twResp.ok) {
       const t = await twResp.text();
       console.error('Twilio error', twResp.status, t);
-      return new Response(JSON.stringify({ error: 'Failed to send SMS' }), { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'SMS failed. Check Twilio configuration or phone format.' }), { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // Mask phone
-    const masked = phone.replace(/.(?=.{4})/g, '*');
+    const masked = formattedPhone.replace(/.(?=.{4})/g, '*');
     return new Response(JSON.stringify({ success: true, masked_phone: masked }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
     console.error('admin-send-otp error', e);
