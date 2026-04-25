@@ -1,54 +1,23 @@
-## DJ & MC Questionnaire — Brand Consistency Pass
+## Running Sheet — Brown Logo Branding Update
 
-Confirmed brown logo standard used by sibling PDFs (Floor Plan / Seating / Dietary): `/wedding-waitress-logo-brown.png` from the public folder.
+Replace the legacy purple Wedding Waitress logo with the brand brown version across all Running Sheet surfaces. No layout, color, or spacing changes.
 
-Brown brand colors:
-- Primary brown (headings, dividers): `#967A59` → RGB `(150, 122, 89)`
-- Soft brown (subtle dividers): primary at 30% opacity → approx `(217, 207, 195)`
+### 1. Main PDF Export — `src/lib/runningSheetPdfExporter.ts` (locked file, owner-approved branding change)
+- Remove the static import of `@/assets/wedding-waitress-new-logo.png`.
+- Update `loadLogoAsDataUrl()` to fetch the public asset `/wedding-waitress-logo-brown.png` instead.
+- Footer dimensions (`FOOTER_LOGO_WIDTH_MM = 42`, `FOOTER_LOGO_HEIGHT_MM = 12`, centered placement) remain unchanged → identical size, alignment, and spacing on every page.
 
-### 1. Rename "DJ-MC Questionnaire" → "DJ & MC Questionnaire" (UI text only)
+### 2. Shared Link Public Page — `src/pages/RunningSheetPublicView.tsx`
+- Line 512: change `src="/wedding-waitress-share-logo.png"` → `src="/wedding-waitress-logo-brown.png"`.
+- Keep all surrounding layout, container, and "Powered by Wedding Waitress" caption intact.
 
-UI text changes (no route, key, type, or DB changes):
-- `src/components/Dashboard/AppSidebar.tsx` line 69 — sidebar label
-- `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx`:
-  - Line 140 — page heading
-  - Line 98 — toast "Your DJ-MC Questionnaire has been downloaded." → "Your DJ & MC Questionnaire has been downloaded."
-  - Line 171 — helper text "share it with your DJ-MC or any of your vendors" → "share it with your DJ & MC or any of your vendors"
-- `src/pages/DJMCPublicView.tsx` line 524 — "DJ-MC questionnaire of" → "DJ & MC questionnaire of"
-
-Routes (`/dj-mc/...`), tab id (`dj-mc-questionnaire`), DB tables (`dj_mc_*`), and RPC names stay unchanged.
-
-### 2. PDF Export — `src/lib/djMCQuestionnairePdfExporter.ts`
-
-Replace the purple branding with the brown brand color across the PDF:
-
-- Line 30–31: change the `PURPLE` constant (which is currently `#6D28D9`, mislabeled `#967A59`) to actual brown `(150, 122, 89)`. Rename to `BROWN` (or keep variable name to minimize diff — I'll rename for clarity).
-- Line 270 — section title color: use brown (already via constant).
-- Line 329 — music link color: switch from hard-coded `(109, 40, 217)` purple to brown `(150, 122, 89)`.
-- Line 364 — header event name color: brown (via constant).
-- Line 396 — header divider color: brown (via constant).
-- Add a soft brown row separator update if needed (currently `(230,230,230)` neutral grey — keep, no purple).
-- Line 372 — subtitle text "DJ-MC Questionnaire" → "DJ & MC Questionnaire".
-
-Footer logo (line 15):
-- Replace `import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';` with a fetch of `/wedding-waitress-logo-brown.png` to match the pattern used by Full Seating Chart, Dietary Chart, and Ceremony Floor Plan PDFs. Update `loadLogoAsDataUrl` to fetch the public URL instead of importing the asset.
-
-This export function is shared by:
-- "Download entire questionnaire PDF" button (dashboard)
-- "Download PDF" button on the public shared link page (top-right) — automatic parity ✅
-- Per-section PDF downloads — automatic parity ✅
-
-### 3. Public Shared Page Footer — `src/pages/DJMCPublicView.tsx`
-
-Line 640 — replace footer logo `src="/wedding-waitress-share-logo.png"` (purple) with `src="/wedding-waitress-logo-brown.png"`. Keep layout, sizing (`h-10`), and link wrapper unchanged.
+### 3. PDF From Shared Link
+- The shared link's "Download PDF" button reuses `exportRunningSheetPDF` from `runningSheetPdfExporter.ts`, so step 1 automatically covers it — no extra edit needed.
 
 ### Files to be edited
-1. `src/components/Dashboard/AppSidebar.tsx`
-2. `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx`
-3. `src/pages/DJMCPublicView.tsx`
-4. `src/lib/djMCQuestionnairePdfExporter.ts`
+- `src/lib/runningSheetPdfExporter.ts`
+- `src/pages/RunningSheetPublicView.tsx`
 
-### Out of scope
-- No changes to layout, spacing, table column structure, fonts, or content
-- No DB / route / RPC / type changes
-- No changes to the locked file header comments (file remains production-marked; this is an explicitly approved branding pass)
+### Out of scope (unchanged)
+- Layout, table styling, brown header divider, footer text, page numbers, generated timestamp.
+- Notes-exclusion-from-PDF rule (preserved).

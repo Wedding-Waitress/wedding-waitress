@@ -13,7 +13,7 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { RunningSheetItem } from '@/types/runningSheet';
-import weddingWaitressLogo from '@/assets/wedding-waitress-new-logo.png';
+const weddingWaitressLogo = '/wedding-waitress-logo-brown.png';
 
 interface Event {
   id: string;
