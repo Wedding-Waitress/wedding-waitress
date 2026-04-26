@@ -101,6 +101,41 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://weddingwaitress.com/products/full-seating-chart</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.com/products/floor-plan</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.com/products/individual-table-charts</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.com/products/dietary-requirements</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.com/products/running-sheet</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.com/products/kiosk-live-view</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://weddingwaitress.com/products/dj-mc-questionnaire</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://weddingwaitress.com/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
