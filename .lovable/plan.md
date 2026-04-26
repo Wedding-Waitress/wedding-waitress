@@ -1,117 +1,77 @@
-## ⚠️ Locked-Surface Notice (owner approval required)
 
-This work touches files explicitly marked **LOCKED PUBLIC SURFACE (2026-04-18)** in project memory and `LOCKED_TRANSLATION_KEYS.md`:
+## Status: Almost everything is already done
 
-- `src/pages/Landing.tsx` (homepage sections + footer)
-- `src/components/Layout/Header.tsx` (nav links)
-- `src/App.tsx` (public routes)
-- `/contact`, `/blog`, `/privacy`, `/terms`, `/cookies` (already exist — untouched)
+Reviewing the codebase against your 11-point checklist, the previous turn already implemented:
 
-By approving this plan you authorize the listed edits. **No visual styling, color, spacing, font, or component design will change** — only structure (new routes) and navigation targets (anchors → URLs).
+| # | Requirement | Status |
+|---|---|---|
+| 1 | Standalone pages `/how-it-works`, `/features`, `/pricing`, `/faq` (with Header, Footer, H1, SeoHead) | ✅ Done |
+| 2 | `/features` shows all 13 feature cards, each linking to `/features/[name]` | ✅ Done (`src/pages/Features.tsx`) |
+| 3 | Clicking "Products" navigates to `/features` (dropdown still works) | ⚠️ **Pending — only this remains** |
+| 4 | Homepage sections preserved (Landing.tsx untouched in those sections) | ✅ Done |
+| 5 | Header desktop + mobile use real `<Link to="...">`, no anchors | ✅ Done |
+| 6 | Routes registered in `App.tsx` above catch-all `*` | ✅ Done |
+| 7 | Footer uses real page links (`PublicFooter.tsx`) | ✅ Done |
+| 8 | Sitemap updated, only `weddingwaitress.com` URLs | ✅ Done (47 URLs) |
+| 9 | Unique title / description / canonical / H1 on every new page | ✅ Done |
+| 10 | Dashboard, auth, styling, existing feature pages, blog, contact untouched | ✅ Done |
+| 11 | All routes return 200, lowercase + hyphenated | ✅ Done |
 
----
+## The one remaining change: Products trigger → `/features`
 
-## 1. New standalone pages (each = own URL, own SEO head, own H1)
+**File:** `src/components/Layout/Header.tsx` (lines 131–151)
 
-Create the following pages by **extracting the existing JSX sections from `Landing.tsx`** verbatim (same components, same Tailwind classes) and wrapping them in a shared shell (Header + footer + `SeoHead`):
+Currently the desktop `DropdownMenuTrigger` is a plain `<Button>` that only toggles the menu. We need it to **also** navigate to `/features` on click, while preserving:
+- The dropdown opening behavior (sub-links still appear)
+- The exact visual styling (same Button, same chevron, same hover)
+- Mobile menu (already has a separate `/features` link — no change needed)
 
-| Route | Page file | Source section in Landing.tsx | H1 |
-|---|---|---|---|
-| `/how-it-works` | `src/pages/HowItWorks.tsx` | `<section id="how-it-works">` (line 341) | "How Wedding Waitress Works" |
-| `/features` | `src/pages/Features.tsx` | "Wedding Seating Chart Made Simple" grid of 13 feature cards | "All 13 Wedding Planning Features" |
-| `/pricing` | `src/pages/Pricing.tsx` | `<PricingSection>` block | "Simple, Transparent Pricing" |
-| `/faq` | `src/pages/Faq.tsx` | `<section id="faq">` (line 471) | "Frequently Asked Questions" |
-| `/contact` | already exists ✅ | n/a | n/a |
-| `/blog` | already exists ✅ | n/a | n/a |
+### Approach
 
-Each new page:
-- Uses `<SeoHead>` with unique title + description + canonical (`https://weddingwaitress.com/<path>`)
-- Reuses the **existing** `<Header>` and Landing's footer JSX (extracted to a tiny `<PublicFooter>` component to avoid duplication — same markup, same locked grid layout)
-- Single `<h1>` per page; existing card/section sub-headings stay as `<h2>`/`<h3>`
+Wrap the trigger Button in a `<Link to="/features">` and let the dropdown open via hover/focus or via a separate chevron click. The cleanest minimal-impact pattern Radix supports:
 
-## 2. Features index + 13 individual feature pages
-
-`/features/*` routes **already exist** (13 files in `src/pages/features/`) — no new feature pages needed. Plan only adds:
-
-- New `/features` index page rendering the existing 13 feature cards from `Landing.tsx`
-- Each card's CTA already routes to `/features/<slug>` — verified in current code
-- Add unique `<SeoHead>` to each existing `Feature*.tsx` if missing (audit pass)
-
-## 3. Homepage — keep short previews, link to full pages
-
-`Landing.tsx` keeps **all existing sections visually unchanged**, but each preview section gets a "View all / Learn more" link to its dedicated page:
-
-- "How it works" preview → "See full guide →" links to `/how-it-works`
-- "Features" grid stays in full (it's the main showcase) → each card already links to `/features/<slug>`; add "View all features →" link to `/features`
-- "Pricing" stays → "See pricing details →" links to `/pricing`
-- "FAQ" stays → "Read all FAQs →" links to `/faq`
-- "Contact" stays → "Contact page →" links to `/contact`
-
-The section `id`s (`#how-it-works`, `#pricing`, `#faq`, `#contact`) **remain in the homepage DOM** so existing in-page anchors stay functional and no scroll behavior is lost.
-
-## 4. Header navigation rewire (locked file — approval needed)
-
-In `src/components/Layout/Header.tsx`:
-- Replace `goToHash('how-it-works')` → `<Link to="/how-it-works">`
-- Replace `goToHash('pricing')` → `<Link to="/pricing">`
-- Replace `goToHash('faq')` → `<Link to="/faq">`
-- Replace `goToHash('contact')` → `<Link to="/contact">` (already a real route)
-- Add `<Link to="/features">` entry where appropriate
-- Same change in mobile menu block
-- `goToHash` helper kept for any remaining same-page anchors (or removed if unused)
-- **Zero visual changes** — same classes, same labels, same order
-
-Footer (`Landing.tsx` lines 638-640): replace `<a href="#guest-list">`, `#pricing`, `#faq` with `<Link to="/features">`, `/pricing`, `/faq`.
-
-## 5. Routing additions in `src/App.tsx`
-
-Add 4 new routes (above the catch-all `*`):
-```
-<Route path="/how-it-works" element={<HowItWorks />} />
-<Route path="/features" element={<Features />} />
-<Route path="/pricing" element={<Pricing />} />
-<Route path="/faq" element={<Faq />} />
+```tsx
+<DropdownMenu>
+  <div className="flex items-center">
+    <Link
+      to="/features"
+      onClick={() => window.scrollTo(0, 0)}
+      className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80"
+    >
+      {t('nav.products')}
+    </Link>
+    <DropdownMenuTrigger asChild>
+      <Button variant="ghost" size="sm" aria-label="Open products menu" className="min-h-[44px] px-2 text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
+        <ChevronDown className="w-3 h-3" />
+      </Button>
+    </DropdownMenuTrigger>
+  </div>
+  <DropdownMenuContent align="end" className="...">
+    {productLinks.map(...)}
+  </DropdownMenuContent>
+</DropdownMenu>
 ```
 
-## 6. Sitemap update (`scripts/generate-sitemap.mjs`)
+This gives:
+- **Click "Products" text** → navigates to `/features` (new SEO behavior)
+- **Click the chevron** → opens the dropdown (existing behavior preserved)
+- **Visual:** virtually identical — text + chevron sit side-by-side just like before
 
-Append the 4 new paths with `priority: 0.9, changefreq: monthly`. Re-run `prebuild` so `public/sitemap.xml` regenerates on next deploy.
+### Lock-file note
 
-## 7. Technical SEO checklist (per page)
+`Header.tsx` is marked production-locked. This is the same file the previous turn already modified (with approval) to swap anchor nav for real `<Link>` routes. This change continues that same approved SEO restructure and does not alter colors, spacing, fonts, or the dropdown contents — only splits the existing trigger into "label link + chevron trigger".
 
-- [x] Unique `<title>` via `SeoHead`
-- [x] Unique meta description
-- [x] Canonical URL (auto from `SeoHead` using current path)
-- [x] Single `<h1>`
-- [x] Internal cross-links (Header + footer + homepage previews)
-- [x] Lowercase, hyphenated URLs
-- [x] No trailing-slash duplicates (React Router treats `/pricing` and `/pricing/` as same; canonical always emitted without trailing slash)
+### Files to edit
+- `src/components/Layout/Header.tsx` — only lines 131–151 (the desktop Products dropdown block)
 
-## 8. Out of scope / explicitly NOT changing
+### Files NOT touched
+- Mobile menu (already correct)
+- `Landing.tsx`, `App.tsx`, `PublicFooter.tsx`, sitemap, all `/features/*` pages, `/products/*` pages, dashboard, auth — all untouched
 
-- Dashboard, `/dashboard/*`, app/auth functionality
-- Visual design, colors, spacing, fonts, components, card layouts
-- Existing 13 `/features/<slug>` pages (only audited for SeoHead)
-- Existing `/products/*` SEO pages
-- Auth modals, locked footer grid, locked dashboard surfaces
-- i18n landing translation keys (re-used as-is in extracted pages)
+### Verification after implementation
+1. Click "Products" text on desktop header → routes to `/features` (200, shows all 13 cards)
+2. Click chevron next to Products → dropdown opens with the 13 sub-links
+3. Mobile hamburger → still shows `/features` link + sub-links unchanged
+4. No visual regression on header
 
-## Files to create
-- `src/pages/HowItWorks.tsx`
-- `src/pages/Features.tsx`
-- `src/pages/Pricing.tsx`
-- `src/pages/Faq.tsx`
-- `src/components/Layout/PublicFooter.tsx` (extracted shared footer — exact same markup as Landing footer)
-
-## Files to edit (locked — approval required)
-- `src/App.tsx` (+4 routes)
-- `src/components/Layout/Header.tsx` (anchor → Link)
-- `src/pages/Landing.tsx` (footer links + add "View all" CTAs; sections unchanged)
-- `scripts/generate-sitemap.mjs` (+4 entries)
-
-## Verification after implementation
-- All 4 new URLs return 200 and render with full Header/footer
-- Homepage still scrolls correctly to `#pricing`/`#faq`/`#how-it-works`/`#contact` if anyone hits a legacy anchor
-- Header nav navigates via React Router (no full reload)
-- Sitemap regenerated with 47 entries (43 + 4) and zero netlify URLs
-- Dashboard, auth, public guest lookup untouched
+Approve to apply this single targeted change.

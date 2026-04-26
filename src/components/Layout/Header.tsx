@@ -129,12 +129,20 @@ export const Header: React.FC<HeaderProps> = ({
                     {t('nav.howItWorks')}
                   </Link>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
+                    <div className="flex items-center">
+                      <Link
+                        to="/features"
+                        onClick={() => window.scrollTo(0, 0)}
+                        className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80"
+                      >
                         {t('nav.products')}
-                        <ChevronDown className="w-3 h-3 ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
+                      </Link>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" aria-label="Open products menu" className="min-h-[44px] px-2 text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
+                          <ChevronDown className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </div>
                     <DropdownMenuContent align="end" className="w-64 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[70vh] overflow-y-auto">
                       {productLinks.map((link) => (
                         <DropdownMenuItem key={link.href} asChild>
