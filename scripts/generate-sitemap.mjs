@@ -2,6 +2,10 @@ const SITE_URL = 'https://weddingwaitress.com';
 
 const entries = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
+  { path: '/how-it-works', changefreq: 'monthly', priority: '0.9' },
+  { path: '/features', changefreq: 'monthly', priority: '0.9' },
+  { path: '/pricing', changefreq: 'monthly', priority: '0.9' },
+  { path: '/faq', changefreq: 'monthly', priority: '0.7' },
   { path: '/features/seating', changefreq: 'monthly', priority: '0.8' },
   { path: '/features/qr-seating', changefreq: 'monthly', priority: '0.8' },
   { path: '/features/planning', changefreq: 'monthly', priority: '0.8' },
