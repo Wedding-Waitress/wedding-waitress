@@ -125,9 +125,9 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Desktop Nav — right side (lg+ only) */}
               <div className="hidden lg:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
-                  <button type="button" onClick={() => goToHash('how-it-works')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <Link to="/how-it-works" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.howItWorks')}
-                  </button>
+                  </Link>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
@@ -149,18 +149,18 @@ export const Header: React.FC<HeaderProps> = ({
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <button type="button" onClick={() => goToHash('pricing')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <Link to="/pricing" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.pricing')}
-                  </button>
+                  </Link>
                   <Link to="/blog" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.blog')}
                   </Link>
-                  <button type="button" onClick={() => goToHash('faq')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  <Link to="/faq" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.faq')}
-                  </button>
-                  <button type="button" onClick={() => goToHash('contact')} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
+                  </Link>
+                  <Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80">
                     {t('nav.contact')}
-                  </button>
+                  </Link>
                 </nav>
 
                 {!hideDashboardElements && (
@@ -227,12 +227,20 @@ export const Header: React.FC<HeaderProps> = ({
                       </button>
                     </SignUpModal>
                     <div className="my-0.5 h-px bg-gray-100"></div>
-                    <button
-                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); goToHash('how-it-works'); }}
+                    <Link
+                      to="/how-it-works"
+                      onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.howItWorks')}
-                    </button>
+                    </Link>
+                    <Link
+                      to="/features"
+                      onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                    >
+                      {t('nav.products')}
+                    </Link>
                     {productLinks.map((link) => (
                       <Link
                         key={link.href}
@@ -243,12 +251,13 @@ export const Header: React.FC<HeaderProps> = ({
                         {link.label}
                       </Link>
                     ))}
-                    <button
-                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); goToHash('pricing'); }}
+                    <Link
+                      to="/pricing"
+                      onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.pricing')}
-                    </button>
+                    </Link>
                     <Link
                       to="/blog"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
@@ -256,18 +265,20 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       {t('nav.blog')}
                     </Link>
-                    <button
-                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); goToHash('faq'); }}
+                    <Link
+                      to="/faq"
+                      onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.faq')}
-                    </button>
-                    <button
-                      className="w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      onClick={() => { setMobileMenuOpen(false); goToHash('contact'); }}
+                    </Link>
+                    <Link
+                      to="/contact"
+                      onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.contact')}
-                    </button>
+                    </Link>
                   </div>
                 )}
               </div>
