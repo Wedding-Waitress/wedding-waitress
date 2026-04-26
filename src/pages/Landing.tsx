@@ -635,9 +635,9 @@ export const Landing = () => {
               <div>
                 <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-300">{t('footer.explore')}</h4>
                 <ul className="space-y-1 text-sm text-gray-400">
-                  <li><a href="#guest-list" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</a></li>
-                  <li><a href="#pricing" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</a></li>
-                  <li><a href="#faq" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.faq')}</a></li>
+                  <li><Link to="/features" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</Link></li>
+                  <li><Link to="/pricing" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</Link></li>
+                  <li><Link to="/faq" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.faq')}</Link></li>
                 </ul>
               </div>
               <div>

@@ -54,6 +54,10 @@ import { ProductKioskLiveView } from "./pages/products/ProductKioskLiveView";
 import { ProductDjMcQuestionnaire } from "./pages/products/ProductDjMcQuestionnaire";
 import { Blog } from "./pages/Blog";
 import { BlogPost } from "./pages/BlogPost";
+import { HowItWorks } from "./pages/HowItWorks";
+import { Features } from "./pages/Features";
+import { Pricing } from "./pages/Pricing";
+import { Faq } from "./pages/Faq";
 import Unsubscribe from "./pages/Unsubscribe";
 import { PaymentProcessingProvider, usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
 import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
@@ -120,6 +124,11 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           {/* Guest seating lookup */}
+          {/* SEO landing pages */}
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/faq" element={<Faq />} />
           {/* Feature pages */}
           <Route path="/features/guest-list" element={<FeatureGuestList />} />
           <Route path="/features/seating" element={<FeatureSeating />} />
