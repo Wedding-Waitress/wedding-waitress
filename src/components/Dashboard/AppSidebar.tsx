@@ -87,7 +87,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const [otpOpen, setOtpOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
+  // isMobile already destructured from useSidebar above
   const { profile } = useProfile();
 
   const userInitials = (() => {
