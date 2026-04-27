@@ -436,7 +436,7 @@ export const MyEventsPage: React.FC = () => {
                 </p>
                 
                 {/* Ceremony & Reception Detail Boxes */}
-                <div className={`flex flex-col sm:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
+                <div className={`flex flex-col lg:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
                     <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">

@@ -77,13 +77,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onTabChange,
   onSignOut
 }) => {
-  const { open } = useSidebar();
+  const { open, isMobile, setOpenMobile } = useSidebar();
+  const handleItemClick = React.useCallback((id: string) => {
+    onTabChange(id);
+    if (isMobile) setOpenMobile(false);
+  }, [onTabChange, isMobile, setOpenMobile]);
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
+  // isMobile already destructured from useSidebar above
   const { profile } = useProfile();
 
   const userInitials = (() => {
@@ -149,7 +153,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 return (
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
-                    onClick={() => onTabChange(item.id)}
+                    onClick={() => handleItemClick(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
                     className={`flex items-center gap-1 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
@@ -219,7 +223,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 className="w-[--radix-popper-anchor-width] min-w-56 rounded-xl shadow-xl border border-[#E8E1D6]/70 p-1.5"
               >
                 <DropdownMenuItem
-                  onClick={() => onTabChange('account')}
+                  onClick={() => handleItemClick('account')}
                   className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <UserCircle className="mr-2 h-4 w-4" />
