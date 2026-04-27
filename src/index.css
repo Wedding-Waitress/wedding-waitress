@@ -925,3 +925,13 @@ input::placeholder, textarea::placeholder, [data-placeholder] {
   0% { opacity: 0; transform: translateY(30px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+
+/* Dashboard responsive layout: reduce sidebar width on tablet, prevent horizontal scroll on mobile */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .dashboard-shell {
+    --sidebar-width: 13rem;
+  }
+}
+.dashboard-shell {
+  overflow-x: hidden;
+}
