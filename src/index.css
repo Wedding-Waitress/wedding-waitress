@@ -926,12 +926,32 @@ input::placeholder, textarea::placeholder, [data-placeholder] {
   100% { opacity: 1; transform: translateY(0); }
 }
 
-/* Dashboard responsive layout: reduce sidebar width on tablet, prevent horizontal scroll on mobile */
+/* Dashboard responsive layout */
+.dashboard-shell {
+  overflow-x: hidden;
+}
+
+/* MOBILE (<768px): force-hide the desktop sidebar rail entirely.
+   The mobile drawer (Sheet) is rendered separately and is unaffected. */
+@media (max-width: 767px) {
+  .dashboard-shell aside.dashboard-sidebar,
+  .dashboard-shell [data-sidebar="sidebar"]:not([data-mobile="true"]),
+  .dashboard-shell .group.peer.hidden.text-sidebar-foreground {
+    display: none !important;
+  }
+  .dashboard-shell main {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* TABLET (768–1023px): narrower sidebar + breathing room between sidebar & content */
 @media (min-width: 768px) and (max-width: 1023px) {
   .dashboard-shell {
     --sidebar-width: 13rem;
   }
-}
-.dashboard-shell {
-  overflow-x: hidden;
+  .dashboard-shell main {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
