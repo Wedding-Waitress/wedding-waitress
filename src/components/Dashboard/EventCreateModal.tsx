@@ -549,22 +549,22 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-2 border-t">
-          <Button 
-            variant="destructive" 
-            onClick={handleClose}
-            className="rounded-full"
-          >
-            Cancel
-          </Button>
-          <Button 
+        <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end">
+          <Button
             onClick={handleCreate}
             disabled={!isFormValid || isSaving}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+            className="flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white"
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
-        </DialogFooter>
+          <Button
+            variant="destructive"
+            onClick={handleClose}
+            className="flex-1 lg:flex-none lg:order-1 h-11 rounded-full"
+          >
+            Cancel
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
