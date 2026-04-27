@@ -183,7 +183,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </AuthGatedCtaLink>
-          <Link to="/products/my-events" className="w-full sm:w-auto max-w-sm sm:max-w-none">
+          <Link to="/my-events" className="w-full sm:w-auto max-w-sm sm:max-w-none">
             <Button size="lg" variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold transition-all hover:scale-105 w-full sm:w-auto">
               {t('heroMain.ctaSecondary')}
             </Button>
@@ -254,37 +254,37 @@ export const Landing = () => {
   ];
 
   const featureRoutes: Record<string, string> = {
-    guestList: '/features/guest-list',
-    tables: '/features/seating',
-    qr: '/features/qr-seating',
-    runningSheet: '/features/planning',
-    invitations: '/features/invitations',
-    myEvents: '/features/events',
-    placeCards: '/features/place-cards',
-    tableCharts: '/features/table-charts',
-    dietary: '/features/dietary',
-    seatingChart: '/features/full-seating',
-    kiosk: '/features/kiosk',
-    djmc: '/features/dj-mc',
-    floorPlan: '/features/floor-plan',
+    guestList: '/guest-list',
+    tables: '/tables',
+    qr: '/qr-code-seating-chart',
+    runningSheet: '/running-sheet-product',
+    invitations: '/invitations-cards',
+    myEvents: '/my-events',
+    placeCards: '/name-place-cards',
+    tableCharts: '/individual-table-charts',
+    dietary: '/dietary-requirements',
+    seatingChart: '/full-seating-chart',
+    kiosk: '/kiosk-live-view',
+    djmc: '/dj-mc-questionnaire',
+    floorPlan: '/floor-plan',
   };
 
   // Product page routes used by the "wedding platform your guests will love" cards.
   // Matches the URLs used in the "Explore the Platform" section below.
   const productRoutes: Record<string, string> = {
-    guestList: '/products/guest-list',
-    tables: '/products/tables',
-    qr: '/products/qr-code-seating-chart',
-    invitations: '/products/invitations-cards',
-    runningSheet: '/products/running-sheet',
-    floorPlan: '/products/floor-plan',
-    myEvents: '/products/my-events',
-    placeCards: '/products/name-place-cards',
-    tableCharts: '/products/individual-table-charts',
-    dietary: '/products/dietary-requirements',
-    seatingChart: '/products/full-seating-chart',
-    kiosk: '/products/kiosk-live-view',
-    djmc: '/products/dj-mc-questionnaire',
+    guestList: '/guest-list',
+    tables: '/tables',
+    qr: '/qr-code-seating-chart',
+    invitations: '/invitations-cards',
+    runningSheet: '/running-sheet-product',
+    floorPlan: '/floor-plan',
+    myEvents: '/my-events',
+    placeCards: '/name-place-cards',
+    tableCharts: '/individual-table-charts',
+    dietary: '/dietary-requirements',
+    seatingChart: '/full-seating-chart',
+    kiosk: '/kiosk-live-view',
+    djmc: '/dj-mc-questionnaire',
   };
 
   const alternatingFeatures = [
