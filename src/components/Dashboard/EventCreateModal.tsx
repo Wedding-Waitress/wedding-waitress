@@ -105,10 +105,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   // Helper to get dynamic border class based on field value
   const getInputClass = useCallback((hasValue: boolean) => {
-    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
-    return hasValue 
-      ? `${baseClass} border-green-500 focus-visible:border-green-500`
-      : `${baseClass} border-primary focus-visible:border-primary`;
+    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm border-primary focus-visible:border-primary";
+    return baseClass;
   }, []);
 
   const isFormValid = useMemo(() => {
@@ -251,15 +249,18 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8" fullScreenOnMobile>
-        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">Create Event</DialogTitle>
-          <div className="flex-1 max-w-[75%]">
+      <DialogContent
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)]"
+        fullScreenOnMobile
+      >
+        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 max-sm:items-center max-sm:text-center max-sm:pt-6">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap max-sm:text-center max-sm:w-full">Create Event</DialogTitle>
+          <div className="flex-1 w-full max-w-full sm:max-w-[75%]">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
               placeholder="Event name - e.g., Jason & Linda's Wedding"
-              className="h-10 sm:h-9 border-green-500 focus-visible:border-green-500 focus-visible:ring-green-500"
+              className="h-10 sm:h-9 border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full text-center sm:text-left"
             />
           </div>
         </DialogHeader>
@@ -267,7 +268,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-sm:text-center">
               Please enable at least one section (Ceremony or Reception) to create an event.
             </div>
           )}
