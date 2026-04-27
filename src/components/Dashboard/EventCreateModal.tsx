@@ -251,15 +251,18 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8" fullScreenOnMobile>
-        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">Create Event</DialogTitle>
-          <div className="flex-1 max-w-[75%]">
+      <DialogContent
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)]"
+        fullScreenOnMobile
+      >
+        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 max-sm:items-center max-sm:text-center max-sm:pt-6">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap max-sm:text-center max-sm:w-full">Create Event</DialogTitle>
+          <div className="flex-1 w-full max-w-full sm:max-w-[75%]">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
               placeholder="Event name - e.g., Jason & Linda's Wedding"
-              className="h-10 sm:h-9 border-green-500 focus-visible:border-green-500 focus-visible:ring-green-500"
+              className="h-10 sm:h-9 border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full text-center sm:text-left"
             />
           </div>
         </DialogHeader>
