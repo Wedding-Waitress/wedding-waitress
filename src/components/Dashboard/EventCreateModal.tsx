@@ -291,9 +291,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
             {/* Ceremony Content - controlled by toggle */}
             {formData.ceremony_enabled ? (
-              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-                {/* Row 1: Name, Date, RSVP Deadline - Stack on mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
+                {/* Row 1: Name, Date, RSVP Deadline - Stack on mobile/tablet */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
                     <EventNameCombobox
