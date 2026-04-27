@@ -130,20 +130,7 @@ const App = () => (
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/faq" element={<Faq />} />
-          {/* Feature pages */}
-          <Route path="/features/guest-list" element={<FeatureGuestList />} />
-          <Route path="/features/seating" element={<FeatureSeating />} />
-          <Route path="/features/qr-seating" element={<FeatureQrSeating />} />
-          <Route path="/features/planning" element={<FeaturePlanning />} />
-          <Route path="/features/invitations" element={<FeatureInvitations />} />
-          <Route path="/features/events" element={<FeatureEvents />} />
-          <Route path="/features/place-cards" element={<FeaturePlaceCards />} />
-          <Route path="/features/table-charts" element={<FeatureTableCharts />} />
-          <Route path="/features/dietary" element={<FeatureDietary />} />
-          <Route path="/features/full-seating" element={<FeatureFullSeating />} />
-          <Route path="/features/kiosk" element={<FeatureKiosk />} />
-          <Route path="/features/dj-mc" element={<FeatureDjMc />} />
-          <Route path="/features/floor-plan" element={<FeatureFloorPlan />} />
+          {/* Feature pages — replaced by clean root URLs (redirects below) */}
           {/* Products index page */}
           <Route path="/products" element={<Products />} />
           {/* Clean root-level product pages (canonical, indexable) */}
