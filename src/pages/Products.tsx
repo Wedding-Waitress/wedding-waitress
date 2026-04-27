@@ -45,7 +45,7 @@ export const Products: React.FC = () => {
     { key: 'tables', img: featureTables, icon: MapPin, route: '/tables' },
     { key: 'qr', img: featureQr, icon: QrCode, route: '/qr-code-seating-chart' },
     { key: 'invitations', img: featureInvitations, icon: Mail, route: '/invitations-cards' },
-    { key: 'runningSheet', img: featureTimeline, icon: Calendar, route: '/running-sheet-product' },
+    { key: 'runningSheet', img: featureTimeline, icon: Calendar, route: '/running-sheet' },
     { key: 'floorPlan', img: featureFloorplan, icon: Layout, route: '/floor-plan' },
     { key: 'placeCards', img: featurePlacecards, icon: CreditCard, route: '/name-place-cards' },
     { key: 'tableCharts', img: featureTablecharts, icon: Grid3X3, route: '/individual-table-charts' },

@@ -52,9 +52,9 @@ export function buildDJQuestionnaireUrl(shareToken: string, eventSlug?: string):
 export function buildRunningSheetUrl(shareToken: string, eventSlug?: string): string {
   const baseUrl = getPublicBaseUrl();
   if (eventSlug) {
-    return `${baseUrl}/running-sheet/${encodeURIComponent(eventSlug)}/${encodeURIComponent(shareToken)}`;
+    return `${baseUrl}/shared-running-sheet/${encodeURIComponent(eventSlug)}/${encodeURIComponent(shareToken)}`;
   }
-  return `${baseUrl}/running-sheet/${encodeURIComponent(shareToken)}`;
+  return `${baseUrl}/shared-running-sheet/${encodeURIComponent(shareToken)}`;
 }
 
 /**

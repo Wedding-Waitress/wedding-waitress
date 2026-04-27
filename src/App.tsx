@@ -132,7 +132,7 @@ const App = () => (
           <Route path="/floor-plan" element={<ProductFloorPlan />} />
           <Route path="/individual-table-charts" element={<ProductIndividualTableCharts />} />
           <Route path="/dietary-requirements" element={<ProductDietaryRequirements />} />
-          <Route path="/running-sheet-product" element={<ProductRunningSheet />} />
+          <Route path="/running-sheet" element={<ProductRunningSheet />} />
           <Route path="/kiosk-live-view" element={<ProductKioskLiveView />} />
           <Route path="/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
           {/* Legacy /products/* — permanent client redirects to clean URLs */}
@@ -146,7 +146,8 @@ const App = () => (
           <Route path="/products/floor-plan" element={<Navigate to="/floor-plan" replace />} />
           <Route path="/products/individual-table-charts" element={<Navigate to="/individual-table-charts" replace />} />
           <Route path="/products/dietary-requirements" element={<Navigate to="/dietary-requirements" replace />} />
-          <Route path="/products/running-sheet" element={<Navigate to="/running-sheet-product" replace />} />
+          <Route path="/products/running-sheet" element={<Navigate to="/running-sheet" replace />} />
+          <Route path="/running-sheet-product" element={<Navigate to="/running-sheet" replace />} />
           <Route path="/products/kiosk-live-view" element={<Navigate to="/kiosk-live-view" replace />} />
           <Route path="/products/dj-mc-questionnaire" element={<Navigate to="/dj-mc-questionnaire" replace />} />
           {/* Legacy /features/* — permanent client redirects to clean URLs */}
@@ -162,7 +163,8 @@ const App = () => (
           <Route path="/features/full-seating" element={<Navigate to="/full-seating-chart" replace />} />
           <Route path="/features/kiosk" element={<Navigate to="/kiosk-live-view" replace />} />
           <Route path="/features/dj-mc" element={<Navigate to="/dj-mc-questionnaire" replace />} />
-          <Route path="/features/planning" element={<Navigate to="/running-sheet-product" replace />} />
+          <Route path="/features/planning" element={<Navigate to="/running-sheet" replace />} />
+          <Route path="/features/running-sheet" element={<Navigate to="/running-sheet" replace />} />
           {/* Blog */}
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
@@ -174,7 +176,10 @@ const App = () => (
           <Route path="/dj-mc/:token" element={<DJMCPublicView />} />
           <Route path="/djmc/:eventSlug/:token" element={<DJMCPublicView />} />
           <Route path="/djmc/:token" element={<DJMCPublicView />} />
-          {/* Running Sheet public view */}
+          {/* Running Sheet public view (vendor share links) — moved off /running-sheet so SEO page is canonical */}
+          <Route path="/shared-running-sheet/:eventSlug/:token" element={<RunningSheetPublicView />} />
+          <Route path="/shared-running-sheet/:token" element={<RunningSheetPublicView />} />
+          {/* Backward-compat for previously issued share links */}
           <Route path="/running-sheet/:eventSlug/:token" element={<RunningSheetPublicView />} />
           <Route path="/running-sheet/:token" element={<RunningSheetPublicView />} />
           {/* Seating chart public view */}

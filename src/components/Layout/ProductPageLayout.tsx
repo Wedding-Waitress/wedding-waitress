@@ -25,7 +25,7 @@ const PRODUCT_LINKS: { href: string; key: string }[] = [
   { href: '/full-seating-chart', key: 'fullSeating' },
   { href: '/kiosk-live-view', key: 'kioskLiveView' },
   { href: '/dj-mc-questionnaire', key: 'djMc' },
-  { href: '/running-sheet-product', key: 'runningSheet' },
+  { href: '/running-sheet', key: 'runningSheet' },
 ];
 
 export interface ProductFeatureHighlight {

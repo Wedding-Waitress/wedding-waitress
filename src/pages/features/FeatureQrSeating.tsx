@@ -21,12 +21,12 @@ export const FeatureQrSeating = () => {
       metaDescription={t('fp.qrSeating.metaDesc')}
       seoSections={[
         { heading: t('fp.qrSeating.seo1Heading'), text: <Trans i18nKey="fp.qrSeating.seo1Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
-        { heading: t('fp.qrSeating.seo2Heading'), text: <Trans i18nKey="fp.qrSeating.seo2Text" ns="landing" components={[<Link to="/running-sheet-product" className={linkClass} />]} /> },
+        { heading: t('fp.qrSeating.seo2Heading'), text: <Trans i18nKey="fp.qrSeating.seo2Text" ns="landing" components={[<Link to="/running-sheet" className={linkClass} />]} /> },
         { heading: t('fp.qrSeating.seo3Heading'), text: <Trans i18nKey="fp.qrSeating.seo3Text" ns="landing" components={[<Link to="/floor-plan" className={linkClass} />]} /> },
       ]}
       relatedFeatures={[
         { label: t('fp.qrSeating.related1'), href: "/tables" },
-        { label: t('fp.qrSeating.related2'), href: "/running-sheet-product" },
+        { label: t('fp.qrSeating.related2'), href: "/running-sheet" },
         { label: t('fp.qrSeating.related3'), href: "/floor-plan" },
       ]}
     />
