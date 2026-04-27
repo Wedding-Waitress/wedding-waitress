@@ -105,7 +105,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   // Helper to get dynamic border class based on field value
   const getInputClass = useCallback((hasValue: boolean) => {
-    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm border-primary focus-visible:border-primary";
+    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm border-primary focus-visible:border-primary px-4 truncate w-full";
     return baseClass;
   }, []);
 
@@ -254,13 +254,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         fullScreenOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center text-center lg:text-left max-lg:pt-6 lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto">Create Event</DialogTitle>
+          <DialogTitle className="text-2xl sm:text-3xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto">Create Event</DialogTitle>
           <div className="flex-1 w-full max-w-full lg:max-w-[75%]">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
               placeholder="Event name - e.g., Jason & Linda's Wedding"
-              className="h-10 sm:h-9 border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full text-center lg:text-left"
+              className="h-10 sm:h-9 border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate text-center lg:text-left"
             />
           </div>
         </DialogHeader>
@@ -414,13 +414,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
+                  <div className="grid grid-cols-2 gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                      className={`px-3 py-1 rounded-full transition-all text-xs font-medium ${
-                        formData.event_type === 'seated' 
-                          ? 'bg-green-500 text-white shadow-sm' 
+                      className={`h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                        formData.event_type === 'seated'
+                          ? 'bg-green-500 text-white shadow-sm'
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
                       }`}
                     >
@@ -429,9 +429,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                      className={`px-3 py-1 rounded-full transition-all text-xs font-medium ${
-                        formData.event_type === 'cocktail' 
-                          ? 'bg-green-500 text-white shadow-sm' 
+                      className={`h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                        formData.event_type === 'cocktail'
+                          ? 'bg-green-500 text-white shadow-sm'
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
                       }`}
                     >
@@ -549,22 +549,22 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-2 border-t">
-          <Button 
-            variant="destructive" 
-            onClick={handleClose}
-            className="rounded-full"
-          >
-            Cancel
-          </Button>
-          <Button 
+        <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end">
+          <Button
             onClick={handleCreate}
             disabled={!isFormValid || isSaving}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+            className="flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white"
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
-        </DialogFooter>
+          <Button
+            variant="destructive"
+            onClick={handleClose}
+            className="flex-1 lg:flex-none lg:order-1 h-11 rounded-full"
+          >
+            Cancel
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
