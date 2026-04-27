@@ -20,14 +20,14 @@ export const FeatureQrSeating = () => {
       pageTitle={t('fp.qrSeating.pageTitle')}
       metaDescription={t('fp.qrSeating.metaDesc')}
       seoSections={[
-        { heading: t('fp.qrSeating.seo1Heading'), text: <Trans i18nKey="fp.qrSeating.seo1Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
-        { heading: t('fp.qrSeating.seo2Heading'), text: <Trans i18nKey="fp.qrSeating.seo2Text" ns="landing" components={[<Link to="/features/planning" className={linkClass} />]} /> },
-        { heading: t('fp.qrSeating.seo3Heading'), text: <Trans i18nKey="fp.qrSeating.seo3Text" ns="landing" components={[<Link to="/features/floor-plan" className={linkClass} />]} /> },
+        { heading: t('fp.qrSeating.seo1Heading'), text: <Trans i18nKey="fp.qrSeating.seo1Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
+        { heading: t('fp.qrSeating.seo2Heading'), text: <Trans i18nKey="fp.qrSeating.seo2Text" ns="landing" components={[<Link to="/running-sheet-product" className={linkClass} />]} /> },
+        { heading: t('fp.qrSeating.seo3Heading'), text: <Trans i18nKey="fp.qrSeating.seo3Text" ns="landing" components={[<Link to="/floor-plan" className={linkClass} />]} /> },
       ]}
       relatedFeatures={[
-        { label: t('fp.qrSeating.related1'), href: "/features/seating" },
-        { label: t('fp.qrSeating.related2'), href: "/features/planning" },
-        { label: t('fp.qrSeating.related3'), href: "/features/floor-plan" },
+        { label: t('fp.qrSeating.related1'), href: "/tables" },
+        { label: t('fp.qrSeating.related2'), href: "/running-sheet-product" },
+        { label: t('fp.qrSeating.related3'), href: "/floor-plan" },
       ]}
     />
   );

@@ -20,14 +20,14 @@ export const FeatureGuestList = () => {
       pageTitle={t('fp.guestList.pageTitle')}
       metaDescription={t('fp.guestList.metaDesc')}
       seoSections={[
-        { heading: t('fp.guestList.seo1Heading'), text: <Trans i18nKey="fp.guestList.seo1Text" ns="landing" components={[<Link to="/features/dj-mc" className={linkClass} />]} /> },
-        { heading: t('fp.guestList.seo2Heading'), text: <Trans i18nKey="fp.guestList.seo2Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
+        { heading: t('fp.guestList.seo1Heading'), text: <Trans i18nKey="fp.guestList.seo1Text" ns="landing" components={[<Link to="/dj-mc-questionnaire" className={linkClass} />]} /> },
+        { heading: t('fp.guestList.seo2Heading'), text: <Trans i18nKey="fp.guestList.seo2Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
         { heading: t('fp.guestList.seo3Heading'), text: t('fp.guestList.seo3Text') },
       ]}
       relatedFeatures={[
-        { label: t('fp.guestList.related1'), href: "/features/dj-mc" },
-        { label: t('fp.guestList.related2'), href: "/features/seating" },
-        { label: t('fp.guestList.related3'), href: "/features/events" },
+        { label: t('fp.guestList.related1'), href: "/dj-mc-questionnaire" },
+        { label: t('fp.guestList.related2'), href: "/tables" },
+        { label: t('fp.guestList.related3'), href: "/my-events" },
       ]}
     />
   );

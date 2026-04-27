@@ -20,7 +20,7 @@ import featureKiosk from '@/assets/feature-kiosk.jpg';
 import featureDjmc from '@/assets/feature-djmc.jpg';
 import featureFloorplan from '@/assets/feature-floorplan.jpg';
 
-export const Features: React.FC = () => {
+export const Products: React.FC = () => {
   const { t } = useTranslation('landing');
 
   const featureCardAlts: Record<string, string> = {
@@ -39,7 +39,7 @@ export const Features: React.FC = () => {
     djmc: 'Wedding DJ and MC music questionnaire',
   };
 
-  const featureCards = [
+  const productCards = [
     { key: 'myEvents', img: featureMyevents, icon: ClipboardList, route: '/my-events' },
     { key: 'guestList', img: featureGuestlist, icon: Users, route: '/guest-list' },
     { key: 'tables', img: featureTables, icon: MapPin, route: '/tables' },
@@ -58,20 +58,21 @@ export const Features: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       <SeoHead
-        title="All Wedding Planning Features | Wedding Waitress"
-        description="Explore all 13 features of Wedding Waitress: guest list, seating chart, QR code, invitations, place cards, dietary requirements, kiosk, DJ-MC questionnaire and more."
+        title="All Products | Wedding Waitress"
+        description="Explore all 13 Wedding Waitress products: guest list manager, QR code seating chart, invitations, name place cards, dietary requirements, kiosk live view, DJ-MC questionnaire and more."
+        canonicalPath="/products"
       />
       <Header />
       <section className="py-20 md:py-28 px-4">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('featureCards.sectionTitle')}
+            Wedding Waitress Products
           </h1>
           <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
             {t('featureCards.sectionSubtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featureCards.map((card, cardIdx) => (
+            {productCards.map((card, cardIdx) => (
               <Link
                 to={card.route}
                 key={card.key}

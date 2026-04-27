@@ -26,19 +26,7 @@ import { PaymentSuccess } from "./pages/PaymentSuccess";
 import { UpgradePricing } from "./pages/UpgradePricing";
 import { UpgradeCheckout } from "./pages/UpgradeCheckout";
 import { QRRedirect } from "./pages/QRRedirect";
-import { FeatureGuestList } from "./pages/features/FeatureGuestList";
-import { FeatureSeating } from "./pages/features/FeatureSeating";
-import { FeatureQrSeating } from "./pages/features/FeatureQrSeating";
-import { FeaturePlanning } from "./pages/features/FeaturePlanning";
-import { FeatureInvitations } from "./pages/features/FeatureInvitations";
-import { FeatureEvents } from "./pages/features/FeatureEvents";
-import { FeaturePlaceCards } from "./pages/features/FeaturePlaceCards";
-import { FeatureTableCharts } from "./pages/features/FeatureTableCharts";
-import { FeatureDietary } from "./pages/features/FeatureDietary";
-import { FeatureFullSeating } from "./pages/features/FeatureFullSeating";
-import { FeatureKiosk } from "./pages/features/FeatureKiosk";
-import { FeatureDjMc } from "./pages/features/FeatureDjMc";
-import { FeatureFloorPlan } from "./pages/features/FeatureFloorPlan";
+// Legacy Feature* pages removed — /features/* now redirects to clean root URLs
 import { ProductMyEvents } from "./pages/products/ProductMyEvents";
 import { ProductTables } from "./pages/products/ProductTables";
 import { ProductGuestList } from "./pages/products/ProductGuestList";
@@ -58,6 +46,7 @@ import { HowItWorks } from "./pages/HowItWorks";
 import { Features } from "./pages/Features";
 import { Pricing } from "./pages/Pricing";
 import { Faq } from "./pages/Faq";
+import { Products } from "./pages/Products";
 import Unsubscribe from "./pages/Unsubscribe";
 import { PaymentProcessingProvider, usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
 import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
@@ -129,34 +118,51 @@ const App = () => (
           <Route path="/features" element={<Features />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/faq" element={<Faq />} />
-          {/* Feature pages */}
-          <Route path="/features/guest-list" element={<FeatureGuestList />} />
-          <Route path="/features/seating" element={<FeatureSeating />} />
-          <Route path="/features/qr-seating" element={<FeatureQrSeating />} />
-          <Route path="/features/planning" element={<FeaturePlanning />} />
-          <Route path="/features/invitations" element={<FeatureInvitations />} />
-          <Route path="/features/events" element={<FeatureEvents />} />
-          <Route path="/features/place-cards" element={<FeaturePlaceCards />} />
-          <Route path="/features/table-charts" element={<FeatureTableCharts />} />
-          <Route path="/features/dietary" element={<FeatureDietary />} />
-          <Route path="/features/full-seating" element={<FeatureFullSeating />} />
-          <Route path="/features/kiosk" element={<FeatureKiosk />} />
-          <Route path="/features/dj-mc" element={<FeatureDjMc />} />
-          <Route path="/features/floor-plan" element={<FeatureFloorPlan />} />
-          {/* Public /products/* SEO landing pages (indexable) */}
-          <Route path="/products/my-events" element={<ProductMyEvents />} />
-          <Route path="/products/tables" element={<ProductTables />} />
-          <Route path="/products/guest-list" element={<ProductGuestList />} />
-          <Route path="/products/qr-code-seating-chart" element={<ProductQrCodeSeatingChart />} />
-          <Route path="/products/invitations-cards" element={<ProductInvitationsCards />} />
-          <Route path="/products/name-place-cards" element={<ProductNamePlaceCards />} />
-          <Route path="/products/full-seating-chart" element={<ProductFullSeatingChart />} />
-          <Route path="/products/floor-plan" element={<ProductFloorPlan />} />
-          <Route path="/products/individual-table-charts" element={<ProductIndividualTableCharts />} />
-          <Route path="/products/dietary-requirements" element={<ProductDietaryRequirements />} />
-          <Route path="/products/running-sheet" element={<ProductRunningSheet />} />
-          <Route path="/products/kiosk-live-view" element={<ProductKioskLiveView />} />
-          <Route path="/products/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
+          {/* Feature pages — replaced by clean root URLs (redirects below) */}
+          {/* Products index page */}
+          <Route path="/products" element={<Products />} />
+          {/* Clean root-level product pages (canonical, indexable) */}
+          <Route path="/my-events" element={<ProductMyEvents />} />
+          <Route path="/tables" element={<ProductTables />} />
+          <Route path="/guest-list" element={<ProductGuestList />} />
+          <Route path="/qr-code-seating-chart" element={<ProductQrCodeSeatingChart />} />
+          <Route path="/invitations-cards" element={<ProductInvitationsCards />} />
+          <Route path="/name-place-cards" element={<ProductNamePlaceCards />} />
+          <Route path="/full-seating-chart" element={<ProductFullSeatingChart />} />
+          <Route path="/floor-plan" element={<ProductFloorPlan />} />
+          <Route path="/individual-table-charts" element={<ProductIndividualTableCharts />} />
+          <Route path="/dietary-requirements" element={<ProductDietaryRequirements />} />
+          <Route path="/running-sheet-product" element={<ProductRunningSheet />} />
+          <Route path="/kiosk-live-view" element={<ProductKioskLiveView />} />
+          <Route path="/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
+          {/* Legacy /products/* — permanent client redirects to clean URLs */}
+          <Route path="/products/my-events" element={<Navigate to="/my-events" replace />} />
+          <Route path="/products/tables" element={<Navigate to="/tables" replace />} />
+          <Route path="/products/guest-list" element={<Navigate to="/guest-list" replace />} />
+          <Route path="/products/qr-code-seating-chart" element={<Navigate to="/qr-code-seating-chart" replace />} />
+          <Route path="/products/invitations-cards" element={<Navigate to="/invitations-cards" replace />} />
+          <Route path="/products/name-place-cards" element={<Navigate to="/name-place-cards" replace />} />
+          <Route path="/products/full-seating-chart" element={<Navigate to="/full-seating-chart" replace />} />
+          <Route path="/products/floor-plan" element={<Navigate to="/floor-plan" replace />} />
+          <Route path="/products/individual-table-charts" element={<Navigate to="/individual-table-charts" replace />} />
+          <Route path="/products/dietary-requirements" element={<Navigate to="/dietary-requirements" replace />} />
+          <Route path="/products/running-sheet" element={<Navigate to="/running-sheet-product" replace />} />
+          <Route path="/products/kiosk-live-view" element={<Navigate to="/kiosk-live-view" replace />} />
+          <Route path="/products/dj-mc-questionnaire" element={<Navigate to="/dj-mc-questionnaire" replace />} />
+          {/* Legacy /features/* — permanent client redirects to clean URLs */}
+          <Route path="/features/events" element={<Navigate to="/my-events" replace />} />
+          <Route path="/features/guest-list" element={<Navigate to="/guest-list" replace />} />
+          <Route path="/features/seating" element={<Navigate to="/tables" replace />} />
+          <Route path="/features/qr-seating" element={<Navigate to="/qr-code-seating-chart" replace />} />
+          <Route path="/features/invitations" element={<Navigate to="/invitations-cards" replace />} />
+          <Route path="/features/place-cards" element={<Navigate to="/name-place-cards" replace />} />
+          <Route path="/features/table-charts" element={<Navigate to="/individual-table-charts" replace />} />
+          <Route path="/features/floor-plan" element={<Navigate to="/floor-plan" replace />} />
+          <Route path="/features/dietary" element={<Navigate to="/dietary-requirements" replace />} />
+          <Route path="/features/full-seating" element={<Navigate to="/full-seating-chart" replace />} />
+          <Route path="/features/kiosk" element={<Navigate to="/kiosk-live-view" replace />} />
+          <Route path="/features/dj-mc" element={<Navigate to="/dj-mc-questionnaire" replace />} />
+          <Route path="/features/planning" element={<Navigate to="/running-sheet-product" replace />} />
           {/* Blog */}
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />

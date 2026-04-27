@@ -13,19 +13,19 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { AuthGatedCtaLink } from '@/components/auth/AuthGatedCtaLink';
 
 const PRODUCT_LINKS: { href: string; key: string }[] = [
-  { href: '/products/my-events', key: 'myEvents' },
-  { href: '/products/guest-list', key: 'guestList' },
-  { href: '/products/tables', key: 'tables' },
-  { href: '/products/qr-code-seating-chart', key: 'qrSeating' },
-  { href: '/products/invitations-cards', key: 'invitationsCards' },
-  { href: '/products/name-place-cards', key: 'placeCards' },
-  { href: '/products/individual-table-charts', key: 'tableCharts' },
-  { href: '/products/floor-plan', key: 'floorPlan' },
-  { href: '/products/dietary-requirements', key: 'dietary' },
-  { href: '/products/full-seating-chart', key: 'fullSeating' },
-  { href: '/products/kiosk-live-view', key: 'kioskLiveView' },
-  { href: '/products/dj-mc-questionnaire', key: 'djMc' },
-  { href: '/products/running-sheet', key: 'runningSheet' },
+  { href: '/my-events', key: 'myEvents' },
+  { href: '/guest-list', key: 'guestList' },
+  { href: '/tables', key: 'tables' },
+  { href: '/qr-code-seating-chart', key: 'qrSeating' },
+  { href: '/invitations-cards', key: 'invitationsCards' },
+  { href: '/name-place-cards', key: 'placeCards' },
+  { href: '/individual-table-charts', key: 'tableCharts' },
+  { href: '/floor-plan', key: 'floorPlan' },
+  { href: '/dietary-requirements', key: 'dietary' },
+  { href: '/full-seating-chart', key: 'fullSeating' },
+  { href: '/kiosk-live-view', key: 'kioskLiveView' },
+  { href: '/dj-mc-questionnaire', key: 'djMc' },
+  { href: '/running-sheet-product', key: 'runningSheet' },
 ];
 
 export interface ProductFeatureHighlight {

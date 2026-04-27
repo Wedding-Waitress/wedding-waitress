@@ -20,14 +20,14 @@ export const FeatureKiosk = () => {
       pageTitle={t('fp.kiosk.pageTitle')}
       metaDescription={t('fp.kiosk.metaDesc')}
       seoSections={[
-        { heading: t('fp.kiosk.seo1Heading'), text: <Trans i18nKey="fp.kiosk.seo1Text" ns="landing" components={[<Link to="/features/planning" className={linkClass} />]} /> },
-        { heading: t('fp.kiosk.seo2Heading'), text: <Trans i18nKey="fp.kiosk.seo2Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
+        { heading: t('fp.kiosk.seo1Heading'), text: <Trans i18nKey="fp.kiosk.seo1Text" ns="landing" components={[<Link to="/running-sheet-product" className={linkClass} />]} /> },
+        { heading: t('fp.kiosk.seo2Heading'), text: <Trans i18nKey="fp.kiosk.seo2Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
         { heading: t('fp.kiosk.seo3Heading'), text: t('fp.kiosk.seo3Text') },
       ]}
       relatedFeatures={[
-        { label: t('fp.kiosk.related1'), href: "/features/planning" },
-        { label: t('fp.kiosk.related2'), href: "/features/seating" },
-        { label: t('fp.kiosk.related3'), href: "/features/qr-seating" },
+        { label: t('fp.kiosk.related1'), href: "/running-sheet-product" },
+        { label: t('fp.kiosk.related2'), href: "/tables" },
+        { label: t('fp.kiosk.related3'), href: "/qr-code-seating-chart" },
       ]}
     />
   );

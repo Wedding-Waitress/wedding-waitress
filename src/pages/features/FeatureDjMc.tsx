@@ -20,14 +20,14 @@ export const FeatureDjMc = () => {
       pageTitle={t('fp.djMc.pageTitle')}
       metaDescription={t('fp.djMc.metaDesc')}
       seoSections={[
-        { heading: t('fp.djMc.seo1Heading'), text: <Trans i18nKey="fp.djMc.seo1Text" ns="landing" components={[<Link to="/features/guest-list" className={linkClass} />]} /> },
+        { heading: t('fp.djMc.seo1Heading'), text: <Trans i18nKey="fp.djMc.seo1Text" ns="landing" components={[<Link to="/guest-list" className={linkClass} />]} /> },
         { heading: t('fp.djMc.seo2Heading'), text: t('fp.djMc.seo2Text') },
         { heading: t('fp.djMc.seo3Heading'), text: t('fp.djMc.seo3Text') },
       ]}
       relatedFeatures={[
-        { label: t('fp.djMc.related1'), href: "/features/guest-list" },
-        { label: t('fp.djMc.related2'), href: "/features/seating" },
-        { label: t('fp.djMc.related3'), href: "/features/floor-plan" },
+        { label: t('fp.djMc.related1'), href: "/guest-list" },
+        { label: t('fp.djMc.related2'), href: "/tables" },
+        { label: t('fp.djMc.related3'), href: "/floor-plan" },
       ]}
     />
   );

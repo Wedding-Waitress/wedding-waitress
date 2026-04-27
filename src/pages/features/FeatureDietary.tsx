@@ -20,14 +20,14 @@ export const FeatureDietary = () => {
       pageTitle={t('fp.dietary.pageTitle')}
       metaDescription={t('fp.dietary.metaDesc')}
       seoSections={[
-        { heading: t('fp.dietary.seo1Heading'), text: <Trans i18nKey="fp.dietary.seo1Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
-        { heading: t('fp.dietary.seo2Heading'), text: <Trans i18nKey="fp.dietary.seo2Text" ns="landing" components={[<Link to="/features/qr-seating" className={linkClass} />]} /> },
+        { heading: t('fp.dietary.seo1Heading'), text: <Trans i18nKey="fp.dietary.seo1Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
+        { heading: t('fp.dietary.seo2Heading'), text: <Trans i18nKey="fp.dietary.seo2Text" ns="landing" components={[<Link to="/qr-code-seating-chart" className={linkClass} />]} /> },
         { heading: t('fp.dietary.seo3Heading'), text: t('fp.dietary.seo3Text') },
       ]}
       relatedFeatures={[
-        { label: t('fp.dietary.related1'), href: "/features/seating" },
-        { label: t('fp.dietary.related2'), href: "/features/qr-seating" },
-        { label: t('fp.dietary.related3'), href: "/features/place-cards" },
+        { label: t('fp.dietary.related1'), href: "/tables" },
+        { label: t('fp.dietary.related2'), href: "/qr-code-seating-chart" },
+        { label: t('fp.dietary.related3'), href: "/name-place-cards" },
       ]}
     />
   );

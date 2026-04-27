@@ -80,19 +80,19 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const productLinks = [
-    { label: "My Events", href: "/products/my-events" },
-    { label: "Guest List", href: "/products/guest-list" },
-    { label: "Tables", href: "/products/tables" },
-    { label: "QR Code Seating Chart", href: "/products/qr-code-seating-chart" },
-    { label: "Invitations & Cards", href: "/products/invitations-cards" },
-    { label: "Name Place Cards", href: "/products/name-place-cards" },
-    { label: "Individual Table Charts", href: "/products/individual-table-charts" },
-    { label: "Floor Plan", href: "/products/floor-plan" },
-    { label: "Dietary Requirements", href: "/products/dietary-requirements" },
-    { label: "Full Seating Chart", href: "/products/full-seating-chart" },
-    { label: "Kiosk Live View", href: "/products/kiosk-live-view" },
-    { label: "DJ-MC Questionnaire", href: "/products/dj-mc-questionnaire" },
-    { label: "Running Sheet", href: "/products/running-sheet" },
+    { label: "My Events", href: "/my-events" },
+    { label: "Guest List", href: "/guest-list" },
+    { label: "Tables", href: "/tables" },
+    { label: "QR Code Seating Chart", href: "/qr-code-seating-chart" },
+    { label: "Invitations & Cards", href: "/invitations-cards" },
+    { label: "Name Place Cards", href: "/name-place-cards" },
+    { label: "Individual Table Charts", href: "/individual-table-charts" },
+    { label: "Floor Plan", href: "/floor-plan" },
+    { label: "Dietary Requirements", href: "/dietary-requirements" },
+    { label: "Full Seating Chart", href: "/full-seating-chart" },
+    { label: "Kiosk Live View", href: "/kiosk-live-view" },
+    { label: "DJ-MC Questionnaire", href: "/dj-mc-questionnaire" },
+    { label: "Running Sheet", href: "/running-sheet-product" },
   ];
 
   return (
@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <DropdownMenu>
                     <div className="flex items-center">
                       <Link
-                        to="/features"
+                        to="/products"
                         onClick={() => window.scrollTo(0, 0)}
                         className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80"
                       >
@@ -243,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
                       {t('nav.howItWorks')}
                     </Link>
                     <Link
-                      to="/features"
+                      to="/products"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
