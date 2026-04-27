@@ -323,8 +323,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
 
-                {/* Row 2: Guest Limit, Location, Location Details - Stack on mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Row 2: Guest Limit, Location, Location Details - Stack on mobile/tablet */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
