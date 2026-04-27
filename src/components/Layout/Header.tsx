@@ -243,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
                       {t('nav.howItWorks')}
                     </Link>
                     <Link
-                      to="/features"
+                      to="/products"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
