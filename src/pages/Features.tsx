@@ -40,19 +40,19 @@ export const Features: React.FC = () => {
   };
 
   const featureCards = [
-    { key: 'myEvents', img: featureMyevents, icon: ClipboardList, route: '/features/events' },
-    { key: 'guestList', img: featureGuestlist, icon: Users, route: '/features/guest-list' },
-    { key: 'tables', img: featureTables, icon: MapPin, route: '/features/seating' },
-    { key: 'qr', img: featureQr, icon: QrCode, route: '/features/qr-seating' },
-    { key: 'invitations', img: featureInvitations, icon: Mail, route: '/features/invitations' },
-    { key: 'runningSheet', img: featureTimeline, icon: Calendar, route: '/features/planning' },
-    { key: 'floorPlan', img: featureFloorplan, icon: Layout, route: '/features/floor-plan' },
-    { key: 'placeCards', img: featurePlacecards, icon: CreditCard, route: '/features/place-cards' },
-    { key: 'tableCharts', img: featureTablecharts, icon: Grid3X3, route: '/features/table-charts' },
-    { key: 'dietary', img: featureDietary, icon: UtensilsCrossed, route: '/features/dietary' },
-    { key: 'seatingChart', img: featureSeatingchart, icon: FileText, route: '/features/full-seating' },
-    { key: 'kiosk', img: featureKiosk, icon: Monitor, route: '/features/kiosk' },
-    { key: 'djmc', img: featureDjmc, icon: Mic, route: '/features/dj-mc' },
+    { key: 'myEvents', img: featureMyevents, icon: ClipboardList, route: '/my-events' },
+    { key: 'guestList', img: featureGuestlist, icon: Users, route: '/guest-list' },
+    { key: 'tables', img: featureTables, icon: MapPin, route: '/tables' },
+    { key: 'qr', img: featureQr, icon: QrCode, route: '/qr-code-seating-chart' },
+    { key: 'invitations', img: featureInvitations, icon: Mail, route: '/invitations-cards' },
+    { key: 'runningSheet', img: featureTimeline, icon: Calendar, route: '/running-sheet-product' },
+    { key: 'floorPlan', img: featureFloorplan, icon: Layout, route: '/floor-plan' },
+    { key: 'placeCards', img: featurePlacecards, icon: CreditCard, route: '/name-place-cards' },
+    { key: 'tableCharts', img: featureTablecharts, icon: Grid3X3, route: '/individual-table-charts' },
+    { key: 'dietary', img: featureDietary, icon: UtensilsCrossed, route: '/dietary-requirements' },
+    { key: 'seatingChart', img: featureSeatingchart, icon: FileText, route: '/full-seating-chart' },
+    { key: 'kiosk', img: featureKiosk, icon: Monitor, route: '/kiosk-live-view' },
+    { key: 'djmc', img: featureDjmc, icon: Mic, route: '/dj-mc-questionnaire' },
   ];
 
   return (
