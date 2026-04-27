@@ -131,7 +131,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <DropdownMenu>
                     <div className="flex items-center">
                       <Link
-                        to="/features"
+                        to="/products"
                         onClick={() => window.scrollTo(0, 0)}
                         className="text-[15px] font-medium text-gray-800 hover:text-gray-950 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50/80"
                       >
