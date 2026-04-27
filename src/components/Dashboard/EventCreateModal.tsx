@@ -291,9 +291,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
             {/* Ceremony Content - controlled by toggle */}
             {formData.ceremony_enabled ? (
-              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-                {/* Row 1: Name, Date, RSVP Deadline - Stack on mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
+                {/* Row 1: Name, Date, RSVP Deadline - Stack on mobile/tablet */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Ceremony Name *</Label>
                     <EventNameCombobox
@@ -323,8 +323,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
 
-                {/* Row 2: Guest Limit, Location, Location Details - Stack on mobile */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Row 2: Guest Limit, Location, Location Details - Stack on mobile/tablet */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
@@ -363,8 +363,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   </div>
                 </div>
 
-                {/* Row 3: Start Time, Finish Time - 2 cols on mobile */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {/* Row 3: Start Time, Finish Time */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
@@ -410,15 +410,15 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
             {/* Reception Content - controlled by toggle */}
             {formData.reception_enabled ? (
-              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+              <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 bg-muted border border-border rounded-2xl sm:rounded-full p-1 w-full max-w-md">
+                  <div className="flex flex-col space-y-2 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-2xl lg:rounded-full p-1 w-full max-w-md">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                      className={`h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                      className={`w-full h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
                         formData.event_type === 'seated'
                           ? 'bg-green-500 text-white shadow-sm'
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
@@ -429,7 +429,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                      className={`h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                      className={`w-full h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
                         formData.event_type === 'cocktail'
                           ? 'bg-green-500 text-white shadow-sm'
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
@@ -446,7 +446,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 1: Name, Date, RSVP Deadline */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Event Name *</Label>
                     <EventNameCombobox
@@ -477,7 +477,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 2: Guest Limit, Location, Location Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
@@ -520,7 +520,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 3: Start Time, Finish Time */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
