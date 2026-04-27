@@ -19,7 +19,7 @@ const entries = [
   { path: '/full-seating-chart', changefreq: 'monthly', priority: '0.9' },
   { path: '/kiosk-live-view', changefreq: 'monthly', priority: '0.9' },
   { path: '/dj-mc-questionnaire', changefreq: 'monthly', priority: '0.9' },
-  { path: '/running-sheet-product', changefreq: 'monthly', priority: '0.9' },
+  { path: '/running-sheet', changefreq: 'monthly', priority: '0.9' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
   { path: '/terms', changefreq: 'yearly', priority: '0.3' },
   { path: '/contact', changefreq: 'yearly', priority: '0.4' },

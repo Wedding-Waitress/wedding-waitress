@@ -92,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
     { label: "Full Seating Chart", href: "/full-seating-chart" },
     { label: "Kiosk Live View", href: "/kiosk-live-view" },
     { label: "DJ-MC Questionnaire", href: "/dj-mc-questionnaire" },
-    { label: "Running Sheet", href: "/running-sheet-product" },
+    { label: "Running Sheet", href: "/running-sheet" },
   ];
 
   return (

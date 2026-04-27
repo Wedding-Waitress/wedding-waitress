@@ -106,7 +106,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
     coverEmoji: '🗓️',
     coverImage: 'blog-running-sheet',
     internalLinks: [
-      { label: 'Running Sheet', href: '/running-sheet-product' },
+      { label: 'Running Sheet', href: '/running-sheet' },
       { label: 'DJ & MC Questionnaire', href: '/dj-mc-questionnaire' },
       { label: 'My Events', href: '/my-events' },
     ],
