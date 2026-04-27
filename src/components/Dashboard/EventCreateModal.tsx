@@ -414,7 +414,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 bg-muted border border-border rounded-2xl sm:rounded-full p-1 w-full max-w-md">
+                  <div className="flex flex-col space-y-2 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-2xl lg:rounded-full p-1 w-full max-w-md">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
