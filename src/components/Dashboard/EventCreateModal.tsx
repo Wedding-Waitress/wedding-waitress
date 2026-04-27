@@ -268,7 +268,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-sm:text-center">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive text-center lg:text-left">
               Please enable at least one section (Ceremony or Reception) to create an event.
             </div>
           )}
