@@ -21,7 +21,7 @@ export const DashboardHeader: React.FC = () => {
   
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full border-b border-border bg-card print:hidden safe-area-top">
-      <div className="relative flex h-12 sm:h-10 items-center px-3 sm:px-4 md:px-6">
+      <div className={`relative flex items-center px-3 sm:px-4 md:px-6 ${isMobile ? 'h-14' : 'h-10'}`}>
         {/* Mobile: Show greeting on left */}
         {isMobile && (
           <div className="flex items-center gap-2 flex-1">
