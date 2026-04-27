@@ -418,7 +418,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                      className={`h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                      className={`w-full h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
                         formData.event_type === 'seated'
                           ? 'bg-green-500 text-white shadow-sm'
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
