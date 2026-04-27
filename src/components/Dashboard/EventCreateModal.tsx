@@ -254,13 +254,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         fullScreenOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center text-center lg:text-left max-lg:pt-6 lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto">Create Event</DialogTitle>
+          <DialogTitle className="text-2xl sm:text-3xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto">Create Event</DialogTitle>
           <div className="flex-1 w-full max-w-full lg:max-w-[75%]">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
               placeholder="Event name - e.g., Jason & Linda's Wedding"
-              className="h-10 sm:h-9 border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full text-center lg:text-left"
+              className="h-10 sm:h-9 border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate text-center lg:text-left"
             />
           </div>
         </DialogHeader>
