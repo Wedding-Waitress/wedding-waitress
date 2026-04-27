@@ -20,14 +20,14 @@ export const FeatureFullSeating = () => {
       pageTitle={t('fp.fullSeating.pageTitle')}
       metaDescription={t('fp.fullSeating.metaDesc')}
       seoSections={[
-        { heading: t('fp.fullSeating.seo1Heading'), text: <Trans i18nKey="fp.fullSeating.seo1Text" ns="landing" components={[<Link to="/features/table-charts" className={linkClass} />]} /> },
-        { heading: t('fp.fullSeating.seo2Heading'), text: <Trans i18nKey="fp.fullSeating.seo2Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
+        { heading: t('fp.fullSeating.seo1Heading'), text: <Trans i18nKey="fp.fullSeating.seo1Text" ns="landing" components={[<Link to="/individual-table-charts" className={linkClass} />]} /> },
+        { heading: t('fp.fullSeating.seo2Heading'), text: <Trans i18nKey="fp.fullSeating.seo2Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
         { heading: t('fp.fullSeating.seo3Heading'), text: t('fp.fullSeating.seo3Text') },
       ]}
       relatedFeatures={[
-        { label: t('fp.fullSeating.related1'), href: "/features/table-charts" },
-        { label: t('fp.fullSeating.related2'), href: "/features/seating" },
-        { label: t('fp.fullSeating.related3'), href: "/features/qr-seating" },
+        { label: t('fp.fullSeating.related1'), href: "/individual-table-charts" },
+        { label: t('fp.fullSeating.related2'), href: "/tables" },
+        { label: t('fp.fullSeating.related3'), href: "/qr-code-seating-chart" },
       ]}
     />
   );

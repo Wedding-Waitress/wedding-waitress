@@ -20,14 +20,14 @@ export const FeatureInvitations = () => {
       pageTitle={t('fp.invitations.pageTitle')}
       metaDescription={t('fp.invitations.metaDesc')}
       seoSections={[
-        { heading: t('fp.invitations.seo1Heading'), text: <Trans i18nKey="fp.invitations.seo1Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
-        { heading: t('fp.invitations.seo2Heading'), text: <Trans i18nKey="fp.invitations.seo2Text" ns="landing" components={[<Link to="/features/planning" className={linkClass} />]} /> },
-        { heading: t('fp.invitations.seo3Heading'), text: <Trans i18nKey="fp.invitations.seo3Text" ns="landing" components={[<Link to="/features/qr-seating" className={linkClass} />]} /> },
+        { heading: t('fp.invitations.seo1Heading'), text: <Trans i18nKey="fp.invitations.seo1Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
+        { heading: t('fp.invitations.seo2Heading'), text: <Trans i18nKey="fp.invitations.seo2Text" ns="landing" components={[<Link to="/running-sheet-product" className={linkClass} />]} /> },
+        { heading: t('fp.invitations.seo3Heading'), text: <Trans i18nKey="fp.invitations.seo3Text" ns="landing" components={[<Link to="/qr-code-seating-chart" className={linkClass} />]} /> },
       ]}
       relatedFeatures={[
-        { label: t('fp.invitations.related1'), href: "/features/seating" },
-        { label: t('fp.invitations.related2'), href: "/features/planning" },
-        { label: t('fp.invitations.related3'), href: "/features/qr-seating" },
+        { label: t('fp.invitations.related1'), href: "/tables" },
+        { label: t('fp.invitations.related2'), href: "/running-sheet-product" },
+        { label: t('fp.invitations.related3'), href: "/qr-code-seating-chart" },
       ]}
     />
   );

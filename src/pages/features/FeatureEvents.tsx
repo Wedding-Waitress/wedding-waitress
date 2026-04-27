@@ -20,14 +20,14 @@ export const FeatureEvents = () => {
       pageTitle={t('fp.events.pageTitle')}
       metaDescription={t('fp.events.metaDesc')}
       seoSections={[
-        { heading: t('fp.events.seo1Heading'), text: <Trans i18nKey="fp.events.seo1Text" ns="landing" components={[<Link to="/features/seating" className={linkClass} />]} /> },
-        { heading: t('fp.events.seo2Heading'), text: <Trans i18nKey="fp.events.seo2Text" ns="landing" components={[<Link to="/features/qr-seating" className={linkClass} />]} /> },
-        { heading: t('fp.events.seo3Heading'), text: <Trans i18nKey="fp.events.seo3Text" ns="landing" components={[<Link to="/features/guest-list" className={linkClass} />]} /> },
+        { heading: t('fp.events.seo1Heading'), text: <Trans i18nKey="fp.events.seo1Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
+        { heading: t('fp.events.seo2Heading'), text: <Trans i18nKey="fp.events.seo2Text" ns="landing" components={[<Link to="/qr-code-seating-chart" className={linkClass} />]} /> },
+        { heading: t('fp.events.seo3Heading'), text: <Trans i18nKey="fp.events.seo3Text" ns="landing" components={[<Link to="/guest-list" className={linkClass} />]} /> },
       ]}
       relatedFeatures={[
-        { label: t('fp.events.related1'), href: "/features/seating" },
-        { label: t('fp.events.related2'), href: "/features/qr-seating" },
-        { label: t('fp.events.related3'), href: "/features/guest-list" },
+        { label: t('fp.events.related1'), href: "/tables" },
+        { label: t('fp.events.related2'), href: "/qr-code-seating-chart" },
+        { label: t('fp.events.related3'), href: "/guest-list" },
       ]}
     />
   );
