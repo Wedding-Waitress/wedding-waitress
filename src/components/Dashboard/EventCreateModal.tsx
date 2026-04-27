@@ -520,7 +520,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 3: Start Time, Finish Time */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
