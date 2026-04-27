@@ -105,10 +105,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   // Helper to get dynamic border class based on field value
   const getInputClass = useCallback((hasValue: boolean) => {
-    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
-    return hasValue 
-      ? `${baseClass} border-green-500 focus-visible:border-green-500`
-      : `${baseClass} border-primary focus-visible:border-primary`;
+    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm border-primary focus-visible:border-primary";
+    return baseClass;
   }, []);
 
   const isFormValid = useMemo(() => {
