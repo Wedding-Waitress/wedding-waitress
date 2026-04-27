@@ -410,11 +410,11 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
             {/* Reception Content - controlled by toggle */}
             {formData.reception_enabled ? (
-              <div className="p-4 space-y-4">
+              <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="grid grid-cols-2 gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 bg-muted border border-border rounded-2xl sm:rounded-full p-1 w-full max-w-md">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
@@ -446,7 +446,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 1: Name, Date, RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Event Name *</Label>
                     <EventNameCombobox
@@ -477,7 +477,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 2: Guest Limit, Location, Location Details */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
@@ -520,7 +520,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 </div>
 
                 {/* Row 3: Start Time, Finish Time */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
