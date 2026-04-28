@@ -171,7 +171,8 @@ async function sendEmailInBackground(
     // Send email via Resend
     console.log(`[Background] Sending email to ${userEmail} (${Date.now() - startTime}ms)`);
     const emailResponse = await resend.emails.send({
-      from: "Wedding Waitress <onboarding@resend.dev>",
+      from: "Wedding Waitress <support@weddingwaitress.com.au>",
+      reply_to: "support@weddingwaitress.com.au",
       to: [userEmail],
       subject: subject,
       html: htmlContent,

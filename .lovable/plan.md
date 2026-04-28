@@ -1,69 +1,46 @@
 ## Goal
+Set the sender (`from`) and `reply_to` on every outbound email to `support@weddingwaitress.com.au`, using the already-verified `weddingwaitress.com.au` domain. No design, layout, or functional changes.
 
-Replace every reference to `weddingwaitress.com.au` with `weddingwaitress.com.au.au` across the project, scoped to:
-- Web URLs (canonicals, OG, structured data, breadcrumbs, footer/back links)
-- Sitemap + robots.txt + sitemap generator
-- Hostname guard (noindex on non-canonical hosts)
-- Contact email `support@weddingwaitress.com.au` → `support@weddingwaitress.com.au.au`
+## Findings — all sender locations
 
-Explicitly NOT changing (per your answer):
-- `noreply@weddingwaitress.com` (Resend sender — keeps emails delivering)
-- `notify.weddingwaitress.com` sender domain in `send-transactional-email`
-- `FROM_DOMAIN = "weddingwaitress.com.au"` constant in the same function
+After scanning `supabase/functions/` and `src/`, these are the only places that actually send email and currently use a non-final sender:
 
-## Files to update
+| # | File | Current sender | Action |
+|---|------|---------------|--------|
+| 1 | `supabase/functions/send-transactional-email/index.ts` (lines 12, 16, 316) | `Wedding Waitress <noreply@weddingwaitress.com.au>` (built from `FROM_DOMAIN` + `noreply@`) | Change `from` to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to: "support@weddingwaitress.com.au"`. Keep `SENDER_DOMAIN = "notify.weddingwaitress.com.au"` (verified subdomain — required by API). |
+| 2 | `supabase/functions/send-rsvp-email/index.ts` (line 123) | `Wedding Waitress <noreply@weddingwaitress.com>` (still old `.com`) | Change to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to`. |
+| 3 | `supabase/functions/send-invitation-email/index.ts` (line 127) | `Wedding Waitress <noreply@weddingwaitress.com>` (still old `.com`) | Change to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to`. |
+| 4 | `supabase/functions/send-auth-email/index.ts` (line 174) | `Wedding Waitress <onboarding@resend.dev>` (Resend test sender) | Change to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to`. |
 
-### 1. SEO / hostname / sitemap
-- `index.html` — canonical, `og:url`, JSON-LD `url`, hostname guard (`weddingwaitress.com.au` → `weddingwaitress.com.au.au`, `www.weddingwaitress.com.au` → `www.weddingwaitress.com.au.au`)
-- `public/robots.txt` — Sitemap URL
-- `public/sitemap.xml` — all 30+ `<loc>` entries
-- `scripts/generate-sitemap.mjs` — `SITE_URL` constant
-- `src/components/SEO/SeoHead.tsx` — `SITE_URL` constant + both hostname guard checks (locked file; required by request)
+## Not changing (intentional)
 
-### 2. Layout / page-level structured data and links
-- `src/components/Layout/FeaturePageLayout.tsx` — breadcrumb + JSON-LD URLs (3 occurrences)
-- `src/components/Layout/ProductPageLayout.tsx` — page url + breadcrumbs + JSON-LD (4 occurrences)
-- `src/pages/Blog.tsx` — JSON-LD url
-- `src/pages/BlogPost.tsx` — page url, logo url, breadcrumbs (4 occurrences)
-- `src/pages/Contact.tsx` — JSON-LD url
-- `src/pages/Index.tsx` — FAQ answer text + footer list item (2 occurrences, support email)
-- `src/pages/DJMCPublicView.tsx` — 2 anchor `href`s
-- `src/pages/RunningSheetPublicView.tsx` — anchor `href`
-- `src/pages/SeatingChartPublicView.tsx` — 2 anchor `href`s
-- `src/pages/GuestLookup.tsx` — anchor `href`
-- `src/pages/KioskView.tsx` — anchor `href`
-- `src/pages/CookiePolicy.tsx` — mailto + display text
-- `src/pages/PrivacyPolicy.tsx` — 4 occurrences (mailtos + display text)
-- `src/pages/TermsOfService.tsx` — 5 occurrences (mailtos + display text)
+- `SENDER_DOMAIN = "notify.weddingwaitress.com.au"` in `send-transactional-email/index.ts` — this is the verified sending subdomain required by the Lovable email API. The visible `From:` header still becomes `support@weddingwaitress.com.au`.
+- `to:` fields in transactional template registries (`contact-form-message.tsx`, `admin-new-signup.tsx`, `admin-new-payment.tsx`) — these are recipient addresses (already `support@weddingwaitress.com.au`), not senders.
+- `supabase/functions/admin-send-otp/index.ts` line 93 (`From: twilioPhone`) — Twilio SMS sender, not email.
+- `supabase/functions/send-rsvp-sms/index.ts` — SMS only, no email sender.
+- Body footers / mailto links / legal pages already on `support@weddingwaitress.com.au`.
+- `AdminNotificationSettings.tsx` placeholder text — UI placeholder only, not an actual sender.
 
-### 3. Components / forms (support email only)
-- `src/components/ContactForm.tsx` — `recipientEmail`, error toast text, header comment
-- `src/components/auth/EmbeddedSignUpForm.tsx` — `recipientEmail`
+## Technical changes (per file)
 
-### 4. Supabase edge functions (URLs + support@ recipient only)
-- `supabase/functions/_shared/transactional-email-templates/admin-new-payment.tsx` — `to:` recipient
-- `supabase/functions/_shared/transactional-email-templates/admin-new-signup.tsx` — `to:` recipient
-- `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx` — `to:` recipient
-- `supabase/functions/_shared/transactional-email-templates/welcome.tsx` — dashboard button URL
-- `supabase/functions/get-account-billing/index.ts` — origin fallback URL
-- `supabase/functions/qr-redirect/index.ts` — `PUBLIC_BASE_URL` fallback
-- `supabase/functions/send-auth-email/index.ts` — `redirectTo` fallback
-- `supabase/functions/send-invitation-email/index.ts` — `baseUrl` + footer text (keep `from: noreply@weddingwaitress.com` unchanged)
-- `supabase/functions/send-rsvp-email/index.ts` — `baseUrl` + footer text (keep `from:` unchanged)
-- `supabase/functions/send-rsvp-sms/index.ts` — `baseUrl`
-- `supabase/functions/verify-payment/index.ts` — `recipientEmail`
+**`supabase/functions/send-transactional-email/index.ts`**
+- Line 316: `from: \`${SITE_NAME} <support@${FROM_DOMAIN}>\`` (was `noreply@`)
+- Add `reply_to: "support@weddingwaitress.com.au"` to the send payload
 
-### 5. Docs
-- `README.md` — support email
-- `LOCKED_TRANSLATION_KEYS.md` — update mentions of `support@weddingwaitress.com.au` to `.com.au` (the locked CONTRACT itself is being intentionally amended only for the email/URL strings; structure/wiring unchanged)
+**`supabase/functions/send-rsvp-email/index.ts`**
+- Line 123: `from: 'Wedding Waitress <support@weddingwaitress.com.au>'`
+- Add `reply_to: 'support@weddingwaitress.com.au'` to the JSON body
 
-## Explicit non-changes
-- `from: 'Wedding Waitress <noreply@weddingwaitress.com>'` lines in `send-invitation-email` + `send-rsvp-email`
-- `SENDER_DOMAIN = "notify.weddingwaitress.com"` and `FROM_DOMAIN = "weddingwaitress.com.au"` in `send-transactional-email/index.ts`
-- No design, layout, copy, logic, or i18n changes — only string substitution
+**`supabase/functions/send-invitation-email/index.ts`**
+- Line 127: `from: 'Wedding Waitress <support@weddingwaitress.com.au>'`
+- Add `reply_to: 'support@weddingwaitress.com.au'` to the JSON body
 
-## Method
+**`supabase/functions/send-auth-email/index.ts`**
+- Line 174: `from: "Wedding Waitress <support@weddingwaitress.com.au>"`
+- Add `reply_to: "support@weddingwaitress.com.au"` to the Resend send call
 
-1. Targeted `code--line_replace` edits per file (precise, no behavior change).
-2. After all replacements, run `rg "weddingwaitress\.com[^.]"` to verify nothing was missed (excluding the intentionally preserved sender-domain references).
-3. Note for you afterward: you'll need to set up `weddingwaitress.com.au.au` DNS / hosting redirects so the new canonical URLs actually resolve. The app code change alone won't move the live site — that's a hosting/DNS step on your side.
+## Deploy
+Edge functions auto-deploy after edits. No DNS, no schema, no UI changes.
+
+## Deliverable
+After implementation, I will list every file + line that was changed.
