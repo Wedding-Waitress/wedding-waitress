@@ -313,7 +313,7 @@ Deno.serve(async (req) => {
     payload: {
       message_id: messageId,
       to: effectiveRecipient,
-      from: `${SITE_NAME} <support@${FROM_DOMAIN}>`,
+      from: "Wedding Waitress <support@weddingwaitress.com.au>",
       reply_to: 'support@weddingwaitress.com.au',
       sender_domain: SENDER_DOMAIN,
       subject: resolvedSubject,
