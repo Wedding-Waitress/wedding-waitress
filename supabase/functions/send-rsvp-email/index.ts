@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: 'Wedding Waitress <support@weddingwaitress.com.au>',
+            from: "Wedding Waitress [support@weddingwaitress.com.au](mailto:support@weddingwaitress.com.au)",
             reply_to: 'support@weddingwaitress.com.au',
             to: [guest.email],
             subject: `You're Invited — ${event.name}`,
