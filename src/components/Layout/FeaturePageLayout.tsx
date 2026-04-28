@@ -43,8 +43,8 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com/' },
-      { '@type': 'ListItem', position: 2, name: title, item: `https://weddingwaitress.com${location.pathname}` },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com.au/' },
+      { '@type': 'ListItem', position: 2, name: title, item: `https://weddingwaitress.com.au${location.pathname}` },
     ],
   };
 
@@ -54,11 +54,11 @@ export const FeaturePageLayout: React.FC<FeaturePageLayoutProps> = ({ title, des
     '@type': 'WebPage',
     name: seoTitle,
     description: seoDescription,
-    url: `https://weddingwaitress.com${location.pathname}`,
+    url: `https://weddingwaitress.com.au${location.pathname}`,
     isPartOf: {
       '@type': 'WebSite',
       name: 'Wedding Waitress',
-      url: 'https://weddingwaitress.com',
+      url: 'https://weddingwaitress.com.au',
     },
   };
 

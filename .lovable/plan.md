@@ -1,20 +1,20 @@
 ## Goal
 
-Replace every reference to `weddingwaitress.com` with `weddingwaitress.com.au` across the project, scoped to:
+Replace every reference to `weddingwaitress.com.au` with `weddingwaitress.com.au.au` across the project, scoped to:
 - Web URLs (canonicals, OG, structured data, breadcrumbs, footer/back links)
 - Sitemap + robots.txt + sitemap generator
 - Hostname guard (noindex on non-canonical hosts)
-- Contact email `support@weddingwaitress.com` → `support@weddingwaitress.com.au`
+- Contact email `support@weddingwaitress.com.au` → `support@weddingwaitress.com.au.au`
 
 Explicitly NOT changing (per your answer):
 - `noreply@weddingwaitress.com` (Resend sender — keeps emails delivering)
 - `notify.weddingwaitress.com` sender domain in `send-transactional-email`
-- `FROM_DOMAIN = "weddingwaitress.com"` constant in the same function
+- `FROM_DOMAIN = "weddingwaitress.com.au"` constant in the same function
 
 ## Files to update
 
 ### 1. SEO / hostname / sitemap
-- `index.html` — canonical, `og:url`, JSON-LD `url`, hostname guard (`weddingwaitress.com` → `weddingwaitress.com.au`, `www.weddingwaitress.com` → `www.weddingwaitress.com.au`)
+- `index.html` — canonical, `og:url`, JSON-LD `url`, hostname guard (`weddingwaitress.com.au` → `weddingwaitress.com.au.au`, `www.weddingwaitress.com.au` → `www.weddingwaitress.com.au.au`)
 - `public/robots.txt` — Sitemap URL
 - `public/sitemap.xml` — all 30+ `<loc>` entries
 - `scripts/generate-sitemap.mjs` — `SITE_URL` constant
@@ -55,15 +55,15 @@ Explicitly NOT changing (per your answer):
 
 ### 5. Docs
 - `README.md` — support email
-- `LOCKED_TRANSLATION_KEYS.md` — update mentions of `support@weddingwaitress.com` to `.com.au` (the locked CONTRACT itself is being intentionally amended only for the email/URL strings; structure/wiring unchanged)
+- `LOCKED_TRANSLATION_KEYS.md` — update mentions of `support@weddingwaitress.com.au` to `.com.au` (the locked CONTRACT itself is being intentionally amended only for the email/URL strings; structure/wiring unchanged)
 
 ## Explicit non-changes
 - `from: 'Wedding Waitress <noreply@weddingwaitress.com>'` lines in `send-invitation-email` + `send-rsvp-email`
-- `SENDER_DOMAIN = "notify.weddingwaitress.com"` and `FROM_DOMAIN = "weddingwaitress.com"` in `send-transactional-email/index.ts`
+- `SENDER_DOMAIN = "notify.weddingwaitress.com"` and `FROM_DOMAIN = "weddingwaitress.com.au"` in `send-transactional-email/index.ts`
 - No design, layout, copy, logic, or i18n changes — only string substitution
 
 ## Method
 
 1. Targeted `code--line_replace` edits per file (precise, no behavior change).
 2. After all replacements, run `rg "weddingwaitress\.com[^.]"` to verify nothing was missed (excluding the intentionally preserved sender-domain references).
-3. Note for you afterward: you'll need to set up `weddingwaitress.com.au` DNS / hosting redirects so the new canonical URLs actually resolve. The app code change alone won't move the live site — that's a hosting/DNS step on your side.
+3. Note for you afterward: you'll need to set up `weddingwaitress.com.au.au` DNS / hosting redirects so the new canonical URLs actually resolve. The app code change alone won't move the live site — that's a hosting/DNS step on your side.

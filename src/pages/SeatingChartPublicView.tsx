@@ -286,12 +286,12 @@ export function SeatingChartPublicView() {
 
       {/* Footer */}
       <footer className="border-t p-6 text-center space-y-2">
-        <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-block">
+        <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-block">
           <img src="/wedding-waitress-share-logo.png" alt="Wedding Waitress" className="h-10 mx-auto" />
         </a>
         <p className="text-xs text-muted-foreground">
           Powered by{' '}
-          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="underline">
+          <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="underline">
             Wedding Waitress
           </a>
         </p>

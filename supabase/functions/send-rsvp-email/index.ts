@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
     let failed = 0;
     let skipped = 0;
 
-    const baseUrl = 'https://weddingwaitress.com';
+    const baseUrl = 'https://weddingwaitress.com.au';
     const rsvpLink = `${baseUrl}/s/${event.slug}`;
 
     const eventDate = event.date ? new Date(event.date).toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'TBA';
@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
   </div>
   <div style="background:#f8f9fa;padding:20px;text-align:center;border-top:1px solid #eee;">
     <p style="margin:0;font-size:12px;color:#999;">Powered by <strong>Wedding Waitress</strong></p>
-    <p style="margin:4px 0 0;font-size:11px;color:#bbb;">weddingwaitress.com</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#bbb;">weddingwaitress.com.au</p>
   </div>
 </div>
 </body>

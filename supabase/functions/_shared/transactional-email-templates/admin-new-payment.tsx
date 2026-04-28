@@ -43,7 +43,7 @@ const AdminNewPaymentEmail = ({ name, email, amount, plan, date }: AdminPaymentP
 export const template = {
   component: AdminNewPaymentEmail,
   subject: 'New Payment Received 💰',
-  to: 'support@weddingwaitress.com',
+  to: 'support@weddingwaitress.com.au',
   displayName: 'Admin: new payment',
   previewData: {
     name: 'Jane Smith', email: 'jane@example.com', amount: '149', plan: 'Premium',

@@ -29,7 +29,7 @@ check this list before editing.
 | `src/pages/Landing.tsx` | `alwaysSignUp` on all hero/repeat/final CTAs | 2026-04-18 |
 | `src/components/Layout/ProductPageLayout.tsx` | `alwaysSignUp` on primary + final CTAs | 2026-04-18 |
 | `src/pages/Account.tsx` + `src/components/Account/*` + `src/hooks/useAccountBilling.ts` + `supabase/functions/get-account-billing/index.ts` | Account page wiring: profile, subscription, Stripe billing, history, usage, security, success-redirect refetch | 2026-04-18 |
-| `src/pages/Landing.tsx` (`handleContactSubmit`) + `src/pages/Contact.tsx` (`handleSubmit`) | Both contact forms wired to `send-transactional-email` template `contact-form-message` → `support@weddingwaitress.com`. Identical zod validation + identical success/error toast strings. | 2026-04-18 |
+| `src/pages/Landing.tsx` (`handleContactSubmit`) + `src/pages/Contact.tsx` (`handleSubmit`) | Both contact forms wired to `send-transactional-email` template `contact-form-message` → `support@weddingwaitress.com.au`. Identical zod validation + identical success/error toast strings. | 2026-04-18 |
 
 ---
 
@@ -169,7 +169,7 @@ Sidebar is intentionally NOT linked — Account is reachable only via the header
 ## 🔒 Locked transactional emails + trial countdown (2026-04-18)
 
 Wedding Waitress free-trial countdown, welcome email, and admin notifications.
-Sender domain: `notify.weddingwaitress.com`. Admin recipient: `support@weddingwaitress.com`.
+Sender domain: `notify.weddingwaitress.com`. Admin recipient: `support@weddingwaitress.com.au`.
 All email sends are fire-and-forget — failures must NEVER break signup or payment flows.
 
 ### Files (PRODUCTION-LOCKED)
@@ -184,7 +184,7 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 
 ### Rules
 - Trial duration is 7 days. Source of truth: `user_subscriptions.expires_at`, fallback to `created_at + 7 days`.
-- Welcome email goes to the new user; admin-signup goes to `support@weddingwaitress.com`.
+- Welcome email goes to the new user; admin-signup goes to `support@weddingwaitress.com.au`.
 - Admin-payment email idempotency key: `admin-payment-${stripe_session_id}`.
 - Stripe receipts/invoices for the user are configured in the Stripe Dashboard, not in code.
 - Any change requires explicit owner approval.
@@ -194,7 +194,7 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 - `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx` — admin notification template. LOCKED.
 
 ## 2026-04-18 — Contact page redesign
-- `src/pages/Contact.tsx` — body replaced to mirror homepage "Get in Touch" form (centered heading, white rounded-[20px] card, FAFAFA inputs, primary button). Company Details, ABN, Email Support, "How Can We Help?" list, and bottom CTA removed. Uses `landing.json contact.*` keys for all 16 locales. Email wiring to support@weddingwaitress.com unchanged. LOCKED.
+- `src/pages/Contact.tsx` — body replaced to mirror homepage "Get in Touch" form (centered heading, white rounded-[20px] card, FAFAFA inputs, primary button). Company Details, ABN, Email Support, "How Can We Help?" list, and bottom CTA removed. Uses `landing.json contact.*` keys for all 16 locales. Email wiring to support@weddingwaitress.com.au unchanged. LOCKED.
 
 ## 2026-04-18 — Contact page header logo swap
 - Replaced purple `/wedding-waitress-new-logo.png` with brown wordmark `/wedding-waitress-logo-full.png` in `src/pages/Contact.tsx` header (h-12 lg:h-14, matches homepage).
@@ -238,7 +238,7 @@ This component is the **single source of truth** for the contact form rendered i
    - `contact.eventTypePlaceholder` → "Wedding, Engagement, Birthday, etc."
    - `contact.messagePlaceholder` → "How can we help?"
 4. **Styling:** White card `rounded-[20px]`, padding `p-5 sm:p-8 md:p-10`, shadow `shadow-[0_4px_30px_rgba(0,0,0,0.08)]`. Inputs use `bg-[#FAFAFA]`, `border-gray-200`, `rounded-xl`, focus ring `primary/30`.
-5. **Submit wiring:** Calls `send-transactional-email` edge function with template `contact-form-message` → `support@weddingwaitress.com`, including `eventType` in `templateData`.
+5. **Submit wiring:** Calls `send-transactional-email` edge function with template `contact-form-message` → `support@weddingwaitress.com.au`, including `eventType` in `templateData`.
 6. **Validation:** zod schema, all four fields required, inline error messages.
 
 **Do NOT:**

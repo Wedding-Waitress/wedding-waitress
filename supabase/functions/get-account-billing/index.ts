@@ -115,7 +115,7 @@ serve(async (req) => {
     }));
 
     // Build portal URL
-    const origin = req.headers.get("origin") || "https://weddingwaitress.com";
+    const origin = req.headers.get("origin") || "https://weddingwaitress.com.au";
     let portalUrl: string | null = null;
     try {
       const portal = await stripe.billingPortal.sessions.create({

@@ -374,7 +374,7 @@ export const KioskView: React.FC = () => {
               Need assistance? Please contact event staff
             </p>
             <a 
-              href="https://www.weddingwaitress.com/" 
+              href="https://www.weddingwaitress.com.au/" 
               target="_blank" 
               rel="noopener noreferrer"
             >

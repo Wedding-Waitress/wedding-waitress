@@ -53,7 +53,7 @@ export const BlogPost = () => {
 
   if (!post) return <NotFound />;
 
-  const url = `https://weddingwaitress.com/blog/${post.slug}`;
+  const url = `https://weddingwaitress.com.au/blog/${post.slug}`;
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -68,7 +68,7 @@ export const BlogPost = () => {
       name: 'Wedding Waitress',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://weddingwaitress.com/wedding-waitress-logo.png',
+        url: 'https://weddingwaitress.com.au/wedding-waitress-logo.png',
       },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
@@ -79,8 +79,8 @@ export const BlogPost = () => {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com/' },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://weddingwaitress.com/blog' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com.au/' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://weddingwaitress.com.au/blog' },
       { '@type': 'ListItem', position: 3, name: post.title, item: url },
     ],
   };

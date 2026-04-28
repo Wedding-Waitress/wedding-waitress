@@ -84,7 +84,7 @@ export const TermsOfService = () => {
                 <strong>Wedding Waitress</strong><br />
                 ABN: 60 418 261 323<br />
                 Location: Melbourne, Victoria, Australia<br />
-                Email: support@weddingwaitress.com
+                Email: support@weddingwaitress.com.au
               </p>
             </section>
 
@@ -339,7 +339,7 @@ export const TermsOfService = () => {
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.2 One-Time Purchases (Wedding Couples)</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Paid plans are generally <strong>non-refundable</strong> once activated. If you believe there has been an error, please contact support@weddingwaitress.com.
+                Paid plans are generally <strong>non-refundable</strong> once activated. If you believe there has been an error, please contact support@weddingwaitress.com.au.
               </p>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">8.3 Monthly Subscriptions (Vendor Plans)</h3>
@@ -378,7 +378,7 @@ export const TermsOfService = () => {
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground mt-2">
                 <li>Cancel any active subscriptions first</li>
-                <li>Email support@weddingwaitress.com to request account deletion</li>
+                <li>Email support@weddingwaitress.com.au to request account deletion</li>
                 <li>All your data will be permanently deleted within 30 days</li>
                 <li>This action cannot be undone</li>
               </ul>
@@ -528,7 +528,7 @@ export const TermsOfService = () => {
                 <p className="text-muted-foreground text-sm">ABN: 60 418 261 323</p>
                 <p className="text-muted-foreground text-sm">Melbourne, Victoria, Australia</p>
                 <p className="text-muted-foreground text-sm mt-4">
-                  Email: <a href="mailto:support@weddingwaitress.com" className="text-primary hover:underline">support@weddingwaitress.com</a>
+                  Email: <a href="mailto:support@weddingwaitress.com.au" className="text-primary hover:underline">support@weddingwaitress.com.au</a>
                 </p>
               </div>
             </section>

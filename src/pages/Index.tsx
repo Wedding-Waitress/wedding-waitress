@@ -119,7 +119,7 @@ export default function Index() {
     },
     {
       question: 'How do I get support if I need help?',
-      answer: 'Email us anytime at support@weddingwaitress.com. We typically respond within 24 hours.',
+      answer: 'Email us anytime at support@weddingwaitress.com.au. We typically respond within 24 hours.',
     },
     {
       question: 'Can I upgrade my plan later?',
@@ -567,7 +567,7 @@ export default function Index() {
             <div>
               <h3 className="font-semibold mb-4">Connect</h3>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>support@weddingwaitress.com</li>
+                <li>support@weddingwaitress.com.au</li>
               </ul>
             </div>
           </div>

@@ -507,7 +507,7 @@ export function RunningSheetPublicView() {
       {/* Footer */}
       <footer className="border-t border-border mt-12 print:border-0">
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
-          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
+          <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
             <img
               src="/wedding-waitress-logo-brown.png"
               alt="Wedding Waitress"
