@@ -232,7 +232,7 @@ const handler = async (req: Request): Promise<Response> => {
     const userId = user?.id;
     const otp = email_data?.token || email_data?.otp || "";
     const emailType = email_data?.email_action_type || "signup";
-    const redirectTo = email_data?.redirect_to || "https://weddingwaitress.com/dashboard";
+    const redirectTo = email_data?.redirect_to || "https://weddingwaitress.com.au/dashboard";
 
     if (!userEmail) {
       console.error("No email address in payload");

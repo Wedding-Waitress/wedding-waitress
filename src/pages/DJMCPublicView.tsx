@@ -635,14 +635,14 @@ export function DJMCPublicView() {
       {/* Footer */}
       <footer className="border-t border-border mt-12 print:border-0">
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
-          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
+          <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
             <img 
               src="/wedding-waitress-logo-brown.png" 
               alt="Wedding Waitress" 
               className="h-10 mx-auto"
             />
           </a>
-          <a href="https://www.weddingwaitress.com" target="_blank" rel="noopener noreferrer" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
             Powered by Wedding Waitress
           </a>
         </div>

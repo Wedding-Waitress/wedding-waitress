@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
     let failed = 0;
     let skipped = 0;
 
-    const baseUrl = 'https://weddingwaitress.com';
+    const baseUrl = 'https://weddingwaitress.com.au';
     const rsvpLink = `${baseUrl}/s/${event.slug}`;
     const partnerNames = [event.partner1_name, event.partner2_name].filter(Boolean).join(' & ');
     const eventDate = event.date ? new Date(event.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBA';

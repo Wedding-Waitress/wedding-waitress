@@ -1,4 +1,4 @@
-const SITE_URL = 'https://weddingwaitress.com';
+const SITE_URL = 'https://weddingwaitress.com.au';
 
 const entries = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },

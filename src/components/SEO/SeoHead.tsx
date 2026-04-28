@@ -20,7 +20,7 @@ interface SeoHeadProps {
   noIndex?: boolean;
 }
 
-const SITE_URL = 'https://weddingwaitress.com';
+const SITE_URL = 'https://weddingwaitress.com.au';
 const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-logo.png`;
 
 /**
@@ -47,8 +47,8 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   // Force noindex on non-canonical hostnames (Netlify, Lovable previews, etc.)
   const isNonCanonicalHost =
     typeof window !== 'undefined' &&
-    window.location.hostname !== 'weddingwaitress.com' &&
-    window.location.hostname !== 'www.weddingwaitress.com';
+    window.location.hostname !== 'weddingwaitress.com.au' &&
+    window.location.hostname !== 'www.weddingwaitress.com.au';
   const shouldNoIndex = noIndex || isNonCanonicalHost;
 
   const jsonLdArray = jsonLd

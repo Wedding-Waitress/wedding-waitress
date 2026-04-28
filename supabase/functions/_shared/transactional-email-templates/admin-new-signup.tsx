@@ -39,7 +39,7 @@ const AdminNewSignupEmail = ({ fullName, email, date }: AdminSignupProps) => {
 export const template = {
   component: AdminNewSignupEmail,
   subject: 'New User Signup – Wedding Waitress',
-  to: 'support@weddingwaitress.com',
+  to: 'support@weddingwaitress.com.au',
   displayName: 'Admin: new signup',
   previewData: { fullName: 'Jane Smith', email: 'jane@example.com', date: new Date().toISOString() },
 } satisfies TemplateEntry

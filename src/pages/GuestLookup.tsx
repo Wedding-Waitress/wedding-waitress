@@ -829,7 +829,7 @@ export const GuestLookup: React.FC = () => {
                   {/* Wedding Waitress Logo - Footer */}
                   <div className="flex justify-center mt-6">
                     <a 
-                      href="https://www.weddingwaitress.com/" 
+                      href="https://www.weddingwaitress.com.au/" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >

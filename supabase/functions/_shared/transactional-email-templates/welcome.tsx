@@ -36,7 +36,7 @@ const WelcomeEmail = ({ firstName }: WelcomeProps) => (
           After your trial ends, you can choose a plan that suits your needs.
         </Text>
         <Section style={buttonSection}>
-          <Button href="https://weddingwaitress.com/dashboard" style={button}>
+          <Button href="https://weddingwaitress.com.au/dashboard" style={button}>
             Start planning your event
           </Button>
         </Section>

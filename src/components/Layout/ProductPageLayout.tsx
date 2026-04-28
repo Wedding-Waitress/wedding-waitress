@@ -64,7 +64,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
 }) => {
   const location = useLocation();
   const { t } = useTranslation('landing');
-  const url = `https://weddingwaitress.com${location.pathname}`;
+  const url = `https://weddingwaitress.com.au${location.pathname}`;
 
   const resolvedPrimaryCta = primaryCta ?? {
     label: t('productPage.startPlanningEvent', { defaultValue: 'Start Planning Your Event' }),
@@ -85,8 +85,8 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com/' },
-      { '@type': 'ListItem', position: 2, name: 'Products', item: 'https://weddingwaitress.com/products' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://weddingwaitress.com.au/' },
+      { '@type': 'ListItem', position: 2, name: 'Products', item: 'https://weddingwaitress.com.au/products' },
       { '@type': 'ListItem', position: 3, name: breadcrumbLabel, item: url },
     ],
   };
@@ -100,7 +100,7 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({
     isPartOf: {
       '@type': 'WebSite',
       name: 'Wedding Waitress',
-      url: 'https://weddingwaitress.com',
+      url: 'https://weddingwaitress.com.au',
     },
   };
 

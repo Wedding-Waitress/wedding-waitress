@@ -4,7 +4,7 @@
  * See LOCKED_TRANSLATION_KEYS.md.
  *
  * Field order: Full Name → Email → Type of Event → Message.
- * Wired to send-transactional-email → support@weddingwaitress.com.
+ * Wired to send-transactional-email → support@weddingwaitress.com.au.
  */
 import { useState } from "react";
 import { Send } from "lucide-react";
@@ -51,7 +51,7 @@ export const ContactForm = () => {
       const { error } = await supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "contact-form-message",
-          recipientEmail: "support@weddingwaitress.com",
+          recipientEmail: "support@weddingwaitress.com.au",
           idempotencyKey: `contact-${crypto.randomUUID()}`,
           templateData: {
             name: result.data.fullName,
@@ -72,7 +72,7 @@ export const ContactForm = () => {
       setTimeout(() => setSent(false), 4000);
     } catch (err) {
       console.error("Contact form send failed", err);
-      toast.error("Something went wrong. Please try again or email support@weddingwaitress.com");
+      toast.error("Something went wrong. Please try again or email support@weddingwaitress.com.au");
     } finally {
       setSubmitting(false);
     }

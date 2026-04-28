@@ -1,33 +1,69 @@
-## Create Event Modal — Final UI Refinements
+## Goal
 
-Small, targeted polish pass. No layout/structure changes.
+Replace every reference to `weddingwaitress.com.au` with `weddingwaitress.com.au.au` across the project, scoped to:
+- Web URLs (canonicals, OG, structured data, breadcrumbs, footer/back links)
+- Sitemap + robots.txt + sitemap generator
+- Hostname guard (noindex on non-canonical hosts)
+- Contact email `support@weddingwaitress.com.au` → `support@weddingwaitress.com.au.au`
 
-### 1. Title size
-`src/components/Dashboard/EventCreateModal.tsx` line 257 — `DialogTitle`:
-- From: `text-2xl sm:text-3xl`
-- To: `text-xl lg:text-2xl`
+Explicitly NOT changing (per your answer):
+- `noreply@weddingwaitress.com` (Resend sender — keeps emails delivering)
+- `notify.weddingwaitress.com` sender domain in `send-transactional-email`
+- `FROM_DOMAIN = "weddingwaitress.com.au"` constant in the same function
 
-### 2. Mobile button layout (side by side, 50/50)
-Already mostly correct from previous pass. Verify the footer block still uses `flex flex-row gap-3 w-full` with each button `flex-1 lg:flex-none` and `h-11`. No change needed if intact.
+## Files to update
 
-### 3. Toggle switch refinement
-`src/components/ui/switch.tsx` — ensure thumb centers cleanly inside the bordered track:
-- Root: `h-6 w-11 border-2 rounded-full` (already correct).
-- Thumb: `h-4 w-4 rounded-full bg-white`, `data-[state=unchecked]:translate-x-0.5`, `data-[state=checked]:translate-x-5`. Already in place from last pass — verify and keep.
+### 1. SEO / hostname / sitemap
+- `index.html` — canonical, `og:url`, JSON-LD `url`, hostname guard (`weddingwaitress.com.au` → `weddingwaitress.com.au.au`, `www.weddingwaitress.com.au` → `www.weddingwaitress.com.au.au`)
+- `public/robots.txt` — Sitemap URL
+- `public/sitemap.xml` — all 30+ `<loc>` entries
+- `scripts/generate-sitemap.mjs` — `SITE_URL` constant
+- `src/components/SEO/SeoHead.tsx` — `SITE_URL` constant + both hostname guard checks (locked file; required by request)
 
-### 4. Close button (perfect center)
-`src/components/ui/dialog.tsx` close button — already `flex h-10 w-10 aspect-square items-center justify-center rounded-full p-0`. Verify; no further change needed.
+### 2. Layout / page-level structured data and links
+- `src/components/Layout/FeaturePageLayout.tsx` — breadcrumb + JSON-LD URLs (3 occurrences)
+- `src/components/Layout/ProductPageLayout.tsx` — page url + breadcrumbs + JSON-LD (4 occurrences)
+- `src/pages/Blog.tsx` — JSON-LD url
+- `src/pages/BlogPost.tsx` — page url, logo url, breadcrumbs (4 occurrences)
+- `src/pages/Contact.tsx` — JSON-LD url
+- `src/pages/Index.tsx` — FAQ answer text + footer list item (2 occurrences, support email)
+- `src/pages/DJMCPublicView.tsx` — 2 anchor `href`s
+- `src/pages/RunningSheetPublicView.tsx` — anchor `href`
+- `src/pages/SeatingChartPublicView.tsx` — 2 anchor `href`s
+- `src/pages/GuestLookup.tsx` — anchor `href`
+- `src/pages/KioskView.tsx` — anchor `href`
+- `src/pages/CookiePolicy.tsx` — mailto + display text
+- `src/pages/PrivacyPolicy.tsx` — 4 occurrences (mailtos + display text)
+- `src/pages/TermsOfService.tsx` — 5 occurrences (mailtos + display text)
 
-### 5. Input consistency
-`EventCreateModal.tsx` `getInputClass` (line ~107) already includes `px-4 truncate w-full text-sm`. Also confirm the top-level event-name `Input` (line 263) keeps `w-full px-4 truncate` and uses `text-sm` (currently inherits default — add `text-sm` explicitly).
+### 3. Components / forms (support email only)
+- `src/components/ContactForm.tsx` — `recipientEmail`, error toast text, header comment
+- `src/components/auth/EmbeddedSignUpForm.tsx` — `recipientEmail`
 
-### 6. Event Type segmented control
-Already converted to `grid grid-cols-2 gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md` with equal-width buttons (active = green, inactive = transparent). Verify; no change needed.
+### 4. Supabase edge functions (URLs + support@ recipient only)
+- `supabase/functions/_shared/transactional-email-templates/admin-new-payment.tsx` — `to:` recipient
+- `supabase/functions/_shared/transactional-email-templates/admin-new-signup.tsx` — `to:` recipient
+- `supabase/functions/_shared/transactional-email-templates/contact-form-message.tsx` — `to:` recipient
+- `supabase/functions/_shared/transactional-email-templates/welcome.tsx` — dashboard button URL
+- `supabase/functions/get-account-billing/index.ts` — origin fallback URL
+- `supabase/functions/qr-redirect/index.ts` — `PUBLIC_BASE_URL` fallback
+- `supabase/functions/send-auth-email/index.ts` — `redirectTo` fallback
+- `supabase/functions/send-invitation-email/index.ts` — `baseUrl` + footer text (keep `from: noreply@weddingwaitress.com` unchanged)
+- `supabase/functions/send-rsvp-email/index.ts` — `baseUrl` + footer text (keep `from:` unchanged)
+- `supabase/functions/send-rsvp-sms/index.ts` — `baseUrl`
+- `supabase/functions/verify-payment/index.ts` — `recipientEmail`
 
-### Files touched
-- `src/components/Dashboard/EventCreateModal.tsx` — title size class; add `text-sm` to event-name input.
-- `src/components/ui/switch.tsx` — verify only.
-- `src/components/ui/dialog.tsx` — verify only.
+### 5. Docs
+- `README.md` — support email
+- `LOCKED_TRANSLATION_KEYS.md` — update mentions of `support@weddingwaitress.com.au` to `.com.au` (the locked CONTRACT itself is being intentionally amended only for the email/URL strings; structure/wiring unchanged)
 
-### Out of scope
-Anything outside the Create Event modal and the two shared primitives.
+## Explicit non-changes
+- `from: 'Wedding Waitress <noreply@weddingwaitress.com>'` lines in `send-invitation-email` + `send-rsvp-email`
+- `SENDER_DOMAIN = "notify.weddingwaitress.com"` and `FROM_DOMAIN = "weddingwaitress.com.au"` in `send-transactional-email/index.ts`
+- No design, layout, copy, logic, or i18n changes — only string substitution
+
+## Method
+
+1. Targeted `code--line_replace` edits per file (precise, no behavior change).
+2. After all replacements, run `rg "weddingwaitress\.com[^.]"` to verify nothing was missed (excluding the intentionally preserved sender-domain references).
+3. Note for you afterward: you'll need to set up `weddingwaitress.com.au.au` DNS / hosting redirects so the new canonical URLs actually resolve. The app code change alone won't move the live site — that's a hosting/DNS step on your side.

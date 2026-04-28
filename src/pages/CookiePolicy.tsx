@@ -158,8 +158,8 @@ export const CookiePolicy = () => {
                   <p className="font-semibold text-foreground">Wedding Waitress</p>
                   <p>Melbourne, Victoria, Australia</p>
                   <p>
-                    <a href="mailto:support@weddingwaitress.com" className="text-primary hover:underline">
-                      support@weddingwaitress.com
+                    <a href="mailto:support@weddingwaitress.com.au" className="text-primary hover:underline">
+                      support@weddingwaitress.com.au
                     </a>
                   </p>
                 </div>

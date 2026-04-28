@@ -35,7 +35,7 @@ Coming soon…
 ## 📩 Contact
 
 For support or inquiries:  
-support@weddingwaitress.com
+support@weddingwaitress.com.au
 
 ---
 

@@ -238,7 +238,7 @@ serve(async (req) => {
       supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "admin-new-payment",
-          recipientEmail: "support@weddingwaitress.com",
+          recipientEmail: "support@weddingwaitress.com.au",
           idempotencyKey: `admin-payment-${session_id}`,
           templateData: {
             name: fullName,

@@ -67,7 +67,7 @@ const ContactFormMessageEmail = ({ name, email, eventType, message, date }: Cont
 export const template = {
   component: ContactFormMessageEmail,
   subject: (data: Record<string, any>) => `New contact message from ${data?.name || 'visitor'}`,
-  to: 'support@weddingwaitress.com',
+  to: 'support@weddingwaitress.com.au',
   displayName: 'Contact form message',
   previewData: {
     name: 'Jane Smith',

@@ -79,7 +79,7 @@ export const PrivacyPolicy = () => {
                 <strong>Wedding Waitress</strong><br />
                 ABN: 60 418 261 323<br />
                 Location: Melbourne, Victoria, Australia<br />
-                Email: support@weddingwaitress.com
+                Email: support@weddingwaitress.com.au
               </p>
               <p className="text-muted-foreground leading-relaxed mt-4">
                 By using Wedding Waitress, you agree to the collection and use of information in accordance with this policy. If you do not agree with our policies and practices, please do not use our services.
@@ -183,7 +183,7 @@ export const PrivacyPolicy = () => {
                 <li><strong>Opt-Out:</strong> Unsubscribe from marketing communications</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-4">
-                To exercise these rights, email us at <a href="mailto:support@weddingwaitress.com" className="text-primary hover:underline">support@weddingwaitress.com</a>. We will respond within 30 days.
+                To exercise these rights, email us at <a href="mailto:support@weddingwaitress.com.au" className="text-primary hover:underline">support@weddingwaitress.com.au</a>. We will respond within 30 days.
               </p>
             </section>
 
@@ -259,7 +259,7 @@ export const PrivacyPolicy = () => {
                 <p className="text-muted-foreground text-sm">ABN: 60 418 261 323</p>
                 <p className="text-muted-foreground text-sm">Melbourne, Victoria, Australia</p>
                 <p className="text-muted-foreground text-sm mt-4">
-                  Email: <a href="mailto:support@weddingwaitress.com" className="text-primary hover:underline">support@weddingwaitress.com</a>
+                  Email: <a href="mailto:support@weddingwaitress.com.au" className="text-primary hover:underline">support@weddingwaitress.com.au</a>
                 </p>
               </div>
               <p className="text-muted-foreground leading-relaxed mt-4">

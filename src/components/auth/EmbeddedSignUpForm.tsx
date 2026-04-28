@@ -121,7 +121,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
           supabase.functions.invoke('send-transactional-email', {
             body: {
               templateName: 'admin-new-signup',
-              recipientEmail: 'support@weddingwaitress.com',
+              recipientEmail: 'support@weddingwaitress.com.au',
               idempotencyKey: `admin-signup-${userId}`,
               templateData: { fullName, email: formData.email, date: nowIso },
             },
