@@ -1,46 +1,32 @@
-## Goal
-Set the sender (`from`) and `reply_to` on every outbound email to `support@weddingwaitress.com.au`, using the already-verified `weddingwaitress.com.au` domain. No design, layout, or functional changes.
+## Fix: Restore correct RFC 5322 email "from" format
 
-## Findings — all sender locations
+Revert all 4 Edge Function `from` fields from the broken markdown-link format back to the standard `"Display Name <email@domain>"` format that Resend (and every email service) requires.
 
-After scanning `supabase/functions/` and `src/`, these are the only places that actually send email and currently use a non-final sender:
+### Files to update
 
-| # | File | Current sender | Action |
-|---|------|---------------|--------|
-| 1 | `supabase/functions/send-transactional-email/index.ts` (lines 12, 16, 316) | `Wedding Waitress <noreply@weddingwaitress.com.au>` (built from `FROM_DOMAIN` + `noreply@`) | Change `from` to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to: "support@weddingwaitress.com.au"`. Keep `SENDER_DOMAIN = "notify.weddingwaitress.com.au"` (verified subdomain — required by API). |
-| 2 | `supabase/functions/send-rsvp-email/index.ts` (line 123) | `Wedding Waitress <noreply@weddingwaitress.com>` (still old `.com`) | Change to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to`. |
-| 3 | `supabase/functions/send-invitation-email/index.ts` (line 127) | `Wedding Waitress <noreply@weddingwaitress.com>` (still old `.com`) | Change to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to`. |
-| 4 | `supabase/functions/send-auth-email/index.ts` (line 174) | `Wedding Waitress <onboarding@resend.dev>` (Resend test sender) | Change to `Wedding Waitress <support@weddingwaitress.com.au>`, add `reply_to`. |
+1. **`supabase/functions/send-transactional-email/index.ts`** (line 316)
+2. **`supabase/functions/send-rsvp-email/index.ts`** (line 123)
+3. **`supabase/functions/send-invitation-email/index.ts`** (line 127)
+4. **`supabase/functions/send-auth-email/index.ts`** (line 174)
 
-## Not changing (intentional)
+### Change in each file
 
-- `SENDER_DOMAIN = "notify.weddingwaitress.com.au"` in `send-transactional-email/index.ts` — this is the verified sending subdomain required by the Lovable email API. The visible `From:` header still becomes `support@weddingwaitress.com.au`.
-- `to:` fields in transactional template registries (`contact-form-message.tsx`, `admin-new-signup.tsx`, `admin-new-payment.tsx`) — these are recipient addresses (already `support@weddingwaitress.com.au`), not senders.
-- `supabase/functions/admin-send-otp/index.ts` line 93 (`From: twilioPhone`) — Twilio SMS sender, not email.
-- `supabase/functions/send-rsvp-sms/index.ts` — SMS only, no email sender.
-- Body footers / mailto links / legal pages already on `support@weddingwaitress.com.au`.
-- `AdminNotificationSettings.tsx` placeholder text — UI placeholder only, not an actual sender.
+**From (currently broken):**
+```
+from: "Wedding Waitress [support@weddingwaitress.com.au](mailto:support@weddingwaitress.com.au)",
+```
 
-## Technical changes (per file)
+**To (correct RFC 5322 format):**
+```
+from: "Wedding Waitress <support@weddingwaitress.com.au>",
+```
 
-**`supabase/functions/send-transactional-email/index.ts`**
-- Line 316: `from: \`${SITE_NAME} <support@${FROM_DOMAIN}>\`` (was `noreply@`)
-- Add `reply_to: "support@weddingwaitress.com.au"` to the send payload
+`reply_to: "support@weddingwaitress.com.au"` stays unchanged in every file. Nothing else will be touched.
 
-**`supabase/functions/send-rsvp-email/index.ts`**
-- Line 123: `from: 'Wedding Waitress <support@weddingwaitress.com.au>'`
-- Add `reply_to: 'support@weddingwaitress.com.au'` to the JSON body
+### Verification
 
-**`supabase/functions/send-invitation-email/index.ts`**
-- Line 127: `from: 'Wedding Waitress <support@weddingwaitress.com.au>'`
-- Add `reply_to: 'support@weddingwaitress.com.au'` to the JSON body
+After editing, I'll run `sed -n` on each line and display the output inside a fenced code block (which preserves `<` and `>` characters so they're visible to you). You'll be able to clearly see the angle brackets and the email address in each of the 4 lines.
 
-**`supabase/functions/send-auth-email/index.ts`**
-- Line 174: `from: "Wedding Waitress <support@weddingwaitress.com.au>"`
-- Add `reply_to: "support@weddingwaitress.com.au"` to the Resend send call
+### Why this is correct
 
-## Deploy
-Edge functions auto-deploy after edits. No DNS, no schema, no UI changes.
-
-## Deliverable
-After implementation, I will list every file + line that was changed.
+`"Wedding Waitress <support@weddingwaitress.com.au>"` is the universal email standard (RFC 5322). The recipient's inbox shows the friendly name **Wedding Waitress** and the actual sender address is **support@weddingwaitress.com.au**. This is what Resend requires for proper deliverability and SPF/DKIM alignment with your verified domain.
