@@ -65,20 +65,22 @@ export const GuestBulkActionsBar = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-3 pr-8">
             <div>
               <DialogTitle className="text-lg font-semibold">Manage Selected Guests</DialogTitle>
               <p className="text-sm text-muted-foreground mt-1">{getSelectedText()}</p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={allSelected ? onDeselectAll : onSelectAll}
-              className="shrink-0"
-            >
-              <CheckSquare className="w-4 h-4 mr-1" />
-              {allSelected ? 'Deselect All' : 'Select All'}
-            </Button>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={allSelected ? onDeselectAll : onSelectAll}
+                className="shrink-0"
+              >
+                <CheckSquare className="w-4 h-4 mr-1" />
+                {allSelected ? 'Deselect All' : 'Select All'}
+              </Button>
+            </div>
           </div>
           <DialogDescription>Apply actions to your selected guests</DialogDescription>
         </DialogHeader>
@@ -87,9 +89,9 @@ export const GuestBulkActionsBar = ({
           {/* Update RSVP */}
           <button
             onClick={onUpdateRsvp}
-            className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+            className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
           >
-            <CheckCircle2 className="w-5 h-5 text-primary" />
+            <CheckCircle2 className="w-5 h-5 text-[#967A59]" />
             <span className="text-sm font-medium text-foreground">Update RSVP</span>
           </button>
 
@@ -97,7 +99,7 @@ export const GuestBulkActionsBar = ({
           {onSendEmail && (
             <button
               onClick={onSendEmail}
-              className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+              className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
             >
               <Mail className="w-5 h-5 text-blue-500" />
               <span className="text-sm font-medium text-foreground">Send Email via Wedding Waitress</span>
@@ -108,7 +110,7 @@ export const GuestBulkActionsBar = ({
           {onSendSms && (
             <button
               onClick={onSendSms}
-              className="p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+              className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
             >
               <Phone className="w-5 h-5 text-green-500" />
               <span className="text-sm font-medium text-foreground">Send SMS via Wedding Waitress</span>
@@ -116,8 +118,8 @@ export const GuestBulkActionsBar = ({
           )}
 
           {/* Mark Invite as Sent Manually */}
-          <div className="p-3 rounded-lg border border-border flex items-center gap-3">
-            <Send className="w-5 h-5 text-primary shrink-0" />
+          <div className="p-3 rounded-lg border-2 border-[#967A59]/70 flex items-center gap-3">
+            <Send className="w-5 h-5 text-[#967A59] shrink-0" />
             <div className="flex flex-col gap-1.5 flex-1">
               <span className="text-sm font-medium text-foreground">Mark Invite as Sent Manually</span>
               <Select onValueChange={(value) => onMarkManualInvite(value)}>
@@ -136,7 +138,7 @@ export const GuestBulkActionsBar = ({
           {/* Delete Guests */}
           <button
             onClick={onDelete}
-            className="p-3 rounded-lg border border-red-200 hover:bg-red-50 cursor-pointer flex items-center gap-3 transition-colors text-left"
+            className="p-3 rounded-lg border-2 border-red-500 hover:bg-red-50 cursor-pointer flex items-center gap-3 transition-colors text-left"
           >
             <Trash2 className="w-5 h-5 text-red-600" />
             <span className="text-sm font-medium text-red-600">Delete Guests</span>
@@ -145,9 +147,8 @@ export const GuestBulkActionsBar = ({
 
         <DialogFooter>
           <Button
-            variant="outline"
             onClick={onClose}
-            className="text-destructive border-destructive/30 hover:bg-destructive/10"
+            className="bg-red-600 hover:bg-red-700 text-white border-0"
           >
             Cancel
           </Button>
