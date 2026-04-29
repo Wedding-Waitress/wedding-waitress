@@ -491,16 +491,16 @@ export const Dashboard = () => {
         return <div className="space-y-6">
             {tablesSeo}
             <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-              <CardHeader className="flex flex-col gap-4 pb-6">
+              <CardHeader className="flex flex-col gap-4 pb-6 max-lg:px-4">
                 {/* Top row - Title */}
                 <div className="flex items-start gap-3">
                   {/* Left: Icon + Title + Description */}
-                  <div className="flex items-start gap-3 flex-1">
+                  <div className="flex items-start gap-3 flex-1 max-lg:flex-col max-lg:gap-2">
                     <MapPin className="w-10 h-10 sm:w-16 sm:h-16 text-primary flex-shrink-0" />
-                    <div className="flex flex-col">
+                    <div className="flex flex-col max-lg:w-full">
                       <CardTitle className="mb-2 text-left text-2xl font-bold text-foreground">Table Setup</CardTitle>
                       <div className="text-left text-sm text-muted-foreground">
-                        <ul className="list-disc pl-5 space-y-1">
+                        <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
                           <li className="text-red-600 font-bold">Important – Please Read:</li>
                           <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
                           <li>We suggest firstly adding a <strong>"Bridal Table"</strong> then the <strong>"1 Groom's Family"</strong> table, then the <strong>"2 Bride's Family"</strong> table.</li>
@@ -515,8 +515,8 @@ export const Dashboard = () => {
                 </div>
                 
                 {/* Bottom row - Choose Event dropdown and Create Tables button */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 max-lg:items-center">
+                  <div className="flex items-center gap-3 max-lg:flex-col max-lg:w-full max-lg:gap-2">
                     <label className="text-sm font-medium text-foreground whitespace-nowrap">
                       Choose Event:
                     </label>
@@ -537,15 +537,15 @@ export const Dashboard = () => {
                     </Select>
                   </div>
                   
-                  {/* Create Tables Button - Right Side */}
+                  {/* Create Tables Button */}
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div>
+                        <div className="max-lg:w-full max-lg:flex max-lg:justify-center">
                           <Button 
                             variant="default" 
                             size="sm" 
-                            className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white" 
+                            className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white max-lg:h-11 max-lg:px-6" 
                             disabled={!selectedEventId} 
                             onClick={handleCreateTable}
                           >

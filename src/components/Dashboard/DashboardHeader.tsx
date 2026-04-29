@@ -22,15 +22,18 @@ export const DashboardHeader: React.FC = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full border-b border-border bg-card print:hidden safe-area-top">
       <div className={`relative flex items-center px-3 sm:px-4 md:px-6 ${isMobile ? 'h-14' : 'h-10'}`}>
-        {/* Mobile: Show greeting on left */}
+        {/* Mobile: Centered greeting */}
         {isMobile && (
-          <div className="flex items-center gap-2 flex-1">
-            <Sparkles className="w-5 h-5 flex-shrink-0 text-primary" />
-            <span className="text-base font-medium text-primary truncate">
-              Hey {getDisplayName()}!
-            </span>
+          <div className="absolute left-0 right-0 flex items-center justify-center pointer-events-none">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 flex-shrink-0 text-primary" />
+              <span className="text-base font-medium text-primary truncate">
+                Hey {getDisplayName()}!
+              </span>
+            </div>
           </div>
         )}
+        {isMobile && <div className="flex-1" />}
         
         {/* Desktop: Centered welcome message */}
         {!isMobile && (
