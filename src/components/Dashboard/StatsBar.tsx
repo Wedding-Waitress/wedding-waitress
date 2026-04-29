@@ -127,32 +127,24 @@ export const StatsBar: React.FC<StatsBarProps> = ({
   return (
     <Card className="mb-6 border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
       <div className="p-3 sm:p-4 md:p-6">
-        {/* Mobile: Horizontal scrollable row */}
+        {/* Mobile: 2 rows × 5 columns grid (all 10 stats) */}
         <div className="sm:hidden">
-          <div className="flex overflow-x-auto gap-4 pb-2 -mx-3 px-3 horizontal-scroll">
+          <div className="grid grid-cols-5 gap-x-1 gap-y-3">
             {statItems.map((item, index) => (
-              <div key={index} className="flex flex-col items-center text-center space-y-1 min-w-[72px] flex-shrink-0">
+              <div key={index} className="flex flex-col items-center text-center space-y-0.5 min-w-0">
                 <div className={`flex-shrink-0 ${item.color}`}>
-                  <div className="w-7 h-7 flex items-center justify-center">
+                  <div className="w-5 h-5 flex items-center justify-center [&_svg]:w-5 [&_svg]:h-5">
                     {item.icon}
                   </div>
                 </div>
-                <div className="min-w-0 w-full">
-                  <p className="text-[10px] text-primary font-bold leading-tight">
-                    {item.label}
-                  </p>
-                  <p className={`text-lg font-bold ${item.color}`}>
-                    {item.value}
-                  </p>
-                </div>
+                <p className="text-[9px] text-primary font-bold leading-tight px-0.5 break-words">
+                  {item.label}
+                </p>
+                <p className={`text-sm font-bold leading-none ${item.color}`}>
+                  {item.value}
+                </p>
               </div>
             ))}
-          </div>
-          {/* Scroll indicator */}
-          <div className="flex justify-center gap-1 mt-2">
-            <div className="w-8 h-1 rounded-full bg-primary/30" />
-            <div className="w-2 h-1 rounded-full bg-muted" />
-            <div className="w-2 h-1 rounded-full bg-muted" />
           </div>
         </div>
         
