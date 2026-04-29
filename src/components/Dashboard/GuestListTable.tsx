@@ -1882,7 +1882,190 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="overflow-hidden border-t-2 border-primary">
+        {/* MOBILE CARD VIEW (mobile + tablet < lg) */}
+        <div className="lg:hidden border-t-2 border-primary bg-[#FBF7F2]">
+          {guestsLoading ? (
+            <div className="text-center py-8 text-sm text-muted-foreground">Loading guests...</div>
+          ) : totalGuestCount === 0 ? (
+            <div className="text-center py-8" />
+          ) : (
+            <div className="px-4 py-4 space-y-3">
+              {paginatedGroups.map((group, groupIndex) => (
+                <React.Fragment key={`m-group-${groupIndex}-${group.groupName || 'individual'}`}>
+                  {group.type !== 'individual' && (
+                    <div
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 rounded-lg",
+                        group.type === 'family' ? "bg-blue-600" : "bg-orange-500"
+                      )}
+                    >
+                      <Users className="w-4 h-4 text-white" />
+                      <span className="font-semibold text-sm text-white truncate">{group.groupName}</span>
+                      <Badge variant="secondary" className="text-xs bg-white/20 text-white border-0 ml-auto">
+                        {group.type === 'couple' ? 'Couple' : 'Family'} • {group.members.length}
+                      </Badge>
+                    </div>
+                  )}
+                  {group.members.map((guest) => {
+                    const typeLabel = getGuestTypeLabel(guest);
+                    const typeColor =
+                      typeLabel === 'Couple'
+                        ? 'bg-[#FF5F1F] text-white'
+                        : typeLabel === 'Family'
+                        ? 'bg-[#0000FF] text-white'
+                        : 'bg-[#ff1493] text-white';
+                    const rsvpLabel = getRsvpDisplayLabel(guest.rsvp);
+                    const isNotAttending = rsvpLabel === 'Not Attending';
+                    const relationDisplay = getResolvedRelationDisplay(
+                      guest,
+                      selectedEvent?.partner1_name || 'Bride',
+                      selectedEvent?.partner2_name || 'Groom'
+                    );
+                    const inviteStatus = guest.rsvp_invite_status || 'not_sent';
+                    const inviteConfig: Record<string, { label: string; className: string }> = {
+                      not_sent: { label: 'Not Sent', className: 'bg-gray-400 text-white' },
+                      email_sent: { label: 'Email Sent', className: 'bg-green-500 text-white' },
+                      sms_sent: { label: 'SMS Sent', className: 'bg-green-500 text-white' },
+                      both_sent: { label: 'Both Sent', className: 'bg-green-500 text-white' },
+                      mail_sent: { label: 'Sent (Mail)', className: 'bg-green-500 text-white' },
+                    };
+                    const invite = inviteConfig[inviteStatus] || inviteConfig.not_sent;
+                    const isSelected = selectedGuestIds.has(guest.id);
+                    return (
+                      <div
+                        key={`m-${guest.id}`}
+                        className={cn(
+                          "bg-white rounded-2xl shadow-sm border border-[#EDE5DB] p-4 transition-all",
+                          isSelected && "ring-2 ring-primary",
+                          guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
+                        )}
+                      >
+                        {/* Top row: checkbox + name/group + RSVP */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 min-w-0 flex-1">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                              className="mt-1 flex-shrink-0"
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="font-bold text-base text-foreground truncate">
+                                {guest.first_name} {guest.last_name}
+                              </div>
+                              <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold mt-1", typeColor)}>
+                                {typeLabel}
+                              </span>
+                            </div>
+                          </div>
+                          <Badge
+                            variant={getRsvpBadgeVariant(guest.rsvp)}
+                            className="text-xs text-white px-2 py-0.5 inline-flex items-center justify-center text-center leading-tight min-w-[68px] flex-shrink-0"
+                          >
+                            {isNotAttending ? (
+                              <span className="flex flex-col items-center justify-center leading-[1.05]">
+                                <span>Not</span>
+                                <span>Attending</span>
+                              </span>
+                            ) : (
+                              rsvpLabel
+                            )}
+                          </Badge>
+                        </div>
+
+                        {/* Middle: 2-column info grid */}
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 text-sm">
+                          <div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Mobile</div>
+                            <div className="text-foreground truncate">{guest.mobile?.trim() || '—'}</div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Email</div>
+                            <div className="text-foreground truncate">{guest.email?.trim() || '—'}</div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Table No</div>
+                            <div className="text-foreground truncate">{getTableName(guest) || '—'}</div>
+                          </div>
+                          <div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Seat No</div>
+                            <div className="text-foreground">
+                              {guest.seat_no ? (
+                                isDuplicateSeat(guest) ? (
+                                  <span className="text-red-600 font-medium">{guest.seat_no}</span>
+                                ) : (
+                                  guest.seat_no
+                                )
+                              ) : (
+                                '—'
+                              )}
+                            </div>
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Relation</div>
+                            <RelationBadge
+                              display={relationDisplay}
+                              partner={guest.relation_partner || ''}
+                              role={guest.relation_role || ''}
+                              partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                              onClick={() => handleEditRelation(guest)}
+                              isEmpty={!relationDisplay}
+                            />
+                          </div>
+                          <div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Dietary</div>
+                            <div className="text-foreground truncate">{guest.dietary || '—'}</div>
+                          </div>
+                        </div>
+
+                        {/* Optional notes (expandable via native details) */}
+                        {guest.notes && guest.notes.trim() !== '' && (
+                          <details className="mt-3 text-sm">
+                            <summary className="cursor-pointer text-primary font-medium text-xs">
+                              View notes
+                            </summary>
+                            <p className="mt-2 text-foreground whitespace-pre-wrap text-xs">
+                              {guest.notes.replace(/^\[NEW\+\]/, '')}
+                            </p>
+                          </details>
+                        )}
+
+                        {/* Bottom: invite status + actions */}
+                        <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#EDE5DB]">
+                          <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
+                            {invite.label}
+                          </Badge>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditGuest(guest)}
+                              className="h-9 w-9 p-0"
+                              aria-label="Edit guest"
+                            >
+                              <Edit className="w-4 h-4 text-green-500" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteGuest(guest)}
+                              className="h-9 w-9 p-0"
+                              aria-label="Delete guest"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* DESKTOP TABLE VIEW (lg and up) */}
+        <div className="hidden lg:block overflow-hidden border-t-2 border-primary">
           <Table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '3%' }} />
