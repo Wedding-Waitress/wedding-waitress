@@ -2077,12 +2077,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             </div>
                           </TableCell>
                           <TableCell className="py-1 px-2">
-                            <Badge 
-                              variant={getRsvpBadgeVariant(guest.rsvp)} 
-                              className="text-xs text-white"
-                            >
-                              {getRsvpDisplayLabel(guest.rsvp)}
-                            </Badge>
+                            {(() => {
+                              const label = getRsvpDisplayLabel(guest.rsvp);
+                              const isNotAttending = label === 'Not Attending';
+                              return (
+                                <Badge 
+                                  variant={getRsvpBadgeVariant(guest.rsvp)} 
+                                  className="text-xs text-white px-2 py-0.5 inline-flex items-center justify-center text-center leading-tight min-w-[68px]"
+                                >
+                                  {isNotAttending ? (
+                                    <span className="flex flex-col items-center justify-center leading-[1.05]">
+                                      <span>Not</span>
+                                      <span>Attending</span>
+                                    </span>
+                                  ) : (
+                                    label
+                                  )}
+                                </Badge>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell className="py-1 px-2">{getTableName(guest) || '—'}</TableCell>
                           <TableCell className="py-1 px-2">
