@@ -291,63 +291,62 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       className="p-4 cursor-pointer"
                       onClick={() => handleEventSelect(event.id)}
                     >
-                      {/* Header: Name on line 1, actions on line 2 */}
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-start gap-3 min-w-0">
-                          <RadioGroupItem 
-                            value={event.id} 
-                            id={`countdown-${event.id}`} 
-                            className="mt-1 data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" 
-                          />
-                          <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
-                            <h4 className="text-base font-semibold text-foreground truncate w-full">{event.name}</h4>
-                            {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-end gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
-                            className="text-green-500 hover:text-green-500 h-9 w-9 p-0"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(event); }} 
-                            className="text-red-500 hover:text-red-600 h-9 w-9 p-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                      {/* Header: Name with radio */}
+                      <div className="flex items-start gap-3 min-w-0">
+                        <RadioGroupItem 
+                          value={event.id} 
+                          id={`countdown-${event.id}`} 
+                          className="mt-1 data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" 
+                        />
+                        <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
+                          <h4 className="text-base font-semibold text-foreground break-words w-full">{event.name}</h4>
+                          {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
                         </div>
                       </div>
 
-                      {/* Always-visible details */}
-                      <div className="mt-3 space-y-0">
+                      {/* Always-visible details (tightened spacing) */}
+                      <div className="mt-1.5 space-y-0">
                         <p className="text-sm text-muted-foreground">{formatEventDate(event.date)}</p>
-                        <p className="mt-1 text-sm text-muted-foreground">{event.venue || 'No venue set'}</p>
+                        <p className="mt-0.5 text-sm text-muted-foreground">{event.venue || 'No venue set'}</p>
 
-                        <div className="flex justify-between items-center mt-2 text-sm">
+                        <div className="flex justify-between items-center mt-1 text-sm">
                           <span className="text-muted-foreground">{event.guests_count}/{event.guest_limit} guests</span>
                           <span className="text-muted-foreground">{event.start_time ? formatDisplayTime(event.start_time) : '—'}</span>
                         </div>
 
-                        <div className="flex justify-between items-center mt-1 text-sm">
+                        <div className="flex justify-between items-center mt-0.5 text-sm">
                           <span><span className="text-muted-foreground">Start:</span> <span className="font-medium">{formatDisplayTime(event.start_time) || 'Not set'}</span></span>
                           <span><span className="text-muted-foreground">Finish:</span> <span className="font-medium">{formatDisplayTime(event.finish_time) || 'Not set'}</span></span>
                         </div>
 
-                        <p className="mt-2 text-sm">
+                        <p className="mt-1 text-sm">
                           <span className="text-muted-foreground">RSVP:</span>{' '}
                           <span className="font-medium">{event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}</span>
                         </p>
 
-                        <p className="mt-1 text-xs text-muted-foreground">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           Created: {formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}
                         </p>
+                      </div>
+
+                      {/* Action icons: bottom-right */}
+                      <div className="flex items-center justify-end gap-2 mt-3">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
+                          className="text-green-500 hover:text-green-500 h-9 w-9 p-0"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClick(event); }} 
+                          className="text-red-500 hover:text-red-600 h-9 w-9 p-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
