@@ -254,8 +254,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         fullScreenOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center text-center lg:text-left max-lg:pt-6 lg:pr-12">
-          <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto">Create Event</DialogTitle>
-          <div className="flex-1 w-full max-w-full lg:max-w-[75%]">
+          <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto max-lg:mb-3">Create Event</DialogTitle>
+          <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:mb-4">
             <Input
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
@@ -268,7 +268,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive text-center lg:text-left">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive text-center lg:text-left max-lg:mb-4">
               Please enable at least one section (Ceremony or Reception) to create an event.
             </div>
           )}
@@ -282,10 +282,29 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 <span className="text-sm text-muted-foreground">
                   {formData.ceremony_enabled ? 'Yes' : 'No'}
                 </span>
-                <Switch
-                  checked={formData.ceremony_enabled}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))}
-                />
+                {/* Mobile-only custom toggle */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.ceremony_enabled}
+                  onClick={() => setFormData(prev => ({ ...prev, ceremony_enabled: !prev.ceremony_enabled }))}
+                  className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${
+                    formData.ceremony_enabled ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${
+                      formData.ceremony_enabled ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+                {/* Desktop/tablet keeps existing Switch */}
+                <div className="hidden lg:block">
+                  <Switch
+                    checked={formData.ceremony_enabled}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))}
+                  />
+                </div>
               </div>
             </div>
 
@@ -401,10 +420,28 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 <span className="text-sm text-muted-foreground">
                   {formData.reception_enabled ? 'Yes' : 'No'}
                 </span>
-                <Switch
-                  checked={formData.reception_enabled}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))}
-                />
+                {/* Mobile-only custom toggle */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.reception_enabled}
+                  onClick={() => setFormData(prev => ({ ...prev, reception_enabled: !prev.reception_enabled }))}
+                  className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${
+                    formData.reception_enabled ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${
+                      formData.reception_enabled ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+                <div className="hidden lg:block">
+                  <Switch
+                    checked={formData.reception_enabled}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))}
+                  />
+                </div>
               </div>
             </div>
 
@@ -412,9 +449,35 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             {formData.reception_enabled ? (
               <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
                 {/* Event Type Toggle - Smaller */}
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 max-lg:mt-3 max-lg:space-y-2">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="flex flex-col space-y-2 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-2xl lg:rounded-full p-1 w-full max-w-md">
+                  {/* Mobile: side-by-side buttons */}
+                  <div className="lg:hidden grid grid-cols-2 gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                      className={`w-full py-3 rounded-full text-sm transition-all ${
+                        formData.event_type === 'seated'
+                          ? 'bg-green-500 text-white border-none'
+                          : 'bg-secondary border-2 border-primary text-primary'
+                      }`}
+                    >
+                      Seated Event
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                      className={`w-full py-3 rounded-full text-sm transition-all ${
+                        formData.event_type === 'cocktail'
+                          ? 'bg-green-500 text-white border-none'
+                          : 'bg-secondary border-2 border-primary text-primary'
+                      }`}
+                    >
+                      Cocktail/Stand-up
+                    </button>
+                  </div>
+                  {/* Tablet/Desktop: existing layout untouched */}
+                  <div className="hidden lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
@@ -438,7 +501,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                       Cocktail/Stand-up
                     </button>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs lg:text-xs text-muted-foreground max-lg:mt-2 max-lg:text-sm">
                     {formData.event_type === 'seated' 
                       ? 'Guests will be assigned to tables and seats' 
                       : 'No table assignments - guests mingle freely'}
