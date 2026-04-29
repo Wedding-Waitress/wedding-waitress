@@ -291,38 +291,21 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       className="p-4 cursor-pointer"
                       onClick={() => handleEventSelect(event.id)}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                      {/* Header: Name on line 1, actions on line 2 */}
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-start gap-3 min-w-0">
                           <RadioGroupItem 
                             value={event.id} 
                             id={`countdown-${event.id}`} 
                             className="mt-1 data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" 
                           />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-foreground truncate">{event.name}</h4>
-                              {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {formatEventDate(event.date)}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {event.venue || 'No venue set'}
-                            </p>
-                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                              <span>{event.guests_count}/{event.guest_limit} guests</span>
-                              {event.start_time && (
-                                <>
-                                  <span>•</span>
-                                  <span>{formatDisplayTime(event.start_time)}</span>
-                                </>
-                              )}
-                            </div>
+                          <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
+                            <h4 className="text-base font-semibold text-foreground truncate w-full">{event.name}</h4>
+                            {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
                           </div>
                         </div>
-                        
-                        {/* Action Buttons */}
-                        <div className="flex items-center gap-1 flex-shrink-0">
+
+                        <div className="flex items-center justify-end gap-2">
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -339,44 +322,34 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
-                              setExpandedEventId(isExpanded ? null : event.id);
-                            }}
-                            className="h-9 w-9 p-0"
-                          >
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
                         </div>
+                      </div>
+
+                      {/* Always-visible details */}
+                      <div className="mt-3 space-y-0">
+                        <p className="text-sm text-muted-foreground">{formatEventDate(event.date)}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{event.venue || 'No venue set'}</p>
+
+                        <div className="flex justify-between items-center mt-2 text-sm">
+                          <span className="text-muted-foreground">{event.guests_count}/{event.guest_limit} guests</span>
+                          <span className="text-muted-foreground">{event.start_time ? formatDisplayTime(event.start_time) : '—'}</span>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-1 text-sm">
+                          <span><span className="text-muted-foreground">Start:</span> <span className="font-medium">{formatDisplayTime(event.start_time) || 'Not set'}</span></span>
+                          <span><span className="text-muted-foreground">Finish:</span> <span className="font-medium">{formatDisplayTime(event.finish_time) || 'Not set'}</span></span>
+                        </div>
+
+                        <p className="mt-2 text-sm">
+                          <span className="text-muted-foreground">RSVP:</span>{' '}
+                          <span className="font-medium">{event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}</span>
+                        </p>
+
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Created: {formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}
+                        </p>
                       </div>
                     </div>
-                    
-                    {/* Expanded Details */}
-                    {isExpanded && (
-                      <div className="px-4 pb-4 pt-2 border-t border-border bg-muted/30 space-y-2">
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Start:</span>
-                            <span className="ml-1">{formatDisplayTime(event.start_time) || 'Not set'}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Finish:</span>
-                            <span className="ml-1">{formatDisplayTime(event.finish_time) || 'Not set'}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">RSVP:</span>
-                            <span className="ml-1">{event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Created:</span>
-                            <span className="ml-1">{formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })}
