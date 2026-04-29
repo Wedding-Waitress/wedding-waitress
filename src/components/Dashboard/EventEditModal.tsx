@@ -562,7 +562,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 </div>
 
                 {/* Row 2: Guest Limit, Location, Location Details */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
