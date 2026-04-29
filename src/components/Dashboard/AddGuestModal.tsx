@@ -906,9 +906,12 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   return (
     <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
-        <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+      <DialogContent
+        className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto"
+        fullScreenOnMobile
+      >
+        <DialogHeader className="max-lg:pt-8 max-lg:items-center max-lg:text-center lg:pr-12">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
           </DialogTitle>
         </DialogHeader>
@@ -1431,22 +1434,22 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         </Form>
         </div>
 
-        <DialogFooter>
-          <Button 
-            type="button" 
-            variant="destructive" 
-            size="xs" 
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white" 
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2">
+          <Button
+            type="button"
+            variant="destructive"
+            size="xs"
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
             onClick={handleClose}
             disabled={loading}
           >
             Cancel
           </Button>
-          <Button 
-            type="submit" 
-            variant="default" 
-            size="xs" 
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white" 
+          <Button
+            type="submit"
+            variant="default"
+            size="xs"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
