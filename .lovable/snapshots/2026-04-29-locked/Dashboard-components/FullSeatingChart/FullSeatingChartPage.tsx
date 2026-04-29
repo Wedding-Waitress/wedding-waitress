@@ -1,0 +1,389 @@
+/**
+ * ============================================================================
+ * 🔒 PRODUCTION LOCKED - DO NOT MODIFY 🔒
+ * ============================================================================
+ * 
+ * ⚠️ THIS COMPONENT IS LOCKED FOR PRODUCTION USE ⚠️
+ * 
+ * ANY MODIFICATIONS TO THIS FILE REQUIRE EXPLICIT WRITTEN APPROVAL FROM OWNER
+ * Unauthorized changes may break critical functionality and print layouts.
+ * 
+ * Main page component for Full Seating Chart feature. Handles event selection,
+ * guest sorting, and coordinates between customizer, preview, and exporter.
+ * 
+ * CORE FUNCTIONALITY:
+ * - Event selection and data loading
+ * - Guest sorting (firstName, lastName, tableNo)
+ * - Print functionality with helper toast
+ * - PDF export coordination
+ * - Settings management via custom hook
+ * 
+ * SORTING OPTIONS:
+ * - firstName: Sort by "First Last" alphabetically
+ * - lastName: Sort by "Last, First" alphabetically
+ * - tableNo: Sort by table number, then first name
+ * 
+ * LAYOUT:
+ * - 4-column grid: 1 col customizer, 3 cols preview
+ * - Event selector in header
+ * - Action buttons (Print, Download PDF)
+ * - Loading states and empty states
+ * 
+ * Last locked: 2025-10-19
+ * Status: PRODUCTION READY - NO CHANGES ALLOWED
+ * ============================================================================
+ */
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/enhanced-button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Users, Layout, Calendar } from 'lucide-react';
+import { useEvents } from '@/hooks/useEvents';
+import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
+import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
+import { useTables } from '@/hooks/useTables';
+
+import { useToast } from '@/hooks/use-toast';
+import { FullSeatingChartPreview } from './FullSeatingChartPreview';
+import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
+
+import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
+import { GUESTS_PER_PAGE } from '@/lib/fullSeatingChartLayout';
+
+interface FullSeatingChartPageProps {
+  selectedEventId: string | null;
+  onEventSelect: (eventId: string) => void;
+}
+
+export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
+  selectedEventId,
+  onEventSelect
+}) => {
+  const [isExporting, setIsExporting] = useState(false);
+  
+  const { events, loading: eventsLoading } = useEvents();
+  const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
+  const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
+  const { tables } = useTables(selectedEventId);
+
+  // Build a map of table_no -> table name for display
+  const tableNameMap = React.useMemo(() => {
+    const map: Record<number, string> = {};
+    tables.forEach(t => {
+      if (t.table_no != null) {
+        // Check if the table has a text name (not just a number)
+        const isNamedTable = t.name && isNaN(Number(t.name));
+        map[t.table_no] = isNamedTable ? t.name : `Table ${t.table_no}`;
+      }
+    });
+    return map;
+  }, [tables]);
+
+  // Build a map of table_id -> table display name for guests with table_id but no table_no
+  const tableIdNameMap = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    tables.forEach(t => {
+      const isNamedTable = t.name && isNaN(Number(t.name));
+      map[t.id] = isNamedTable ? t.name : `Table ${t.table_no}`;
+    });
+    return map;
+  }, [tables]);
+  
+  const { toast } = useToast();
+
+
+  const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+
+  const handleEventSelect = (eventId: string) => {
+    if (eventId === "no-event") return;
+    onEventSelect(eventId);
+  };
+
+  /**
+   * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
+   * Must match the calculation in FullSeatingChartPreview and fullSeatingChartPdfExporter
+   */
+  const guestsPerPage = GUESTS_PER_PAGE;
+
+  const handleDownloadPdf = async () => {
+    if (!selectedEvent) return;
+    
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Creating your seating chart...',
+      });
+
+      // Calculate current page guests based on auto-fit
+      const currentPageIndex = 0; // For single page download, we use first page logic
+      const startIdx = currentPageIndex * guestsPerPage;
+      const endIdx = Math.min(startIdx + guestsPerPage, sortedGuests.length);
+      const currentPageGuests = sortedGuests.slice(startIdx, endIdx);
+
+      await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1, tableNameMap, tableIdNameMap);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Current page has been saved',
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDownloadPdfAll = async () => {
+    if (!selectedEvent) return;
+    
+    setIsExporting(true);
+    try {
+      toast({
+        title: 'Generating PDF',
+        description: 'Creating your full seating chart...',
+      });
+
+      await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings, undefined, undefined, tableNameMap, tableIdNameMap);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Your complete seating chart has been saved',
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to generate PDF',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Sort guests based on selected sort option from settings
+  const sortedGuests = React.useMemo(() => {
+    return [...guests].sort((a, b) => {
+      if (settings.sortBy === 'firstName') {
+        const nameA = `${a.first_name} ${a.last_name || ''}`.trim();
+        const nameB = `${b.first_name} ${b.last_name || ''}`.trim();
+        return nameA.localeCompare(nameB);
+      } else if (settings.sortBy === 'lastName') {
+        const lastNameA = a.last_name || '';
+        const lastNameB = b.last_name || '';
+        if (lastNameA === lastNameB) {
+          return a.first_name.localeCompare(b.first_name);
+        }
+        return lastNameA.localeCompare(lastNameB);
+      } else {
+        // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
+        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : (a.table_id ? tableIdNameMap[a.table_id] : null);
+        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : (b.table_id ? tableIdNameMap[b.table_id] : null);
+        const isNamedA = tableNameA ? !tableNameA.startsWith('Table ') : false;
+        const isNamedB = tableNameB ? !tableNameB.startsWith('Table ') : false;
+        const hasTableA = a.table_no != null || a.table_id != null;
+        const hasTableB = b.table_no != null || b.table_id != null;
+
+        // Unassigned goes last
+        if (!hasTableA && hasTableB) return 1;
+        if (hasTableA && !hasTableB) return -1;
+        if (!hasTableA && !hasTableB) return a.first_name.localeCompare(b.first_name);
+
+        // Named tables come before numbered tables
+        if (isNamedA && !isNamedB) return -1;
+        if (!isNamedA && isNamedB) return 1;
+
+        // Both named: alphabetical
+        if (isNamedA && isNamedB) {
+          const cmp = tableNameA!.localeCompare(tableNameB!);
+          if (cmp !== 0) return cmp;
+          return a.first_name.localeCompare(b.first_name);
+        }
+
+        // Both numbered: numeric
+        const tableA = a.table_no || 0;
+        const tableB = b.table_no || 0;
+        if (tableA === tableB) {
+          return a.first_name.localeCompare(b.first_name);
+        }
+        return tableA - tableB;
+      }
+    });
+  }, [guests, settings.sortBy, tableNameMap, tableIdNameMap]);
+
+  const isDataReady = selectedEventId && !guestsLoading;
+  const hasGuests = guests.length > 0;
+
+  return (
+    <div className="space-y-6 full-seating-chart-dark-purple">
+      {/* Header */}
+      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
+        <CardHeader className="space-y-4">
+          {/* Top row: Icon, Title, and Event Name */}
+          <div className="flex items-center justify-between">
+            {/* Header Icon & Info */}
+            <div className="flex items-center gap-4">
+              <FileText className="w-12 h-12 text-primary" />
+              <div>
+                <CardTitle className="text-left text-2xl font-bold text-foreground">Full Seating Chart</CardTitle>
+                <CardDescription className="text-left">
+                  Complete guest list with check-off boxes
+                </CardDescription>
+              </div>
+            </div>
+
+            {selectedEvent && (
+              <span className="text-lg font-normal text-[#967A59]">
+                Full Seating Chart for {selectedEvent.name}
+              </span>
+            )}
+          </div>
+
+          {/* Bottom row: Choose Event dropdown, badges, and export controls */}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-4">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  Choose Event:
+                </label>
+                <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
+                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
+                    <SelectValue placeholder="Choose Event" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    {events.length > 0 ? (
+                      events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-events" disabled>
+                        {eventsLoading ? "Loading events..." : "No events found"}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedEvent && (
+                <>
+                  <Badge 
+                    variant="outline"
+                    className="ml-4 bg-white border-primary text-primary rounded-full"
+                  >
+                    <Users className="w-4 h-4 mr-1.5" />
+                    {guestsLoading ? "Loading..." : `${guests.length} guests`}
+                  </Badge>
+                  <Badge 
+                    variant="outline"
+                    className="bg-white border-primary text-primary rounded-full"
+                  >
+                    {isDataReady ? (hasGuests ? 'Ready to Generate' : 'No Guests') : 'Loading Data...'}
+                  </Badge>
+                </>
+              )}
+            </div>
+
+              {/* Export Controls */}
+              {isDataReady && hasGuests && (
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
+                  <div className="flex items-center">
+                    <span className="font-bold text-sm">Export Controls</span>
+                    <span className="text-muted-foreground ml-2 text-sm">
+                      Download the Full Seating Chart and share it with your vendors.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      onClick={handleDownloadPdf}
+                      disabled={isExporting}
+                    >
+                      <FileText className="w-3 h-3" />
+                      Download single page PDF
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      onClick={handleDownloadPdfAll}
+                      disabled={isExporting}
+                    >
+                      <FileText className="w-3 h-3" />
+                      Download all pages PDF
+                    </button>
+                  </div>
+                </div>
+              )}
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Main Content */}
+      {selectedEventId ? (
+        isDataReady && hasGuests ? (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Customization Panel */}
+            <div className="lg:col-span-1">
+              <FullSeatingChartCustomizer
+                settings={settings}
+                onSettingsChange={updateSettings}
+              />
+            </div>
+
+            {/* Preview */}
+            <div className="lg:col-span-3">
+              <FullSeatingChartPreview 
+                event={selectedEvent!} 
+                guests={sortedGuests}
+                settings={settings}
+                tableNameMap={tableNameMap}
+                tableIdNameMap={tableIdNameMap}
+              />
+            </div>
+          </div>
+        ) : isDataReady && !hasGuests ? (
+          <Card className="ww-box print:hidden">
+            <CardContent className="p-8 text-center">
+              <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <CardTitle className="mb-2">No Guests Found</CardTitle>
+              <CardDescription>
+                Add some guests to generate your seating chart.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="ww-box print:hidden">
+            <CardContent className="p-8 text-center">
+              <Layout className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <CardTitle className="mb-2">Loading Event Data</CardTitle>
+              <CardDescription>
+                Please wait while we load your guest information.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        )
+      ) : (
+        <Card className="ww-box print:hidden">
+          <CardContent className="p-8 text-center">
+            <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <CardTitle className="mb-2">Select an Event</CardTitle>
+            <CardDescription>
+              Choose an event from the dropdown above to generate your full seating chart
+            </CardDescription>
+          </CardContent>
+        </Card>
+      )}
+
+    </div>
+  );
+};

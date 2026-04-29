@@ -1,0 +1,1 @@
+export { KioskSetup } from './KioskSetup';

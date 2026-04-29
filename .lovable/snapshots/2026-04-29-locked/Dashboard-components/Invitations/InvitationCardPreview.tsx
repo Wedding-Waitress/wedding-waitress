@@ -1,0 +1,356 @@
+/**
+ * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
+ * 
+ * This Invitation Card Preview and its interactive text overlay integration
+ * are COMPLETE and LOCKED. All functionality has been thoroughly tested and approved.
+ * 
+ * DO NOT make changes unless explicitly requested by the project owner.
+ * 
+ * Last locked: 2026-03-18
+ */
+
+import React, { useRef, useCallback, useState } from 'react';
+import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
+import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
+import { Minus, Plus } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+
+interface InvitationCardPreviewProps {
+  settings: InvitationCardSettings | null;
+  eventData: Record<string, string>;
+  selectedZoneId?: string | null;
+  onSelectZone?: (id: string | null) => void;
+  onZoneUpdate?: (zoneId: string, updates: Partial<TextZone>) => void;
+  onZoneDelete?: (zoneId: string) => void;
+  onZoneDuplicate?: (zoneId: string) => void;
+  onZoneReset?: (zoneId: string) => void;
+  qrDataUrl?: string | null;
+  onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
+}
+
+const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
+  switch (textCase) {
+    case 'uppercase': return 'uppercase';
+    case 'lowercase': return 'lowercase';
+    case 'capitalize': return 'capitalize';
+    default: return 'none';
+  }
+};
+
+export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
+  settings,
+  eventData,
+  selectedZoneId = null,
+  onSelectZone,
+  onZoneUpdate,
+  onZoneDelete,
+  onZoneDuplicate,
+  onZoneReset,
+  qrDataUrl,
+  onQrConfigUpdate,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
+  const [zoom, setZoom] = useState(100);
+
+  const handleZoomChange = useCallback((value: number) => {
+    setZoom(Math.max(25, Math.min(100, value)));
+  }, []);
+
+  const currentSettings = settings || {
+    background_color: '#ffffff',
+    background_image_url: null,
+    background_image_type: 'none' as const,
+    background_image_x_position: 50,
+    background_image_y_position: 50,
+    background_image_opacity: 100,
+    text_zones: [] as TextZone[],
+    font_color: '#000000',
+    card_size: 'A4',
+    orientation: 'portrait',
+  };
+
+  const isLandscape = currentSettings.orientation === 'landscape';
+
+  const SIZE_MAP: Record<string, { w: number; h: number }> = {
+    A4: { w: 210, h: 297 },
+    A5: { w: 148, h: 210 },
+    A6: { w: 105, h: 148 },
+  };
+  const dims = SIZE_MAP[currentSettings.card_size] || SIZE_MAP.A5;
+  const previewWidth = isLandscape ? `${dims.h}mm` : `${dims.w}mm`;
+  const previewHeight = isLandscape ? `${dims.w}mm` : `${dims.h}mm`;
+
+  const textZones = currentSettings.text_zones || [];
+
+  const getZoneText = (zone: TextZone): string => {
+    if (zone.text) return zone.text;
+    if (zone.type === 'preset' && zone.preset_field) {
+      return eventData[zone.preset_field] || '';
+    }
+    return '';
+  };
+
+  const handleMove = useCallback((zoneId: string, dxPercent: number, dyPercent: number) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    onZoneUpdate(zoneId, {
+      x_percent: Math.max(0, Math.min(100, zone.x_percent + dxPercent)),
+      y_percent: Math.max(0, Math.min(100, zone.y_percent + dyPercent)),
+    });
+  }, [textZones, onZoneUpdate]);
+
+  const handleResize = useCallback((zoneId: string, delta: number, side: 'left' | 'right' | 'top' | 'bottom') => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const updates: Partial<TextZone> = {};
+    if (side === 'left' || side === 'right') {
+      const widthChange = side === 'right' ? delta : -delta;
+      const newWidth = Math.max(10, Math.min(100, zone.width_percent + widthChange));
+      updates.width_percent = newWidth;
+      if (side === 'left') {
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent - widthChange / 2));
+      } else {
+        updates.x_percent = Math.max(0, Math.min(100, zone.x_percent + widthChange / 2));
+      }
+    }
+    onZoneUpdate(zoneId, updates);
+  }, [textZones, onZoneUpdate]);
+
+  const handleCornerResize = useCallback((zoneId: string, dxP: number, _dyP: number, corner: string) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const isLeft = corner === 'tl' || corner === 'bl';
+    const widthChange = isLeft ? -dxP : dxP;
+    onZoneUpdate(zoneId, {
+      width_percent: Math.max(10, Math.min(100, zone.width_percent + widthChange)),
+      x_percent: Math.max(0, Math.min(100, zone.x_percent + widthChange / 2)),
+    });
+  }, [textZones, onZoneUpdate]);
+
+  const handleFontSizeChange = useCallback((zoneId: string, deltaPx: number) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    if (!zone || !onZoneUpdate) return;
+    const oldSize = zone.font_size;
+    const newSize = Math.max(6, Math.min(200, oldSize + deltaPx));
+    const ratio = newSize / oldSize;
+    const newWidth = Math.max(10, Math.min(100, zone.width_percent * ratio));
+    onZoneUpdate(zoneId, { font_size: newSize, width_percent: newWidth });
+  }, [textZones, onZoneUpdate]);
+
+  const handleRotate = useCallback((zoneId: string, degrees: number) => {
+    if (!onZoneUpdate) return;
+    onZoneUpdate(zoneId, { rotation: degrees });
+  }, [onZoneUpdate]);
+
+  const SNAP_THRESHOLD = 1.5;
+
+  const handleDragMove = useCallback((zoneId: string, pixelOffset: { x: number; y: number }) => {
+    const zone = textZones.find(z => z.id === zoneId);
+    const container = containerRef.current;
+    if (!zone || !container) return;
+    const rect = container.getBoundingClientRect();
+    const dxP = (pixelOffset.x / rect.width) * 100;
+    const dyP = (pixelOffset.y / rect.height) * 100;
+    const effectiveCenterX = zone.x_percent + dxP;
+    const effectiveCenterY = zone.y_percent + dyP;
+    setDragGuides({
+      showVertical: Math.abs(effectiveCenterX - 50) < SNAP_THRESHOLD,
+      showHorizontal: Math.abs(effectiveCenterY - 50) < SNAP_THRESHOLD,
+    });
+  }, [textZones]);
+
+  const handleDragEnd = useCallback(() => {
+    setDragGuides(null);
+  }, []);
+
+  const computeZoneStyle = (zone: TextZone): React.CSSProperties => ({
+    left: `${zone.x_percent - zone.width_percent / 2}%`,
+    top: `${zone.y_percent}%`,
+    width: `${zone.width_percent}%`,
+    transform: `translateY(-50%) rotate(${zone.rotation || 0}deg)`,
+    transformOrigin: 'center center',
+  });
+
+  return (
+    <div className="print:hidden">
+      <div className="flex items-start gap-3">
+        {/* Canvas area */}
+        <div className="flex-1 flex justify-center items-center" style={{ minHeight: '70vh' }}>
+          <div
+            style={{
+              transform: `scale(${zoom / 100})`,
+              transformOrigin: 'center center',
+              transition: 'transform 0.15s ease-out',
+            }}
+          >
+            <div
+              ref={containerRef}
+              style={{
+                width: previewWidth,
+                height: previewHeight,
+                backgroundColor: currentSettings.background_color,
+              }}
+              className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-visible relative"
+              onClick={() => onSelectZone?.(null)}
+            >
+              {currentSettings.background_image_url && currentSettings.background_image_type === 'full' && (
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundImage: `url(${currentSettings.background_image_url})`,
+                    backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat',
+                    opacity: (currentSettings.background_image_opacity || 100) / 100,
+                  }}
+                />
+              )}
+
+              {dragGuides?.showVertical && (
+                <div
+                  className="absolute top-0 bottom-0 pointer-events-none"
+                  style={{ left: '50%', width: 0, borderLeft: '1px dashed hsl(var(--primary) / 0.7)', zIndex: 50 }}
+                />
+              )}
+              {dragGuides?.showHorizontal && (
+                <div
+                  className="absolute left-0 right-0 pointer-events-none"
+                  style={{ top: '50%', height: 0, borderTop: '1px dashed hsl(var(--primary) / 0.7)', zIndex: 50 }}
+                />
+              )}
+
+              {textZones.map((zone) => {
+                const text = getZoneText(zone);
+                if (!text) return null;
+
+                const isSelected = selectedZoneId === zone.id;
+                const isInteractive = !!onZoneUpdate;
+
+                const textStyle: React.CSSProperties = {
+                  fontFamily: zone.font_family,
+                  fontSize: `${zone.font_size}px`,
+                  color: zone.font_color,
+                  fontWeight: zone.font_style === 'bold' ? '700' : (zone.font_weight === 'bold' ? '700' : '400'),
+                  fontStyle: zone.font_style === 'italic' ? 'italic' : 'normal',
+                  textDecoration: zone.font_style === 'underline' ? 'underline' : 'none',
+                  textAlign: zone.text_align as any,
+                  textTransform: getTextTransform(zone.text_case),
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.3,
+                };
+
+                if (isInteractive) {
+                  return (
+                    <InteractiveTextOverlay
+                      key={zone.id}
+                      isSelected={isSelected}
+                      onSelect={() => onSelectZone?.(zone.id)}
+                      onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
+                      onResize={(dw, side) => handleResize(zone.id, dw, side)}
+                      onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
+                      onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta)}
+                      onRotate={(deg) => handleRotate(zone.id, deg)}
+                      onDragMove={(offset) => handleDragMove(zone.id, offset)}
+                      onDragEnd={handleDragEnd}
+                      onDelete={onZoneDelete ? () => onZoneDelete(zone.id) : undefined}
+                      onDuplicate={onZoneDuplicate ? () => onZoneDuplicate(zone.id) : undefined}
+                      onReset={onZoneReset ? () => onZoneReset(zone.id) : undefined}
+                      containerRef={containerRef as React.RefObject<HTMLElement>}
+                      showResizeHandles={true}
+                      showRotateHandle={true}
+                      rotation={zone.rotation || 0}
+                      currentFontSize={zone.font_size}
+                      style={computeZoneStyle(zone)}
+                    >
+                      <div style={textStyle}>{text}</div>
+                    </InteractiveTextOverlay>
+                  );
+                }
+
+                return (
+                  <div
+                    key={zone.id}
+                    className="absolute pointer-events-none"
+                    style={{ ...computeZoneStyle(zone), ...textStyle }}
+                  >
+                    {text}
+                  </div>
+                );
+              })}
+
+              {/* QR Code Overlay */}
+              {qrDataUrl && settings?.qr_config?.enabled && (
+                <InteractiveQROverlay
+                  qrDataUrl={qrDataUrl}
+                  xPercent={settings.qr_config.x_percent}
+                  yPercent={settings.qr_config.y_percent}
+                  sizePercent={settings.qr_config.size_percent}
+                  rotation={settings.qr_config.rotation ?? 0}
+                  isSelected={selectedZoneId === '__qr__'}
+                  onSelect={() => onSelectZone?.('__qr__')}
+                  onMove={(x, y) => onQrConfigUpdate?.({ x_percent: x, y_percent: y })}
+                  onResize={(size) => onQrConfigUpdate?.({ size_percent: size })}
+                  onDelete={() => onQrConfigUpdate?.({ enabled: false })}
+                  onReset={() => onQrConfigUpdate?.({ x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0 })}
+                  onRotate={(r) => onQrConfigUpdate?.({ rotation: r })}
+                  containerRef={containerRef as React.RefObject<HTMLElement>}
+                />
+              )}
+
+              {textZones.length === 0 && !currentSettings.background_image_url && (
+                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <p className="text-lg font-medium">Invitation Preview</p>
+                    <p className="text-sm">Add text zones and a background image to get started</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Zoom controls on right side, vertically centered */}
+        <div
+          className="flex flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card/70 px-1.5 py-3 shadow-sm self-center opacity-90"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
+            Zoom
+          </span>
+          <button
+            type="button"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
+            onClick={() => handleZoomChange(zoom + 10)}
+            disabled={zoom >= 100}
+            aria-label="Zoom in"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+          <Slider
+            value={[zoom]}
+            onValueChange={([v]) => handleZoomChange(v)}
+            min={25}
+            max={100}
+            step={5}
+            orientation="vertical"
+            className="h-24"
+          />
+          <button
+            type="button"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
+            onClick={() => handleZoomChange(zoom - 10)}
+            disabled={zoom <= 25}
+            aria-label="Zoom out"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+          <span className="text-xs font-medium text-muted-foreground tabular-nums">
+            {zoom}%
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
