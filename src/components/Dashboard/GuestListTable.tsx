@@ -1907,6 +1907,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <Checkbox
                     checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
                     onCheckedChange={handleSelectAll}
+                    className="border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary data-[state=checked]:border-white"
                   />
                 </TableHead>
                 <TableHead className="px-2 text-xs">First Name</TableHead>
