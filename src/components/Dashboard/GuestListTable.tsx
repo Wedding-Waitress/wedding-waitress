@@ -1940,20 +1940,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
                         )}
                       >
-                        {/* Select pill button (top, centered) */}
+                        {/* Select pill button (top, centered) — matches SMS Sent badge sizing */}
                         <div className="flex justify-center">
                           <button
                             type="button"
                             onClick={() => handleSelectGuest(guest.id, !isSelected)}
                             aria-pressed={isSelected}
                             className={cn(
-                              "inline-flex items-center justify-center rounded-full border-2 border-[#967A59] px-3 py-1 text-xs font-semibold transition-colors",
+                              "inline-flex items-center justify-center rounded-full border border-[#967A59] px-2.5 py-0.5 text-xs font-semibold leading-tight transition-colors",
                               isSelected
                                 ? "bg-[#967A59] text-white"
                                 : "bg-[#FBF7F2] text-[#1D1D1F] hover:bg-[#F3EBDD]"
                             )}
                           >
-                            {isSelected ? '✓ Selected' : 'Select'}
+                            {isSelected ? '✓ Selected' : 'Select Guest'}
                           </button>
                         </div>
 
@@ -1962,11 +1962,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {guest.first_name} {guest.last_name}
                         </div>
 
-                        {/* Status row: RSVP + group type (centered, one line) */}
+                        {/* Status row: RSVP + group type (centered, one line) — identical pill sizing */}
                         <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
                           <Badge
                             variant={getRsvpBadgeVariant(guest.rsvp)}
-                            className="text-xs text-white px-2 py-0.5 inline-flex items-center justify-center text-center leading-tight min-w-[68px]"
+                            className="text-xs font-semibold text-white px-2.5 py-0.5 leading-tight inline-flex items-center justify-center text-center min-w-[68px]"
                           >
                             {isNotAttending ? (
                               <span className="flex flex-col items-center justify-center leading-[1.05]">
@@ -1977,7 +1977,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               rsvpLabel
                             )}
                           </Badge>
-                          <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold", typeColor)}>
+                          <span className={cn("inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold leading-tight", typeColor)}>
                             {typeLabel}
                           </span>
                         </div>
