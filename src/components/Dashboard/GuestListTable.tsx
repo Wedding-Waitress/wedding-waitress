@@ -1935,31 +1935,38 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div
                         key={`m-${guest.id}`}
                         className={cn(
-                          "bg-white rounded-2xl shadow-sm border border-[#EDE5DB] p-4 transition-all",
+                          "bg-white rounded-2xl shadow-sm border-2 border-[#967A59] p-4 transition-all",
                           isSelected && "ring-2 ring-primary",
                           guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
                         )}
                       >
-                        {/* Top row: checkbox + name/group + RSVP */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-3 min-w-0 flex-1">
-                            <Checkbox
-                              checked={isSelected}
-                              onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
-                              className="mt-1 flex-shrink-0"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <div className="font-bold text-base text-foreground truncate">
-                                {guest.first_name} {guest.last_name}
-                              </div>
-                              <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold mt-1", typeColor)}>
-                                {typeLabel}
-                              </span>
-                            </div>
-                          </div>
+                        {/* Select pill button (top, centered) */}
+                        <div className="flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectGuest(guest.id, !isSelected)}
+                            aria-pressed={isSelected}
+                            className={cn(
+                              "inline-flex items-center justify-center rounded-full border-2 border-[#967A59] px-3 py-1 text-xs font-semibold transition-colors",
+                              isSelected
+                                ? "bg-[#967A59] text-white"
+                                : "bg-[#FBF7F2] text-[#1D1D1F] hover:bg-[#F3EBDD]"
+                            )}
+                          >
+                            {isSelected ? '✓ Selected' : 'Select'}
+                          </button>
+                        </div>
+
+                        {/* Guest name (centered, single line) */}
+                        <div className="mt-3 text-center font-bold text-base text-[#1D1D1F] truncate">
+                          {guest.first_name} {guest.last_name}
+                        </div>
+
+                        {/* Status row: RSVP + group type (centered, one line) */}
+                        <div className="mt-2 flex items-center justify-center gap-2 flex-wrap">
                           <Badge
                             variant={getRsvpBadgeVariant(guest.rsvp)}
-                            className="text-xs text-white px-2 py-0.5 inline-flex items-center justify-center text-center leading-tight min-w-[68px] flex-shrink-0"
+                            className="text-xs text-white px-2 py-0.5 inline-flex items-center justify-center text-center leading-tight min-w-[68px]"
                           >
                             {isNotAttending ? (
                               <span className="flex flex-col items-center justify-center leading-[1.05]">
@@ -1970,28 +1977,31 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               rsvpLabel
                             )}
                           </Badge>
+                          <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold", typeColor)}>
+                            {typeLabel}
+                          </span>
                         </div>
 
                         {/* Middle: 2-column info grid */}
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 text-sm">
                           <div>
-                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Mobile</div>
-                            <div className="text-foreground truncate">{guest.mobile?.trim() || '—'}</div>
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Mobile</div>
+                            <div className="text-[#1D1D1F] font-medium truncate">{guest.mobile?.trim() || '—'}</div>
                           </div>
                           <div>
-                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Email</div>
-                            <div className="text-foreground truncate">{guest.email?.trim() || '—'}</div>
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Email</div>
+                            <div className="text-[#1D1D1F] font-medium truncate">{guest.email?.trim() || '—'}</div>
                           </div>
                           <div>
-                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Table No</div>
-                            <div className="text-foreground truncate">{getTableName(guest) || '—'}</div>
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Table No</div>
+                            <div className="text-[#1D1D1F] font-medium truncate">{getTableName(guest) || '—'}</div>
                           </div>
                           <div>
-                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Seat No</div>
-                            <div className="text-foreground">
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Seat No</div>
+                            <div className="text-[#1D1D1F] font-medium">
                               {guest.seat_no ? (
                                 isDuplicateSeat(guest) ? (
-                                  <span className="text-red-600 font-medium">{guest.seat_no}</span>
+                                  <span className="text-red-600 font-semibold">{guest.seat_no}</span>
                                 ) : (
                                   guest.seat_no
                                 )
@@ -2001,7 +2011,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             </div>
                           </div>
                           <div className="min-w-0">
-                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Relation</div>
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
                             <RelationBadge
                               display={relationDisplay}
                               partner={guest.relation_partner || ''}
@@ -2012,18 +2022,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             />
                           </div>
                           <div>
-                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Dietary</div>
-                            <div className="text-foreground truncate">{guest.dietary || '—'}</div>
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Dietary</div>
+                            <div className="text-[#1D1D1F] font-medium truncate">{guest.dietary || '—'}</div>
                           </div>
                         </div>
 
                         {/* Optional notes (expandable via native details) */}
                         {guest.notes && guest.notes.trim() !== '' && (
                           <details className="mt-3 text-sm">
-                            <summary className="cursor-pointer text-primary font-medium text-xs">
+                            <summary className="cursor-pointer text-primary font-semibold text-xs">
                               View notes
                             </summary>
-                            <p className="mt-2 text-foreground whitespace-pre-wrap text-xs">
+                            <p className="mt-2 text-[#1D1D1F] whitespace-pre-wrap text-xs font-medium">
                               {guest.notes.replace(/^\[NEW\+\]/, '')}
                             </p>
                           </details>
