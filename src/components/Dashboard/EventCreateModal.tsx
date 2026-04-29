@@ -268,7 +268,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
-            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive text-center lg:text-left">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive text-center lg:text-left max-lg:mb-4">
               Please enable at least one section (Ceremony or Reception) to create an event.
             </div>
           )}
@@ -282,10 +282,29 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                 <span className="text-sm text-muted-foreground">
                   {formData.ceremony_enabled ? 'Yes' : 'No'}
                 </span>
-                <Switch
-                  checked={formData.ceremony_enabled}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))}
-                />
+                {/* Mobile-only custom toggle */}
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.ceremony_enabled}
+                  onClick={() => setFormData(prev => ({ ...prev, ceremony_enabled: !prev.ceremony_enabled }))}
+                  className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${
+                    formData.ceremony_enabled ? 'bg-green-500' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${
+                      formData.ceremony_enabled ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+                {/* Desktop/tablet keeps existing Switch */}
+                <div className="hidden lg:block">
+                  <Switch
+                    checked={formData.ceremony_enabled}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))}
+                  />
+                </div>
               </div>
             </div>
 
