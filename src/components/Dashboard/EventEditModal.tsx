@@ -453,9 +453,18 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                   {formData.reception_enabled ? 'Yes' : 'No'}
                 </span>
                 <Switch
+                  className="hidden lg:inline-flex"
                   checked={formData.reception_enabled}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))}
                 />
+                <button
+                  type="button"
+                  aria-label="Toggle reception"
+                  onClick={() => setFormData(prev => ({ ...prev, reception_enabled: !prev.reception_enabled }))}
+                  className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.reception_enabled ? 'bg-green-500' : 'bg-gray-300'}`}
+                >
+                  <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all ${formData.reception_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
+                </button>
               </div>
             </div>
 
