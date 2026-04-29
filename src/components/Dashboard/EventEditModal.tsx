@@ -144,11 +144,13 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   ]);
 
   // Helper to get dynamic border class based on field value
+  // Mobile (max-lg): always brown for visual consistency.
+  // Desktop/tablet (lg+): green when filled, brown when empty.
   const getInputClass = useCallback((hasValue: boolean) => {
-    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm";
-    return hasValue 
-      ? `${baseClass} border-green-500 focus-visible:border-green-500`
-      : `${baseClass} border-primary focus-visible:border-primary`;
+    const baseClass = "rounded-full border-2 focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9 text-sm border-primary focus-visible:border-primary";
+    return hasValue
+      ? `${baseClass} lg:border-green-500 lg:focus-visible:border-green-500`
+      : baseClass;
   }, []);
 
   // Populate form when event changes
