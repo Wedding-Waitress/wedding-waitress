@@ -1434,7 +1434,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         </Form>
         </div>
 
-        <DialogFooter>
         <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2">
           <Button
             type="button"
