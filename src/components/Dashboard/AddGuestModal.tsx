@@ -906,9 +906,12 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   return (
     <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10" fullScreenOnMobile>
-        <DialogHeader>
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+      <DialogContent
+        className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto"
+        fullScreenOnMobile
+      >
+        <DialogHeader className="max-lg:pt-8 max-lg:items-center max-lg:text-center lg:pr-12">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
           </DialogTitle>
         </DialogHeader>
