@@ -309,14 +309,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <p className="text-sm text-muted-foreground">{formatEventDate(event.date)}</p>
                         <p className="mt-0.5 text-sm text-muted-foreground">{event.venue || 'No venue set'}</p>
 
-                        <div className="flex justify-between items-center mt-1 text-sm">
-                          <span className="text-muted-foreground">{event.guests_count}/{event.guest_limit} guests</span>
-                          <span className="text-muted-foreground">{event.start_time ? formatDisplayTime(event.start_time) : '—'}</span>
-                        </div>
+                        <p className="mt-1 text-sm text-muted-foreground">{event.guests_count}/{event.guest_limit} guests</p>
 
-                        <div className="flex justify-between items-center mt-0.5 text-sm">
-                          <span><span className="text-muted-foreground">Start:</span> <span className="font-medium">{formatDisplayTime(event.start_time) || 'Not set'}</span></span>
-                          <span><span className="text-muted-foreground">Finish:</span> <span className="font-medium">{formatDisplayTime(event.finish_time) || 'Not set'}</span></span>
+                        <div className="flex justify-between items-center mt-0.5 text-sm gap-2">
+                          <span><span className="text-muted-foreground">Start Time:</span> <span className="font-medium">{formatDisplayTime(event.start_time) || 'Not set'}</span></span>
+                          <span><span className="text-muted-foreground">Finish Time:</span> <span className="font-medium">{formatDisplayTime(event.finish_time) || 'Not set'}</span></span>
                         </div>
 
                         <p className="mt-1 text-sm">
