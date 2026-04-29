@@ -1,4 +1,4 @@
-https://weddingwaitress.netlify.app/*    https://weddingwaitress.com/:splat    301!
-http://weddingwaitress.netlify.app/*     https://weddingwaitress.com/:splat    301!
+https://weddingwaitress.netlify.app/*    https://weddingwaitress.com.au/:splat    301!
+http://weddingwaitress.netlify.app/*     https://weddingwaitress.com.au/:splat    301!
 
 /*    /index.html   200
