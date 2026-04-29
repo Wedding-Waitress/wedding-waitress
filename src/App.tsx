@@ -122,6 +122,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <GlobalPaymentOverlay />
+          <Suspense fallback={<RouteFallback />}>
           <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
