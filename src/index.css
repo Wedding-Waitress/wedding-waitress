@@ -944,3 +944,19 @@ input::placeholder, textarea::placeholder, [data-placeholder] {
     max-width: 100% !important;
   }
 }
+
+/* === Universal performance / interaction polish === */
+/* Instant tap feedback: remove iOS tap-highlight + add subtle pressed scale on all clickable controls */
+@media (hover: none) {
+  button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+}
+button:active, a:active, [role="button"]:active {
+  transform: scale(0.985);
+  transition: transform 80ms ease-out;
+}
+/* Cap heavy animations to feel snappy */
+.transition-all, .transition, .transition-colors, .transition-opacity, .transition-transform {
+  transition-duration: 180ms;
+}
+/* Hint browser to optimize image rendering */
+img { content-visibility: auto; }

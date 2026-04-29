@@ -1,56 +1,78 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import "./App.css";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
-import { useToast } from "@/hooks/use-toast";
+// Eager: highest-priority entry points
 import { Landing } from "./pages/Landing";
 import { Dashboard } from "./pages/Dashboard";
-import { Admin } from "./pages/Admin";
 import NotFound from "./pages/NotFound";
-import { GuestLookup } from "./pages/GuestLookup";
-import { KioskView } from "./pages/KioskView";
-import { ResetPassword } from "./pages/ResetPassword";
-import { PrivacyPolicy } from "./pages/PrivacyPolicy";
-import { TermsOfService } from "./pages/TermsOfService";
-import { Contact } from "./pages/Contact";
-import { CookiePolicy } from "./pages/CookiePolicy";
-import { DJMCPublicView } from "./pages/DJMCPublicView";
-import { RunningSheetPublicView } from "./pages/RunningSheetPublicView";
-import { SeatingChartPublicView } from "./pages/SeatingChartPublicView";
-import { PaymentSuccess } from "./pages/PaymentSuccess";
-import { UpgradePricing } from "./pages/UpgradePricing";
-import { UpgradeCheckout } from "./pages/UpgradeCheckout";
-import { QRRedirect } from "./pages/QRRedirect";
-// Legacy Feature* pages removed — /features/* now redirects to clean root URLs
-import { ProductMyEvents } from "./pages/products/ProductMyEvents";
-import { ProductTables } from "./pages/products/ProductTables";
-import { ProductGuestList } from "./pages/products/ProductGuestList";
-import { ProductQrCodeSeatingChart } from "./pages/products/ProductQrCodeSeatingChart";
-import { ProductInvitationsCards } from "./pages/products/ProductInvitationsCards";
-import { ProductNamePlaceCards } from "./pages/products/ProductNamePlaceCards";
-import { ProductFullSeatingChart } from "./pages/products/ProductFullSeatingChart";
-import { ProductFloorPlan } from "./pages/products/ProductFloorPlan";
-import { ProductIndividualTableCharts } from "./pages/products/ProductIndividualTableCharts";
-import { ProductDietaryRequirements } from "./pages/products/ProductDietaryRequirements";
-import { ProductRunningSheet } from "./pages/products/ProductRunningSheet";
-import { ProductKioskLiveView } from "./pages/products/ProductKioskLiveView";
-import { ProductDjMcQuestionnaire } from "./pages/products/ProductDjMcQuestionnaire";
-import { Blog } from "./pages/Blog";
-import { BlogPost } from "./pages/BlogPost";
-import { HowItWorks } from "./pages/HowItWorks";
-import { Features } from "./pages/Features";
-import { Pricing } from "./pages/Pricing";
-import { Faq } from "./pages/Faq";
-import { Products } from "./pages/Products";
-import Unsubscribe from "./pages/Unsubscribe";
+// Lazy: split everything else into separate chunks for instant initial load
+const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
+const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
+const KioskView = lazy(() => import("./pages/KioskView").then(m => ({ default: m.KioskView })));
+const ResetPassword = lazy(() => import("./pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
+const TermsOfService = lazy(() => import("./pages/TermsOfService").then(m => ({ default: m.TermsOfService })));
+const Contact = lazy(() => import("./pages/Contact").then(m => ({ default: m.Contact })));
+const CookiePolicy = lazy(() => import("./pages/CookiePolicy").then(m => ({ default: m.CookiePolicy })));
+const DJMCPublicView = lazy(() => import("./pages/DJMCPublicView").then(m => ({ default: m.DJMCPublicView })));
+const RunningSheetPublicView = lazy(() => import("./pages/RunningSheetPublicView").then(m => ({ default: m.RunningSheetPublicView })));
+const SeatingChartPublicView = lazy(() => import("./pages/SeatingChartPublicView").then(m => ({ default: m.SeatingChartPublicView })));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
+const UpgradePricing = lazy(() => import("./pages/UpgradePricing").then(m => ({ default: m.UpgradePricing })));
+const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
+const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default: m.QRRedirect })));
+const ProductMyEvents = lazy(() => import("./pages/products/ProductMyEvents").then(m => ({ default: m.ProductMyEvents })));
+const ProductTables = lazy(() => import("./pages/products/ProductTables").then(m => ({ default: m.ProductTables })));
+const ProductGuestList = lazy(() => import("./pages/products/ProductGuestList").then(m => ({ default: m.ProductGuestList })));
+const ProductQrCodeSeatingChart = lazy(() => import("./pages/products/ProductQrCodeSeatingChart").then(m => ({ default: m.ProductQrCodeSeatingChart })));
+const ProductInvitationsCards = lazy(() => import("./pages/products/ProductInvitationsCards").then(m => ({ default: m.ProductInvitationsCards })));
+const ProductNamePlaceCards = lazy(() => import("./pages/products/ProductNamePlaceCards").then(m => ({ default: m.ProductNamePlaceCards })));
+const ProductFullSeatingChart = lazy(() => import("./pages/products/ProductFullSeatingChart").then(m => ({ default: m.ProductFullSeatingChart })));
+const ProductFloorPlan = lazy(() => import("./pages/products/ProductFloorPlan").then(m => ({ default: m.ProductFloorPlan })));
+const ProductIndividualTableCharts = lazy(() => import("./pages/products/ProductIndividualTableCharts").then(m => ({ default: m.ProductIndividualTableCharts })));
+const ProductDietaryRequirements = lazy(() => import("./pages/products/ProductDietaryRequirements").then(m => ({ default: m.ProductDietaryRequirements })));
+const ProductRunningSheet = lazy(() => import("./pages/products/ProductRunningSheet").then(m => ({ default: m.ProductRunningSheet })));
+const ProductKioskLiveView = lazy(() => import("./pages/products/ProductKioskLiveView").then(m => ({ default: m.ProductKioskLiveView })));
+const ProductDjMcQuestionnaire = lazy(() => import("./pages/products/ProductDjMcQuestionnaire").then(m => ({ default: m.ProductDjMcQuestionnaire })));
+const Blog = lazy(() => import("./pages/Blog").then(m => ({ default: m.Blog })));
+const BlogPost = lazy(() => import("./pages/BlogPost").then(m => ({ default: m.BlogPost })));
+const HowItWorks = lazy(() => import("./pages/HowItWorks").then(m => ({ default: m.HowItWorks })));
+const Features = lazy(() => import("./pages/Features").then(m => ({ default: m.Features })));
+const Pricing = lazy(() => import("./pages/Pricing").then(m => ({ default: m.Pricing })));
+const Faq = lazy(() => import("./pages/Faq").then(m => ({ default: m.Faq })));
+const Products = lazy(() => import("./pages/Products").then(m => ({ default: m.Products })));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 import { PaymentProcessingProvider, usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
 import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
-const queryClient = new QueryClient();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+// Lightweight skeleton fallback for lazy routes — never a blank screen.
+const RouteFallback = () => (
+  <div className="min-h-screen w-full bg-background animate-pulse" aria-hidden="true">
+    <div className="h-14 w-full bg-muted/40" />
+    <div className="mx-auto mt-8 max-w-5xl space-y-4 px-4">
+      <div className="h-8 w-2/3 rounded bg-muted/50" />
+      <div className="h-4 w-1/2 rounded bg-muted/40" />
+      <div className="h-64 w-full rounded-xl bg-muted/30" />
+    </div>
+  </div>
+);
 
 // Single global overlay mount — never unmounts/remounts, animation never resets.
 const GlobalPaymentOverlay = () => {
@@ -100,6 +122,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <GlobalPaymentOverlay />
+          <Suspense fallback={<RouteFallback />}>
           <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -193,6 +216,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
         </PaymentProcessingProvider>
         </CurrencyProvider>
