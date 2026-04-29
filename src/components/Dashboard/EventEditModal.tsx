@@ -474,7 +474,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
+                  <div className="hidden lg:flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
@@ -493,6 +493,31 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                         formData.event_type === 'cocktail' 
                           ? 'bg-green-500 text-white shadow-sm' 
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
+                      }`}
+                    >
+                      Cocktail/Stand-up
+                    </button>
+                  </div>
+                  {/* Mobile: side-by-side wide buttons */}
+                  <div className="lg:hidden grid grid-cols-2 gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                      className={`w-full h-11 rounded-full text-sm font-medium transition-all ${
+                        formData.event_type === 'seated'
+                          ? 'bg-green-500 text-white border-2 border-green-500'
+                          : 'bg-secondary text-primary border-2 border-primary'
+                      }`}
+                    >
+                      Seated Event
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                      className={`w-full h-11 rounded-full text-sm font-medium transition-all ${
+                        formData.event_type === 'cocktail'
+                          ? 'bg-green-500 text-white border-2 border-green-500'
+                          : 'bg-secondary text-primary border-2 border-primary'
                       }`}
                     >
                       Cocktail/Stand-up
