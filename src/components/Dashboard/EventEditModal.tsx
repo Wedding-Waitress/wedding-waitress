@@ -294,10 +294,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:pt-16" fullScreenOnMobile>
-        <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 max-lg:text-center max-lg:gap-5">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap max-lg:text-center">Edit Event</DialogTitle>
-          <div className="flex-1 lg:max-w-[75%] w-full max-lg:px-4">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:pt-8" fullScreenOnMobile>
+        <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center text-center lg:text-left max-lg:gap-5 lg:pr-12">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap text-center lg:text-left w-full lg:w-auto">Edit Event</DialogTitle>
+          <div className="flex-1 lg:max-w-[75%] w-full max-lg:px-3">
             <Input
               value={formData.event_name}
               onChange={(e) => { markReceptionOverride('event_name'); setFormData(prev => ({ ...prev, event_name: e.target.value })); }}
