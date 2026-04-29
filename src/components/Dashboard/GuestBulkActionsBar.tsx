@@ -66,24 +66,18 @@ export const GuestBulkActionsBar = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <div className="flex flex-col gap-3 pr-8">
-            <div>
-              <DialogTitle className="text-lg font-semibold">Manage Selected Guests</DialogTitle>
-              <p className="text-sm text-muted-foreground mt-1">{getSelectedText()}</p>
-            </div>
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={allSelected ? onDeselectAll : onSelectAll}
-                className="shrink-0"
-              >
-                <CheckSquare className="w-4 h-4 mr-1" />
-                {allSelected ? 'Deselect All' : 'Select All'}
-              </Button>
-            </div>
+          <DialogTitle className="text-lg font-semibold pr-8">Manage Selected Guests</DialogTitle>
+          <div className="flex flex-col gap-3 mt-3">
+            <p className="text-sm text-muted-foreground text-left">{getSelectedText()}</p>
+            <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={() => (allSelected ? onDeselectAll() : onSelectAll())}
+              />
+              <span className="text-sm text-muted-foreground">Select All Guests</span>
+            </label>
           </div>
-          <DialogDescription>Apply actions to your selected guests</DialogDescription>
+          <DialogDescription className="text-left mt-2">Apply actions to your selected guests</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2 py-4">
