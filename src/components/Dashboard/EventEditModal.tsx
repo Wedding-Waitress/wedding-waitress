@@ -294,15 +294,15 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8" fullScreenOnMobile>
-        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">Edit Event</DialogTitle>
-          <div className="flex-1 max-w-[75%]">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:pt-6" fullScreenOnMobile>
+        <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 max-lg:text-center">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap max-lg:text-center max-lg:mt-2">Edit Event</DialogTitle>
+          <div className="flex-1 lg:max-w-[75%] w-full">
             <Input
               value={formData.event_name}
               onChange={(e) => { markReceptionOverride('event_name'); setFormData(prev => ({ ...prev, event_name: e.target.value })); }}
               placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
-              className={`${getInputClass(!!formData.event_name.trim())} h-11 sm:h-9`}
+              className={`${getInputClass(!!formData.event_name.trim())} h-11 sm:h-9 max-lg:text-center`}
             />
           </div>
         </DialogHeader>
@@ -325,9 +325,18 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                   {formData.ceremony_enabled ? 'Yes' : 'No'}
                 </span>
                 <Switch
+                  className="hidden lg:inline-flex"
                   checked={formData.ceremony_enabled}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))}
                 />
+                <button
+                  type="button"
+                  aria-label="Toggle ceremony"
+                  onClick={() => setFormData(prev => ({ ...prev, ceremony_enabled: !prev.ceremony_enabled }))}
+                  className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.ceremony_enabled ? 'bg-green-500' : 'bg-gray-300'}`}
+                >
+                  <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all ${formData.ceremony_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
+                </button>
               </div>
             </div>
 
@@ -444,9 +453,18 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                   {formData.reception_enabled ? 'Yes' : 'No'}
                 </span>
                 <Switch
+                  className="hidden lg:inline-flex"
                   checked={formData.reception_enabled}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))}
                 />
+                <button
+                  type="button"
+                  aria-label="Toggle reception"
+                  onClick={() => setFormData(prev => ({ ...prev, reception_enabled: !prev.reception_enabled }))}
+                  className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.reception_enabled ? 'bg-green-500' : 'bg-gray-300'}`}
+                >
+                  <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all ${formData.reception_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
+                </button>
               </div>
             </div>
 
@@ -456,7 +474,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 {/* Event Type Toggle - Smaller */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Event Type *</Label>
-                  <div className="flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
+                  <div className="hidden lg:flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
@@ -480,6 +498,31 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                       Cocktail/Stand-up
                     </button>
                   </div>
+                  {/* Mobile: side-by-side wide buttons */}
+                  <div className="lg:hidden grid grid-cols-2 gap-2 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                      className={`w-full h-11 rounded-full text-sm font-medium transition-all ${
+                        formData.event_type === 'seated'
+                          ? 'bg-green-500 text-white border-2 border-green-500'
+                          : 'bg-secondary text-primary border-2 border-primary'
+                      }`}
+                    >
+                      Seated Event
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                      className={`w-full h-11 rounded-full text-sm font-medium transition-all ${
+                        formData.event_type === 'cocktail'
+                          ? 'bg-green-500 text-white border-2 border-green-500'
+                          : 'bg-secondary text-primary border-2 border-primary'
+                      }`}
+                    >
+                      Cocktail/Stand-up
+                    </button>
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {formData.event_type === 'seated' 
                       ? 'Guests will be assigned to tables and seats' 
@@ -488,7 +531,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 </div>
 
                 {/* Row 1: Name, Date, RSVP Deadline */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Event Name *</Label>
                     <EventNameCombobox
@@ -519,7 +562,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 </div>
 
                 {/* Row 2: Guest Limit, Location, Location Details */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Guest Limit</Label>
                     <Input
@@ -562,7 +605,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                 </div>
 
                 {/* Row 3: Start Time, Finish Time */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Start Time *</Label>
                     <TimePicker
@@ -591,11 +634,11 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-2 border-t">
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3">
           <Button 
             variant="destructive" 
             onClick={onClose}
-            className="rounded-full bg-red-500 hover:bg-red-600 text-white"
+            className="rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
           >
             Cancel
           </Button>
@@ -603,7 +646,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
