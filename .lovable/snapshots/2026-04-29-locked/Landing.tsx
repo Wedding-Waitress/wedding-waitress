@@ -1,0 +1,682 @@
+/**
+ * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
+ * Part of the approved public homepage surface (locked 2026-04-18).
+ * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
+ */
+import React, { useRef, useState, useEffect } from 'react';
+import { Header } from "@/components/Layout/Header";
+import { Button } from "@/components/ui/enhanced-button";
+import { SignUpModal } from "@/components/auth/SignUpModal";
+import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
+import { ContactForm } from "@/components/ContactForm";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CookieBanner } from "@/components/ui/CookieBanner";
+import { Reveal } from "@/components/ui/Reveal";
+import { SeoHead } from "@/components/SEO/SeoHead";
+import { useTranslation } from 'react-i18next';
+import { useCurrencyContext } from '@/contexts/CurrencyContext';
+import { PLAN_PRICING, VENDOR_PRICING, formatPrice, CURRENCIES } from '@/lib/currencyPricing';
+import { PricingSection } from '@/components/Pricing/PricingSection';
+import { useBlogPosts } from '@/content/blogPosts';
+import blogQrScanning from '@/assets/blog-qr-scanning.jpg';
+import blogPlanningLaptop from '@/assets/blog-planning-laptop.jpg';
+import blogWeddingSignage from '@/assets/blog-wedding-signage.jpg';
+import blogOlderGuest from '@/assets/blog-older-guest.jpg';
+import blogLastMinuteChanges from '@/assets/blog-last-minute-changes.jpg';
+import blogRunningSheet from '@/assets/blog-running-sheet.jpg';
+import blogSeatingChartStepByStep from '@/assets/blog-seating-chart-step-by-step.jpg';
+import blogSeatingEtiquette from '@/assets/blog-seating-etiquette.jpg';
+import blogSeatingTemplates from '@/assets/blog-seating-templates.jpg';
+import blogSeatingMistakes from '@/assets/blog-seating-mistakes.jpg';
+
+const BLOG_COVER_IMAGES: Record<string, string> = {
+  'blog-qr-scanning': blogQrScanning,
+  'blog-planning-laptop': blogPlanningLaptop,
+  'blog-wedding-signage': blogWeddingSignage,
+  'blog-older-guest': blogOlderGuest,
+  'blog-last-minute-changes': blogLastMinuteChanges,
+  'blog-running-sheet': blogRunningSheet,
+  'blog-seating-chart-step-by-step': blogSeatingChartStepByStep,
+  'blog-seating-etiquette': blogSeatingEtiquette,
+  'blog-seating-templates': blogSeatingTemplates,
+  'blog-seating-mistakes': blogSeatingMistakes,
+};
+
+import heroImg from "@/assets/hero-wedding.jpg";
+import heroSlide1 from "@/assets/hero-slide-1.jpg";
+import heroSlide2 from "@/assets/hero-slide-2.jpg";
+import heroSlide3 from "@/assets/hero-slide-3.jpg";
+import heroSlide4 from "@/assets/hero-slide-4.jpg";
+import heroSlide5 from "@/assets/hero-slide-5.jpg";
+import heroSlide6 from "@/assets/hero-slide-6.jpg";
+import heroSlide7 from "@/assets/hero-slide-7.jpg";
+import heroSlide8 from "@/assets/hero-slide-8.jpg";
+import heroSlide9 from "@/assets/hero-slide-9.jpg";
+import heroSlide10 from "@/assets/hero-slide-10.jpg";
+import heroSlide11 from "@/assets/hero-slide-11.jpg";
+import heroSlide12 from "@/assets/hero-slide-12.jpg";
+import heroSlide13 from "@/assets/hero-slide-13.jpg";
+import featureGuestlist from "@/assets/feature-guestlist.jpg";
+import featureTables from "@/assets/feature-tables.jpg";
+import featureQr from "@/assets/feature-qr.jpg";
+import featureTimeline from "@/assets/feature-timeline.jpg";
+import featureInvitations from "@/assets/feature-invitations.jpg";
+import ctaImg from "@/assets/cta-wedding.jpg";
+const ctaVideoUrl = "/__l5e/assets-v1/3df32a40-373d-4aa5-90c4-832d147e46a6/cta-wedding-ring.mp4";
+import heroCombinedVideo from "@/assets/hero-combined.mp4";
+import featureMyevents from "@/assets/feature-myevents.jpg";
+import featurePlacecards from "@/assets/feature-placecards.jpg";
+import featureTablecharts from "@/assets/feature-tablecharts.jpg";
+import featureDietary from "@/assets/feature-dietary.jpg";
+import featureSeatingchart from "@/assets/feature-seatingchart.jpg";
+import featureKiosk from "@/assets/feature-kiosk.jpg";
+import featureDjmc from "@/assets/feature-djmc.jpg";
+import featureFloorplan from "@/assets/feature-floorplan.jpg";
+
+const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonElement> }) => {
+  const { t } = useTranslation('landing');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [showVideo, setShowVideo] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const heroSlides = [
+    heroSlide1, heroSlide9, heroSlide4, heroSlide7, heroSlide2,
+    heroSlide10, heroSlide5, heroSlide8, heroSlide3, heroSlide11,
+    heroSlide6, heroSlide12, heroSlide13
+  ];
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (vid) {
+      vid.load();
+      const onCanPlay = () => setVideoReady(true);
+      vid.addEventListener('canplaythrough', onCanPlay);
+      return () => vid.removeEventListener('canplaythrough', onCanPlay);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (videoReady && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+      setShowVideo(true);
+    }
+  }, [videoReady]);
+
+  // Mobile slideshow
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide(prev => (prev + 1) % heroSlides.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
+  return (
+    <section className="relative min-h-[85vh] md:min-h-[90vh] flex items-start md:items-center justify-center overflow-hidden pt-[18vh] md:pt-0">
+      <div className="absolute inset-0">
+        {/* Desktop: Static hero image with zoom, then video */}
+        <img
+          src={heroImg}
+          alt="Wedding reception with elegant table settings and seating chart"
+          width={1920}
+          height={1080}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 hidden md:block"
+          style={{
+            opacity: showVideo ? 0 : 1,
+            animation: 'heroZoom 5s ease-out forwards',
+          }}
+        />
+        <video
+          ref={videoRef}
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster={heroImg}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 hidden md:block"
+          style={{ opacity: showVideo ? 1 : 0 }}
+        >
+          <source src={heroCombinedVideo} type="video/mp4" />
+        </video>
+
+        {/* Mobile: Image slideshow with fade + Ken Burns zoom */}
+        <div className="md:hidden absolute inset-0 overflow-hidden">
+          {heroSlides.map((slide, i) => (
+            <img
+              key={i}
+              src={slide}
+              alt={`Wedding moment ${i + 1}`}
+              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+              style={{
+                opacity: currentSlide === i ? 1 : 0,
+                transform: currentSlide === i ? 'scale(1.08)' : 'scale(1)',
+                transition: currentSlide === i
+                  ? 'opacity 1s ease-in-out, transform 4.5s ease-in-out'
+                  : 'opacity 1s ease-in-out, transform 0s',
+              }}
+              loading={i === 0 ? "eager" : "lazy"}
+              fetchPriority={i === 0 ? "high" : undefined}
+              decoding="async"
+            />
+          ))}
+        </div>
+
+        <div className="absolute inset-0 bg-black/50" />
+      </div>
+      <div className="relative z-10 text-center px-5 max-w-6xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+          {t('heroMain.title1')}<br />
+          {t('heroMain.title2')}
+        </h1>
+        <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-3 max-w-4xl mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          {t('heroMain.subtitle')}
+        </p>
+        <p className="text-base sm:text-lg md:text-xl text-white font-medium mb-8 max-w-4xl mx-auto leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+          {t('heroMain.tagline')}
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
+            <Button ref={signUpRef} size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105 w-full sm:w-auto max-w-sm sm:max-w-none">
+              {t('heroMain.ctaPrimary')}
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </AuthGatedCtaLink>
+          <Link to="/my-events" className="w-full sm:w-auto max-w-sm sm:max-w-none">
+            <Button size="lg" variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-gray-900 rounded-2xl px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg font-semibold transition-all hover:scale-105 w-full sm:w-auto">
+              {t('heroMain.ctaSecondary')}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export const Landing = () => {
+  const { t } = useTranslation('landing');
+  const blogPosts = useBlogPosts();
+  const signUpRef = useRef<HTMLButtonElement>(null);
+  const { currency } = useCurrencyContext();
+  const plans = PLAN_PRICING[currency];
+  const vendor = VENDOR_PRICING[currency];
+  const sym = CURRENCIES[currency].symbol;
+  const [openFaq2, setOpenFaq2] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // Scroll to section when arriving with a hash (e.g. /#pricing from another page)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash?.replace('#', '');
+    if (!hash) return;
+    const tryScroll = (attempt = 0) => {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (attempt < 10) {
+        setTimeout(() => tryScroll(attempt + 1), 100);
+      }
+    };
+    tryScroll();
+  }, []);
+
+  const featureCardAlts: Record<string, string> = {
+    guestList: "Wedding guest list manager with RSVP tracking",
+    tables: "Wedding table seating arrangement planner",
+    qr: "QR code wedding seating chart scanner",
+    invitations: "Digital wedding invitations with online RSVP",
+    runningSheet: "Wedding day timeline and event schedule",
+    floorPlan: "Wedding venue floor plan layout designer",
+    myEvents: "Wedding event management dashboard",
+    placeCards: "Printed wedding name place cards",
+    tableCharts: "Individual wedding table seating charts",
+    dietary: "Wedding guest dietary requirements tracker",
+    seatingChart: "Full wedding seating chart overview",
+    kiosk: "Wedding venue self-service check-in kiosk",
+    djmc: "Wedding DJ and MC music questionnaire",
+  };
+
+  const featureCards = [
+    { key: "myEvents", img: featureMyevents, icon: ClipboardList },
+    { key: "guestList", img: featureGuestlist, icon: Users },
+    { key: "tables", img: featureTables, icon: MapPin },
+    { key: "qr", img: featureQr, icon: QrCode },
+    { key: "invitations", img: featureInvitations, icon: Mail },
+    { key: "runningSheet", img: featureTimeline, icon: Calendar },
+    { key: "floorPlan", img: featureFloorplan, icon: Layout },
+    { key: "placeCards", img: featurePlacecards, icon: CreditCard },
+    { key: "tableCharts", img: featureTablecharts, icon: Grid3X3 },
+    { key: "dietary", img: featureDietary, icon: UtensilsCrossed },
+    { key: "seatingChart", img: featureSeatingchart, icon: FileText },
+    { key: "kiosk", img: featureKiosk, icon: Monitor },
+    { key: "djmc", img: featureDjmc, icon: Mic },
+  ];
+
+  const featureRoutes: Record<string, string> = {
+    guestList: '/guest-list',
+    tables: '/tables',
+    qr: '/qr-code-seating-chart',
+    runningSheet: '/running-sheet',
+    invitations: '/invitations-cards',
+    myEvents: '/my-events',
+    placeCards: '/name-place-cards',
+    tableCharts: '/individual-table-charts',
+    dietary: '/dietary-requirements',
+    seatingChart: '/full-seating-chart',
+    kiosk: '/kiosk-live-view',
+    djmc: '/dj-mc-questionnaire',
+    floorPlan: '/floor-plan',
+  };
+
+  // Product page routes used by the "wedding platform your guests will love" cards.
+  // Matches the URLs used in the "Explore the Platform" section below.
+  const productRoutes: Record<string, string> = {
+    guestList: '/guest-list',
+    tables: '/tables',
+    qr: '/qr-code-seating-chart',
+    invitations: '/invitations-cards',
+    runningSheet: '/running-sheet',
+    floorPlan: '/floor-plan',
+    myEvents: '/my-events',
+    placeCards: '/name-place-cards',
+    tableCharts: '/individual-table-charts',
+    dietary: '/dietary-requirements',
+    seatingChart: '/full-seating-chart',
+    kiosk: '/kiosk-live-view',
+    djmc: '/dj-mc-questionnaire',
+  };
+
+  const alternatingFeatures = [
+    { id: "guest-list", key: "guestList", img: featureGuestlist },
+    { id: "tables-seating", key: "tables", img: featureTables },
+    { id: "qr-seating", key: "qr", img: featureQr },
+    { id: "running-sheet", key: "runningSheet", img: featureTimeline },
+    { id: "invitations", key: "invitations", img: featureInvitations },
+    { id: "my-events", key: "myEvents", img: featureMyevents },
+    { id: "place-cards", key: "placeCards", img: featurePlacecards },
+    { id: "table-charts", key: "tableCharts", img: featureTablecharts },
+    { id: "dietary", key: "dietary", img: featureDietary },
+    { id: "seating-chart", key: "seatingChart", img: featureSeatingchart },
+    { id: "kiosk", key: "kiosk", img: featureKiosk },
+    { id: "dj-mc", key: "djmc", img: featureDjmc },
+    { id: "floor-plan", key: "floorPlan", img: featureFloorplan },
+  ];
+
+  const extraFeatureKeys = [
+    { icon: Music, key: "djmc" },
+    { icon: UtensilsCrossed, key: "dietary" },
+    { icon: CreditCard, key: "placeCards" },
+    { icon: Monitor, key: "kiosk" },
+    { icon: BarChart3, key: "seatingCharts" },
+    { icon: ClipboardList, key: "myEvents" },
+    { icon: MapPin, key: "tables" },
+    { icon: Users, key: "guestList" },
+    { icon: QrCode, key: "qr" },
+    { icon: Mail, key: "invitations" },
+    { icon: Grid3X3, key: "tableCharts" },
+    { icon: Layout, key: "floorPlan" },
+    { icon: FileText, key: "fullSeatingChart" },
+    { icon: Calendar, key: "runningSheet" },
+  ];
+
+  const testimonialItems = t('testimonials.items', { returnObjects: true }) as Array<{ name: string; text: string }>;
+  const faqItems = t('faq.items', { returnObjects: true }) as Array<{ q: string; a: string }>;
+
+  // Contact form is now in shared component <ContactForm /> — see src/components/ContactForm.tsx
+
+  return (
+    <div className="min-h-screen bg-[#FAFAFA]">
+      <SeoHead
+        title="Wedding Planning App | Guest List, Seating Chart & Invitations"
+        description="Plan your wedding or event with ease. Manage your guest list, seating chart, invitations, and more — all in one simple platform."
+        canonicalPath="/"
+      />
+      <Header />
+
+      {/* Hero Section */}
+      <HeroSection signUpRef={signUpRef} />
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-16 md:py-20 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            {t('howItWorks.title')}
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto">
+            {t('howItWorks.subtitle')}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { icon: CalendarPlus, step: '1', titleKey: 'step1Title', descKey: 'step1Desc' },
+              { icon: UserPlus, step: '2', titleKey: 'step2Title', descKey: 'step2Desc' },
+              { icon: Palette, step: '3', titleKey: 'step3Title', descKey: 'step3Desc' },
+              { icon: Share2, step: '4', titleKey: 'step4Title', descKey: 'step4Desc' },
+            ].map((item) => (
+              <div key={item.step} className="text-center group">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>
+                  <item.icon className="w-8 h-8" style={{ color: '#967A59' }} />
+                </div>
+                <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-sm mt-12" style={{ color: '#967A59' }}>{t('howItWorks.bottomNote')}</p>
+        </div>
+      </section>
+
+      {/* Feature Cards Row */}
+      <section className="py-16 md:py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            {t('featureCards.sectionTitle')}
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+            {t('featureCards.sectionSubtitle')}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featureCards.map((card, cardIdx) => {
+              const href = productRoutes[card.key] || '#';
+              return (
+                <Link
+                  to={href}
+                  key={card.key}
+                  aria-label={`${t(`featureCards.${card.key}.title`)} – Learn more`}
+                  className="group relative rounded-3xl overflow-hidden h-80 cursor-pointer block focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70 transition-transform duration-300 hover:scale-[1.03]"
+                >
+                  <img src={card.img} alt={featureCardAlts[card.key] || t(`featureCards.${card.key}.title`)} loading={cardIdx < 3 ? "eager" : "lazy"} decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-black/80 group-hover:via-black/40" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/10 backdrop-blur-[2px]" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <div className="flex items-center gap-3 mb-2">
+                      <card.icon className="w-5 h-5 text-white/80" />
+                      <h3 className="text-xl font-semibold text-white">{t(`featureCards.${card.key}.title`)}</h3>
+                    </div>
+                    <p className="text-white/70 text-sm">{t(`featureCards.${card.key}.desc`)}</p>
+                    <span className="mt-3 inline-flex items-center gap-1 text-sm text-white/80 group-hover:text-white transition-colors">
+                      {t('featureCardsLearnMore')}
+                      <span aria-hidden="true" className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+
+      {/* Alternating Feature Sections */}
+      {alternatingFeatures.map((feature, idx) => {
+        const imageOnRight = idx % 2 === 0; // even rows: image right, text left
+        const textDir = imageOnRight ? 'left' : 'right';
+        const imgDir = imageOnRight ? 'right' : 'left';
+        return (
+        <section key={feature.id} id={feature.id} className="py-10 md:py-14 px-4">
+          <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
+            <Reveal direction={textDir} className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                {t(`alternating.${feature.key}.title`)}
+              </h2>
+              <p className="text-lg text-gray-500 leading-relaxed mb-8">
+                {t(`alternating.${feature.key}.desc`)}
+              </p>
+              <Link to={featureRoutes[feature.key] || '/'}>
+                <Button variant="outline" className="btn-press rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
+                  {t('alternating.learnMore')}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </Reveal>
+            <Reveal direction={imgDir} className={`image-zoom-hover lift-on-hover rounded-3xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.1)] ${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
+              <img src={feature.img} alt={featureCardAlts[feature.key] || t(`alternating.${feature.key}.title`)} loading={idx < 2 ? "eager" : "lazy"} decoding="async" width={1280} height={960} className="w-full h-auto object-cover" />
+            </Reveal>
+          </div>
+        </section>
+        );
+      })}
+
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* Testimonials */}
+      <section className="py-16 md:py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-sm text-primary font-medium text-center mb-4">{t('testimonials.intro')}</p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            {t('testimonials.title')}
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            {t('testimonials.subtitle')}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.isArray(testimonialItems) && testimonialItems.map((item, i) => (
+              <div key={i} className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-600 leading-relaxed mb-4">"{item.text}"</p>
+                <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-16 md:py-20 px-4 bg-white">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            {t('faq.title')}
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            {t('faq.subtitle')}
+          </p>
+          <div className="space-y-4">
+            {Array.isArray(faqItems) && faqItems.map((item, i) => (
+              <div
+                key={i}
+                className="bg-[#FAFAFA] rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-6 text-left"
+                >
+                  <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
+                  <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-[500px] pb-6' : 'max-h-0'}`}>
+                  <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog — Wedding Tips & Ideas */}
+      <section id="blog" className="py-16 md:py-20 px-4 bg-[#faf8f5]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              {t('blog.title')}
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              {t('blog.subtitle')}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+            {[...blogPosts]
+              .sort((a, b) => b.date.localeCompare(a.date))
+              .slice(0, 3)
+              .map((post) => (
+                <article
+                  key={post.slug}
+                  className="bg-white rounded-2xl border border-[#eee5d8] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+                >
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="block aspect-[16/9] overflow-hidden bg-[#f3efe9]"
+                  >
+                    {post.coverImage && BLOG_COVER_IMAGES[post.coverImage] ? (
+                      <img
+                        src={BLOG_COVER_IMAGES[post.coverImage]}
+                        alt={post.title}
+                        loading="lazy"
+                        width={1024}
+                        height={576}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#f3efe9] to-[#e8dfcf] flex items-center justify-center text-6xl">
+                        <span aria-hidden="true">{post.coverEmoji}</span>
+                      </div>
+                    )}
+                  </Link>
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
+                      {post.readingTime}
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug">
+                      <Link
+                        to={`/blog/${post.slug}`}
+                        onClick={() => window.scrollTo(0, 0)}
+                        className="hover:text-[#967A59] transition-colors"
+                      >
+                        {post.title}
+                      </Link>
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed flex-1">{post.excerpt}</p>
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="mt-5 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
+                    >
+                      {t('blog.readMore')}
+                    </Link>
+                  </div>
+                </article>
+              ))}
+          </div>
+          <div className="text-center mt-12">
+            <Link
+              to="/blog"
+              onClick={() => window.scrollTo(0, 0)}
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full border-2 border-[#967A59] text-[#967A59] font-semibold text-base hover:bg-[#967A59] hover:text-white transition-colors"
+            >
+              {t('blog.viewAll')}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact */}
+      <section id="contact" className="py-16 md:py-20 px-4">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
+            {t('contact.title')}
+          </h2>
+          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+            {t('contact.subtitle')}
+          </p>
+          <ContactForm />
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover scale-105 animate-[ctaZoom_20s_ease-in-out_infinite_alternate]"
+            poster={ctaImg}
+          >
+            <source src={ctaVideoUrl} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/50" />
+        </div>
+        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto animate-[ctaFadeIn_1.5s_ease-out_both]">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            {t('finalCta.title1')}<br />{t('finalCta.title2')}
+          </h2>
+          <p className="text-white/70 text-lg md:text-xl mb-12">{t('finalCta.subtitle')}</p>
+          <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
+            <Button size="lg" className="bg-white text-gray-900 hover:bg-white/90 rounded-2xl px-10 py-6 text-lg font-semibold shadow-[0_4px_30px_rgba(0,0,0,0.15)] transition-all hover:scale-105">
+              {t('finalCta.cta')}
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </AuthGatedCtaLink>
+          <p className="text-sm text-white/60 mt-4">{t('finalCta.ctaSub')}</p>
+        </div>
+      </section>
+
+      {/* 🔒 LOCKED FOOTER (2026-04-19) — DO NOT MODIFY without explicit owner approval. See LOCKED_TRANSLATION_KEYS.md */}
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            <div>
+              <div className="flex md:justify-start justify-center items-center gap-2 mb-4">
+                <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto object-contain bg-transparent p-0 brightness-0 invert" />
+              </div>
+              <p className="text-gray-400 text-sm leading-relaxed max-w-xs md:text-left md:mx-0 md:px-0 text-center mx-auto px-4 max-w-md">
+                {t('footer.tagline')}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 md:gap-8 lg:gap-12 md:mt-0 mt-8">
+              <div className="md:mt-0 mt-8 md:first:mt-0 first:mt-0">
+                <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.explore')}</h4>
+                <ul className="md:space-y-1 space-y-3 text-sm text-gray-400">
+                  <li><Link to="/features" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</Link></li>
+                  <li><Link to="/pricing" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</Link></li>
+                  <li><Link to="/faq" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.faq')}</Link></li>
+                </ul>
+              </div>
+              <div className="md:mt-0 mt-8">
+                <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.support')}</h4>
+                <ul className="md:space-y-1 space-y-3 text-sm text-gray-400">
+                  <li><Link to="/contact" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.contactUs')}</Link></li>
+                </ul>
+              </div>
+              <div className="md:mt-0 mt-8">
+                <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.legal')}</h4>
+                <ul className="md:space-y-1 space-y-3 text-sm text-gray-400">
+                  <li><Link to="/privacy" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.privacy')}</Link></li>
+                  <li><Link to="/terms" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.terms')}</Link></li>
+                  <li><Link to="/cookies" className="block py-1.5 hover:text-white transition-colors whitespace-nowrap">{t('footer.cookiePolicy')}</Link></li>
+                </ul>
+              </div>
+            </div>
+            <div className="md:pl-8 lg:pl-16 md:mt-0 mt-8">
+              <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.followUs')}</h4>
+              <div className="flex md:justify-start justify-center gap-4">
+                <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="#" aria-label="Facebook" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" aria-label="YouTube" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                  <Youtube className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-white/10 pt-8 flex items-center justify-center">
+            <p className="text-gray-500 text-sm">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
+          </div>
+        </div>
+      </footer>
+      {/* 🔒 END LOCKED FOOTER */}
+      <CookieBanner />
+    </div>
+  );
+};
