@@ -482,24 +482,24 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           )}
         </div>
 
-        <DialogFooter>
-          <Button 
-            variant="destructive"
-            size="xs"
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button 
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:pb-2">
+          <Button
             variant="default"
             size="xs"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
             {isSubmitting ? 'Saving...' : 'Save'}
+          </Button>
+          <Button
+            variant="destructive"
+            size="xs"
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
+            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>
