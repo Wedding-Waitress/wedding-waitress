@@ -634,11 +634,11 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-2 border-t">
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3">
           <Button 
             variant="destructive" 
             onClick={onClose}
-            className="rounded-full bg-red-500 hover:bg-red-600 text-white"
+            className="rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
           >
             Cancel
           </Button>
@@ -646,7 +646,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
