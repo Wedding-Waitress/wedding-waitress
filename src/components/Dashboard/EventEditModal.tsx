@@ -294,15 +294,15 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8" fullScreenOnMobile>
-        <DialogHeader className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap">Edit Event</DialogTitle>
-          <div className="flex-1 max-w-[75%]">
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:pt-6" fullScreenOnMobile>
+        <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 max-lg:text-center">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary whitespace-nowrap max-lg:text-center max-lg:mt-2">Edit Event</DialogTitle>
+          <div className="flex-1 lg:max-w-[75%] w-full">
             <Input
               value={formData.event_name}
               onChange={(e) => { markReceptionOverride('event_name'); setFormData(prev => ({ ...prev, event_name: e.target.value })); }}
               placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
-              className={`${getInputClass(!!formData.event_name.trim())} h-11 sm:h-9`}
+              className={`${getInputClass(!!formData.event_name.trim())} h-11 sm:h-9 max-lg:text-center`}
             />
           </div>
         </DialogHeader>
