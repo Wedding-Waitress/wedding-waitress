@@ -130,7 +130,25 @@ export const StatsBar: React.FC<StatsBarProps> = ({
         {/* Mobile: 2 rows × 5 columns grid (all 10 stats) */}
         <div className="sm:hidden">
           <div className="grid grid-cols-5 gap-x-1 gap-y-3">
-            {statItems.map((item, index) => (
+            {statItems.slice(0, 5).map((item, index) => (
+              <div key={index} className="flex flex-col items-center text-center space-y-0.5 min-w-0">
+                <div className={`flex-shrink-0 ${item.color}`}>
+                  <div className="w-5 h-5 flex items-center justify-center [&_svg]:w-5 [&_svg]:h-5">
+                    {item.icon}
+                  </div>
+                </div>
+                <p className="text-[9px] text-primary font-bold leading-tight px-0.5 break-words">
+                  {item.label}
+                </p>
+                <p className={`text-sm font-bold leading-none ${item.color}`}>
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="my-3 h-px w-full bg-primary/30" />
+          <div className="grid grid-cols-5 gap-x-1 gap-y-3">
+            {statItems.slice(5).map((item, index) => (
               <div key={index} className="flex flex-col items-center text-center space-y-0.5 min-w-0">
                 <div className={`flex-shrink-0 ${item.color}`}>
                   <div className="w-5 h-5 flex items-center justify-center [&_svg]:w-5 [&_svg]:h-5">
