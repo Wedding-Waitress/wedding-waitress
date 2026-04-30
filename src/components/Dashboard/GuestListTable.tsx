@@ -1962,24 +1962,31 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     };
                     const invite = inviteConfig[inviteStatus] || inviteConfig.not_sent;
                     const isSelected = selectedGuestIds.has(guest.id);
+                    const hasPlusOneAlert =
+                      !!guest.notes?.startsWith('[NEW+]') && !ackedPlusOneIds.has(guest.id);
                     return (
                       <div
                         key={`m-${guest.id}`}
                         className={cn(
                           "bg-white rounded-2xl shadow-sm border-2 border-[#967A59] p-4 transition-all",
                           isSelected && "ring-2 ring-primary",
-                          guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
+                          hasPlusOneAlert && "animate-row-flash"
                         )}
                       >
                         {/* Select pill button (top, centered) — matches SMS Sent badge sizing */}
                         <div className="flex justify-center">
                           <button
                             type="button"
-                            onClick={() => handleSelectGuest(guest.id, !isSelected)}
+                            onClick={() => {
+                              if (hasPlusOneAlert) acknowledgePlusOneOptimistic(guest);
+                              handleSelectGuest(guest.id, !isSelected);
+                            }}
                             aria-pressed={isSelected}
                             className={cn(
                               "ww-small-pill",
-                              isSelected && "ww-small-pill--active"
+                              isSelected && "ww-small-pill--active",
+                              hasPlusOneAlert &&
+                                "!bg-[#FEF3C7] !border-2 !border-red-500 !text-[#1D1D1F] animate-plus-one-pulse"
                             )}
                           >
                             {isSelected ? '✓ Selected' : 'Select Guest'}
@@ -1987,8 +1994,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         </div>
 
                         {/* Guest name (centered, single line) */}
-                        <div className="mt-3 text-center font-bold text-base text-[#1D1D1F] truncate">
-                          {guest.first_name} {guest.last_name}
+                        <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+                          <span className="font-bold text-base text-[#1D1D1F] truncate">
+                            {guest.first_name} {guest.last_name}
+                          </span>
+                          {hasPlusOneAlert && (
+                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[#FEF3C7] border border-[#967A59] text-[#1D1D1F]">
+                              +1 Added
+                            </span>
+                          )}
                         </div>
 
                         {/* Status row: RSVP + group type (centered, one line) — identical pill sizing */}
