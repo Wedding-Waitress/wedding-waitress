@@ -799,11 +799,6 @@ export const GuestLookup: React.FC = () => {
                           <div className="text-lg md:text-xl font-semibold text-primary">
                             Welcome, {filteredGuests[0].first_name} 👋
                           </div>
-                          {filteredGuests[0].table_no && (
-                            <div className="text-sm md:text-base text-muted-foreground mt-1">
-                              You are seated at Table {filteredGuests[0].table_no}
-                            </div>
-                          )}
                         </div>
                       )}
                       <div className="space-y-4 animate-fade-in">
