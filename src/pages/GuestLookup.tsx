@@ -264,6 +264,9 @@ export const GuestLookup: React.FC = () => {
               start_time: firstRow.event_start_time,
               finish_time: firstRow.event_finish_time,
               event_timezone: tzData?.event_timezone ?? null,
+              ceremony_venue: (firstRow as any).ceremony_venue ?? null,
+              ceremony_start_time: (firstRow as any).ceremony_start_time ?? null,
+              ceremony_finish_time: (firstRow as any).ceremony_finish_time ?? null,
             };
         setEvent(eventData);
 
