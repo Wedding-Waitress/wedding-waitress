@@ -1,54 +1,33 @@
-# Fix QR Code & Live View URLs — point to weddingwaitress.com.au
+## Live View polish — brown branding + spacing
 
-## Root cause
+Scope: `src/pages/GuestLookup.tsx` (the `/s/:eventSlug` Live View page, RSVP Invite tab). Public surface only — no changes to layout, typography, button styles, or functionality. Applies to all devices.
 
-The URL-building code is already environment-aware. `src/lib/urlUtils.ts` exposes `getPublicBaseUrl()`:
+### 1. Replace purple footer logo with brown logo
 
-```ts
-const prodUrl = import.meta.env.VITE_PUBLIC_BASE_URL?.trim();
-if (prodUrl) return prodUrl;
-return window.location.origin;
-```
+- Add the uploaded brown logo to `src/assets/wedding-waitress-brown-logo.png` (copied from `user-uploads://Wedding_Waitress._Brown._PNG-15.png`).
+- In `GuestLookup.tsx`:
+  - Replace the import on line 29 from `wedding-waitress-footer-logo.png` to the new brown asset (kept as `weddingWaitressFooterLogo` so JSX is unchanged).
+- Same dimensions retained (`h-12 md:h-14 w-auto`) — no layout shift, sharp resolution (PNG is 1920px wide).
 
-All three surfaces (Open Live View, Copy Link, QR code value) flow through this helper via `buildDynamicQRUrl()` / `buildGuestLookupUrl()` in `src/lib/invitationQR.ts` and the QR settings components.
+### 2. Search input border: green → brown
 
-The bug is a single typo in `.env`:
+- Line 764 currently:
+  ```
+  className="pl-10 text-base md:text-lg h-11 md:h-12 border-green-500 border-2 focus-visible:ring-green-500"
+  ```
+- Change to use existing brand brown token (matches Ceremony / Reception Floor Plan buttons which use `border-primary` = `#967A59`):
+  ```
+  className="pl-10 text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
+  ```
+- Keeps double border, thickness, rounded corners, height — only colour changes.
 
-```
-VITE_PUBLIC_BASE_URL="https://weddingwaitress.com"   ← missing .au
-```
+### 3. Increase spacing above the logo
 
-That value is baked into the bundle at build time, so every generated link becomes `https://weddingwaitress.com/qr/...` — which doesn't resolve, hence the "site can't be reached" screen in the screenshot.
+- Line 830 currently: `<div className="flex justify-center mt-6">` (24px above logo).
+- Change to `mt-12` (48px) — roughly doubles the breathing room between the "Share this invite" button and the logo. Centering and everything else unchanged.
 
-The Supabase edge function `qr-redirect` already correctly defaults to `https://weddingwaitress.com.au`, so once the QR points at the right host the full chain works.
+### Out of scope (explicitly NOT changed)
 
-## Changes
-
-### 1. `.env` — fix the production base URL
-```diff
-- VITE_PUBLIC_BASE_URL="https://weddingwaitress.com"
-+ VITE_PUBLIC_BASE_URL="https://weddingwaitress.com.au"
-```
-
-### 2. Verify (no code change needed) — `src/lib/urlUtils.ts`
-Already implements the requested pattern: env var first, `window.location.origin` fallback. Used by:
-- `buildGuestLookupUrl(eventSlug)` → `/s/{slug}` (Open Live View, Copy Link when no dynamic code)
-- `buildDynamicQRUrl(code)` → `/qr/{code}` (QR code value when a dynamic code exists)
-- `buildKioskUrl`, `buildSeatingChartUrl`, `buildRunningSheetUrl`, `buildDJQuestionnaireUrl`
-
-No component edits required — fixing the env var corrects all three buttons in one shot.
-
-### 3. Confirm Lovable Cloud secret matches (manual)
-After the edit, the Lovable build pipeline must rebuild so the new `VITE_PUBLIC_BASE_URL` is embedded. If the project also stores this value as a Lovable secret/env override at deploy time, that override must read `https://weddingwaitress.com.au` too.
-
-## Behaviour after fix
-
-- Local/preview (`id-preview--*.lovable.app`): if the env var isn't injected at preview build, falls back to `window.location.origin` automatically — preview links keep working.
-- Production: every QR code, Open Live View button, and Copy Link button emits `https://weddingwaitress.com.au/qr/...` or `/s/{slug}`.
-- Edge function `qr-redirect` resolves the dynamic code and 302s back to `https://weddingwaitress.com.au/s/{slug}` (already correct).
-
-## Out of scope (untouched)
-
-- UI, button styles, QR styling
-- Any other page/component
-- SEO `SITE_URL` constants in `SeoHead.tsx` and layout files (already `.com.au`)
+- Tab pill styling on line 708 (still uses green active state) — user only asked about input + logo + spacing.
+- Any other page, modal, or component.
+- Header logo, button styles, typography, alignment.
