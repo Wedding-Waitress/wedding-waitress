@@ -1986,7 +1986,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               "ww-small-pill",
                               isSelected && "ww-small-pill--active",
                               hasPlusOneAlert &&
-                                "!bg-[#FEF3C7] !border-2 !border-red-500 !text-[#1D1D1F] animate-plus-one-pulse"
+                                "!bg-[#FFFF00] !border-4 !border-red-500 !text-gray-900 !h-8 !px-4 !text-[13px] !font-semibold animate-flash"
                             )}
                           >
                             {isSelected ? '✓ Selected' : 'Select Guest'}
