@@ -644,19 +644,45 @@ export const GuestLookup: React.FC = () => {
               return `${dayName} ${day}${suffix} ${month} ${year}`;
             })()}</span>
           </div>
-          {event.venue && (
-            <div className="flex items-center justify-center text-foreground text-sm md:text-base">
-              <MapPin className="w-4 h-4 mr-2 text-primary" />
-              <span>
-                {event.venue}
-                {(event.start_time || event.finish_time) && (
-                  <span> - {event.start_time && formatDisplayTime(event.start_time)}
-                  {event.start_time && event.finish_time && ' to '}
-                  {event.finish_time && formatDisplayTime(event.finish_time)}</span>
+          {(() => {
+            const hasCeremony = !!(event.ceremony_venue || event.ceremony_start_time || event.ceremony_finish_time);
+            const formatRange = (start?: string | null, finish?: string | null) => {
+              if (!start && !finish) return '';
+              const parts: string[] = [];
+              if (start) parts.push(formatDisplayTime(start));
+              if (start && finish) parts.push('to');
+              if (finish) parts.push(formatDisplayTime(finish));
+              return parts.join(' ');
+            };
+            return (
+              <>
+                {hasCeremony && (
+                  <div className="flex items-start justify-center text-foreground text-sm md:text-base">
+                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
+                    <span>
+                      <span className="font-semibold">Ceremony:</span>{' '}
+                      {event.ceremony_venue || ''}
+                      {(event.ceremony_start_time || event.ceremony_finish_time) && (
+                        <span> – {formatRange(event.ceremony_start_time, event.ceremony_finish_time)}</span>
+                      )}
+                    </span>
+                  </div>
                 )}
-              </span>
-            </div>
-          )}
+                {event.venue && (
+                  <div className="flex items-start justify-center text-foreground text-sm md:text-base">
+                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
+                    <span>
+                      {hasCeremony && <span className="font-semibold">Reception: </span>}
+                      {event.venue}
+                      {(event.start_time || event.finish_time) && (
+                        <span> – {formatRange(event.start_time, event.finish_time)}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+              </>
+            );
+          })()}
           {/* Countdown */}
           {(() => {
             const eventDate = new Date(event.date);
