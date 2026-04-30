@@ -1,43 +1,44 @@
-## Global small pill button system
+## Homepage mobile dropdown — final alignment & spacing fix
 
-### 1. Update `src/index.css`
+Scope: `src/components/Layout/Header.tsx` only, mobile dropdown (`lg:hidden` block, lines 221–318). Desktop, tablet, all other pages, and `index.css` untouched.
 
-- Modify the global mobile rule (lines ~868–882): remove `button` from the `min-height: 48px` selector list. Keep `a`, `[role="button"]`, `select`, `input`, `textarea`.
-- Remove the one-off `.mobile-auth-pill` override (lines ~884–890).
-- Add a new reusable `.ww-small-pill` utility:
-  - `display: inline-flex; align-items: center; justify-content: center;`
-  - `height: 24px; min-height: 0;`
-  - `padding: 0 10px;`
-  - `border-radius: 9999px;`
-  - `border: 1px solid #967A59;`
-  - `background: #FBF7F2;`
-  - `color: #6B5638;`
-  - `font: 500 12px/1 Inter, sans-serif;`
-  - `white-space: nowrap;`
-  - Optional `.ww-small-pill--active` variant: `background: #967A59; color: #fff;`
+### Change 1 — itemStyle (line 223)
 
-### 2. Remove `max-sm:min-h-[48px]` from shared button components
+Replace the `itemStyle` const with:
 
-- `src/components/ui/button.tsx` line 8: remove `max-sm:min-h-[48px]` from base classes.
-- `src/components/ui/enhanced-button.tsx` line 7: remove `max-sm:min-h-[48px]` from base classes.
+```ts
+const itemStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  fontSize: '13px',
+  fontWeight: 500,
+  lineHeight: '20px',
+  paddingTop: '6px',
+  paddingBottom: '6px',
+  margin: 0,
+  minHeight: 0,
+  height: '32px',
+};
+```
 
-This restores variant `size` heights (`h-7`, `h-9`, `h-10`, `h-11`) on mobile, allowing both small pills and large action buttons to render at their declared height. Default action buttons (`Save`, `Cancel`, `Create`, etc.) without explicit size keep `h-10` (40px), which is unchanged from desktop and is the locked-page baseline. Locked stable pages (Homepage, Dashboard shell, My Events, Tables) already render these buttons at `h-10` on desktop, so behavior remains identical there.
+`minHeight: 0` + fixed `height: 32px` overrides the global mobile 48px floor that anchors and role=button inherit. `display: flex` + `alignItems: center` keeps text vertically centered in the fixed row so How It Works, Products, Pricing, Blog, FAQ, Contact and the expanded Products links all match exactly.
 
-### 3. Apply `.ww-small-pill` to small tablet-style controls
+### Change 2 — Sign In / Sign Up pill row (lines 227–243)
 
-- `src/components/Layout/Header.tsx` (mobile dropdown): replace the inline `pillStyle` and `mobile-auth-pill` className on the Sign In / Sign Up buttons with `className="ww-small-pill"`. Remove the `pillStyle` const.
-- `src/components/Dashboard/GuestListTable.tsx` (line ~1945): replace the "Select Guest" / "✓ Selected" pill className with `ww-small-pill` (active variant when selected). Preserve the brown active state already used.
+- Container: change `flex items-center gap-2 px-1 pb-2` → `flex items-center justify-center gap-3 px-1 pb-2`.
+- Both pill `<button>` elements: add `style={{ minWidth: '100px' }}`. Pill class `ww-small-pill` unchanged.
 
-### 4. Do NOT touch
+Result: pills perfectly centered, equal left/right space, slightly wider, same pill style.
 
-- Status badges (Attending, Pending, Not Attending, Couple, Family, SMS Sent, Email Sent, Both Sent, etc.) — colors and shapes preserved.
-- Large action buttons (Save, Cancel, Create, Update, Continue, Start Planning, Accept All, etc.).
-- "Event Created" badge in `EventsTable.tsx` (locked My Events page) — leave untouched.
-- Desktop header, dashboard sidebar, modal footers, locked page layouts.
+### Out of scope
 
-### 5. Verification
+- No changes to `index.css`, button variants, `.ww-small-pill`, fonts, colors, or layout structure.
+- No changes to desktop or tablet header.
+- No changes to any other page or component.
 
-- Open `/` at 390px width, open the mobile menu, confirm Sign In / Sign Up render as ~24px slim pills matching the reference.
-- Confirm desktop header at 1440px is unchanged.
-- Open Guest List in mobile view, confirm "Select Guest" pill matches the same compact style.
-- Confirm Save/Cancel/Create buttons in modals still render at 40–44px height.
+### Verification
+
+Open `/` at 390px width, open the mobile menu, confirm:
+- Sign In / Sign Up pills are centered with equal spacing on both sides and slightly wider.
+- All six menu items have identical 32px row height and identical vertical gaps.
+- Desktop at 1440px is visually unchanged.
