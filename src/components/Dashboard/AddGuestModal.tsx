@@ -1346,8 +1346,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   Relation
                   {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
                 </Label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30">
+                <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
+                  <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30 max-lg:w-full">
                     {form.watch('relation_partner') && form.watch('relation_role')
                       ? computeRelationDisplay(
                           form.watch('relation_partner') as RelationPartner,
@@ -1363,7 +1363,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="rounded-full border-primary text-primary hover:bg-primary/10"
+                    className="rounded-full border-primary text-primary hover:bg-primary/10 max-lg:w-full max-lg:h-11"
                     onClick={() => {
                       const name = `${form.getValues('first_name')} ${form.getValues('last_name')}`.trim();
                       setPeopleToAssign([{ name, index: -1 }]);
