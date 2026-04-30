@@ -47,6 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [signInOpen, setSignInOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
   const { t, i18n } = useTranslation('landing');
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
