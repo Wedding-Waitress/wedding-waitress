@@ -1947,10 +1947,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             onClick={() => handleSelectGuest(guest.id, !isSelected)}
                             aria-pressed={isSelected}
                             className={cn(
-                              "inline-flex items-center justify-center rounded-full border border-[#967A59] px-2.5 py-0.5 text-xs font-semibold leading-tight transition-colors",
-                              isSelected
-                                ? "bg-[#967A59] text-white"
-                                : "bg-[#FBF7F2] text-[#1D1D1F] hover:bg-[#F3EBDD]"
+                              "ww-small-pill",
+                              isSelected && "ww-small-pill--active"
                             )}
                           >
                             {isSelected ? '✓ Selected' : 'Select Guest'}
