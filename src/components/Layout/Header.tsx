@@ -222,7 +222,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto">
                     {/* Sign In / Sign Up — equal size, tight spacing */}
                     <button
-                      className="w-full text-left px-3 py-1 text-[13px] font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
+                      className="w-full text-left px-3 py-0.5 text-[13px] leading-tight font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
                       style={{ color: '#967A59' }}
                       onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
                     >
@@ -230,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
                     <SignUpModal>
                       <button
-                        className="w-full text-left px-3 py-1 text-[13px] font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
+                        className="w-full text-left px-3 py-0.5 text-[13px] leading-tight font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
                         style={{ color: '#967A59' }}
                       >
                         {t('nav.signUp')}
@@ -242,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       to="/how-it-works"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.howItWorks')}
                     </Link>
@@ -252,7 +252,7 @@ export const Header: React.FC<HeaderProps> = ({
                       type="button"
                       onClick={() => setMobileProductsOpen(v => !v)}
                       aria-expanded={mobileProductsOpen}
-                      className="w-full flex items-center justify-between px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="w-full flex items-center justify-between px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                     >
                       <span>{t('nav.products')}</span>
                       <ChevronDown
@@ -266,7 +266,7 @@ export const Header: React.FC<HeaderProps> = ({
                             key={link.href}
                             to={link.href}
                             onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }}
-                            className="block w-full text-left px-3 py-1 text-[12.5px] hover:bg-gray-50 rounded-xl"
+                            className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                           >
                             {link.label}
                           </Link>
@@ -277,28 +277,28 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       to="/pricing"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.pricing')}
                     </Link>
                     <Link
                       to="/blog"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.blog')}
                     </Link>
                     <Link
                       to="/faq"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.faq')}
                     </Link>
                     <Link
                       to="/contact"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.contact')}
                     </Link>
