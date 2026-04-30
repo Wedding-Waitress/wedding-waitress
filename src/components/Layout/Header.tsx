@@ -219,30 +219,30 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </button>
                 {mobileMenuOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto">
-                    {/* Sign In / Sign Up — equal size, tight spacing */}
+                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[90vh] overflow-y-auto">
+                    {/* Sign In / Sign Up — IDENTICAL font-size/weight/line-height (forced inline) */}
                     <button
-                      className="w-full text-left px-3 py-0.5 text-[13px] leading-tight font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
-                      style={{ color: '#967A59' }}
+                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl cursor-pointer"
+                      style={{ color: '#967A59', fontSize: '13px', fontWeight: 600, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                       onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
                     >
                       {t('nav.signIn')}
                     </button>
                     <SignUpModal>
                       <button
-                        className="w-full text-left px-3 py-0.5 text-[13px] leading-tight font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
-                        style={{ color: '#967A59' }}
+                        className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl cursor-pointer"
+                        style={{ color: '#967A59', fontSize: '13px', fontWeight: 600, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                       >
                         {t('nav.signUp')}
                       </button>
                     </SignUpModal>
-                    <div className="my-0.5 h-px bg-gray-100"></div>
 
-                    {/* Main nav — tightened spacing (py-1) */}
+                    {/* Main nav — identical padding to Sign In/Up */}
                     <Link
                       to="/how-it-works"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                     >
                       {t('nav.howItWorks')}
                     </Link>
@@ -252,7 +252,8 @@ export const Header: React.FC<HeaderProps> = ({
                       type="button"
                       onClick={() => setMobileProductsOpen(v => !v)}
                       aria-expanded={mobileProductsOpen}
-                      className="w-full flex items-center justify-between px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                      className="w-full flex items-center justify-between px-3 hover:bg-gray-50 rounded-xl"
+                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                     >
                       <span>{t('nav.products')}</span>
                       <ChevronDown
@@ -260,13 +261,14 @@ export const Header: React.FC<HeaderProps> = ({
                       />
                     </button>
                     {mobileProductsOpen && (
-                      <div className="pl-3 border-l border-gray-100 ml-2 my-0.5">
+                      <div className="bg-gray-50/60 rounded-lg" style={{ marginTop: '2px', marginBottom: '2px', paddingTop: '2px', paddingBottom: '2px' }}>
                         {productLinks.map((link) => (
                           <Link
                             key={link.href}
                             to={link.href}
                             onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }}
-                            className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                            className="block w-full text-left hover:bg-white/80 rounded-md"
+                            style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', paddingLeft: '20px', paddingRight: '12px', margin: 0 }}
                           >
                             {link.label}
                           </Link>
@@ -277,28 +279,32 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       to="/pricing"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                     >
                       {t('nav.pricing')}
                     </Link>
                     <Link
                       to="/blog"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                     >
                       {t('nav.blog')}
                     </Link>
                     <Link
                       to="/faq"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                     >
                       {t('nav.faq')}
                     </Link>
                     <Link
                       to="/contact"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-0.5 text-[13px] leading-tight hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
                     >
                       {t('nav.contact')}
                     </Link>
