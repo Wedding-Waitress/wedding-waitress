@@ -219,16 +219,19 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </button>
                 {mobileMenuOpen && (() => {
-                  // Uniform spacing for ALL items (main + product dropdown)
-                  const itemStyle: React.CSSProperties = { fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '6px', paddingBottom: '6px', margin: 0 };
+                  // Uniform spacing for ALL items (main + product dropdown).
+                  // minHeight:0 + fixed height:32px overrides the global mobile 48px floor;
+                  // flex+alignItems:center keeps text vertically centered in the fixed row.
+                  const itemStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '6px', paddingBottom: '6px', margin: 0, minHeight: 0, height: '32px' };
                   return (
                   <div className="absolute top-full right-0 mt-1 w-56 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[90vh] overflow-y-auto">
-                    {/* Sign In / Sign Up — universal small pill (matches "1 Event Created") */}
-                    <div className="flex items-center gap-2 px-1 pb-2">
+                    {/* Sign In / Sign Up — universal small pill, perfectly centered */}
+                    <div className="flex items-center justify-center gap-3 px-1 pb-2">
                       <button
                         type="button"
                         onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
                         className="ww-small-pill"
+                        style={{ minWidth: '100px' }}
                       >
                         {t('nav.signIn')}
                       </button>
@@ -236,6 +239,7 @@ export const Header: React.FC<HeaderProps> = ({
                         <button
                           type="button"
                           className="ww-small-pill"
+                          style={{ minWidth: '100px' }}
                         >
                           {t('nav.signUp')}
                         </button>
