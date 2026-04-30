@@ -70,6 +70,9 @@ interface Event {
   start_time?: string | null;
   finish_time?: string | null;
   event_timezone?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
 }
 
 // Helper component to fetch and render existing ceremony floor plan
@@ -261,6 +264,9 @@ export const GuestLookup: React.FC = () => {
               start_time: firstRow.event_start_time,
               finish_time: firstRow.event_finish_time,
               event_timezone: tzData?.event_timezone ?? null,
+              ceremony_venue: (firstRow as any).ceremony_venue ?? null,
+              ceremony_start_time: (firstRow as any).ceremony_start_time ?? null,
+              ceremony_finish_time: (firstRow as any).ceremony_finish_time ?? null,
             };
         setEvent(eventData);
 
@@ -638,19 +644,45 @@ export const GuestLookup: React.FC = () => {
               return `${dayName} ${day}${suffix} ${month} ${year}`;
             })()}</span>
           </div>
-          {event.venue && (
-            <div className="flex items-center justify-center text-foreground text-sm md:text-base">
-              <MapPin className="w-4 h-4 mr-2 text-primary" />
-              <span>
-                {event.venue}
-                {(event.start_time || event.finish_time) && (
-                  <span> - {event.start_time && formatDisplayTime(event.start_time)}
-                  {event.start_time && event.finish_time && ' to '}
-                  {event.finish_time && formatDisplayTime(event.finish_time)}</span>
+          {(() => {
+            const hasCeremony = !!(event.ceremony_venue || event.ceremony_start_time || event.ceremony_finish_time);
+            const formatRange = (start?: string | null, finish?: string | null) => {
+              if (!start && !finish) return '';
+              const parts: string[] = [];
+              if (start) parts.push(formatDisplayTime(start));
+              if (start && finish) parts.push('to');
+              if (finish) parts.push(formatDisplayTime(finish));
+              return parts.join(' ');
+            };
+            return (
+              <>
+                {hasCeremony && (
+                  <div className="flex items-start justify-center text-foreground text-sm md:text-base">
+                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
+                    <span>
+                      <span className="font-semibold">Ceremony:</span>{' '}
+                      {event.ceremony_venue || ''}
+                      {(event.ceremony_start_time || event.ceremony_finish_time) && (
+                        <span> – {formatRange(event.ceremony_start_time, event.ceremony_finish_time)}</span>
+                      )}
+                    </span>
+                  </div>
                 )}
-              </span>
-            </div>
-          )}
+                {event.venue && (
+                  <div className="flex items-start justify-center text-foreground text-sm md:text-base">
+                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
+                    <span>
+                      {hasCeremony && <span className="font-semibold">Reception: </span>}
+                      {event.venue}
+                      {(event.start_time || event.finish_time) && (
+                        <span> – {formatRange(event.start_time, event.finish_time)}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+              </>
+            );
+          })()}
           {/* Countdown */}
           {(() => {
             const eventDate = new Date(event.date);
@@ -777,11 +809,6 @@ export const GuestLookup: React.FC = () => {
                     />
                   </div>
 
-                  {/* Help text - below search input */}
-                  <div className="text-center text-xs text-muted-foreground space-y-0">
-                    <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organiser for assistance</p>
-                  </div>
 
                   {/* Loading State */}
                   {searching && (
@@ -847,7 +874,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
-                  <div className="flex justify-center mt-12">
+                  <div className="flex justify-center mt-20 md:mt-24">
                     <a 
                       href="https://www.weddingwaitress.com.au/" 
                       target="_blank" 

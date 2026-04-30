@@ -306,7 +306,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           {/* Divider + Update Your Details (moved from top) */}
           {onEdit && isEditable && (
             <>
-              <div className="my-4 border-t border-border" />
+              <div className="my-6 border-t border-border" />
               <div className="flex justify-center">
                 <Button
                   onClick={() => onEdit(guest)}

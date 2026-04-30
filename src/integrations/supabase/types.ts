@@ -2868,6 +2868,9 @@ export type Database = {
       get_public_event_with_data_secure: {
         Args: { access_token?: string; event_slug: string }
         Returns: {
+          ceremony_finish_time: string
+          ceremony_start_time: string
+          ceremony_venue: string
           event_date: string
           event_finish_time: string
           event_id: string
