@@ -1986,7 +1986,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               "ww-small-pill",
                               isSelected && "ww-small-pill--active",
                               hasPlusOneAlert &&
-                                "!bg-[#FEF3C7] !border-2 !border-red-500 !text-[#1D1D1F] animate-plus-one-pulse"
+                                "!bg-[#FFFF00] !border-4 !border-red-500 !text-gray-900 !h-8 !px-4 !text-[13px] !font-semibold animate-flash"
                             )}
                           >
                             {isSelected ? '✓ Selected' : 'Select Guest'}
@@ -2470,11 +2470,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between px-4 py-3 max-lg:flex-col max-lg:items-center max-lg:gap-2">
+          <p className="text-sm text-muted-foreground max-lg:order-1 max-lg:text-center max-lg:whitespace-nowrap">
             Showing {((currentPage - 1) * GUESTS_PER_PAGE) + 1}–{Math.min(currentPage * GUESTS_PER_PAGE, totalFilteredGuestCount)} of {totalFilteredGuestCount} guests
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-lg:order-2 max-lg:justify-center max-lg:flex-wrap">
             <Button
               variant="outline"
               size="sm"
