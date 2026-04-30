@@ -47,6 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [signInOpen, setSignInOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
   const { t, i18n } = useTranslation('landing');
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
@@ -218,7 +219,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </button>
                 {mobileMenuOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-48 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[80vh] overflow-y-auto">
+                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[85vh] overflow-y-auto">
+                    {/* Sign In / Sign Up — equal size, tight spacing */}
                     <button
                       className="w-full text-left px-3 py-1 text-[13px] font-semibold hover:bg-gray-50 rounded-xl cursor-pointer"
                       style={{ color: '#967A59' }}
@@ -235,55 +237,68 @@ export const Header: React.FC<HeaderProps> = ({
                       </button>
                     </SignUpModal>
                     <div className="my-0.5 h-px bg-gray-100"></div>
+
+                    {/* Main nav — tightened spacing (py-1) */}
                     <Link
                       to="/how-it-works"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.howItWorks')}
                     </Link>
-                    <Link
-                      to="/products"
-                      onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+
+                    {/* Products — collapsible */}
+                    <button
+                      type="button"
+                      onClick={() => setMobileProductsOpen(v => !v)}
+                      aria-expanded={mobileProductsOpen}
+                      className="w-full flex items-center justify-between px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
-                      {t('nav.products')}
-                    </Link>
-                    {productLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        to={link.href}
-                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                        className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                      <span>{t('nav.products')}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 transition-transform ${mobileProductsOpen ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {mobileProductsOpen && (
+                      <div className="pl-3 border-l border-gray-100 ml-2 my-0.5">
+                        {productLinks.map((link) => (
+                          <Link
+                            key={link.href}
+                            to={link.href}
+                            onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }}
+                            className="block w-full text-left px-3 py-1 text-[12.5px] hover:bg-gray-50 rounded-xl"
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+
                     <Link
                       to="/pricing"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.pricing')}
                     </Link>
                     <Link
                       to="/blog"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.blog')}
                     </Link>
                     <Link
                       to="/faq"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.faq')}
                     </Link>
                     <Link
                       to="/contact"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 py-2 text-[13px] hover:bg-gray-50 rounded-xl"
+                      className="block w-full text-left px-3 py-1 text-[13px] hover:bg-gray-50 rounded-xl"
                     >
                       {t('nav.contact')}
                     </Link>
