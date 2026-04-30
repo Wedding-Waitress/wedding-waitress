@@ -127,6 +127,7 @@ export const GuestLookup: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [activeTab, setActiveTabState] = useState('search');
   const tableTabRef = useRef<HTMLDivElement>(null);
+  const searchResultsRef = useRef<HTMLDivElement>(null);
   const setActiveTab = useCallback((tab: string) => {
     setActiveTabState(tab);
     if (tab === 'visualization') {
@@ -342,6 +343,16 @@ export const GuestLookup: React.FC = () => {
              fullName.includes(term);
     });
   }, [guests, searchTerm]);
+
+  // Smooth-scroll to search results when a match appears
+  useEffect(() => {
+    if (searchTerm.length >= 2 && !searching && filteredGuests.length > 0) {
+      const t = setTimeout(() => {
+        searchResultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [searchTerm, searching, filteredGuests.length]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -782,29 +793,43 @@ export const GuestLookup: React.FC = () => {
 
                   {/* Search Results */}
                   {searchTerm.length >= 2 && !searching && (
-                    <div className="space-y-4">
-                      {filteredGuests.length > 0 ? (
-                        filteredGuests.map((guest) => (
-                          <EnhancedGuestCard
-                            key={guest.id}
-                            guest={guest}
-                            onUpdate={refreshGuestData}
-                            isEditable={isEditable}
-                            onEdit={handleEditGuest}
-                            onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
-                            rsvpDeadline={event?.rsvp_deadline}
-                            additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
-                          />
-                        ))
-                      ) : (
-                        <div className="text-center py-8">
-                          <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
-                          <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
-                          <p className="text-sm text-muted-foreground">
-                            Please check your spelling or contact event organiser for assistance
-                          </p>
+                    <div ref={searchResultsRef}>
+                      {filteredGuests.length > 0 && (
+                        <div className="text-center mb-5 animate-fade-in">
+                          <div className="text-lg md:text-xl font-semibold text-primary">
+                            Welcome, {filteredGuests[0].first_name} 👋
+                          </div>
+                          {filteredGuests[0].table_no && (
+                            <div className="text-sm md:text-base text-muted-foreground mt-1">
+                              You are seated at Table {filteredGuests[0].table_no}
+                            </div>
+                          )}
                         </div>
                       )}
+                      <div className="space-y-4 animate-fade-in">
+                        {filteredGuests.length > 0 ? (
+                          filteredGuests.map((guest) => (
+                            <EnhancedGuestCard
+                              key={guest.id}
+                              guest={guest}
+                              onUpdate={refreshGuestData}
+                              isEditable={isEditable}
+                              onEdit={handleEditGuest}
+                              onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
+                              rsvpDeadline={event?.rsvp_deadline}
+                              additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
+                            />
+                          ))
+                        ) : (
+                          <div className="text-center py-8">
+                            <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
+                            <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
+                            <p className="text-sm text-muted-foreground">
+                              Please check your spelling or contact event organiser for assistance
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 

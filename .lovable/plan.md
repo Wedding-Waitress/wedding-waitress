@@ -1,33 +1,51 @@
-## Live View polish — brown branding + spacing
+## Live View — personal welcome + table highlight + smooth scroll
 
-Scope: `src/pages/GuestLookup.tsx` (the `/s/:eventSlug` Live View page, RSVP Invite tab). Public surface only — no changes to layout, typography, button styles, or functionality. Applies to all devices.
+Polish-only enhancement to `/s/:eventSlug` Search tab + result card. Zero changes to header, countdown, the 6 cards, search input design, layout, or spacing. Uses existing brown palette and existing `animate-fade-in` utility.
 
-### 1. Replace purple footer logo with brown logo
+### Files
 
-- Add the uploaded brown logo to `src/assets/wedding-waitress-brown-logo.png` (copied from `user-uploads://Wedding_Waitress._Brown._PNG-15.png`).
-- In `GuestLookup.tsx`:
-  - Replace the import on line 29 from `wedding-waitress-footer-logo.png` to the new brown asset (kept as `weddingWaitressFooterLogo` so JSX is unchanged).
-- Same dimensions retained (`h-12 md:h-14 w-auto`) — no layout shift, sharp resolution (PNG is 1920px wide).
+1. `src/pages/GuestLookup.tsx`
+2. `src/components/GuestLookup/EnhancedGuestCard.tsx`
 
-### 2. Search input border: green → brown
+### Changes
 
-- Line 764 currently:
+**A. `GuestLookup.tsx` — welcome banner + smooth scroll + fade-in**
+
+- Add `searchResultsRef = useRef<HTMLDivElement>(null)` next to existing `tableTabRef` (line 129).
+- Add `useEffect` that, when `searchTerm.length >= 2 && !searching && filteredGuests.length > 0`, calls `searchResultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })` after ~150ms.
+- Wrap existing search results block (lines 784–809) in `<div ref={searchResultsRef}>`.
+- Above the result list (only when ≥1 match), insert personalised banner (centered, brown, fades in):
+  ```tsx
+  <div className="text-center mb-5 animate-fade-in">
+    <div className="text-lg md:text-xl font-semibold text-primary">
+      Welcome, {filteredGuests[0].first_name} 👋
+    </div>
+    {filteredGuests[0].table_no && (
+      <div className="text-sm md:text-base text-muted-foreground mt-1">
+        You are seated at Table {filteredGuests[0].table_no}
+      </div>
+    )}
+  </div>
   ```
-  className="pl-10 text-base md:text-lg h-11 md:h-12 border-green-500 border-2 focus-visible:ring-green-500"
-  ```
-- Change to use existing brand brown token (matches Ceremony / Reception Floor Plan buttons which use `border-primary` = `#967A59`):
-  ```
-  className="pl-10 text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
-  ```
-- Keeps double border, thickness, rounded corners, height — only colour changes.
+- Add `animate-fade-in` to the existing results list wrapper (fades + slight translateY in).
 
-### 3. Increase spacing above the logo
+**B. `EnhancedGuestCard.tsx` — soft highlight box around the table number (lines 195–211)**
 
-- Line 830 currently: `<div className="flex justify-center mt-6">` (24px above logo).
-- Change to `mt-12` (48px) — roughly doubles the breathing room between the "Share this invite" button and the logo. Centering and everything else unchanged.
+- When `guest.table_no` exists, swap the current `bg-background-subtle` row to a soft branded highlight: `bg-primary/5 border border-primary/30 rounded-lg p-3`.
+- Wrap "Table {n}" text in an inline pill: `inline-flex items-center px-3 py-1 rounded-md bg-primary/10 border border-primary/40 text-primary font-bold` with very slow subtle pulse via `animate-[pulse_3s_ease-in-out_infinite]`.
+- "No Table Assigned" branch keeps original neutral styling — no pulse, no brown highlight.
+- No changes to other rows, spacing, or font.
 
-### Out of scope (explicitly NOT changed)
+### Animation
 
-- Tab pill styling on line 708 (still uses green active state) — user only asked about input + logo + spacing.
-- Any other page, modal, or component.
-- Header logo, button styles, typography, alignment.
+- Welcome banner + result wrapper: existing `animate-fade-in` (0.3s, fades + translateY 10px → 0).
+- Table number pulse: slow 3s, brown tint only — minimal/elegant.
+- Smooth scroll: native `scrollIntoView({ behavior: 'smooth' })` ~150ms after results render.
+
+### Explicitly NOT changed
+
+- Header video/image, countdown, "Update & Confirm Your Details" heading.
+- The 6 cards (RSVP, Welcome Video, Table, Ceremony Floor Plan, Reception Floor Plan, Menu).
+- Search input border / spacing / colors.
+- Share button, footer logo, footer spacing.
+- Any other tab, modal, or page.

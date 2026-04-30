@@ -193,13 +193,17 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           </div>
 
           {/* Table Assignment */}
-          <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
+          <div className={`flex items-start gap-3 p-3 rounded-lg ${guest.table_no ? 'bg-primary/5 border border-primary/30' : 'bg-background-subtle p-2'}`}>
             <Users className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
               {guest.table_no ? (
                 <>
-                  <div className="font-semibold text-foreground">Table {guest.table_no}</div>
-                  <div className="text-sm text-muted-foreground">Your assigned table</div>
+                  <div>
+                    <span className="inline-flex items-center px-3 py-1 rounded-md bg-primary/10 border border-primary/40 text-primary font-bold animate-[pulse_3s_ease-in-out_infinite]">
+                      Table {guest.table_no}
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">Your assigned table</div>
                 </>
               ) : (
                 <>
