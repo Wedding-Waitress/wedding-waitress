@@ -344,6 +344,16 @@ export const GuestLookup: React.FC = () => {
     });
   }, [guests, searchTerm]);
 
+  // Smooth-scroll to search results when a match appears
+  useEffect(() => {
+    if (searchTerm.length >= 2 && !searching && filteredGuests.length > 0) {
+      const t = setTimeout(() => {
+        searchResultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [searchTerm, searching, filteredGuests.length]);
+
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     if (value.length >= 2) {
