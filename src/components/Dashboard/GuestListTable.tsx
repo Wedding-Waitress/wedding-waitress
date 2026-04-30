@@ -2470,11 +2470,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between px-4 py-3 max-lg:flex-col max-lg:items-center max-lg:gap-2">
+          <p className="text-sm text-muted-foreground max-lg:order-1 max-lg:text-center max-lg:whitespace-nowrap">
             Showing {((currentPage - 1) * GUESTS_PER_PAGE) + 1}–{Math.min(currentPage * GUESTS_PER_PAGE, totalFilteredGuestCount)} of {totalFilteredGuestCount} guests
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-lg:order-2 max-lg:justify-center max-lg:flex-wrap">
             <Button
               variant="outline"
               size="sm"
