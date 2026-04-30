@@ -809,11 +809,6 @@ export const GuestLookup: React.FC = () => {
                     />
                   </div>
 
-                  {/* Help text - below search input */}
-                  <div className="text-center text-xs text-muted-foreground space-y-0">
-                    <p className="font-medium">Having trouble finding your name?</p>
-                    <p>Contact your organiser for assistance</p>
-                  </div>
 
                   {/* Loading State */}
                   {searching && (
