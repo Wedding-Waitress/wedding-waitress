@@ -127,6 +127,7 @@ export const GuestLookup: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [activeTab, setActiveTabState] = useState('search');
   const tableTabRef = useRef<HTMLDivElement>(null);
+  const searchResultsRef = useRef<HTMLDivElement>(null);
   const setActiveTab = useCallback((tab: string) => {
     setActiveTabState(tab);
     if (tab === 'visualization') {
