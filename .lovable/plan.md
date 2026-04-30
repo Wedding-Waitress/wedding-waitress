@@ -1,59 +1,43 @@
-## Root cause (why nothing visibly changed)
+## Global small pill button system
 
-The mobile dropdown Sign In / Sign Up buttons are styled correctly in `src/components/Layout/Header.tsx` (line 225) — `paddingTop/Bottom: 1px`, `lineHeight: 14px`. The computed pill height should be ~18–20px.
+### 1. Update `src/index.css`
 
-But `src/index.css` lines 868–882 contains a **global mobile rule**:
+- Modify the global mobile rule (lines ~868–882): remove `button` from the `min-height: 48px` selector list. Keep `a`, `[role="button"]`, `select`, `input`, `textarea`.
+- Remove the one-off `.mobile-auth-pill` override (lines ~884–890).
+- Add a new reusable `.ww-small-pill` utility:
+  - `display: inline-flex; align-items: center; justify-content: center;`
+  - `height: 24px; min-height: 0;`
+  - `padding: 0 10px;`
+  - `border-radius: 9999px;`
+  - `border: 1px solid #967A59;`
+  - `background: #FBF7F2;`
+  - `color: #6B5638;`
+  - `font: 500 12px/1 Inter, sans-serif;`
+  - `white-space: nowrap;`
+  - Optional `.ww-small-pill--active` variant: `background: #967A59; color: #fff;`
 
-```css
-@media (max-width: 639px) {
-  button, a, [role="button"], select, input, textarea {
-    min-height: 48px;
-  }
-}
-```
+### 2. Remove `max-sm:min-h-[48px]` from shared button components
 
-This rule forces every `<button>` on mobile to be at least 48px tall — and it wins over my inline `padding`/`line-height` because `min-height` is a separate property, not overridden by padding. That's why each iteration "looked the same" to you no matter what padding I reduced.
+- `src/components/ui/button.tsx` line 8: remove `max-sm:min-h-[48px]` from base classes.
+- `src/components/ui/enhanced-button.tsx` line 7: remove `max-sm:min-h-[48px]` from base classes.
 
-This rule comes from the "MOBILE PERF/UX" project memory ("min 44px touch targets"). I can't remove the global rule (it protects every other button in the app), so the fix is a **scoped opt-out** for just these two pills.
+This restores variant `size` heights (`h-7`, `h-9`, `h-10`, `h-11`) on mobile, allowing both small pills and large action buttons to render at their declared height. Default action buttons (`Save`, `Cancel`, `Create`, etc.) without explicit size keep `h-10` (40px), which is unchanged from desktop and is the locked-page baseline. Locked stable pages (Homepage, Dashboard shell, My Events, Tables) already render these buttons at `h-10` on desktop, so behavior remains identical there.
 
-## Fix
+### 3. Apply `.ww-small-pill` to small tablet-style controls
 
-In `src/components/Layout/Header.tsx`, add `min-height: 0 !important` (and an explicit `height`) to the `pillStyle` object so these two buttons escape the 48px floor:
+- `src/components/Layout/Header.tsx` (mobile dropdown): replace the inline `pillStyle` and `mobile-auth-pill` className on the Sign In / Sign Up buttons with `className="ww-small-pill"`. Remove the `pillStyle` const.
+- `src/components/Dashboard/GuestListTable.tsx` (line ~1945): replace the "Select Guest" / "✓ Selected" pill className with `ww-small-pill` (active variant when selected). Preserve the brown active state already used.
 
-```ts
-const pillStyle: React.CSSProperties = {
-  color: '#967A59',
-  borderColor: '#967A59',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '14px',
-  paddingTop: '2px',
-  paddingBottom: '2px',
-  minHeight: '0',     // escape the global 48px floor
-  height: '22px',     // pill total height = 22px
-};
-```
+### 4. Do NOT touch
 
-Because React inline `style` can't emit `!important`, I'll also add a tiny scoped CSS rule in `src/index.css` right under the global block:
+- Status badges (Attending, Pending, Not Attending, Couple, Family, SMS Sent, Email Sent, Both Sent, etc.) — colors and shapes preserved.
+- Large action buttons (Save, Cancel, Create, Update, Continue, Start Planning, Accept All, etc.).
+- "Event Created" badge in `EventsTable.tsx` (locked My Events page) — leave untouched.
+- Desktop header, dashboard sidebar, modal footers, locked page layouts.
 
-```css
-/* Override 48px touch-floor for the mobile header auth pills only */
-@media (max-width: 639px) {
-  .mobile-auth-pill {
-    min-height: 0 !important;
-    height: 22px !important;
-  }
-}
-```
+### 5. Verification
 
-…and add `className="mobile-auth-pill ..."` to both pill `<button>` elements.
-
-## Scope guard
-
-- Only `src/index.css` (one new rule, ~5 lines, appended near the existing global block) and `src/components/Layout/Header.tsx` (pillStyle + className on two buttons inside the `lg:hidden` block) are touched.
-- Desktop header, all other mobile buttons, locked dashboard / public pages — untouched.
-- Global 48px touch target rule remains in force everywhere else.
-
-## Verify
-
-After the change I will reload the preview at 390px width with hard cache bypass, open the menu, and confirm the two pills render at exactly 22px tall with the brown border, fully rounded, text centered.
+- Open `/` at 390px width, open the mobile menu, confirm Sign In / Sign Up render as ~24px slim pills matching the reference.
+- Confirm desktop header at 1440px is unchanged.
+- Open Guest List in mobile view, confirm "Select Guest" pill matches the same compact style.
+- Confirm Save/Cancel/Create buttons in modals still render at 40–44px height.
