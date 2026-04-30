@@ -174,6 +174,37 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
   const [showAddModal, setShowAddModal] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests, updateGuest } = useRealtimeGuests(selectedEventId);
+  // Mobile-only: locally acknowledged +1 alerts so highlight clears instantly
+  // before the backend [NEW+] strip lands via realtime.
+  const [ackedPlusOneIds, setAckedPlusOneIds] = useState<Set<string>>(new Set());
+  const acknowledgePlusOneOptimistic = (guest: any) => {
+    if (!guest?.notes?.startsWith('[NEW+]')) return;
+    setAckedPlusOneIds(prev => {
+      if (prev.has(guest.id)) return prev;
+      const next = new Set(prev);
+      next.add(guest.id);
+      return next;
+    });
+    const cleanedNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+    // Fire-and-forget background update; UI already cleared optimistically.
+    Promise.resolve(updateGuest(guest.id, { notes: cleanedNotes })).catch(() => {});
+  };
+  // Keep local ack set in sync with realtime backend state — drop ids whose
+  // notes no longer carry the [NEW+] marker so the set never holds stale ids.
+  useEffect(() => {
+    setAckedPlusOneIds(prev => {
+      if (prev.size === 0) return prev;
+      let changed = false;
+      const next = new Set(prev);
+      guests.forEach(g => {
+        if (!g.notes?.startsWith('[NEW+]') && next.has(g.id)) {
+          next.delete(g.id);
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [guests]);
   const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [guestToDelete, setGuestToDelete] = useState<any>(null);
