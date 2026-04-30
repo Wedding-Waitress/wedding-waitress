@@ -106,20 +106,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return 'User';
   })();
 
-  // Mobile-friendly label shortening
-  const getMobileLabel = (id: string, label: string) => {
-    if (!isMobile) return label;
-    
-    const mobileLabels: Record<string, string> = {
-      "qr-code": "QR Chart",
-      "individual-table-chart": "Table Charts",
-      "kiosk-live-view": "Kiosk View",
-      "dietary-chart": "Dietary Req.",
-      "full-seating-chart": "Seating Chart",
-    };
-    
-    return mobileLabels[id] || label;
-  };
+  // Mobile labels match desktop sidebar exactly (no abbreviations)
+  const getMobileLabel = (_id: string, label: string) => label;
 
 
   return (
