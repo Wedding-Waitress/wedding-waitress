@@ -1,51 +1,63 @@
-## Live View — personal welcome + table highlight + smooth scroll
+## Live View Guest Card Refinements
 
-Polish-only enhancement to `/s/:eventSlug` Search tab + result card. Zero changes to header, countdown, the 6 cards, search input design, layout, or spacing. Uses existing brown palette and existing `animate-fade-in` utility.
+Scope is strictly limited to the guest result card and the welcome banner above it. Header, countdown, search input, the 6 info cards, and footer remain untouched.
 
-### Files
+### 1. `src/pages/GuestLookup.tsx` (welcome banner only, ~line 800-805)
 
-1. `src/pages/GuestLookup.tsx`
-2. `src/components/GuestLookup/EnhancedGuestCard.tsx`
+- Keep the centered "Welcome, {first_name} 👋" line.
+- Remove the secondary line "You are seated at Table {table_no}" entirely (including its wrapper if it becomes empty).
 
-### Changes
+### 2. `src/components/GuestLookup/EnhancedGuestCard.tsx`
 
-**A. `GuestLookup.tsx` — welcome banner + smooth scroll + fade-in**
+**Header row (guest name + Update button):**
+- Remove the `Update Your Details` button from the top-right.
+- Restructure the top of the card so the guest name (`{first_name} {last_name}`) is centered at the top: `text-center font-bold text-lg md:text-xl text-[#1D1D1F]`.
+- Keep `relation_display`, the "RSVP date passed" notice, and contact info (email/mobile) directly under the name, also centered for visual balance.
 
-- Add `searchResultsRef = useRef<HTMLDivElement>(null)` next to existing `tableTabRef` (line 129).
-- Add `useEffect` that, when `searchTerm.length >= 2 && !searching && filteredGuests.length > 0`, calls `searchResultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })` after ~150ms.
-- Wrap existing search results block (lines 784–809) in `<div ref={searchResultsRef}>`.
-- Above the result list (only when ≥1 match), insert personalised banner (centered, brown, fades in):
-  ```tsx
-  <div className="text-center mb-5 animate-fade-in">
-    <div className="text-lg md:text-xl font-semibold text-primary">
-      Welcome, {filteredGuests[0].first_name} 👋
+**Table assignment row:**
+- Remove the highlighted container styling (`bg-primary/5 border border-primary/30`), the inner pill (`bg-primary/10 border border-primary/40 ...`), and the `animate-[pulse_3s_ease-in-out_infinite]` animation.
+- Replace with the same neutral row pattern used by Seat / Dietary:
+  ```
+  <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
+    <Users className="w-5 h-5 text-primary mt-0.5" />
+    <div className="flex-1">
+      <div className="font-semibold text-foreground">Table {guest.table_no}</div>
+      <div className="text-sm text-muted-foreground">Your assigned table</div>
     </div>
-    {filteredGuests[0].table_no && (
-      <div className="text-sm md:text-base text-muted-foreground mt-1">
-        You are seated at Table {filteredGuests[0].table_no}
-      </div>
-    )}
   </div>
   ```
-- Add `animate-fade-in` to the existing results list wrapper (fades + slight translateY in).
+- Keep the existing "No Table Assigned" fallback (already neutral styling).
 
-**B. `EnhancedGuestCard.tsx` — soft highlight box around the table number (lines 195–211)**
+**Bottom section (action buttons + new Update button):**
+- Keep existing centered action row exactly as is: Accept (green) / Decline (red) / Add Guest (brown).
+- Below that row, add a divider: `<div className="my-4 border-t border-border" />`.
+- Below the divider, add a centered Update button (only when `onEdit && isEditable`):
+  ```
+  <div className="flex justify-center">
+    <Button
+      onClick={() => onEdit(guest)}
+      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+    >
+      Update Your Details
+    </Button>
+  </div>
+  ```
+- RSVP Deadline line stays at the very bottom, unchanged.
 
-- When `guest.table_no` exists, swap the current `bg-background-subtle` row to a soft branded highlight: `bg-primary/5 border border-primary/30 rounded-lg p-3`.
-- Wrap "Table {n}" text in an inline pill: `inline-flex items-center px-3 py-1 rounded-md bg-primary/10 border border-primary/40 text-primary font-bold` with very slow subtle pulse via `animate-[pulse_3s_ease-in-out_infinite]`.
-- "No Table Assigned" branch keeps original neutral styling — no pulse, no brown highlight.
-- No changes to other rows, spacing, or font.
+### Final card flow
 
-### Animation
+1. Centered guest name (+ relation/contact)
+2. Table row (neutral, matches Seat/Dietary)
+3. Seat row (unchanged)
+4. Dietary row (unchanged)
+5. Additional Guests row (unchanged)
+6. RSVP Status row (unchanged)
+7. Accept / Decline / Add Guest buttons (unchanged)
+8. Divider
+9. Centered "Update Your Details" button
+10. RSVP Deadline (if present)
 
-- Welcome banner + result wrapper: existing `animate-fade-in` (0.3s, fades + translateY 10px → 0).
-- Table number pulse: slow 3s, brown tint only — minimal/elegant.
-- Smooth scroll: native `scrollIntoView({ behavior: 'smooth' })` ~150ms after results render.
-
-### Explicitly NOT changed
-
-- Header video/image, countdown, "Update & Confirm Your Details" heading.
-- The 6 cards (RSVP, Welcome Video, Table, Ceremony Floor Plan, Reception Floor Plan, Menu).
-- Search input border / spacing / colors.
-- Share button, footer logo, footer spacing.
-- Any other tab, modal, or page.
+### Out of scope (not touched)
+- `GuestLookup.tsx` outside the two-line welcome banner edit
+- Header image, countdown, search input, the 6 info cards, share button, footer logo
+- Any other page or component
