@@ -907,7 +907,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto"
+        className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto overflow-x-hidden"
         fullScreenOnMobile
       >
         <DialogHeader className="max-lg:pt-8 max-lg:items-center max-lg:text-center lg:pr-12">
@@ -1212,8 +1212,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             {/* Party Members Section - Show for Couple/Family */}
             {!isEdit && (guestType === 'couple' || guestType === 'family') && (
               <div className="space-y-3 border-t border-gray-200 pt-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1 max-lg:self-start">
                     <Users className="w-4 h-4" />
                     <span>Members ({partyMembers.length})</span>
                   </div>
@@ -1223,7 +1223,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     size="sm"
                     onClick={() => setShowAddMemberForm(true)}
                     disabled={guestType === 'couple' && partyMembers.length >= 1}
-                    className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0"
+                    className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0 max-lg:w-full max-lg:whitespace-normal max-lg:h-auto max-lg:py-2 max-lg:text-center max-lg:leading-snug"
                   >
                     <Plus className="w-4 h-4 mr-1" />
                     {guestType === 'couple' ? 'Add your partner to make you a couple' : 'Add another member to this family'}
@@ -1232,7 +1232,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
                 {/* Add Member Form */}
                 {showAddMemberForm && (
-                  <div className="bg-[#F5F0EB] p-4 rounded-lg space-y-3 border border-[#967A59]/20">
+                  <div className="bg-[#F5F0EB] p-4 max-lg:p-3 rounded-lg space-y-3 border border-[#967A59]/20">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <Label className="text-xs">First Name *</Label>
