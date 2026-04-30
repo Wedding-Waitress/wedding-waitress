@@ -1,41 +1,126 @@
-## Goal
+# Mobile +1 Highlight on Guest List Cards (Final)
 
-Improve visual hierarchy of the mobile Products dropdown in `src/components/Layout/Header.tsx` (`lg:hidden` block only). No items removed, no spacing changes — visual only. The divider above Pricing is conditional on Products being open.
+## Scope
+Mobile guest cards only (`lg:hidden` block in `src/components/Dashboard/GuestListTable.tsx`, ~lines 1885–2068). Desktop table untouched.
 
-## Single file: `src/components/Layout/Header.tsx`
-
-### 1. Products parent row active state (~lines 260–271)
-
-Append/merge classes on the Products `<button>` based on `mobileProductsOpen` (keep existing `w-full flex items-center justify-between px-3` and any focus-visible styles):
-- Open: add `bg-[#FAF6EF] text-gray-950 font-semibold rounded-xl` (no hover)
-- Closed: keep current `hover:bg-gray-50 rounded-xl`
-
-`itemStyle`, `<span>{t('nav.products')}</span>`, and `<ChevronDown>` (size, rotation, alignment) untouched.
-
-### 2. Wrap the 13 product links (~lines 272–286)
-
-Inside the existing `{mobileProductsOpen && (...)}` block, wrap the children with the indent + cream left border:
+## Detection
+```ts
+const hasPlusOneAlert =
+  !!guest.notes?.startsWith('[NEW+]') && !ackedPlusOneIds.has(guest.id);
 ```
-<div className="pl-2 my-1 border-l border-[#E8E1D6]">
-  {productLinks.map(...)}
-</div>
+
+## Behaviour
+1. Highlight + badge + pulse appear whenever `hasPlusOneAlert` is true (independent of selection).
+2. Tapping **Select Guest** OR **Edit** acknowledges optimistically (instant UI), then `updateGuest` runs in the background to strip `[NEW+]` from `notes`.
+3. A cleanup `useEffect` keeps `ackedPlusOneIds` in sync with realtime/refetched `guests` — entries whose `notes` no longer contain `[NEW+]` are removed from the local set.
+
+## Changes
+
+### 1. `src/components/Dashboard/GuestListTable.tsx`
+
+**a) Add local ack state, optimistic helper, and cleanup effect** (~after line 176 where `useRealtimeGuests` is destructured):
+
+```ts
+const [ackedPlusOneIds, setAckedPlusOneIds] = useState<Set<string>>(new Set());
+
+const acknowledgePlusOneOptimistic = (guest: any) => {
+  if (!guest?.notes?.startsWith('[NEW+]')) return;
+  setAckedPlusOneIds(prev => {
+    if (prev.has(guest.id)) return prev;
+    const next = new Set(prev);
+    next.add(guest.id);
+    return next;
+  });
+  const cleanedNotes = guest.notes.replace(/^\[NEW\+\]/, '');
+  updateGuest(guest.id, { notes: cleanedNotes }).catch(() => {});
+};
+
+// Keep local ack set in sync with realtime backend state
+useEffect(() => {
+  setAckedPlusOneIds(prev => {
+    if (prev.size === 0) return prev;
+    let changed = false;
+    const next = new Set(prev);
+    guests.forEach(g => {
+      if (!g.notes?.startsWith('[NEW+]') && next.has(g.id)) {
+        next.delete(g.id);
+        changed = true;
+      }
+    });
+    return changed ? next : prev;
+  });
+}, [guests]);
 ```
-In each child `<Link>`, swap `hover:bg-gray-50` → `hover:bg-[#F8F5F0]`. `itemStyle`, padding, font size, spacing, and white background untouched.
 
-### 3. Conditional divider before Pricing (~line 288)
+**b) Mobile card (~lines 1934–1961)** — derive `hasPlusOneAlert`, restyle Select button, add badge:
 
-On the Pricing `<Link>` only, conditionally append `mt-2 pt-2 border-t border-[#E8E1D6]` when `mobileProductsOpen === true`. When Products is closed, Pricing renders normally with its existing classes (no divider, no extra spacing).
+```tsx
+const isSelected = selectedGuestIds.has(guest.id);
+const hasPlusOneAlert =
+  !!guest.notes?.startsWith('[NEW+]') && !ackedPlusOneIds.has(guest.id);
+return (
+  <div
+    key={`m-${guest.id}`}
+    className={cn(
+      "bg-white rounded-2xl shadow-sm border-2 border-[#967A59] p-4 transition-all",
+      isSelected && "ring-2 ring-primary",
+      hasPlusOneAlert && "animate-row-flash"
+    )}
+  >
+    <div className="flex justify-center">
+      <button
+        type="button"
+        onClick={() => {
+          if (hasPlusOneAlert) acknowledgePlusOneOptimistic(guest);
+          handleSelectGuest(guest.id, !isSelected);
+        }}
+        aria-pressed={isSelected}
+        className={cn(
+          "ww-small-pill",
+          isSelected && "ww-small-pill--active",
+          hasPlusOneAlert &&
+            "!bg-[#FEF3C7] !border-2 !border-red-500 !text-[#1D1D1F] animate-plus-one-pulse"
+        )}
+      >
+        {isSelected ? '✓ Selected' : 'Select Guest'}
+      </button>
+    </div>
 
-## Untouched
+    <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+      <span className="font-bold text-base text-[#1D1D1F] truncate">
+        {guest.first_name} {guest.last_name}
+      </span>
+      {hasPlusOneAlert && (
+        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[#FEF3C7] border border-[#967A59] text-[#1D1D1F]">
+          +1 Added
+        </span>
+      )}
+    </div>
+```
 
-- `itemStyle` constant; all heights / font sizes / paddings.
-- Sign In / Sign Up pill row.
-- How It Works, Blog, FAQ, Contact links.
-- Desktop dropdown (~lines 127–204).
-- Every other file and page.
+**c) Edit button (~line 2049)** — also acknowledge instantly:
 
-## Result
+```tsx
+onClick={() => { acknowledgePlusOneOptimistic(guest); handleEditGuest(guest); }}
+```
 
-- "Products" row highlights cream + semibold when open.
-- 13 children render as an indented sub-group with a thin cream left border.
-- Thin cream divider appears above Pricing only while Products is expanded; disappears when collapsed.
+### 2. `src/index.css` — add pulse keyframe (mobile-only via class; disabled ≥ lg):
+
+```css
+@keyframes pulseHighlight {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); opacity: 1; }
+  50%      { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); opacity: 0.92; }
+}
+.animate-plus-one-pulse {
+  animation: pulseHighlight 1.8s ease-in-out infinite;
+}
+@media (min-width: 1024px) {
+  .animate-plus-one-pulse { animation: none; }
+}
+```
+
+## Locked-file note
+`src/components/Dashboard/GuestListTable.tsx` carries a production-locked header. Edits are mobile-only and additive (no layout/structure change to existing markup, no desktop changes). Approval to edit this locked file is required.
+
+## Out of scope
+Desktop table row, tablet ≥ `lg`, any other page or global style.
