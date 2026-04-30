@@ -26,7 +26,7 @@ import {
   LayoutGrid,
   Hourglass
 } from 'lucide-react';
-import weddingWaitressFooterLogo from '@/assets/wedding-waitress-footer-logo.png';
+import weddingWaitressFooterLogo from '@/assets/wedding-waitress-brown-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -761,7 +761,7 @@ export const GuestLookup: React.FC = () => {
                       placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
                       value={searchTerm}
                       onChange={(e) => handleSearchChange(e.target.value)}
-                      className="pl-10 text-base md:text-lg h-11 md:h-12 border-green-500 border-2 focus-visible:ring-green-500"
+                      className="pl-10 text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
                       autoFocus
                     />
                   </div>
@@ -827,7 +827,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
-                  <div className="flex justify-center mt-6">
+                  <div className="flex justify-center mt-12">
                     <a 
                       href="https://www.weddingwaitress.com.au/" 
                       target="_blank" 
