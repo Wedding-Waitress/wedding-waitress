@@ -1,43 +1,54 @@
-## Add Guest Modal — Mobile Overflow Fix
+# Fix QR Code & Live View URLs — point to weddingwaitress.com.au
 
-**Scope:** Mobile only (`max-lg:` breakpoints). Desktop/tablet untouched.
-**File:** `src/components/Dashboard/AddGuestModal.tsx` (locked — requires approval)
+## Root cause
 
-### Root cause
-The DialogContent already has `px-4 sm:px-10` and a proper `max-lg:w-[calc(100%-3rem)]` width clamp (matches Create Event modal). The horizontal scroll is caused by the **Members section header** (lines 1214–1231):
+The URL-building code is already environment-aware. `src/lib/urlUtils.ts` exposes `getPublicBaseUrl()`:
 
-- The "Add your partner to make you a couple" / "Add another member to this family" button sits inside a `flex items-center justify-between` row next to the "Members (N)" pill.
-- shadcn `Button` defaults to `whitespace-nowrap`, so the long label forces the row wider than the viewport on mobile (~358px).
-- This is the only element that breaks the container; everything else (inputs, segmented toggle, footer) already respects `w-full`.
+```ts
+const prodUrl = import.meta.env.VITE_PUBLIC_BASE_URL?.trim();
+if (prodUrl) return prodUrl;
+return window.location.origin;
+```
 
-### Changes (mobile-only, all gated with `max-lg:` / `lg:`)
+All three surfaces (Open Live View, Copy Link, QR code value) flow through this helper via `buildDynamicQRUrl()` / `buildGuestLookupUrl()` in `src/lib/invitationQR.ts` and the QR settings components.
 
-1. **Members header row** (line 1215)
-   - Desktop: keep `flex items-center justify-between`.
-   - Mobile: stack vertically — `max-lg:flex-col max-lg:items-stretch max-lg:gap-2`.
+The bug is a single typo in `.env`:
 
-2. **"Add partner / member" button** (lines 1220–1230)
-   - Add `max-lg:w-full max-lg:whitespace-normal max-lg:h-auto max-lg:py-2 max-lg:text-center max-lg:leading-snug`.
-   - Allows the long label to wrap to 2 lines instead of pushing the modal wide.
+```
+VITE_PUBLIC_BASE_URL="https://weddingwaitress.com"   ← missing .au
+```
 
-3. **Members pill** (line 1216)
-   - Add `max-lg:self-start` so it sits left-aligned above the full-width button when stacked.
+That value is baked into the bundle at build time, so every generated link becomes `https://weddingwaitress.com/qr/...` — which doesn't resolve, hence the "site can't be reached" screen in the screenshot.
 
-4. **DialogContent safety net** (line 910)
-   - Append `overflow-x-hidden` to guarantee no child can ever introduce a horizontal scrollbar.
+The Supabase edge function `qr-redirect` already correctly defaults to `https://weddingwaitress.com.au`, so once the QR points at the right host the full chain works.
 
-5. **Inline "Add Member" sub-form** (line 1235)
-   - Change padding from `p-4` to `p-4 max-lg:p-3` so the nested cream card doesn't crowd the modal edges on small screens.
+## Changes
 
-### Out of scope (do NOT change)
-- Field/input styling, colors, rounded shapes
-- Segmented Individual/Couple/Family toggle (already `w-full`)
-- Footer Save/Cancel (already correct per locked mobile rules)
-- Desktop layout
-- Any other modal or page
+### 1. `.env` — fix the production base URL
+```diff
+- VITE_PUBLIC_BASE_URL="https://weddingwaitress.com"
++ VITE_PUBLIC_BASE_URL="https://weddingwaitress.com.au"
+```
 
-### Verification
-After edit, open `/dashboard?tab=guest-list` on a 390px viewport, click **Add Guest**, switch between Individual / Couple / Family. Confirm: no horizontal scroll, button label wraps cleanly, all inputs sit flush with 16px side padding matching Create Event modal.
+### 2. Verify (no code change needed) — `src/lib/urlUtils.ts`
+Already implements the requested pattern: env var first, `window.location.origin` fallback. Used by:
+- `buildGuestLookupUrl(eventSlug)` → `/s/{slug}` (Open Live View, Copy Link when no dynamic code)
+- `buildDynamicQRUrl(code)` → `/qr/{code}` (QR code value when a dynamic code exists)
+- `buildKioskUrl`, `buildSeatingChartUrl`, `buildRunningSheetUrl`, `buildDJQuestionnaireUrl`
 
-### Approval needed
-`AddGuestModal.tsx` is part of the locked Guest List feature. Please approve the edit so I can apply the 5 small mobile-only class changes above.
+No component edits required — fixing the env var corrects all three buttons in one shot.
+
+### 3. Confirm Lovable Cloud secret matches (manual)
+After the edit, the Lovable build pipeline must rebuild so the new `VITE_PUBLIC_BASE_URL` is embedded. If the project also stores this value as a Lovable secret/env override at deploy time, that override must read `https://weddingwaitress.com.au` too.
+
+## Behaviour after fix
+
+- Local/preview (`id-preview--*.lovable.app`): if the env var isn't injected at preview build, falls back to `window.location.origin` automatically — preview links keep working.
+- Production: every QR code, Open Live View button, and Copy Link button emits `https://weddingwaitress.com.au/qr/...` or `/s/{slug}`.
+- Edge function `qr-redirect` resolves the dynamic code and 302s back to `https://weddingwaitress.com.au/s/{slug}` (already correct).
+
+## Out of scope (untouched)
+
+- UI, button styles, QR styling
+- Any other page/component
+- SEO `SITE_URL` constants in `SeoHead.tsx` and layout files (already `.com.au`)
