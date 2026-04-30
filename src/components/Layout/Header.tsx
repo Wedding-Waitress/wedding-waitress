@@ -218,42 +218,51 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="w-5 h-0.5 bg-white rounded-sm"></div>
                   </div>
                 </button>
-                {mobileMenuOpen && (
-                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-1 z-50 max-h-[90vh] overflow-y-auto">
-                    {/* Sign In / Sign Up — IDENTICAL font-size/weight/line-height (forced inline) */}
-                    <button
-                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl cursor-pointer"
-                      style={{ color: '#967A59', fontSize: '13px', fontWeight: 600, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
-                      onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
-                    >
-                      {t('nav.signIn')}
-                    </button>
-                    <SignUpModal>
+                {mobileMenuOpen && (() => {
+                  // Uniform spacing for ALL items (main + product dropdown)
+                  const itemStyle: React.CSSProperties = { fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '6px', paddingBottom: '6px', margin: 0 };
+                  // Pill style for Sign In / Sign Up — thin brown border matching the brown text
+                  const pillStyle: React.CSSProperties = { color: '#967A59', borderColor: '#967A59', fontSize: '13px', fontWeight: 600, lineHeight: '18px' };
+                  return (
+                  <div className="absolute top-full right-0 mt-1 w-56 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[90vh] overflow-y-auto">
+                    {/* Sign In / Sign Up — pill-shaped with thin brown border, identical size */}
+                    <div className="flex items-center gap-2 px-1 pb-2">
                       <button
-                        className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl cursor-pointer"
-                        style={{ color: '#967A59', fontSize: '13px', fontWeight: 600, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                        type="button"
+                        onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
+                        className="inline-flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors px-4 py-1.5"
+                        style={pillStyle}
                       >
-                        {t('nav.signUp')}
+                        {t('nav.signIn')}
                       </button>
-                    </SignUpModal>
+                      <SignUpModal>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors px-4 py-1.5"
+                          style={pillStyle}
+                        >
+                          {t('nav.signUp')}
+                        </button>
+                      </SignUpModal>
+                    </div>
 
-                    {/* Main nav — identical padding to Sign In/Up */}
+                    {/* Main nav — uniform padding */}
                     <Link
                       to="/how-it-works"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
-                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                      style={itemStyle}
                     >
                       {t('nav.howItWorks')}
                     </Link>
 
-                    {/* Products — collapsible */}
+                    {/* Products — collapsible, same padding as siblings */}
                     <button
                       type="button"
                       onClick={() => setMobileProductsOpen(v => !v)}
                       aria-expanded={mobileProductsOpen}
                       className="w-full flex items-center justify-between px-3 hover:bg-gray-50 rounded-xl"
-                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                      style={itemStyle}
                     >
                       <span>{t('nav.products')}</span>
                       <ChevronDown
@@ -261,14 +270,14 @@ export const Header: React.FC<HeaderProps> = ({
                       />
                     </button>
                     {mobileProductsOpen && (
-                      <div className="bg-gray-50/60 rounded-lg" style={{ marginTop: '2px', marginBottom: '2px', paddingTop: '2px', paddingBottom: '2px' }}>
+                      <div>
                         {productLinks.map((link) => (
                           <Link
                             key={link.href}
                             to={link.href}
                             onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }}
-                            className="block w-full text-left hover:bg-white/80 rounded-md"
-                            style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', paddingLeft: '20px', paddingRight: '12px', margin: 0 }}
+                            className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                            style={itemStyle}
                           >
                             {link.label}
                           </Link>
@@ -280,7 +289,7 @@ export const Header: React.FC<HeaderProps> = ({
                       to="/pricing"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
-                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                      style={itemStyle}
                     >
                       {t('nav.pricing')}
                     </Link>
@@ -288,7 +297,7 @@ export const Header: React.FC<HeaderProps> = ({
                       to="/blog"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
-                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                      style={itemStyle}
                     >
                       {t('nav.blog')}
                     </Link>
@@ -296,7 +305,7 @@ export const Header: React.FC<HeaderProps> = ({
                       to="/faq"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
-                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                      style={itemStyle}
                     >
                       {t('nav.faq')}
                     </Link>
@@ -304,12 +313,13 @@ export const Header: React.FC<HeaderProps> = ({
                       to="/contact"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
-                      style={{ fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '2px', paddingBottom: '2px', margin: 0 }}
+                      style={itemStyle}
                     >
                       {t('nav.contact')}
                     </Link>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </>
           )}
