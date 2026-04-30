@@ -2091,7 +2091,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleEditGuest(guest)}
+                              onClick={() => { acknowledgePlusOneOptimistic(guest); handleEditGuest(guest); }}
                               className="h-9 w-9 p-0"
                               aria-label="Edit guest"
                             >
