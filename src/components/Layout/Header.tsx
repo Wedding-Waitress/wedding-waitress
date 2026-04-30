@@ -261,7 +261,7 @@ export const Header: React.FC<HeaderProps> = ({
                       type="button"
                       onClick={() => setMobileProductsOpen(v => !v)}
                       aria-expanded={mobileProductsOpen}
-                      className="w-full flex items-center justify-between px-3 hover:bg-gray-50 rounded-xl"
+                      className={`w-full flex items-center justify-between px-3 rounded-xl ${mobileProductsOpen ? 'bg-[#FAF6EF] text-gray-950 font-semibold' : 'hover:bg-gray-50'}`}
                       style={itemStyle}
                     >
                       <span>{t('nav.products')}</span>
@@ -270,13 +270,13 @@ export const Header: React.FC<HeaderProps> = ({
                       />
                     </button>
                     {mobileProductsOpen && (
-                      <div>
+                      <div className="pl-2 my-1 border-l border-[#E8E1D6]">
                         {productLinks.map((link) => (
                           <Link
                             key={link.href}
                             to={link.href}
                             onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }}
-                            className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                            className="block w-full text-left px-3 hover:bg-[#F8F5F0] rounded-xl"
                             style={itemStyle}
                           >
                             {link.label}
@@ -288,7 +288,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <Link
                       to="/pricing"
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                      className="block w-full text-left px-3 hover:bg-gray-50 rounded-xl"
+                      className={`block w-full text-left px-3 hover:bg-gray-50 rounded-xl${mobileProductsOpen ? ' mt-2 pt-2 border-t border-[#E8E1D6]' : ''}`}
                       style={itemStyle}
                     >
                       {t('nav.pricing')}
