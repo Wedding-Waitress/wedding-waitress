@@ -230,7 +230,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <button
                         type="button"
                         onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
-                        className="inline-flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors px-4 py-1.5"
+                        className="inline-flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors px-2.5 py-0.5"
                         style={pillStyle}
                       >
                         {t('nav.signIn')}
