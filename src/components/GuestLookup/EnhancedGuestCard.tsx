@@ -146,27 +146,27 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     <Card className="card-elevated border-primary/20 bg-gradient-card">
       <CardContent className="p-4">
         <div className="flex flex-col space-y-1.5">
-          {/* Guest Info */}
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-foreground">
-                {guest.first_name} {guest.last_name}
-              </h3>
-              {guest.relation_display && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {guest.relation_display}
-                </p>
-              )}
-              
-              {/* Notice when not editable */}
-              {!isEditable && (
-                <p className="text-xs text-muted-foreground mt-2 italic">
-                  RSVP date has passed. Changes are closed.
-                </p>
-              )}
-              
-              {/* Contact Info */}
-              <div className="flex flex-wrap gap-4 mt-2 text-xs text-muted-foreground">
+          {/* Guest Info - centered */}
+          <div className="text-center">
+            <h3 className="text-center font-bold text-lg md:text-xl text-[#1D1D1F]">
+              {guest.first_name} {guest.last_name}
+            </h3>
+            {guest.relation_display && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {guest.relation_display}
+              </p>
+            )}
+
+            {/* Notice when not editable */}
+            {!isEditable && (
+              <p className="text-xs text-muted-foreground mt-2 italic">
+                RSVP date has passed. Changes are closed.
+              </p>
+            )}
+
+            {/* Contact Info */}
+            {(guest.email || guest.mobile) && (
+              <div className="flex flex-wrap justify-center gap-4 mt-2 text-xs text-muted-foreground">
                 {guest.email && (
                   <div className="flex items-center gap-1">
                     <Mail className="w-3 h-3" />
@@ -180,30 +180,17 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   </div>
                 )}
               </div>
-            </div>
-            
-            {onEdit && isEditable && (
-              <Button
-                onClick={() => onEdit(guest)}
-                className="lv-premium-btn ml-2 h-[36px] min-h-0 px-[18px] py-0 bg-green-500 text-white border-2 border-green-600 text-[13px]"
-              >
-                Update Your Details
-              </Button>
             )}
           </div>
 
-          {/* Table Assignment */}
-          <div className={`flex items-start gap-3 p-3 rounded-lg ${guest.table_no ? 'bg-primary/5 border border-primary/30' : 'bg-background-subtle p-2'}`}>
+          {/* Table Assignment - neutral row matching Seat / Dietary */}
+          <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
             <Users className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
               {guest.table_no ? (
                 <>
-                  <div>
-                    <span className="inline-flex items-center px-3 py-1 rounded-md bg-primary/10 border border-primary/40 text-primary font-bold animate-[pulse_3s_ease-in-out_infinite]">
-                      Table {guest.table_no}
-                    </span>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">Your assigned table</div>
+                  <div className="font-semibold text-foreground">Table {guest.table_no}</div>
+                  <div className="text-sm text-muted-foreground">Your assigned table</div>
                 </>
               ) : (
                 <>
