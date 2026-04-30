@@ -865,13 +865,15 @@ html {
   @apply px-4 sm:px-6 lg:px-8;
 }
 
-/* Global mobile tap target and font-size enforcement */
+/* Global mobile tap target and font-size enforcement.
+   NOTE: `button` is intentionally excluded — button sizing is controlled by
+   variant classes (h-7/h-9/h-10/h-11) and the reusable `.ww-small-pill`
+   utility below. Forcing 48px on every button broke small pill controls. */
 @media (max-width: 639px) {
   body {
     font-size: 16px;
   }
 
-  button,
   a,
   [role="button"],
   select,
@@ -881,12 +883,39 @@ html {
   }
 }
 
-/* Override 48px touch-floor for the mobile header auth pills only */
-@media (max-width: 639px) {
-  .mobile-auth-pill {
-    min-height: 0 !important;
-    height: 22px !important;
-  }
+/* === Universal small pill / tablet button ===
+   Reusable compact pill for status counters and small actions
+   (mobile menu Sign In/Sign Up, "Select Guest", etc.).
+   Matches the "1 Event Created" reference: thin brown border,
+   cream background, brown text, fully rounded, ~24px tall. */
+.ww-small-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 24px;
+  min-height: 0;
+  padding: 0 10px;
+  border-radius: 9999px;
+  border: 1px solid #967A59;
+  background: #FBF7F2;
+  color: #6B5638;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.ww-small-pill:hover {
+  background: #F3EBDD;
+}
+.ww-small-pill--active {
+  background: #967A59;
+  color: #ffffff;
+}
+.ww-small-pill--active:hover {
+  background: #84684B;
 }
 
 /* Place card boundary warning pulse */

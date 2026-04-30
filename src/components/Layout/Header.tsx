@@ -221,25 +221,21 @@ export const Header: React.FC<HeaderProps> = ({
                 {mobileMenuOpen && (() => {
                   // Uniform spacing for ALL items (main + product dropdown)
                   const itemStyle: React.CSSProperties = { fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '6px', paddingBottom: '6px', margin: 0 };
-                  // Pill style for Sign In / Sign Up — thin brown border matching the brown text
-                  const pillStyle: React.CSSProperties = { color: '#967A59', borderColor: '#967A59', fontSize: '13px', fontWeight: 500, lineHeight: '14px', paddingTop: '2px', paddingBottom: '2px', minHeight: 0, height: '22px' };
                   return (
                   <div className="absolute top-full right-0 mt-1 w-56 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[90vh] overflow-y-auto">
-                    {/* Sign In / Sign Up — pill-shaped with thin brown border, identical size */}
+                    {/* Sign In / Sign Up — universal small pill (matches "1 Event Created") */}
                     <div className="flex items-center gap-2 px-1 pb-2">
                       <button
                         type="button"
                         onClick={() => { setMobileMenuOpen(false); setSignInOpen(true); }}
-                        className="mobile-auth-pill inline-flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors px-3 leading-none"
-                        style={pillStyle}
+                        className="ww-small-pill"
                       >
                         {t('nav.signIn')}
                       </button>
                       <SignUpModal>
                         <button
                           type="button"
-                          className="mobile-auth-pill inline-flex items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors px-3 leading-none"
-                          style={pillStyle}
+                          className="ww-small-pill"
                         >
                           {t('nav.signUp')}
                         </button>
