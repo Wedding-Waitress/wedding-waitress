@@ -70,6 +70,9 @@ interface Event {
   start_time?: string | null;
   finish_time?: string | null;
   event_timezone?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
 }
 
 // Helper component to fetch and render existing ceremony floor plan
