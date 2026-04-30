@@ -1,44 +1,41 @@
-## Homepage mobile dropdown — final alignment & spacing fix
+## Goal
 
-Scope: `src/components/Layout/Header.tsx` only, mobile dropdown (`lg:hidden` block, lines 221–318). Desktop, tablet, all other pages, and `index.css` untouched.
+Improve visual hierarchy of the mobile Products dropdown in `src/components/Layout/Header.tsx` (`lg:hidden` block only). No items removed, no spacing changes — visual only. The divider above Pricing is conditional on Products being open.
 
-### Change 1 — itemStyle (line 223)
+## Single file: `src/components/Layout/Header.tsx`
 
-Replace the `itemStyle` const with:
+### 1. Products parent row active state (~lines 260–271)
 
-```ts
-const itemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  fontSize: '13px',
-  fontWeight: 500,
-  lineHeight: '20px',
-  paddingTop: '6px',
-  paddingBottom: '6px',
-  margin: 0,
-  minHeight: 0,
-  height: '32px',
-};
+Append/merge classes on the Products `<button>` based on `mobileProductsOpen` (keep existing `w-full flex items-center justify-between px-3` and any focus-visible styles):
+- Open: add `bg-[#FAF6EF] text-gray-950 font-semibold rounded-xl` (no hover)
+- Closed: keep current `hover:bg-gray-50 rounded-xl`
+
+`itemStyle`, `<span>{t('nav.products')}</span>`, and `<ChevronDown>` (size, rotation, alignment) untouched.
+
+### 2. Wrap the 13 product links (~lines 272–286)
+
+Inside the existing `{mobileProductsOpen && (...)}` block, wrap the children with the indent + cream left border:
 ```
+<div className="pl-2 my-1 border-l border-[#E8E1D6]">
+  {productLinks.map(...)}
+</div>
+```
+In each child `<Link>`, swap `hover:bg-gray-50` → `hover:bg-[#F8F5F0]`. `itemStyle`, padding, font size, spacing, and white background untouched.
 
-`minHeight: 0` + fixed `height: 32px` overrides the global mobile 48px floor that anchors and role=button inherit. `display: flex` + `alignItems: center` keeps text vertically centered in the fixed row so How It Works, Products, Pricing, Blog, FAQ, Contact and the expanded Products links all match exactly.
+### 3. Conditional divider before Pricing (~line 288)
 
-### Change 2 — Sign In / Sign Up pill row (lines 227–243)
+On the Pricing `<Link>` only, conditionally append `mt-2 pt-2 border-t border-[#E8E1D6]` when `mobileProductsOpen === true`. When Products is closed, Pricing renders normally with its existing classes (no divider, no extra spacing).
 
-- Container: change `flex items-center gap-2 px-1 pb-2` → `flex items-center justify-center gap-3 px-1 pb-2`.
-- Both pill `<button>` elements: add `style={{ minWidth: '100px' }}`. Pill class `ww-small-pill` unchanged.
+## Untouched
 
-Result: pills perfectly centered, equal left/right space, slightly wider, same pill style.
+- `itemStyle` constant; all heights / font sizes / paddings.
+- Sign In / Sign Up pill row.
+- How It Works, Blog, FAQ, Contact links.
+- Desktop dropdown (~lines 127–204).
+- Every other file and page.
 
-### Out of scope
+## Result
 
-- No changes to `index.css`, button variants, `.ww-small-pill`, fonts, colors, or layout structure.
-- No changes to desktop or tablet header.
-- No changes to any other page or component.
-
-### Verification
-
-Open `/` at 390px width, open the mobile menu, confirm:
-- Sign In / Sign Up pills are centered with equal spacing on both sides and slightly wider.
-- All six menu items have identical 32px row height and identical vertical gaps.
-- Desktop at 1440px is visually unchanged.
+- "Products" row highlights cream + semibold when open.
+- 13 children render as an indented sub-group with a thin cream left border.
+- Thin cream divider appears above Pricing only while Products is expanded; disappears when collapsed.
