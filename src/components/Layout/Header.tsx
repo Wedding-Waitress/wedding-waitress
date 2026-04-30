@@ -222,7 +222,7 @@ export const Header: React.FC<HeaderProps> = ({
                   // Uniform spacing for ALL items (main + product dropdown)
                   const itemStyle: React.CSSProperties = { fontSize: '13px', fontWeight: 500, lineHeight: '20px', paddingTop: '6px', paddingBottom: '6px', margin: 0 };
                   // Pill style for Sign In / Sign Up — thin brown border matching the brown text
-                  const pillStyle: React.CSSProperties = { color: '#967A59', borderColor: '#967A59', fontSize: '13px', fontWeight: 500, lineHeight: '16px', paddingTop: '2px', paddingBottom: '2px' };
+                  const pillStyle: React.CSSProperties = { color: '#967A59', borderColor: '#967A59', fontSize: '13px', fontWeight: 500, lineHeight: '14px', paddingTop: '1px', paddingBottom: '1px' };
                   return (
                   <div className="absolute top-full right-0 mt-1 w-56 bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 z-50 max-h-[90vh] overflow-y-auto">
                     {/* Sign In / Sign Up — pill-shaped with thin brown border, identical size */}
