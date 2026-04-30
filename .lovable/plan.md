@@ -1,32 +1,62 @@
-## Fix: Restore correct RFC 5322 email "from" format
+# Match Sign In / Sign Up pills to "1 Event Created" badge (Mobile only)
 
-Revert all 4 Edge Function `from` fields from the broken markdown-link format back to the standard `"Display Name <email@domain>"` format that Resend (and every email service) requires.
+## Reference: exact specs of the "1 Event Created" badge
 
-### Files to update
+Source: `src/components/Dashboard/EventsTable.tsx` line 260, using shadcn `Badge` (`src/components/ui/badge.tsx`).
 
-1. **`supabase/functions/send-transactional-email/index.ts`** (line 316)
-2. **`supabase/functions/send-rsvp-email/index.ts`** (line 123)
-3. **`supabase/functions/send-invitation-email/index.ts`** (line 127)
-4. **`supabase/functions/send-auth-email/index.ts`** (line 174)
-
-### Change in each file
-
-**From (currently broken):**
+The badge is built from these classes:
 ```
-from: "Wedding Waitress [support@weddingwaitress.com.au](mailto:support@weddingwaitress.com.au)",
+inline-flex items-center rounded-full border
+px-2.5 py-0.5 text-xs font-semibold
+bg-white border-primary text-primary
++ text-sm  (overrides text-xs to 14px)
 ```
 
-**To (correct RFC 5322 format):**
+Resolved values:
+- Border: `1px` solid, brown primary color
+- Radius: `rounded-full` (9999px)
+- Horizontal padding: `px-2.5` = 10px
+- Vertical padding: `py-0.5` = 2px
+- Font size: `text-sm` = 14px, `font-semibold` = 600
+- Line height: `text-sm` default = 20px
+- Background: white
+
+**Exact rendered height:** `2px (top pad) + 20px (line-height) + 2px (bot pad) + 1px×2 (border) = 26px`
+
+(The icon inside the dashboard badge is `w-4 h-4` = 16px which fits inside the 20px line box, so the badge stays 26px tall regardless of icon. Sign In / Sign Up have no icon, so they will also be 26px.)
+
+## Current state (problem)
+
+`src/components/Layout/Header.tsx` lines 224–245 render the pills with:
 ```
-from: "Wedding Waitress <support@weddingwaitress.com.au>",
+px-4 py-1.5
+fontSize: 13px, fontWeight: 600, lineHeight: 18px
+border color #967A59
 ```
+Resolved height = `6 + 18 + 6 + 2 = 32px` — too tall, padding too big.
 
-`reply_to: "support@weddingwaitress.com.au"` stays unchanged in every file. Nothing else will be touched.
+## Change (mobile dropdown only — desktop/tablet untouched)
 
-### Verification
+In `src/components/Layout/Header.tsx`, update both Sign In and Sign Up `<button>` elements inside the mobile menu (lines ~228–245):
 
-After editing, I'll run `sed -n` on each line and display the output inside a fenced code block (which preserves `<` and `>` characters so they're visible to you). You'll be able to clearly see the angle brackets and the email address in each of the 4 lines.
+1. Replace classes `px-4 py-1.5` → `px-2.5 py-0.5`
+2. Replace `pillStyle` inline style:
+   - `fontSize: '13px'` → `'14px'`
+   - `lineHeight: '18px'` → `'20px'`
+   - keep `fontWeight: 600`, `color: '#967A59'`, `borderColor: '#967A59'`
+3. Keep `rounded-full border bg-white`, `inline-flex items-center justify-center`
+4. Keep both buttons side-by-side in the existing flex row — no spacing/layout changes elsewhere.
 
-### Why this is correct
+Result: pills render at exactly **26px tall** with **10px horizontal padding**, identical geometry to the "1 Event Created" badge.
 
-`"Wedding Waitress <support@weddingwaitress.com.au>"` is the universal email standard (RFC 5322). The recipient's inbox shows the friendly name **Wedding Waitress** and the actual sender address is **support@weddingwaitress.com.au**. This is what Resend requires for proper deliverability and SPF/DKIM alignment with your verified domain.
+## Scope guard
+
+- Only the two pill buttons inside the mobile dropdown (`lg:hidden` block) are modified.
+- Desktop header buttons (lines ~170–185), tablet view, dropdown menu items, Products list, and every other page remain untouched.
+- No memory updates required (these pills are not part of a locked surface).
+
+## Verification
+
+After implementing, I'll open the preview at mobile width (375px), open the menu, and confirm:
+- Sign In and Sign Up pills match the "1 Event Created" badge height (26px) and padding visually.
+- Desktop header at ≥1024px is unchanged.
