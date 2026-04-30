@@ -261,7 +261,7 @@ export const Header: React.FC<HeaderProps> = ({
                       type="button"
                       onClick={() => setMobileProductsOpen(v => !v)}
                       aria-expanded={mobileProductsOpen}
-                      className={`w-full flex items-center justify-between px-3 rounded-xl ${mobileProductsOpen ? 'bg-[#FAF6EF] text-gray-950 font-semibold' : 'hover:bg-gray-50'}`}
+                      className={`w-full flex items-center justify-between px-3 rounded-xl ${mobileProductsOpen ? 'bg-[#FAF6EF] text-[#967A59] font-semibold' : 'hover:bg-gray-50'}`}
                       style={itemStyle}
                     >
                       <span>{t('nav.products')}</span>
@@ -276,7 +276,7 @@ export const Header: React.FC<HeaderProps> = ({
                             key={link.href}
                             to={link.href}
                             onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }}
-                            className="block w-full text-left px-3 hover:bg-[#F8F5F0] rounded-xl"
+                            className="block w-full text-left px-3 hover:bg-[#F8F5F0] rounded-xl text-[#967A59]"
                             style={itemStyle}
                           >
                             {link.label}
