@@ -1917,7 +1917,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
           {/* Instruction box */}
           <span className="block text-center text-xs font-medium text-primary bg-primary/5 border-2 border-primary rounded-full px-4 py-1.5">
-            Send digital invites &amp; RSVP's to your guests via Email or SMS by clicking the ‘Select Guest’ button.
+            Send digital invites &amp; RSVP's to your guests via Email or SMS by clicking the ‘Send RSVP or Invitation’ button.
           </span>
         </div>
 
@@ -2028,7 +2028,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 "!bg-[#FFFF00] !border-4 !border-red-500 !text-gray-900 !h-8 !px-4 !text-[13px] !font-semibold animate-flash"
                             )}
                           >
-                            {isSelected ? '✓ Selected' : 'Select Guest'}
+                            {isSelected ? '✓ Selected' : 'Send RSVP or Invitation'}
                           </button>
                         </div>
 
