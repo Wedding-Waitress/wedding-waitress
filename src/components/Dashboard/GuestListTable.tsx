@@ -1906,7 +1906,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 placeholder="Search guests..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full border-2 border-primary h-10 rounded-full text-sm"
+                className="pl-10 w-full border-2 border-primary h-10 rounded-full text-sm px-[12px]"
               />
             </div>
             <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-10 px-3 bg-white border-2 border-primary text-foreground flex-shrink-0">
