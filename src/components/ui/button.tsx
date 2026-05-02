@@ -41,7 +41,9 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    // Apply embossed shadow by default to all variants except link/ghost (which should stay flat).
+    const embossed = variant !== "link" && variant !== "ghost" ? "btn-embossed" : "";
+    return <Comp className={cn(buttonVariants({ variant, size }), embossed, className)} ref={ref} {...props} />;
   },
 );
 Button.displayName = "Button";
