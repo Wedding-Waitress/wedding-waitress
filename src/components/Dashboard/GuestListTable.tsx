@@ -1634,14 +1634,28 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <Label className="text-sm font-medium text-foreground">Enable Relationships</Label>
                         <span className="text-xs text-muted-foreground italic mr-2">Optional</span>
                       </div>
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="force-toggle-colors flex items-center gap-3 mb-2">
                         <span className="text-xs font-medium text-red-500">OFF</span>
                         <Switch
                           checked={!relationsHidden}
                           onCheckedChange={(checked) => handleHideRelationsToggle(!checked)}
-                          className="transition-colors duration-200 data-[state=checked]:!bg-green-500 data-[state=unchecked]:!bg-red-500"
+                          className="transition-colors duration-200"
                         />
                         <span className="text-xs font-medium text-green-500">ON</span>
+                        <style>{`
+                          .force-toggle-colors [data-state="checked"][role="switch"] {
+                            background-color: #22c55e !important;
+                          }
+                          .force-toggle-colors [data-state="unchecked"][role="switch"] {
+                            background-color: #ef4444 !important;
+                          }
+                          .force-toggle-colors [data-state="checked"][role="switch"]:hover {
+                            background-color: #22c55e !important;
+                          }
+                          .force-toggle-colors [data-state="unchecked"][role="switch"]:hover {
+                            background-color: #ef4444 !important;
+                          }
+                        `}</style>
                       </div>
 
                       {/* Expandable content with animation */}
