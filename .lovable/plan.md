@@ -1,30 +1,23 @@
-I checked the current Guest List code and found why it still looks wrong in the screenshot.
+Scope: Only the `Enable Relationships` `Switch` in `src/components/Dashboard/GuestListTable.tsx` (around line 1639–1643). No changes to `src/components/ui/switch.tsx`, no layout/label/logic changes anywhere.
 
-The current code colours the Radix switch based on its internal `checked/unchecked` state, but this specific UI is visually arranged as:
+Steps:
 
-```text
-ON   [toggle]   OFF
-```
-
-The switch itself is still using `checked={relationsHidden}`, where:
-
-```text
-relationsHidden = false  -> relationships are ON
-relationsHidden = true   -> relationships are OFF
-```
-
-So the switch’s `checked` state means OFF, not ON. The previous code tried to compensate with state-based classes, but because the switch is positioned between the ON/OFF labels and the thumb movement is also tied to `checked`, the visible result is still confusing/wrong.
-
-Plan:
-
-1. Update only the `Enable Relationships` toggle in `src/components/Dashboard/GuestListTable.tsx`.
-2. Change the switch to use normal positive logic:
+1. Keep current logic untouched:
    - `checked={!relationsHidden}`
-   - when toggled ON, call `handleHideRelationsToggle(false)`
-   - when toggled OFF, call `handleHideRelationsToggle(true)`
-3. Set the switch background directly to:
-   - green when checked / ON
-   - red when unchecked / OFF
-4. Keep all labels, layout, card styling, relationship behaviour, save logic, and other Guest List features unchanged.
+   - `onCheckedChange={(checked) => handleHideRelationsToggle(!checked)}`
 
-This should make the visual state match what you asked for: ON = green toggle background, OFF = red toggle background.
+2. Replace the `className` on this single `Switch` with forced state-based track colours that override the base `data-[state=checked]:bg-success` / `data-[state=unchecked]:bg-[#D6C2A8]` defaults from the shared component:
+
+   ```
+   className="data-[state=checked]:!bg-green-500 data-[state=unchecked]:!bg-red-500 hover:data-[state=checked]:!bg-green-500 hover:data-[state=unchecked]:!bg-red-500"
+   ```
+
+3. Do not modify:
+   - The shared `src/components/ui/switch.tsx` (avoids regressions on every other switch in the app — QR settings, Individual Table Chart, etc.).
+   - Surrounding labels (`ON` / `OFF` text), spacing, container styling, or the expandable settings panel.
+   - Step 1, Step 3, or any other component on the page.
+
+Expected result:
+- ON (checked) → solid green (`#22c55e`) track on desktop, tablet, mobile.
+- OFF (unchecked) → solid red (`#ef4444`) track on desktop, tablet, mobile.
+- Thumb, size, shape, and all other switches in the app unchanged.
