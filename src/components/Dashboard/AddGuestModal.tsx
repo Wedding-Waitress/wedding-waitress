@@ -907,7 +907,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto max-lg:rounded-xl max-lg:h-auto max-lg:max-h-[90vh] overflow-x-hidden"
+        className="max-w-3xl flex flex-col px-4 sm:px-8 overflow-x-hidden"
+        fullScreenOnMobile
       >
         <DialogHeader className="max-lg:pt-8 max-lg:items-center max-lg:text-center lg:pr-12">
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
