@@ -2028,7 +2028,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 "!bg-[#FFFF00] !border-4 !border-red-500 !text-gray-900 !h-8 !px-4 !text-[13px] !font-semibold animate-flash"
                             )}
                           >
-                            {isSelected ? '✓ Selected' : 'Select Guest'}
+                            {isSelected ? '✓ Selected' : 'Send RSVP or Invitation'}
                           </button>
                         </div>
 
