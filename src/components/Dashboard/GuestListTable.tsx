@@ -1883,10 +1883,48 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
         </div>
 
-        <div className="mt-2 mb-3 mx-3 sm:mx-6 flex items-center justify-between gap-2 flex-wrap">
+        {/* MOBILE-ONLY layout: filters → search+total → instruction */}
+        <div className="lg:hidden mt-3 mb-3 mx-4 flex flex-col gap-3">
+          {/* Filter tabs row */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white">
+              {individualCount} Individual
+            </div>
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white">
+              {coupleCount} Couple
+            </div>
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white">
+              {familyCount} Family
+            </div>
+          </div>
+
+          {/* Search + Total Guests row */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search guests..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full border-2 border-primary h-10 rounded-full text-sm"
+              />
+            </div>
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-10 px-3 bg-white border-2 border-primary text-foreground flex-shrink-0">
+              <Users className="w-4 h-4" />
+              {guestCount} Total
+            </div>
+          </div>
+
+          {/* Instruction box */}
+          <span className="block text-center text-xs font-medium text-primary bg-primary/5 border-2 border-primary rounded-full px-4 py-1.5">
+            Send digital invites &amp; RSVP's to your guests via Email or SMS by clicking the ‘Select Guest’ button for each guest.
+          </span>
+        </div>
+
+        {/* DESKTOP layout (unchanged) */}
+        <div className="hidden lg:flex mt-2 mb-3 mx-3 sm:mx-6 items-center justify-between gap-2 flex-wrap">
           <span className="inline-block text-xs font-medium text-primary bg-primary/5 border-2 border-primary rounded-full px-4 py-1.5">
-            <span className="hidden lg:inline">Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.</span>
-            <span className="lg:hidden">Send digital invites &amp; RSVP's to your guests via Email or SMS by clicking the ‘Select Guest’ button for each guest.</span>
+            Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.
           </span>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
