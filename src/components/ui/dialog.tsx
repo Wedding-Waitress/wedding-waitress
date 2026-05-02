@@ -57,20 +57,15 @@ const DialogContent = React.forwardRef<
         "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         // Rounded corners on larger screens
         "sm:rounded-lg",
-        // Mobile-first responsive styles
+        // Unified centered-card system for all mobile/tablet sizes.
+        // fullScreenOnMobile is kept as a compat alias but now renders as a
+        // centered card (matching the Create Event reference modal).
         fullScreenOnMobile
           ? [
-              // Full screen on mobile
-              "max-sm:inset-0 max-sm:left-0 max-sm:top-0 max-sm:translate-x-0 max-sm:translate-y-0",
-              "max-sm:max-w-none max-sm:w-full max-sm:h-full max-sm:max-h-none",
-              "max-sm:rounded-none max-sm:border-0",
-              "max-sm:flex max-sm:flex-col",
-              // Safe area padding on mobile
-              "max-sm:pt-[env(safe-area-inset-top)] max-sm:pb-[env(safe-area-inset-bottom)]",
-              "max-sm:pl-[env(safe-area-inset-left)] max-sm:pr-[env(safe-area-inset-right)]",
+              "max-lg:w-[calc(100%-2rem)] max-lg:max-w-[calc(100%-2rem)] max-lg:mx-auto",
+              "max-lg:max-h-[90vh] max-lg:rounded-xl max-lg:border max-lg:flex max-lg:flex-col",
             ]
           : [
-              // Standard modal with max-height on mobile
               "max-sm:max-h-[90vh] max-sm:w-[calc(100%-2rem)] max-sm:rounded-xl",
             ],
         className,
