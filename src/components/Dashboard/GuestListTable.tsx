@@ -1635,13 +1635,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <span className="text-xs text-muted-foreground italic mr-2">Optional</span>
                       </div>
                       <div className="flex items-center gap-3 mb-2">
-                        <span className={cn("text-xs font-medium", !relationsHidden ? "text-green-600" : "text-muted-foreground")}>ON</span>
+                        <span className="text-xs font-medium text-red-500">OFF</span>
                         <Switch
                           checked={!relationsHidden}
                           onCheckedChange={(checked) => handleHideRelationsToggle(!checked)}
-                          className="data-[state=checked]:!bg-green-500 data-[state=unchecked]:!bg-red-500 hover:data-[state=checked]:!bg-green-500 hover:data-[state=unchecked]:!bg-red-500"
+                          className="transition-colors duration-200 data-[state=checked]:!bg-green-500 data-[state=unchecked]:!bg-red-500"
                         />
-                        <span className={cn("text-xs font-medium", relationsHidden ? "text-destructive" : "text-muted-foreground")}>OFF</span>
+                        <span className="text-xs font-medium text-green-500">ON</span>
                       </div>
 
                       {/* Expandable content with animation */}
