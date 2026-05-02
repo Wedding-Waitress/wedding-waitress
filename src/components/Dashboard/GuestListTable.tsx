@@ -2022,7 +2022,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             }}
                             aria-pressed={isSelected}
                             className={cn(
-                              "ww-small-pill",
+                              "ww-small-pill !border-2 !border-[#967A59]",
                               isSelected && "ww-small-pill--active",
                               hasPlusOneAlert &&
                                 "!bg-[#FFFF00] !border-4 !border-red-500 !text-gray-900 !h-8 !px-4 !text-[13px] !font-semibold animate-flash"
