@@ -1885,7 +1885,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
         <div className="mt-2 mb-3 mx-3 sm:mx-6 flex items-center justify-between gap-2 flex-wrap">
           <span className="inline-block text-xs font-medium text-primary bg-primary/5 border-2 border-primary rounded-full px-4 py-1.5">
-            Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.
+            <span className="hidden lg:inline">Send digital invites &amp; RSVP's to your guests via Email or SMS by checking the circles below on the left side of the table.</span>
+            <span className="lg:hidden">Send digital invites &amp; RSVP's to your guests via Email or SMS by clicking the ‘Select Guest’ button for each guest.</span>
           </span>
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
