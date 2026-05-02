@@ -1639,7 +1639,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <Switch
                           checked={relationsHidden}
                           onCheckedChange={(checked) => handleHideRelationsToggle(checked)}
-                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-destructive"
+                          className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-green-500 hover:data-[state=unchecked]:bg-green-500"
                         />
                         <span className={cn("text-xs font-medium", relationsHidden ? "text-destructive" : "text-muted-foreground")}>OFF</span>
                       </div>
