@@ -1,36 +1,17 @@
-# Guest List — Mobile Header Reorder
+I checked the actual Guest List code and found the problem: the previous change was applied to the toggle’s visual checked/unchecked state, but this specific toggle uses inverted logic:
 
-## Scope
-Single file: `src/components/Dashboard/GuestListTable.tsx` (the row currently at lines 1886–1915).
+- `relationsHidden = false` means relationships are enabled (ON)
+- `relationsHidden = true` means relationships are disabled (OFF)
+- The switch is currently set as `checked={relationsHidden}`, so the switch appears “checked” when relationships are actually OFF.
 
-Desktop (`lg:` and up) is **completely unchanged**. Yellow plus-one notification, Step 3 box, all functionality, colors, and data logic are untouched.
+That means the previous styling made the checked state green, which incorrectly makes OFF look green. That is why you did not see the correct result after refreshing/publishing.
 
-## New mobile order (below Step 3, above guest cards)
+Plan:
+1. Update only the `Enable Relationships` switch in `src/components/Dashboard/GuestListTable.tsx`.
+2. Change its color classes so the current inverted state is displayed correctly:
+   - when `relationsHidden` is `false` / relationships ON: green background
+   - when `relationsHidden` is `true` / relationships OFF: red background
+3. Keep the toggle behavior, labels, layout, and all other Guest List styling unchanged.
+4. Verify the code path so the ON/OFF label colors and the toggle background now match the actual relationship setting.
 
-```text
-[ Step 3: Add Your Guests ]
-[ Yellow +1 notification (only when triggered) ]
-─────────────────────────────────────────────
-[ Individual (pink) | Couple (orange) | Family (blue) ]   ← 3 equal columns
-[ 🔍 Search guests............ ] [ 👥 78 Total ]          ← search flex-1, total fixed
-[ Send digital invites & RSVP's … 'Select Guest' button ] ← centered pill
-─────────────────────────────────────────────
-[ Guest cards… ]
-```
-
-## Implementation
-
-Replace the single responsive row (lines 1886–1915) with two siblings:
-
-1. **Mobile block** (`lg:hidden`) — `mx-4` matching guest cards, `flex flex-col gap-3`:
-   - Filter tabs: `grid grid-cols-3 gap-2`, each pill `h-8 rounded-full` keeping existing pink/orange/blue colors and dynamic counts (`individualCount`, `coupleCount`, `familyCount`).
-   - Search + Total row: `flex items-center gap-2`. Search uses `flex-1 w-full h-10`. Total badge `h-10` shows `{guestCount} Total` with Users icon, white bg + primary border (unchanged styling tokens).
-   - Instruction pill: existing primary/5 + border-2 styling, centered, mobile copy ("…by clicking the 'Select Guest' button for each guest.").
-
-2. **Desktop block** (`hidden lg:flex`) — exact copy of current row markup with the desktop instruction copy ("…by checking the circles…"). No layout/style changes for `lg+`.
-
-## Guarantees
-- No changes to: functionality, data, colors, button styles, Step 3 box, yellow +1 notification, desktop layout, guest cards.
-- Counts remain dynamic (same `individualCount` / `coupleCount` / `familyCount` / `guestCount` variables).
-- Side margins (`mx-4`) match the mobile guest cards container (`px-4`) below for consistent alignment per project mobile rules.
-- Touch targets ≥ 40px (filter pills `h-8`, search/total `h-10`).
+I also need to be clear: the earlier response should not have claimed it was fixed without validating this inverted state logic. The change was made in the right area, but the boolean meaning was misunderstood, so it did not produce the requested visual behavior.
