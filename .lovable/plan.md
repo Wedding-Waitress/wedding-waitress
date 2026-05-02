@@ -1,17 +1,30 @@
-I checked the actual Guest List code and found the problem: the previous change was applied to the toggle’s visual checked/unchecked state, but this specific toggle uses inverted logic:
+I checked the current Guest List code and found why it still looks wrong in the screenshot.
 
-- `relationsHidden = false` means relationships are enabled (ON)
-- `relationsHidden = true` means relationships are disabled (OFF)
-- The switch is currently set as `checked={relationsHidden}`, so the switch appears “checked” when relationships are actually OFF.
+The current code colours the Radix switch based on its internal `checked/unchecked` state, but this specific UI is visually arranged as:
 
-That means the previous styling made the checked state green, which incorrectly makes OFF look green. That is why you did not see the correct result after refreshing/publishing.
+```text
+ON   [toggle]   OFF
+```
+
+The switch itself is still using `checked={relationsHidden}`, where:
+
+```text
+relationsHidden = false  -> relationships are ON
+relationsHidden = true   -> relationships are OFF
+```
+
+So the switch’s `checked` state means OFF, not ON. The previous code tried to compensate with state-based classes, but because the switch is positioned between the ON/OFF labels and the thumb movement is also tied to `checked`, the visible result is still confusing/wrong.
 
 Plan:
-1. Update only the `Enable Relationships` switch in `src/components/Dashboard/GuestListTable.tsx`.
-2. Change its color classes so the current inverted state is displayed correctly:
-   - when `relationsHidden` is `false` / relationships ON: green background
-   - when `relationsHidden` is `true` / relationships OFF: red background
-3. Keep the toggle behavior, labels, layout, and all other Guest List styling unchanged.
-4. Verify the code path so the ON/OFF label colors and the toggle background now match the actual relationship setting.
 
-I also need to be clear: the earlier response should not have claimed it was fixed without validating this inverted state logic. The change was made in the right area, but the boolean meaning was misunderstood, so it did not produce the requested visual behavior.
+1. Update only the `Enable Relationships` toggle in `src/components/Dashboard/GuestListTable.tsx`.
+2. Change the switch to use normal positive logic:
+   - `checked={!relationsHidden}`
+   - when toggled ON, call `handleHideRelationsToggle(false)`
+   - when toggled OFF, call `handleHideRelationsToggle(true)`
+3. Set the switch background directly to:
+   - green when checked / ON
+   - red when unchecked / OFF
+4. Keep all labels, layout, card styling, relationship behaviour, save logic, and other Guest List features unchanged.
+
+This should make the visual state match what you asked for: ON = green toggle background, OFF = red toggle background.

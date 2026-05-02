@@ -1637,9 +1637,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div className="flex items-center gap-3 mb-2">
                         <span className={cn("text-xs font-medium", !relationsHidden ? "text-green-600" : "text-muted-foreground")}>ON</span>
                         <Switch
-                          checked={relationsHidden}
-                          onCheckedChange={(checked) => handleHideRelationsToggle(checked)}
-                          className="data-[state=checked]:bg-destructive data-[state=unchecked]:bg-green-500 hover:data-[state=unchecked]:bg-green-500"
+                          checked={!relationsHidden}
+                          onCheckedChange={(checked) => handleHideRelationsToggle(!checked)}
+                          className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-destructive hover:data-[state=checked]:bg-green-500 hover:data-[state=unchecked]:bg-destructive"
                         />
                         <span className={cn("text-xs font-medium", relationsHidden ? "text-destructive" : "text-muted-foreground")}>OFF</span>
                       </div>
