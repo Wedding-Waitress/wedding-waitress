@@ -2368,24 +2368,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             </Badge>
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
-                            <div className="flex items-center justify-center">
-                              {(() => {
-                                const status = guest.rsvp_invite_status || 'not_sent';
-                                const statusConfig: Record<string, { label: string; className: string }> = {
-                                  'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
-                                  'email_sent': { label: 'Email Sent', className: 'bg-green-500 text-white' },
-                                  'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
-                                  'both_sent': { label: 'Both Sent', className: 'bg-green-500 text-white' },
-                                  'mail_sent': { label: 'Sent (Mail)', className: 'bg-green-500 text-white' },
-                                };
-                                const config = statusConfig[status] || statusConfig['not_sent'];
-                                return (
-                                  <Badge className={`text-xs whitespace-nowrap ${config.className}`}>
-                                    {config.label}
-                                  </Badge>
-                                );
-                              })()}
-                            </div>
+                            {(() => {
+                              const status = guest.rsvp_invite_status || 'not_sent';
+                              const statusConfig: Record<string, { label: string; className: string }> = {
+                                'not_sent': { label: 'Not Sent', className: 'bg-gray-400 text-white' },
+                                'email_sent': { label: 'Email Sent', className: 'bg-green-500 text-white' },
+                                'sms_sent': { label: 'SMS Sent', className: 'bg-green-500 text-white' },
+                                'both_sent': { label: 'Both Sent', className: 'bg-green-500 text-white' },
+                                'mail_sent': { label: 'Sent (Mail)', className: 'bg-green-500 text-white' },
+                              };
+                              const config = statusConfig[status] || statusConfig['not_sent'];
+                              return (
+                                <Badge className={`text-xs whitespace-nowrap ${config.className}`}>
+                                  {config.label}
+                                </Badge>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
                             {(() => {
