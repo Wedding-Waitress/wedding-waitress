@@ -2632,17 +2632,43 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           onUpdateRsvp={() => setShowBulkRsvpModal(true)}
           onDelete={() => setShowBulkDeleteModal(true)}
           onSendEmail={() => {
+            if (selectedGuestIds.size === 0) {
+              toast({
+                title: "No guests selected",
+                description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
+                variant: "destructive",
+              });
+              return;
+            }
             setSendChannel('email');
-            if (hasRsvpPurchase) {
-              setShowSendModal(true);
+            if (hasRsvpPurchase && rsvpPurchase) {
+              const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
+              if (tierMax > 0 && guests.length <= tierMax) {
+                setShowAlreadyPaidModal(true);
+              } else {
+                setShowActivationModal(true);
+              }
             } else {
               setShowActivationModal(true);
             }
           }}
           onSendSms={() => {
+            if (selectedGuestIds.size === 0) {
+              toast({
+                title: "No guests selected",
+                description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
+                variant: "destructive",
+              });
+              return;
+            }
             setSendChannel('sms');
-            if (hasRsvpPurchase) {
-              setShowSendModal(true);
+            if (hasRsvpPurchase && rsvpPurchase) {
+              const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
+              if (tierMax > 0 && guests.length <= tierMax) {
+                setShowAlreadyPaidModal(true);
+              } else {
+                setShowActivationModal(true);
+              }
             } else {
               setShowActivationModal(true);
             }
