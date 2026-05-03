@@ -2412,6 +2412,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               '—'
                             )}
                           </TableCell>
+                          {!relationsHidden && (
                           <TableCell className="py-1 px-2">
                             {(() => {
                               const relationDisplay = getResolvedRelationDisplay(
@@ -2432,6 +2433,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               );
                             })()}
                           </TableCell>
+                          )}
                     <TableCell className="py-1 px-2">
                       <span className="text-sm text-foreground">
                         {guest.dietary || '—'}
