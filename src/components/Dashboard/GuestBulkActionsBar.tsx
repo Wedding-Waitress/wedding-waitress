@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Trash2, Mail, Phone, Send } from "lucide-react";
+import { Trash2, Mail, Phone, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -81,34 +81,18 @@ export const GuestBulkActionsBar = ({
         </DialogHeader>
 
         <div className="grid gap-2 py-4">
-          {/* Update RSVP */}
-          <button
-            onClick={onUpdateRsvp}
-            className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
-          >
-            <CheckCircle2 className="w-5 h-5 text-[#967A59]" />
-            <span className="text-sm font-medium text-foreground">Update RSVP</span>
-          </button>
-
-          {/* Send Email via Wedding Waitress */}
-          {onSendEmail && (
+          {/* Send Email & SMS via Wedding Waitress (combined) */}
+          {(onSendEmail || onSendSms) && (
             <button
-              onClick={onSendEmail}
+              onClick={() => {
+                if (onSendEmail) onSendEmail();
+                else if (onSendSms) onSendSms();
+              }}
               className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
             >
               <Mail className="w-5 h-5 text-blue-500" />
-              <span className="text-sm font-medium text-foreground">Send Email via Wedding Waitress</span>
-            </button>
-          )}
-
-          {/* Send SMS via Wedding Waitress */}
-          {onSendSms && (
-            <button
-              onClick={onSendSms}
-              className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
-            >
               <Phone className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-medium text-foreground">Send SMS via Wedding Waitress</span>
+              <span className="text-sm font-medium text-foreground">Send Email &amp; SMS via Wedding Waitress</span>
             </button>
           )}
 
