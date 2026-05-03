@@ -133,6 +133,22 @@ export const PaymentSuccess = () => {
           </>
         )}
 
+        {status === "pending" && (
+          <>
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+              <Clock className="w-8 h-8 text-amber-600" />
+            </div>
+            <h1 className="text-2xl font-bold">Payment received</h1>
+            <p className="text-muted-foreground">
+              We're finalizing your setup. Your purchase is confirmed with Stripe — please give us a moment.
+            </p>
+            <Button onClick={() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); }} className="rounded-full">
+              Go to Dashboard
+            </Button>
+            <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
+          </>
+        )}
+
         {status === "error" && (
           <>
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
