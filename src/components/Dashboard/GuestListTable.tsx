@@ -2319,13 +2319,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
                           )}
                         >
-                          <TableCell className="py-1 px-2">
+                          <TableCell className="px-2 py-2 text-center align-middle">
                             <Checkbox
                               checked={selectedGuestIds.has(guest.id)}
                               onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
                             />
                           </TableCell>
-                          <TableCell className="py-1 px-2 font-medium truncate">
+                          <TableCell className="px-2 py-2 text-center align-middle font-medium">
                             {group.type !== 'individual' && (
                               <span className="inline-block w-2 h-2 rounded-full bg-[#967A59] mr-2 align-middle" />
                             )}
