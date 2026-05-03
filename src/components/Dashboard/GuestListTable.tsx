@@ -2326,9 +2326,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             />
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">
-                            {group.type !== 'individual' && (
-                              <span className="inline-block w-2 h-2 rounded-full bg-[#967A59] mr-2 align-middle" />
-                            )}
                             {guest.first_name}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
@@ -2379,7 +2376,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
                               return (
-                                <Badge className={`text-xs whitespace-nowrap ${config.className}`}>
+                                <Badge className={`text-xs ${config.className}`}>
                                   {config.label}
                                 </Badge>
                               );
@@ -2392,13 +2389,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               return (
                                 <Badge 
                                   variant={getRsvpBadgeVariant(guest.rsvp)} 
-                                  className="text-xs text-white px-2 py-0.5 inline-flex items-center justify-center text-center leading-tight min-w-[68px]"
+                                  className="text-xs text-white px-2 py-0.5 leading-tight"
                                 >
                                   {isNotAttending ? (
-                                    <span className="flex flex-col items-center justify-center leading-[1.05]">
-                                      <span>Not</span>
-                                      <span>Attending</span>
-                                    </span>
+                                    <>Not<br />Attending</>
                                   ) : (
                                     label
                                   )}
@@ -2501,13 +2495,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             )}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
-                            <span className="inline-flex items-center justify-center gap-1 whitespace-nowrap">
+                            <span className="whitespace-nowrap">
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button 
                                       variant="ghost" 
                                       size="sm"
+                                      className="h-8 w-8 p-0"
                                       onClick={() => handleEditGuest(guest)}
                                     >
                                       <Edit className="w-4 h-4 text-green-500" />
@@ -2522,6 +2517,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                     <Button 
                                       variant="ghost" 
                                       size="sm"
+                                      className="h-8 w-8 p-0"
                                       onClick={() => handleDeleteGuest(guest)}
                                     >
                                       <Trash2 className="w-4 h-4 text-red-500" />
