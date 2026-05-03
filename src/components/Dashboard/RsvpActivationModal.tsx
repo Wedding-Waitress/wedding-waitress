@@ -78,8 +78,14 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
       }
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        // Remember current tab so PaymentSuccess can return here in the same window.
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const currentTab = params.get('tab') || 'guest-list';
+          sessionStorage.setItem('ww:returnTab', currentTab);
+        } catch {}
         onClose();
+        window.location.href = data.url;
       }
     } catch (err) {
       toast({
