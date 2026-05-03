@@ -2326,7 +2326,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             />
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">
-                            {guest.first_name}
+                            <span className="inline-flex items-center gap-2">
+                              <UserRound className="w-4 h-4 text-[#967A59] shrink-0" />
+                              <span>{guest.first_name}</span>
+                            </span>
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
