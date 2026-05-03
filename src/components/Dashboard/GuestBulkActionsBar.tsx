@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckCircle2, Trash2, Mail, Phone, Send } from "lucide-react";
+import { Trash2, Mail, Phone, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
