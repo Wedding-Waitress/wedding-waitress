@@ -2326,9 +2326,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             />
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">
-                            {group.type !== 'individual' && (
-                              <span className="inline-block w-2 h-2 rounded-full bg-[#967A59] mr-2 align-middle" />
-                            )}
                             {guest.first_name}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
