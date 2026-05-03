@@ -67,10 +67,10 @@ export const GuestBulkActionsBar = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
-          <DialogDescription className="text-sm font-medium text-center mt-4 text-[#5C4A36] whitespace-pre-line">
-            Apply actions to “All your guests” below or{"\n"}
-            go back to the guest list table &amp; select{"\n"}
-            individual guests to send RSVP’s / Invites to.
+          <DialogDescription className="text-sm font-medium mt-4 text-[#5C4A36] whitespace-pre-line text-left">
+            1. Send RSVP's / Invites to “All your guests” below{"\n"}
+            2. Select one guest only back in the guest list table{"\n"}
+            3. Add multiple guests to send RSVP / Invites in from the search bar below
           </DialogDescription>
           {getSelectedText() && (
             <p className="text-sm font-medium text-center mt-4 text-green-600">{getSelectedText()}</p>
