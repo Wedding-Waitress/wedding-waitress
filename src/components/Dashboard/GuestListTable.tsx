@@ -2239,9 +2239,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span className="flex items-center justify-center gap-1">
+                        <span className="block leading-tight">
                           + Guest
-                          <Users className="w-3 h-3" />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
