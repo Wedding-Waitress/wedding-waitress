@@ -96,7 +96,7 @@ import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
-import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
+import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
