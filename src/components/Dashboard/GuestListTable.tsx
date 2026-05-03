@@ -2106,9 +2106,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               )}
                             </div>
                           </div>
-                          {!relationsHidden && (
-                            <div className="min-w-0">
-                              <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
+                          <div className="min-w-0">
+                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
+                            {relationsHidden ? (
+                              <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-semibold">OFF</span>
+                            ) : (
                               <RelationBadge
                                 display={relationDisplay}
                                 partner={guest.relation_partner || ''}
@@ -2117,8 +2119,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 onClick={() => handleEditRelation(guest)}
                                 isEmpty={!relationDisplay}
                               />
-                            </div>
-                          )}
+                            )}
+                          </div>
                           <div>
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Dietary</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{guest.dietary || '—'}</div>
