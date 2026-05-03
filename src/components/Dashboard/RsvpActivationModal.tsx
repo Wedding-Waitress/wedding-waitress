@@ -79,11 +79,10 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
 
       console.log("Stripe URL:", data?.url);
       if (data?.url) {
-        // Remember current tab so PaymentSuccess can return here in the same window.
+        // Always return to Guest List after RSVP payment + remember count for success modal.
         try {
-          const params = new URLSearchParams(window.location.search);
-          const currentTab = params.get('tab') || 'guest-list';
-          sessionStorage.setItem('ww:returnTab', currentTab);
+          sessionStorage.setItem('ww:returnTab', 'guest-list');
+          sessionStorage.setItem('ww:rsvpSelectedCount', String(totalGuestCount ?? 0));
         } catch {}
         onClose();
         // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside

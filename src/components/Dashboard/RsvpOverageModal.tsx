@@ -74,9 +74,9 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
 
       if (data?.url) {
         try {
-          const params = new URLSearchParams(window.location.search);
-          const currentTab = params.get('tab') || 'guest-list';
-          sessionStorage.setItem('ww:returnTab', currentTab);
+          sessionStorage.setItem('ww:returnTab', 'guest-list');
+          // For overage, store the additional guest capacity being purchased.
+          sessionStorage.setItem('ww:rsvpSelectedCount', String(extraGuests ?? 0));
         } catch {}
         onClose();
         // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside
