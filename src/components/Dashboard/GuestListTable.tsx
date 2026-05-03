@@ -2196,12 +2196,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-primary text-primary-foreground px-2">
-                  <Checkbox
-                    checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
-                    onCheckedChange={handleSelectAll}
-                    className="border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary data-[state=checked]:border-white"
-                  />
+                <TableHead className="bg-primary text-primary-foreground px-2 min-w-[120px]">
+                  <div className="flex flex-col items-center justify-center gap-1">
+                    <span className="text-[11px] font-medium text-white whitespace-nowrap leading-tight select-none">
+                      Send RSVP &amp; Invite
+                    </span>
+                    <Checkbox
+                      checked={selectedGuestIds.size === sortedGuests.length && sortedGuests.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      className="border-white bg-white data-[state=checked]:bg-white data-[state=checked]:text-primary data-[state=checked]:border-white"
+                    />
+                  </div>
                 </TableHead>
                 <TableHead className="px-2 text-xs">First Name</TableHead>
                 <TableHead className="px-2 text-xs">Last Name</TableHead>
