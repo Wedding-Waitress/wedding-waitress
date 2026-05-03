@@ -416,13 +416,14 @@ export const Dashboard = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Card className="ww-box w-full text-center px-4 py-5 sm:px-8 sm:py-8 mx-0 my-0">
-            <TrendingUp className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto text-primary mb-2 sm:mb-4" />
-            <CardTitle className="mb-1 sm:mb-2 text-lg sm:text-2xl">Dashboard Overview</CardTitle>
-            <CardDescription className="text-sm sm:text-base">
-              Welcome to your wedding planning dashboard. Get an overview of your event progress.
-            </CardDescription>
-          </Card>;
+        return (
+          <DashboardOverview
+            selectedEventId={selectedEventId}
+            onEventSelect={handleEventSelect}
+            events={events}
+            guests={guests}
+          />
+        );
       case 'my-events':
         return <MyEventsPage />;
       case 'guest-list':
