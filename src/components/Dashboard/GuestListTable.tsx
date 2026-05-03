@@ -240,6 +240,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [showBulkTableModal, setShowBulkTableModal] = useState(false);
   const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
