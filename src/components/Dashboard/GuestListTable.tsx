@@ -253,7 +253,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showOverageModal, setShowOverageModal] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
-  const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
+  const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
   
   // Pagination state
   const GUESTS_PER_PAGE = 50;
