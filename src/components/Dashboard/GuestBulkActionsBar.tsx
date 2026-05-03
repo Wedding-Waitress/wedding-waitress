@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Mail, Phone, Send } from "lucide-react";
+import { Mail, Phone, Send } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -67,10 +67,10 @@ export const GuestBulkActionsBar = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
-          <div className="flex flex-col items-center gap-2 mt-4">
-            <p className="text-sm text-muted-foreground text-center">{getSelectedText()}</p>
-          </div>
-          <DialogDescription className="text-center mt-6">Apply actions to your selected guests</DialogDescription>
+          <DialogDescription className="text-sm font-medium text-center mt-4 text-[#967A59]">Apply actions to your selected guests</DialogDescription>
+          {getSelectedText() && (
+            <p className="text-sm font-medium text-center mt-4 text-green-600">{getSelectedText()}</p>
+          )}
         </DialogHeader>
 
         <div className="grid gap-2 py-4">
@@ -114,14 +114,6 @@ export const GuestBulkActionsBar = ({
             </div>
           </div>
 
-          {/* Delete Guests */}
-          <button
-            onClick={onDelete}
-            className="p-3 rounded-lg border-2 border-red-500 hover:bg-red-50 cursor-pointer flex items-center gap-3 transition-colors text-left"
-          >
-            <Trash2 className="w-5 h-5 text-red-600" />
-            <span className="text-sm font-medium text-red-600">Delete Guests</span>
-          </button>
         </div>
 
         <DialogFooter>
