@@ -61,15 +61,6 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    // Authenticate user
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-    const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user) throw new Error("Authentication failed");
-    const userId = userData.user.id;
-    logStep("User authenticated", { userId });
-
     const { session_id } = await req.json();
     if (!session_id) throw new Error("session_id is required");
 
@@ -83,9 +74,9 @@ serve(async (req) => {
     logStep("Session retrieved", { status: session.payment_status, mode: session.mode });
 
     if (session.payment_status !== "paid") {
-      return new Response(JSON.stringify({ error: "Payment not completed" }), {
+      return new Response(JSON.stringify({ status: "pending" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
+        status: 200,
       });
     }
 
@@ -96,7 +87,28 @@ serve(async (req) => {
     const metadata = session.metadata || {};
     const eventId = metadata.event_id;
 
-    logStep("Product identified", { productId, eventId });
+    // Trust Stripe session metadata for user identity (set by create-checkout).
+    // This avoids requiring a live auth header on the success-page redirect.
+    let userId = metadata.user_id || "";
+    if (!userId) {
+      // Idempotent re-verify fallback: look up prior record by session id.
+      const { data: prior } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("user_id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
+      userId = prior?.user_id || "";
+    }
+    if (!userId) throw new Error("user_id missing from session metadata");
+
+    // Resolve user email for downstream notifications (no auth header needed).
+    let userEmail = "";
+    try {
+      const { data: u } = await supabase.auth.admin.getUserById(userId);
+      userEmail = u?.user?.email || "";
+    } catch (_) { /* non-fatal */ }
+
+    logStep("Product identified", { productId, eventId, userId });
 
     // ── RSVP Bundle Purchase ──
     if (RSVP_PRODUCT_IDS.has(productId)) {
