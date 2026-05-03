@@ -60,11 +60,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const nearLimit = !overLimit && percent >= 80;
   const percentLabel = capacity > 0 ? Math.round((stats.total / capacity) * 100) : 0;
 
-  const goToGuestList = () => {
+  const goToGuestList = (scrollToSend = false) => {
     if (onNavigateToGuestList) {
       onNavigateToGuestList();
     } else {
       window.location.assign('/dashboard?tab=guest-list');
+    }
+    if (scrollToSend) {
+      setTimeout(() => {
+        document.getElementById('guest-list-table-anchor')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 250);
     }
   };
 
