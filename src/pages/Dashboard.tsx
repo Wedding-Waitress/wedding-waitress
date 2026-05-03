@@ -6,6 +6,7 @@ import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
+import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
