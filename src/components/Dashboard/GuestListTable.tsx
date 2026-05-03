@@ -2623,6 +2623,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           selectedCount={selectedGuestIds.size}
           totalCount={sortedGuests.length}
           selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
+          allGuests={sortedGuests.map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
+          onSelectGuests={(ids) => setSelectedGuestIds(new Set(ids))}
           onSelectAll={handleSelectAll}
           onDeselectAll={handleDeselectAll}
           onUpdateRsvp={() => setShowBulkRsvpModal(true)}
