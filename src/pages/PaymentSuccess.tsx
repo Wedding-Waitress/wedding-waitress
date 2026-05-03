@@ -60,14 +60,28 @@ export const PaymentSuccess = () => {
   }, [sessionId, stopProcessing]);
 
   // Determine where to send the user back to (preserve originating dashboard tab).
+  const isRsvp = details.type === 'rsvp' || details.type === 'rsvp_overage';
   const returnTab = (() => {
     try {
-      return sessionStorage.getItem('ww:returnTab') || 'account';
+      return sessionStorage.getItem('ww:returnTab') || (isRsvp ? 'guest-list' : 'account');
     } catch {
-      return 'account';
+      return isRsvp ? 'guest-list' : 'account';
     }
   })();
-  const returnDest = `/dashboard?tab=${returnTab}&success=true`;
+  const returnDest = (() => {
+    const params = new URLSearchParams();
+    params.set('tab', returnTab);
+    if (isRsvp) {
+      params.set('payment', 'success');
+      if (sessionId) params.set('session_id', sessionId);
+      if (details.plan_name) params.set('tier', details.plan_name);
+      if (details.amount_paid != null) params.set('amount', String(details.amount_paid));
+      params.set('ptype', details.type as string);
+    } else {
+      params.set('success', 'true');
+    }
+    return `/dashboard?${params.toString()}`;
+  })();
 
   // Auto-redirect after 8 seconds for success / approval / pending
   useEffect(() => {

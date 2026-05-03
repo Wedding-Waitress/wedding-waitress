@@ -96,6 +96,8 @@ import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
+import { RsvpPaymentSuccessModal, type RsvpPaymentSuccessData } from './RsvpPaymentSuccessModal';
+import { useSearchParams } from 'react-router-dom';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -254,6 +256,33 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
+
+  // RSVP payment-success return handler: close old modal, clear selection, show success modal.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [rsvpSuccessModal, setRsvpSuccessModal] = useState<RsvpPaymentSuccessData | null>(null);
+  useEffect(() => {
+    if (searchParams.get('payment') !== 'success') return;
+    // Close bulk modal and clear any active selection.
+    setBulkModalOpen(false);
+    setSelectedGuestIds(new Set());
+    // Build success-modal payload from query params + sessionStorage.
+    let storedCount = 0;
+    try { storedCount = Number(sessionStorage.getItem('ww:rsvpSelectedCount') || '0'); } catch {}
+    const tierLabel = searchParams.get('tier') || '';
+    const amount = Number(searchParams.get('amount') || '0');
+    const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage') || 'rsvp';
+    setRsvpSuccessModal({ guestCount: storedCount, tierLabel, amount, ptype });
+    // Refresh allowance immediately so the badge updates.
+    refetchRsvpPurchase?.();
+    // Strip payment query params, keep only `tab`.
+    const next = new URLSearchParams();
+    const tab = searchParams.get('tab');
+    if (tab) next.set('tab', tab);
+    setSearchParams(next, { replace: true });
+    try { sessionStorage.removeItem('ww:rsvpSelectedCount'); } catch {}
+    try { sessionStorage.removeItem('ww:returnTab'); } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   
   // Pagination state
   const GUESTS_PER_PAGE = 50;
@@ -2848,6 +2877,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />
 
         {/* Guest Limit Dialog */}
+        {/* RSVP Payment Success Modal (shown after Stripe return) */}
+        <RsvpPaymentSuccessModal
+          open={!!rsvpSuccessModal}
+          data={rsvpSuccessModal}
+          onClose={() => setRsvpSuccessModal(null)}
+        />
+
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
           onClose={() => setShowGuestLimitDialog(false)}
