@@ -95,6 +95,7 @@ import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
 import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
+import { RsvpOverageModal } from './RsvpOverageModal';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -249,6 +250,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showSendModal, setShowSendModal] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
+  const [showOverageModal, setShowOverageModal] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
