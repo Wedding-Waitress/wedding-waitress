@@ -2197,7 +2197,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-primary text-primary-foreground px-1">
+                <TableHead className="bg-primary text-primary-foreground px-1 py-2 text-center align-middle">
                   <button
                     type="button"
                     title="Send RSVP & Invite"
@@ -2209,12 +2209,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <span>RSVP &amp; Invite</span>
                   </button>
                 </TableHead>
-                <TableHead className="px-2 text-xs">First Name</TableHead>
-                <TableHead className="px-2 text-xs">Last Name</TableHead>
-                <TableHead className="px-2 text-xs">Mobile</TableHead>
-                <TableHead className="px-2 text-xs">Email</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">First Name</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">Last Name</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">Mobile</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">Email</TableHead>
                 <TableHead 
-                  className="px-2 text-xs text-center cursor-pointer hover:bg-primary/80 transition-colors select-none"
+                  className="px-2 py-2 text-xs text-center align-middle cursor-pointer hover:bg-primary/80 transition-colors select-none"
                   onClick={async () => {
                     if (!selectedEventId || sortedGuests.length === 0) return;
                     const allOn = sortedGuests.every(g => g.allow_plus_one !== false);
@@ -2250,15 +2250,35 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </TableHead>
-                <TableHead className="px-2 text-xs text-center">RSVP Invite</TableHead>
-                <TableHead className="px-2 text-xs">RSVP Status</TableHead>
-                <TableHead className="px-2 text-xs">Table No</TableHead>
-                <TableHead className="px-2 text-xs">Seat No.</TableHead>
-                <TableHead className="px-2 text-xs">Relation</TableHead>
-                <TableHead className="px-2 text-xs">Dietary Requirements</TableHead>
-                <TableHead className="px-2 text-xs">Family/Group</TableHead>
-                <TableHead className="px-2 text-xs">Notes</TableHead>
-                <TableHead className="px-2 text-xs">Actions</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Invite</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Status</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">
+                  <span className="flex flex-col items-center leading-tight">
+                    <span>Table</span>
+                    <span>No</span>
+                  </span>
+                </TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">
+                  <span className="flex flex-col items-center leading-tight">
+                    <span>Seat</span>
+                    <span>No</span>
+                  </span>
+                </TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">Relation</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">
+                  <span className="flex flex-col items-center leading-tight">
+                    <span>Dietary</span>
+                    <span>Requirements</span>
+                  </span>
+                </TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">
+                  <span className="flex flex-col items-center leading-tight">
+                    <span>Family</span>
+                    <span>Group</span>
+                  </span>
+                </TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">Notes</TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
