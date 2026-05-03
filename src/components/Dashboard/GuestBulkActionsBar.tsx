@@ -82,12 +82,9 @@ export const GuestBulkActionsBar = ({
 
         <div className="grid gap-2 py-4">
           {/* Send Email & SMS via Wedding Waitress (combined) */}
-          {(onSendEmail || onSendSms) && (
+          {onSendEmail && (
             <button
-              onClick={() => {
-                if (onSendEmail) onSendEmail();
-                else if (onSendSms) onSendSms();
-              }}
+              onClick={onSendEmail}
               className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
             >
               <Mail className="w-5 h-5 text-blue-500" />
