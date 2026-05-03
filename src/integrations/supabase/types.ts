@@ -2185,8 +2185,12 @@ export type Database = {
           amount_paid: number
           created_at: string
           event_id: string
+          guest_count_at_purchase: number | null
           guest_tier_label: string | null
           id: string
+          overage_blocks: number
+          purchase_type: string
+          purchased_limit: number | null
           status: string
           stripe_payment_id: string | null
           stripe_session_id: string | null
@@ -2196,8 +2200,12 @@ export type Database = {
           amount_paid: number
           created_at?: string
           event_id: string
+          guest_count_at_purchase?: number | null
           guest_tier_label?: string | null
           id?: string
+          overage_blocks?: number
+          purchase_type?: string
+          purchased_limit?: number | null
           status?: string
           stripe_payment_id?: string | null
           stripe_session_id?: string | null
@@ -2207,8 +2215,12 @@ export type Database = {
           amount_paid?: number
           created_at?: string
           event_id?: string
+          guest_count_at_purchase?: number | null
           guest_tier_label?: string | null
           id?: string
+          overage_blocks?: number
+          purchase_type?: string
+          purchased_limit?: number | null
           status?: string
           stripe_payment_id?: string | null
           stripe_session_id?: string | null
