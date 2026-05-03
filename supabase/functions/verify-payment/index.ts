@@ -280,9 +280,11 @@ serve(async (req) => {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: msg });
-    return new Response(JSON.stringify({ error: msg }), {
+    // Always return 200 so the success page can show a friendly fallback
+    // instead of a red "Edge Function returned non-2xx" error.
+    return new Response(JSON.stringify({ status: "pending", error: msg }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+      status: 200,
     });
   }
 });
