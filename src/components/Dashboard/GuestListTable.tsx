@@ -2252,29 +2252,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Invite</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Status</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">
-                  <span className="flex flex-col items-center leading-tight">
-                    <span>Table</span>
-                    <span>No</span>
-                  </span>
+                  <span className="block leading-tight">Table</span>
+                  <span className="block leading-tight">No</span>
                 </TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">
-                  <span className="flex flex-col items-center leading-tight">
-                    <span>Seat</span>
-                    <span>No</span>
-                  </span>
+                  <span className="block leading-tight">Seat</span>
+                  <span className="block leading-tight">No</span>
                 </TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Relation</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">
-                  <span className="flex flex-col items-center leading-tight">
-                    <span>Dietary</span>
-                    <span>Requirements</span>
-                  </span>
+                  <span className="block leading-tight">Dietary</span>
+                  <span className="block leading-tight">Requirements</span>
                 </TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">
-                  <span className="flex flex-col items-center leading-tight">
-                    <span>Family</span>
-                    <span>Group</span>
-                  </span>
+                  <span className="block leading-tight">Family</span>
+                  <span className="block leading-tight">Group</span>
                 </TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Notes</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Actions</TableHead>
