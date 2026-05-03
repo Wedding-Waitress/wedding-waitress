@@ -2290,9 +2290,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <React.Fragment key={`group-${groupIndex}-${group.groupName || 'individual'}`}>
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
-                      <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
-                        <TableCell colSpan={15} className="py-2 px-4">
-                          <div className="flex items-center gap-2">
+                       <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
+                         <TableCell colSpan={15} className="py-2 px-0">
+                           <div className="flex items-center gap-2 pl-[7%]">
                             <Users className="w-4 h-4 text-white" />
                             <span className="font-semibold text-sm text-white">
                               {group.groupName}
