@@ -69,9 +69,9 @@ export const PaymentSuccess = () => {
   })();
   const returnDest = `/dashboard?tab=${returnTab}&success=true`;
 
-  // Auto-redirect after 8 seconds for success
+  // Auto-redirect after 8 seconds for success / approval / pending
   useEffect(() => {
-    if (status === "success" || status === "approval") {
+    if (status === "success" || status === "approval" || status === "pending") {
       const timer = setTimeout(() => {
         try { sessionStorage.removeItem('ww:returnTab'); } catch {}
         navigate(returnDest, { replace: true });
