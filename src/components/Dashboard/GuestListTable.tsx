@@ -1629,7 +1629,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </span>
                 )}
               </div>
-              
+
+              {/* Inline RSVP success banner (auto-hides ~8s) */}
+              {rsvpSuccessBanner && (
+                <div
+                  id="guest-list-table-anchor"
+                  role="status"
+                  className="mb-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 animate-in fade-in slide-in-from-top-2"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold">Invitations sent successfully.</p>
+                    <p className="text-green-700/90">
+                      {rsvpSuccessBanner.guestCount > 0 && (
+                        <>
+                          {rsvpSuccessBanner.guestCount}{' '}
+                          {rsvpSuccessBanner.ptype === 'rsvp_overage' ? 'extra guests added' : 'guests invited'}
+                          {' • '}
+                        </>
+                      )}
+                      Responses will appear here.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRsvpSuccessBanner(null)}
+                    className="text-green-700/70 hover:text-green-900 text-lg leading-none px-1"
+                    aria-label="Dismiss"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
