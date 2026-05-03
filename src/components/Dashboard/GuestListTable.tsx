@@ -2106,17 +2106,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               )}
                             </div>
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
-                            <RelationBadge
-                              display={relationDisplay}
-                              partner={guest.relation_partner || ''}
-                              role={guest.relation_role || ''}
-                              partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                              onClick={() => handleEditRelation(guest)}
-                              isEmpty={!relationDisplay}
-                            />
-                          </div>
+                          {!relationsHidden && (
+                            <div className="min-w-0">
+                              <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
+                              <RelationBadge
+                                display={relationDisplay}
+                                partner={guest.relation_partner || ''}
+                                role={guest.relation_role || ''}
+                                partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                                onClick={() => handleEditRelation(guest)}
+                                isEmpty={!relationDisplay}
+                              />
+                            </div>
+                          )}
                           <div>
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Dietary</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{guest.dietary || '—'}</div>
