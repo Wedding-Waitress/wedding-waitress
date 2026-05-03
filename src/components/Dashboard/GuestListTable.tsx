@@ -2248,7 +2248,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="px-2 text-xs">RSVP Status</TableHead>
                 <TableHead className="px-2 text-xs">Table No</TableHead>
                 <TableHead className="px-2 text-xs">Seat No.</TableHead>
-                {!relationsHidden && <TableHead className="px-2 text-xs">Relation</TableHead>}
+                <TableHead className="px-2 text-xs">Relation</TableHead>
                 <TableHead className="px-2 text-xs">Dietary Requirements</TableHead>
                 <TableHead className="px-2 text-xs">Family/Group</TableHead>
                 <TableHead className="px-2 text-xs">Notes</TableHead>
@@ -2414,9 +2414,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               '—'
                             )}
                           </TableCell>
-                          {!relationsHidden && (
                           <TableCell className="py-1 px-2">
-                            {(() => {
+                            {relationsHidden ? (
+                              <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-semibold">OFF</span>
+                            ) : (
+                            (() => {
                               const relationDisplay = getResolvedRelationDisplay(
                                 guest,
                                 selectedEvent?.partner1_name || 'Bride',
@@ -2433,9 +2435,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               isEmpty={!relationDisplay}
                             />
                               );
-                            })()}
+                            })()
+                            )}
                           </TableCell>
-                          )}
                     <TableCell className="py-1 px-2">
                       <span className="text-sm text-foreground">
                         {guest.dietary || '—'}
