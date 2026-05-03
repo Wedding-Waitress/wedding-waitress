@@ -4,24 +4,27 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Users, Mail, Clock, CheckCircle2, XCircle } from 'lucide-react';
-import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
-import { useEvents } from '@/hooks/useEvents';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { RsvpOverageModal } from '@/components/Dashboard/RsvpOverageModal';
 import { cn } from '@/lib/utils';
+import type { Guest } from '@/hooks/useGuests';
+
+interface EventLite { id: string; name: string }
 
 interface DashboardOverviewProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
+  events: EventLite[];
+  guests: Guest[];
 }
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   selectedEventId,
   onEventSelect,
+  events,
+  guests,
 }) => {
-  const { events } = useEvents();
-  const { guests } = useRealtimeGuests(selectedEventId);
   const { totalCapacity, purchase, hasPurchased } = useRsvpPurchase(selectedEventId);
   const [showOverageModal, setShowOverageModal] = useState(false);
 
