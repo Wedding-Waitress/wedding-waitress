@@ -105,7 +105,7 @@ export const PaymentSuccess = () => {
                 Valid until {new Date(details.expires_at).toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" })}
               </p>
             )}
-            <Button onClick={() => navigate("/dashboard?tab=account&success=true", { replace: true })} className="rounded-full">
+            <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); })()} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
@@ -125,7 +125,7 @@ export const PaymentSuccess = () => {
               An admin will review and approve your account within <strong>24 hours</strong>.
               You'll receive full access once approved.
             </div>
-            <Button onClick={() => navigate("/dashboard?tab=account&success=true", { replace: true })} className="rounded-full">
+            <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); })()} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
