@@ -2905,12 +2905,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />
 
         {/* Guest Limit Dialog */}
-        {/* RSVP Payment Success Modal (shown after Stripe return) */}
-        <RsvpPaymentSuccessModal
-          open={!!rsvpSuccessModal}
-          data={rsvpSuccessModal}
-          onClose={() => setRsvpSuccessModal(null)}
-        />
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
