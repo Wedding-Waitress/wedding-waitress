@@ -21,7 +21,7 @@ const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string; is_ven
   "prod_UOQiLXxbgeXKZu": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
 };
 
-// RSVP product IDs
+// RSVP tier product IDs (initial purchase)
 const RSVP_PRODUCT_IDS = new Set([
   "prod_Tyt1bSwrpOzxNd",
   "prod_Tyt1FzdN9h5IcQ",
@@ -30,6 +30,19 @@ const RSVP_PRODUCT_IDS = new Set([
   "prod_Tyt5APL1elHibZ",
   "prod_Tyt6a9w3AuwyzB",
 ]);
+
+// RSVP overage product ID ($10 AUD per 10 extra guests)
+const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
+
+// Map RSVP tier product IDs -> guest limit unlocked by that tier
+const RSVP_TIER_LIMITS: Record<string, number> = {
+  "prod_Tyt1bSwrpOzxNd": 100,
+  "prod_Tyt1FzdN9h5IcQ": 200,
+  "prod_Tyt4UbA83epUQG": 300,
+  "prod_Tyt4pPolYzGjSf": 400,
+  "prod_Tyt5APL1elHibZ": 500,
+  "prod_Tyt6a9w3AuwyzB": 1000,
+};
 
 // Extension product IDs
 const EXTENSION_PRODUCT_IDS = new Set([
@@ -110,35 +123,104 @@ serve(async (req) => {
 
     logStep("Product identified", { productId, eventId, userId });
 
-    // ── RSVP Bundle Purchase ──
+    // ── RSVP Tier Purchase (initial) ──
     if (RSVP_PRODUCT_IDS.has(productId)) {
       if (!eventId) throw new Error("event_id is required for RSVP purchase");
 
       const amountPaid = (session.amount_total || 0) / 100;
       const tierLabel = product?.name || "";
+      const purchasedLimit = RSVP_TIER_LIMITS[productId] ?? null;
+      const guestCountAtPurchase = parseInt(
+        metadata.guest_count_at_purchase || "0",
+        10
+      ) || null;
 
-      await supabase.from("rsvp_invite_purchases").upsert({
-        user_id: userId,
-        event_id: eventId,
-        amount_paid: amountPaid,
-        guest_tier_label: tierLabel,
-        stripe_session_id: session_id,
-        stripe_payment_id: session.payment_intent as string,
-        status: "completed",
-      }, { onConflict: "event_id,user_id" });
+      // Idempotent insert: skip if a tier row already exists for this session
+      const { data: existing } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
 
-      logStep("RSVP purchase recorded", { eventId, amountPaid });
+      if (!existing) {
+        await supabase.from("rsvp_invite_purchases").insert({
+          user_id: userId,
+          event_id: eventId,
+          amount_paid: amountPaid,
+          guest_tier_label: tierLabel,
+          stripe_session_id: session_id,
+          stripe_payment_id: session.payment_intent as string,
+          status: "completed",
+          purchase_type: "rsvp_tier",
+          purchased_limit: purchasedLimit,
+          overage_blocks: 0,
+          guest_count_at_purchase: guestCountAtPurchase,
+        });
+      }
+
+      logStep("RSVP tier purchase recorded", { eventId, amountPaid, purchasedLimit });
 
       return new Response(JSON.stringify({
         type: "rsvp",
         status: "completed",
         plan_name: tierLabel,
         amount_paid: amountPaid,
+        purchased_limit: purchasedLimit,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
+
+    // ── RSVP Overage Purchase ($10 AUD per 10 extra guests) ──
+    if (productId === RSVP_OVERAGE_PRODUCT_ID) {
+      if (!eventId) throw new Error("event_id is required for RSVP overage");
+
+      const amountPaid = (session.amount_total || 0) / 100;
+      // Quantity = number of 10-guest blocks purchased
+      const overageBlocks = lineItem?.quantity ?? parseInt(metadata.overage_blocks || "0", 10) ?? 0;
+      const guestCountAtPurchase = parseInt(
+        metadata.guest_count_at_purchase || "0",
+        10
+      ) || null;
+
+      // Idempotent: skip if this session was already recorded
+      const { data: existing } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("rsvp_invite_purchases").insert({
+          user_id: userId,
+          event_id: eventId,
+          amount_paid: amountPaid,
+          guest_tier_label: `Overage +${overageBlocks * 10} guests`,
+          stripe_session_id: session_id,
+          stripe_payment_id: session.payment_intent as string,
+          status: "completed",
+          purchase_type: "rsvp_overage",
+          purchased_limit: null,
+          overage_blocks: overageBlocks,
+          guest_count_at_purchase: guestCountAtPurchase,
+        });
+      }
+
+      logStep("RSVP overage recorded", { eventId, amountPaid, overageBlocks });
+
+      return new Response(JSON.stringify({
+        type: "rsvp_overage",
+        status: "completed",
+        amount_paid: amountPaid,
+        overage_blocks: overageBlocks,
+        extra_guests: overageBlocks * 10,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
 
     // ── Plan Extension Purchase ──
     if (EXTENSION_PRODUCT_IDS.has(productId)) {

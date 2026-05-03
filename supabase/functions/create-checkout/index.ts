@@ -52,12 +52,32 @@ serve(async (req) => {
     }
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { price_id, mode, event_id, plan_type, ui_mode } = await req.json();
+    const {
+      price_id,
+      mode,
+      event_id,
+      plan_type,
+      ui_mode,
+      quantity,
+      purchase_type,
+      guest_count_at_purchase,
+    } = await req.json();
     if (!price_id) throw new Error("price_id is required");
 
     const checkoutMode = mode === "subscription" ? "subscription" : "payment";
     const isEmbedded = ui_mode === "embedded";
-    logStep("Checkout params", { price_id, checkoutMode, event_id, plan_type, isEmbedded });
+    const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
+    const purchaseTypeMeta =
+      purchase_type === "rsvp_overage" ? "rsvp_overage" : (purchase_type || "");
+    logStep("Checkout params", {
+      price_id,
+      checkoutMode,
+      event_id,
+      plan_type,
+      isEmbedded,
+      quantity: lineQuantity,
+      purchase_type: purchaseTypeMeta,
+    });
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
     const stripe = new Stripe(stripeKey, {
@@ -92,13 +112,18 @@ serve(async (req) => {
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      line_items: [{ price: price_id, quantity: 1 }],
+      line_items: [{ price: price_id, quantity: lineQuantity }],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
         event_id: event_id || "",
+        purchase_type: purchaseTypeMeta,
+        overage_blocks:
+          purchaseTypeMeta === "rsvp_overage" ? String(lineQuantity) : "",
+        guest_count_at_purchase:
+          guest_count_at_purchase != null ? String(guest_count_at_purchase) : "",
       },
     };
 
