@@ -2177,7 +2177,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
         {/* DESKTOP TABLE VIEW (lg and up) */}
         <div className="hidden lg:block overflow-hidden border-t-2 border-primary">
-          <Table className="w-full" style={{ tableLayout: 'fixed' }}>
+          <Table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '7%' }} />
               <col style={{ width: '7%' }} />
