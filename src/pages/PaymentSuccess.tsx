@@ -40,17 +40,18 @@ export const PaymentSuccess = () => {
           body: { session_id: sessionId },
         });
 
-        if (fnError) throw new Error(fnError.message);
-        if (data?.error) throw new Error(data.error);
+        // Soft-fail: any transport error or pending payload shows the friendly
+        // "finalizing setup" state instead of the red error card.
+        if (fnError || data?.status === "pending" || data?.error) {
+          setStatus("pending");
+          return;
+        }
 
         setDetails(data);
-        setStatus(data.requires_approval ? "approval" : "success");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Verification failed");
-        setStatus("error");
+        setStatus(data?.requires_approval ? "approval" : "success");
+      } catch {
+        setStatus("pending");
       } finally {
-        // Hide the global overlay only when verification finishes — the
-        // success/approval/error UI takes over from here.
         stopProcessing();
       }
     };
