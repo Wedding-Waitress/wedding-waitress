@@ -86,7 +86,19 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
           sessionStorage.setItem('ww:returnTab', currentTab);
         } catch {}
         onClose();
-        window.location.href = data.url;
+        // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside
+        // any iframe (e.g. the Lovable preview). Break out to the top window;
+        // if cross-origin top-nav is blocked, fall back to a new tab.
+        const inIframe = window.self !== window.top;
+        if (inIframe) {
+          try {
+            window.top!.location.href = data.url;
+          } catch {
+            window.open(data.url, '_blank', 'noopener,noreferrer');
+          }
+        } else {
+          window.location.href = data.url;
+        }
       } else {
         throw new Error("No checkout URL returned from server");
       }
