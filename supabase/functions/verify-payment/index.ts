@@ -21,7 +21,7 @@ const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string; is_ven
   "prod_UOQiLXxbgeXKZu": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
 };
 
-// RSVP product IDs
+// RSVP tier product IDs (initial purchase)
 const RSVP_PRODUCT_IDS = new Set([
   "prod_Tyt1bSwrpOzxNd",
   "prod_Tyt1FzdN9h5IcQ",
@@ -30,6 +30,19 @@ const RSVP_PRODUCT_IDS = new Set([
   "prod_Tyt5APL1elHibZ",
   "prod_Tyt6a9w3AuwyzB",
 ]);
+
+// RSVP overage product ID ($10 AUD per 10 extra guests)
+const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
+
+// Map RSVP tier product IDs -> guest limit unlocked by that tier
+const RSVP_TIER_LIMITS: Record<string, number> = {
+  "prod_Tyt1bSwrpOzxNd": 100,
+  "prod_Tyt1FzdN9h5IcQ": 200,
+  "prod_Tyt4UbA83epUQG": 300,
+  "prod_Tyt4pPolYzGjSf": 400,
+  "prod_Tyt5APL1elHibZ": 500,
+  "prod_Tyt6a9w3AuwyzB": 1000,
+};
 
 // Extension product IDs
 const EXTENSION_PRODUCT_IDS = new Set([
