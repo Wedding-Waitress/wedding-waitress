@@ -95,6 +95,7 @@ import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
 import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
+import { RsvpOverageModal } from './RsvpOverageModal';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -249,9 +250,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showSendModal, setShowSendModal] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
+  const [showOverageModal, setShowOverageModal] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
-  const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
+  const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
   
   // Pagination state
   const GUESTS_PER_PAGE = 50;
@@ -2643,11 +2645,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
              }
              setSendChannel('email');
             if (hasRsvpPurchase && rsvpPurchase) {
-              const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
-              if (tierMax > 0 && guests.length <= tierMax) {
+              if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
                 setShowAlreadyPaidModal(true);
               } else {
-                setShowActivationModal(true);
+                // Tier already paid but guest count now exceeds total capacity → buy overage
+                setShowOverageModal(true);
               }
             } else {
               setShowActivationModal(true);
@@ -2665,11 +2667,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
              }
              setSendChannel('sms');
             if (hasRsvpPurchase && rsvpPurchase) {
-              const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
-              if (tierMax > 0 && guests.length <= tierMax) {
+              if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
                 setShowAlreadyPaidModal(true);
               } else {
-                setShowActivationModal(true);
+                setShowOverageModal(true);
               }
             } else {
               setShowActivationModal(true);
@@ -2822,6 +2823,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             tierMax={getTierMaxFromLabel(rsvpPurchase.guest_tier_label)}
           />
         )}
+
+        {/* RSVP Overage Modal (tier paid, but guest count exceeded total capacity) */}
+        <RsvpOverageModal
+          isOpen={showOverageModal}
+          onClose={() => setShowOverageModal(false)}
+          eventId={selectedEventId}
+          currentGuestCount={guests.length}
+          totalCapacity={rsvpTotalCapacity}
+          tierLabel={rsvpPurchase?.guest_tier_label || ''}
+        />
 
         {/* Guest Limit Dialog */}
         <GuestLimitDialog
