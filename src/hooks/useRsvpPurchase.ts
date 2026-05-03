@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { RSVP_OVERAGE } from '@/lib/stripePrices';
 
 const getPricingTier = (count: number) => {
   if (count <= 100) return { price: 99, label: '1–100 guests', max: 100 };
@@ -16,7 +17,6 @@ const getPricingTier = (count: number) => {
  */
 const getTierMaxFromLabel = (label: string | null | undefined): number => {
   if (!label) return 0;
-  // Match digits separated by either em-dash, en-dash or hyphen
   const match = label.match(/(\d+)\s*[–\-—]\s*(\d+)/);
   if (!match) return 0;
   return parseInt(match[2], 10) || 0;
@@ -27,49 +27,74 @@ export interface RsvpPurchaseRecord {
   amount_paid: number;
   guest_tier_label: string | null;
   created_at: string;
+  purchase_type?: string | null;
+  purchased_limit?: number | null;
+  overage_blocks?: number | null;
 }
 
 export const useRsvpPurchase = (eventId: string | null) => {
   const [hasPurchased, setHasPurchased] = useState(false);
   const [purchase, setPurchase] = useState<RsvpPurchaseRecord | null>(null);
+  const [overagePurchases, setOveragePurchases] = useState<RsvpPurchaseRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const check = async () => {
-      if (!eventId) {
-        setHasPurchased(false);
-        setPurchase(null);
-        setLoading(false);
-        return;
-      }
+  const refetch = useCallback(async () => {
+    if (!eventId) {
+      setHasPurchased(false);
+      setPurchase(null);
+      setOveragePurchases([]);
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const { data } = await supabase
-          .from('rsvp_invite_purchases')
-          .select('id, amount_paid, guest_tier_label, created_at')
-          .eq('event_id', eventId)
-          .eq('status', 'completed')
-          .order('created_at', { ascending: false })
-          .limit(1);
+    setLoading(true);
+    try {
+      const { data } = await supabase
+        .from('rsvp_invite_purchases')
+        .select('id, amount_paid, guest_tier_label, created_at, purchase_type, purchased_limit, overage_blocks')
+        .eq('event_id', eventId)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false });
 
-        if (data && data.length > 0) {
-          setHasPurchased(true);
-          setPurchase(data[0] as RsvpPurchaseRecord);
-        } else {
-          setHasPurchased(false);
-          setPurchase(null);
-        }
-      } catch (err) {
-        console.error('Error checking RSVP purchase:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const rows = (data || []) as RsvpPurchaseRecord[];
+      // Tier purchase = purchase_type 'rsvp_tier' OR null/undefined (legacy)
+      const tierRow = rows.find(r => !r.purchase_type || r.purchase_type === 'rsvp_tier') || null;
+      const overageRows = rows.filter(r => r.purchase_type === 'rsvp_overage');
 
-    check();
+      setPurchase(tierRow);
+      setHasPurchased(!!tierRow);
+      setOveragePurchases(overageRows);
+    } catch (err) {
+      console.error('Error checking RSVP purchase:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [eventId]);
 
-  return { hasPurchased, purchase, loading, getPricingTier };
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  // Total guests covered by all overage blocks
+  const overageGuests = overagePurchases.reduce(
+    (sum, p) => sum + (Number(p.overage_blocks) || 0) * RSVP_OVERAGE.guests_per_block,
+    0,
+  );
+
+  const tierMax = purchase ? getTierMaxFromLabel(purchase.guest_tier_label) : 0;
+  const totalCapacity = tierMax + overageGuests;
+
+  return {
+    hasPurchased,
+    purchase,
+    overagePurchases,
+    overageGuests,
+    tierMax,
+    totalCapacity,
+    loading,
+    getPricingTier,
+    refetch,
+  };
 };
 
 export { getPricingTier, getTierMaxFromLabel };
