@@ -423,6 +423,7 @@ export const Dashboard = () => {
             onEventSelect={handleEventSelect}
             events={events}
             guests={guests}
+            onNavigateToGuestList={() => handleTabChange('guest-list')}
           />
         );
       case 'my-events':
