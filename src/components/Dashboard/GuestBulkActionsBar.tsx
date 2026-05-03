@@ -66,10 +66,10 @@ export const GuestBulkActionsBar = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold pr-8">Manage Selected Guests</DialogTitle>
-          <div className="flex flex-col gap-3 mt-3">
-            <p className="text-sm text-muted-foreground text-left">{getSelectedText()}</p>
-            <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+          <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
+          <div className="flex flex-col items-center gap-2 mt-4">
+            <p className="text-sm text-muted-foreground text-center">{getSelectedText()}</p>
+            <label className="flex items-center justify-center gap-2 cursor-pointer select-none">
               <Checkbox
                 checked={allSelected}
                 onCheckedChange={() => (allSelected ? onDeselectAll() : onSelectAll())}
@@ -77,7 +77,7 @@ export const GuestBulkActionsBar = ({
               <span className="text-sm text-muted-foreground">Select All Guests</span>
             </label>
           </div>
-          <DialogDescription className="text-left mt-2">Apply actions to your selected guests</DialogDescription>
+          <DialogDescription className="text-center mt-6">Apply actions to your selected guests</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2 py-4">
