@@ -1,67 +1,76 @@
-# RSVP Overage — Step 1: Database Migration
+## Why you see a blank screen
 
-This is the first of 3 steps. After you approve this migration, I'll proceed with (2) the $10 AUD Stripe price + edge function updates, then (3) the frontend hook + new overage modal.
-
-## What this migration does
-
-Updates the `rsvp_invite_purchases` table so each overage payment is its own row alongside the original tier purchase. The effective guest limit is then computed dynamically as:
+Good news first: the payment system is working. The edge function logs confirm Stripe successfully created the checkout session right when you clicked Pay:
 
 ```
-effectiveLimit = purchased_limit  +  (SUM of overage_blocks across rsvp_overage rows) × 10
+[CREATE-CHECKOUT] Checkout session created - sessionId: cs_test_a1sZnLKNwQBtf2VZ...
 ```
 
-No `parent_purchase_id` — rows are linked by `event_id + user_id` only.
+So the backend, the new $10/10-guest price, and the overage flow are all correct.
 
-## New columns on `rsvp_invite_purchases`
+The blank screen is a **frontend navigation problem**, not a payment problem.
 
-- `purchase_type` — `'rsvp_tier'` (initial) or `'rsvp_overage'` (extra block). Default `'rsvp_tier'` so all existing rows are correctly classified.
-- `purchased_limit` — guest limit unlocked by a tier row (e.g. 100, 200, 300…). Null on overage rows.
-- `overage_blocks` — number of 10-guest blocks this overage row adds. Default 0; only populated on overage rows.
-- `guest_count_at_purchase` — guest count snapshot at time of payment (metadata, both row types).
+### Root cause
 
-CHECK constraint enforces `purchase_type IN ('rsvp_tier','rsvp_overage')`.
+`RsvpOverageModal.tsx` (and `RsvpActivationModal.tsx`) currently does:
 
-## Index changes
-
-The current partial unique index `uq_rsvp_invite_purchases_event` enforces "one completed row per event", which would block stacking overage rows. It is replaced with:
-
-- `uq_rsvp_invite_purchases_event_tier` — UNIQUE on `event_id` WHERE `status='completed' AND purchase_type='rsvp_tier'` (still one tier per event, but unlimited overage rows)
-- `idx_rsvp_invite_purchases_event_status_type` — lookup index for summing overage blocks per event
-
-## SQL
-
-```sql
-ALTER TABLE public.rsvp_invite_purchases
-  ADD COLUMN IF NOT EXISTS purchase_type text NOT NULL DEFAULT 'rsvp_tier',
-  ADD COLUMN IF NOT EXISTS purchased_limit integer,
-  ADD COLUMN IF NOT EXISTS overage_blocks integer NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS guest_count_at_purchase integer;
-
-ALTER TABLE public.rsvp_invite_purchases
-  DROP CONSTRAINT IF EXISTS rsvp_invite_purchases_purchase_type_check;
-ALTER TABLE public.rsvp_invite_purchases
-  ADD CONSTRAINT rsvp_invite_purchases_purchase_type_check
-  CHECK (purchase_type IN ('rsvp_tier','rsvp_overage'));
-
-DROP INDEX IF EXISTS public.uq_rsvp_invite_purchases_event;
-CREATE UNIQUE INDEX uq_rsvp_invite_purchases_event_tier
-  ON public.rsvp_invite_purchases (event_id)
-  WHERE status = 'completed' AND purchase_type = 'rsvp_tier';
-
-CREATE INDEX IF NOT EXISTS idx_rsvp_invite_purchases_event_status_type
-  ON public.rsvp_invite_purchases (event_id, status, purchase_type);
+```ts
+window.location.href = data.url;   // Stripe-hosted checkout URL
 ```
 
-## RLS / access rules
+You are testing inside the **Lovable preview**, which runs your app inside an `<iframe>`. `window.location.href` only navigates that iframe. Stripe's hosted Checkout page is served with `X-Frame-Options: DENY` / `frame-ancestors 'none'`, which means **browsers refuse to render Stripe inside any iframe** — the iframe stays blank, which is exactly the screenshot you sent (Lovable chrome visible, content area empty skeletons).
 
-Unchanged — existing user-scoped policies on `rsvp_invite_purchases` already cover the new columns.
+This is a preview-only artifact: on the published site (`wedding-waitress.lovable.app`) the same code would correctly navigate the whole tab to Stripe. But we should fix it so it works in BOTH environments — preview and production.
 
-## Backfill
+### The fix (2 small files)
 
-No backfill needed: every existing completed row defaults to `purchase_type='rsvp_tier'`, which matches reality. `purchased_limit` will stay null on historical rows; the hook will fall back to parsing `guest_tier_label` (existing logic in `getTierMaxFromLabel`) when `purchased_limit` is null, so nothing breaks for prior purchases.
+Change the redirect to break out of the iframe and fall back to opening in a new tab if the browser blocks top-window navigation across origins.
 
-## After approval
+**1. `src/components/Dashboard/RsvpOverageModal.tsx`** — replace the redirect block:
 
-Once this migration runs cleanly, I'll move on to:
-- **Step 2:** Create the $10 AUD overage Stripe product/price, update `create-checkout` to accept `overage_blocks` quantity, and update `verify-payment` to insert an `rsvp_overage` row.
-- **Step 3:** Update `useRsvpPurchase` to compute `effectiveLimit` dynamically, and add the new `RsvpOverageModal` triggered from the guest list when over the limit.
+```ts
+if (data?.url) {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    sessionStorage.setItem('ww:returnTab', params.get('tab') || 'guest-list');
+  } catch {}
+  onClose();
+
+  // Break out of the Lovable preview iframe; Stripe Checkout sets
+  // X-Frame-Options: DENY and cannot render inside any iframe.
+  const inIframe = window.self !== window.top;
+  if (inIframe) {
+    try {
+      window.top!.location.href = data.url;
+    } catch {
+      // Cross-origin top-nav blocked → open in a new tab as a fallback
+      window.open(data.url, '_blank', 'noopener,noreferrer');
+    }
+  } else {
+    window.location.href = data.url;
+  }
+}
+```
+
+**2. `src/components/Dashboard/RsvpActivationModal.tsx`** — apply the exact same change to its redirect block (it has the identical bug; it just hasn't surfaced for you yet because you tested via the overage flow).
+
+### Why not embedded checkout instead?
+
+`UpgradeCheckout.tsx` already uses Stripe's **embedded** checkout (`ui_mode: 'embedded'` + `client_secret`) and renders it inside the app, which sidesteps the iframe problem. We could route both RSVP modals through that same embedded page, but that is a bigger refactor (new route, plan_type handling for `rsvp` and `rsvp_overage` in `UpgradeCheckout`, success-page wiring). The 6-line top-window redirect above gives you a working button **today** with zero risk to the locked Guest List table or the verified Stripe pricing.
+
+If you later want everything inline (no redirect at all), I can do the embedded-checkout migration as a follow-up.
+
+### What this does NOT touch
+
+- No changes to the locked Guest List desktop table layout.
+- No changes to `create-checkout` / `verify-payment` edge functions.
+- No changes to the new $10 overage price ID, allowance badge, or refetch logic.
+- No changes to `RsvpActivationModal` pricing or copy — only the 6-line redirect block.
+
+### After the fix
+
+- In Lovable preview: clicking Pay Now will navigate the **whole browser tab** (not the iframe) to Stripe Checkout — no more blank screen.
+- On the published site: identical behavior to today (whole-tab navigation).
+- After paying, Stripe returns to `/payment-success?session_id=...`, `verify-payment` runs, the overage row is inserted, and the focus-refetch in `useRsvpPurchase` updates the "RSVP Allowance: X of Y guests" badge automatically.
+
+Approve and I'll apply both edits.
