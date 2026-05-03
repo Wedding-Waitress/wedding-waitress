@@ -123,35 +123,104 @@ serve(async (req) => {
 
     logStep("Product identified", { productId, eventId, userId });
 
-    // ── RSVP Bundle Purchase ──
+    // ── RSVP Tier Purchase (initial) ──
     if (RSVP_PRODUCT_IDS.has(productId)) {
       if (!eventId) throw new Error("event_id is required for RSVP purchase");
 
       const amountPaid = (session.amount_total || 0) / 100;
       const tierLabel = product?.name || "";
+      const purchasedLimit = RSVP_TIER_LIMITS[productId] ?? null;
+      const guestCountAtPurchase = parseInt(
+        metadata.guest_count_at_purchase || "0",
+        10
+      ) || null;
 
-      await supabase.from("rsvp_invite_purchases").upsert({
-        user_id: userId,
-        event_id: eventId,
-        amount_paid: amountPaid,
-        guest_tier_label: tierLabel,
-        stripe_session_id: session_id,
-        stripe_payment_id: session.payment_intent as string,
-        status: "completed",
-      }, { onConflict: "event_id,user_id" });
+      // Idempotent insert: skip if a tier row already exists for this session
+      const { data: existing } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
 
-      logStep("RSVP purchase recorded", { eventId, amountPaid });
+      if (!existing) {
+        await supabase.from("rsvp_invite_purchases").insert({
+          user_id: userId,
+          event_id: eventId,
+          amount_paid: amountPaid,
+          guest_tier_label: tierLabel,
+          stripe_session_id: session_id,
+          stripe_payment_id: session.payment_intent as string,
+          status: "completed",
+          purchase_type: "rsvp_tier",
+          purchased_limit: purchasedLimit,
+          overage_blocks: 0,
+          guest_count_at_purchase: guestCountAtPurchase,
+        });
+      }
+
+      logStep("RSVP tier purchase recorded", { eventId, amountPaid, purchasedLimit });
 
       return new Response(JSON.stringify({
         type: "rsvp",
         status: "completed",
         plan_name: tierLabel,
         amount_paid: amountPaid,
+        purchased_limit: purchasedLimit,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
+
+    // ── RSVP Overage Purchase ($10 AUD per 10 extra guests) ──
+    if (productId === RSVP_OVERAGE_PRODUCT_ID) {
+      if (!eventId) throw new Error("event_id is required for RSVP overage");
+
+      const amountPaid = (session.amount_total || 0) / 100;
+      // Quantity = number of 10-guest blocks purchased
+      const overageBlocks = lineItem?.quantity ?? parseInt(metadata.overage_blocks || "0", 10) ?? 0;
+      const guestCountAtPurchase = parseInt(
+        metadata.guest_count_at_purchase || "0",
+        10
+      ) || null;
+
+      // Idempotent: skip if this session was already recorded
+      const { data: existing } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("rsvp_invite_purchases").insert({
+          user_id: userId,
+          event_id: eventId,
+          amount_paid: amountPaid,
+          guest_tier_label: `Overage +${overageBlocks * 10} guests`,
+          stripe_session_id: session_id,
+          stripe_payment_id: session.payment_intent as string,
+          status: "completed",
+          purchase_type: "rsvp_overage",
+          purchased_limit: null,
+          overage_blocks: overageBlocks,
+          guest_count_at_purchase: guestCountAtPurchase,
+        });
+      }
+
+      logStep("RSVP overage recorded", { eventId, amountPaid, overageBlocks });
+
+      return new Response(JSON.stringify({
+        type: "rsvp_overage",
+        status: "completed",
+        amount_paid: amountPaid,
+        overage_blocks: overageBlocks,
+        extra_guests: overageBlocks * 10,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
 
     // ── Plan Extension Purchase ──
     if (EXTENSION_PRODUCT_IDS.has(productId)) {
