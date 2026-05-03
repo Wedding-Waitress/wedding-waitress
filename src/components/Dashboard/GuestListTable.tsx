@@ -2632,15 +2632,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           onUpdateRsvp={() => setShowBulkRsvpModal(true)}
           onDelete={() => setShowBulkDeleteModal(true)}
           onSendEmail={() => {
-            if (selectedGuestIds.size === 0) {
-              toast({
-                title: "No guests selected",
-                description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
-                variant: "destructive",
-              });
-              return;
-            }
-            setSendChannel('email');
+             if (selectedGuestIds.size === 0) {
+               toast({
+                 title: "No guests selected",
+                 description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
+                 variant: "destructive",
+                 className: "[&_*]:text-white",
+               });
+               return;
+             }
+             setSendChannel('email');
             if (hasRsvpPurchase && rsvpPurchase) {
               const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
               if (tierMax > 0 && guests.length <= tierMax) {
@@ -2653,15 +2654,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             }
           }}
           onSendSms={() => {
-            if (selectedGuestIds.size === 0) {
-              toast({
-                title: "No guests selected",
-                description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
-                variant: "destructive",
-              });
-              return;
-            }
-            setSendChannel('sms');
+             if (selectedGuestIds.size === 0) {
+               toast({
+                 title: "No guests selected",
+                 description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
+                 variant: "destructive",
+                 className: "[&_*]:text-white",
+               });
+               return;
+             }
+             setSendChannel('sms');
             if (hasRsvpPurchase && rsvpPurchase) {
               const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
               if (tierMax > 0 && guests.length <= tierMax) {
