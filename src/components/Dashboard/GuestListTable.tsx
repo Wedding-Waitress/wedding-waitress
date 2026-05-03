@@ -258,30 +258,59 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
 
-  // RSVP payment-success return handler: close old modal, clear selection, show success modal.
+  // RSVP payment-success return handler: close bulk modal, clear selection,
+  // fire success toast + inline banner, refresh allowance, and clean URL.
   const [searchParams, setSearchParams] = useSearchParams();
-  const [rsvpSuccessModal, setRsvpSuccessModal] = useState<RsvpPaymentSuccessData | null>(null);
+  const [rsvpSuccessBanner, setRsvpSuccessBanner] = useState<{
+    guestCount: number;
+    tierLabel: string;
+    amount: number;
+    ptype: 'rsvp' | 'rsvp_overage';
+  } | null>(null);
   useEffect(() => {
     if (searchParams.get('payment') !== 'success') return;
-    // Close bulk modal and clear any active selection.
     setBulkModalOpen(false);
     setSelectedGuestIds(new Set());
-    // Build success-modal payload from query params + sessionStorage.
+
     let storedCount = 0;
     try { storedCount = Number(sessionStorage.getItem('ww:rsvpSelectedCount') || '0'); } catch {}
     const tierLabel = searchParams.get('tier') || '';
     const amount = Number(searchParams.get('amount') || '0');
     const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage') || 'rsvp';
-    setRsvpSuccessModal({ guestCount: storedCount, tierLabel, amount, ptype });
-    // Refresh allowance immediately so the badge updates.
+
+    const summary = ptype === 'rsvp_overage'
+      ? `${storedCount} extra guests • Add-on • $${amount.toFixed(2)} AUD`
+      : `${storedCount} ${storedCount === 1 ? 'guest' : 'guests'} invited${tierLabel ? ` • ${tierLabel}` : ''} • $${amount.toFixed(2)} AUD`;
+
+    sonnerToast.success('RSVP invitations sent successfully', {
+      description: summary,
+      duration: 6000,
+      action: {
+        label: 'View Responses',
+        onClick: () => {
+          // Filter to guests who have already replied; falls back to scroll-to-list.
+          try { setStatusFilter('Attending'); } catch {}
+          try {
+            document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } catch {}
+        },
+      },
+    });
+
+    setRsvpSuccessBanner({ guestCount: storedCount, tierLabel, amount, ptype });
+    // Auto-hide inline banner after ~8s.
+    const t = window.setTimeout(() => setRsvpSuccessBanner(null), 8000);
+
     refetchRsvpPurchase?.();
-    // Strip payment query params, keep only `tab`.
+
     const next = new URLSearchParams();
     const tab = searchParams.get('tab');
     if (tab) next.set('tab', tab);
     setSearchParams(next, { replace: true });
     try { sessionStorage.removeItem('ww:rsvpSelectedCount'); } catch {}
     try { sessionStorage.removeItem('ww:returnTab'); } catch {}
+
+    return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   
