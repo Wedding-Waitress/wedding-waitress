@@ -249,7 +249,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showSendModal, setShowSendModal] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
-  // ... keep existing code
+  const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
+  const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading } = useRsvpPurchase(selectedEventId);
   
   // Pagination state
