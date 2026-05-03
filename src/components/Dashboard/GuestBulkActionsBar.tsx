@@ -67,10 +67,10 @@ export const GuestBulkActionsBar = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
-          <div className="flex flex-col items-center gap-2 mt-4">
-            <p className="text-sm text-muted-foreground text-center">{getSelectedText()}</p>
-          </div>
-          <DialogDescription className="text-center mt-6">Apply actions to your selected guests</DialogDescription>
+          <DialogDescription className="text-sm font-medium text-center mt-4 text-[#967A59]">Apply actions to your selected guests</DialogDescription>
+          {getSelectedText() && (
+            <p className="text-sm font-medium text-center mt-4 text-green-600">{getSelectedText()}</p>
+          )}
         </DialogHeader>
 
         <div className="grid gap-2 py-4">
