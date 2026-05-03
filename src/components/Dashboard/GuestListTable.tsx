@@ -2106,17 +2106,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               )}
                             </div>
                           </div>
-                          <div className="min-w-0">
-                            <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
-                            <RelationBadge
-                              display={relationDisplay}
-                              partner={guest.relation_partner || ''}
-                              role={guest.relation_role || ''}
-                              partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                              onClick={() => handleEditRelation(guest)}
-                              isEmpty={!relationDisplay}
-                            />
-                          </div>
+                          {!relationsHidden && (
+                            <div className="min-w-0">
+                              <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C] mb-1">Relation</div>
+                              <RelationBadge
+                                display={relationDisplay}
+                                partner={guest.relation_partner || ''}
+                                role={guest.relation_role || ''}
+                                partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
+                                onClick={() => handleEditRelation(guest)}
+                                isEmpty={!relationDisplay}
+                              />
+                            </div>
+                          )}
                           <div>
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Dietary</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{guest.dietary || '—'}</div>
@@ -2244,7 +2246,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="px-2 text-xs">RSVP Status</TableHead>
                 <TableHead className="px-2 text-xs">Table No</TableHead>
                 <TableHead className="px-2 text-xs">Seat No.</TableHead>
-                <TableHead className="px-2 text-xs">Relation</TableHead>
+                {!relationsHidden && <TableHead className="px-2 text-xs">Relation</TableHead>}
                 <TableHead className="px-2 text-xs">Dietary Requirements</TableHead>
                 <TableHead className="px-2 text-xs">Family/Group</TableHead>
                 <TableHead className="px-2 text-xs">Notes</TableHead>
@@ -2410,6 +2412,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               '—'
                             )}
                           </TableCell>
+                          {!relationsHidden && (
                           <TableCell className="py-1 px-2">
                             {(() => {
                               const relationDisplay = getResolvedRelationDisplay(
@@ -2430,6 +2433,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               );
                             })()}
                           </TableCell>
+                          )}
                     <TableCell className="py-1 px-2">
                       <span className="text-sm text-foreground">
                         {guest.dietary || '—'}
