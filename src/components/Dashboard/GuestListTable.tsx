@@ -2376,7 +2376,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
                               return (
-                                <Badge className={`text-xs whitespace-nowrap ${config.className}`}>
+                                <Badge className={`text-xs ${config.className}`}>
                                   {config.label}
                                 </Badge>
                               );
