@@ -1515,6 +1515,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             return;
           }
           
+          // Add mode opened via "Set" button (no pending submission) — just write values and close.
+          if (!pendingFormData) {
+            setShowRelationAssignment(false);
+            setPeopleToAssign([]);
+            return;
+          }
+          
           // Apply per-member relations for new guests — compute locally to avoid race condition
           let updatedMembers = [...partyMembers];
           if (assignments.length > 1) {
