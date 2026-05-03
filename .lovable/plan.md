@@ -1,72 +1,46 @@
-## Restore Relationship (Partner + Role) in Add & Edit Guest
+## Fix: Relation Row Placement in Add New Guest Modal
 
-### What's actually in the codebase right now
+### Findings
 
-The Partner+Role Relationship system is **NOT deleted** — the data, helpers, and dialog all still exist:
+The Relation (Partner + Role) row IS already rendered in `src/components/Dashboard/AddGuestModal.tsx` (line 1342) and is NOT gated by `isEdit` — it shows in both Add and Edit modes whenever relations are not turned off.
 
-- DB columns on `guests`: `relation_partner`, `relation_role`, `relation_display` — present and populated.
-- Helper: `src/lib/relationUtils.ts` — `computeRelationDisplay()` produces "Mahmoud — Guest".
-- Picker dialog: `src/components/Dashboard/RelationAssignmentDialog.tsx` — fully functional Partner + Role step-by-step flow.
-- Display: `RelationBadge.tsx` and the Guest List table/cards already render `relation_display`.
-- Add flow (`AddGuestModal.tsx` line 521): when relations are enabled, submitting opens `RelationAssignmentDialog` before saving — so Add mode DOES capture Partner+Role, but there is no visible field/preview row in the form itself before submit.
-- Edit flow (`AddGuestModal.tsx` lines 1342–1378): renders an inline Relation row with a "Change" button — but it is gated behind `isEdit && relation_mode !== 'off'`. In your Edit screenshot it is missing, which means either the row was wrapped/hidden by a recent change, or the event's `relation_mode` is being treated as `off`.
+The real problem is **placement**. Current order in the modal is:
 
-So the fix is **not a rebuild** — it is restoring a single visible "Relation" row inside both modals (placed below Seat Number, above RSVP/Dietary), wired to the existing data and existing `RelationAssignmentDialog`.
+1. First Name / Last Name
+2. Mobile / Email
+3. Table / **Seat Number**
+4. **RSVP Status / Dietary Requirements** (combined row)
+5. Party Members (Couple/Family only)
+6. **Relation** ← currently here
+7. Notes
 
-### Changes (only `AddGuestModal.tsx`)
+The spec requires Relation to sit **directly below Seat Number and directly above Dietary Requirements** — matching the Edit modal layout the user expects.
 
-1. **Add a visible "Relation" row in BOTH Add and Edit modes**, placed directly **below the Table/Seat row (line ~1127) and above the RSVP Invite Status / RSVP / Dietary block (line ~1130)**. This matches the requested placement.
+There is also a secondary risk: `relations_hidden` (page-level toggle) or event `relation_mode === 'off'` will still hide the row. That behaviour is intentional and stays — but we'll add a note to ensure it isn't accidentally hiding it for the user's current event.
 
-2. The row contains:
-   - Label: `Relation` (with red `*` if `relation_settings.relation_required`).
-   - A read-only pill showing the current value:
-     - If `relation_partner` + `relation_role` are set → render `computeRelationDisplay(...)` → e.g. "Mahmoud — Guest".
-     - Otherwise → muted text "No relation set".
-   - A `Set` / `Change` button (rounded, outline, brown — same style as the existing Edit-mode row at lines 1349–1375) that opens the existing `RelationAssignmentDialog` for the main guest only (`peopleToAssign = [{ name, index: -1 }]`).
+### Changes (single file: `src/components/Dashboard/AddGuestModal.tsx`)
 
-3. **Remove the `&& isEdit` gate** on the existing Relation block (line 1343) so it renders in Add mode too. Keep the `relations_hidden` / `relation_mode === 'off'` gate so users who have intentionally turned Relationships OFF still see nothing.
+1. **Move the existing Relation block** (lines ~1342–1387) to sit immediately after the Table / Seat Number row (~line 1146) and **before** the RSVP + Dietary grid (~line 1148).
+   - The combined RSVP + Dietary grid stays as a single row, so "above Dietary" is achieved by placing Relation above that grid.
+2. Keep the existing `relationsHidden` / `relation_mode === 'off'` guard exactly as-is (do not show when explicitly disabled).
+3. Keep the existing logic that:
+   - Shows "Set" when no relation is assigned, "Change" when one exists.
+   - Opens `RelationAssignmentDialog` with the typed name (or "New guest" fallback) for new guests.
+   - Does NOT set `pendingFormData` in Add mode, so the dialog won't auto-submit.
+4. No styling, spacing, colour, or other field changes.
+5. Verify in preview that for an event with `relation_mode` of `two` or `single`, the Relation row appears in the Add modal between Seat Number and the RSVP/Dietary row.
 
-4. In Add mode, when the user clicks "Set", reuse the existing dialog wiring (lines 1486–1565). On `onComplete`, write `relation_partner` + `relation_role` into the form via `form.setValue(...)` (already happens at lines 1497–1498) and close the dialog WITHOUT auto-submitting — the user keeps editing the form and submits manually with the green button.
+### Out of Scope (will NOT change)
 
-5. **Submit behaviour stays untouched**:
-   - Add: existing flow at line 521 still triggers `RelationAssignmentDialog` if relation is required and missing — unchanged safety net.
-   - Edit: existing update at line 600 already writes `relation_partner`, `relation_role`, `relation_display` — unchanged.
+- RSVP logic, guest categories, party member flow, validation, save logic.
+- Edit modal structure (already correct — we're just matching it).
+- Any other component, page, or styling.
+- The `relations_hidden` toggle behaviour.
 
-6. **Sync**: no work needed. Guest cards (`GuestMobileCard.tsx`), the desktop table (`GuestListTable.tsx` via `RelationBadge.tsx`), and all chart exports already read `relation_display` and update via the existing realtime channel `kiosk-guests:event:${eventId}`.
+### Verification Checklist
 
-### Styling (no changes elsewhere)
-
-Reuse the exact classes from the existing inline Edit row so it matches RSVP/Dietary dropdowns:
-
-- Pill: `rounded-full border-2 border-primary/30 bg-muted/30 px-3 py-2 text-sm`
-- Button: `rounded-full border-primary text-primary hover:bg-primary/10`
-- Mobile: `max-lg:flex-col max-lg:items-stretch max-lg:w-full max-lg:h-11`
-
-No changes to RSVP logic, guest categories, dietary list, validation schema, or any other component.
-
-### What does NOT change
-
-- No new DB columns. No migration. The new "Relationship" 7-option dropdown from your earlier prompt is **not** added — per your answer we keep the existing Partner+Role system.
-- No styling/layout changes outside the new row.
-- No changes to `GuestListTable.tsx`, `GuestMobileCard.tsx`, `RelationBadge.tsx`, `RelationAssignmentDialog.tsx`, `relationUtils.ts`.
-- Locked `MOBILE MODAL SYSTEM` and dashboard utilities are respected.
-
-### Global Protection Rule (memory)
-
-Add a new Core memory line so this never happens again:
-
-> NEVER remove, replace, or alter a previously implemented feature (UI, field, logic, structure) unless the user explicitly requests it. If a request would do so, FIRST reply: "This change will modify or remove an existing implemented feature: [name]. Do you want to proceed?" and WAIT for confirmation.
-
-This will be appended to `mem://index.md` Core section and a dedicated `mem://standards/no-silent-feature-removal` file.
-
-### Files touched
-
-- `src/components/Dashboard/AddGuestModal.tsx` — add the Relation row (Add+Edit), remove the `isEdit` gate on the existing block.
-- `mem://index.md` + `mem://standards/no-silent-feature-removal` — protection rule.
-
-### Verification after build
-
-- Add Guest → Relation row visible below Seat Number, "Set" button opens picker, value persists in form, saves to DB on submit, shows on card/table immediately.
-- Edit Guest → Relation row visible with current value, "Change" works, saves on Update.
-- Mobile, tablet, desktop all render correctly (full-width on `max-lg`).
-- Toggle "Enable Relationships OFF" → row hidden everywhere (existing gate preserved).
+- Open Add New Guest → Relation row visible directly below Seat Number, directly above Dietary.
+- Open Edit Guest → same placement, same component, same data binding.
+- Click "Set" in Add mode → Relation Assignment dialog opens, selecting Partner + Role updates the pill, no auto-submit.
+- Save new guest → `relation_partner`, `relation_role`, `relation_display` persist and show on guest cards / table view.
+- If event has `relation_mode = 'off'` or page toggle hides relations → row remains hidden (unchanged behaviour).

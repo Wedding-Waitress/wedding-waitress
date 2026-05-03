@@ -1145,6 +1145,52 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               </div>
             )}
 
+            {/* Relation - visible in BOTH Add and Edit modes (hidden only when relations turned off). Placed BELOW Seat Number, ABOVE Dietary. */}
+            {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && (() => {
+              const hasRelation = !!(form.watch('relation_partner') && form.watch('relation_role'));
+              return (
+                <div className="space-y-1">
+                  <Label>
+                    Relation
+                    {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
+                  </Label>
+                  <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
+                    <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30 max-lg:w-full">
+                      {hasRelation
+                        ? computeRelationDisplay(
+                            form.watch('relation_partner') as RelationPartner,
+                            form.watch('relation_role') as RelationRole,
+                            selectedEvent?.partner1_name,
+                            selectedEvent?.partner2_name,
+                            relationSettings.custom_roles
+                          )
+                        : <span className="text-muted-foreground">No relation set</span>
+                      }
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-primary text-primary hover:bg-primary/10 max-lg:w-full max-lg:h-11"
+                      onClick={() => {
+                        const firstName = form.getValues('first_name') || 'New guest';
+                        const lastName = form.getValues('last_name') || '';
+                        const name = `${firstName} ${lastName}`.trim();
+                        setPeopleToAssign([{ name, index: -1 }]);
+                        // In Add mode we do NOT set pendingFormData — that would trigger auto-submit on dialog complete.
+                        if (isEdit) {
+                          setPendingFormData(form.getValues());
+                        }
+                        setShowRelationAssignment(true);
+                      }}
+                    >
+                      {hasRelation ? 'Change' : 'Set'}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* RSVP and Dietary - Stack on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FormField
@@ -1338,53 +1384,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               </div>
             )}
 
-
-            {/* Relation - visible in BOTH Add and Edit modes (hidden only when relations turned off) */}
-            {!(relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off')) && (() => {
-              const hasRelation = !!(form.watch('relation_partner') && form.watch('relation_role'));
-              return (
-                <div className="space-y-1">
-                  <Label>
-                    Relation
-                    {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
-                  </Label>
-                  <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
-                    <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30 max-lg:w-full">
-                      {hasRelation
-                        ? computeRelationDisplay(
-                            form.watch('relation_partner') as RelationPartner,
-                            form.watch('relation_role') as RelationRole,
-                            selectedEvent?.partner1_name,
-                            selectedEvent?.partner2_name,
-                            relationSettings.custom_roles
-                          )
-                        : <span className="text-muted-foreground">No relation set</span>
-                      }
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="rounded-full border-primary text-primary hover:bg-primary/10 max-lg:w-full max-lg:h-11"
-                      onClick={() => {
-                        const firstName = form.getValues('first_name') || 'New guest';
-                        const lastName = form.getValues('last_name') || '';
-                        const name = `${firstName} ${lastName}`.trim();
-                        setPeopleToAssign([{ name, index: -1 }]);
-                        // In Add mode we do NOT set pendingFormData — that would trigger auto-submit on dialog complete.
-                        // The dialog's onComplete already short-circuits when pendingFormData is null and just writes the values via setValue.
-                        if (isEdit) {
-                          setPendingFormData(form.getValues());
-                        }
-                        setShowRelationAssignment(true);
-                      }}
-                    >
-                      {hasRelation ? 'Change' : 'Set'}
-                    </Button>
-                  </div>
-                </div>
-              );
-            })()}
 
             {/* Notes */}
             <FormField
