@@ -237,7 +237,7 @@ serve(async (req) => {
     // Fire-and-forget admin payment notification. Failures must NOT break payment success.
     try {
       const amountPaid = ((session.amount_total || 0) / 100).toFixed(2);
-      const userEmail = userData.user.email || "";
+      // userEmail was resolved earlier via admin.getUserById(userId)
       const { data: profile } = await supabase
         .from("profiles")
         .select("first_name, last_name")
