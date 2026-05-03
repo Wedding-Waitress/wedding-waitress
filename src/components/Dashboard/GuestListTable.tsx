@@ -288,8 +288,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       action: {
         label: 'View Responses',
         onClick: () => {
-          // Filter to guests who have already replied; falls back to scroll-to-list.
-          try { setStatusFilter('Attending'); } catch {}
           try {
             document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           } catch {}
