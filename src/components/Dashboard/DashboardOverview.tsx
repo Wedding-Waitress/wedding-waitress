@@ -60,11 +60,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const nearLimit = !overLimit && percent >= 80;
   const percentLabel = capacity > 0 ? Math.round((stats.total / capacity) * 100) : 0;
 
-  const goToGuestList = () => {
+  const goToGuestList = (scrollToSend = false) => {
     if (onNavigateToGuestList) {
       onNavigateToGuestList();
     } else {
       window.location.assign('/dashboard?tab=guest-list');
+    }
+    if (scrollToSend) {
+      setTimeout(() => {
+        document.getElementById('guest-list-table-anchor')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 250);
     }
   };
 
@@ -128,7 +136,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     Send digital invitations and track responses in real-time.
                   </p>
                 </div>
-                <Button onClick={goToGuestList} className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0">
+                <Button onClick={() => goToGuestList(false)} className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0">
                   Activate RSVP
                 </Button>
               </div>
@@ -195,8 +203,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
                 <div className="pt-1">
                   <Button
-                    onClick={goToGuestList}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
+                    onClick={() => goToGuestList(true)}
+                    disabled={stats.total === 0}
+                    title={stats.total === 0 ? 'Add guests first to send invitations' : undefined}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Send className="w-4 h-4" />
                     Send Invitations
