@@ -1,50 +1,39 @@
-## Goal
-Fix Guest List desktop header so headers sit perfectly above their data columns, with three headers stacked on two lines for compactness. Desktop only (`hidden lg:block` branch in `src/components/Dashboard/GuestListTable.tsx`). No mobile/tablet, color, or functional changes.
+I’ll make a focused desktop-only fix in `src/components/Dashboard/GuestListTable.tsx` to force the Guest List table to behave like a locked spreadsheet grid, without touching mobile/tablet, colors, text, or functionality.
 
-## Why the current header looks misaligned
-The table already uses `tableLayout: fixed` with a `<colgroup>` — that's the correct locked-grid setup, and column widths are already enforced. The visual drift in the screenshot is caused by **header text alignment**: most `<TableHead>`s are left-aligned (default), while a few are `text-center`, and the body cells underneath use mixed alignments (centered pills, centered numbers). Centering all headers makes them visually sit above their centered data, which is the user's "locked spreadsheet" expectation.
+Implementation plan:
 
-## Changes (single file: `src/components/Dashboard/GuestListTable.tsx`, lines 2200–2261)
+1. Force native fixed table layout
+- Change the desktop table to use `className="w-full table-fixed border-collapse"`.
+- Keep the existing `<colgroup>` as the single source of truth for column widths.
+- Remove the inline table-layout workaround once Tailwind `table-fixed` is applied.
 
-### A. Stack three headers on two lines
+2. Standardize header and body cell alignment
+- Apply consistent table-cell classes to all desktop headers and data cells:
+  - `text-center align-middle px-2 py-2`
+- Keep first-column padding compact where needed, but keep it centered and table-cell based.
+- Keep loading/empty/group rows valid with `colSpan={15}`.
 
-- **Table No** → `Table` / `No`
-- **Seat No.** → `Seat` / `No`
-- **Family/Group** → `Family` / `Group`
+3. Remove flex layout from table structure
+- Remove `flex`, `inline-flex`, `items-*`, and `justify-*` classes from desktop `<TableHead>`, `<TableRow>`, and `<TableCell>` content where they are causing column drift.
+- Replace stacked header labels with simple inline/block text that does not create flex layout inside table headers.
+- Keep the existing two-line header text visually stacked using non-flex markup.
 
-Also stack **Dietary Requirements** → `Dietary` / `Requirements` (already two words taking too much horizontal room — same compact pattern).
+4. Contain the Send RSVP button inside its assigned column
+- Keep the button text as:
+  - `Send`
+  - `RSVP & Invite`
+- Remove `inline-flex`, `flex-col`, `items-center`, and `justify-center` from the button.
+- Use table-safe inline/block text and compact padding so it cannot stretch or push the column.
 
-Each uses:
-```tsx
-<span className="flex flex-col items-center leading-tight">
-  <span>Table</span>
-  <span>No</span>
-</span>
-```
+5. Clean up desktop cell contents that currently behave like flex
+- RSVP Invite cell: remove the extra flex wrapper and let the badge sit centered by the cell alignment.
+- RSVP Status badge: remove nested flex wrappers and width constraints that can fight the column grid.
+- Relation OFF pill / Family Group pill / Notes pill / Actions: replace flex-based wrappers with table-safe inline elements or inline grid where needed, keeping the same visible labels, colors, and click actions.
+- Keep tooltips, badges, edit/delete buttons, RSVP invite logic, +Guest logic, notes logic, and all existing handlers unchanged.
 
-### B. Apply consistent header alignment + padding
-
-Every `<TableHead>` in the desktop header row gets:
-```
-px-2 py-2 text-xs text-center align-middle
-```
-
-The first cell (Send pill) keeps `bg-primary text-primary-foreground px-1 py-2 text-center align-middle` so the pill stays centered without stretching.
-
-The `+ Guest` cell preserves its existing click handler, tooltip, and `cursor-pointer hover:bg-primary/80 transition-colors select-none` — only the alignment classes are normalized.
-
-### C. What I am NOT touching
-- `<colgroup>` widths — already correct, columns are locked.
-- `tableLayout: 'fixed'` — already set on the `<Table>`.
-- `<TableBody>` / row cells — untouched (they already inherit width from colgroup; changing them is out of scope per "do not change anything else").
-- Mobile/tablet card view, colors, the brown header background, the white-bordered Send pill, +Guest toggle behaviour, Relation OFF pill, sort logic, bulk modal trigger.
-
-## Acceptance check
-1. Headers `Table No`, `Seat No.`, `Family/Group`, `Dietary Requirements` show on two lines, centered.
-2. All header labels are centered above their column.
-3. No column drifts — headers stay vertically aligned with the data rows.
-4. Send pill remains a single white-bordered tablet button with "Send" / "RSVP & Invite" stacked.
-5. Mobile + tablet visually unchanged.
-6. No color, sort, or click behaviour change.
-
-Approve and I'll apply the edit immediately in default mode.
+Expected result:
+- Headers sit directly above their corresponding data columns.
+- Columns stay vertical and fixed like Excel.
+- No header/data drift when resizing desktop viewport.
+- The first Send RSVP column stays contained within its colgroup width.
+- Mobile/tablet markup remains untouched.
