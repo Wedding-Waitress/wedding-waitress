@@ -96,6 +96,8 @@ import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
+import { RsvpPaymentSuccessModal, type RsvpPaymentSuccessData } from './RsvpPaymentSuccessModal';
+import { useSearchParams } from 'react-router-dom';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
