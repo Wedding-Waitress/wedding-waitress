@@ -2179,33 +2179,34 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="hidden lg:block overflow-hidden border-t-2 border-primary">
           <Table className="w-full" style={{ tableLayout: 'fixed' }}>
             <colgroup>
-              <col style={{ width: '3%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '8%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '7%' }} />
+              <col style={{ width: '7%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '9%' }} />
               <col style={{ width: '6%' }} />
-              <col style={{ width: '7%' }} />
+              <col style={{ width: '6%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '5%' }} />
-              <col style={{ width: '4%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '8%' }} />
               <col style={{ width: '5%' }} />
+              <col style={{ width: '8%' }} />
+              <col style={{ width: '8%' }} />
               <col style={{ width: '7%' }} />
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '6%' }} />
             </colgroup>
             <TableHeader>
               <TableRow>
-                <TableHead className="bg-primary text-primary-foreground px-2 min-w-[140px]">
+                <TableHead className="bg-primary text-primary-foreground px-1">
                   <button
                     type="button"
                     title="Send RSVP & Invite"
                     aria-label="Send RSVP & Invite"
                     onClick={() => setBulkModalOpen(true)}
-                    className="inline-flex items-center justify-center px-3 py-1.5 rounded-full border border-white bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white whitespace-nowrap leading-tight transition-colors"
+                    className="inline-flex flex-col items-center justify-center mx-auto px-2 py-1 rounded-full border border-white bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white whitespace-nowrap leading-tight transition-colors"
                   >
-                    Send RSVP &amp; Invite
+                    <span>Send</span>
+                    <span>RSVP &amp; Invite</span>
                   </button>
                 </TableHead>
                 <TableHead className="px-2 text-xs">First Name</TableHead>
