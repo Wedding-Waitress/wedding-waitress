@@ -11,7 +11,7 @@ export const PaymentSuccess = () => {
   const sessionId = searchParams.get("session_id");
   const { startProcessing, stopProcessing } = usePaymentProcessing();
 
-  const [status, setStatus] = useState<"loading" | "success" | "approval" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "approval" | "pending" | "error">("loading");
   const [details, setDetails] = useState<{
     type?: string;
     plan_name?: string;
