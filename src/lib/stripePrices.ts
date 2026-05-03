@@ -58,6 +58,15 @@ export const getRsvpTier = (guestCount: number) => {
   return RSVP_TIERS.find(t => guestCount >= t.min && guestCount <= t.max) ?? RSVP_TIERS[RSVP_TIERS.length - 1];
 };
 
+// ── RSVP Invite Overage (one-time, $10 AUD per 10 extra guests) ────
+export const RSVP_OVERAGE = {
+  product_id: 'prod_URud0pt0K8Sl9i',
+  price_id: 'price_1TT0o05GzTmqOxGKUIiEXxj6',
+  name: 'RSVP Invite Overage — 10 Guests',
+  price_aud: 10,
+  guests_per_block: 10,
+} as const;
+
 /** Map Stripe product IDs back to plan DB IDs */
 export const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string }> = {
   [PLAN_PRICES.essential.product_id]: { plan_db_id: PLAN_PRICES.essential.plan_db_id, name: 'Essential' },
