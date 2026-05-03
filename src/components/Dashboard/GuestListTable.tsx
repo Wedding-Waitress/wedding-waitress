@@ -1567,8 +1567,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     }`}
                     title="RSVP invite allowance for this event"
                   >
-                    RSVP Allowance: {guests.length} / {rsvpTotalCapacity}
-                    {guests.length > rsvpTotalCapacity && ' • Top-up required'}
+                    RSVP Allowance: {guests.length} of {rsvpTotalCapacity} guests
+                    {guests.length > rsvpTotalCapacity && ' • Additional guests required'}
                   </span>
                 )}
               </div>
