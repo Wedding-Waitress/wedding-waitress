@@ -2612,8 +2612,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
         {/* Bulk Actions Modal */}
         <GuestBulkActionsBar
-          isOpen={selectedGuestIds.size > 0}
-          onClose={handleDeselectAll}
+          isOpen={bulkModalOpen || selectedGuestIds.size > 0}
+          onClose={() => { setBulkModalOpen(false); handleDeselectAll(); }}
           selectedCount={selectedGuestIds.size}
           totalCount={sortedGuests.length}
           selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
