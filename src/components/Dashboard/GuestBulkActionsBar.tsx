@@ -238,7 +238,7 @@ export const GuestBulkActionsBar = ({
           <div className="p-3 rounded-lg border-2 border-[#967A59]/70 flex items-center gap-3">
             <Send className="w-5 h-5 text-[#967A59] shrink-0" />
             <div className="flex flex-col gap-1.5 flex-1">
-              <span className="text-sm font-medium text-foreground">Mark Invite as Sent Manually</span>
+              <span className="text-sm font-medium text-foreground">Mark RSVP / Invite as sent manually</span>
               <Select onValueChange={(value) => onMarkManualInvite(value)}>
                 <SelectTrigger className="h-9 text-xs border-2 border-[#967A59]/70">
                   <SelectValue placeholder="Select method..." />
