@@ -75,6 +75,23 @@ export const useRsvpPurchase = (eventId: string | null) => {
     refetch();
   }, [refetch]);
 
+  // Refetch when the window regains focus or tab becomes visible.
+  // This ensures the allowance reflects a successful Stripe checkout
+  // as soon as the user returns from the payment redirect.
+  useEffect(() => {
+    if (!eventId) return;
+    const onFocus = () => refetch();
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') refetch();
+    };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [eventId, refetch]);
+
   // Total guests covered by all overage blocks
   const overageGuests = overagePurchases.reduce(
     (sum, p) => sum + (Number(p.overage_blocks) || 0) * RSVP_OVERAGE.guests_per_block,

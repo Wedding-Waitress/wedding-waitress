@@ -1551,13 +1551,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Left: Title, Description, Event selector and Search */}
             <div className="w-full">
-              <div className="flex items-baseline gap-3 mb-4">
+              <div className="flex items-baseline gap-3 mb-4 flex-wrap">
                 <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">
                   Guest List
                 </h1>
                 <p className="text-sm text-muted-foreground hidden sm:block">
                   Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
                 </p>
+                {hasRsvpPurchase && rsvpTotalCapacity > 0 && (
+                  <span
+                    className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap ${
+                      guests.length > rsvpTotalCapacity
+                        ? 'border-red-300 bg-red-50 text-red-700'
+                        : 'border-primary/30 bg-primary/5 text-primary'
+                    }`}
+                    title="RSVP invite allowance for this event"
+                  >
+                    RSVP Allowance: {guests.length} / {rsvpTotalCapacity}
+                    {guests.length > rsvpTotalCapacity && ' • Top-up required'}
+                  </span>
+                )}
               </div>
               
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
