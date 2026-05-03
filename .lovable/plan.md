@@ -1,53 +1,50 @@
 ## Goal
-Replace the bare bulk-select checkbox in the Guest List **PC/desktop table header** with a small labeled control reading **"Send RSVP & Invite"** stacked above (or beside) the checkbox, styled to sit cleanly on the brown header background.
+Fix Guest List desktop header so headers sit perfectly above their data columns, with three headers stacked on two lines for compactness. Desktop only (`hidden lg:block` branch in `src/components/Dashboard/GuestListTable.tsx`). No mobile/tablet, color, or functional changes.
 
-Mobile card view stays exactly as it is today ("Send RSVP's & Invitation" pill) — no changes there.
+## Why the current header looks misaligned
+The table already uses `tableLayout: fixed` with a `<colgroup>` — that's the correct locked-grid setup, and column widths are already enforced. The visual drift in the screenshot is caused by **header text alignment**: most `<TableHead>`s are left-aligned (default), while a few are `text-center`, and the body cells underneath use mixed alignments (centered pills, centered numbers). Centering all headers makes them visually sit above their centered data, which is the user's "locked spreadsheet" expectation.
 
-## Scope (single file)
-- `src/components/Dashboard/GuestListTable.tsx` — desktop `<TableHeader>` only.
+## Changes (single file: `src/components/Dashboard/GuestListTable.tsx`, lines 2200–2261)
 
-No other files, no other pages, no other behaviour.
+### A. Stack three headers on two lines
 
-## Visual spec (PC header cell, leftmost column)
+- **Table No** → `Table` / `No`
+- **Seat No.** → `Seat` / `No`
+- **Family/Group** → `Family` / `Group`
 
-```text
-+----------------------------------+
-|  Send RSVP & Invite              |
-|  [ ✓ ]                           |
-+----------------------------------+
+Also stack **Dietary Requirements** → `Dietary` / `Requirements` (already two words taking too much horizontal room — same compact pattern).
+
+Each uses:
+```tsx
+<span className="flex flex-col items-center leading-tight">
+  <span>Table</span>
+  <span>No</span>
+</span>
 ```
 
-- Label: `Send RSVP & Invite`
-  - Single line, `text-[11px]` / `text-xs`, `font-medium`, `text-white`, `whitespace-nowrap`, `leading-tight`.
-- Checkbox: existing bulk-select checkbox, unchanged behaviour, centered horizontally under the label.
-- Vertical stack: `flex flex-col items-center justify-center gap-1`.
-- Header cell padding: keep existing `px-2`/`py-2`; bump min-width slightly (e.g. `min-w-[120px]`) so the label never wraps.
-- No border, no background pill — the label sits directly on the brown header (matches the other column titles like "First Name", "Mobile", "Email").
+### B. Apply consistent header alignment + padding
 
-## Behaviour (unchanged)
-- Checkbox still toggles select-all-on-page.
-- Indeterminate / checked states preserved.
-- Clicking the **label** does nothing (label is presentational only) — only the checkbox toggles selection. This avoids accidental select-all when users tap near the text.
+Every `<TableHead>` in the desktop header row gets:
+```
+px-2 py-2 text-xs text-center align-middle
+```
 
-## Column-width rebalancing
-The new header cell needs ~120px instead of the current ~40px. To absorb the extra ~80px without squeezing First/Last Name, trim from the two widest flexible columns:
-- `Email` column: reduce by ~50px (it currently has the most slack).
-- `Dietary` column: reduce by ~30px.
+The first cell (Send pill) keeps `bg-primary text-primary-foreground px-1 py-2 text-center align-middle` so the pill stays centered without stretching.
 
-First Name, Last Name, Mobile, Relation, Table, Actions — untouched.
+The `+ Guest` cell preserves its existing click handler, tooltip, and `cursor-pointer hover:bg-primary/80 transition-colors select-none` — only the alignment classes are normalized.
 
-## What is NOT changing
-- Mobile guest card "Send RSVP's & Invitation" pill — untouched.
-- Row-level checkboxes in each guest row — untouched.
-- Any other header label, column, sort behaviour, or styling.
-- The Relation column "OFF" pill logic from the previous task — untouched.
-- No translation keys added (label is English-only, matching the surrounding column titles which are also untranslated in this table).
+### C. What I am NOT touching
+- `<colgroup>` widths — already correct, columns are locked.
+- `tableLayout: 'fixed'` — already set on the `<Table>`.
+- `<TableBody>` / row cells — untouched (they already inherit width from colgroup; changing them is out of scope per "do not change anything else").
+- Mobile/tablet card view, colors, the brown header background, the white-bordered Send pill, +Guest toggle behaviour, Relation OFF pill, sort logic, bulk modal trigger.
 
 ## Acceptance check
-1. PC view (≥1024px): leftmost header cell shows "Send RSVP & Invite" on one line above the bulk-select checkbox, both centered, white text on brown.
-2. Label never wraps at viewports down to the table's normal min-width.
-3. Bulk-select checkbox still works exactly as before.
-4. Tablet + mobile views are visually identical to current behaviour.
-5. No other column shifts noticeably except Email/Dietary getting slightly narrower.
+1. Headers `Table No`, `Seat No.`, `Family/Group`, `Dietary Requirements` show on two lines, centered.
+2. All header labels are centered above their column.
+3. No column drifts — headers stay vertically aligned with the data rows.
+4. Send pill remains a single white-bordered tablet button with "Send" / "RSVP & Invite" stacked.
+5. Mobile + tablet visually unchanged.
+6. No color, sort, or click behaviour change.
 
-Once you approve, I'll switch to default mode and make the edit to `GuestListTable.tsx` only.
+Approve and I'll apply the edit immediately in default mode.
