@@ -1,76 +1,126 @@
-## Why you see a blank screen
+# Stripe Return + Success UX Fix (RSVP Invite Purchases)
 
-Good news first: the payment system is working. The edge function logs confirm Stripe successfully created the checkout session right when you clicked Pay:
+Currently after Stripe checkout, the user lands on `/payment-success`, then auto-redirects to `/dashboard?tab={returnTab}&success=true`. We will route RSVP purchases specifically back to the Guest List with a `payment=success` flag plus payment details, then surface a new in-product success modal.
 
-```
-[CREATE-CHECKOUT] Checkout session created - sessionId: cs_test_a1sZnLKNwQBtf2VZ...
-```
+## Scope (touch only what's listed)
+- `src/pages/PaymentSuccess.tsx` — change redirect destination for RSVP purchases.
+- `src/components/Dashboard/RsvpActivationModal.tsx` — store `selectedGuestCount` for return display; ensure `returnTab='guest-list'`.
+- `src/components/Dashboard/RsvpOverageModal.tsx` — same returnTab + selected count storage.
+- `src/components/Dashboard/GuestListTable.tsx` — read `payment=success` query, close Manage Selected modal, clear selections, open new success modal, then strip the query.
+- NEW: `src/components/Dashboard/RsvpPaymentSuccessModal.tsx`.
 
-So the backend, the new $10/10-guest price, and the overage flow are all correct.
+Do NOT touch: `create-checkout`, `verify-payment`, RSVP tier/overage business logic, guest table layout, Activation/Overage modal internals beyond the small additions above.
 
-The blank screen is a **frontend navigation problem**, not a payment problem.
-
-### Root cause
-
-`RsvpOverageModal.tsx` (and `RsvpActivationModal.tsx`) currently does:
-
-```ts
-window.location.href = data.url;   // Stripe-hosted checkout URL
-```
-
-You are testing inside the **Lovable preview**, which runs your app inside an `<iframe>`. `window.location.href` only navigates that iframe. Stripe's hosted Checkout page is served with `X-Frame-Options: DENY` / `frame-ancestors 'none'`, which means **browsers refuse to render Stripe inside any iframe** — the iframe stays blank, which is exactly the screenshot you sent (Lovable chrome visible, content area empty skeletons).
-
-This is a preview-only artifact: on the published site (`wedding-waitress.lovable.app`) the same code would correctly navigate the whole tab to Stripe. But we should fix it so it works in BOTH environments — preview and production.
-
-### The fix (2 small files)
-
-Change the redirect to break out of the iframe and fall back to opening in a new tab if the browser blocks top-window navigation across origins.
-
-**1. `src/components/Dashboard/RsvpOverageModal.tsx`** — replace the redirect block:
+## 1. Redirect destination (PaymentSuccess.tsx)
+Replace the current `returnDest` builder with RSVP-aware logic:
 
 ```ts
-if (data?.url) {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    sessionStorage.setItem('ww:returnTab', params.get('tab') || 'guest-list');
-  } catch {}
-  onClose();
-
-  // Break out of the Lovable preview iframe; Stripe Checkout sets
-  // X-Frame-Options: DENY and cannot render inside any iframe.
-  const inIframe = window.self !== window.top;
-  if (inIframe) {
-    try {
-      window.top!.location.href = data.url;
-    } catch {
-      // Cross-origin top-nav blocked → open in a new tab as a fallback
-      window.open(data.url, '_blank', 'noopener,noreferrer');
-    }
-  } else {
-    window.location.href = data.url;
-  }
+const isRsvp = details.type === "rsvp" || details.type === "rsvp_overage";
+const returnTab = (() => {
+  try { return sessionStorage.getItem('ww:returnTab') || (isRsvp ? 'guest-list' : 'account'); }
+  catch { return isRsvp ? 'guest-list' : 'account'; }
+})();
+const params = new URLSearchParams();
+params.set('tab', returnTab);
+if (isRsvp) {
+  params.set('payment', 'success');
+  if (sessionId) params.set('session_id', sessionId);
+  if (details.plan_name) params.set('tier', details.plan_name);
+  if (details.amount_paid != null) params.set('amount', String(details.amount_paid));
+  params.set('ptype', details.type!); // 'rsvp' or 'rsvp_overage'
+} else {
+  params.set('success', 'true');
 }
+const returnDest = `/dashboard?${params.toString()}`;
 ```
 
-**2. `src/components/Dashboard/RsvpActivationModal.tsx`** — apply the exact same change to its redirect block (it has the identical bug; it just hasn't surfaced for you yet because you tested via the overage flow).
+The existing 8-second auto-redirect and "Go to Dashboard" buttons reuse `returnDest` unchanged.
 
-### Why not embedded checkout instead?
+`verify-payment` already returns `{ type: 'rsvp' | 'rsvp_overage', plan_name, amount_paid, ... }` — no backend change needed.
 
-`UpgradeCheckout.tsx` already uses Stripe's **embedded** checkout (`ui_mode: 'embedded'` + `client_secret`) and renders it inside the app, which sidesteps the iframe problem. We could route both RSVP modals through that same embedded page, but that is a bigger refactor (new route, plan_type handling for `rsvp` and `rsvp_overage` in `UpgradeCheckout`, success-page wiring). The 6-line top-window redirect above gives you a working button **today** with zero risk to the locked Guest List table or the verified Stripe pricing.
+## 2. Pre-checkout: remember Guest List + selected count
+In both `RsvpActivationModal.tsx` and `RsvpOverageModal.tsx`, just before the iframe-breakout redirect:
 
-If you later want everything inline (no redirect at all), I can do the embedded-checkout migration as a follow-up.
+```ts
+try {
+  sessionStorage.setItem('ww:returnTab', 'guest-list');
+  sessionStorage.setItem('ww:rsvpSelectedCount', String(selectedGuestCount ?? 0));
+} catch {}
+```
 
-### What this does NOT touch
+`selectedGuestCount` is already a prop on both modals (used in pricing display).
 
-- No changes to the locked Guest List desktop table layout.
-- No changes to `create-checkout` / `verify-payment` edge functions.
-- No changes to the new $10 overage price ID, allowance badge, or refetch logic.
-- No changes to `RsvpActivationModal` pricing or copy — only the 6-line redirect block.
+## 3. Guest List return handler (GuestListTable.tsx)
+Add an effect near the top of the component:
 
-### After the fix
+```ts
+const [searchParams, setSearchParams] = useSearchParams();
+const [successModal, setSuccessModal] = useState<null | {
+  guestCount: number; tierLabel: string; amount: number; ptype: 'rsvp' | 'rsvp_overage';
+}>(null);
 
-- In Lovable preview: clicking Pay Now will navigate the **whole browser tab** (not the iframe) to Stripe Checkout — no more blank screen.
-- On the published site: identical behavior to today (whole-tab navigation).
-- After paying, Stripe returns to `/payment-success?session_id=...`, `verify-payment` runs, the overage row is inserted, and the focus-refetch in `useRsvpPurchase` updates the "RSVP Allowance: X of Y guests" badge automatically.
+useEffect(() => {
+  if (searchParams.get('payment') !== 'success') return;
+  // Close the old "Manage Selected Guests" bulk modal + clear selection state
+  setShowBulkActions(false);     // existing state
+  setSelectedGuests(new Set());  // existing setter (or equivalent)
+  // Build modal data from query params + sessionStorage
+  const guestCount = Number(sessionStorage.getItem('ww:rsvpSelectedCount') || '0');
+  const tierLabel = searchParams.get('tier') || '';
+  const amount = Number(searchParams.get('amount') || '0');
+  const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage') || 'rsvp';
+  setSuccessModal({ guestCount, tierLabel, amount, ptype });
+  // Trigger allowance refetch (already exists via focus, but be explicit)
+  refetchRsvpPurchase?.();
+  // Clean URL — keep only `tab`
+  const next = new URLSearchParams();
+  const tab = searchParams.get('tab'); if (tab) next.set('tab', tab);
+  setSearchParams(next, { replace: true });
+  try { sessionStorage.removeItem('ww:rsvpSelectedCount'); } catch {}
+}, [searchParams]);
+```
 
-Approve and I'll apply both edits.
+(Exact existing state names verified during implementation — `showBulkActions`, selection set, and `refetchRsvpPurchase` are already in this file.)
+
+Render `<RsvpPaymentSuccessModal open={!!successModal} data={successModal} onClose={() => setSuccessModal(null)} />` alongside the other modals.
+
+## 4. New component: `RsvpPaymentSuccessModal.tsx`
+Built on existing `Dialog` primitive, matching brand styling (`#967A59` accents, brown headings, green check icon).
+
+```
+┌─────────────────────────────────────────────┐
+│            ✓  (green check circle)          │
+│           Payment Successful                │
+│                                             │
+│ Your RSVP invitations have been             │
+│ successfully sent to your selected guests.  │
+│                                             │
+│ You should start receiving replies soon.    │
+│ Please check your dashboard regularly       │
+│ for updates.                                │
+│                                             │
+│   ┌──────────────────────────────────────┐  │
+│   │  78 guests invited                   │  │
+│   │  1–100 Guests RSVP Bundle            │  │
+│   │  $99 AUD                             │  │
+│   └──────────────────────────────────────┘  │
+│                                             │
+│                  [ Done ]                   │
+└─────────────────────────────────────────────┘
+```
+
+Props: `{ open: boolean; data: { guestCount; tierLabel; amount; ptype } | null; onClose: () => void }`. "Done" calls `onClose` only (no navigation). For `ptype === 'rsvp_overage'`, swap the bundle line to "Additional RSVP Allowance ({guestCount} guests)". Amount renders as `$${amount.toFixed(2)} AUD`.
+
+## 5. Auto-refresh (already in place — verify only)
+- `useRsvpPurchase` already refetches on `focus` and `visibilitychange`.
+- We add an explicit `refetchRsvpPurchase()` call in the return handler so the badge updates the instant the modal opens (no wait for tab focus).
+
+## Expected result
+1. User pays on Stripe.
+2. Brief stop on `/payment-success` (verifies + shows existing "Payment Successful" card for ~1–2s, but now redirects to Guest List instead of homepage/account).
+3. Lands on `/dashboard?tab=guest-list` with old bulk modal closed and selections cleared.
+4. New `RsvpPaymentSuccessModal` opens with guest count, tier label, amount.
+5. URL is cleaned to `/dashboard?tab=guest-list`.
+6. Allowance badge reflects the new tier/overage immediately.
+
+No changes to checkout, verification, pricing, or the locked Guest List table layout.
