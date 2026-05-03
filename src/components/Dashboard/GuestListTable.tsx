@@ -2804,6 +2804,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           }}
         />
 
+        {/* RSVP Already Paid Modal (within tier) */}
+        {rsvpPurchase && (
+          <RsvpAlreadyPaidModal
+            isOpen={showAlreadyPaidModal}
+            onClose={() => setShowAlreadyPaidModal(false)}
+            onContinue={() => {
+              setShowAlreadyPaidModal(false);
+              setShowSendModal(true);
+            }}
+            tierLabel={rsvpPurchase.guest_tier_label || ''}
+            amountPaid={Number(rsvpPurchase.amount_paid) || 0}
+            paidAt={rsvpPurchase.created_at}
+            currentGuestCount={guests.length}
+            tierMax={getTierMaxFromLabel(rsvpPurchase.guest_tier_label)}
+          />
+        )}
+
         {/* Guest Limit Dialog */}
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
