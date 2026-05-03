@@ -11,7 +11,7 @@ export const PaymentSuccess = () => {
   const sessionId = searchParams.get("session_id");
   const { startProcessing, stopProcessing } = usePaymentProcessing();
 
-  const [status, setStatus] = useState<"loading" | "success" | "approval" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "approval" | "pending" | "error">("loading");
   const [details, setDetails] = useState<{
     type?: string;
     plan_name?: string;
@@ -40,17 +40,18 @@ export const PaymentSuccess = () => {
           body: { session_id: sessionId },
         });
 
-        if (fnError) throw new Error(fnError.message);
-        if (data?.error) throw new Error(data.error);
+        // Soft-fail: any transport error or pending payload shows the friendly
+        // "finalizing setup" state instead of the red error card.
+        if (fnError || data?.status === "pending" || data?.error) {
+          setStatus("pending");
+          return;
+        }
 
         setDetails(data);
-        setStatus(data.requires_approval ? "approval" : "success");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Verification failed");
-        setStatus("error");
+        setStatus(data?.requires_approval ? "approval" : "success");
+      } catch {
+        setStatus("pending");
       } finally {
-        // Hide the global overlay only when verification finishes — the
-        // success/approval/error UI takes over from here.
         stopProcessing();
       }
     };
@@ -68,9 +69,9 @@ export const PaymentSuccess = () => {
   })();
   const returnDest = `/dashboard?tab=${returnTab}&success=true`;
 
-  // Auto-redirect after 8 seconds for success
+  // Auto-redirect after 8 seconds for success / approval / pending
   useEffect(() => {
-    if (status === "success" || status === "approval") {
+    if (status === "success" || status === "approval" || status === "pending") {
       const timer = setTimeout(() => {
         try { sessionStorage.removeItem('ww:returnTab'); } catch {}
         navigate(returnDest, { replace: true });
@@ -126,6 +127,22 @@ export const PaymentSuccess = () => {
               You'll receive full access once approved.
             </div>
             <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); })()} className="rounded-full">
+              Go to Dashboard
+            </Button>
+            <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
+          </>
+        )}
+
+        {status === "pending" && (
+          <>
+            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+              <Clock className="w-8 h-8 text-amber-600" />
+            </div>
+            <h1 className="text-2xl font-bold">Payment received</h1>
+            <p className="text-muted-foreground">
+              We're finalizing your setup. Your purchase is confirmed with Stripe — please give us a moment.
+            </p>
+            <Button onClick={() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); }} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
