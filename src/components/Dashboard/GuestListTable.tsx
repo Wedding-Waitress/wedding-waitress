@@ -2203,10 +2203,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     title="Send RSVP & Invite"
                     aria-label="Send RSVP & Invite"
                     onClick={() => setBulkModalOpen(true)}
-                    className="inline-flex flex-col items-center justify-center mx-auto px-2 py-1 rounded-full border border-white bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white whitespace-nowrap leading-tight transition-colors"
+                    className="mx-auto px-2 py-1 rounded-full border border-white bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white whitespace-nowrap leading-tight transition-colors"
                   >
-                    <span>Send</span>
-                    <span>RSVP &amp; Invite</span>
+                    <span className="block">Send</span>
+                    <span className="block">RSVP &amp; Invite</span>
                   </button>
                 </TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">First Name</TableHead>
