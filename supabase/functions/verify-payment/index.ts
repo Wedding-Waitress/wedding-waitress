@@ -160,6 +160,35 @@ serve(async (req) => {
 
       logStep("RSVP tier purchase recorded", { eventId, amountPaid, purchasedLimit });
 
+      // Fire-and-forget confirmation email (only on first verification).
+      if (!existing && userEmail) {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name")
+            .eq("id", userId)
+            .maybeSingle();
+          supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "rsvp-invitations-sent",
+              recipientEmail: userEmail,
+              idempotencyKey: `rsvp-sent-${session_id}`,
+              templateData: {
+                firstName: profile?.first_name || "",
+                guestCount: guestCountAtPurchase || 0,
+                tierLabel,
+                amount: amountPaid.toFixed(2),
+                isOverage: false,
+              },
+            },
+          }).then(({ error }) => {
+            if (error) console.error("[VERIFY-PAYMENT] rsvp confirmation email failed", error);
+          }).catch((e) => console.error("[VERIFY-PAYMENT] rsvp confirmation email failed", e));
+        } catch (e) {
+          console.error("[VERIFY-PAYMENT] rsvp confirmation email dispatch failed", e);
+        }
+      }
+
       return new Response(JSON.stringify({
         type: "rsvp",
         status: "completed",
@@ -208,6 +237,35 @@ serve(async (req) => {
       }
 
       logStep("RSVP overage recorded", { eventId, amountPaid, overageBlocks });
+
+      // Fire-and-forget confirmation email (only on first verification).
+      if (!existing && userEmail) {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name")
+            .eq("id", userId)
+            .maybeSingle();
+          supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "rsvp-invitations-sent",
+              recipientEmail: userEmail,
+              idempotencyKey: `rsvp-sent-${session_id}`,
+              templateData: {
+                firstName: profile?.first_name || "",
+                guestCount: overageBlocks * 10,
+                tierLabel: "",
+                amount: amountPaid.toFixed(2),
+                isOverage: true,
+              },
+            },
+          }).then(({ error }) => {
+            if (error) console.error("[VERIFY-PAYMENT] rsvp overage email failed", error);
+          }).catch((e) => console.error("[VERIFY-PAYMENT] rsvp overage email failed", e));
+        } catch (e) {
+          console.error("[VERIFY-PAYMENT] rsvp overage email dispatch failed", e);
+        }
+      }
 
       return new Response(JSON.stringify({
         type: "rsvp_overage",

@@ -96,8 +96,9 @@ import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
-import { RsvpPaymentSuccessModal, type RsvpPaymentSuccessData } from './RsvpPaymentSuccessModal';
 import { useSearchParams } from 'react-router-dom';
+import { toast as sonnerToast } from 'sonner';
+import { CheckCircle2 } from 'lucide-react';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -257,30 +258,57 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
 
-  // RSVP payment-success return handler: close old modal, clear selection, show success modal.
+  // RSVP payment-success return handler: close bulk modal, clear selection,
+  // fire success toast + inline banner, refresh allowance, and clean URL.
   const [searchParams, setSearchParams] = useSearchParams();
-  const [rsvpSuccessModal, setRsvpSuccessModal] = useState<RsvpPaymentSuccessData | null>(null);
+  const [rsvpSuccessBanner, setRsvpSuccessBanner] = useState<{
+    guestCount: number;
+    tierLabel: string;
+    amount: number;
+    ptype: 'rsvp' | 'rsvp_overage';
+  } | null>(null);
   useEffect(() => {
     if (searchParams.get('payment') !== 'success') return;
-    // Close bulk modal and clear any active selection.
     setBulkModalOpen(false);
     setSelectedGuestIds(new Set());
-    // Build success-modal payload from query params + sessionStorage.
+
     let storedCount = 0;
     try { storedCount = Number(sessionStorage.getItem('ww:rsvpSelectedCount') || '0'); } catch {}
     const tierLabel = searchParams.get('tier') || '';
     const amount = Number(searchParams.get('amount') || '0');
     const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage') || 'rsvp';
-    setRsvpSuccessModal({ guestCount: storedCount, tierLabel, amount, ptype });
-    // Refresh allowance immediately so the badge updates.
+
+    const summary = ptype === 'rsvp_overage'
+      ? `${storedCount} extra guests • Add-on • $${amount.toFixed(2)} AUD`
+      : `${storedCount} ${storedCount === 1 ? 'guest' : 'guests'} invited${tierLabel ? ` • ${tierLabel}` : ''} • $${amount.toFixed(2)} AUD`;
+
+    sonnerToast.success('RSVP invitations sent successfully', {
+      description: summary,
+      duration: 6000,
+      action: {
+        label: 'View Responses',
+        onClick: () => {
+          try {
+            document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } catch {}
+        },
+      },
+    });
+
+    setRsvpSuccessBanner({ guestCount: storedCount, tierLabel, amount, ptype });
+    // Auto-hide inline banner after ~8s.
+    const t = window.setTimeout(() => setRsvpSuccessBanner(null), 8000);
+
     refetchRsvpPurchase?.();
-    // Strip payment query params, keep only `tab`.
+
     const next = new URLSearchParams();
     const tab = searchParams.get('tab');
     if (tab) next.set('tab', tab);
     setSearchParams(next, { replace: true });
     try { sessionStorage.removeItem('ww:rsvpSelectedCount'); } catch {}
     try { sessionStorage.removeItem('ww:returnTab'); } catch {}
+
+    return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
   
@@ -1601,7 +1629,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </span>
                 )}
               </div>
-              
+
+              {/* Inline RSVP success banner (auto-hides ~8s) */}
+              {rsvpSuccessBanner && (
+                <div
+                  id="guest-list-table-anchor"
+                  role="status"
+                  className="mb-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 animate-in fade-in slide-in-from-top-2"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold">Invitations sent successfully.</p>
+                    <p className="text-green-700/90">
+                      {rsvpSuccessBanner.guestCount > 0 && (
+                        <>
+                          {rsvpSuccessBanner.guestCount}{' '}
+                          {rsvpSuccessBanner.ptype === 'rsvp_overage' ? 'extra guests added' : 'guests invited'}
+                          {' • '}
+                        </>
+                      )}
+                      Responses will appear here.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRsvpSuccessBanner(null)}
+                    className="text-green-700/70 hover:text-green-900 text-lg leading-none px-1"
+                    aria-label="Dismiss"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
@@ -2877,12 +2937,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />
 
         {/* Guest Limit Dialog */}
-        {/* RSVP Payment Success Modal (shown after Stripe return) */}
-        <RsvpPaymentSuccessModal
-          open={!!rsvpSuccessModal}
-          data={rsvpSuccessModal}
-          onClose={() => setRsvpSuccessModal(null)}
-        />
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
