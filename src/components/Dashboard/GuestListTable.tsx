@@ -2495,13 +2495,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             )}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
-                            <span className="inline-flex items-center justify-center gap-1 whitespace-nowrap">
+                            <span className="whitespace-nowrap">
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button 
                                       variant="ghost" 
                                       size="sm"
+                                      className="h-8 w-8 p-0"
                                       onClick={() => handleEditGuest(guest)}
                                     >
                                       <Edit className="w-4 h-4 text-green-500" />
@@ -2516,6 +2517,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                     <Button 
                                       variant="ghost" 
                                       size="sm"
+                                      className="h-8 w-8 p-0"
                                       onClick={() => handleDeleteGuest(guest)}
                                     >
                                       <Trash2 className="w-4 h-4 text-red-500" />
