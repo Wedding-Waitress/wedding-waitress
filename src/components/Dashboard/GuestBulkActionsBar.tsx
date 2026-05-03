@@ -116,7 +116,7 @@ export const GuestBulkActionsBar = ({
 
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pb-6">
           <Button
             onClick={onClose}
             className="bg-red-600 hover:bg-red-700 text-white border-0"

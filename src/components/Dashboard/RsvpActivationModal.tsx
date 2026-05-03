@@ -96,7 +96,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
+          <DialogTitle className="flex items-center justify-center gap-2 text-lg text-center mt-8">
             <Mail className="w-5 h-5 text-primary" />
             Activate and Send RSVP Invites
           </DialogTitle>
@@ -132,7 +132,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 pb-6">
           <Button onClick={onClose} className="rounded-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
             Cancel
           </Button>
