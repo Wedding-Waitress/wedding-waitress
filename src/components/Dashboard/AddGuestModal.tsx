@@ -1184,7 +1184,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         setShowRelationAssignment(true);
                       }}
                     >
-                      {hasRelation ? 'Change Relationship' : 'Set Up Relationship'}
+                      {hasRelation ? 'Assign Relation' : 'Assign Relation'}
                     </Button>
                   </div>
                 </div>
