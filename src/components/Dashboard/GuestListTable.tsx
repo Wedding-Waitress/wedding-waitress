@@ -2824,6 +2824,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           />
         )}
 
+        {/* RSVP Overage Modal (tier paid, but guest count exceeded total capacity) */}
+        <RsvpOverageModal
+          isOpen={showOverageModal}
+          onClose={() => setShowOverageModal(false)}
+          eventId={selectedEventId}
+          currentGuestCount={guests.length}
+          totalCapacity={rsvpTotalCapacity}
+          tierLabel={rsvpPurchase?.guest_tier_label || ''}
+        />
+
         {/* Guest Limit Dialog */}
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
