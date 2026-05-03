@@ -2501,7 +2501,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             )}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
-                            <div className="flex items-center space-x-1">
+                            <span className="inline-flex items-center justify-center gap-1 whitespace-nowrap">
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
@@ -2530,7 +2530,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   <TooltipContent side="top"><p>Delete</p></TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
-                            </div>
+                            </span>
                           </TableCell>
                         </TableRow>
                       );
