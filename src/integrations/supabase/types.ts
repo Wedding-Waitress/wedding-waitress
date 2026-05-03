@@ -1681,12 +1681,10 @@ export type Database = {
           email_enabled: boolean | null
           from_email: string | null
           id: string
-          resend_api_key: string | null
           resend_api_key_encrypted: string | null
           sms_enabled: boolean | null
           sms_provider: string | null
           twilio_account_sid: string | null
-          twilio_auth_token: string | null
           twilio_auth_token_encrypted: string | null
           twilio_messaging_service_sid: string | null
           updated_at: string | null
@@ -1697,12 +1695,10 @@ export type Database = {
           email_enabled?: boolean | null
           from_email?: string | null
           id?: string
-          resend_api_key?: string | null
           resend_api_key_encrypted?: string | null
           sms_enabled?: boolean | null
           sms_provider?: string | null
           twilio_account_sid?: string | null
-          twilio_auth_token?: string | null
           twilio_auth_token_encrypted?: string | null
           twilio_messaging_service_sid?: string | null
           updated_at?: string | null
@@ -1713,12 +1709,10 @@ export type Database = {
           email_enabled?: boolean | null
           from_email?: string | null
           id?: string
-          resend_api_key?: string | null
           resend_api_key_encrypted?: string | null
           sms_enabled?: boolean | null
           sms_provider?: string | null
           twilio_account_sid?: string | null
-          twilio_auth_token?: string | null
           twilio_auth_token_encrypted?: string | null
           twilio_messaging_service_sid?: string | null
           updated_at?: string | null
