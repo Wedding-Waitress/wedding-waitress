@@ -45,12 +45,12 @@ export const VENDOR_PRO = {
 
 // ── RSVP Invite Bundles (one-time, per event) ──────────────────────
 export const RSVP_TIERS = [
-  { min: 1,   max: 100,  price_aud: 99,  label: '1–100 guests',    product_id: 'prod_Tyt1bSwrpOzxNd', price_id: 'price_1T0vEy5GzTmqOxGKhjgWfEnK' },
-  { min: 101, max: 200,  price_aud: 129, label: '101–200 guests',  product_id: 'prod_Tyt1FzdN9h5IcQ', price_id: 'price_1T0vFM5GzTmqOxGKq7KuXHHZ' },
-  { min: 201, max: 300,  price_aud: 149, label: '201–300 guests',  product_id: 'prod_Tyt4UbA83epUQG', price_id: 'price_1T0vHx5GzTmqOxGKINiYdoWR' },
-  { min: 301, max: 400,  price_aud: 159, label: '301–400 guests',  product_id: 'prod_Tyt4pPolYzGjSf', price_id: 'price_1T0vIX5GzTmqOxGKSLPSLsqn' },
-  { min: 401, max: 500,  price_aud: 199, label: '401–500 guests',  product_id: 'prod_Tyt5APL1elHibZ', price_id: 'price_1T0vIr5GzTmqOxGK3XI7JGzK' },
-  { min: 501, max: 1000, price_aud: 299, label: '501–1000 guests', product_id: 'prod_Tyt6a9w3AuwyzB', price_id: 'price_1T0vJq5GzTmqOxGK8Ff9M11i' },
+  { min: 1,   max: 100,  price_aud: 99,  label: '1–100 guests',    product_id: 'prod_Tyt1bSwrpOzxNd', price_id: 'price_1TSzPs5GzTmqOxGK4Ca8kAAz' },
+  { min: 101, max: 200,  price_aud: 129, label: '101–200 guests',  product_id: 'prod_Tyt1FzdN9h5IcQ', price_id: 'price_1TSzRu5GzTmqOxGK9gIwfeU4' },
+  { min: 201, max: 300,  price_aud: 149, label: '201–300 guests',  product_id: 'prod_Tyt4UbA83epUQG', price_id: 'price_1TSzSJ5GzTmqOxGKaGm02LiC' },
+  { min: 301, max: 400,  price_aud: 159, label: '301–400 guests',  product_id: 'prod_Tyt4pPolYzGjSf', price_id: 'price_1TSzSs5GzTmqOxGKMHCPxGfe' },
+  { min: 401, max: 500,  price_aud: 199, label: '401–500 guests',  product_id: 'prod_Tyt5APL1elHibZ', price_id: 'price_1TSzTH5GzTmqOxGKJ8qK3os0' },
+  { min: 501, max: 1000, price_aud: 299, label: '501–1000 guests', product_id: 'prod_Tyt6a9w3AuwyzB', price_id: 'price_1TSzTg5GzTmqOxGK5k36snjG' },
 ] as const;
 
 /** Get the RSVP tier for a given guest count */
