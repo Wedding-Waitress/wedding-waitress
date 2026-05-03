@@ -132,7 +132,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 pb-6">
           <Button onClick={onClose} className="rounded-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
             Cancel
           </Button>
