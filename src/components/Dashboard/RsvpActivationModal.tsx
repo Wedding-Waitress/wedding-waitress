@@ -77,6 +77,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         data = await invokeAttempt();
       }
 
+      console.log("Stripe URL:", data?.url);
       if (data?.url) {
         // Remember current tab so PaymentSuccess can return here in the same window.
         try {
@@ -86,6 +87,8 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         } catch {}
         onClose();
         window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned from server");
       }
     } catch (err) {
       toast({
