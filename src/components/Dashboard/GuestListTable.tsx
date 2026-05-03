@@ -2645,11 +2645,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
              }
              setSendChannel('email');
             if (hasRsvpPurchase && rsvpPurchase) {
-              const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
-              if (tierMax > 0 && guests.length <= tierMax) {
+              if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
                 setShowAlreadyPaidModal(true);
               } else {
-                setShowActivationModal(true);
+                // Tier already paid but guest count now exceeds total capacity → buy overage
+                setShowOverageModal(true);
               }
             } else {
               setShowActivationModal(true);
@@ -2667,11 +2667,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
              }
              setSendChannel('sms');
             if (hasRsvpPurchase && rsvpPurchase) {
-              const tierMax = getTierMaxFromLabel(rsvpPurchase.guest_tier_label);
-              if (tierMax > 0 && guests.length <= tierMax) {
+              if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
                 setShowAlreadyPaidModal(true);
               } else {
-                setShowActivationModal(true);
+                setShowOverageModal(true);
               }
             } else {
               setShowActivationModal(true);
