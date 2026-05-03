@@ -69,18 +69,21 @@ export const GuestBulkActionsBar = ({
           <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
           <div className="flex flex-col items-center gap-2 mt-4">
             <p className="text-sm text-muted-foreground text-center">{getSelectedText()}</p>
-            <label className="flex items-center justify-center gap-2 cursor-pointer select-none">
-              <Checkbox
-                checked={allSelected}
-                onCheckedChange={() => (allSelected ? onDeselectAll() : onSelectAll())}
-              />
-              <span className="text-sm text-muted-foreground">Select All Guests</span>
-            </label>
           </div>
           <DialogDescription className="text-center mt-6">Apply actions to your selected guests</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2 py-4">
+          {/* Select All Guests (styled like action rows; only checkbox is clickable) */}
+          <div className="p-3 rounded-lg border-2 border-[#967A59]/70 flex items-center gap-3">
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={() => (allSelected ? onDeselectAll() : onSelectAll())}
+              className="cursor-pointer"
+            />
+            <span className="text-sm font-medium text-foreground">Select All Guests</span>
+          </div>
+
           {/* Send Email & SMS via Wedding Waitress (combined) */}
           {onSendEmail && (
             <button
@@ -99,7 +102,7 @@ export const GuestBulkActionsBar = ({
             <div className="flex flex-col gap-1.5 flex-1">
               <span className="text-sm font-medium text-foreground">Mark Invite as Sent Manually</span>
               <Select onValueChange={(value) => onMarkManualInvite(value)}>
-                <SelectTrigger className="h-8 text-xs">
+                <SelectTrigger className="h-9 text-xs border-2 border-[#967A59]/70">
                   <SelectValue placeholder="Select method..." />
                 </SelectTrigger>
                 <SelectContent>
