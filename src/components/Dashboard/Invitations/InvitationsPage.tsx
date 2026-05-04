@@ -352,9 +352,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
               <TabsList className="grid w-full grid-cols-3 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
-                <TabsTrigger value="invitation" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Invitation</TabsTrigger>
-                <TabsTrigger value="save_the_date" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Save the Date</TabsTrigger>
-                <TabsTrigger value="thank_you" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Thank You</TabsTrigger>
+                <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Invitation</TabsTrigger>
+                <TabsTrigger value="save_the_date" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Save the Date</TabsTrigger>
+                <TabsTrigger value="thank_you" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Thank You</TabsTrigger>
               </TabsList>
             </Tabs>
 
