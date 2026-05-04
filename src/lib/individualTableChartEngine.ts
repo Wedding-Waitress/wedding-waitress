@@ -17,6 +17,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { format } from 'date-fns';
+import { escapeHtml } from './security/escapeHtml';
 const weddingWaitressLogoFull = '/wedding-waitress-logo-brown.png';
 
 // Paper size constants (in mm)
@@ -756,7 +757,7 @@ export const generateIndividualTableSVG = (
     }
   };
 
-  const eventName = event?.name || 'Event';
+  const eventName = escapeHtml(event?.name || 'Event');
 
   // Pre-compute header details for Running Sheet style
   const fmtOrdinalDate = (dateStr: string | null) => {
@@ -778,9 +779,9 @@ export const generateIndividualTableSVG = (
   };
 
   const ceremonyDetailLine = event?.ceremony_date
-    ? `Ceremony: ${fmtOrdinalDate(event.ceremony_date)} | ${event?.ceremony_venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.ceremony_start_time)} – ${fmtTimeDisplay(event?.ceremony_finish_time)}`
+    ? `Ceremony: ${fmtOrdinalDate(event.ceremony_date)} | ${escapeHtml(event?.ceremony_venue || 'Venue TBD')} | ${fmtTimeDisplay(event?.ceremony_start_time)} – ${fmtTimeDisplay(event?.ceremony_finish_time)}`
     : '';
-  const receptionDetailLine = `Reception: ${fmtOrdinalDate(event?.date)} | ${event?.venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.start_time)} – ${fmtTimeDisplay(event?.finish_time)}`;
+  const receptionDetailLine = `Reception: ${fmtOrdinalDate(event?.date)} | ${escapeHtml(event?.venue || 'Venue TBD')} | ${fmtTimeDisplay(event?.start_time)} – ${fmtTimeDisplay(event?.finish_time)}`;
 
   // Pre-compute footer timestamp
   const footerTimestamp = (() => {
@@ -886,7 +887,7 @@ export const generateIndividualTableSVG = (
                   text-align: center;
                 ">
                   <div>TABLE</div>
-                  <div>${table.table_no ?? table.name}</div>
+                  <div>${escapeHtml(table.table_no ?? table.name)}</div>
                 </div>
                 
                 <!-- Left Side Chairs Container - Positioned outside table with ABSOLUTE positioning (matches preview) -->
@@ -916,7 +917,7 @@ export const generateIndividualTableSVG = (
                         font-weight: 500;
                         font-size: ${fontSize}px;
                         white-space: nowrap;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #967A59; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                      ">${escapeHtml(item.guest.first_name)} ${escapeHtml(item.guest.last_name)}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #967A59; font-weight: 700; margin-left: 4px;">- ${escapeHtml(item.guest.dietary)}</span>` : ''}</span>
                       <!-- Chair Circle -->
                       <div style="
                         width: ${chairSize}px;
@@ -976,7 +977,7 @@ export const generateIndividualTableSVG = (
                         font-weight: 500;
                         font-size: ${fontSize}px;
                         white-space: nowrap;
-                      ">${item.guest.first_name} ${item.guest.last_name}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #967A59; font-weight: 700; margin-left: 4px;">- ${item.guest.dietary}</span>` : ''}</span>
+                      ">${escapeHtml(item.guest.first_name)} ${escapeHtml(item.guest.last_name)}${settings.includeDietary && item.guest.dietary && item.guest.dietary !== 'NA' ? `<span style="color: #967A59; font-weight: 700; margin-left: 4px;">- ${escapeHtml(item.guest.dietary)}</span>` : ''}</span>
                     </div>
                   `}).join('')}
                 </div>
@@ -995,10 +996,10 @@ export const generateIndividualTableSVG = (
                     <!-- Single seat - centered with name above, dietary below name, chair at bottom -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
                       <span style="text-align: center; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
-                        ${topEnd[0].guest.first_name} ${topEnd[0].guest.last_name}
+                        ${escapeHtml(topEnd[0].guest.first_name)} ${escapeHtml(topEnd[0].guest.last_name)}
                       </span>
                       ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
-                        <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${topEnd[0].guest.dietary}</span>
+                        <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${escapeHtml(topEnd[0].guest.dietary)}</span>
                       ` : ''}
                       <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px;">
                         ${settings.showSeatNumbers ? topEnd[0].seatNumber : ''}
@@ -1011,10 +1012,10 @@ export const generateIndividualTableSVG = (
                       <div style="display: flex; align-items: flex-end; gap: 8px;">
                         <div style="display: flex; flex-direction: column; align-items: flex-end;">
                           <span style="text-align: right; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
-                            ${topEnd[0].guest.first_name} ${topEnd[0].guest.last_name}
+                            ${escapeHtml(topEnd[0].guest.first_name)} ${escapeHtml(topEnd[0].guest.last_name)}
                           </span>
                           ${settings.includeDietary && topEnd[0].guest.dietary && topEnd[0].guest.dietary !== 'NA' ? `
-                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${topEnd[0].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${escapeHtml(topEnd[0].guest.dietary)}</span>
                           ` : ''}
                         </div>
                         <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px;">
@@ -1028,10 +1029,10 @@ export const generateIndividualTableSVG = (
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
                           <span style="text-align: left; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
-                            ${topEnd[1].guest.first_name} ${topEnd[1].guest.last_name}
+                            ${escapeHtml(topEnd[1].guest.first_name)} ${escapeHtml(topEnd[1].guest.last_name)}
                           </span>
                           ${settings.includeDietary && topEnd[1].guest.dietary && topEnd[1].guest.dietary !== 'NA' ? `
-                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${topEnd[1].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${escapeHtml(topEnd[1].guest.dietary)}</span>
                           ` : ''}
                         </div>
                       </div>
@@ -1057,10 +1058,10 @@ export const generateIndividualTableSVG = (
                         ${settings.showSeatNumbers ? bottomEnd[0].seatNumber : ''}
                       </div>
                       <span style="text-align: center; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
-                        ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
+                        ${escapeHtml(bottomEnd[0].guest.first_name)} ${escapeHtml(bottomEnd[0].guest.last_name)}
                       </span>
                       ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
-                        <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${bottomEnd[0].guest.dietary}</span>
+                        <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap;">- ${escapeHtml(bottomEnd[0].guest.dietary)}</span>
                       ` : ''}
                     </div>
                   ` : `
@@ -1070,10 +1071,10 @@ export const generateIndividualTableSVG = (
                       <div style="display: flex; align-items: flex-start; gap: 8px;">
                         <div style="display: flex; flex-direction: column; align-items: flex-end;">
                           <span style="text-align: right; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
-                            ${bottomEnd[0].guest.first_name} ${bottomEnd[0].guest.last_name}
+                            ${escapeHtml(bottomEnd[0].guest.first_name)} ${escapeHtml(bottomEnd[0].guest.last_name)}
                           </span>
                           ${settings.includeDietary && bottomEnd[0].guest.dietary && bottomEnd[0].guest.dietary !== 'NA' ? `
-                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${bottomEnd[0].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: right;">- ${escapeHtml(bottomEnd[0].guest.dietary)}</span>
                           ` : ''}
                         </div>
                         <div style="width: ${chairSize}px; height: ${chairSize}px; border-radius: 50%; background: white; border: 1px solid black; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: ${fontSize}px;">
@@ -1087,10 +1088,10 @@ export const generateIndividualTableSVG = (
                         </div>
                         <div style="display: flex; flex-direction: column; align-items: flex-start;">
                           <span style="text-align: left; font-weight: 500; font-size: ${fontSize}px; white-space: nowrap;">
-                            ${bottomEnd[1].guest.first_name} ${bottomEnd[1].guest.last_name}
+                            ${escapeHtml(bottomEnd[1].guest.first_name)} ${escapeHtml(bottomEnd[1].guest.last_name)}
                           </span>
                           ${settings.includeDietary && bottomEnd[1].guest.dietary && bottomEnd[1].guest.dietary !== 'NA' ? `
-                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${bottomEnd[1].guest.dietary}</span>
+                            <span style="color: #967A59; font-weight: 700; font-size: ${fontSize}px; white-space: nowrap; text-align: left;">- ${escapeHtml(bottomEnd[1].guest.dietary)}</span>
                           ` : ''}
                         </div>
                       </div>
@@ -1114,7 +1115,7 @@ export const generateIndividualTableSVG = (
           }
           <!-- Table label -->
           <text x="250" y="210" text-anchor="middle" dominant-baseline="auto" font-weight="700" font-size="${getTitleSize(settings.fontSize)}px" fill="#000000" style="font-family: Arial, Helvetica, sans-serif;">TABLE</text>
-          <text x="250" y="${210 + getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250) + 4}" text-anchor="middle" dominant-baseline="auto" font-weight="700" font-size="${getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250)}px" fill="#000000" style="font-family: Arial, Helvetica, sans-serif;">${table.table_no ?? table.name}</text>
+          <text x="250" y="${210 + getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250) + 4}" text-anchor="middle" dominant-baseline="auto" font-weight="700" font-size="${getAutoFitFontSize(String(table.table_no ?? table.name), getTitleSize(settings.fontSize), 250)}px" fill="#000000" style="font-family: Arial, Helvetica, sans-serif;">${escapeHtml(table.table_no ?? table.name)}</text>
 
           <!-- Seats -->
           ${seats.map(seat => {
@@ -1162,7 +1163,7 @@ export const generateIndividualTableSVG = (
                 ${settings.isUnderline ? 'text-decoration="underline"' : ''}
                 fill="#000000"
                 style="font-family: Arial, Helvetica, sans-serif;"
-              >${seat.guest.first_name}</text>
+              >${escapeHtml(seat.guest.first_name)}</text>
             ` : ''}
           `}).join('')}
         </svg>
@@ -1185,12 +1186,12 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
               ${sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
-                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${(guest.relation_display || '').replace(/ \/ /g, '/')})</span>` : '';
+                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml((guest.relation_display || '').replace(/ \/ /g, '/'))})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
+                      <span style="${textStyleStr}">${escapeHtml(guest.first_name)} ${escapeHtml(guest.last_name)}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${escapeHtml(guest.dietary)}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;
@@ -1200,12 +1201,12 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; margin-left: 16px;">
               ${sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
-                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${(guest.relation_display || '').replace(/ \/ /g, '/')})</span>` : '';
+                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml((guest.relation_display || '').replace(/ \/ /g, '/'))})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
+                      <span style="${textStyleStr}">${escapeHtml(guest.first_name)} ${escapeHtml(guest.last_name)}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${escapeHtml(guest.dietary)}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;

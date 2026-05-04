@@ -4,6 +4,7 @@ import { ChartSettings } from '@/components/Dashboard/TableChart/TableSeatingCha
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { Guest } from '@/hooks/useGuests';
 import { generateTableLayout } from './tableLayoutAlgorithms';
+import { escapeHtml } from './security/escapeHtml';
 
 /**
  * Paper size configurations in millimeters
@@ -182,7 +183,7 @@ export const generateChartSVG = (
       ${settings.subtitle ? `
         <text x="${width / 2}" y="40" text-anchor="middle" 
               font-family="Arial, sans-serif" font-size="${fontSize.subtitle}" fill="#6b7280">
-          ${settings.subtitle}
+          ${escapeHtml(settings.subtitle)}
         </text>
       ` : ''}
       
@@ -221,7 +222,7 @@ export const generateChartSVG = (
       <text x="${scaledX + scaledWidth / 2}" y="${scaledY + 25}" 
             text-anchor="middle" font-family="Arial, sans-serif" 
             font-size="${fontSize.table}" fill="#1f2937">
-        <tspan font-weight="bold">${settings.showTableNumbers ? `Table ${table.table_no || table.name}` : 'Table'}</tspan>
+        <tspan font-weight="bold">${settings.showTableNumbers ? `Table ${escapeHtml(table.table_no || table.name)}` : 'Table'}</tspan>
         <tspan font-weight="normal"> - ${table.guest_count}/${table.limit_seats}</tspan>
       </text>
     `;
@@ -265,7 +266,7 @@ export const generateChartSVG = (
             <text x="${scaledX + scaledWidth / 2}" y="${nameY}" 
                   text-anchor="middle" font-family="Arial, sans-serif" 
                   font-size="${guestFontSize}" fill="${guestColors.text}" font-weight="500">
-              ${guestName}
+              ${escapeHtml(guestName)}
             </text>
           `;
         });
