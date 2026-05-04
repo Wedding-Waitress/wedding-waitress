@@ -351,11 +351,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
-              <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2">
-                <TabsList className="grid w-full grid-cols-3 max-lg:inline-flex max-lg:w-auto max-lg:min-w-full max-lg:gap-1">
-                  <TabsTrigger value="invitation" className="max-lg:whitespace-nowrap">Invitation</TabsTrigger>
-                  <TabsTrigger value="save_the_date" className="max-lg:whitespace-nowrap">Save the Date</TabsTrigger>
-                  <TabsTrigger value="thank_you" className="max-lg:whitespace-nowrap">Thank You</TabsTrigger>
+              <div className="max-sm:overflow-x-auto max-sm:-mx-2 max-sm:px-2 max-sm:[&::-webkit-scrollbar]:hidden">
+                <TabsList className="grid w-full grid-cols-3 max-sm:inline-flex max-sm:w-auto max-sm:flex-nowrap max-sm:gap-2 max-sm:whitespace-nowrap">
+                  <TabsTrigger value="invitation" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Invitation</TabsTrigger>
+                  <TabsTrigger value="save_the_date" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Save the Date</TabsTrigger>
+                  <TabsTrigger value="thank_you" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Thank You</TabsTrigger>
                 </TabsList>
               </div>
             </Tabs>
