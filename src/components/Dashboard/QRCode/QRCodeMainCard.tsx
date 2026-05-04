@@ -934,6 +934,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               variant="outline"
                               className="lv-premium-shade flex-1"
                               onClick={() => {
+                                if (eventUrl) {
+                                  window.open(eventUrl + '?tab=rsvp-invite', '_blank');
                                 }
                               }}
                             >
