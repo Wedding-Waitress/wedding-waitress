@@ -889,9 +889,10 @@ export const GuestLookup: React.FC = () => {
                               </p>
                             </div>
                           )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Share Button */}
                    <div className="flex justify-center mt-16">
