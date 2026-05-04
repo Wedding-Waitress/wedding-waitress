@@ -887,7 +887,7 @@ export const generateIndividualTableSVG = (
                   text-align: center;
                 ">
                   <div>TABLE</div>
-                  <div>${table.table_no ?? table.name}</div>
+                  <div>${escapeHtml(table.table_no ?? table.name)}</div>
                 </div>
                 
                 <!-- Left Side Chairs Container - Positioned outside table with ABSOLUTE positioning (matches preview) -->
