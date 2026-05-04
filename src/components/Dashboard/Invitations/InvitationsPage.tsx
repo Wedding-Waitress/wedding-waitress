@@ -352,9 +352,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
               <TabsList className="grid w-full grid-cols-3 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
-                <TabsTrigger value="invitation" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Invitation</TabsTrigger>
-                <TabsTrigger value="save_the_date" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Save the Date</TabsTrigger>
-                <TabsTrigger value="thank_you" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Thank You</TabsTrigger>
+                <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Invitation</TabsTrigger>
+                <TabsTrigger value="save_the_date" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Save the Date</TabsTrigger>
+                <TabsTrigger value="thank_you" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Thank You</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -506,8 +506,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               }}
             />
           </div>
-          <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden">
-            <div className="origin-top mx-auto max-sm:scale-[0.42] max-sm:w-[210mm] max-sm:-mb-[60%] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%]">
+          <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden max-sm:pb-2 max-sm:px-2">
+            <div className="max-sm:w-full max-sm:h-[510px] max-sm:relative md:max-lg:w-full">
+            <div className="origin-top-left max-sm:absolute max-sm:left-0 max-sm:top-0 max-sm:scale-[0.45] max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
@@ -570,6 +571,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 updateSettings({ qr_config: { ...current, ...updates } });
               }}
             />
+            </div>
             </div>
           </div>
         </div>
