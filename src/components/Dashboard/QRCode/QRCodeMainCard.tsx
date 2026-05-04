@@ -758,7 +758,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         <Mail className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
                         <span>RSVP Invite</span>
                       </h4>
-                      <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests view your digital invitation and RSVP</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests view your digital invitations &amp; RSVP</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 max-lg:justify-between">
