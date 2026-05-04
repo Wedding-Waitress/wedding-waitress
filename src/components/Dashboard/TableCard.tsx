@@ -310,7 +310,7 @@ export const TableCard: React.FC<TableCardProps> = ({
             className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
           >
             <Trash2 className="h-4 w-4 text-white" />
-            <span className="text-white font-medium">Delete Table</span>
+            <span className="text-white font-medium">Delete</span>
           </Button>
         </div>
         </CardContent>
