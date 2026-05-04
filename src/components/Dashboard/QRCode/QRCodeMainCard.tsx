@@ -786,8 +786,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           </div>
 
                           {moduleSettings?.rsvp_invite_config?.file_url ? (
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                              <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.rsvp_invite_config.file_name}
                                 </p>
@@ -1188,8 +1188,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.floor_plan_config?.source === 'upload' && (
                             <div className="mt-3">
                               {moduleSettings?.floor_plan_config?.file_url ? (
-                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                                  <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                                  <div className="flex-1 min-w-0 max-lg:basis-full">
                                     <p className="text-xs font-medium truncate">
                                       {moduleSettings.floor_plan_config.file_name}
                                     </p>
@@ -1404,8 +1404,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.reception_floor_plan_config?.source === 'upload' && (
                             <div className="mt-3">
                               {moduleSettings?.reception_floor_plan_config?.file_url ? (
-                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                                  <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                                  <div className="flex-1 min-w-0 max-lg:basis-full">
                                     <p className="text-xs font-medium truncate">
                                       {moduleSettings.reception_floor_plan_config.file_name}
                                     </p>
@@ -1573,8 +1573,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           </div>
 
                           {moduleSettings?.menu_config?.file_url ? (
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                              <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.menu_config.file_name}
                                 </p>
@@ -1720,8 +1720,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <span className="text-white font-bold text-sm">Preview with overlay</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                              <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.hero_image_config.file_name}
                                 </p>
