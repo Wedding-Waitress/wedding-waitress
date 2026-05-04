@@ -1104,15 +1104,15 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Ceremony Floor Plan Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-[#856A4C]" />
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                  <div className="flex items-center gap-3 max-lg:items-start">
+                    <MapPin className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Ceremony Floor Plan</h4>
-                      <p className="text-xs text-muted-foreground">Show your ceremony floor plan to guests</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your ceremony floor plan to guests</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
                     <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_floor_plan ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_floor_plan ? "Displayed on app" : "Not displayed on app"}
                     </span>
