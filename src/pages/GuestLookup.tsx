@@ -842,38 +842,53 @@ export const GuestLookup: React.FC = () => {
                   )}
 
                   {/* Search Results */}
-                  {searchTerm.length >= 2 && !searching && (
-                    <div ref={searchResultsRef}>
-                      {filteredGuests.length > 0 && (
-                        <div className="text-center mb-5 animate-fade-in">
-                          <div className="text-lg md:text-xl font-semibold text-primary">
-                            Welcome, {filteredGuests[0].first_name} 👋
-                          </div>
-                        </div>
-                      )}
-                      <div className="space-y-4 animate-fade-in">
-                        {filteredGuests.length > 0 ? (
-                          filteredGuests.map((guest) => (
-                            <EnhancedGuestCard
-                              key={guest.id}
-                              guest={guest}
-                              onUpdate={refreshGuestData}
-                              isEditable={isEditable}
-                              onEdit={handleEditGuest}
-                              onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
-                              rsvpDeadline={event?.rsvp_deadline}
-                              additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
-                            />
-                          ))
-                        ) : (
-                          <div className="text-center py-8">
-                            <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
-                            <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
-                            <p className="text-sm text-muted-foreground">
-                              Please check your spelling or contact event organiser for assistance
-                            </p>
+                  {(() => {
+                    if (searching) return null;
+                    const normalizedInput = normalize(searchTerm || '');
+                    const isFullNameAttempt = normalizedInput.includes(' ');
+                    // Strict mode: hide everything until a full-name attempt
+                    if (!isOpenSearchMode && !isFullNameAttempt) return null;
+                    // Open mode: keep original 2+ char gate
+                    if (isOpenSearchMode && searchTerm.length < 2) return null;
+
+                    return (
+                      <div ref={searchResultsRef}>
+                        {filteredGuests.length > 0 && (
+                          <div className="text-center mb-5 animate-fade-in">
+                            <div className="text-lg md:text-xl font-semibold text-primary">
+                              Welcome, {filteredGuests[0].first_name} 👋
+                            </div>
                           </div>
                         )}
+                        <div className="space-y-4 animate-fade-in">
+                          {filteredGuests.length > 0 ? (
+                            filteredGuests.map((guest) => (
+                              <EnhancedGuestCard
+                                key={guest.id}
+                                guest={guest}
+                                onUpdate={refreshGuestData}
+                                isEditable={isEditable}
+                                onEdit={handleEditGuest}
+                                onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
+                                rsvpDeadline={event?.rsvp_deadline}
+                                additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
+                              />
+                            ))
+                          ) : isOpenSearchMode ? (
+                            <div className="text-center py-8">
+                              <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
+                              <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
+                              <p className="text-sm text-muted-foreground">
+                                Please check your spelling or contact event organiser for assistance
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <p className="text-muted-foreground">
+                                No match found. Please enter your full name exactly as provided.
+                              </p>
+                            </div>
+                          )}
                       </div>
                     </div>
                   )}
