@@ -177,6 +177,15 @@ export const GuestLookup: React.FC = () => {
     return todayStr === event.date;
   }, [event?.date, event?.event_timezone]);
 
+  // Privacy gate: open partial-search only on the wedding day and after.
+  // Before the event date, search is strict full-name match only (no suggestions).
+  const isOpenSearchMode = useMemo(() => {
+    if (!event?.date) return true; // fail-open
+    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+    return todayStr >= event.date;
+  }, [event?.date, event?.event_timezone]);
+
   // Check for tab parameter in URL - default to search
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -334,21 +343,35 @@ export const GuestLookup: React.FC = () => {
     fetchEventData();
   }, [eventSlug, toast]);
 
+  // Normalise input for strict matching (trim, lowercase, collapse whitespace)
+  const normalize = (str: string) => str.trim().toLowerCase().replace(/\s+/g, ' ');
+
   // Filter guests based on search term
   const filteredGuests = useMemo(() => {
-    if (searchTerm.length < 2) return [];
+    // OPEN MODE: existing partial-search behaviour (kept verbatim)
+    if (isOpenSearchMode) {
+      if (searchTerm.length < 2) return [];
 
-    const term = searchTerm.toLowerCase();
-    return guests.filter(guest => {
-      const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
-      const firstName = guest.first_name.toLowerCase();
-      const lastName = guest.last_name.toLowerCase();
-      
-      return firstName.includes(term) || 
-             lastName.includes(term) || 
-             fullName.includes(term);
+      const term = searchTerm.toLowerCase();
+      return guests.filter(guest => {
+        const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
+        const firstName = guest.first_name.toLowerCase();
+        const lastName = guest.last_name.toLowerCase();
+
+        return firstName.includes(term) ||
+               lastName.includes(term) ||
+               fullName.includes(term);
+      });
+    }
+
+    // STRICT MODE (before event date): exact full-name match only
+    const input = normalize(searchTerm || '');
+    if (!input.includes(' ')) return [];
+    return guests.filter((guest) => {
+      const fullName = normalize(`${guest.first_name} ${guest.last_name}`);
+      return fullName === input;
     });
-  }, [guests, searchTerm]);
+  }, [guests, searchTerm, isOpenSearchMode]);
 
   // Smooth-scroll to search results when a match appears
   useEffect(() => {
@@ -819,41 +842,57 @@ export const GuestLookup: React.FC = () => {
                   )}
 
                   {/* Search Results */}
-                  {searchTerm.length >= 2 && !searching && (
-                    <div ref={searchResultsRef}>
-                      {filteredGuests.length > 0 && (
-                        <div className="text-center mb-5 animate-fade-in">
-                          <div className="text-lg md:text-xl font-semibold text-primary">
-                            Welcome, {filteredGuests[0].first_name} 👋
-                          </div>
-                        </div>
-                      )}
-                      <div className="space-y-4 animate-fade-in">
-                        {filteredGuests.length > 0 ? (
-                          filteredGuests.map((guest) => (
-                            <EnhancedGuestCard
-                              key={guest.id}
-                              guest={guest}
-                              onUpdate={refreshGuestData}
-                              isEditable={isEditable}
-                              onEdit={handleEditGuest}
-                              onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
-                              rsvpDeadline={event?.rsvp_deadline}
-                              additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
-                            />
-                          ))
-                        ) : (
-                          <div className="text-center py-8">
-                            <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
-                            <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
-                            <p className="text-sm text-muted-foreground">
-                              Please check your spelling or contact event organiser for assistance
-                            </p>
+                  {(() => {
+                    if (searching) return null;
+                    const normalizedInput = normalize(searchTerm || '');
+                    const isFullNameAttempt = normalizedInput.includes(' ');
+                    // Strict mode: hide everything until a full-name attempt
+                    if (!isOpenSearchMode && !isFullNameAttempt) return null;
+                    // Open mode: keep original 2+ char gate
+                    if (isOpenSearchMode && searchTerm.length < 2) return null;
+
+                    return (
+                      <div ref={searchResultsRef}>
+                        {filteredGuests.length > 0 && (
+                          <div className="text-center mb-5 animate-fade-in">
+                            <div className="text-lg md:text-xl font-semibold text-primary">
+                              Welcome, {filteredGuests[0].first_name} 👋
+                            </div>
                           </div>
                         )}
+                        <div className="space-y-4 animate-fade-in">
+                          {filteredGuests.length > 0 ? (
+                            filteredGuests.map((guest) => (
+                              <EnhancedGuestCard
+                                key={guest.id}
+                                guest={guest}
+                                onUpdate={refreshGuestData}
+                                isEditable={isEditable}
+                                onEdit={handleEditGuest}
+                                onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
+                                rsvpDeadline={event?.rsvp_deadline}
+                                additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
+                              />
+                            ))
+                          ) : isOpenSearchMode ? (
+                            <div className="text-center py-8">
+                              <AlertCircle className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-3" />
+                              <p className="text-muted-foreground mb-2 font-medium">No guests found</p>
+                              <p className="text-sm text-muted-foreground">
+                                Please check your spelling or contact event organiser for assistance
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <p className="text-muted-foreground">
+                                No match found. Please enter your full name exactly as provided.
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Share Button */}
                    <div className="flex justify-center mt-16">
