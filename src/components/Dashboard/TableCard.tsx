@@ -303,7 +303,7 @@ export const TableCard: React.FC<TableCardProps> = ({
             className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
           >
             <Edit className="h-4 w-4 text-white" />
-            <span className="text-white font-medium">Edit Table</span>
+            <span className="text-white font-medium">Edit</span>
           </Button>
           <Button
             onClick={() => setShowDeleteDialog(true)}
