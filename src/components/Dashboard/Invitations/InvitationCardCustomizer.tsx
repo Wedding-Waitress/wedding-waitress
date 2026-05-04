@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
-import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode, Sparkles } from 'lucide-react';
 import canvaEditBanner from '@/assets/canva-design-button.png';
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
