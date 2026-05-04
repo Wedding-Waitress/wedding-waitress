@@ -297,40 +297,21 @@ export const TableCard: React.FC<TableCardProps> = ({
           </div>
 
         {/* Actions - Fixed at bottom */}
-        <div className="flex justify-end space-x-2 mt-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onEdit(table)}
-                  className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit</p>
-              </TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Delete</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="flex justify-center items-center gap-3 mt-4">
+          <Button
+            onClick={() => onEdit(table)}
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
+          >
+            <Edit className="h-4 w-4 text-white" />
+            <span className="text-white font-medium">Edit Table</span>
+          </Button>
+          <Button
+            onClick={() => setShowDeleteDialog(true)}
+            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
+          >
+            <Trash2 className="h-4 w-4 text-white" />
+            <span className="text-white font-medium">Delete Table</span>
+          </Button>
         </div>
         </CardContent>
       </Card>
