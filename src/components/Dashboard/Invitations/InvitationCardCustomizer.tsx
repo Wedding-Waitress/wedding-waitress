@@ -527,7 +527,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       <button
                         type="button"
                         onClick={() => window.open('https://www.canva.com', '_blank')}
-                        className="hidden max-sm:block w-full my-3 p-0 bg-transparent border-0 cursor-pointer hover:opacity-90 transition-opacity"
+                        className="hidden max-sm:block w-1/2 mx-auto my-3 p-0 bg-transparent border-0 cursor-pointer hover:opacity-90 transition-opacity"
                         aria-label="Design with Canva"
                       >
                         <img src={canvaButtonMobile} alt="Design with Canva" className="block w-full h-auto" />
