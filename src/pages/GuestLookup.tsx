@@ -177,6 +177,15 @@ export const GuestLookup: React.FC = () => {
     return todayStr === event.date;
   }, [event?.date, event?.event_timezone]);
 
+  // Privacy gate: open partial-search only on the wedding day and after.
+  // Before the event date, search is strict full-name match only (no suggestions).
+  const isOpenSearchMode = useMemo(() => {
+    if (!event?.date) return true; // fail-open
+    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+    return todayStr >= event.date;
+  }, [event?.date, event?.event_timezone]);
+
   // Check for tab parameter in URL - default to search
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

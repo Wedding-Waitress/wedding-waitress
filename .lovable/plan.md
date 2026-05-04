@@ -1,54 +1,43 @@
 ## Goal
-Close the last actionable security gaps before you move on to mobile-responsive work, and document the rest as accepted/intentional so future scans don't keep re-flagging them.
+Add a date-based privacy gate to the "Update & Confirm Your Details" search in `src/pages/GuestLookup.tsx`. Before the wedding date: strict full-name match only, no suggestions. On/after the wedding date: current behaviour preserved verbatim. UI, layout, input, buttons, cards, visualization tab, RSVP logic, and backend remain untouched.
 
-## Changes
+## Behaviour
+- **Open mode** (today ≥ `event.date` in event timezone, or no date set): existing partial-search logic kept exactly as-is, including the existing AlertCircle + "No guests found / Please check your spelling…" empty state.
+- **Strict mode** (today < `event.date`):
+  - Normalise input (trim, lowercase, collapse whitespace).
+  - No space in input → return `[]` and render nothing (no suggestions, no message).
+  - Space in input → match only when normalised `"${first} ${last}"` strictly equals the normalised input.
+  - Full-name attempt with zero matches → show only: *"No match found. Please enter your full name exactly as provided."*
 
-### 1. SQL migration — restrict billing-related INSERTs to service_role
+## Edits — single file: `src/pages/GuestLookup.tsx`
 
-**`communication_usage`**
-- Drop the existing `auth.uid() = user_id` INSERT policy.
-- Add `FOR INSERT TO service_role WITH CHECK (true)`.
-- Keep the existing SELECT policy (users can still read their own usage).
+1. **Add `isOpenSearchMode` memo** beside the existing `isEventDay` memo (~line 173):
+   ```ts
+   const isOpenSearchMode = useMemo(() => {
+     if (!event?.date) return true; // fail-open
+     const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+     const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+     return todayStr >= event.date;
+   }, [event?.date, event?.event_timezone]);
+   ```
 
-**`rsvp_invite_logs`**
-- Same treatment: drop user INSERT policy, add service_role-only INSERT.
-- Keep SELECT for owners.
+2. **Add `normalize` helper** inside the component, just above the `filteredGuests` memo:
+   ```ts
+   const normalize = (str: string) => str.trim().toLowerCase().replace(/\s+/g, ' ');
+   ```
 
-Audit follow-up: confirm the existing edge functions that write these rows (`send-rsvp-email`, `send-rsvp-sms`, `send-invitation-email`, etc.) use the service-role client. They already do — they import `SUPABASE_SERVICE_ROLE_KEY` — so this change is non-breaking.
+3. **Wrap `filteredGuests` memo** (~line 338) with the mode branch. Open-mode body is the existing logic verbatim; strict-mode body returns `[]` for spaceless input, otherwise filters by exact normalised full-name equality. Add `isOpenSearchMode` to deps. Note: actual state variable is `searchTerm` (not `searchQuery`) — strict branch uses `normalize(searchTerm || '')`.
 
-### 2. SQL migration — add collaborator + admin policies on `media_gallery_settings`
+4. **Update search-tab empty state** (~line 845–852):
+   - Compute `const normalizedInput = normalize(searchTerm || '');` and `const isFullNameAttempt = normalizedInput.includes(' ');` near the render.
+   - Open mode → render existing AlertCircle + "No guests found / Please check your spelling…" exactly as today.
+   - Strict mode + `isFullNameAttempt` + `filteredGuests.length === 0` → render only the text *"No match found. Please enter your full name exactly as provided."* (no icon, no extra paragraph).
+   - Strict mode + partial input → render nothing.
+   - Also gate the outer `searchTerm.length >= 2` block so strict-mode partial input renders nothing at all (no "Welcome,…" header, no list).
 
-```sql
-CREATE POLICY "Collaborators can view media settings"
-  ON public.media_gallery_settings FOR SELECT
-  USING (public.can_access_event(auth.uid(), event_id));
-
-CREATE POLICY "Admins can manage all media settings"
-  ON public.media_gallery_settings FOR ALL
-  USING (public.has_role(auth.uid(), 'admin'))
-  WITH CHECK (public.has_role(auth.uid(), 'admin'));
-```
-
-(Confirm `can_access_event` exists; if not, scope to owner only and skip collaborator policy.)
-
-### 3. Mark scanner findings — accepted/intentional
-
-Use `security--manage_security_finding` to:
-- **Ignore** `realtime_messages_no_rls` and `guests_realtime_broadcast` — required for anonymous Guest Lookup/Kiosk flows. Reasoning: realtime payloads only fire for tables already gated by RLS, and breaking this disables the public live-view feature.
-- **Ignore** `admin_otp_codes_no_select_policy` — already documented via SQL COMMENT; intentional service-role-only access.
-- **Ignore** `notification_settings_encrypted_keys`, `exports_bucket_no_user_read_scope`, `guest_access_tokens_no_anon_read` — accepted patterns with compensating controls.
-- **Ignore** the four Supabase linter advisories (GraphQL exposure, SECURITY DEFINER executable x2, public bucket listing) — required for public QR/guest features.
-- **Mark fixed** `communication_usage_user_insert`, `rsvp_invite_logs_user_insert`, `media_settings_no_rls` after migrations apply.
-
-### 4. Update `@security-memory`
-
-Append: realtime channels intentionally unauthorized (public guest flows depend on it), SECURITY DEFINER RPCs intentionally executable by anon/authenticated, billing-tracking tables now service_role-INSERT only.
-
-## Out of scope
-- No UI changes.
-- No edge function changes (already use service-role).
-- Locked dashboard/public pages untouched.
+## Untouched
+Input field, placeholder, icons, EnhancedGuestCard, Accept/Decline/Add Guest, modals, success/loading/animation states, visualization tab (~line 958), RSVP normalisation, RLS/RPCs/backend, all other pages and components.
 
 ## Verification
-- Re-run security scan after migrations.
-- Confirm Guest Lookup, Kiosk, and RSVP send flows still function (smoke test only — no UI edits).
+- System date < event date → "And"/"Andrew" returns nothing, no message; "Andrew Smith" returns the matching card; "Andrew Smithx" shows the new strict copy only.
+- System date ≥ event date → today's partial-search behaviour and existing "No guests found" empty state are unchanged.
