@@ -1207,6 +1207,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   <Button
                                     size="sm"
                                     variant="outline"
+                                    className="lv-premium-shade"
                                     onClick={() => {
                                       const input = document.createElement('input');
                                       input.type = 'file';
@@ -1425,6 +1426,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   <Button
                                     size="sm"
                                     variant="outline"
+                                    className="lv-premium-shade"
                                     onClick={() => {
                                       const input = document.createElement('input');
                                       input.type = 'file';
@@ -1596,6 +1598,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="lv-premium-shade"
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -1745,6 +1748,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="lv-premium-shade"
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
