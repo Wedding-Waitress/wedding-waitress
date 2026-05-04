@@ -438,7 +438,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               {/* New Artwork Button */}
               <button
                 onClick={handleOpenCreateDialog}
-                className="flex-shrink-0 w-48 h-[140px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
+                className="flex-shrink-0 w-48 h-[140px] max-sm:w-full max-sm:h-[160px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
               >
                 <Plus className="h-6 w-6 text-primary" />
                 <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
