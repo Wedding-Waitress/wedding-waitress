@@ -572,6 +572,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 updateSettings({ qr_config: { ...current, ...updates } });
               }}
             />
+            </div>
           </div>
         </div>
       )}
