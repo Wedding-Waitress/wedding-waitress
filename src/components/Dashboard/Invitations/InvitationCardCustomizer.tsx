@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
 import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode } from 'lucide-react';
-import canvaEditBanner from '@/assets/canva-edit-banner.png';
+import canvaEditBanner from '@/assets/canva-design-button.png';
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
@@ -514,8 +514,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </Button>
                         <img
                           src={canvaEditBanner}
-                          alt="Edit with Canva"
-                          className="h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity max-sm:basis-full max-sm:h-12 max-sm:mx-auto max-sm:mt-1"
+                          alt="Design with Canva"
+                          className="h-10 w-auto object-contain rounded-lg cursor-pointer hover:opacity-80 transition-opacity max-sm:basis-full max-sm:mx-auto max-sm:mt-1"
                           onClick={() => window.open('https://www.canva.com', '_blank')}
                         />
                       </div>
