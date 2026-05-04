@@ -483,7 +483,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                      className={`px-3 py-1 rounded-full transition-all text-xs font-medium ${
+                      className={`lv-premium-shade px-3 py-1 rounded-full transition-all text-xs font-medium ${
                         formData.event_type === 'seated' 
                           ? 'bg-green-500 text-white shadow-sm' 
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
@@ -494,7 +494,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                      className={`px-3 py-1 rounded-full transition-all text-xs font-medium ${
+                      className={`lv-premium-shade px-3 py-1 rounded-full transition-all text-xs font-medium ${
                         formData.event_type === 'cocktail' 
                           ? 'bg-green-500 text-white shadow-sm' 
                           : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'
@@ -508,7 +508,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
-                      className={`w-full h-11 rounded-full text-sm font-medium transition-all ${
+                      className={`lv-premium-shade w-full h-11 rounded-full text-sm font-medium transition-all ${
                         formData.event_type === 'seated'
                           ? 'bg-green-500 text-white border-2 border-green-500'
                           : 'bg-secondary text-primary border-2 border-primary'
@@ -519,7 +519,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
-                      className={`w-full h-11 rounded-full text-sm font-medium transition-all ${
+                      className={`lv-premium-shade w-full h-11 rounded-full text-sm font-medium transition-all ${
                         formData.event_type === 'cocktail'
                           ? 'bg-green-500 text-white border-2 border-green-500'
                           : 'bg-secondary text-primary border-2 border-primary'
@@ -643,7 +643,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <Button 
             variant="destructive" 
             onClick={onClose}
-            className="rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
+            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
           >
             Cancel
           </Button>
@@ -651,7 +651,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
           >
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
