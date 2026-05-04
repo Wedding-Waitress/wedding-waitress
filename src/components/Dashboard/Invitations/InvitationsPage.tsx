@@ -366,7 +366,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 <div
                   key={artwork.id}
                   onClick={() => setActiveArtwork(artwork.id!)}
-                  className={`flex-shrink-0 w-48 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex-shrink-0 w-48 p-3 rounded-xl border-2 cursor-pointer transition-all max-sm:w-full ${
                     activeArtworkId === artwork.id
                       ? 'border-primary bg-primary/5 shadow-sm'
                       : 'border-border hover:border-primary/40'
