@@ -297,19 +297,19 @@ export const TableCard: React.FC<TableCardProps> = ({
           </div>
 
         {/* Actions - Fixed at bottom */}
-        <div className="flex justify-center items-center gap-3 mt-4">
+        <div className="flex justify-center items-center gap-2 mt-4">
           <Button
             onClick={() => onEdit(table)}
-            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-7 px-2.5 text-xs flex items-center gap-1"
           >
-            <Edit className="h-4 w-4 text-white" />
+            <Edit className="!h-3 !w-3 text-white" />
             <span className="text-white font-medium">Edit</span>
           </Button>
           <Button
             onClick={() => setShowDeleteDialog(true)}
-            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
+            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-7 px-2.5 text-xs flex items-center gap-1"
           >
-            <Trash2 className="h-4 w-4 text-white" />
+            <Trash2 className="!h-3 !w-3 text-white" />
             <span className="text-white font-medium">Delete</span>
           </Button>
         </div>

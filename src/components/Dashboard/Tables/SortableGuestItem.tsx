@@ -96,7 +96,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
         <div className="absolute -top-1.5 left-0 right-0 h-2 bg-[#967A59] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border border-[#7A6347] z-20 pointer-events-none" />
       )}
       
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 min-w-0">
         {/* Checkbox for bulk selection */}
         {showCheckbox && (
           <button
@@ -115,7 +115,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
         
         <Badge
           variant="secondary"
-          className={`flex-1 justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 ${
+          className={`flex-1 min-w-0 justify-between text-xs py-0.5 px-2 lg:py-1 cursor-grab active:cursor-grabbing hover:bg-secondary/80 ${
             isDragging ? 'ring-2 ring-primary shadow-md' : ''
           } ${isSelected ? 'ring-2 ring-primary/50' : ''}`}
           {...attributes}
@@ -123,7 +123,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
           aria-grabbed={isDragging}
           tabIndex={0}
         >
-          <span className="truncate">
+          <span className="truncate min-w-0">
             {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
           </span>
           <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
