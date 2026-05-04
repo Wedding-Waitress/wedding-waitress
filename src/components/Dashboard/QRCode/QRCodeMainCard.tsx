@@ -750,15 +750,18 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* RSVP Invite Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-[#856A4C]" />
+                    <Mail className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
                     <div>
-                      <h4 className="text-sm font-semibold">RSVP Invite</h4>
-                      <p className="text-xs text-muted-foreground">Let guests view your digital invitation and RSVP</p>
+                      <h4 className="text-sm font-semibold flex items-center gap-3">
+                        <Mail className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
+                        <span>RSVP Invite</span>
+                      </h4>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests view your digital invitation and RSVP</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:justify-between">
                     <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_rsvp_invite ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_rsvp_invite ? "Displayed on app" : "Not displayed on app"}
                     </span>
@@ -786,8 +789,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           </div>
 
                           {moduleSettings?.rsvp_invite_config?.file_url ? (
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                              <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.rsvp_invite_config.file_name}
                                 </p>
@@ -967,7 +970,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="flex items-center gap-3">
                     <Video className="h-5 w-5 text-[#856A4C]" />
                     <div>
-                      <h4 className="text-sm font-semibold">Welcome Video</h4>
+                      <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Welcome Video</h4>
                       <p className="text-xs text-muted-foreground">Add a personal video message for your guests</p>
                     </div>
                   </div>
@@ -1104,7 +1107,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-[#856A4C]" />
                     <div>
-                      <h4 className="text-sm font-semibold">Ceremony Floor Plan</h4>
+                      <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Ceremony Floor Plan</h4>
                       <p className="text-xs text-muted-foreground">Show your ceremony floor plan to guests</p>
                     </div>
                   </div>
@@ -1188,8 +1191,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.floor_plan_config?.source === 'upload' && (
                             <div className="mt-3">
                               {moduleSettings?.floor_plan_config?.file_url ? (
-                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                                  <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                                  <div className="flex-1 min-w-0 max-lg:basis-full">
                                     <p className="text-xs font-medium truncate">
                                       {moduleSettings.floor_plan_config.file_name}
                                     </p>
@@ -1320,7 +1323,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-[#856A4C]" />
                     <div>
-                      <h4 className="text-sm font-semibold">Reception Floor Plan</h4>
+                      <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Reception Floor Plan</h4>
                       <p className="text-xs text-muted-foreground">Show your reception floor plan to guests</p>
                     </div>
                   </div>
@@ -1404,8 +1407,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.reception_floor_plan_config?.source === 'upload' && (
                             <div className="mt-3">
                               {moduleSettings?.reception_floor_plan_config?.file_url ? (
-                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                                  <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                                  <div className="flex-1 min-w-0 max-lg:basis-full">
                                     <p className="text-xs font-medium truncate">
                                       {moduleSettings.reception_floor_plan_config.file_name}
                                     </p>
@@ -1573,8 +1576,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           </div>
 
                           {moduleSettings?.menu_config?.file_url ? (
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                              <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.menu_config.file_name}
                                 </p>
@@ -1720,8 +1723,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <span className="text-white font-bold text-sm">Preview with overlay</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border">
-                              <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.hero_image_config.file_name}
                                 </p>
