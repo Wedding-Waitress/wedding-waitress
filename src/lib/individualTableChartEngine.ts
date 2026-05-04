@@ -17,6 +17,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
 import { format } from 'date-fns';
+import { escapeHtml } from './security/escapeHtml';
 const weddingWaitressLogoFull = '/wedding-waitress-logo-brown.png';
 
 // Paper size constants (in mm)
@@ -756,7 +757,7 @@ export const generateIndividualTableSVG = (
     }
   };
 
-  const eventName = event?.name || 'Event';
+  const eventName = escapeHtml(event?.name || 'Event');
 
   // Pre-compute header details for Running Sheet style
   const fmtOrdinalDate = (dateStr: string | null) => {
@@ -778,9 +779,9 @@ export const generateIndividualTableSVG = (
   };
 
   const ceremonyDetailLine = event?.ceremony_date
-    ? `Ceremony: ${fmtOrdinalDate(event.ceremony_date)} | ${event?.ceremony_venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.ceremony_start_time)} – ${fmtTimeDisplay(event?.ceremony_finish_time)}`
+    ? `Ceremony: ${fmtOrdinalDate(event.ceremony_date)} | ${escapeHtml(event?.ceremony_venue || 'Venue TBD')} | ${fmtTimeDisplay(event?.ceremony_start_time)} – ${fmtTimeDisplay(event?.ceremony_finish_time)}`
     : '';
-  const receptionDetailLine = `Reception: ${fmtOrdinalDate(event?.date)} | ${event?.venue || 'Venue TBD'} | ${fmtTimeDisplay(event?.start_time)} – ${fmtTimeDisplay(event?.finish_time)}`;
+  const receptionDetailLine = `Reception: ${fmtOrdinalDate(event?.date)} | ${escapeHtml(event?.venue || 'Venue TBD')} | ${fmtTimeDisplay(event?.start_time)} – ${fmtTimeDisplay(event?.finish_time)}`;
 
   // Pre-compute footer timestamp
   const footerTimestamp = (() => {
