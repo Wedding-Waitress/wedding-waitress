@@ -255,14 +255,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 max-lg:w-full max-lg:justify-center">
               {!isMobile && (
                 <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
                   <Calendar className="w-4 h-4 mr-1.5" />
                   {events.length} Event{events.length !== 1 ? 's' : ''} Created
                 </Badge>
               )}
-              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target" onClick={() => setCreateModal(true)}>
+              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => setCreateModal(true)}>
                 <Plus className="w-4 h-4" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
@@ -326,23 +326,23 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </p>
                       </div>
 
-                      {/* Action icons: bottom-right */}
-                      <div className="flex items-center justify-end gap-2 mt-3">
+                      {/* Action buttons: centered tablet-shape buttons */}
+                      <div className="flex items-center justify-center gap-3 mt-3">
                         <Button 
-                          variant="ghost" 
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
-                          className="text-green-500 hover:text-green-500 h-9 w-9 p-0"
+                          className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-4 h-4 text-white" />
+                          <span>Edit Event</span>
                         </Button>
                         <Button 
-                          variant="ghost" 
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleDeleteClick(event); }} 
-                          className="text-red-500 hover:text-red-600 h-9 w-9 p-0"
+                          className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4 text-white" />
+                          <span>Cancel</span>
                         </Button>
                       </div>
                     </div>
