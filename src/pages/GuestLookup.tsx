@@ -343,21 +343,35 @@ export const GuestLookup: React.FC = () => {
     fetchEventData();
   }, [eventSlug, toast]);
 
+  // Normalise input for strict matching (trim, lowercase, collapse whitespace)
+  const normalize = (str: string) => str.trim().toLowerCase().replace(/\s+/g, ' ');
+
   // Filter guests based on search term
   const filteredGuests = useMemo(() => {
-    if (searchTerm.length < 2) return [];
+    // OPEN MODE: existing partial-search behaviour (kept verbatim)
+    if (isOpenSearchMode) {
+      if (searchTerm.length < 2) return [];
 
-    const term = searchTerm.toLowerCase();
-    return guests.filter(guest => {
-      const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
-      const firstName = guest.first_name.toLowerCase();
-      const lastName = guest.last_name.toLowerCase();
-      
-      return firstName.includes(term) || 
-             lastName.includes(term) || 
-             fullName.includes(term);
+      const term = searchTerm.toLowerCase();
+      return guests.filter(guest => {
+        const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
+        const firstName = guest.first_name.toLowerCase();
+        const lastName = guest.last_name.toLowerCase();
+
+        return firstName.includes(term) ||
+               lastName.includes(term) ||
+               fullName.includes(term);
+      });
+    }
+
+    // STRICT MODE (before event date): exact full-name match only
+    const input = normalize(searchTerm || '');
+    if (!input.includes(' ')) return [];
+    return guests.filter((guest) => {
+      const fullName = normalize(`${guest.first_name} ${guest.last_name}`);
+      return fullName === input;
     });
-  }, [guests, searchTerm]);
+  }, [guests, searchTerm, isOpenSearchMode]);
 
   // Smooth-scroll to search results when a match appears
   useEffect(() => {
