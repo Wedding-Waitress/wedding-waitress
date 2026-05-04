@@ -287,8 +287,8 @@ export const TableCard: React.FC<TableCardProps> = ({
           )}
 
           {/* Guest Chips - Using Sortable Components */}
-          <div className="mb-3">
-            <div className="text-xs text-muted-foreground mb-2">Guests:</div>
+          <div className="mb-3 lg:mx-0 max-lg:-mx-3">
+            <div className="text-xs text-muted-foreground mb-2 text-left max-lg:px-1">Guests:</div>
             <TableGuestList 
               tableId={table.id} 
               guests={sortedGuests} 
