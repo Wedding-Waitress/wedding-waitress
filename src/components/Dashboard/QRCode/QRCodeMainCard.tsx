@@ -1732,6 +1732,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   Uploaded {new Date(moduleSettings.hero_image_config.uploaded_at).toLocaleDateString()}
                                 </p>
                               </div>
+                              <div className="hidden max-lg:block max-lg:basis-full border-t border-border" />
                               <Button
                                 size="sm"
                                 variant="outline"
