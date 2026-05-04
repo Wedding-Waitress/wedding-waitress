@@ -351,13 +351,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
-              <div className="max-sm:overflow-x-auto max-sm:-mx-2 max-sm:px-2 max-sm:[&::-webkit-scrollbar]:hidden">
-                <TabsList className="grid w-full grid-cols-3 max-sm:inline-flex max-sm:w-auto max-sm:flex-nowrap max-sm:gap-2 max-sm:whitespace-nowrap">
-                  <TabsTrigger value="invitation" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Invitation</TabsTrigger>
-                  <TabsTrigger value="save_the_date" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Save the Date</TabsTrigger>
-                  <TabsTrigger value="thank_you" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Thank You</TabsTrigger>
-                </TabsList>
-              </div>
+              <TabsList className="grid w-full grid-cols-3 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
+                <TabsTrigger value="invitation" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Invitation</TabsTrigger>
+                <TabsTrigger value="save_the_date" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Save the Date</TabsTrigger>
+                <TabsTrigger value="thank_you" className="max-sm:text-[11px] max-sm:px-1 max-sm:py-1.5">Thank You</TabsTrigger>
+              </TabsList>
             </Tabs>
 
             {/* Artwork List */}
@@ -509,7 +507,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             />
           </div>
           <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden">
-            <div className="origin-top mx-auto max-sm:w-full max-sm:scale-100 md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%]">
+            <div className="origin-top mx-auto max-sm:scale-[0.42] max-sm:w-[210mm] max-sm:-mb-[60%] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%]">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
