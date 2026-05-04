@@ -707,6 +707,9 @@ export type Database = {
           name: string
           partner1_name: string | null
           partner2_name: string | null
+          public_show_date: boolean
+          public_show_partner_names: boolean
+          public_show_venue: boolean
           qr_apply_to_live_view: boolean | null
           reception_enabled: boolean | null
           relation_allow_custom_role: boolean | null
@@ -761,6 +764,9 @@ export type Database = {
           name: string
           partner1_name?: string | null
           partner2_name?: string | null
+          public_show_date?: boolean
+          public_show_partner_names?: boolean
+          public_show_venue?: boolean
           qr_apply_to_live_view?: boolean | null
           reception_enabled?: boolean | null
           relation_allow_custom_role?: boolean | null
@@ -815,6 +821,9 @@ export type Database = {
           name?: string
           partner1_name?: string | null
           partner2_name?: string | null
+          public_show_date?: boolean
+          public_show_partner_names?: boolean
+          public_show_venue?: boolean
           qr_apply_to_live_view?: boolean | null
           reception_enabled?: boolean | null
           relation_allow_custom_role?: boolean | null
