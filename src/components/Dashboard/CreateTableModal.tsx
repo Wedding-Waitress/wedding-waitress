@@ -482,11 +482,11 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           )}
         </div>
 
-        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:pb-2">
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:pb-2 lg:flex lg:gap-3">
           <Button
             variant="default"
             size="xs"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-11 lg:px-8 lg:text-base"
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
@@ -495,7 +495,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           <Button
             variant="destructive"
             size="xs"
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
+            className="lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-11 lg:px-8 lg:text-base"
             onClick={handleClose}
             disabled={isSubmitting}
           >
