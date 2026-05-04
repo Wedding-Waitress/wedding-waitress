@@ -572,6 +572,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               }}
             />
             </div>
+            </div>
           </div>
         </div>
       )}
