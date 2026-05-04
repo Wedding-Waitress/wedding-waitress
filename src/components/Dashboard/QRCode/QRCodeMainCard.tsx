@@ -967,15 +967,15 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Welcome Video Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Video className="h-5 w-5 text-[#856A4C]" />
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                  <div className="flex items-center gap-3 max-lg:items-start">
+                    <Video className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Welcome Video</h4>
-                      <p className="text-xs text-muted-foreground">Add a personal video message for your guests</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Add a personal video message for your guests</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
                     <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_welcome_video ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_welcome_video ? "Displayed on app" : "Not displayed on app"}
                     </span>
@@ -1104,15 +1104,15 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Ceremony Floor Plan Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-[#856A4C]" />
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                  <div className="flex items-center gap-3 max-lg:items-start">
+                    <MapPin className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Ceremony Floor Plan</h4>
-                      <p className="text-xs text-muted-foreground">Show your ceremony floor plan to guests</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your ceremony floor plan to guests</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
                     <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_floor_plan ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_floor_plan ? "Displayed on app" : "Not displayed on app"}
                     </span>
@@ -1320,15 +1320,15 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Reception Floor Plan Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-[#856A4C]" />
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                  <div className="flex items-center gap-3 max-lg:items-start">
+                    <MapPin className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Reception Floor Plan</h4>
-                      <p className="text-xs text-muted-foreground">Show your reception floor plan to guests</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your reception floor plan to guests</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
                     <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_reception_floor_plan ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_reception_floor_plan ? "Displayed on app" : "Not displayed on app"}
                     </span>
@@ -1542,15 +1542,15 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Menu Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <UtensilsCrossed className="h-5 w-5 text-[#856A4C]" />
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                  <div className="flex items-center gap-3 max-lg:items-start">
+                    <UtensilsCrossed className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold">Menu</h4>
-                      <p className="text-xs text-muted-foreground">Upload your wedding menu for guests to view</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Upload your wedding menu for guests to view</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
                     <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_menu ? "text-green-600" : "text-red-500"}`}>
                       {visibilitySettings?.show_menu ? "Displayed on app" : "Not displayed on app"}
                     </span>
