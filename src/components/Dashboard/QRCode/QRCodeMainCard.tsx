@@ -514,7 +514,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
           {/* Col 2: Customization Panel */}
           <div className="bg-muted/30 rounded-lg border border-primary p-3 space-y-3 overflow-y-auto min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-            <div className="bg-primary text-primary-foreground text-center py-2 px-3 rounded-md -mx-3 -mt-3">
+            <div className="lv-premium-shade bg-primary text-primary-foreground text-center py-2 px-3 rounded-md -mx-3 -mt-3">
               <h3 className="text-base font-semibold">Design Your QR Code</h3>
             </div>
             {/* Accordions for Color, Shape, Logo */}
@@ -692,7 +692,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Reset to Default - at bottom of Design panel */}
             <div className="flex-grow" />
             <div className="pt-4 border-t border-border">
-              <Button variant="destructive" onClick={handleResetAll} className="w-full rounded-full">
+              <Button variant="destructive" onClick={handleResetAll} className="lv-premium-shade w-full rounded-full">
                 Reset to Default
               </Button>
             </div>
@@ -701,25 +701,25 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Col 3: Action Buttons */}
           <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             {/* Open Live View - Full Width */}
-            <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="w-full bg-green-500 hover:bg-green-600 text-white border-0">
+            <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="lv-premium-shade w-full bg-green-500 hover:bg-green-600 text-white border-0">
               <ExternalLink className="h-4 w-4 mr-2" />
               Open Live View
             </Button>
             
             {/* Copy Link - Full Width */}
-            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="border-[#C4A882] w-full">
+            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="lv-premium-shade border-[#C4A882] w-full">
               <Link className="h-4 w-4 mr-2" />
               Copy Link
             </Button>
             
             {/* PNG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="border-[#C4A882] w-full">
+            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="lv-premium-shade border-[#C4A882] w-full">
               <FileDown className="h-4 w-4 mr-2" />
               PNG
             </Button>
             
             {/* JPG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="border-[#C4A882] w-full">
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="lv-premium-shade border-[#C4A882] w-full">
               <ImageIcon className="h-4 w-4 mr-2" />
               JPG
             </Button>
@@ -729,7 +729,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
             <div className="pt-4 border-t border-border">
-              <Button variant="destructive" onClick={handleResetQR} className="w-full rounded-full">
+              <Button variant="destructive" onClick={handleResetQR} className="lv-premium-shade w-full rounded-full">
                 Reset to Default
               </Button>
             </div>
