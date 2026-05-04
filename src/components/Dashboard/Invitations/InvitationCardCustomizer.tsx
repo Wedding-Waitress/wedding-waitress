@@ -512,18 +512,15 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <Images className="h-4 w-4" />
                           Image Gallery
                         </Button>
-                        <button
+                        <Button
                           type="button"
+                          size="sm"
                           onClick={() => window.open('https://www.canva.com', '_blank')}
-                          className="flex-1 max-sm:basis-full h-9 rounded-full overflow-hidden p-0 border-0 bg-transparent cursor-pointer hover:opacity-90 transition-opacity"
-                          aria-label="Design with Canva"
+                          className="flex-1 max-sm:flex-none max-sm:basis-1/2 max-sm:mx-auto max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
                         >
-                          <img
-                            src={canvaEditBanner}
-                            alt="Design with Canva"
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
+                          <Sparkles className="h-4 w-4" />
+                          Design with Canva
+                        </Button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
                         Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
