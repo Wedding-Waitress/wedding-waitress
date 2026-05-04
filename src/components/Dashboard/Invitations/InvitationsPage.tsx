@@ -351,11 +351,13 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="invitation">Invitation</TabsTrigger>
-                <TabsTrigger value="save_the_date">Save the Date</TabsTrigger>
-                <TabsTrigger value="thank_you">Thank You</TabsTrigger>
-              </TabsList>
+              <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2">
+                <TabsList className="grid w-full grid-cols-3 max-lg:inline-flex max-lg:w-auto max-lg:min-w-full max-lg:gap-1">
+                  <TabsTrigger value="invitation" className="max-lg:whitespace-nowrap">Invitation</TabsTrigger>
+                  <TabsTrigger value="save_the_date" className="max-lg:whitespace-nowrap">Save the Date</TabsTrigger>
+                  <TabsTrigger value="thank_you" className="max-lg:whitespace-nowrap">Thank You</TabsTrigger>
+                </TabsList>
+              </div>
             </Tabs>
 
             {/* Artwork List */}
