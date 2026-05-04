@@ -508,7 +508,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               }}
             />
           </div>
-          <div className="lg:col-span-3 mt-12">
+          <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:flex max-lg:justify-center max-lg:overflow-hidden">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
