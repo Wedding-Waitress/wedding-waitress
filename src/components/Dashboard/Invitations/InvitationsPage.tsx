@@ -285,13 +285,13 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
           <div className="border-b border-border" />
 
-          <div className="flex items-center justify-between gap-8 flex-nowrap pt-2">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
@@ -314,7 +314,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your invitations as PDF ready for printing.</span>
@@ -351,11 +351,13 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="invitation">Invitation</TabsTrigger>
-                <TabsTrigger value="save_the_date">Save the Date</TabsTrigger>
-                <TabsTrigger value="thank_you">Thank You</TabsTrigger>
-              </TabsList>
+              <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2">
+                <TabsList className="grid w-full grid-cols-3 max-lg:inline-flex max-lg:w-auto max-lg:min-w-full max-lg:gap-1">
+                  <TabsTrigger value="invitation" className="max-lg:whitespace-nowrap">Invitation</TabsTrigger>
+                  <TabsTrigger value="save_the_date" className="max-lg:whitespace-nowrap">Save the Date</TabsTrigger>
+                  <TabsTrigger value="thank_you" className="max-lg:whitespace-nowrap">Thank You</TabsTrigger>
+                </TabsList>
+              </div>
             </Tabs>
 
             {/* Artwork List */}
@@ -506,7 +508,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               }}
             />
           </div>
-          <div className="lg:col-span-3 mt-12">
+          <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden">
+            <div className="origin-top mx-auto max-lg:scale-[0.42] md:max-lg:scale-[0.75] max-lg:w-[210mm] max-lg:-mb-[60%] md:max-lg:-mb-[30%]">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
@@ -569,6 +572,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 updateSettings({ qr_config: { ...current, ...updates } });
               }}
             />
+            </div>
           </div>
         </div>
       )}
