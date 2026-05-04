@@ -1186,12 +1186,12 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
               ${sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
-                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${(guest.relation_display || '').replace(/ \/ /g, '/')})</span>` : '';
+                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml((guest.relation_display || '').replace(/ \/ /g, '/'))})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
+                      <span style="${textStyleStr}">${escapeHtml(guest.first_name)} ${escapeHtml(guest.last_name)}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${escapeHtml(guest.dietary)}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;
@@ -1201,12 +1201,12 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; margin-left: 16px;">
               ${sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
-                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${(guest.relation_display || '').replace(/ \/ /g, '/')})</span>` : '';
+                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml((guest.relation_display || '').replace(/ \/ /g, '/'))})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
                     <span style="word-wrap: break-word; text-align: left;">
-                      <span style="${textStyleStr}">${guest.first_name} ${guest.last_name}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${guest.dietary}</span>` : ''}${relationText}
+                      <span style="${textStyleStr}">${escapeHtml(guest.first_name)} ${escapeHtml(guest.last_name)}</span>${settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? ` <span style="color: #967A59; font-weight: 700; ${textStyleStr}">- ${escapeHtml(guest.dietary)}</span>` : ''}${relationText}
                     </span>
                   </div>
                 `;
