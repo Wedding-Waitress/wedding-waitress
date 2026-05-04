@@ -492,13 +492,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         className="hidden"
                         id="inv-background-image-upload"
                       />
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 max-sm:flex-wrap max-sm:justify-center">
                         <Button
                           type="button"
                           size="sm"
                           onClick={() => document.getElementById('inv-background-image-upload')?.click()}
                           disabled={uploading}
-                          className="flex-1 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                          className="flex-1 max-sm:flex-1 max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Upload className="h-4 w-4" />
                           {uploading ? 'Uploading...' : 'Choose File'}
@@ -507,7 +507,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           type="button"
                           size="sm"
                           onClick={() => setGalleryModalOpen(true)}
-                          className="flex-1 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                          className="flex-1 max-sm:flex-1 max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                           <Images className="h-4 w-4" />
                           Image Gallery
@@ -515,7 +515,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <img
                           src={canvaEditBanner}
                           alt="Edit with Canva"
-                          className="h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                          className="h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity max-sm:basis-full max-sm:h-12 max-sm:mx-auto max-sm:mt-1"
                           onClick={() => window.open('https://www.canva.com', '_blank')}
                         />
                       </div>
