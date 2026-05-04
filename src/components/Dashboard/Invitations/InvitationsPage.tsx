@@ -351,29 +351,29 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
-              <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2">
-                <TabsList className="grid w-full grid-cols-3 max-lg:inline-flex max-lg:w-auto max-lg:min-w-full max-lg:gap-1">
-                  <TabsTrigger value="invitation" className="max-lg:whitespace-nowrap">Invitation</TabsTrigger>
-                  <TabsTrigger value="save_the_date" className="max-lg:whitespace-nowrap">Save the Date</TabsTrigger>
-                  <TabsTrigger value="thank_you" className="max-lg:whitespace-nowrap">Thank You</TabsTrigger>
+              <div className="max-sm:overflow-x-auto max-sm:-mx-2 max-sm:px-2 max-sm:[&::-webkit-scrollbar]:hidden">
+                <TabsList className="grid w-full grid-cols-3 max-sm:inline-flex max-sm:w-auto max-sm:flex-nowrap max-sm:gap-2 max-sm:whitespace-nowrap">
+                  <TabsTrigger value="invitation" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Invitation</TabsTrigger>
+                  <TabsTrigger value="save_the_date" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Save the Date</TabsTrigger>
+                  <TabsTrigger value="thank_you" className="max-sm:whitespace-nowrap max-sm:flex-shrink-0">Thank You</TabsTrigger>
                 </TabsList>
               </div>
             </Tabs>
 
             {/* Artwork List */}
-            <div className="flex items-center gap-3 overflow-x-auto pb-2">
+            <div className="flex items-center gap-3 overflow-x-auto pb-2 max-sm:flex-col max-sm:items-stretch max-sm:overflow-visible">
               {filteredArtworks.map(artwork => (
                 <div
                   key={artwork.id}
                   onClick={() => setActiveArtwork(artwork.id!)}
-                  className={`flex-shrink-0 w-48 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex-shrink-0 w-48 p-3 rounded-xl border-2 cursor-pointer transition-all max-sm:w-full ${
                     activeArtworkId === artwork.id
                       ? 'border-primary bg-primary/5 shadow-sm'
                       : 'border-border hover:border-primary/40'
                   }`}
                 >
                   {/* Thumbnail */}
-                  <div className="h-20 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center">
+                  <div className="h-20 max-sm:h-40 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center">
                     {artwork.background_image_url ? (
                       <img src={artwork.background_image_url} alt={artwork.name} className="w-full h-full object-cover" />
                     ) : (
@@ -438,7 +438,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               {/* New Artwork Button */}
               <button
                 onClick={handleOpenCreateDialog}
-                className="flex-shrink-0 w-48 h-[140px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
+                className="flex-shrink-0 w-48 h-[140px] max-sm:w-full max-sm:h-[160px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
               >
                 <Plus className="h-6 w-6 text-primary" />
                 <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
@@ -509,7 +509,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             />
           </div>
           <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden">
-            <div className="origin-top mx-auto max-lg:scale-[0.42] md:max-lg:scale-[0.75] max-lg:w-[210mm] max-lg:-mb-[60%] md:max-lg:-mb-[30%]">
+            <div className="origin-top mx-auto max-sm:w-full max-sm:scale-100 md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%]">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
