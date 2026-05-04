@@ -373,7 +373,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                   }`}
                 >
                   {/* Thumbnail */}
-                  <div className="h-20 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center">
+                  <div className="h-20 max-sm:h-40 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center">
                     {artwork.background_image_url ? (
                       <img src={artwork.background_image_url} alt={artwork.name} className="w-full h-full object-cover" />
                     ) : (
