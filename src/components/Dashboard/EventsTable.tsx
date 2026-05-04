@@ -228,13 +228,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   return <>
       <Card className="border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-0 rounded-xl">
         <div className="px-4 sm:px-6 py-4 border-b-2 border-primary bg-white">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-extrabold text-foreground truncate tracking-tight">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-lg:items-center max-lg:text-center">
+            <div className="flex-1 min-w-0 max-lg:w-full max-lg:flex max-lg:flex-col max-lg:items-center max-lg:text-center">
+              <h3 className="text-2xl font-extrabold text-foreground truncate tracking-tight max-lg:font-bold max-lg:tracking-normal">
                 My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}
               </h3>
-              <div className="flex items-start gap-2 mt-4">
-                <p className="text-xs sm:text-sm text-muted-foreground/80">
+              <div className="flex items-start gap-2 mt-4 max-lg:justify-center">
+                <p className="text-xs sm:text-sm text-muted-foreground/80 max-lg:text-center">
                   {isMobile ? "Create & manage events here." : (
                     <>
                       <span className="bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
