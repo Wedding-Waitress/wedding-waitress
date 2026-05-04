@@ -305,7 +305,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         fullScreenOnMobile={false}
       >
         <DialogHeader className="max-lg:pt-6 lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary text-center lg:text-left">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             {editingTable ? 'Edit Table' : 'Create Table'}
           </DialogTitle>
         </DialogHeader>
