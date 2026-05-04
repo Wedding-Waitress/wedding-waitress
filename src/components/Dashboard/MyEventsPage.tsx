@@ -372,7 +372,7 @@ export const MyEventsPage: React.FC = () => {
     const circumference = 2 * Math.PI * 45; // radius = 45
     const strokeDashoffset = circumference - progress / 100 * circumference;
     return <div className="flex flex-col items-center">
-        <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mb-2">
+        <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mb-2 rounded-full lv-premium-shade">
           {/* SVG Ring */}
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             {/* Base ring */}
