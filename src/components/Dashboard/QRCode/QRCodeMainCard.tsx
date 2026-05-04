@@ -967,7 +967,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="flex items-center gap-3">
                     <Video className="h-5 w-5 text-[#856A4C]" />
                     <div>
-                      <h4 className="text-sm font-semibold">Welcome Video</h4>
+                      <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Welcome Video</h4>
                       <p className="text-xs text-muted-foreground">Add a personal video message for your guests</p>
                     </div>
                   </div>
@@ -1104,7 +1104,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-[#856A4C]" />
                     <div>
-                      <h4 className="text-sm font-semibold">Ceremony Floor Plan</h4>
+                      <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Ceremony Floor Plan</h4>
                       <p className="text-xs text-muted-foreground">Show your ceremony floor plan to guests</p>
                     </div>
                   </div>
@@ -1320,7 +1320,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="flex items-center gap-3">
                     <MapPin className="h-5 w-5 text-[#856A4C]" />
                     <div>
-                      <h4 className="text-sm font-semibold">Reception Floor Plan</h4>
+                      <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Reception Floor Plan</h4>
                       <p className="text-xs text-muted-foreground">Show your reception floor plan to guests</p>
                     </div>
                   </div>
