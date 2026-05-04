@@ -285,13 +285,13 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
           <div className="border-b border-border" />
 
-          <div className="flex items-center justify-between gap-8 flex-nowrap pt-2">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
