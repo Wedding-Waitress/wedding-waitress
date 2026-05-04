@@ -123,7 +123,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
           aria-grabbed={isDragging}
           tabIndex={0}
         >
-          <span className="truncate min-w-0">
+          <span className="truncate min-w-0 whitespace-nowrap">
             {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
           </span>
           <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
