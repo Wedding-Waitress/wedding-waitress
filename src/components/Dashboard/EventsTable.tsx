@@ -262,7 +262,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   {events.length} Event{events.length !== 1 ? 's' : ''} Created
                 </Badge>
               )}
-              <Button variant="default" size="sm" className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target" onClick={() => setCreateModal(true)}>
+              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target" onClick={() => setCreateModal(true)}>
                 <Plus className="w-4 h-4" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
