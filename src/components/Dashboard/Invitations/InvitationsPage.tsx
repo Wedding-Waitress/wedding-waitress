@@ -508,7 +508,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               }}
             />
           </div>
-          <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:flex max-lg:justify-center max-lg:overflow-hidden">
+          <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden">
+            <div className="origin-top mx-auto max-lg:scale-[0.42] md:max-lg:scale-[0.75] max-lg:w-[210mm] max-lg:-mb-[60%] md:max-lg:-mb-[30%]">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}
