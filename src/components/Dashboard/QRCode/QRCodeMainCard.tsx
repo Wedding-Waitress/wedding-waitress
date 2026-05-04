@@ -802,6 +802,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className="lv-premium-shade"
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -852,6 +853,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="destructive"
+                                className="lv-premium-shade"
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.rsvp_invite_config?.file_url) {
                                     try {
@@ -930,10 +932,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1"
+                              className="lv-premium-shade flex-1"
                               onClick={() => {
-                                if (eventUrl) {
-                                  window.open(eventUrl + '?tab=rsvp-invite', '_blank');
                                 }
                               }}
                             >
@@ -943,7 +943,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              className="flex-1"
+                              className="lv-premium-shade flex-1"
                               onClick={() => {
                                 if (eventUrl) {
                                   navigator.clipboard.writeText(eventUrl + '?tab=rsvp-invite');
@@ -1016,6 +1016,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <Button 
                                   variant="outline" 
                                   size="sm" 
+                                  className="lv-premium-shade"
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
@@ -1035,7 +1036,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <Button 
                                   variant="outline" 
                                   size="sm" 
-                                  className="text-destructive" 
+                                  className="lv-premium-shade text-destructive" 
                                   onClick={async () => {
                                     if (confirm('Are you sure you want to remove this video?')) {
                                       await deleteVideo();
@@ -1241,6 +1242,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   <Button
                                     size="sm"
                                     variant="destructive"
+                                    className="lv-premium-shade"
                                     onClick={async () => {
                                       if (eventId && moduleSettings?.floor_plan_config?.file_url) {
                                         try {
@@ -1458,6 +1460,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   <Button
                                     size="sm"
                                     variant="destructive"
+                                    className="lv-premium-shade"
                                     onClick={async () => {
                                       if (eventId && moduleSettings?.reception_floor_plan_config?.file_url) {
                                         try {
@@ -1627,6 +1630,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="destructive"
+                                className="lv-premium-shade"
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.menu_config?.file_url) {
                                     try {
@@ -1775,6 +1779,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="destructive"
+                                className="lv-premium-shade"
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.hero_image_config?.file_url) {
                                     try {
