@@ -115,7 +115,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
         
         <Badge
           variant="secondary"
-          className={`flex-1 min-w-0 justify-between text-xs py-1 px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 ${
+          className={`flex-1 min-w-0 justify-between text-xs max-lg:py-0.5 lg:py-1 leading-tight px-2 cursor-grab active:cursor-grabbing hover:bg-secondary/80 ${
             isDragging ? 'ring-2 ring-primary shadow-md' : ''
           } ${isSelected ? 'ring-2 ring-primary/50' : ''}`}
           {...attributes}
