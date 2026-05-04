@@ -10,8 +10,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
-import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode, Sparkles } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode } from 'lucide-react';
 import canvaEditBanner from '@/assets/canva-design-button.png';
+import canvaLogo from '@/assets/canva-logo.png';
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { PlaceCardFontPicker } from '../PlaceCards/PlaceCardFontPicker';
 import { supabase } from '@/integrations/supabase/client';
@@ -498,7 +499,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           size="sm"
                           onClick={() => document.getElementById('inv-background-image-upload')?.click()}
                           disabled={uploading}
-                          className="flex-1 max-sm:flex-1 max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Upload className="h-4 w-4" />
                           {uploading ? 'Uploading...' : 'Choose File'}
@@ -507,7 +508,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           type="button"
                           size="sm"
                           onClick={() => setGalleryModalOpen(true)}
-                          className="flex-1 max-sm:flex-1 max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                           <Images className="h-4 w-4" />
                           Image Gallery
@@ -516,9 +517,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           type="button"
                           size="sm"
                           onClick={() => window.open('https://www.canva.com', '_blank')}
-                          className="flex-1 max-sm:flex-none max-sm:basis-1/2 max-sm:mx-auto max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
+                          className="flex-1 max-sm:flex-none max-sm:basis-full max-sm:w-[calc(50%-0.25rem)] max-sm:mx-auto max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white"
                         >
-                          <Sparkles className="h-4 w-4" />
+                          <img src={canvaLogo} alt="Canva" className="h-4 w-4 rounded-full object-cover shrink-0" />
                           Design with Canva
                         </Button>
                       </div>
