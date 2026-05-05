@@ -387,12 +387,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
   const tabletWrapperRef = useRef<HTMLDivElement>(null);
   const [tabletScale, setTabletScale] = useState(1);
   const [isTablet, setIsTablet] = useState(false);
+  const [isTabletRange, setIsTabletRange] = useState(false);
   useEffect(() => {
     const A4_PX = 794; // 210mm @ 96dpi
     const compute = () => {
       const w = window.innerWidth;
       const needsScale = w < 1024;
       setIsTablet(needsScale);
+      setIsTabletRange(w >= 768 && w < 1024);
       if (!needsScale) { setTabletScale(1); return; }
       const cw = tabletWrapperRef.current?.clientWidth ?? w;
       setTabletScale(cw < A4_PX ? cw / A4_PX : 1);
