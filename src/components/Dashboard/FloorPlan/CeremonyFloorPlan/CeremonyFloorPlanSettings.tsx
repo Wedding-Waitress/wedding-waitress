@@ -71,14 +71,14 @@ export const CeremonyFloorPlanSettings = ({
             <span className="text-sm font-medium text-primary">{floorPlan.total_rows}</span>
           </div>
           <Slider
-            value={[floorPlan.total_rows]}
-            onValueChange={([value]) => handleChange('total_rows', value)}
+            value={[Math.min(12, floorPlan.total_rows)]}
+            onValueChange={([value]) => handleChange('total_rows', Math.min(12, value))}
             min={1}
-            max={15}
+            max={12}
             step={1}
             className="w-full floor-plan-smooth-slider"
           />
-          <p className="text-xs text-muted-foreground">1-15 rows total</p>
+          <p className="text-xs text-muted-foreground">1-12 rows total</p>
         </div>
 
         {/* Assigned Rows (for family) */}
@@ -89,9 +89,9 @@ export const CeremonyFloorPlanSettings = ({
           </div>
           <Slider
             value={[floorPlan.assigned_rows]}
-            onValueChange={([value]) => handleChange('assigned_rows', Math.min(value, floorPlan.total_rows))}
+            onValueChange={([value]) => handleChange('assigned_rows', Math.min(value, Math.min(12, floorPlan.total_rows)))}
             min={1}
-            max={Math.min(floorPlan.total_rows, 15)}
+            max={Math.min(floorPlan.total_rows, 12)}
             step={1}
             className="w-full floor-plan-smooth-slider"
           />
