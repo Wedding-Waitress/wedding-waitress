@@ -1065,6 +1065,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
           </div>
         </div>
         </div>
+        </div>
+        </div>
       </CardContent>
     </Card>
   );
