@@ -287,7 +287,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
               {/* Right: Card Dimensions Box - Now Aligned with Stats */}
               {!guestsLoading && !settingsLoading && (
-                <div className="border border-primary rounded-xl p-4 space-y-2">
+                <div className="w-full lg:w-auto border border-primary rounded-xl p-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <Ruler className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-medium">Card Dimensions</h3>
