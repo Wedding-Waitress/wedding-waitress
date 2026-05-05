@@ -499,14 +499,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             </div>
 
             {/* Bottom row: Choose Event dropdown, badges, and export controls */}
-            <div className="flex items-center justify-between pt-2 border-t max-md:flex-col max-md:items-stretch max-md:gap-3">
-              <div className="flex items-center gap-4 max-md:flex-col max-md:items-stretch max-md:gap-3 max-md:w-full">
-                <div className="flex items-center space-x-4 max-md:flex-col max-md:items-stretch max-md:space-x-0 max-md:gap-2 max-md:w-full">
+            <div className="flex items-center justify-between pt-2 border-t max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+              <div className="flex items-center gap-4 max-lg:flex-col max-lg:items-stretch max-lg:gap-3 max-lg:w-full">
+                <div className="flex items-center space-x-4 max-lg:flex-col max-lg:items-stretch max-lg:space-x-0 max-lg:gap-2 max-lg:w-full">
                   <label className="text-sm font-medium text-foreground whitespace-nowrap">
                     Choose Event:
                   </label>
                   <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-full sm:w-[300px] max-md:w-full border-primary focus:ring-primary font-bold text-[#967A59]">
+                    <SelectTrigger className="w-full sm:w-[300px] max-lg:w-full border-primary focus:ring-primary font-bold text-[#967A59]">
                       <SelectValue placeholder="Choose Event" />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border z-50">
@@ -550,14 +550,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
               {/* Export Controls */}
               {currentEvent && dietaryGuests.length > 0 && (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-md:w-full">
-                  <div className="flex items-center max-md:flex-col max-md:items-start max-md:gap-1">
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-lg:w-full">
+                  <div className="flex items-center max-lg:flex-col max-lg:items-start max-lg:gap-1">
                     <span className="font-bold text-sm">Export Controls</span>
-                    <span className="text-muted-foreground ml-2 max-md:ml-0 text-sm">
+                    <span className="text-muted-foreground ml-2 max-lg:ml-0 text-sm">
                       Download & share your dietary requirement guests with your venue / Kitchen.
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 max-md:flex-col max-md:items-stretch">
+                  <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
                     <button 
                       className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
@@ -650,7 +650,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 )}
 
                 {/* A4 Page Container - Screen View */}
-                <div className="flex justify-center max-md:dietary-a4-scroll" style={{}}>
+                <div className="flex justify-center max-lg:dietary-a4-scroll" style={{}}>
 
                   <div 
                     className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
