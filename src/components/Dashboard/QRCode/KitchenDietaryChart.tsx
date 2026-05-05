@@ -530,14 +530,14 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
               {/* Export Controls */}
               {currentEvent && dietaryGuests.length > 0 && (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0">
-                  <div className="flex items-center">
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-md:w-full">
+                  <div className="flex items-center max-md:flex-col max-md:items-start max-md:gap-1">
                     <span className="font-bold text-sm">Export Controls</span>
-                    <span className="text-muted-foreground ml-2 text-sm">
+                    <span className="text-muted-foreground ml-2 max-md:ml-0 text-sm">
                       Download & share your dietary requirement guests with your venue / Kitchen.
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 max-md:flex-col max-md:items-stretch">
                     <button 
                       className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
