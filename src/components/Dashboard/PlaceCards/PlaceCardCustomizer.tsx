@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect } from 'react';
 import canvaEditBanner from '@/assets/canva-edit-banner.png';
+import canvaLogo from '@/assets/canva-logo.png';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
