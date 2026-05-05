@@ -310,6 +310,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 </div>
               )}
             </div>
+            </PinchZoomContainer>
           )}
 
           {/* SEPARATOR */}
