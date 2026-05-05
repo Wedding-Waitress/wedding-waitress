@@ -36,7 +36,8 @@ export const FloorPlanPage = ({
   const [isExporting, setIsExporting] = useState(false);
   const visualWrapRef = useRef<HTMLDivElement>(null);
   const visualInnerRef = useRef<HTMLDivElement>(null);
-  const [tabletScale, setTabletScale] = useState<{ scale: number; height: number } | null>(null);
+  const [isTabletRange, setIsTabletRange] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
 
 
   const { events, loading: eventsLoading } = useEvents();
@@ -64,45 +65,35 @@ export const FloorPlanPage = ({
     }
   }, [selectedEventId, floorPlanType, floorPlan, initialLoadComplete, floorPlanLoading, createFloorPlan]);
 
-  // Tablet-only (768–1023px) horizontal scaling for the visual diagram.
-  // Desktop (≥1024px) and mobile (<768px) remain pixel-identical.
+  // Tablet-only (768–1023px) detection — drives horizontal scroll wrapper + hint.
+  // Desktop (≥1024px) and mobile (<768px) remain pixel-identical (no transforms).
   useLayoutEffect(() => {
-    const wrap = visualWrapRef.current;
-    const inner = visualInnerRef.current;
-    if (!wrap || !inner) return;
-
     const compute = () => {
       const w = window.innerWidth;
-      if (w < 768 || w >= 1024) {
-        setTabletScale(null);
-        return;
-      }
-      const containerWidth = wrap.clientWidth;
-      // Reset transform first to measure natural size
-      const prevTransform = inner.style.transform;
-      inner.style.transform = '';
-      const naturalWidth = inner.scrollWidth;
-      const naturalHeight = inner.scrollHeight;
-      inner.style.transform = prevTransform;
-      if (!containerWidth || !naturalWidth) return;
-      if (naturalWidth <= containerWidth) {
-        setTabletScale(null);
-        return;
-      }
-      const scale = containerWidth / naturalWidth;
-      setTabletScale({ scale, height: naturalHeight * scale });
+      const inRange = w >= 768 && w < 1024;
+      setIsTabletRange((prev) => {
+        if (prev !== inRange && inRange) {
+          // entering tablet range → show hint then auto-fade after 3s
+          setShowScrollHint(true);
+          window.setTimeout(() => setShowScrollHint(false), 3000);
+        }
+        if (!inRange) setShowScrollHint(false);
+        return inRange;
+      });
     };
-
     compute();
-    const ro = new ResizeObserver(compute);
-    ro.observe(wrap);
-    ro.observe(inner);
     window.addEventListener('resize', compute);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', compute);
-    };
-  }, [floorPlan?.chairs_per_row, floorPlan?.total_rows, floorPlan?.bridal_party_count_left, floorPlan?.bridal_party_count_right, floorPlanType, selectedEventId]);
+    return () => window.removeEventListener('resize', compute);
+  }, []);
+
+  // Show hint on first render when already in tablet range
+  useEffect(() => {
+    if (isTabletRange) {
+      setShowScrollHint(true);
+      const t = window.setTimeout(() => setShowScrollHint(false), 3000);
+      return () => window.clearTimeout(t);
+    }
+  }, [isTabletRange, selectedEventId, floorPlanType]);
 
 
   const handleDownloadPdf = async () => {
@@ -272,20 +263,26 @@ export const FloorPlanPage = ({
 
           {/* Visual Preview */}
           <div className="lg:col-span-3 order-1 lg:order-2">
-            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
+            <Card className="relative border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
               <div
                 ref={visualWrapRef}
-                className="w-full max-lg:overflow-x-hidden lg:overflow-visible"
-                style={tabletScale ? { height: tabletScale.height } : undefined}
+                className={
+                  isTabletRange
+                    ? 'floor-plan-tablet-scroll relative w-full'
+                    : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
+                }
+                style={
+                  isTabletRange
+                    ? {
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        WebkitOverflowScrolling: 'touch',
+                      }
+                    : undefined
+                }
+                onScroll={isTabletRange ? () => setShowScrollHint(false) : undefined}
               >
-                <div
-                  ref={visualInnerRef}
-                  style={
-                    tabletScale
-                      ? { transform: `scale(${tabletScale.scale})`, transformOrigin: 'top left' }
-                      : undefined
-                  }
-                >
+                <div ref={visualInnerRef} style={isTabletRange ? { width: 'max-content' } : undefined}>
                   <CeremonyFloorPlanVisual
                     floorPlan={floorPlan}
                     onSeatUpdate={updateSeatAssignment}
@@ -297,6 +294,24 @@ export const FloorPlanPage = ({
                   />
                 </div>
               </div>
+              {isTabletRange && (
+                <>
+                  {/* Right-edge fade cue */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute top-0 right-0 h-full w-8"
+                    style={{
+                      background: 'linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0))',
+                    }}
+                  />
+                  <div
+                    className="mt-2 text-center text-xs text-muted-foreground transition-opacity duration-500"
+                    style={{ opacity: showScrollHint ? 1 : 0 }}
+                  >
+                    ← Scroll to explore →
+                  </div>
+                </>
+              )}
             </Card>
           </div>
 
