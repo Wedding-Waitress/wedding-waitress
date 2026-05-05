@@ -473,18 +473,20 @@ export const MyEventsPage: React.FC = () => {
       </Card>
 
       {/* Events Table with controlled radios */}
-      <div className="overflow-x-auto">
-        <EventsTable 
-          events={events} 
-          loading={loading} 
-          activeEventId={activeEventId} 
-          setActiveEventId={setActiveEventId} 
-          createEvent={createEvent} 
-          updateEvent={updateEvent} 
-          deleteEvent={deleteEvent} 
-          onEventSelect={handleCountdownEventSelect}
-          selectedEvent={selectedEvent}
-        />
-      </div>
+      <PinchZoomContainer naturalWidth={1200}>
+        <div className="overflow-x-auto">
+          <EventsTable 
+            events={events} 
+            loading={loading} 
+            activeEventId={activeEventId} 
+            setActiveEventId={setActiveEventId} 
+            createEvent={createEvent} 
+            updateEvent={updateEvent} 
+            deleteEvent={deleteEvent} 
+            onEventSelect={handleCountdownEventSelect}
+            selectedEvent={selectedEvent}
+          />
+        </div>
+      </PinchZoomContainer>
     </div>;
 };
