@@ -360,6 +360,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </Tabs>
 
             {/* Artwork List */}
+            <PinchZoomContainer naturalWidth={900}>
             <div className="flex items-center gap-3 overflow-x-auto pb-2 max-sm:flex-col max-sm:items-stretch max-sm:overflow-visible">
               {filteredArtworks.map(artwork => (
                 <div
