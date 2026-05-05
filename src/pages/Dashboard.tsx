@@ -718,7 +718,7 @@ export const Dashboard = () => {
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'account' && <div className="print:hidden">
-              {activeTab === 'table-list' ? (
+              {(activeTab === 'table-list' || activeTab === 'guest-list') ? (
                 <PinchZoomContainer naturalWidth={1100}>
                   <StatsBar stats={statsData} />
                 </PinchZoomContainer>
