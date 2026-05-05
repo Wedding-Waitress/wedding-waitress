@@ -74,11 +74,11 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.total_rows]}
             onValueChange={([value]) => handleChange('total_rows', value)}
             min={1}
-            max={15}
+            max={12}
             step={1}
             className="w-full floor-plan-smooth-slider"
           />
-          <p className="text-xs text-muted-foreground">1-15 rows total</p>
+          <p className="text-xs text-muted-foreground">1-12 rows total</p>
         </div>
 
         {/* Assigned Rows (for family) */}
