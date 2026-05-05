@@ -581,9 +581,11 @@ export const Dashboard = () => {
                         onMoveGuest={handleGuestMove}
                         onReorderGuests={handleReorderGuests}
                       >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                          {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} />)}
-                        </div>
+                        <PinchZoomContainer naturalWidth={1100}>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} />)}
+                          </div>
+                        </PinchZoomContainer>
                       </SortableTablesGrid>
                     ) : <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
