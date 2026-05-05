@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
 import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 
 interface PlaceCardsPageProps {
   selectedEventId: string | null;
