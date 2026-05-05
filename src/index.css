@@ -1102,3 +1102,29 @@ img { content-visibility: auto; }
     background-color: #5e452e;
   }
 }
+
+/* Floor Plan Layout Settings — premium smooth sliders (Radix) */
+.floor-plan-smooth-slider [data-radix-slider-thumb] {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  background: #7C5C3E !important;
+  border: none !important;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  touch-action: pan-x;
+  transition: none !important;
+}
+.floor-plan-smooth-slider [data-radix-slider-thumb]:active {
+  cursor: grabbing;
+}
+.floor-plan-smooth-slider [data-radix-slider-track] {
+  height: 6px !important;
+  border-radius: 3px !important;
+  background-color: #e8ddd4 !important;
+  touch-action: pan-x;
+}
+.floor-plan-smooth-slider [data-radix-slider-range] {
+  background-color: #7C5C3E !important;
+  transition: none !important;
+}
