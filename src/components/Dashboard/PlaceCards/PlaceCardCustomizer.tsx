@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect } from 'react';
 import canvaEditBanner from '@/assets/canva-edit-banner.png';
+import canvaLogo from '@/assets/canva-logo.png';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
@@ -539,37 +540,41 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     />
                     
                     {/* Side-by-side buttons */}
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex flex-col gap-2">
                       {/* Green "Choose File" button */}
                       <Button
                         type="button"
                         size="sm"
                         onClick={() => document.getElementById('background-image-upload')?.click()}
                         disabled={uploading}
-                        className="flex-1 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        className="w-full rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Upload className="h-4 w-4" />
                         {uploading ? 'Uploading...' : 'Choose File'}
                       </Button>
-                      
+
                       {/* Purple "Image Gallery" button */}
                       <Button
                         type="button"
                         size="sm"
                         onClick={() => setGalleryModalOpen(true)}
-                        className="flex-1 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                        className="w-full rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
                         <Images className="h-4 w-4" />
                         Image Gallery
                       </Button>
-                    </div>
-                    <div className="flex justify-center mt-2">
-                      <img
-                        src={canvaEditBanner}
-                        alt="Edit with Canva"
-                        className="h-12 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => window.open('https://www.canva.com', '_blank')}
-                      />
+
+                      {/* Design with Canva button */}
+                      <button
+                        type="button"
+                        onClick={() => window.open('https://www.canva.com/', '_blank')}
+                        className="h-9 px-4 rounded-full flex items-center justify-center gap-2 text-white text-sm font-medium cursor-pointer border-0 hover:opacity-90 transition-opacity w-full"
+                        style={{ backgroundColor: '#7C3AED' }}
+                        aria-label="Design with Canva"
+                      >
+                        <img src={canvaLogo} alt="" className="h-5 w-5 rounded-full object-cover" />
+                        Design with Canva
+                      </button>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 text-center">
                       Want more design freedom? Click 'Edit with Canva' to customise your place card using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
