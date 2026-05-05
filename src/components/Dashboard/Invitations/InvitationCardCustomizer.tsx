@@ -517,20 +517,12 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <button
                           type="button"
                           onClick={() => window.open('https://www.canva.com/', '_blank')}
-                          className="max-sm:hidden flex-1 h-9 p-0 bg-transparent border-0 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center overflow-hidden"
+                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 h-9 rounded-full flex items-center justify-center gap-2 text-white text-sm font-medium cursor-pointer border-0 hover:opacity-90 transition-opacity"
+                          style={{ backgroundColor: '#7C3AED' }}
                           aria-label="Design with Canva"
                         >
-                          <img src={canvaButtonMobile} alt="Design with Canva" className="h-full w-auto object-contain" />
-                        </button>
-                      </div>
-                      <div className="hidden max-sm:flex justify-center mt-2">
-                        <button
-                          type="button"
-                          onClick={() => window.open('https://www.canva.com/', '_blank')}
-                          className="h-9 p-0 bg-transparent border-0 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center overflow-hidden"
-                          aria-label="Design with Canva"
-                        >
-                          <img src={canvaButtonMobile} alt="Design with Canva" className="h-full w-auto object-contain" />
+                          <img src={canvaLogo} alt="" className="h-5 w-5 rounded-full object-cover" />
+                          Design with Canva
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
