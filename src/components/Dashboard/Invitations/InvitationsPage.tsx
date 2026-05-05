@@ -576,6 +576,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             />
             </div>
             </div>
+            </PinchZoomContainer>
           </div>
         </div>
       )}
