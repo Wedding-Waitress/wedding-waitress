@@ -1852,6 +1852,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 </Accordion>
               </div>
             </div>
+            </PinchZoomContainer>
           </CardContent>
         </Card>
 
