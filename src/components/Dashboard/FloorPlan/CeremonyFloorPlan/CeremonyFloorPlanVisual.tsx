@@ -309,8 +309,9 @@ export const CeremonyFloorPlanVisual = ({
   };
 
   const renderBridalParty = () => {
-    const leftCount = floorPlan.bridal_party_count_left || 0;
-    const rightCount = floorPlan.bridal_party_count_right || 0;
+    // Hard cap at 10 — clamp any stored legacy values above 10
+    const leftCount = Math.min(10, floorPlan.bridal_party_count_left || 0);
+    const rightCount = Math.min(10, floorPlan.bridal_party_count_right || 0);
 
     // Determine labels based on couple arrangement
     const isGroomLeft = floorPlan.couple_side_arrangement !== 'bride_left';

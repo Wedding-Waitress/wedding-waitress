@@ -159,11 +159,11 @@ export const CeremonyFloorPlanSettings = ({
               <Label className="text-sm">
                 {floorPlan.couple_side_arrangement === 'groom_left' ? 'Groomsmen' : 'Bridesmaids'} Count (Left)
               </Label>
-              <span className="text-sm font-medium text-primary">{floorPlan.bridal_party_count_left}</span>
+              <span className="text-sm font-medium text-primary">{Math.min(10, floorPlan.bridal_party_count_left)}</span>
             </div>
             <Slider
-              value={[floorPlan.bridal_party_count_left]}
-              onValueChange={([value]) => handleChange('bridal_party_count_left', value)}
+              value={[Math.min(10, floorPlan.bridal_party_count_left)]}
+              onValueChange={([value]) => handleChange('bridal_party_count_left', Math.min(10, value))}
               min={0}
               max={10}
               step={1}
@@ -177,11 +177,11 @@ export const CeremonyFloorPlanSettings = ({
               <Label className="text-sm">
                 {floorPlan.couple_side_arrangement === 'groom_left' ? 'Bridesmaids' : 'Groomsmen'} Count (Right)
               </Label>
-              <span className="text-sm font-medium text-primary">{floorPlan.bridal_party_count_right}</span>
+              <span className="text-sm font-medium text-primary">{Math.min(10, floorPlan.bridal_party_count_right)}</span>
             </div>
             <Slider
-              value={[floorPlan.bridal_party_count_right]}
-              onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
+              value={[Math.min(10, floorPlan.bridal_party_count_right)]}
+              onValueChange={([value]) => handleChange('bridal_party_count_right', Math.min(10, value))}
               min={0}
               max={10}
               step={1}
