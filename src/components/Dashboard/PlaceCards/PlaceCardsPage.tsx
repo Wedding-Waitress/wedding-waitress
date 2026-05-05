@@ -266,9 +266,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* Stats + Card Dimensions Row - Side by Side */}
           {selectedEvent && assignedGuests.length > 0 && (
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-start justify-between gap-4">
               {/* Left: Statistics Box */}
-              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
+              <div className="w-full lg:flex-1 min-w-0 border border-primary rounded-xl p-4 text-sm space-y-2">
                 {/* Main stats line */}
                 <p className="font-medium text-green-600">
                   {selectedTable ? `${selectedTable.name || `Table ${selectedTable.table_no}`} - ` : ''}
