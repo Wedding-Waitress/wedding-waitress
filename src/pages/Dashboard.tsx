@@ -10,6 +10,7 @@ import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
+import { PinchZoomContainer } from "@/components/ui/PinchZoomContainer";
 import { UnassignedGuestsPanel } from "@/components/Dashboard/Tables/UnassignedGuestsPanel";
 import { BulkMoveBar } from "@/components/Dashboard/Tables/BulkMoveBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
