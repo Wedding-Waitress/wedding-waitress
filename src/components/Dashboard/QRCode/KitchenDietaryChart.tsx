@@ -479,9 +479,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             </div>
 
             {/* Bottom row: Choose Event dropdown, badges, and export controls */}
-            <div className="flex items-center justify-between pt-2 border-t">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-between pt-2 border-t max-md:flex-col max-md:items-stretch max-md:gap-3">
+              <div className="flex items-center gap-4 max-md:flex-col max-md:items-stretch max-md:gap-3 max-md:w-full">
+                <div className="flex items-center space-x-4 max-md:flex-col max-md:items-stretch max-md:space-x-0 max-md:gap-2 max-md:w-full">
                   <label className="text-sm font-medium text-foreground whitespace-nowrap">
                     Choose Event:
                   </label>
