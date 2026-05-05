@@ -106,8 +106,8 @@ export const generateCeremonyFloorPlanPDF = async (
   yPos += 6;
 
   // Total Attending Ceremony line
-  const leftBridalCount = floorPlan.bridal_party_count_left || 0;
-  const rightBridalCount = floorPlan.bridal_party_count_right || 0;
+  const leftBridalCount = Math.min(10, floorPlan.bridal_party_count_left || 0);
+  const rightBridalCount = Math.min(10, floorPlan.bridal_party_count_right || 0);
   const familySeatsTotal = floorPlan.total_rows * floorPlan.chairs_per_row * 2;
   const totalAttendingCeremony = 3 + leftBridalCount + rightBridalCount + familySeatsTotal;
   pdf.setFontSize(8);
