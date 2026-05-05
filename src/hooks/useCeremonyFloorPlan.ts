@@ -236,6 +236,9 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
   const updateFloorPlan = useCallback(async (updates: Partial<Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
     if (!floorPlan) return false;
 
+    // Optimistic local update — instant UI feedback (zero delay for sliders)
+    setFloorPlan(prev => prev ? { ...prev, ...updates } : null);
+
     try {
       // Convert arrays to Json for Supabase
       const dbUpdates: Record<string, unknown> = { ...updates };
@@ -261,9 +264,6 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
         .eq('id', floorPlan.id);
 
       if (error) throw error;
-
-      // Update local state immediately
-      setFloorPlan(prev => prev ? { ...prev, ...updates } : null);
       return true;
     } catch (error: any) {
       console.error('Error updating ceremony floor plan:', error);
