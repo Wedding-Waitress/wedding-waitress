@@ -288,10 +288,12 @@ export const FloorPlanPage = ({
                 className={
                   isTabletRange
                     ? 'floor-plan-tablet-scroll relative w-full'
-                    : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
+                    : isMobileRange
+                      ? 'floor-plan-mobile-scroll relative w-full'
+                      : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
                 }
                 style={
-                  isTabletRange
+                  isTabletRange || isMobileRange
                     ? {
                         overflowX: 'auto',
                         overflowY: 'hidden',
@@ -299,9 +301,15 @@ export const FloorPlanPage = ({
                       }
                     : undefined
                 }
-                onScroll={isTabletRange ? () => setShowScrollHint(false) : undefined}
+                onScroll={
+                  isTabletRange
+                    ? () => setShowScrollHint(false)
+                    : isMobileRange
+                      ? () => setShowMobileScrollHint(false)
+                      : undefined
+                }
               >
-                <div ref={visualInnerRef} style={isTabletRange ? { width: 'max-content' } : undefined}>
+                <div ref={visualInnerRef} style={(isTabletRange || isMobileRange) ? { width: 'max-content' } : undefined}>
                   <CeremonyFloorPlanVisual
                     floorPlan={floorPlan}
                     onSeatUpdate={updateSeatAssignment}
@@ -330,6 +338,14 @@ export const FloorPlanPage = ({
                     ← Scroll to explore →
                   </div>
                 </>
+              )}
+              {isMobileRange && (
+                <div
+                  className="mt-2 text-center text-xs text-muted-foreground transition-opacity duration-500"
+                  style={{ opacity: showMobileScrollHint ? 1 : 0 }}
+                >
+                  ← Scroll to explore →
+                </div>
               )}
             </Card>
           </div>
