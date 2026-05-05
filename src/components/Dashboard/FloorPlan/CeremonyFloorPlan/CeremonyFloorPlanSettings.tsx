@@ -183,11 +183,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_right]}
               onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
               min={0}
-              max={12}
+              max={10}
               step={1}
               className="w-full floor-plan-smooth-slider"
             />
-            <p className="text-xs text-muted-foreground">Right side of altar (0-12)</p>
+            <p className="text-xs text-muted-foreground">Right side of altar (0-10)</p>
           </div>
         </div>
 
