@@ -1,3 +1,11 @@
+/**
+ * WEDDING WAITRESS — GLOBAL RULE
+ * PinchZoomContainer MUST be applied to all content areas on every page.
+ * Active on ALL touch-capable devices: touch PCs, tablets, and mobile phones.
+ * Detection must use: navigator.maxTouchPoints > 0
+ * Do NOT restrict to viewport breakpoints (sm/md/lg).
+ * See existing pages for implementation examples.
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type React from 'react';
 
