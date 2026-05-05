@@ -35,6 +35,7 @@ import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 
 interface QRCodeMainCardProps {
   eventId: string;
