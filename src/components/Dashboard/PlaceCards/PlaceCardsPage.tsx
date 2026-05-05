@@ -462,6 +462,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* Right Panel - Preview */}
           <div className="lg:col-span-5 min-w-0">
+            <PinchZoomContainer naturalWidth={794}>
             <PlaceCardPreview
               settings={settings}
               guests={assignedGuests}
@@ -473,6 +474,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               onSettingsChange={updateSettings}
               onOverflowChange={setTextOverflowing}
             />
+            </PinchZoomContainer>
           </div>
         </div>
       )}
