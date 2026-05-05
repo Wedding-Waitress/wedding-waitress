@@ -9,7 +9,7 @@
  * See CEREMONY_FLOOR_PLAN_SPECS.md for complete technical specifications.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -34,6 +34,10 @@ export const FloorPlanPage = ({
 }: FloorPlanPageProps) => {
   const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
   const [isExporting, setIsExporting] = useState(false);
+  const visualWrapRef = useRef<HTMLDivElement>(null);
+  const visualInnerRef = useRef<HTMLDivElement>(null);
+  const [tabletScale, setTabletScale] = useState<{ scale: number; height: number } | null>(null);
+
 
   const { events, loading: eventsLoading } = useEvents();
   const { 
@@ -59,6 +63,47 @@ export const FloorPlanPage = ({
       createFloorPlan();
     }
   }, [selectedEventId, floorPlanType, floorPlan, initialLoadComplete, floorPlanLoading, createFloorPlan]);
+
+  // Tablet-only (768–1023px) horizontal scaling for the visual diagram.
+  // Desktop (≥1024px) and mobile (<768px) remain pixel-identical.
+  useLayoutEffect(() => {
+    const wrap = visualWrapRef.current;
+    const inner = visualInnerRef.current;
+    if (!wrap || !inner) return;
+
+    const compute = () => {
+      const w = window.innerWidth;
+      if (w < 768 || w >= 1024) {
+        setTabletScale(null);
+        return;
+      }
+      const containerWidth = wrap.clientWidth;
+      // Reset transform first to measure natural size
+      const prevTransform = inner.style.transform;
+      inner.style.transform = '';
+      const naturalWidth = inner.scrollWidth;
+      const naturalHeight = inner.scrollHeight;
+      inner.style.transform = prevTransform;
+      if (!containerWidth || !naturalWidth) return;
+      if (naturalWidth <= containerWidth) {
+        setTabletScale(null);
+        return;
+      }
+      const scale = containerWidth / naturalWidth;
+      setTabletScale({ scale, height: naturalHeight * scale });
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(wrap);
+    ro.observe(inner);
+    window.addEventListener('resize', compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', compute);
+    };
+  }, [floorPlan?.chairs_per_row, floorPlan?.total_rows, floorPlan?.bridal_party_count_left, floorPlan?.bridal_party_count_right, floorPlanType, selectedEventId]);
+
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent || !floorPlan) return;
@@ -94,7 +139,7 @@ export const FloorPlanPage = ({
           </div>
 
           {/* Event and Type Selection */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 sm:gap-8">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
@@ -227,18 +272,34 @@ export const FloorPlanPage = ({
 
           {/* Visual Preview */}
           <div className="lg:col-span-3 order-1 lg:order-2">
-            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 overflow-x-auto">
-              <CeremonyFloorPlanVisual
-                floorPlan={floorPlan}
-                onSeatUpdate={updateSeatAssignment}
-                getSeatName={getSeatName}
-                onBridalPartyUpdate={updateBridalPartyMember}
-                getBridalPartyName={getBridalPartyName}
-                onBridalPartyRoleUpdate={updateBridalPartyRole}
-                getBridalPartyRole={getBridalPartyRole}
-              />
+            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
+              <div
+                ref={visualWrapRef}
+                className="w-full max-lg:overflow-x-hidden lg:overflow-visible"
+                style={tabletScale ? { height: tabletScale.height } : undefined}
+              >
+                <div
+                  ref={visualInnerRef}
+                  style={
+                    tabletScale
+                      ? { transform: `scale(${tabletScale.scale})`, transformOrigin: 'top left' }
+                      : undefined
+                  }
+                >
+                  <CeremonyFloorPlanVisual
+                    floorPlan={floorPlan}
+                    onSeatUpdate={updateSeatAssignment}
+                    getSeatName={getSeatName}
+                    onBridalPartyUpdate={updateBridalPartyMember}
+                    getBridalPartyName={getBridalPartyName}
+                    onBridalPartyRoleUpdate={updateBridalPartyRole}
+                    getBridalPartyRole={getBridalPartyRole}
+                  />
+                </div>
+              </div>
             </Card>
           </div>
+
         </div>
       )}
     </div>
