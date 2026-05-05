@@ -461,7 +461,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     })()}
                   </div>
                 )}
-                <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>
+                <div className="break-words" style={{ color: '#555', fontSize: '12px', marginTop: '2px', overflowWrap: 'break-word' }}>
                   Reception: {event?.date ? (() => {
                     const date = new Date(event.date + 'T00:00:00');
                     const day = date.getDate();
