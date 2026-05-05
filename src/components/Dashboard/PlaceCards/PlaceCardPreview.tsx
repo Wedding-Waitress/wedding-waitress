@@ -73,6 +73,30 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const firstCardRef = useRef<HTMLDivElement | null>(null);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
+  const previewWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  // Scale the on-screen A4 preview down to fit narrow viewports (tablet/mobile).
+  // Does NOT affect export DOM dimensions (still 210mm × 297mm).
+  useEffect(() => {
+    const el = previewWrapperRef.current;
+    if (!el) return;
+    const A4_WIDTH_PX = 210 * (96 / 25.4); // ≈793.7px
+    const compute = () => {
+      const w = el.clientWidth;
+      if (w <= 0) return;
+      const next = Math.min(1, w / A4_WIDTH_PX);
+      setPreviewScale(next);
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    window.addEventListener('resize', compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', compute);
+    };
+  }, []);
   
   const currentSettings = settings || {
     event_id: '',
