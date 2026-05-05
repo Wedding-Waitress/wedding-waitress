@@ -266,17 +266,23 @@ export const FloorPlanPage = ({
             <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
               <div
                 ref={visualWrapRef}
-                className="w-full max-lg:overflow-x-hidden lg:overflow-visible"
-                style={tabletScale ? { height: tabletScale.height } : undefined}
+                className={
+                  isTabletRange
+                    ? 'floor-plan-tablet-scroll relative w-full'
+                    : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
+                }
+                style={
+                  isTabletRange
+                    ? {
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        WebkitOverflowScrolling: 'touch',
+                      }
+                    : undefined
+                }
+                onScroll={isTabletRange ? () => setShowScrollHint(false) : undefined}
               >
-                <div
-                  ref={visualInnerRef}
-                  style={
-                    tabletScale
-                      ? { transform: `scale(${tabletScale.scale})`, transformOrigin: 'top left' }
-                      : undefined
-                  }
-                >
+                <div ref={visualInnerRef} style={isTabletRange ? { width: 'max-content' } : undefined}>
                   <CeremonyFloorPlanVisual
                     floorPlan={floorPlan}
                     onSeatUpdate={updateSeatAssignment}
@@ -288,6 +294,24 @@ export const FloorPlanPage = ({
                   />
                 </div>
               </div>
+              {isTabletRange && (
+                <>
+                  {/* Right-edge fade cue */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute top-0 right-0 h-full w-8"
+                    style={{
+                      background: 'linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0))',
+                    }}
+                  />
+                  <div
+                    className="mt-2 text-center text-xs text-muted-foreground transition-opacity duration-500"
+                    style={{ opacity: showScrollHint ? 1 : 0 }}
+                  >
+                    ← Scroll to explore →
+                  </div>
+                </>
+              )}
             </Card>
           </div>
 
