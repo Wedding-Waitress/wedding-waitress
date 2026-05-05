@@ -338,7 +338,7 @@ export const CeremonyFloorPlanVisual = ({
     const rightSecondRow = Math.max(0, rightCount - MAX_PER_ROW);
 
     return (
-      <div className="flex items-start justify-center gap-4">
+      <div className="flex items-start justify-center gap-1">
         {/* Left side bridal party */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
