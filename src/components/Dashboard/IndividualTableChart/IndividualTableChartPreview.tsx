@@ -387,12 +387,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
   const tabletWrapperRef = useRef<HTMLDivElement>(null);
   const [tabletScale, setTabletScale] = useState(1);
   const [isTablet, setIsTablet] = useState(false);
+  const [isTabletRange, setIsTabletRange] = useState(false);
   useEffect(() => {
     const A4_PX = 794; // 210mm @ 96dpi
     const compute = () => {
       const w = window.innerWidth;
       const needsScale = w < 1024;
       setIsTablet(needsScale);
+      setIsTabletRange(w >= 768 && w < 1024);
       if (!needsScale) { setTabletScale(1); return; }
       const cw = tabletWrapperRef.current?.clientWidth ?? w;
       setTabletScale(cw < A4_PX ? cw / A4_PX : 1);
@@ -411,14 +413,22 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     <Card className="bg-transparent shadow-none border-0">
       <CardContent className="p-0">
         {/* A4 Preview Container */}
-        <div className="flex justify-center">
+        <div className="flex justify-center" style={isTabletRange ? { overflowX: 'hidden', width: '100%' } : undefined}>
           <div
             ref={tabletWrapperRef}
             className="w-full"
-            style={isTablet && tabletScale < 1 ? { height: `calc(297mm * ${tabletScale})`, overflow: 'hidden' } : undefined}
+            style={
+              isTabletRange
+                ? { height: 'calc(297mm * 0.75)', overflow: 'hidden', display: 'flex', justifyContent: 'center', width: '100%' }
+                : (isTablet && tabletScale < 1 ? { height: `calc(297mm * ${tabletScale})`, overflow: 'hidden' } : undefined)
+            }
           >
           <div
-            style={isTablet && tabletScale < 1 ? { transform: `scale(${tabletScale})`, transformOrigin: 'top center', width: '210mm', margin: '0 auto' } : undefined}
+            style={
+              isTabletRange
+                ? { transform: 'scale(0.75)', transformOrigin: 'top center', width: '210mm', margin: '0 auto' }
+                : (isTablet && tabletScale < 1 ? { transform: `scale(${tabletScale})`, transformOrigin: 'top center', width: '210mm', margin: '0 auto' } : undefined)
+            }
           >
           <div 
             id="printA4-individual-table"
