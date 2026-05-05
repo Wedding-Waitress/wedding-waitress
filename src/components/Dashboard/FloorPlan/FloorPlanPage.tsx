@@ -18,7 +18,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
-import { PinchZoomFloorPlan } from './PinchZoomFloorPlan';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
 import { toast } from 'sonner';
 
