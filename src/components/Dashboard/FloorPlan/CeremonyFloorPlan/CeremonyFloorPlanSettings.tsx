@@ -224,6 +224,7 @@ export const CeremonyFloorPlanSettings = ({
           <div className="flex items-center justify-between">
             <Label className="text-sm">Show Row Numbers</Label>
             <Switch
+              className="data-[state=unchecked]:border data-[state=unchecked]:border-[#7C5C3E]"
               checked={floorPlan.show_row_numbers}
               onCheckedChange={(checked) => handleChange('show_row_numbers', checked)}
             />
@@ -232,6 +233,7 @@ export const CeremonyFloorPlanSettings = ({
           <div className="flex items-center justify-between">
             <Label className="text-sm">Show Seat Numbers</Label>
             <Switch
+              className="data-[state=unchecked]:border data-[state=unchecked]:border-[#7C5C3E]"
               checked={floorPlan.show_seat_numbers}
               onCheckedChange={(checked) => handleChange('show_seat_numbers', checked)}
             />
