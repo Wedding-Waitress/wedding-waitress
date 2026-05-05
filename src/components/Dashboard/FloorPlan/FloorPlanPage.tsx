@@ -36,7 +36,8 @@ export const FloorPlanPage = ({
   const [isExporting, setIsExporting] = useState(false);
   const visualWrapRef = useRef<HTMLDivElement>(null);
   const visualInnerRef = useRef<HTMLDivElement>(null);
-  const [tabletScale, setTabletScale] = useState<{ scale: number; height: number } | null>(null);
+  const [isTabletRange, setIsTabletRange] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
 
 
   const { events, loading: eventsLoading } = useEvents();
