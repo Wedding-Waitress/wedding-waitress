@@ -476,11 +476,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </div>
               </div>
 
-              {currentEvent && (
-                <span className="text-lg font-normal bg-gradient-to-r from-[#967A59] to-[#9333EA] bg-clip-text text-transparent">
-                  Dietary Requirements for {currentEvent.name}
-                </span>
-              )}
             </div>
 
             {/* Bottom row: Choose Event dropdown, badges, and export controls */}
