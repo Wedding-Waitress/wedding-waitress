@@ -34,6 +34,49 @@ export const FloorPlanPage = ({
 }: FloorPlanPageProps) => {
   const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
   const [isExporting, setIsExporting] = useState(false);
+  const visualWrapRef = useRef<HTMLDivElement>(null);
+  const visualInnerRef = useRef<HTMLDivElement>(null);
+  const [tabletScale, setTabletScale] = useState<{ scale: number; height: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const wrap = visualWrapRef.current;
+    const inner = visualInnerRef.current;
+    if (!wrap || !inner) return;
+
+    const compute = () => {
+      const w = window.innerWidth;
+      // Tablet only: 768–1023px. Desktop and mobile untouched.
+      if (w < 768 || w >= 1024) {
+        setTabletScale(null);
+        return;
+      }
+      const containerWidth = wrap.clientWidth;
+      const naturalWidth = inner.scrollWidth;
+      const naturalHeight = inner.scrollHeight;
+      if (!containerWidth || !naturalWidth) return;
+      if (naturalWidth <= containerWidth) {
+        setTabletScale(null);
+        return;
+      }
+      const scale = containerWidth / naturalWidth;
+      setTabletScale({ scale, height: naturalHeight * scale });
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(wrap);
+    if (inner) ro.observe(inner);
+    window.addEventListener('resize', compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', compute);
+    };
+  }, [isDataReadyDep()]);
+
+  function isDataReadyDep() {
+    return `${selectedEventId}-${floorPlanType}-${floorPlan?.chairs_per_row}-${floorPlan?.total_rows}-${floorPlan?.bridal_party_count_left}-${floorPlan?.bridal_party_count_right}`;
+  }
+
 
   const { events, loading: eventsLoading } = useEvents();
   const { 
