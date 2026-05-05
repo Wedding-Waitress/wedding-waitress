@@ -737,6 +737,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </div>
           </div>
         </div>
+        </PinchZoomContainer>
 
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
