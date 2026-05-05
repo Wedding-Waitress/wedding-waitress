@@ -636,8 +636,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </div>
                 )}
 
-                {/* A4 Page Container - Screen View */}
-                <div className="flex justify-center dietary-a4-scroll">
+                {/* A4 Page Container - Screen View (pinch-to-zoom on <1024px) */}
+                <PinchZoomA4Wrapper>
 
 
                   <div 
