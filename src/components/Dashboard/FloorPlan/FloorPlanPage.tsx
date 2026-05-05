@@ -272,18 +272,34 @@ export const FloorPlanPage = ({
 
           {/* Visual Preview */}
           <div className="lg:col-span-3 order-1 lg:order-2">
-            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 overflow-x-auto">
-              <CeremonyFloorPlanVisual
-                floorPlan={floorPlan}
-                onSeatUpdate={updateSeatAssignment}
-                getSeatName={getSeatName}
-                onBridalPartyUpdate={updateBridalPartyMember}
-                getBridalPartyName={getBridalPartyName}
-                onBridalPartyRoleUpdate={updateBridalPartyRole}
-                getBridalPartyRole={getBridalPartyRole}
-              />
+            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
+              <div
+                ref={visualWrapRef}
+                className="w-full max-lg:overflow-x-hidden lg:overflow-visible"
+                style={tabletScale ? { height: tabletScale.height } : undefined}
+              >
+                <div
+                  ref={visualInnerRef}
+                  style={
+                    tabletScale
+                      ? { transform: `scale(${tabletScale.scale})`, transformOrigin: 'top left' }
+                      : undefined
+                  }
+                >
+                  <CeremonyFloorPlanVisual
+                    floorPlan={floorPlan}
+                    onSeatUpdate={updateSeatAssignment}
+                    getSeatName={getSeatName}
+                    onBridalPartyUpdate={updateBridalPartyMember}
+                    getBridalPartyName={getBridalPartyName}
+                    onBridalPartyRoleUpdate={updateBridalPartyRole}
+                    getBridalPartyRole={getBridalPartyRole}
+                  />
+                </div>
+              </div>
             </Card>
           </div>
+
         </div>
       )}
     </div>
