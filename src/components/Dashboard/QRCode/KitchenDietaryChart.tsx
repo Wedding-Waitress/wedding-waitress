@@ -18,6 +18,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { PinchZoomA4Wrapper } from './PinchZoomA4Wrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -311,20 +312,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       <style>{`
         @media (max-width: 1023px) {
           .kitchen-dietary-chart { overflow-x: hidden; }
-          .dietary-a4-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            display: block !important;
-            justify-content: flex-start !important;
-            width: 100%;
-          }
-          .dietary-a4-scroll::-webkit-scrollbar { height: 10px; }
-          .dietary-a4-scroll::-webkit-scrollbar-thumb { background: #7C5C3E; border-radius: 5px; }
-          .dietary-a4-scroll::-webkit-scrollbar-track { background: transparent; }
-        }
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .dietary-a4-scroll { max-width: 720px; margin-left: auto; margin-right: auto; }
-          .dietary-scroll-hint { display: flex !important; }
         }
         .dietary-scroll-hint { display: none; }
 
@@ -649,8 +636,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </div>
                 )}
 
-                {/* A4 Page Container - Screen View */}
-                <div className="flex justify-center dietary-a4-scroll">
+                {/* A4 Page Container - Screen View (pinch-to-zoom on <1024px) */}
+                <PinchZoomA4Wrapper>
 
 
                   <div 
@@ -811,10 +798,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="dietary-scroll-hint items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
-                  <span>←</span><span>Scroll to explore</span><span>→</span>
-                </div>
+                </PinchZoomA4Wrapper>
 
                 {/* Page Navigation Bottom */}
                 {totalPages > 1 && (
