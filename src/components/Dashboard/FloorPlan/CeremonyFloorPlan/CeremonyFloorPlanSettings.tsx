@@ -59,7 +59,7 @@ export const CeremonyFloorPlanSettings = ({
             min={1}
             max={6}
             step={1}
-            className="w-full"
+            className="w-full floor-plan-smooth-slider"
           />
           <p className="text-xs text-muted-foreground">1-6 chairs on each side</p>
         </div>
@@ -76,7 +76,7 @@ export const CeremonyFloorPlanSettings = ({
             min={1}
             max={15}
             step={1}
-            className="w-full"
+            className="w-full floor-plan-smooth-slider"
           />
           <p className="text-xs text-muted-foreground">1-15 rows total</p>
         </div>
@@ -93,7 +93,7 @@ export const CeremonyFloorPlanSettings = ({
             min={1}
             max={Math.min(floorPlan.total_rows, 15)}
             step={1}
-            className="w-full"
+            className="w-full floor-plan-smooth-slider"
           />
           <p className="text-xs text-muted-foreground">First rows for family assignment</p>
         </div>
@@ -167,7 +167,7 @@ export const CeremonyFloorPlanSettings = ({
               min={0}
               max={12}
               step={1}
-              className="w-full"
+              className="w-full floor-plan-smooth-slider"
             />
             <p className="text-xs text-muted-foreground">Left side of altar (0-12)</p>
           </div>
@@ -185,7 +185,7 @@ export const CeremonyFloorPlanSettings = ({
               min={0}
               max={12}
               step={1}
-              className="w-full"
+              className="w-full floor-plan-smooth-slider"
             />
             <p className="text-xs text-muted-foreground">Right side of altar (0-12)</p>
           </div>
