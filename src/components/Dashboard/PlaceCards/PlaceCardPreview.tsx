@@ -73,6 +73,30 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const firstCardRef = useRef<HTMLDivElement | null>(null);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
+  const previewWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  // Scale the on-screen A4 preview down to fit narrow viewports (tablet/mobile).
+  // Does NOT affect export DOM dimensions (still 210mm × 297mm).
+  useEffect(() => {
+    const el = previewWrapperRef.current;
+    if (!el) return;
+    const A4_WIDTH_PX = 210 * (96 / 25.4); // ≈793.7px
+    const compute = () => {
+      const w = el.clientWidth;
+      if (w <= 0) return;
+      const next = Math.min(1, w / A4_WIDTH_PX);
+      setPreviewScale(next);
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    window.addEventListener('resize', compute);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', compute);
+    };
+  }, []);
   
   const currentSettings = settings || {
     event_id: '',
@@ -679,7 +703,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           <div className="print:hidden">
 
             {/* TOP Pagination Controls */}
-            <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
               <Button
                 variant="outline"
                 size="sm"
@@ -704,7 +728,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </div>
 
             {/* A4 Paper Container */}
-            <div className="flex justify-center relative" style={{ marginLeft: '40px' }}>
+            <div ref={previewWrapperRef} className="w-full overflow-hidden flex justify-center relative lg:ml-10">
               {/* Guide labels — outside A4, in purple gap */}
               {!isExporting && (
                 <div
@@ -737,10 +761,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 </div>
               )}
+              <div
+                style={{
+                  width: `calc(210mm * ${previewScale})`,
+                  height: `calc(297mm * ${previewScale})`,
+                  flexShrink: 0,
+                }}
+              >
               <div 
                 style={{ 
                   width: '210mm', 
-                  height: '297mm'
+                  height: '297mm',
+                  transform: `scale(${previewScale})`,
+                  transformOrigin: 'top left',
                 }} 
                 className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden"
               >
@@ -790,11 +823,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 </div>
               </div>
+              </div>
             </div>
 
 
             {/* BOTTOM Pagination Controls */}
-            <div className="flex items-center justify-center gap-4 mt-6">
+            <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
               <Button
                 variant="outline"
                 size="sm"

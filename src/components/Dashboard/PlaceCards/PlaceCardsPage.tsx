@@ -266,9 +266,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* Stats + Card Dimensions Row - Side by Side */}
           {selectedEvent && assignedGuests.length > 0 && (
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-start justify-between gap-4">
               {/* Left: Statistics Box */}
-              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
+              <div className="w-full lg:flex-1 min-w-0 border border-primary rounded-xl p-4 text-sm space-y-2">
                 {/* Main stats line */}
                 <p className="font-medium text-green-600">
                   {selectedTable ? `${selectedTable.name || `Table ${selectedTable.table_no}`} - ` : ''}
@@ -287,7 +287,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
               {/* Right: Card Dimensions Box - Now Aligned with Stats */}
               {!guestsLoading && !settingsLoading && (
-                <div className="border border-primary rounded-xl p-4 space-y-2">
+                <div className="w-full lg:w-auto border border-primary rounded-xl p-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <Ruler className="w-4 h-4 text-primary" />
                     <h3 className="text-sm font-medium">Card Dimensions</h3>
@@ -314,16 +314,16 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           <div className="border-b border-border" />
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
-          <div className="flex items-center justify-between gap-8 flex-nowrap pt-2">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
             {/* Left side: Choose Event & Table dropdowns */}
-            <div className="flex items-center gap-8 flex-nowrap">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8 lg:flex-nowrap w-full lg:w-auto">
               {/* Choose Event */}
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
                 <label className="text-sm font-medium text-foreground whitespace-nowrap">
                   Choose Event:
                 </label>
                 <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                  <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
                     <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
@@ -347,7 +347,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
               {/* Table Selection (only when event is selected) */}
               {selectedEventId && (
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
                   <label className="text-sm font-medium text-foreground whitespace-nowrap">
                     Table:
                   </label>
@@ -356,7 +356,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     onValueChange={setSelectedTableId}
                     disabled={!selectedEventId || tablesLoading}
                   >
-                    <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
+                    <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary">
                       <SelectValue placeholder="Select a table" />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border z-50">
@@ -379,16 +379,16 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
             {/* Right side: Export Controls */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 whitespace-nowrap">
+              <div className="w-full lg:w-auto border border-primary rounded-xl p-3 flex flex-col gap-2">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your place cards as PDF ready for printing.</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <button 
                     onClick={handleDownloadPdfPage}
                     disabled={isProcessing}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                    className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto"
                   >
                     <FileText className="w-3 h-3" />
                     Download Single Page PDF
@@ -396,7 +396,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                   <button 
                     onClick={handleDownloadPdfAll}
                     disabled={isProcessing}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                    className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto"
                   >
                     <FileText className="w-3 h-3" />
                     Download All Pages PDF
@@ -434,7 +434,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
           {/* Left Panel - Customizer */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             <PlaceCardCustomizer
               settings={settings}
               onSettingsChange={updateSettings}
@@ -458,7 +458,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 min-w-0">
             <PlaceCardPreview
               settings={settings}
               guests={assignedGuests}
