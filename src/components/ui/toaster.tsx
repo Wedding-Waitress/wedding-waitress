@@ -25,7 +25,7 @@ export function Toaster() {
               </span>
             )}
             <div className="grid gap-0.5">
-              {cleanTitle && <ToastTitle className="text-[#5C4A36] font-semibold">{cleanTitle as React.ReactNode}</ToastTitle>}
+              {cleanTitle && <ToastTitle className="text-success font-semibold">{cleanTitle as React.ReactNode}</ToastTitle>}
               {description && <ToastDescription>{description}</ToastDescription>}
             </div>
             {action}
