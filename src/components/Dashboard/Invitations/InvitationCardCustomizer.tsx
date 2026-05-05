@@ -516,23 +516,22 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </Button>
                         <button
                           type="button"
-                          onClick={() => window.open('https://www.canva.com', '_blank')}
+                          onClick={() => window.open('https://www.canva.com/', '_blank')}
                           className="max-sm:hidden flex-1 h-9 p-0 bg-transparent border-0 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center overflow-hidden"
                           aria-label="Design with Canva"
                         >
-                          <img src={canvaButtonMobile} alt="Design with Canva" className="h-full w-auto max-w-full object-contain" />
+                          <img src={canvaButtonMobile} alt="Design with Canva" className="h-full w-auto object-contain" />
                         </button>
                       </div>
-                      <div className="hidden max-sm:flex justify-center my-3">
-                        <Button
+                      <div className="hidden max-sm:flex justify-center mt-2">
+                        <button
                           type="button"
-                          size="sm"
-                          onClick={() => window.open('https://www.canva.com', '_blank')}
-                          className="rounded-full flex items-center justify-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4"
+                          onClick={() => window.open('https://www.canva.com/', '_blank')}
+                          className="h-9 p-0 bg-transparent border-0 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center overflow-hidden"
+                          aria-label="Design with Canva"
                         >
-                          <img src={canvaLogo} alt="Canva" className="h-4 w-4 rounded-full object-cover shrink-0" />
-                          Design with Canva
-                        </Button>
+                          <img src={canvaButtonMobile} alt="Design with Canva" className="h-full w-auto object-contain" />
+                        </button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
                         Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
