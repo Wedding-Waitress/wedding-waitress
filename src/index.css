@@ -1056,3 +1056,26 @@ img { content-visibility: auto; }
 @media (min-width: 1024px) {
   .animate-plus-one-pulse { animation: none; }
 }
+
+/* Floor Plan tablet (768–1023px) horizontal scroll: always-visible thin scrollbar */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .floor-plan-tablet-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.5) hsl(var(--muted));
+  }
+  .floor-plan-tablet-scroll::-webkit-scrollbar {
+    height: 8px;
+    -webkit-appearance: none;
+  }
+  .floor-plan-tablet-scroll::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+  .floor-plan-tablet-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.55);
+    border-radius: 4px;
+  }
+  .floor-plan-tablet-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.8);
+  }
+}
