@@ -383,7 +383,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
   const autoFitGuestListStyle = getAutoFitGuestListStyle();
 
-  // Tablet-only scaling wrapper (md: 768px to lg: 1024px). Desktop unchanged.
+  // Tablet + mobile scaling wrapper (below lg: 1024px). Desktop unchanged.
   const tabletWrapperRef = useRef<HTMLDivElement>(null);
   const [tabletScale, setTabletScale] = useState(1);
   const [isTablet, setIsTablet] = useState(false);
@@ -391,9 +391,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     const A4_PX = 794; // 210mm @ 96dpi
     const compute = () => {
       const w = window.innerWidth;
-      const tablet = w >= 768 && w < 1024;
-      setIsTablet(tablet);
-      if (!tablet) { setTabletScale(1); return; }
+      const needsScale = w < 1024;
+      setIsTablet(needsScale);
+      if (!needsScale) { setTabletScale(1); return; }
       const cw = tabletWrapperRef.current?.clientWidth ?? w;
       setTabletScale(cw < A4_PX ? cw / A4_PX : 1);
     };
