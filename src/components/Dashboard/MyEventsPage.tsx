@@ -22,6 +22,7 @@ import { useEvents, Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 export const MyEventsPage: React.FC = () => {
   const {
     events,
