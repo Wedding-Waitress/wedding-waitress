@@ -413,14 +413,23 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     <Card className="bg-transparent shadow-none border-0">
       <CardContent className="p-0">
         {/* A4 Preview Container */}
-        <div className="flex justify-center" style={isTabletRange ? { overflowX: 'hidden', width: '100%' } : undefined}>
+        <div
+          className="flex justify-center"
+          style={
+            isTabletRange
+              ? { overflowX: 'hidden', width: '100%' }
+              : (isTablet && !isTabletRange ? { overflowX: 'hidden', width: '100%' } : undefined)
+          }
+        >
           <div
             ref={tabletWrapperRef}
             className="w-full"
             style={
               isTabletRange
                 ? { height: 'calc(297mm * 0.75)', overflow: 'hidden', display: 'flex', justifyContent: 'center', width: '100%' }
-                : (isTablet && tabletScale < 1 ? { height: `calc(297mm * ${tabletScale})`, overflow: 'hidden' } : undefined)
+                : (isTablet && tabletScale < 1
+                    ? { height: `calc(297mm * ${tabletScale})`, overflow: 'hidden', display: 'flex', justifyContent: 'center', width: '100%' }
+                    : undefined)
             }
           >
           <div
