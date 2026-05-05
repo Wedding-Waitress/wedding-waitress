@@ -37,7 +37,9 @@ export const FloorPlanPage = ({
   const visualWrapRef = useRef<HTMLDivElement>(null);
   const visualInnerRef = useRef<HTMLDivElement>(null);
   const [isTabletRange, setIsTabletRange] = useState(false);
+  const [isMobileRange, setIsMobileRange] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
+  const [showMobileScrollHint, setShowMobileScrollHint] = useState(false);
 
 
   const { events, loading: eventsLoading } = useEvents();
@@ -65,20 +67,28 @@ export const FloorPlanPage = ({
     }
   }, [selectedEventId, floorPlanType, floorPlan, initialLoadComplete, floorPlanLoading, createFloorPlan]);
 
-  // Tablet-only (768–1023px) detection — drives horizontal scroll wrapper + hint.
-  // Desktop (≥1024px) and mobile (<768px) remain pixel-identical (no transforms).
+  // Tablet (768–1023px) and Mobile (<768px) detection — drives horizontal scroll wrapper + hint.
+  // Desktop (≥1024px) remains pixel-identical (no transforms).
   useLayoutEffect(() => {
     const compute = () => {
       const w = window.innerWidth;
-      const inRange = w >= 768 && w < 1024;
+      const inTablet = w >= 768 && w < 1024;
+      const inMobile = w < 768;
       setIsTabletRange((prev) => {
-        if (prev !== inRange && inRange) {
-          // entering tablet range → show hint then auto-fade after 3s
+        if (prev !== inTablet && inTablet) {
           setShowScrollHint(true);
           window.setTimeout(() => setShowScrollHint(false), 3000);
         }
-        if (!inRange) setShowScrollHint(false);
-        return inRange;
+        if (!inTablet) setShowScrollHint(false);
+        return inTablet;
+      });
+      setIsMobileRange((prev) => {
+        if (prev !== inMobile && inMobile) {
+          setShowMobileScrollHint(true);
+          window.setTimeout(() => setShowMobileScrollHint(false), 3000);
+        }
+        if (!inMobile) setShowMobileScrollHint(false);
+        return inMobile;
       });
     };
     compute();
@@ -94,6 +104,15 @@ export const FloorPlanPage = ({
       return () => window.clearTimeout(t);
     }
   }, [isTabletRange, selectedEventId, floorPlanType]);
+
+  // Show hint on first render when already in mobile range
+  useEffect(() => {
+    if (isMobileRange) {
+      setShowMobileScrollHint(true);
+      const t = window.setTimeout(() => setShowMobileScrollHint(false), 3000);
+      return () => window.clearTimeout(t);
+    }
+  }, [isMobileRange, selectedEventId, floorPlanType]);
 
 
   const handleDownloadPdf = async () => {
@@ -269,10 +288,12 @@ export const FloorPlanPage = ({
                 className={
                   isTabletRange
                     ? 'floor-plan-tablet-scroll relative w-full'
-                    : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
+                    : isMobileRange
+                      ? 'floor-plan-mobile-scroll relative w-full'
+                      : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
                 }
                 style={
-                  isTabletRange
+                  isTabletRange || isMobileRange
                     ? {
                         overflowX: 'auto',
                         overflowY: 'hidden',
@@ -280,9 +301,15 @@ export const FloorPlanPage = ({
                       }
                     : undefined
                 }
-                onScroll={isTabletRange ? () => setShowScrollHint(false) : undefined}
+                onScroll={
+                  isTabletRange
+                    ? () => setShowScrollHint(false)
+                    : isMobileRange
+                      ? () => setShowMobileScrollHint(false)
+                      : undefined
+                }
               >
-                <div ref={visualInnerRef} style={isTabletRange ? { width: 'max-content' } : undefined}>
+                <div ref={visualInnerRef} style={(isTabletRange || isMobileRange) ? { width: 'max-content' } : undefined}>
                   <CeremonyFloorPlanVisual
                     floorPlan={floorPlan}
                     onSeatUpdate={updateSeatAssignment}
@@ -311,6 +338,14 @@ export const FloorPlanPage = ({
                     ← Scroll to explore →
                   </div>
                 </>
+              )}
+              {isMobileRange && (
+                <div
+                  className="mt-2 text-center text-xs text-muted-foreground transition-opacity duration-500"
+                  style={{ opacity: showMobileScrollHint ? 1 : 0 }}
+                >
+                  ← Scroll to explore →
+                </div>
               )}
             </Card>
           </div>

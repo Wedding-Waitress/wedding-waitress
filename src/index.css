@@ -1079,3 +1079,26 @@ img { content-visibility: auto; }
     background-color: #5e452e;
   }
 }
+
+/* Floor Plan mobile (<768px) horizontal scroll: always-visible thick on-brand scrollbar */
+@media (max-width: 767.98px) {
+  .floor-plan-mobile-scroll {
+    scrollbar-width: auto;
+    scrollbar-color: #7C5C3E #e8ddd4;
+  }
+  .floor-plan-mobile-scroll::-webkit-scrollbar {
+    height: 10px;
+    -webkit-appearance: none;
+  }
+  .floor-plan-mobile-scroll::-webkit-scrollbar-track {
+    background-color: #e8ddd4;
+    border-radius: 5px;
+  }
+  .floor-plan-mobile-scroll::-webkit-scrollbar-thumb {
+    background-color: #7C5C3E;
+    border-radius: 5px;
+  }
+  .floor-plan-mobile-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: #5e452e;
+  }
+}
