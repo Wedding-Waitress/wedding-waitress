@@ -309,6 +309,20 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   return (
     <>
       <style>{`
+        @media (max-width: 767px) {
+          .kitchen-dietary-chart { overflow-x: hidden; }
+          .dietary-a4-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            display: block !important;
+            justify-content: flex-start !important;
+            width: 100%;
+          }
+          .dietary-a4-scroll::-webkit-scrollbar { height: 10px; }
+          .dietary-a4-scroll::-webkit-scrollbar-thumb { background: #7C5C3E; border-radius: 5px; }
+          .dietary-a4-scroll::-webkit-scrollbar-track { background: transparent; }
+        }
+
         @page {
           size: A4 portrait;
           margin: 0;
