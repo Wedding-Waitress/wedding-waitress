@@ -330,8 +330,8 @@ export const CeremonyFloorPlanVisual = ({
       ? floorPlan.person_right_name 
       : (isGroomLeft ? 'Bride' : 'Groom');
 
-    // Max 6 per row
-    const MAX_PER_ROW = 6;
+    // Max 5 per row
+    const MAX_PER_ROW = 5;
     const leftFirstRow = Math.min(leftCount, MAX_PER_ROW);
     const leftSecondRow = Math.max(0, leftCount - MAX_PER_ROW);
     const rightFirstRow = Math.min(rightCount, MAX_PER_ROW);
