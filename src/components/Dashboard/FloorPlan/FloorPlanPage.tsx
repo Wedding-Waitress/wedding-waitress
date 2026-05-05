@@ -284,7 +284,7 @@ export const FloorPlanPage = ({
           {/* Visual Preview */}
           <div className="lg:col-span-4 order-2 lg:order-2">
             <Card className="relative border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6">
-              <PinchZoomFloorPlan>
+              <PinchZoomContainer naturalWidth={1100}>
                 <CeremonyFloorPlanVisual
                   floorPlan={floorPlan}
                   onSeatUpdate={updateSeatAssignment}
@@ -294,7 +294,7 @@ export const FloorPlanPage = ({
                   onBridalPartyRoleUpdate={updateBridalPartyRole}
                   getBridalPartyRole={getBridalPartyRole}
                 />
-              </PinchZoomFloorPlan>
+              </PinchZoomContainer>
             </Card>
           </div>
 
