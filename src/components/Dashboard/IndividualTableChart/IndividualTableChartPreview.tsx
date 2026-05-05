@@ -383,7 +383,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
   const autoFitGuestListStyle = getAutoFitGuestListStyle();
 
-  // Tablet-only scaling wrapper (md: 768px to lg: 1024px). Desktop unchanged.
+  // Tablet + mobile scaling wrapper (below lg: 1024px). Desktop unchanged.
   const tabletWrapperRef = useRef<HTMLDivElement>(null);
   const [tabletScale, setTabletScale] = useState(1);
   const [isTablet, setIsTablet] = useState(false);
@@ -391,9 +391,9 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
     const A4_PX = 794; // 210mm @ 96dpi
     const compute = () => {
       const w = window.innerWidth;
-      const tablet = w >= 768 && w < 1024;
-      setIsTablet(tablet);
-      if (!tablet) { setTabletScale(1); return; }
+      const needsScale = w < 1024;
+      setIsTablet(needsScale);
+      if (!needsScale) { setTabletScale(1); return; }
       const cw = tabletWrapperRef.current?.clientWidth ?? w;
       setTabletScale(cw < A4_PX ? cw / A4_PX : 1);
     };
@@ -447,7 +447,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               {/* Ceremony & Reception Details */}
               <div className="text-center" style={{ marginTop: '4px', marginBottom: '6px' }}>
                 {event?.ceremony_date && (
-                  <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>
+                  <div className="break-words" style={{ color: '#555', fontSize: '12px', marginTop: '2px', overflowWrap: 'break-word' }}>
                     Ceremony: {(() => {
                       const date = new Date(event.ceremony_date + 'T00:00:00');
                       const day = date.getDate();
@@ -461,7 +461,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
                     })()}
                   </div>
                 )}
-                <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>
+                <div className="break-words" style={{ color: '#555', fontSize: '12px', marginTop: '2px', overflowWrap: 'break-word' }}>
                   Reception: {event?.date ? (() => {
                     const date = new Date(event.date + 'T00:00:00');
                     const day = date.getDate();
