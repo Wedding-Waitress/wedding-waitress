@@ -91,7 +91,7 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.assigned_rows]}
             onValueChange={([value]) => handleChange('assigned_rows', Math.min(value, floorPlan.total_rows))}
             min={1}
-            max={Math.min(floorPlan.total_rows, 15)}
+            max={Math.min(floorPlan.total_rows, 12)}
             step={1}
             className="w-full floor-plan-smooth-slider"
           />
