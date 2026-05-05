@@ -338,7 +338,7 @@ export const CeremonyFloorPlanVisual = ({
     const rightSecondRow = Math.max(0, rightCount - MAX_PER_ROW);
 
     return (
-      <div className="flex items-start justify-center gap-4">
+      <div className="flex items-start justify-center gap-1">
         {/* Left side bridal party */}
         {leftCount > 0 && (
           <div className="flex flex-col items-center">
@@ -359,11 +359,11 @@ export const CeremonyFloorPlanVisual = ({
         )}
 
         {/* Center - Left person + Celebrant + Right person */}
-        <div className="flex items-center justify-center gap-3 px-2">
+        <div className="flex items-center justify-center gap-2 px-1">
           {/* Left person (Groom or Bride depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-[72px] h-[72px] rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
-              <span className="text-[15px] text-foreground font-medium text-center leading-tight px-1">
+            <div className="w-16 h-16 rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-xs text-foreground font-medium text-center leading-tight px-1">
                 {leftPersonName}
               </span>
             </div>
@@ -376,8 +376,8 @@ export const CeremonyFloorPlanVisual = ({
           
           {/* Right person (Bride or Groom depending on arrangement) */}
           <div className="flex flex-col items-center">
-            <div className="w-[72px] h-[72px] rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
-              <span className="text-[15px] text-foreground font-medium text-center leading-tight px-1">
+            <div className="w-16 h-16 rounded-full bg-transparent border-2 border-primary flex items-center justify-center">
+              <span className="text-xs text-foreground font-medium text-center leading-tight px-1">
                 {rightPersonName}
               </span>
             </div>
