@@ -65,45 +65,35 @@ export const FloorPlanPage = ({
     }
   }, [selectedEventId, floorPlanType, floorPlan, initialLoadComplete, floorPlanLoading, createFloorPlan]);
 
-  // Tablet-only (768–1023px) horizontal scaling for the visual diagram.
-  // Desktop (≥1024px) and mobile (<768px) remain pixel-identical.
+  // Tablet-only (768–1023px) detection — drives horizontal scroll wrapper + hint.
+  // Desktop (≥1024px) and mobile (<768px) remain pixel-identical (no transforms).
   useLayoutEffect(() => {
-    const wrap = visualWrapRef.current;
-    const inner = visualInnerRef.current;
-    if (!wrap || !inner) return;
-
     const compute = () => {
       const w = window.innerWidth;
-      if (w < 768 || w >= 1024) {
-        setTabletScale(null);
-        return;
-      }
-      const containerWidth = wrap.clientWidth;
-      // Reset transform first to measure natural size
-      const prevTransform = inner.style.transform;
-      inner.style.transform = '';
-      const naturalWidth = inner.scrollWidth;
-      const naturalHeight = inner.scrollHeight;
-      inner.style.transform = prevTransform;
-      if (!containerWidth || !naturalWidth) return;
-      if (naturalWidth <= containerWidth) {
-        setTabletScale(null);
-        return;
-      }
-      const scale = containerWidth / naturalWidth;
-      setTabletScale({ scale, height: naturalHeight * scale });
+      const inRange = w >= 768 && w < 1024;
+      setIsTabletRange((prev) => {
+        if (prev !== inRange && inRange) {
+          // entering tablet range → show hint then auto-fade after 3s
+          setShowScrollHint(true);
+          window.setTimeout(() => setShowScrollHint(false), 3000);
+        }
+        if (!inRange) setShowScrollHint(false);
+        return inRange;
+      });
     };
-
     compute();
-    const ro = new ResizeObserver(compute);
-    ro.observe(wrap);
-    ro.observe(inner);
     window.addEventListener('resize', compute);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', compute);
-    };
-  }, [floorPlan?.chairs_per_row, floorPlan?.total_rows, floorPlan?.bridal_party_count_left, floorPlan?.bridal_party_count_right, floorPlanType, selectedEventId]);
+    return () => window.removeEventListener('resize', compute);
+  }, []);
+
+  // Show hint on first render when already in tablet range
+  useEffect(() => {
+    if (isTabletRange) {
+      setShowScrollHint(true);
+      const t = window.setTimeout(() => setShowScrollHint(false), 3000);
+      return () => window.clearTimeout(t);
+    }
+  }, [isTabletRange, selectedEventId, floorPlanType]);
 
 
   const handleDownloadPdf = async () => {
