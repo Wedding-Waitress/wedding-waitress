@@ -15,6 +15,7 @@ import {
 import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { RsvpOverageModal } from '@/components/Dashboard/RsvpOverageModal';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { cn } from '@/lib/utils';
 import type { Guest } from '@/hooks/useGuests';
 
