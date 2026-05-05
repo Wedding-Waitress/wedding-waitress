@@ -268,7 +268,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="design" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-4">
             <TabsTrigger value="design">Design</TabsTrigger>
             <TabsTrigger value="position">Text Position</TabsTrigger>
             <TabsTrigger value="background">Background</TabsTrigger>
@@ -435,6 +435,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Switch
                     checked={textEditMode}
                     onCheckedChange={(checked) => onTextEditModeChange?.(checked)}
+                    className={textEditMode ? "" : "border border-[#967A59] rounded-full"}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground">
