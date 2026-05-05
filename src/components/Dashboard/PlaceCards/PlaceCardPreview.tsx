@@ -761,10 +761,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 </div>
               )}
+              <div
+                style={{
+                  width: `calc(210mm * ${previewScale})`,
+                  height: `calc(297mm * ${previewScale})`,
+                  flexShrink: 0,
+                }}
+              >
               <div 
                 style={{ 
                   width: '210mm', 
-                  height: '297mm'
+                  height: '297mm',
+                  transform: `scale(${previewScale})`,
+                  transformOrigin: 'top left',
                 }} 
                 className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden"
               >
