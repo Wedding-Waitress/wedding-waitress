@@ -170,7 +170,7 @@ export const ReadOnlyCeremonyFloorPlan: React.FC<ReadOnlyCeremonyFloorPlanProps>
       ? data.person_right_name
       : (isGroomLeft ? 'Bride' : 'Groom');
 
-    const MAX_PER_ROW = 6;
+    const MAX_PER_ROW = 5;
     const leftFirstRow = Math.min(leftCount, MAX_PER_ROW);
     const leftSecondRow = Math.max(0, leftCount - MAX_PER_ROW);
     const rightFirstRow = Math.min(rightCount, MAX_PER_ROW);

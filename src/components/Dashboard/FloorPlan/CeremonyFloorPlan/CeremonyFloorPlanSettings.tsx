@@ -74,11 +74,11 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.total_rows]}
             onValueChange={([value]) => handleChange('total_rows', value)}
             min={1}
-            max={15}
+            max={12}
             step={1}
             className="w-full floor-plan-smooth-slider"
           />
-          <p className="text-xs text-muted-foreground">1-15 rows total</p>
+          <p className="text-xs text-muted-foreground">1-12 rows total</p>
         </div>
 
         {/* Assigned Rows (for family) */}
@@ -91,7 +91,7 @@ export const CeremonyFloorPlanSettings = ({
             value={[floorPlan.assigned_rows]}
             onValueChange={([value]) => handleChange('assigned_rows', Math.min(value, floorPlan.total_rows))}
             min={1}
-            max={Math.min(floorPlan.total_rows, 15)}
+            max={Math.min(floorPlan.total_rows, 12)}
             step={1}
             className="w-full floor-plan-smooth-slider"
           />
@@ -165,11 +165,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_left]}
               onValueChange={([value]) => handleChange('bridal_party_count_left', value)}
               min={0}
-              max={12}
+              max={10}
               step={1}
               className="w-full floor-plan-smooth-slider"
             />
-            <p className="text-xs text-muted-foreground">Left side of altar (0-12)</p>
+            <p className="text-xs text-muted-foreground">Left side of altar (0-10)</p>
           </div>
 
           <div className="space-y-3">
@@ -183,11 +183,11 @@ export const CeremonyFloorPlanSettings = ({
               value={[floorPlan.bridal_party_count_right]}
               onValueChange={([value]) => handleChange('bridal_party_count_right', value)}
               min={0}
-              max={12}
+              max={10}
               step={1}
               className="w-full floor-plan-smooth-slider"
             />
-            <p className="text-xs text-muted-foreground">Right side of altar (0-12)</p>
+            <p className="text-xs text-muted-foreground">Right side of altar (0-10)</p>
           </div>
         </div>
 
