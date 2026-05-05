@@ -511,6 +511,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     id="bg-names-toggle"
                     checked={currentSettings.background_behind_names || false} 
                     onCheckedChange={value => handleSettingChange('background_behind_names', value)}
+                    className={currentSettings.background_behind_names ? "" : "border border-[#967A59] rounded-full"}
                   />
                 </div>
 
@@ -520,7 +521,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     id="bg-table-seats-toggle"
                     checked={currentSettings.background_behind_table_seats || false} 
                     onCheckedChange={value => handleSettingChange('background_behind_table_seats', value)}
-                    
+                    className={currentSettings.background_behind_table_seats ? "" : "border border-[#967A59] rounded-full"}
                   />
                 </div>
               </div>
