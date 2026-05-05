@@ -411,6 +411,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
           {/* Preview */}
           <div className="lg:col-span-3">
+            <PinchZoomContainer naturalWidth={794}>
             <IndividualTableChartPreview
               settings={settings}
               table={selectedTable}
@@ -419,6 +420,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               totalTables={tables.length}
               currentTableIndex={tables.findIndex(t => t.id === selectedTableId) + 1}
             />
+            </PinchZoomContainer>
           </div>
         </div>
       )}
