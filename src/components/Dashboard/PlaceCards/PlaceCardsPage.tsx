@@ -458,7 +458,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 min-w-0">
             <PlaceCardPreview
               settings={settings}
               guests={assignedGuests}
