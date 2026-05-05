@@ -812,6 +812,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     </div>
                   </div>
                 </div>
+                <div className="dietary-scroll-hint items-center justify-center gap-2 mt-2 text-xs text-muted-foreground">
+                  <span>←</span><span>Scroll to explore</span><span>→</span>
+                </div>
 
                 {/* Page Navigation Bottom */}
                 {totalPages > 1 && (
