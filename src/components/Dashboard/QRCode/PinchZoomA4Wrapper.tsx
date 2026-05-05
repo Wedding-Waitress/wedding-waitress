@@ -39,9 +39,8 @@ export const PinchZoomA4Wrapper: React.FC<{ children: React.ReactNode }> = ({ ch
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Measure container and compute fitScale
+  // Measure container and compute fitScale (runs on all viewports)
   useEffect(() => {
-    if (!isMobile) return;
     const compute = () => {
       const el = containerRef.current;
       if (!el) return;
@@ -56,7 +55,7 @@ export const PinchZoomA4Wrapper: React.FC<{ children: React.ReactNode }> = ({ ch
     const ro = new ResizeObserver(compute);
     if (containerRef.current) ro.observe(containerRef.current);
     return () => ro.disconnect();
-  }, [isMobile]);
+  }, []);
 
   // Gesture refs
   const pinchRef = useRef<{
