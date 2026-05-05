@@ -283,71 +283,18 @@ export const FloorPlanPage = ({
 
           {/* Visual Preview */}
           <div className="lg:col-span-4 order-2 lg:order-2">
-            <Card className="relative border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
-              <div
-                ref={visualWrapRef}
-                className={
-                  isTabletRange
-                    ? 'floor-plan-tablet-scroll relative w-full'
-                    : isMobileRange
-                      ? 'floor-plan-mobile-scroll relative w-full'
-                      : 'w-full max-lg:overflow-x-hidden lg:overflow-visible'
-                }
-                style={
-                  isTabletRange || isMobileRange
-                    ? {
-                        overflowX: 'auto',
-                        overflowY: 'hidden',
-                        WebkitOverflowScrolling: 'touch',
-                      }
-                    : undefined
-                }
-                onScroll={
-                  isTabletRange
-                    ? () => setShowScrollHint(false)
-                    : isMobileRange
-                      ? () => setShowMobileScrollHint(false)
-                      : undefined
-                }
-              >
-                <div ref={visualInnerRef} style={(isTabletRange || isMobileRange) ? { width: 'max-content' } : undefined}>
-                  <CeremonyFloorPlanVisual
-                    floorPlan={floorPlan}
-                    onSeatUpdate={updateSeatAssignment}
-                    getSeatName={getSeatName}
-                    onBridalPartyUpdate={updateBridalPartyMember}
-                    getBridalPartyName={getBridalPartyName}
-                    onBridalPartyRoleUpdate={updateBridalPartyRole}
-                    getBridalPartyRole={getBridalPartyRole}
-                  />
-                </div>
-              </div>
-              {isTabletRange && (
-                <>
-                  {/* Right-edge fade cue */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute top-0 right-0 h-full w-8"
-                    style={{
-                      background: 'linear-gradient(to left, rgba(255,255,255,0.9), rgba(255,255,255,0))',
-                    }}
-                  />
-                  <div
-                    className="mt-2 text-center text-xs text-muted-foreground transition-opacity duration-500"
-                    style={{ opacity: showScrollHint ? 1 : 0 }}
-                  >
-                    ← Scroll to explore →
-                  </div>
-                </>
-              )}
-              {isMobileRange && (
-                <div
-                  className="mt-2 text-center text-xs text-muted-foreground transition-opacity duration-500"
-                  style={{ opacity: showMobileScrollHint ? 1 : 0 }}
-                >
-                  ← Scroll to explore →
-                </div>
-              )}
+            <Card className="relative border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6">
+              <PinchZoomFloorPlan>
+                <CeremonyFloorPlanVisual
+                  floorPlan={floorPlan}
+                  onSeatUpdate={updateSeatAssignment}
+                  getSeatName={getSeatName}
+                  onBridalPartyUpdate={updateBridalPartyMember}
+                  getBridalPartyName={getBridalPartyName}
+                  onBridalPartyRoleUpdate={updateBridalPartyRole}
+                  getBridalPartyRole={getBridalPartyRole}
+                />
+              </PinchZoomFloorPlan>
             </Card>
           </div>
 
