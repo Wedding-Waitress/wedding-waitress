@@ -823,6 +823,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 </div>
               </div>
+              </div>
             </div>
 
 
