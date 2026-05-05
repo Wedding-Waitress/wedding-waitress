@@ -437,6 +437,7 @@ export const MyEventsPage: React.FC = () => {
                 </p>
                 
                 {/* Ceremony & Reception Detail Boxes */}
+                <PinchZoomContainer naturalWidth={900}>
                 <div className={`flex flex-col lg:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
@@ -466,6 +467,7 @@ export const MyEventsPage: React.FC = () => {
                     </div>
                   )}
                 </div>
+                </PinchZoomContainer>
             </div>}
         </div>
       </Card>
