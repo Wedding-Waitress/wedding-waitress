@@ -241,13 +241,15 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           )}
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            <StatCard icon={Users} label="Total Guests" value={stats.total} />
-            <StatCard icon={Mail} label="Invitations Sent" value={stats.sent} />
-            <StatCard icon={Clock} label="Pending Replies" value={stats.pending} />
-            <StatCard icon={Check} label="Attending" value={stats.attending} tone="success" />
-            <StatCard icon={X} label="Not Attending" value={stats.notAttending} tone="danger" />
-          </div>
+          <PinchZoomContainer naturalWidth={900}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4" style={{ width: 900 }}>
+              <StatCard icon={Users} label="Total Guests" value={stats.total} />
+              <StatCard icon={Mail} label="Invitations Sent" value={stats.sent} />
+              <StatCard icon={Clock} label="Pending Replies" value={stats.pending} />
+              <StatCard icon={Check} label="Attending" value={stats.attending} tone="success" />
+              <StatCard icon={X} label="Not Attending" value={stats.notAttending} tone="danger" />
+            </div>
+          </PinchZoomContainer>
 
           {/* Mini insight */}
           {insight && (
