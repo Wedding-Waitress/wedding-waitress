@@ -34,6 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 
 interface InvitationsPageProps {
   selectedEventId: string | null;
@@ -359,6 +360,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </Tabs>
 
             {/* Artwork List */}
+            <PinchZoomContainer naturalWidth={900}>
             <div className="flex items-center gap-3 overflow-x-auto pb-2 max-sm:flex-col max-sm:items-stretch max-sm:overflow-visible">
               {filteredArtworks.map(artwork => (
                 <div
@@ -442,7 +444,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
               </button>
             </div>
-
+            </PinchZoomContainer>
             {filteredArtworks.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-2">
                 No {CARD_TYPE_LABELS[activeCardType].toLowerCase()} designs yet. Click the button above to create one.
@@ -507,6 +509,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             />
           </div>
           <div className="lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-lg:overflow-hidden max-sm:pb-2 max-sm:px-2">
+            <PinchZoomContainer naturalWidth={794}>
             <div className="max-sm:w-full max-sm:h-[510px] max-sm:relative md:max-lg:w-full">
             <div className="origin-top-left max-sm:absolute max-sm:left-0 max-sm:top-0 max-sm:scale-[0.45] max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
             <InvitationCardPreview
@@ -573,6 +576,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             />
             </div>
             </div>
+            </PinchZoomContainer>
           </div>
         </div>
       )}
