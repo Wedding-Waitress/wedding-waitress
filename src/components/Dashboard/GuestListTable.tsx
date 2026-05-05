@@ -111,6 +111,7 @@ import {
   normalizeRole, 
   ImportError 
 } from '@/lib/relationValidation';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 
 type SortOption =
   | 'first_name' | 'last_name' | 'table_name'
