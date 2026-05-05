@@ -2644,7 +2644,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </TableBody>
           </Table>
           <div className="h-12 bg-primary" />
-          </PinchZoomContainer>
+          
         </div>
       </Card>
 
