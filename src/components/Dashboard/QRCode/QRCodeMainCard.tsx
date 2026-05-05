@@ -501,6 +501,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
+        <PinchZoomContainer naturalWidth={1000}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
           <div className="bg-white rounded-lg border border-primary p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
