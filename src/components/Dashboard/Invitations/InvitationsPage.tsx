@@ -444,7 +444,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
               </button>
             </div>
-
+            </PinchZoomContainer>
             {filteredArtworks.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-2">
                 No {CARD_TYPE_LABELS[activeCardType].toLowerCase()} designs yet. Click the button above to create one.
