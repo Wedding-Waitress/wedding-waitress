@@ -34,6 +34,7 @@ import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer
 import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 
 
 export interface IndividualChartSettings {
