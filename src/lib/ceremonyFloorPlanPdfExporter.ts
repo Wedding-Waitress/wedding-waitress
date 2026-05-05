@@ -106,8 +106,8 @@ export const generateCeremonyFloorPlanPDF = async (
   yPos += 6;
 
   // Total Attending Ceremony line
-  const leftBridalCount = floorPlan.bridal_party_count_left || 0;
-  const rightBridalCount = floorPlan.bridal_party_count_right || 0;
+  const leftBridalCount = Math.min(10, floorPlan.bridal_party_count_left || 0);
+  const rightBridalCount = Math.min(10, floorPlan.bridal_party_count_right || 0);
   const familySeatsTotal = floorPlan.total_rows * floorPlan.chairs_per_row * 2;
   const totalAttendingCeremony = 3 + leftBridalCount + rightBridalCount + familySeatsTotal;
   pdf.setFontSize(8);
@@ -149,8 +149,8 @@ export const generateCeremonyFloorPlanPDF = async (
   const rightPersonName = (floorPlan as any).person_right_name || (isGroomLeft ? 'Bride' : 'Groom');
 
   // === BRIDAL PARTY ===
-  const leftCount = floorPlan.bridal_party_count_left || 0;
-  const rightCount = floorPlan.bridal_party_count_right || 0;
+  const leftCount = Math.min(10, floorPlan.bridal_party_count_left || 0);
+  const rightCount = Math.min(10, floorPlan.bridal_party_count_right || 0);
   
   const bridalBoxWidth = 14;
   const bridalBoxHeight = 10.5;
@@ -161,8 +161,8 @@ export const generateCeremonyFloorPlanPDF = async (
   const coupleCircleRadius = 7;
   const celebrantX = PAGE_WIDTH / 2;
   
-  // Max 6 per row
-  const MAX_PER_ROW = 6;
+  // Max 5 per row (matches on-screen layout)
+  const MAX_PER_ROW = 5;
   const leftFirstRowCount = Math.min(leftCount, MAX_PER_ROW);
   const leftSecondRowCount = Math.max(0, leftCount - MAX_PER_ROW);
   const rightFirstRowCount = Math.min(rightCount, MAX_PER_ROW);
