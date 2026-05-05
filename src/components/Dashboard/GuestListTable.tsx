@@ -2284,6 +2284,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
         {/* DESKTOP TABLE VIEW (lg and up) */}
         <div className="hidden lg:block overflow-hidden border-t-2 border-primary">
+          <PinchZoomContainer naturalWidth={1400}>
           <Table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '7%' }} />
