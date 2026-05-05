@@ -18,6 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StandardEventSelector } from '../StandardEventSelector';
 import { RunningSheetSection } from './RunningSheetSection';
 import { RunningSheetShareModal } from './RunningSheetShareModal';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { useRunningSheet } from '@/hooks/useRunningSheet';
 import { useEvents } from '@/hooks/useEvents';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
@@ -211,6 +212,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
           </CardContent>
         </Card>
       ) : sheet ? (
+        <PinchZoomContainer naturalWidth={1100}>
         <div className="space-y-4">
           {/* Event header */}
           {selectedEvent && (
@@ -265,6 +267,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
             hasDJMCData={hasDJMCData}
           />
         </div>
+        </PinchZoomContainer>
       ) : null}
 
       {/* Share Modal */}
