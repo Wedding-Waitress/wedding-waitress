@@ -434,7 +434,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
           {/* Left Panel - Customizer */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             <PlaceCardCustomizer
               settings={settings}
               onSettingsChange={updateSettings}
