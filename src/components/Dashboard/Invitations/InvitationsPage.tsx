@@ -34,6 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 
 interface InvitationsPageProps {
   selectedEventId: string | null;
