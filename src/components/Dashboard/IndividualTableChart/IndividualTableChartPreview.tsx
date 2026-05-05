@@ -447,7 +447,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
               {/* Ceremony & Reception Details */}
               <div className="text-center" style={{ marginTop: '4px', marginBottom: '6px' }}>
                 {event?.ceremony_date && (
-                  <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>
+                  <div className="break-words" style={{ color: '#555', fontSize: '12px', marginTop: '2px', overflowWrap: 'break-word' }}>
                     Ceremony: {(() => {
                       const date = new Date(event.ceremony_date + 'T00:00:00');
                       const day = date.getDate();
