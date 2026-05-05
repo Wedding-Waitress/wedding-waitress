@@ -150,9 +150,9 @@ export const PinchZoomA4Wrapper: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
-  if (!isMobile) {
-    return <div className="flex justify-center">{children}</div>;
-  }
+  // Always render the pinch-zoom container so touch-enabled desktops also get
+  // pinch/pan/double-tap. On non-touch desktops, fitScale=1 and no touch events
+  // fire, so mouse/trackpad behaviour is unaffected.
 
   const scaledHeight = A4_HEIGHT_PX * scale;
 
