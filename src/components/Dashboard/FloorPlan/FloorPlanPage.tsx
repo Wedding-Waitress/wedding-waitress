@@ -94,7 +94,7 @@ export const FloorPlanPage = ({
           </div>
 
           {/* Event and Type Selection */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 sm:gap-8">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
