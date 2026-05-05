@@ -11,7 +11,7 @@
  * Last completed: 2025-10-04
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { format } from 'date-fns';
@@ -383,14 +383,46 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
   const autoFitGuestListStyle = getAutoFitGuestListStyle();
 
+  // Tablet-only scaling wrapper (md: 768px to lg: 1024px). Desktop unchanged.
+  const tabletWrapperRef = useRef<HTMLDivElement>(null);
+  const [tabletScale, setTabletScale] = useState(1);
+  const [isTablet, setIsTablet] = useState(false);
+  useEffect(() => {
+    const A4_PX = 794; // 210mm @ 96dpi
+    const compute = () => {
+      const w = window.innerWidth;
+      const tablet = w >= 768 && w < 1024;
+      setIsTablet(tablet);
+      if (!tablet) { setTabletScale(1); return; }
+      const cw = tabletWrapperRef.current?.clientWidth ?? w;
+      setTabletScale(cw < A4_PX ? cw / A4_PX : 1);
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    let ro: ResizeObserver | undefined;
+    if (tabletWrapperRef.current && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(compute);
+      ro.observe(tabletWrapperRef.current);
+    }
+    return () => { window.removeEventListener('resize', compute); ro?.disconnect(); };
+  }, []);
+
   return (
     <Card className="bg-transparent shadow-none border-0">
       <CardContent className="p-0">
         {/* A4 Preview Container */}
         <div className="flex justify-center">
+          <div
+            ref={tabletWrapperRef}
+            className="w-full"
+            style={isTablet && tabletScale < 1 ? { height: `calc(297mm * ${tabletScale})`, overflow: 'hidden' } : undefined}
+          >
+          <div
+            style={isTablet && tabletScale < 1 ? { transform: `scale(${tabletScale})`, transformOrigin: 'top center', width: '210mm', margin: '0 auto' } : undefined}
+          >
           <div 
             id="printA4-individual-table"
-            className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden"
+            className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-auto"
             style={{ 
               width: '210mm', 
               height: '297mm',
@@ -1031,6 +1063,8 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             )}
 
           </div>
+        </div>
+        </div>
         </div>
         </div>
       </CardContent>
