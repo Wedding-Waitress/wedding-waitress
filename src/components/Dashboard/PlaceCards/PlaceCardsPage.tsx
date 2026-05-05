@@ -347,7 +347,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
               {/* Table Selection (only when event is selected) */}
               {selectedEventId && (
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
                   <label className="text-sm font-medium text-foreground whitespace-nowrap">
                     Table:
                   </label>
@@ -356,7 +356,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     onValueChange={setSelectedTableId}
                     disabled={!selectedEventId || tablesLoading}
                   >
-                    <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
+                    <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary">
                       <SelectValue placeholder="Select a table" />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border z-50">
