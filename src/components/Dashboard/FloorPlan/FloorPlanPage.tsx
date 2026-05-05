@@ -271,7 +271,7 @@ export const FloorPlanPage = ({
 
       {/* Main Content */}
       {isDataReady && floorPlanType === 'ceremony' && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
           {/* Settings */}
           <div className="lg:col-span-1 order-1 lg:order-1">
             <CeremonyFloorPlanSettings
@@ -281,7 +281,7 @@ export const FloorPlanPage = ({
           </div>
 
           {/* Visual Preview */}
-          <div className="lg:col-span-3 order-2 lg:order-2">
+          <div className="lg:col-span-5 order-2 lg:order-2">
             <Card className="relative border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6 lg:overflow-x-auto">
               <div
                 ref={visualWrapRef}
