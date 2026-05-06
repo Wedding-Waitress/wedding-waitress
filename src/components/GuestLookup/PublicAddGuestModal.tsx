@@ -772,7 +772,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
         </div>
         <div
           className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-3 pb-8"
-          style={{ WebkitOverflowScrolling: 'touch' as any }}
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {bodyContent}
         </div>
