@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
 interface DietaryGuest {
   id: string;
