@@ -195,7 +195,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-md:p-0">
-        <DialogHeader>
+        <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
           <DialogTitle className="text-primary">Update Your Information</DialogTitle>
           <DialogDescription className="text-sm text-foreground space-y-1">
             <span className="block">{helperText || "Please update, edit your details & save below."}</span>
@@ -204,13 +204,13 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         </DialogHeader>
 
         {!isEditable ? (
-          <div className="py-8 text-center space-y-2">
+          <div className="px-6 py-8 text-center space-y-2 flex-1 overflow-y-auto">
             <p className="text-sm font-medium text-destructive">
               RSVP date has passed. Please contact the organiser to make changes.
             </p>
           </div>
         ) : (
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
             {/* RSVP Status removed - handled by Accept/Decline buttons on home screen */}
 
             {/* Email */}
