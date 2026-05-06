@@ -42,7 +42,7 @@ interface DialogContentProps
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, overlayClassName, ...props }, ref) => (
+>(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, trueFullScreenOnMobile = false, overlayClassName, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
