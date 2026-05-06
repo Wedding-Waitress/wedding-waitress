@@ -195,7 +195,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-md:p-0 max-md:!overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
+        <DialogHeader className="px-6 pt-6 pb-2 shrink-0 max-md:pt-[max(env(safe-area-inset-top),24px)] max-md:pr-14">
           <DialogTitle className="text-primary">Update Your Information</DialogTitle>
           <DialogDescription className="text-sm text-foreground space-y-1">
             <span className="block">{helperText || "Please update, edit your details & save below."}</span>
