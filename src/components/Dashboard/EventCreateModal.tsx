@@ -278,7 +278,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
             <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center whitespace-pre-line">
