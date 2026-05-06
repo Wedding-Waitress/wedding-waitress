@@ -309,6 +309,80 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
   if (!event) return null;
 
+  // Track mobile viewport - on mobile we bypass Radix Dialog entirely
+  const [isMobile, setIsMobile] = useState<boolean>(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [isMobile, isOpen]);
+
+  const renderHeader = () => (
+    <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
+      <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>
+      <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
+        <Input
+          value={formData.event_name}
+          onChange={(e) => { markReceptionOverride('event_name'); setFormData(prev => ({ ...prev, event_name: e.target.value })); }}
+          placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
+          className="h-11 sm:h-9 text-base sm:text-sm border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
+        />
+      </div>
+    </DialogHeader>
+  );
+
+  if (isMobile) {
+    if (!isOpen) return null;
+    return ReactDOM.createPortal(
+      <div role="dialog" aria-modal="true" style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        width: '100%', height: '100dvh', zIndex: 9999,
+        background: 'white', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      }}>
+        <button type="button" onClick={onClose} aria-label="Close" style={{
+          position: 'absolute', right: 12, top: 12, zIndex: 1,
+          width: 40, height: 40, borderRadius: 9999,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          background: 'white', border: '2px solid hsl(var(--primary))',
+        }}>
+          <X className="h-4 w-4 text-primary" strokeWidth={2.5} />
+        </button>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+          {renderHeader()}
+          <div className="space-y-4 py-3">
+            {bodyContent}
+          </div>
+        </div>
+        <div style={{
+          position: 'sticky', bottom: 0,
+          padding: '16px 16px max(16px, env(safe-area-inset-bottom))',
+          background: 'white', borderTop: '1px solid #eee',
+          display: 'flex', gap: 12,
+        }}>
+          <Button onClick={handleSave} disabled={!isFormValid || isSaving}
+            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white">
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+          <Button variant="destructive" onClick={onClose}
+            className="lv-premium-shade flex-1 h-11 rounded-full">
+            Cancel
+          </Button>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
