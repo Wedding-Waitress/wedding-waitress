@@ -199,7 +199,11 @@ export const exportFullSeatingChartToPdf = async (
   const endPage = pageNum || totalPages;
 
   for (let currentPageNum = startPage; currentPageNum <= endPage; currentPageNum++) {
-    if (currentPageNum > startPage) pdf.addPage();
+    if (currentPageNum > startPage) {
+      pdf.addPage();
+      // Yield between pages so the UI stays responsive on large exports.
+      await yieldToBrowser();
+    }
 
     const startIdx = (currentPageNum - 1) * guestsPerPage;
     const endIdx = Math.min(startIdx + guestsPerPage, guests.length);
