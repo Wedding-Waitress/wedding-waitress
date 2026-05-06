@@ -6,8 +6,7 @@
  * Do NOT restrict to viewport breakpoints (sm/md/lg).
  * See existing pages for implementation examples.
  */
-import React, { useEffect, useRef, useState } from 'react';
-import { usePinchToZoom } from '@/hooks/usePinchToZoom';
+import React, { memo, useEffect, useState } from 'react';
 
 export interface PinchZoomContainerProps {
   children: React.ReactNode;
@@ -21,10 +20,28 @@ export interface PinchZoomContainerProps {
 }
 
 /**
- * Drop-in wrapper that applies pinch-to-zoom, drag-to-pan, and double-tap-to-reset
- * to any child content. Touch-only — desktop mouse interactions are unaffected.
+ * Synchronous touch detection — avoids a re-render flash on first paint and lets
+ * non-touch devices skip the entire zoom subsystem on initial mount.
  */
-export const PinchZoomContainer: React.FC<PinchZoomContainerProps> = ({
+const detectTouch = () => {
+  if (typeof window === 'undefined') return false;
+  return 'ontouchstart' in window || (navigator.maxTouchPoints ?? 0) > 0;
+};
+
+/**
+ * Inner touch-only implementation. Lazy-mounted via dynamic import so the
+ * pinch hook + ResizeObserver never load on non-touch desktop sessions.
+ */
+const TouchPinchZoom = React.lazy(() =>
+  import('./PinchZoomTouchInner').then((m) => ({ default: m.PinchZoomTouchInner }))
+);
+
+/**
+ * Drop-in wrapper that applies pinch-to-zoom, drag-to-pan, and double-tap-to-reset
+ * to any child content. Touch-only — desktop mouse interactions are unaffected
+ * AND the zoom code is never loaded on non-touch devices.
+ */
+const PinchZoomContainerImpl: React.FC<PinchZoomContainerProps> = ({
   children,
   naturalWidth,
   minScale = 0.5,
@@ -33,76 +50,46 @@ export const PinchZoomContainer: React.FC<PinchZoomContainerProps> = ({
   showHint = true,
   className,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const fitToContainer = typeof naturalWidth === 'number' && naturalWidth > 0;
+  // Synchronous initial value avoids hydration flicker and prevents non-touch
+  // desktops from ever paying the cost of the zoom subsystem.
+  const [isTouch] = useState<boolean>(detectTouch);
 
-  const { scale, translateX, translateY, isAnimating, handlers } = usePinchToZoom(
-    containerRef,
-    { minScale, maxScale, initialScale, fitToContainer, naturalWidth }
-  );
-
-  const [isTouch, setIsTouch] = useState(false);
-  const [hintVisible, setHintVisible] = useState(false);
-
-  useEffect(() => {
-    const touch =
-      typeof window !== 'undefined' &&
-      ('ontouchstart' in window || (navigator.maxTouchPoints ?? 0) > 0);
-    setIsTouch(touch);
-    if (touch && showHint) {
-      setHintVisible(true);
-      const t = window.setTimeout(() => setHintVisible(false), 3000);
-      return () => window.clearTimeout(t);
-    }
-  }, [showHint]);
-
-  // Only "activate" transform/overflow/touchAction when the user is actually
-  // zoomed/panned. At rest we leave the DOM untouched so position:fixed,
-  // position:sticky, dropdowns, popovers, modals, and responsive layouts
-  // inside behave normally.
-  const isTransformed =
-    isTouch &&
-    (Math.abs(scale - 1) > 0.001 || translateX !== 0 || translateY !== 0);
+  if (!isTouch) {
+    // Non-touch path: render children directly inside a minimal wrapper so the
+    // DOM shape stays equivalent to the touch path.
+    return (
+      <div
+        className={`pinch-zoom-wrapper ${className ?? ''}`}
+        style={{ position: 'relative', width: '100%' }}
+      >
+        <div style={{ width: '100%' }}>{children}</div>
+      </div>
+    );
+  }
 
   return (
-    <div
-      ref={containerRef}
-      className={`pinch-zoom-wrapper ${className ?? ''}`}
-      style={{
-        position: 'relative',
-        overflow: isTransformed ? 'hidden' : 'visible',
-        touchAction: isTransformed ? 'pan-y' : 'auto',
-        width: '100%',
-      }}
+    <React.Suspense
+      fallback={
+        <div
+          className={`pinch-zoom-wrapper ${className ?? ''}`}
+          style={{ position: 'relative', width: '100%' }}
+        >
+          <div style={{ width: '100%' }}>{children}</div>
+        </div>
+      }
     >
-      <div
-        {...(isTouch ? handlers : {})}
-        style={{
-          transform: isTransformed
-            ? `translate(${translateX}px, ${translateY}px) scale(${scale})`
-            : undefined,
-          transformOrigin: '0 0',
-          transition: isAnimating ? 'transform 0.3s ease' : undefined,
-          width: '100%',
-          willChange: isTransformed ? 'transform' : undefined,
-        }}
+      <TouchPinchZoom
+        naturalWidth={naturalWidth}
+        minScale={minScale}
+        maxScale={maxScale}
+        initialScale={initialScale}
+        showHint={showHint}
+        className={className}
       >
         {children}
-      </div>
-
-      {isTouch && showHint && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-2 px-3 py-1.5 rounded-full text-xs transition-opacity duration-500"
-          style={{
-            opacity: hintVisible ? 1 : 0,
-            background: 'rgba(29, 29, 31, 0.8)',
-            color: '#ffffff',
-          }}
-        >
-          👌 Pinch to zoom · Drag to pan
-        </div>
-      )}
-    </div>
+      </TouchPinchZoom>
+    </React.Suspense>
   );
 };
+
+export const PinchZoomContainer = memo(PinchZoomContainerImpl);
