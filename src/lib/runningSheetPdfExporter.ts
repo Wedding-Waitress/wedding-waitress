@@ -13,6 +13,7 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { RunningSheetItem } from '@/types/runningSheet';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 const weddingWaitressLogo = '/wedding-waitress-logo-brown.png';
 
 interface Event {
@@ -313,10 +314,13 @@ export const exportRunningSheetPDF = async (
       totalPages += Math.ceil(remaining / usableHeightPage2PlusPx);
     }
 
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
     for (let page = 0; page < totalPages; page++) {
-      if (page > 0) pdf.addPage();
+      if (page > 0) {
+        pdf.addPage();
+        await yieldToBrowser();
+      }
 
       // Calculate source Y offset and slice height in content pixels
       let srcY: number;
@@ -366,7 +370,7 @@ export const exportRunningSheetPDF = async (
       drawPageFooter(pdf, logoDataUrl, page + 1, totalPages, timestamp);
     }
 
-    pdf.save(getRunningSheetPdfFileName(event));
+    await savePdfAsync(pdf, getRunningSheetPdfFileName(event));
   } finally {
     document.body.removeChild(container);
   }

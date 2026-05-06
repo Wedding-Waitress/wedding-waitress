@@ -12,6 +12,7 @@
  */
 import jsPDF from 'jspdf';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 interface Event {
   id: string;
@@ -408,7 +409,8 @@ export const exportSectionPDF = async (
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   const logoDataUrl = await loadLogoAsDataUrl();
@@ -443,7 +445,7 @@ export const exportSectionPDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-${safeSectionName}-${formattedDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
 
 // Export entire questionnaire to PDF
@@ -454,7 +456,8 @@ export const exportEntireQuestionnairePDF = async (
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   const logoDataUrl = await loadLogoAsDataUrl();
@@ -499,5 +502,5 @@ export const exportEntireQuestionnairePDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-DJ-MC Questionnaire-${formattedDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };

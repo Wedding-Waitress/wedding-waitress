@@ -53,6 +53,7 @@ import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { normalizeRsvp } from '@/lib/rsvp';
 import jsPDF from 'jspdf';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
 interface FullSeatingChartExporterProps {
   event: any;
@@ -126,7 +127,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
+        format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1',
+        ...PDF_DEFAULT_OPTIONS,
       });
       const margin = 10;
       const contentWidth = pageWidth - margin * 2;
@@ -353,7 +355,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Save PDF
       const fileName = `${event.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_seating_chart.pdf`;
-      pdf.save(fileName);
+      await savePdfAsync(pdf, fileName);
 
       // Complete
       setTimeout(() => {

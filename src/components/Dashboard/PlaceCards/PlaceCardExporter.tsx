@@ -18,6 +18,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 interface PlaceCardExporterProps {
   settings: PlaceCardSettings | null;
@@ -160,7 +161,8 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        ...PDF_DEFAULT_OPTIONS,
       });
 
       // A4 dimensions: 210mm x 297mm
@@ -185,6 +187,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
       for (let i = 0; i < placeCards.length; i += 6) {
         if (pageIndex > 0) {
           pdf.addPage();
+          await yieldToBrowser();
         }
 
         // Add page title
@@ -245,7 +248,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
 
       // Save the PDF
       const fileName = `${event?.name || 'Event'}_Place_Cards.pdf`;
-      pdf.save(fileName);
+      await savePdfAsync(pdf, fileName);
 
       toast({
         title: "Success",

@@ -12,6 +12,7 @@
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { format } from 'date-fns';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
 
 // Define the event type inline to avoid circular dependency with hooks
@@ -68,6 +69,7 @@ export const generateCeremonyFloorPlanPDF = async (
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   let yPos = MARGIN_TOP;
@@ -527,5 +529,5 @@ export const generateCeremonyFloorPlanPDF = async (
     : format(new Date(), 'dd-MM-yyyy');
   const fileName = `${eventName}-Ceremony-Floor Plan-${eventDateForFilename}.pdf`;
 
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
