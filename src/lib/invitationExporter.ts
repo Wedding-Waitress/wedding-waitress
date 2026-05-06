@@ -217,6 +217,7 @@ export async function exportBulkPDF(
     orientation: opts.orientation === 'portrait' ? 'portrait' : 'landscape',
     unit: 'mm',
     format: [opts.widthMm, opts.heightMm],
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   for (let i = 0; i < guests.length; i++) {
