@@ -635,9 +635,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </div>
                 )}
 
-                {/* A4 Page Container - Screen View (pinch-to-zoom on <1024px) */}
-
-
+                {/* A4 Page Container - horizontally scrollable on small screens, centered on desktop */}
+                <div className="w-full overflow-x-auto overflow-y-hidden">
+                  <div className="mx-auto" style={{ width: 'max-content' }}>
                   <div 
                     className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
                     style={{ 
