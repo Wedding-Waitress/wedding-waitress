@@ -104,15 +104,25 @@ export const Header: React.FC<HeaderProps> = ({
           <Link
             to="/"
             onClick={(e) => {
+              // Always close any open mobile menu
+              setMobileMenuOpen(false);
               if (location.pathname === '/') {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-              } else {
-                // Allow navigation, then scroll to top after route change
-                setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0);
+                return;
               }
+              // Navigate to "/" then force scroll to top after route mounts.
+              // Use multiple scroll attempts to handle iOS Safari + Android Chrome
+              // where the new route paints asynchronously.
+              const scrollTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              requestAnimationFrame(scrollTop);
+              setTimeout(scrollTop, 0);
+              setTimeout(scrollTop, 150);
+              setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 300);
             }}
-            className="flex items-center flex-shrink-0"
+            role="link"
+            aria-label="Go to homepage"
+            className="flex items-center flex-shrink-0 cursor-pointer touch-manipulation"
           >
             <img
               src="/wedding-waitress-logo-full.png"
