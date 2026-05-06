@@ -158,7 +158,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               </TabsContent>
             </Tabs>
 
-            <div className="flex justify-end pt-4 border-t-0">
+            <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
               <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
