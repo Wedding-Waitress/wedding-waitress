@@ -502,5 +502,5 @@ export const exportEntireQuestionnairePDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-DJ-MC Questionnaire-${formattedDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
