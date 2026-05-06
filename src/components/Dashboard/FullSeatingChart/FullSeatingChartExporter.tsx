@@ -127,7 +127,8 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1'
+        format: settings.paperSize.toLowerCase() as 'a4' | 'a3' | 'a2' | 'a1',
+        ...PDF_DEFAULT_OPTIONS,
       });
       const margin = 10;
       const contentWidth = pageWidth - margin * 2;
