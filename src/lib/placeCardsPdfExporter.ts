@@ -77,6 +77,7 @@ export const exportPlaceCardPageToPdf = async (
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
+      ...PDF_DEFAULT_OPTIONS,
     });
 
     // Add the captured image to fill entire A4 page
@@ -85,8 +86,8 @@ export const exportPlaceCardPageToPdf = async (
     // Generate filename
     const fileName = `PlaceCards-WeddingWaitress-SinglePage-${event.name}.pdf`;
 
-    // Save the PDF
-    pdf.save(fileName);
+    // Save the PDF (async blob download for stability)
+    await savePdfAsync(pdf, fileName);
   } catch (error) {
     console.error('Place card PDF export error:', error);
     throw error;
