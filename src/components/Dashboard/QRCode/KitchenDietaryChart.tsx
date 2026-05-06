@@ -796,6 +796,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </div>
                     </div>
                   </div>
+                  </div>
+                </div>
 
                 {/* Page Navigation Bottom */}
                 {totalPages > 1 && (
