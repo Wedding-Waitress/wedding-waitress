@@ -258,7 +258,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Action Buttons - centered in full card width */}
           {isEditable && (
-            <div className="flex gap-3 justify-center pt-1">
+            <div className="flex flex-wrap gap-3 justify-center pt-1">
               <Button
                 size="sm"
                 onClick={() => updateRsvp('Attending')}
