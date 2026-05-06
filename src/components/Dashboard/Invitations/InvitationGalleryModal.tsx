@@ -44,9 +44,11 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
     <Dialog open={open} onOpenChange={(val) => { if (!val) setPreviewImage(null); onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-primary" />
-            Invitation Image Gallery
+          <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-primary" />
+              Invitation Image Gallery
+            </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
           </DialogTitle>
         </DialogHeader>
@@ -116,7 +118,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                   </div>
                 ) : (
                   <ScrollArea className="h-[500px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
@@ -156,7 +158,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               </TabsContent>
             </Tabs>
 
-            <div className="flex justify-end pt-4 border-t-0">
+            <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
               <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
