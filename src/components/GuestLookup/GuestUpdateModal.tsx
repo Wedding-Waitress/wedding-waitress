@@ -312,14 +312,17 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   // MOBILE: render as a true body-portal bottom sheet, independent of any
   // page/card transforms, overflow clipping, or dialog primitives.
-  if (isMobile && open) {
+  if (isMobile && open && typeof document !== 'undefined') {
     return createPortal(
       <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
         <div
           className="fixed inset-0 bg-black/60"
           onClick={() => onOpenChange(false)}
         />
-        <div className="fixed bottom-0 left-0 right-0 flex flex-col max-h-[92dvh] w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden">
+        <div
+          className="fixed inset-x-0 bottom-0 flex flex-col w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden"
+          style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+        >
           <div className="relative shrink-0 px-4 pt-5 pb-3 border-b">
             <h2 className="text-center text-lg font-semibold text-primary pr-10">
               {headerTitle}
