@@ -61,41 +61,17 @@ const DialogContent = React.forwardRef<
         "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         // Rounded corners on larger screens
         "sm:rounded-lg",
-        // MOBILE FIX: iOS Safari's dynamic URL bar makes 100vh taller than
-        // the visible area, so a vertically-centered tall dialog ends up with
-        // its top half hidden behind the address bar. We top-align on mobile
-        // and use dvh (dynamic viewport height) so the dialog always fits the
-        // currently visible viewport on iPhone/Android.
-        trueFullScreenOnMobile
-          ? [
-              "max-md:fixed max-md:inset-0 max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0",
-              "max-md:translate-x-0 max-md:translate-y-0",
-              "max-md:w-full max-md:max-w-full max-md:h-[100dvh] max-md:max-h-[100dvh]",
-              "max-md:m-0 max-md:rounded-none max-md:border-0",
-              "max-md:flex max-md:flex-col",
-              "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
-              "max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2",
-            ]
-          : bottomSheetOnMobile
-          ? [
-              "max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:top-auto",
-              "max-md:translate-x-0 max-md:translate-y-0",
-              "max-md:w-full max-md:max-w-full max-md:mx-0",
-              "max-md:max-h-[85dvh] max-md:overflow-y-auto",
-              "max-md:rounded-t-[20px] max-md:rounded-b-none",
-              "max-md:data-[state=open]:slide-in-from-bottom max-md:data-[state=closed]:slide-out-to-bottom",
-              "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
-            ]
-          : fullScreenOnMobile
-          ? [
-              "max-lg:w-[calc(100%-2rem)] max-lg:max-w-[calc(100%-2rem)] max-lg:mx-auto",
-              "max-lg:top-[2dvh] max-lg:translate-y-0",
-              "max-lg:max-h-[96dvh] max-lg:rounded-xl max-lg:border max-lg:flex max-lg:flex-col",
-            ]
-          : [
-              "max-sm:top-[2dvh] max-sm:translate-y-0",
-              "max-sm:max-h-[96dvh] max-sm:w-[calc(100%-2rem)] max-sm:rounded-xl",
-            ],
+        // GLOBAL MOBILE FULL-SCREEN: every dialog in the app becomes a true
+        // full-screen overlay below 768px. Desktop/tablet (>=768px) unchanged.
+        // The legacy fullScreenOnMobile / bottomSheetOnMobile / trueFullScreenOnMobile
+        // props are kept for backwards compatibility but no longer alter mobile layout.
+        "max-md:fixed max-md:inset-0 max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0",
+        "max-md:translate-x-0 max-md:translate-y-0",
+        "max-md:w-full max-md:max-w-none max-md:h-[100dvh] max-md:max-h-[100dvh]",
+        "max-md:m-0 max-md:rounded-none max-md:border-0",
+        "max-md:flex max-md:flex-col max-md:overflow-y-auto",
+        "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
+        "max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2",
         className,
       )}
       {...props}
