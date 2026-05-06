@@ -18,6 +18,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 interface PlaceCardExporterProps {
   settings: PlaceCardSettings | null;
