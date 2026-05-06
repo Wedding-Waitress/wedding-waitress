@@ -12,6 +12,7 @@
  */
 import jsPDF from 'jspdf';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 interface Event {
   id: string;
