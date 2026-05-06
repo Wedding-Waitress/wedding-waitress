@@ -731,9 +731,38 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             </Button>
           </div>
         )}
+    </>
+  );
+
+  const mobileSheet = isMobile && open ? createPortal(
+    <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 bg-black/60" onClick={() => onOpenChange(false)} />
+      <div className="fixed bottom-0 left-0 right-0 flex flex-col max-h-[92dvh] w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden">
+        <div
+          className="relative flex-1 flex flex-col overflow-hidden"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
+        >
+          {/* The innerContent renders its own scroll body and sticky footer.
+              We add a flex column wrapper so it fills the sheet. */}
+          <div className="flex-1 flex flex-col overflow-hidden px-4 pt-5">
+            {innerContent}
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  ) : null;
+
+  return (
+    <>
+    {mobileSheet}
+    {!isMobile && (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden">
+        {innerContent}
       </DialogContent>
     </Dialog>
-
+    )}
       {/* Partner/Friend Prompt for Individual */}
       <Dialog open={showPartnerPrompt} onOpenChange={setShowPartnerPrompt}>
         <DialogContent className="max-w-sm [&>button:last-child]:hidden">
