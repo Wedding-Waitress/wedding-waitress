@@ -314,6 +314,166 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     </div>
   );
 
+  const bodyContent = (
+    <>
+      {/* Validation Message */}
+      {!formData.ceremony_enabled && !formData.reception_enabled && (
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center whitespace-pre-line">
+          {"Please enable at least one section below\n(Ceremony or Reception) \nto create an event."}
+        </div>
+      )}
+      {/* CEREMONY SECTION */}
+      <div className="border-2 border-border rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
+          <h3 className="text-lg font-semibold text-foreground">Ceremony</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">{formData.ceremony_enabled ? 'Yes' : 'No'}</span>
+            <button type="button" role="switch" aria-checked={formData.ceremony_enabled}
+              onClick={() => setFormData(prev => ({ ...prev, ceremony_enabled: !prev.ceremony_enabled }))}
+              className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.ceremony_enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
+              <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${formData.ceremony_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
+            </button>
+            <div className="hidden lg:block">
+              <Switch checked={formData.ceremony_enabled} onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))} />
+            </div>
+          </div>
+        </div>
+        {formData.ceremony_enabled ? (
+          <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Ceremony Name *</Label>
+                <EventNameCombobox mainEventName={formData.event_name} value={formData.ceremony_name}
+                  onChange={(name) => setFormData(prev => ({ ...prev, ceremony_name: name }))} placeholder="e.g., Bride & Groom's Name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Ceremony Date *</Label>
+                <EventDatePicker value={formData.ceremony_date} onChange={(date) => setFormData(prev => ({ ...prev, ceremony_date: date }))} placeholder="Select date" filled={!!formData.ceremony_date} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">RSVP Deadline *</Label>
+                <EventDatePicker value={formData.ceremony_rsvp_deadline} onChange={(date) => setFormData(prev => ({ ...prev, ceremony_rsvp_deadline: date }))} placeholder="Select deadline" filled={!!formData.ceremony_rsvp_deadline} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Guest Limit</Label>
+                <Input type="number" min="0" value={formData.ceremony_guest_limit}
+                  onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
+                  placeholder="10" className={`h-10 sm:h-9 ${getInputClass(formData.ceremony_guest_limit !== '')}`} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Location Name *</Label>
+                <Input value={formData.ceremony_venue} onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
+                  placeholder="e.g., Church/Venue" className={`h-10 sm:h-9 ${getInputClass(!!formData.ceremony_venue.trim())}`} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Location Details</Label>
+                <LocationDetailsPopover address={formData.ceremony_venue_address} phone={formData.ceremony_venue_phone} contact={formData.ceremony_venue_contact}
+                  onSave={({ address, phone, contact }) => setFormData((prev) => ({ ...prev, ceremony_venue_address: address, ceremony_venue_phone: phone, ceremony_venue_contact: contact }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Start Time *</Label>
+                <TimePicker value={formData.ceremony_start_time} onChange={(time) => setFormData(prev => ({ ...prev, ceremony_start_time: time }))} placeholder="Select time" filled={!!formData.ceremony_start_time} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Finish Time *</Label>
+                <TimePicker value={formData.ceremony_finish_time} onChange={(time) => setFormData(prev => ({ ...prev, ceremony_finish_time: time }))} placeholder="Select time" filled={!!formData.ceremony_finish_time} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 text-center text-muted-foreground text-sm">Toggle on to add ceremony details</div>
+        )}
+      </div>
+      {/* RECEPTION SECTION */}
+      <div className="border-2 border-border rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
+          <h3 className="text-lg font-semibold text-foreground">Reception</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">{formData.reception_enabled ? 'Yes' : 'No'}</span>
+            <button type="button" role="switch" aria-checked={formData.reception_enabled}
+              onClick={() => setFormData(prev => ({ ...prev, reception_enabled: !prev.reception_enabled }))}
+              className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.reception_enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
+              <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${formData.reception_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
+            </button>
+            <div className="hidden lg:block">
+              <Switch checked={formData.reception_enabled} onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))} />
+            </div>
+          </div>
+        </div>
+        {formData.reception_enabled ? (
+          <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
+            <div className="space-y-1.5 max-lg:mt-3 max-lg:space-y-2">
+              <Label className="text-xs">Event Type *</Label>
+              <div className="lg:hidden grid grid-cols-2 gap-2 mt-2">
+                <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                  className={`lv-premium-shade w-full py-3 rounded-full text-sm transition-all ${formData.event_type === 'seated' ? 'bg-green-500 text-white border-none' : 'bg-secondary border-2 border-primary text-primary'}`}>Seated Event</button>
+                <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                  className={`lv-premium-shade w-full py-3 rounded-full text-sm transition-all ${formData.event_type === 'cocktail' ? 'bg-green-500 text-white border-none' : 'bg-secondary border-2 border-primary text-primary'}`}>Cocktail/Stand-up</button>
+              </div>
+              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md">
+                <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
+                  className={`lv-premium-shade w-full h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${formData.event_type === 'seated' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'}`}>Seated Event</button>
+                <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
+                  className={`lv-premium-shade w-full h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${formData.event_type === 'cocktail' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'}`}>Cocktail/Stand-up</button>
+              </div>
+              <p className="text-xs lg:text-xs text-muted-foreground max-lg:mt-2 max-lg:text-sm">{formData.event_type === 'seated' ? 'Guests will be assigned to tables and seats' : 'No table assignments - guests mingle freely'}</p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Event Name *</Label>
+                <EventNameCombobox mainEventName={formData.event_name} value={formData.name}
+                  onChange={(name) => { markReceptionOverride('name'); setFormData(prev => ({ ...prev, name })); }} placeholder="e.g., Bride & Groom's Name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Event Date *</Label>
+                <EventDatePicker value={formData.date} onChange={(date) => { markReceptionOverride('date'); setFormData(prev => ({ ...prev, date })); }} placeholder="Select date" filled={!!formData.date} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">RSVP Deadline *</Label>
+                <EventDatePicker value={formData.rsvp_deadline} onChange={(date) => { markReceptionOverride('rsvp_deadline'); setFormData(prev => ({ ...prev, rsvp_deadline: date })); }} placeholder="Select deadline" filled={!!formData.rsvp_deadline} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Guest Limit</Label>
+                <Input type="number" min="0" value={formData.guest_limit}
+                  onChange={(e) => { markReceptionOverride('guest_limit'); handleGuestLimitChange(e.target.value, 'guest_limit'); }}
+                  placeholder="10" className={getInputClass(formData.guest_limit !== '')} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Location/Venue *</Label>
+                <Input value={formData.venue}
+                  onChange={(e) => { markReceptionOverride('venue'); setFormData(prev => ({ ...prev, venue: e.target.value })); }}
+                  placeholder="e.g., Reception Venue" className={getInputClass(!!formData.venue.trim())} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Location/Venue Details</Label>
+                <LocationDetailsPopover address={formData.venue_address} phone={formData.venue_phone} contact={formData.venue_contact}
+                  onSave={({ address, phone, contact }) => { markReceptionOverride('venue_address'); markReceptionOverride('venue_phone'); markReceptionOverride('venue_contact'); setFormData((prev) => ({ ...prev, venue_address: address, venue_phone: phone, venue_contact: contact })); }} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Start Time *</Label>
+                <TimePicker value={formData.start_time} onChange={(time) => setFormData(prev => ({ ...prev, start_time: time }))} placeholder="Select time" filled={!!formData.start_time} />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Finish Time *</Label>
+                <TimePicker value={formData.finish_time} onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))} placeholder="Select time" filled={!!formData.finish_time} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 text-center text-muted-foreground text-sm">Toggle on to add reception details</div>
+        )}
+      </div>
+    </>
+  );
+
   // Mobile: render via plain portal to document.body, bypassing Radix entirely
   if (isMobile) {
     if (!isOpen) return null;
