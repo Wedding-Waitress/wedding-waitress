@@ -53,6 +53,7 @@ import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { normalizeRsvp } from '@/lib/rsvp';
 import jsPDF from 'jspdf';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
 interface FullSeatingChartExporterProps {
   event: any;
