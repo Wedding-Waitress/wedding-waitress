@@ -456,7 +456,8 @@ export const exportEntireQuestionnairePDF = async (
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   const logoDataUrl = await loadLogoAsDataUrl();
