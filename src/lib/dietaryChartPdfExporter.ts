@@ -186,7 +186,8 @@ export const exportDietaryChartToPdf = async (
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   const pageWidth = 210; // A4 width in mm
