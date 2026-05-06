@@ -307,8 +307,6 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     }
   };
 
-  if (!event) return null;
-
   // Track mobile viewport - on mobile we bypass Radix Dialog entirely
   const [isMobile, setIsMobile] = useState<boolean>(
     typeof window !== 'undefined' ? window.innerWidth < 768 : false
@@ -326,6 +324,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
       return () => { document.body.style.overflow = prev; };
     }
   }, [isMobile, isOpen]);
+
+  if (!event) return null;
 
   const bodyContent = (
     <>
