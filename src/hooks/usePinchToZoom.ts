@@ -79,23 +79,29 @@ export function usePinchToZoom(
     const el = containerRef.current;
     if (!el) return;
 
+    let rafId: number | null = null;
     const compute = () => {
+      rafId = null;
       const w = el.clientWidth || 1;
       const f = Math.min(1, w / naturalWidth);
-      setFitScale(f);
-      // Do NOT auto-scale content at rest. Leave scale=1 so the page
-      // renders in its natural responsive flow; user can pinch in/out.
+      setFitScale((prev) => (Math.abs(prev - f) < 0.001 ? prev : f));
+    };
+    const schedule = () => {
+      if (rafId != null) return;
+      rafId = window.requestAnimationFrame(compute);
     };
 
     compute();
-    const ro = new ResizeObserver(compute);
+    const ro = new ResizeObserver(schedule);
     ro.observe(el);
-    window.addEventListener('resize', compute);
+    window.addEventListener('resize', schedule, { passive: true });
     return () => {
+      if (rafId != null) window.cancelAnimationFrame(rafId);
       ro.disconnect();
-      window.removeEventListener('resize', compute);
+      window.removeEventListener('resize', schedule);
     };
   }, [containerRef, fitToContainer, naturalWidth]);
+
 
   const distance = (a: React.Touch, b: React.Touch) => {
     const dx = a.clientX - b.clientX;
@@ -135,6 +141,37 @@ export function usePinchToZoom(
     [scale, effectiveMin, translateX, translateY, reset]
   );
 
+  // rAF-coalesced pending updates — collapse many touchmove events per frame
+  // into a single React state update. Massive perf win during pinch/pan.
+  const rafIdRef = useRef<number | null>(null);
+  const pendingRef = useRef<{ scale?: number; tx?: number; ty?: number }>({});
+  const flush = useCallback(() => {
+    rafIdRef.current = null;
+    const p = pendingRef.current;
+    pendingRef.current = {};
+    if (p.scale !== undefined) setScale(p.scale);
+    if (p.tx !== undefined) setTranslateX(p.tx);
+    if (p.ty !== undefined) setTranslateY(p.ty);
+  }, []);
+  const schedule = useCallback(
+    (patch: { scale?: number; tx?: number; ty?: number }) => {
+      pendingRef.current = { ...pendingRef.current, ...patch };
+      if (rafIdRef.current == null) {
+        rafIdRef.current = window.requestAnimationFrame(flush);
+      }
+    },
+    [flush]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current != null) {
+        window.cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
+  }, []);
+
   const onTouchMove = useCallback(
     (e: React.TouchEvent) => {
       if (e.touches.length === 2 && pinchStartDist.current != null) {
@@ -144,18 +181,18 @@ export function usePinchToZoom(
         let next = pinchStartScale.current * ratio;
         next = Math.max(effectiveMin, Math.min(maxScale, next));
         userInteracted.current = true;
-        setScale(next);
+        schedule({ scale: next });
       } else if (e.touches.length === 1 && panStart.current) {
         e.preventDefault();
         const dx = e.touches[0].clientX - panStart.current.x;
         const dy = e.touches[0].clientY - panStart.current.y;
         userInteracted.current = true;
-        setTranslateX(panStart.current.tx + dx);
-        setTranslateY(panStart.current.ty + dy);
+        schedule({ tx: panStart.current.tx + dx, ty: panStart.current.ty + dy });
       }
     },
-    [effectiveMin, maxScale]
+    [effectiveMin, maxScale, schedule]
   );
+
 
   const onTouchEnd = useCallback((e: React.TouchEvent) => {
     if (e.touches.length < 2) pinchStartDist.current = null;
