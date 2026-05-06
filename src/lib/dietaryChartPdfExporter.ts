@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
 interface DietaryGuest {
   id: string;
@@ -185,7 +186,8 @@ export const exportDietaryChartToPdf = async (
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   const pageWidth = 210; // A4 width in mm
@@ -563,5 +565,5 @@ export const exportDietaryChartToPdf = async (
     return `${dd}-${mm}-${yyyy}`;
   })() : new Date().toISOString().split('T')[0];
   const fileName = `${safeName}-Dietary Requirements-${pageLabel}-${eventDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };

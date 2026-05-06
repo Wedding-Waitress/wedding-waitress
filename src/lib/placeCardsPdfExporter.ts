@@ -13,6 +13,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 /**
  * Capture a single place card page as high-resolution image
@@ -76,6 +77,7 @@ export const exportPlaceCardPageToPdf = async (
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
+      ...PDF_DEFAULT_OPTIONS,
     });
 
     // Add the captured image to fill entire A4 page
@@ -84,8 +86,8 @@ export const exportPlaceCardPageToPdf = async (
     // Generate filename
     const fileName = `PlaceCards-WeddingWaitress-SinglePage-${event.name}.pdf`;
 
-    // Save the PDF
-    pdf.save(fileName);
+    // Save the PDF (async blob download for stability)
+    await savePdfAsync(pdf, fileName);
   } catch (error) {
     console.error('Place card PDF export error:', error);
     throw error;
@@ -116,12 +118,14 @@ export const exportAllPlaceCardsToPdf = async (
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
+      ...PDF_DEFAULT_OPTIONS,
     });
 
     // Capture and add each page
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
       if (pageIndex > 0) {
         pdf.addPage();
+        await yieldToBrowser();
       }
 
       const imageData = await convertPlaceCardPageToImage(pageIndex);
@@ -131,8 +135,8 @@ export const exportAllPlaceCardsToPdf = async (
     // Generate filename
     const fileName = `PlaceCards-WeddingWaitress-AllPages-${event.name}.pdf`;
 
-    // Save the PDF
-    pdf.save(fileName);
+    // Save the PDF (async blob download for stability)
+    await savePdfAsync(pdf, fileName);
   } catch (error) {
     console.error('All place cards PDF export error:', error);
     throw error;

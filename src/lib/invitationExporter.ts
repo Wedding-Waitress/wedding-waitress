@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { waitForFonts } from '@/lib/googleFonts';
 import type { QrConfig } from '@/lib/invitationQR';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 // Card sizes in mm
 const A6_W_MM = 105;
@@ -156,10 +157,11 @@ export async function exportInvitationPDF(opts: ExportOptions, guestName?: strin
     orientation: opts.orientation === 'portrait' ? 'portrait' : 'landscape',
     unit: 'mm',
     format: [opts.widthMm, opts.heightMm],
+    ...PDF_DEFAULT_OPTIONS,
   });
   const imgData = canvas.toDataURL('image/png');
   pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
-  pdf.save(fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
+  await savePdfAsync(pdf, fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
 }
 
 /** Export 2-up A4 layout (two A5 invitations per page) */
@@ -168,7 +170,7 @@ export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
   const canvas = await captureElement(el);
   const imgData = canvas.toDataURL('image/png');
 
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
   // Center horizontally on A4
   const offsetX = (A4_W_MM - A5_W_MM) / 2;
@@ -200,7 +202,7 @@ export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
     pdf.line(x, y + 1, x, y + 5); // bottom tick
   });
 
-  pdf.save('invitation-2up-A4.pdf');
+  await savePdfAsync(pdf, 'invitation-2up-A4.pdf');
 }
 
 /** Bulk export: one personalised invitation per guest as multi-page PDF */
@@ -215,12 +217,16 @@ export async function exportBulkPDF(
     orientation: opts.orientation === 'portrait' ? 'portrait' : 'landscape',
     unit: 'mm',
     format: [opts.widthMm, opts.heightMm],
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   for (let i = 0; i < guests.length; i++) {
     const guest = guests[i];
     const name = `${guest.first_name}${guest.last_name ? ' ' + guest.last_name : ''}`;
-    if (i > 0) pdf.addPage([opts.widthMm, opts.heightMm]);
+    if (i > 0) {
+      pdf.addPage([opts.widthMm, opts.heightMm]);
+      await yieldToBrowser();
+    }
 
     const el = buildInvitationElement(opts, name);
     const canvas = await captureElement(el);
@@ -230,5 +236,5 @@ export async function exportBulkPDF(
     onProgress?.(i + 1, guests.length);
   }
 
-  pdf.save('invitations-all-guests.pdf');
+  await savePdfAsync(pdf, 'invitations-all-guests.pdf');
 }

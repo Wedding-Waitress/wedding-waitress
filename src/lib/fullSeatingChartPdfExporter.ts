@@ -7,6 +7,7 @@ import {
   FOOTER_META_Y_MM, FOOTER_LOGO_Y_MM, FOOTER_START_MM,
   paginateGuests,
 } from '@/lib/fullSeatingChartLayout';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 interface Guest {
   id: string;
@@ -169,7 +170,8 @@ export const exportFullSeatingChartToPdf = async (
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: 'a4'
+    format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   const margin = MARGIN_LEFT_MM;
@@ -197,7 +199,11 @@ export const exportFullSeatingChartToPdf = async (
   const endPage = pageNum || totalPages;
 
   for (let currentPageNum = startPage; currentPageNum <= endPage; currentPageNum++) {
-    if (currentPageNum > startPage) pdf.addPage();
+    if (currentPageNum > startPage) {
+      pdf.addPage();
+      // Yield between pages so the UI stays responsive on large exports.
+      await yieldToBrowser();
+    }
 
     const startIdx = (currentPageNum - 1) * guestsPerPage;
     const endIdx = Math.min(startIdx + guestsPerPage, guests.length);
@@ -393,5 +399,5 @@ export const exportFullSeatingChartToPdf = async (
   const pageLabel = pageNum ? 'Single Page' : 'All Pages';
   const safeName = event.name.replace(/[\/:*?"<>|]/g, '');
   const fileName = `${safeName}-Full Seating Chart-${pageLabel}-${formattedDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
