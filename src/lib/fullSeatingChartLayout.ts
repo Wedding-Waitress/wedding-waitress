@@ -39,8 +39,8 @@ export const PAGE_WIDTH_MM = 210;
 export const PAGE_HEIGHT_MM = 297;
 
 // ── Margins ─────────────────────────────────────────────────────────────────
-export const MARGIN_LEFT_MM = 12.7;
-export const MARGIN_RIGHT_MM = 12.7;
+export const MARGIN_LEFT_MM = 8;
+export const MARGIN_RIGHT_MM = 8;
 export const MARGIN_TOP_MM = 10;
 
 // ── Header zone ─────────────────────────────────────────────────────────────
