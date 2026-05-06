@@ -42,12 +42,33 @@ const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQues
 const InvitationsPage = lazy(() => import('@/components/Dashboard/Invitations/InvitationsPage').then(m => ({ default: m.InvitationsPage })));
 const Account = lazy(() => import('@/pages/Account').then(m => ({ default: m.Account })));
 
-// Minimal inline spinner for lazy suspense boundaries
+// Unified global page loader — used as Suspense fallback for every dashboard tab.
+// Centered, height-stable, neutral Wedding Waitress styling, smooth fade-in.
 const TabLoader = () => (
-  <div className="flex items-center justify-center py-12">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+  <div
+    className="flex flex-col items-center justify-center w-full animate-in fade-in duration-300"
+    style={{ minHeight: '60vh' }}
+    role="status"
+    aria-live="polite"
+  >
+    <div
+      className="rounded-full border-4 animate-spin"
+      style={{
+        width: 44,
+        height: 44,
+        borderColor: 'rgba(150, 122, 89, 0.2)',
+        borderTopColor: '#967A59',
+      }}
+    />
+    <p
+      className="mt-4 text-sm font-medium"
+      style={{ color: '#6E6E73', letterSpacing: '0.01em' }}
+    >
+      Loading Page...
+    </p>
   </div>
 );
+
 
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
