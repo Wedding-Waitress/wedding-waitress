@@ -195,165 +195,174 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   if (!guest) return null;
 
+  const headerTitle = 'Update Your Information';
+  const headerSubtitle = (
+    <div className="text-sm text-foreground space-y-1">
+      <span className="block">{helperText || "Please update, edit your details & save below."}</span>
+      <span className="block">You're info will automatically be sent to the event organiser</span>
+    </div>
+  );
+
+  const formBody = !isEditable ? (
+    <div className="text-center space-y-2">
+      <p className="text-sm font-medium text-destructive">
+        RSVP date has passed. Please contact the organiser to make changes.
+      </p>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="email">Email Address</Label>
+        <Input id="email" type="email" value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          placeholder="Enter your email address" disabled={!isEditable}
+          className="border-primary w-full" />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="mobile">Mobile Number</Label>
+        <Input id="mobile" type="tel" value={formData.mobile}
+          onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+          placeholder="0411569505" disabled={!isEditable}
+          className="border-primary w-full" />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="dietary">Dietary Requirements</Label>
+        <Select value={formData.dietary}
+          onValueChange={(value) => setFormData({ ...formData, dietary: value })}
+          disabled={!isEditable}>
+          <SelectTrigger id="dietary" className="border-primary w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {dietaryOptions.map((option) => (
+              <SelectItem key={option} value={option}>{option}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      {showMessageField && (
+        <div className="space-y-2">
+          <Label htmlFor="notes">Special Requests or Notes</Label>
+          <Textarea id="notes" value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            placeholder="Any special requests, allergies, or additional information..."
+            rows={3} disabled={!isEditable} className="border-primary w-full" />
+        </div>
+      )}
+      {allowNameEdit && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="first_name">First Name</Label>
+            <Input id="first_name" value={formData.first_name}
+              onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+              placeholder="First name" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input id="last_name" value={formData.last_name}
+              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+              placeholder="Last name" />
+          </div>
+        </div>
+      )}
+      {(() => {
+        if (!guest?.family_group || allGuests.length === 0) return null;
+        const groupMembers = allGuests.filter(
+          (g: any) => g.family_group === guest.family_group && g.id !== guest.id
+        );
+        if (groupMembers.length === 0) return null;
+        const guestFullName = `${guest.first_name} ${guest.last_name || ''}`.trim();
+        const groupType = groupMembers.length === 1 ? 'Couple' : 'Family';
+        return (
+          <div className="border border-primary rounded-xl p-3 space-y-2 bg-primary/5">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">
+                {guestFullName} is part of a {groupType}
+              </p>
+            </div>
+            <ul className="space-y-1 pl-6">
+              {groupMembers.map((m: any) => (
+                <li key={m.id} className="text-sm text-foreground">
+                  • {m.first_name} {m.last_name || ''}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })()}
+    </div>
+  );
+
+  const footerButtons = (
+    <>
+      {isEditable && (
+        <Button onClick={handleSave} disabled={saving}
+          className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-full py-2">
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save Changes
+        </Button>
+      )}
+      <Button variant="destructive" onClick={() => onOpenChange(false)} disabled={saving}
+        className={`${isEditable ? 'flex-1' : 'w-full'} bg-red-500 hover:bg-red-600 text-white rounded-full py-2`}>
+        Cancel
+      </Button>
+    </>
+  );
+
+  // MOBILE: render as a true body-portal bottom sheet, independent of any
+  // page/card transforms, overflow clipping, or dialog primitives.
+  if (isMobile && open) {
+    return createPortal(
+      <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 bg-black/60"
+          onClick={() => onOpenChange(false)}
+        />
+        <div className="fixed bottom-0 left-0 right-0 flex flex-col max-h-[92dvh] w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden">
+          <div className="relative shrink-0 px-4 pt-5 pb-3 border-b">
+            <h2 className="text-center text-lg font-semibold text-primary pr-10">
+              {headerTitle}
+            </h2>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => onOpenChange(false)}
+              className="absolute right-3 top-3 inline-flex items-center justify-center h-9 w-9 rounded-full border-2 border-primary bg-white"
+            >
+              <X className="h-4 w-4 text-primary" />
+            </button>
+            <div className="mt-2 px-1">{headerSubtitle}</div>
+          </div>
+          <div
+            className="flex-1 overflow-y-auto overscroll-contain px-4 pt-5 pb-28"
+            style={{ WebkitOverflowScrolling: 'touch' as any }}
+          >
+            {formBody}
+          </div>
+          <div
+            className="sticky bottom-0 z-50 flex shrink-0 flex-row gap-3 bg-background border-t px-4 py-4"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
+          >
+            {footerButtons}
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  // DESKTOP / TABLET (>=1024px): unchanged dialog
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!transform-none max-lg:!rounded-none max-lg:!border-0 max-lg:!overflow-visible max-lg:[&>button:last-child]:top-3 max-lg:[&>button:last-child]:right-4">
-        <DialogHeader className="px-6 pt-6 pb-4 shrink-0 max-lg:pt-6 max-lg:pr-14 max-lg:text-center">
-          <DialogTitle className="text-primary">Update Your Information</DialogTitle>
-          <DialogDescription className="text-sm text-foreground space-y-1">
-            <span className="block">{helperText || "Please update, edit your details & save below."}</span>
-            <span className="block">You're info will automatically be sent to the event organiser</span>
-          </DialogDescription>
+      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
+          <DialogTitle className="text-primary">{headerTitle}</DialogTitle>
+          <DialogDescription asChild>{headerSubtitle}</DialogDescription>
         </DialogHeader>
-
-        {!isEditable ? (
-          <div className="px-6 py-8 text-center space-y-2 flex-1 overflow-y-auto max-lg:pb-28">
-            <p className="text-sm font-medium text-destructive">
-              RSVP date has passed. Please contact the organiser to make changes.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container max-lg:overscroll-contain max-lg:pb-28 max-lg:[-webkit-overflow-scrolling:touch]">
-            {/* RSVP Status removed - handled by Accept/Decline buttons on home screen */}
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="Enter your email address"
-                disabled={!isEditable}
-                className="border-primary"
-              />
-            </div>
-
-            {/* Mobile */}
-            <div className="space-y-2">
-              <Label htmlFor="mobile">Mobile Number</Label>
-              <Input
-                id="mobile"
-                type="tel"
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                placeholder="0411569505"
-                disabled={!isEditable}
-                className="border-primary"
-              />
-            </div>
-
-            {/* Dietary Requirements */}
-            <div className="space-y-2">
-              <Label htmlFor="dietary">Dietary Requirements</Label>
-              <Select
-                value={formData.dietary}
-                onValueChange={(value) => setFormData({ ...formData, dietary: value })}
-                disabled={!isEditable}
-              >
-                <SelectTrigger id="dietary" className="border-primary">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {dietaryOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Message / Special Requests */}
-            {showMessageField && (
-              <div className="space-y-2">
-                <Label htmlFor="notes">Special Requests or Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Any special requests, allergies, or additional information..."
-                  rows={3}
-                  disabled={!isEditable}
-                  className="border-primary"
-                />
-              </div>
-            )}
-
-            {/* Full Name - Only show if allowed */}
-            {allowNameEdit && (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="first_name">First Name</Label>
-                  <Input
-                    id="first_name"
-                    value={formData.first_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                    placeholder="First name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="last_name">Last Name</Label>
-                  <Input
-                    id="last_name"
-                    value={formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                    placeholder="Last name"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Family/Couple Group Info */}
-            {(() => {
-              if (!guest?.family_group || allGuests.length === 0) return null;
-              const groupMembers = allGuests.filter(
-                (g: any) => g.family_group === guest.family_group && g.id !== guest.id
-              );
-              if (groupMembers.length === 0) return null;
-              const guestFullName = `${guest.first_name} ${guest.last_name || ''}`.trim();
-              const groupType = groupMembers.length === 1 ? 'Couple' : 'Family';
-              return (
-                <div className="border border-primary rounded-xl p-3 space-y-2 bg-primary/5">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" />
-                    <p className="text-sm font-medium text-foreground">
-                      {guestFullName} is part of a {groupType}
-                    </p>
-                  </div>
-                  <ul className="space-y-1 pl-6">
-                    {groupMembers.map((m: any) => (
-                      <li key={m.id} className="text-sm text-foreground">
-                        • {m.first_name} {m.last_name || ''}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })()}
-          </div>
-        )}
-
-        <div className="sticky bottom-0 z-50 flex shrink-0 flex-row gap-3 bg-background px-6 py-4 border-t sm:justify-center max-lg:pb-[max(16px,env(safe-area-inset-bottom))]">
-          {isEditable && (
-            <Button 
-              onClick={handleSave} 
-              disabled={saving}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-full py-2"
-            >
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
-            </Button>
-          )}
-          <Button
-            variant="destructive"
-            onClick={() => onOpenChange(false)}
-            disabled={saving}
-            className={`${isEditable ? 'flex-1' : 'w-full'} bg-red-500 hover:bg-red-600 text-white rounded-full py-2`}
-          >
-            Cancel
-          </Button>
+        <div className="px-6 py-4 overflow-y-auto flex-1">{formBody}</div>
+        <div className="flex shrink-0 flex-row gap-3 bg-background px-6 py-4 border-t sm:justify-center">
+          {footerButtons}
         </div>
       </DialogContent>
     </Dialog>
