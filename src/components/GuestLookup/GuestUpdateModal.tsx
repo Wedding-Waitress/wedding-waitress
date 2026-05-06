@@ -81,6 +81,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   isEditable = true,
   allGuests = []
 }) => {
+  const isMobile = useIsMobile();
   const [saving, setSaving] = useState(false);
   const [initialRsvp, setInitialRsvp] = useState('Pending');
   const [formData, setFormData] = useState({
