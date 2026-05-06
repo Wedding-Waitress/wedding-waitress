@@ -355,7 +355,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
 
       // Save PDF
       const fileName = `${event.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_seating_chart.pdf`;
-      pdf.save(fileName);
+      await savePdfAsync(pdf, fileName);
 
       // Complete
       setTimeout(() => {
