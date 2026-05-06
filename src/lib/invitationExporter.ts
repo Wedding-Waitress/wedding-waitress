@@ -202,7 +202,7 @@ export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
     pdf.line(x, y + 1, x, y + 5); // bottom tick
   });
 
-  pdf.save('invitation-2up-A4.pdf');
+  await savePdfAsync(pdf, 'invitation-2up-A4.pdf');
 }
 
 /** Bulk export: one personalised invitation per guest as multi-page PDF */
