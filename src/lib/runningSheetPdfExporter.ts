@@ -13,6 +13,7 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { RunningSheetItem } from '@/types/runningSheet';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 const weddingWaitressLogo = '/wedding-waitress-logo-brown.png';
 
 interface Event {
