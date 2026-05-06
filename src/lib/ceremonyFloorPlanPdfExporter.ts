@@ -529,5 +529,5 @@ export const generateCeremonyFloorPlanPDF = async (
     : format(new Date(), 'dd-MM-yyyy');
   const fileName = `${eventName}-Ceremony-Floor Plan-${eventDateForFilename}.pdf`;
 
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
