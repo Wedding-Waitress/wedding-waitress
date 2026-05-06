@@ -39,8 +39,8 @@ export const PAGE_WIDTH_MM = 210;
 export const PAGE_HEIGHT_MM = 297;
 
 // ── Margins ─────────────────────────────────────────────────────────────────
-export const MARGIN_LEFT_MM = 12.7;
-export const MARGIN_RIGHT_MM = 12.7;
+export const MARGIN_LEFT_MM = 8;
+export const MARGIN_RIGHT_MM = 8;
 export const MARGIN_TOP_MM = 10;
 
 // ── Header zone ─────────────────────────────────────────────────────────────
@@ -49,7 +49,7 @@ export const HEADER_HEIGHT_MM = 28;
 // ── Content zone ────────────────────────────────────────────────────────────
 export const CONTENT_START_MM = MARGIN_TOP_MM + HEADER_HEIGHT_MM; // 38 mm
 export const CONTENT_HEIGHT_MM = 225; // fixed — never changes
-export const COLUMN_GAP_MM = 12;
+export const COLUMN_GAP_MM = 8;
 export const GUESTS_PER_COLUMN = 30;
 export const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 60
 export const ROW_HEIGHT_MM = CONTENT_HEIGHT_MM / GUESTS_PER_COLUMN; // 7.5 mm
