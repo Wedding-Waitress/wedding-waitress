@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -194,8 +193,8 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-md:!fixed max-md:!inset-x-0 max-md:!top-auto max-md:!bottom-0 max-md:!h-[92dvh] max-md:!max-h-[92dvh] max-md:!translate-x-0 max-md:!translate-y-0 max-md:!rounded-t-2xl max-md:!overflow-hidden max-md:[&>button:last-child]:top-3 max-md:[&>button:last-child]:right-4">
-        <DialogHeader className="px-6 pt-6 pb-4 shrink-0 max-md:pt-6 max-md:pr-14 max-md:text-center">
+      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!rounded-none max-lg:!border-0 max-lg:!overflow-visible max-lg:[&>button:last-child]:top-3 max-lg:[&>button:last-child]:right-4">
+        <DialogHeader className="px-6 pt-6 pb-4 shrink-0 max-lg:pt-6 max-lg:pr-14 max-lg:text-center">
           <DialogTitle className="text-primary">Update Your Information</DialogTitle>
           <DialogDescription className="text-sm text-foreground space-y-1">
             <span className="block">{helperText || "Please update, edit your details & save below."}</span>
@@ -204,13 +203,13 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         </DialogHeader>
 
         {!isEditable ? (
-          <div className="px-6 py-8 text-center space-y-2 flex-1 overflow-y-auto">
+          <div className="px-6 py-8 text-center space-y-2 flex-1 overflow-y-auto max-lg:pb-28">
             <p className="text-sm font-medium text-destructive">
               RSVP date has passed. Please contact the organiser to make changes.
             </p>
           </div>
         ) : (
-          <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container max-md:overscroll-contain max-md:[-webkit-overflow-scrolling:touch]">
+          <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container max-lg:overscroll-contain max-lg:pb-28 max-lg:[-webkit-overflow-scrolling:touch]">
             {/* RSVP Status removed - handled by Accept/Decline buttons on home screen */}
 
             {/* Email */}
@@ -332,7 +331,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           </div>
         )}
 
-        <DialogFooter className="flex flex-row gap-3 sm:flex-row sm:justify-center px-6 py-4 border-t shrink-0 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className="sticky bottom-0 z-50 flex shrink-0 flex-row gap-3 bg-background px-6 py-4 border-t sm:justify-center max-lg:pb-[max(16px,env(safe-area-inset-bottom))]">
           {isEditable && (
             <Button 
               onClick={handleSave} 
@@ -351,7 +350,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           >
             Cancel
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
