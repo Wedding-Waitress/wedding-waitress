@@ -79,23 +79,29 @@ export function usePinchToZoom(
     const el = containerRef.current;
     if (!el) return;
 
+    let rafId: number | null = null;
     const compute = () => {
+      rafId = null;
       const w = el.clientWidth || 1;
       const f = Math.min(1, w / naturalWidth);
-      setFitScale(f);
-      // Do NOT auto-scale content at rest. Leave scale=1 so the page
-      // renders in its natural responsive flow; user can pinch in/out.
+      setFitScale((prev) => (Math.abs(prev - f) < 0.001 ? prev : f));
+    };
+    const schedule = () => {
+      if (rafId != null) return;
+      rafId = window.requestAnimationFrame(compute);
     };
 
     compute();
-    const ro = new ResizeObserver(compute);
+    const ro = new ResizeObserver(schedule);
     ro.observe(el);
-    window.addEventListener('resize', compute);
+    window.addEventListener('resize', schedule, { passive: true });
     return () => {
+      if (rafId != null) window.cancelAnimationFrame(rafId);
       ro.disconnect();
-      window.removeEventListener('resize', compute);
+      window.removeEventListener('resize', schedule);
     };
   }, [containerRef, fitToContainer, naturalWidth]);
+
 
   const distance = (a: React.Touch, b: React.Touch) => {
     const dx = a.clientX - b.clientX;
