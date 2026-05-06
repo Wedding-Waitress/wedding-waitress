@@ -31,6 +31,8 @@ interface DialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   /** Make dialog full-screen on mobile (< 640px) */
   fullScreenOnMobile?: boolean;
+  /** Render as a bottom sheet on mobile (< 768px). Desktop unchanged. */
+  bottomSheetOnMobile?: boolean;
   /** Custom className for the overlay behind the dialog */
   overlayClassName?: string;
 }
@@ -38,7 +40,7 @@ interface DialogContentProps
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, fullScreenOnMobile = false, overlayClassName, ...props }, ref) => (
+>(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, overlayClassName, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
