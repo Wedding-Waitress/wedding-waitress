@@ -188,6 +188,57 @@ export const CeremonyFloorPlanSettings = ({
             />
           </div>
         </div>
+
+        {/* Chairs Per Row */}
+        <div className="space-y-3 pt-2 border-t border-border">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Chairs Per Row</span>
+            <span className="text-sm font-medium text-primary">{floorPlan.chairs_per_row}</span>
+          </div>
+          <Slider
+            value={[floorPlan.chairs_per_row]}
+            onValueChange={([value]) => handleChange('chairs_per_row', value)}
+            min={1}
+            max={6}
+            step={1}
+            className="w-full floor-plan-smooth-slider"
+          />
+          <p className="text-xs text-muted-foreground">1-6 chairs on each side</p>
+        </div>
+
+        {/* Total Rows */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Total Rows</span>
+            <span className="text-sm font-medium text-primary">{floorPlan.total_rows}</span>
+          </div>
+          <Slider
+            value={[Math.min(12, floorPlan.total_rows)]}
+            onValueChange={([value]) => handleChange('total_rows', Math.min(12, value))}
+            min={1}
+            max={12}
+            step={1}
+            className="w-full floor-plan-smooth-slider"
+          />
+          <p className="text-xs text-muted-foreground">1-12 rows total</p>
+        </div>
+
+        {/* Assigned Rows (for family) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Family Rows (Assigned)</span>
+            <span className="text-sm font-medium text-primary">{floorPlan.assigned_rows}</span>
+          </div>
+          <Slider
+            value={[floorPlan.assigned_rows]}
+            onValueChange={([value]) => handleChange('assigned_rows', Math.min(value, Math.min(12, floorPlan.total_rows)))}
+            min={1}
+            max={Math.min(floorPlan.total_rows, 12)}
+            step={1}
+            className="w-full floor-plan-smooth-slider"
+          />
+          <p className="text-xs text-muted-foreground">First rows for family assignment</p>
+        </div>
       </CardContent>
     </Card>
   );
