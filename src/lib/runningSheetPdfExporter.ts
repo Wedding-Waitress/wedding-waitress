@@ -314,10 +314,13 @@ export const exportRunningSheetPDF = async (
       totalPages += Math.ceil(remaining / usableHeightPage2PlusPx);
     }
 
-    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
     for (let page = 0; page < totalPages; page++) {
-      if (page > 0) pdf.addPage();
+      if (page > 0) {
+        pdf.addPage();
+        await yieldToBrowser();
+      }
 
       // Calculate source Y offset and slice height in content pixels
       let srcY: number;
