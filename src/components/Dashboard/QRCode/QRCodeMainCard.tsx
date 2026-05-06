@@ -360,21 +360,22 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const handleDownloadPDF = useCallback(async () => {
     if (!qrDataUrl) return;
     try {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const img = new Image();
-      img.onload = () => {
-        // A4 dimensions: 210 x 297 mm
-        // Center QR code on page - using 100mm x 100mm size
-        const qrSize = 100;
-        const x = (210 - qrSize) / 2;
-        const y = (297 - qrSize) / 2;
-        pdf.addImage(img, 'PNG', x, y, qrSize, qrSize);
-        pdf.save(`qr-code-${selectedEvent?.name || 'event'}.pdf`);
-        toast({
-          title: "PDF downloaded successfully!"
-        });
-      };
-      img.src = qrDataUrl;
+      const { savePdfAsync, PDF_DEFAULT_OPTIONS } = await import('@/lib/pdfExportUtils');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
+      await new Promise<void>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const qrSize = 100;
+          const x = (210 - qrSize) / 2;
+          const y = (297 - qrSize) / 2;
+          pdf.addImage(img, 'PNG', x, y, qrSize, qrSize);
+          resolve();
+        };
+        img.onerror = reject;
+        img.src = qrDataUrl;
+      });
+      await savePdfAsync(pdf, `qr-code-${selectedEvent?.name || 'event'}.pdf`);
+      toast({ title: "PDF downloaded successfully!" });
     } catch (error) {
       toast({
         title: "Error downloading PDF",
