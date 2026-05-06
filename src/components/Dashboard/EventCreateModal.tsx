@@ -503,7 +503,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
           {headerNode}
           <div className="space-y-4 py-3">
-            {renderBody()}
+            {bodyContent}
           </div>
         </div>
         <div style={{
