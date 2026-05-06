@@ -177,12 +177,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         const nameB = `${b.first_name} ${b.last_name || ''}`.trim();
         return nameA.localeCompare(nameB);
       } else if (settings.sortBy === 'lastName') {
-        const lastNameA = a.last_name || '';
-        const lastNameB = b.last_name || '';
-        if (lastNameA === lastNameB) {
-          return a.first_name.localeCompare(b.first_name);
-        }
-        return lastNameA.localeCompare(lastNameB);
+        const lastNameA = (a.last_name || '').trim();
+        const lastNameB = (b.last_name || '').trim();
+        const firstNameA = (a.first_name || '').trim();
+        const firstNameB = (b.first_name || '').trim();
+        // Guests without a last name go AFTER guests with a real last name
+        if (!lastNameA && lastNameB) return 1;
+        if (lastNameA && !lastNameB) return -1;
+        const cmp = lastNameA.localeCompare(lastNameB, undefined, { sensitivity: 'base', numeric: true });
+        if (cmp !== 0) return cmp;
+        return firstNameA.localeCompare(firstNameB, undefined, { sensitivity: 'base', numeric: true });
       } else {
         // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
         const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : (a.table_id ? tableIdNameMap[a.table_id] : null);
