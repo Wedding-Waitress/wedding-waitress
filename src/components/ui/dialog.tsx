@@ -45,7 +45,7 @@ const DialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         "fixed z-50 grid gap-4 border bg-background p-6 shadow-lg duration-200",
-        // Default centered positioning
+        // Default centered positioning (desktop)
         "left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]",
         // Default max dimensions
         "w-full max-w-lg",
@@ -57,16 +57,20 @@ const DialogContent = React.forwardRef<
         "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         // Rounded corners on larger screens
         "sm:rounded-lg",
-        // Unified centered-card system for all mobile/tablet sizes.
-        // fullScreenOnMobile is kept as a compat alias but now renders as a
-        // centered card (matching the Create Event reference modal).
+        // MOBILE FIX: iOS Safari's dynamic URL bar makes 100vh taller than
+        // the visible area, so a vertically-centered tall dialog ends up with
+        // its top half hidden behind the address bar. We top-align on mobile
+        // and use dvh (dynamic viewport height) so the dialog always fits the
+        // currently visible viewport on iPhone/Android.
         fullScreenOnMobile
           ? [
               "max-lg:w-[calc(100%-2rem)] max-lg:max-w-[calc(100%-2rem)] max-lg:mx-auto",
-              "max-lg:max-h-[90vh] max-lg:rounded-xl max-lg:border max-lg:flex max-lg:flex-col",
+              "max-lg:top-[2dvh] max-lg:translate-y-0",
+              "max-lg:max-h-[96dvh] max-lg:rounded-xl max-lg:border max-lg:flex max-lg:flex-col",
             ]
           : [
-              "max-sm:max-h-[90vh] max-sm:w-[calc(100%-2rem)] max-sm:rounded-xl",
+              "max-sm:top-[2dvh] max-sm:translate-y-0",
+              "max-sm:max-h-[96dvh] max-sm:w-[calc(100%-2rem)] max-sm:rounded-xl",
             ],
         className,
       )}
