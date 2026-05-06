@@ -170,7 +170,7 @@ export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
   const canvas = await captureElement(el);
   const imgData = canvas.toDataURL('image/png');
 
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
   // Center horizontally on A4
   const offsetX = (A4_W_MM - A5_W_MM) / 2;
