@@ -83,11 +83,8 @@ export function usePinchToZoom(
       const w = el.clientWidth || 1;
       const f = Math.min(1, w / naturalWidth);
       setFitScale(f);
-      if (!userInteracted.current) {
-        setScale(f);
-        setTranslateX(0);
-        setTranslateY(0);
-      }
+      // Do NOT auto-scale content at rest. Leave scale=1 so the page
+      // renders in its natural responsive flow; user can pinch in/out.
     };
 
     compute();
