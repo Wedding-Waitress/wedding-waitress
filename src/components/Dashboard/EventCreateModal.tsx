@@ -262,6 +262,117 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     }
   };
 
+  // Track mobile viewport - on mobile we bypass Radix Dialog entirely
+  const [isMobile, setIsMobile] = useState<boolean>(
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Lock body scroll while mobile sheet is open
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [isMobile, isOpen]);
+
+  const headerNode = (
+    <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
+      <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Create Event</DialogTitle>
+      <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
+        <Input
+          value={formData.event_name}
+          onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
+          placeholder="Event name - e.g., Jason & Linda's Wedding"
+          className="h-11 sm:h-9 text-base sm:text-sm border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
+        />
+      </div>
+    </DialogHeader>
+  );
+
+  const footerNode = (
+    <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
+      <Button
+        onClick={handleCreate}
+        disabled={!isFormValid || isSaving}
+        className="lv-premium-shade flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
+      >
+        {isSaving ? 'Creating...' : 'Create Event'}
+      </Button>
+      <Button
+        variant="destructive"
+        onClick={handleClose}
+        className="lv-premium-shade flex-1 lg:flex-none lg:order-1 h-11 rounded-full max-lg:order-2 max-lg:w-full"
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+
+  // Mobile: render via plain portal to document.body, bypassing Radix entirely
+  if (isMobile) {
+    if (!isOpen) return null;
+    return ReactDOM.createPortal(
+      <div
+        role="dialog"
+        aria-modal="true"
+        style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          width: '100%', height: '100dvh', zIndex: 9999,
+          background: 'white', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        }}
+      >
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label="Close"
+          style={{
+            position: 'absolute', right: 12, top: 12, zIndex: 1,
+            width: 40, height: 40, borderRadius: 9999,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            background: 'white', border: '2px solid hsl(var(--primary))',
+          }}
+        >
+          <X className="h-4 w-4 text-primary" strokeWidth={2.5} />
+        </button>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+          {headerNode}
+          <div className="space-y-4 py-3">
+            {renderBody()}
+          </div>
+        </div>
+        <div style={{
+          position: 'sticky', bottom: 0,
+          padding: '16px 16px max(16px, env(safe-area-inset-bottom))',
+          background: 'white', borderTop: '1px solid #eee',
+          display: 'flex', gap: 12,
+        }}>
+          <Button
+            onClick={handleCreate}
+            disabled={!isFormValid || isSaving}
+            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white"
+          >
+            {isSaving ? 'Creating...' : 'Create Event'}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleClose}
+            className="lv-premium-shade flex-1 h-11 rounded-full"
+          >
+            Cancel
+          </Button>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  // Desktop / tablet: original Radix Dialog, completely unchanged
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
