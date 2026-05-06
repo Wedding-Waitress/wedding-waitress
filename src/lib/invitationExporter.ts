@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { waitForFonts } from '@/lib/googleFonts';
 import type { QrConfig } from '@/lib/invitationQR';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 // Card sizes in mm
 const A6_W_MM = 105;
