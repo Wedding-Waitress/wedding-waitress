@@ -118,7 +118,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                   </div>
                 ) : (
                   <ScrollArea className="h-[500px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
