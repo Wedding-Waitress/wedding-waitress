@@ -310,8 +310,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8"
-        bottomSheetOnMobile
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"
+        trueFullScreenOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
           <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>
@@ -652,7 +652,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2">
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
           <Button 
             variant="destructive" 
             onClick={onClose}

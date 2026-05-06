@@ -33,6 +33,8 @@ interface DialogContentProps
   fullScreenOnMobile?: boolean;
   /** Render as a bottom sheet on mobile (< 768px). Desktop unchanged. */
   bottomSheetOnMobile?: boolean;
+  /** Render as a true full-screen modal on mobile (< 768px), edge-to-edge, no rounded corners. Desktop unchanged. */
+  trueFullScreenOnMobile?: boolean;
   /** Custom className for the overlay behind the dialog */
   overlayClassName?: string;
 }
@@ -40,7 +42,7 @@ interface DialogContentProps
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, overlayClassName, ...props }, ref) => (
+>(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, trueFullScreenOnMobile = false, overlayClassName, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
@@ -64,7 +66,17 @@ const DialogContent = React.forwardRef<
         // its top half hidden behind the address bar. We top-align on mobile
         // and use dvh (dynamic viewport height) so the dialog always fits the
         // currently visible viewport on iPhone/Android.
-        bottomSheetOnMobile
+        trueFullScreenOnMobile
+          ? [
+              "max-md:fixed max-md:inset-0 max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0",
+              "max-md:translate-x-0 max-md:translate-y-0",
+              "max-md:w-full max-md:max-w-full max-md:h-[100dvh] max-md:max-h-[100dvh]",
+              "max-md:m-0 max-md:rounded-none max-md:border-0",
+              "max-md:flex max-md:flex-col",
+              "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
+              "max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2",
+            ]
+          : bottomSheetOnMobile
           ? [
               "max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:top-auto",
               "max-md:translate-x-0 max-md:translate-y-0",

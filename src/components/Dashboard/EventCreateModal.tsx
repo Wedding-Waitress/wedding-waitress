@@ -263,8 +263,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8"
-        bottomSheetOnMobile
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"
+        trueFullScreenOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
           <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Create Event</DialogTitle>
@@ -278,7 +278,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-3 pb-40 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
             <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center whitespace-pre-line">
@@ -625,7 +625,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2">
+        <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
           <Button
             onClick={handleCreate}
             disabled={!isFormValid || isSaving}
