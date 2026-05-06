@@ -34,9 +34,6 @@ import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer
 import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
-
-
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square' | 'long';
   fontSize: 'small' | 'medium' | 'large';
@@ -411,7 +408,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
           {/* Preview */}
           <div className="lg:col-span-3">
-            <PinchZoomContainer naturalWidth={794}>
             <IndividualTableChartPreview
               settings={settings}
               table={selectedTable}
@@ -420,7 +416,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               totalTables={tables.length}
               currentTableIndex={tables.findIndex(t => t.id === selectedTableId) + 1}
             />
-            </PinchZoomContainer>
           </div>
         </div>
       )}

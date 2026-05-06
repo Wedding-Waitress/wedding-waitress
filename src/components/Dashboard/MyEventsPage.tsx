@@ -22,7 +22,6 @@ import { useEvents, Event } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { SeoHead } from '@/components/SEO/SeoHead';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 export const MyEventsPage: React.FC = () => {
   const {
     events,
@@ -437,7 +436,6 @@ export const MyEventsPage: React.FC = () => {
                 </p>
                 
                 {/* Ceremony & Reception Detail Boxes */}
-                <PinchZoomContainer naturalWidth={900}>
                 <div className={`flex flex-col lg:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
                   {/* Ceremony Box */}
                   {hasCeremony && (
@@ -467,13 +465,11 @@ export const MyEventsPage: React.FC = () => {
                     </div>
                   )}
                 </div>
-                </PinchZoomContainer>
             </div>}
         </div>
       </Card>
 
       {/* Events Table with controlled radios */}
-      <PinchZoomContainer naturalWidth={1200}>
         <div className="overflow-x-auto">
           <EventsTable 
             events={events} 
@@ -487,6 +483,5 @@ export const MyEventsPage: React.FC = () => {
             selectedEvent={selectedEvent}
           />
         </div>
-      </PinchZoomContainer>
     </div>;
 };

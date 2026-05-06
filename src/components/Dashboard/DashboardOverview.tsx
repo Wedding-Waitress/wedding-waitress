@@ -15,7 +15,6 @@ import {
 import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { RsvpOverageModal } from '@/components/Dashboard/RsvpOverageModal';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { cn } from '@/lib/utils';
 import type { Guest } from '@/hooks/useGuests';
 
@@ -241,7 +240,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           )}
 
           {/* Quick Stats */}
-          <PinchZoomContainer naturalWidth={900}>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4" style={{ width: 900 }}>
               <StatCard icon={Users} label="Total Guests" value={stats.total} />
               <StatCard icon={Mail} label="Invitations Sent" value={stats.sent} />
@@ -249,7 +247,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <StatCard icon={Check} label="Attending" value={stats.attending} tone="success" />
               <StatCard icon={X} label="Not Attending" value={stats.notAttending} tone="danger" />
             </div>
-          </PinchZoomContainer>
 
           {/* Mini insight */}
           {insight && (

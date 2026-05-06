@@ -10,7 +10,6 @@ import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
-import { PinchZoomContainer } from "@/components/ui/PinchZoomContainer";
 import { UnassignedGuestsPanel } from "@/components/Dashboard/Tables/UnassignedGuestsPanel";
 import { BulkMoveBar } from "@/components/Dashboard/Tables/BulkMoveBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -581,11 +580,9 @@ export const Dashboard = () => {
                         onMoveGuest={handleGuestMove}
                         onReorderGuests={handleReorderGuests}
                       >
-                        <PinchZoomContainer naturalWidth={1100}>
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} />)}
                           </div>
-                        </PinchZoomContainer>
                       </SortableTablesGrid>
                     ) : <div className="text-center py-8">
                       <div className="text-muted-foreground mb-4">No tables created yet</div>
@@ -719,9 +716,7 @@ export const Dashboard = () => {
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'account' && <div className="print:hidden">
               {(activeTab === 'table-list' || activeTab === 'guest-list') ? (
-                <PinchZoomContainer naturalWidth={1100}>
                   <StatsBar stats={statsData} />
-                </PinchZoomContainer>
               ) : (
                 <StatsBar stats={statsData} />
               )}

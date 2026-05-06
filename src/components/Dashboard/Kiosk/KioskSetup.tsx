@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Badge } from '@/components/ui/badge';
@@ -178,7 +177,6 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
       {/* Kiosk URL and Controls */}
       {selectedEvent && (
-        <PinchZoomContainer naturalWidth={1100}>
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
@@ -248,11 +246,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             )}
           </CardContent>
         </Card>
-        </PinchZoomContainer>
       )}
 
       {/* Setup Instructions */}
-      <PinchZoomContainer naturalWidth={900}>
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
@@ -314,7 +310,6 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
           </div>
         </CardContent>
       </Card>
-      </PinchZoomContainer>
     </div>
   );
 };
