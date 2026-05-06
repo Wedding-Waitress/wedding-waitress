@@ -157,10 +157,11 @@ export async function exportInvitationPDF(opts: ExportOptions, guestName?: strin
     orientation: opts.orientation === 'portrait' ? 'portrait' : 'landscape',
     unit: 'mm',
     format: [opts.widthMm, opts.heightMm],
+    ...PDF_DEFAULT_OPTIONS,
   });
   const imgData = canvas.toDataURL('image/png');
   pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
-  pdf.save(fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
+  await savePdfAsync(pdf, fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
 }
 
 /** Export 2-up A4 layout (two A5 invitations per page) */
