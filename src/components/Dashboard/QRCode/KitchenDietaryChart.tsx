@@ -656,7 +656,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       maxWidth: '210mm'
                     }}
                   >
-                    <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm' }} className="h-full flex flex-col">
+                    <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm', minHeight: '325mm' }} className="flex flex-col">
                       {/* Header - matching Full Seating Chart style */}
                       <div className="text-center" style={{ marginBottom: '1mm' }}>
                         {/* Line 1: Event Name (purple, larger) */}
