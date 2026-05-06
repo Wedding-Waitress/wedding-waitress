@@ -49,7 +49,7 @@ export const HEADER_HEIGHT_MM = 28;
 // ── Content zone ────────────────────────────────────────────────────────────
 export const CONTENT_START_MM = MARGIN_TOP_MM + HEADER_HEIGHT_MM; // 38 mm
 export const CONTENT_HEIGHT_MM = 225; // fixed — never changes
-export const COLUMN_GAP_MM = 12;
+export const COLUMN_GAP_MM = 8;
 export const GUESTS_PER_COLUMN = 30;
 export const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 60
 export const ROW_HEIGHT_MM = CONTENT_HEIGHT_MM / GUESTS_PER_COLUMN; // 7.5 mm
