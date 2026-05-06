@@ -194,8 +194,8 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-md:p-0 max-md:!overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-2 shrink-0 max-md:pt-[max(env(safe-area-inset-top),24px)] max-md:pr-14">
+      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0 max-md:p-0 max-md:!overflow-hidden max-md:[&>button:last-child]:top-[max(16px,env(safe-area-inset-top))]">
+        <DialogHeader className="px-6 pt-6 pb-4 shrink-0 max-md:pt-[max(64px,calc(env(safe-area-inset-top)+32px))] max-md:pr-14 max-md:text-center">
           <DialogTitle className="text-primary">Update Your Information</DialogTitle>
           <DialogDescription className="text-sm text-foreground space-y-1">
             <span className="block">{helperText || "Please update, edit your details & save below."}</span>
@@ -210,7 +210,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             </p>
           </div>
         ) : (
-          <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+          <div className="space-y-4 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container max-md:overscroll-contain max-md:[-webkit-overflow-scrolling:touch]">
             {/* RSVP Status removed - handled by Accept/Decline buttons on home screen */}
 
             {/* Email */}

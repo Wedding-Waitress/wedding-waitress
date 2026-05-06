@@ -565,6 +565,12 @@ export const GuestLookup: React.FC = () => {
     setIsUpdateModalOpen(true);
   };
 
+  const handleAddGuest = (guest: Guest) => {
+    setSelectedGuest(guest);
+    setAddGuestForId(guest.id);
+    setShowAddGuestModal(true);
+  };
+
   // Install PWA prompt
   useEffect(() => {
     let deferredPrompt: any;
@@ -869,7 +875,7 @@ export const GuestLookup: React.FC = () => {
                                 onUpdate={refreshGuestData}
                                 isEditable={isEditable}
                                 onEdit={handleEditGuest}
-                                onAddGuest={() => { setAddGuestForId(guest.id); setShowAddGuestModal(true); }}
+                                onAddGuest={() => handleAddGuest(guest)}
                                 rsvpDeadline={event?.rsvp_deadline}
                                 additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
                               />
