@@ -785,7 +785,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     {!isMobile && (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden">
-        {innerContent}
+        {desktopInner}
       </DialogContent>
     </Dialog>
     )}
