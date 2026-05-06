@@ -161,7 +161,8 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        ...PDF_DEFAULT_OPTIONS,
       });
 
       // A4 dimensions: 210mm x 297mm
