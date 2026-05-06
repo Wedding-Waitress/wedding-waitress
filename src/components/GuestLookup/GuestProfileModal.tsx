@@ -112,8 +112,8 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!transform-none max-lg:!rounded-none max-lg:!border-0 max-lg:!overflow-visible max-lg:flex max-lg:flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
             Update Your Information
@@ -124,7 +124,7 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 max-lg:flex-1 max-lg:overflow-y-auto max-lg:pb-28 max-lg:overscroll-contain max-lg:[-webkit-overflow-scrolling:touch]">
           {/* RSVP Status */}
           <div className="space-y-2">
             <Label htmlFor="rsvp">RSVP Status</Label>
@@ -213,7 +213,7 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 max-lg:sticky max-lg:bottom-0 max-lg:z-50 max-lg:shrink-0 max-lg:bg-background max-lg:border-t max-lg:px-6 max-lg:py-4 max-lg:mx-[-1.5rem] max-lg:mb-[-1.5rem] max-lg:pb-[max(16px,env(safe-area-inset-bottom))]">
           <Button variant="outline" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
