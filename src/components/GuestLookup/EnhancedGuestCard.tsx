@@ -58,6 +58,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
   const [localRsvp, setLocalRsvp] = useState<RsvpStatus>(normalizeRsvp(guest.rsvp));
+  const suppressNextClickRef = React.useRef(false);
   useEffect(() => {
     setLocalRsvp(normalizeRsvp(guest.rsvp));
   }, [guest.rsvp]);
@@ -155,15 +156,29 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     if (el && typeof el.blur === 'function') el.blur();
   };
 
-  const handleAddGuestClick = () => {
+  const runAfterKeyboardDismiss = (action: () => void) => {
     blurActive();
-    // Defer slightly so the iOS keyboard can dismiss before the modal mounts
-    setTimeout(() => openAddGuest(), 0);
+    window.requestAnimationFrame(action);
+  };
+
+  const handleTouchStartAction = (event: React.PointerEvent<HTMLButtonElement>, action: () => void) => {
+    if (event.pointerType !== 'touch') return;
+    event.preventDefault();
+    suppressNextClickRef.current = true;
+    runAfterKeyboardDismiss(action);
+    window.setTimeout(() => {
+      suppressNextClickRef.current = false;
+    }, 350);
+  };
+
+  const handleAddGuestClick = () => {
+    if (suppressNextClickRef.current) return;
+    runAfterKeyboardDismiss(openAddGuest);
   };
 
   const handleEditDetailsClick = () => {
-    blurActive();
-    setTimeout(() => openEditDetails(), 0);
+    if (suppressNextClickRef.current) return;
+    runAfterKeyboardDismiss(openEditDetails);
   };
 
   return (
@@ -311,6 +326,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 <Button
                   type="button"
                   size="sm"
+                  onPointerDown={(event) => handleTouchStartAction(event, openAddGuest)}
                   onClick={handleAddGuestClick}
                   className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
@@ -327,6 +343,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <div className="flex justify-center">
                 <Button
                   type="button"
+                  onPointerDown={(event) => handleTouchStartAction(event, openEditDetails)}
                   onClick={handleEditDetailsClick}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
                 >

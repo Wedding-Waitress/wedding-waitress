@@ -711,7 +711,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
   const mobileFooter = (guestType === 'individual' || partyMembers.length > 0) ? (
     <div
-      className="sticky bottom-0 z-50 flex shrink-0 gap-3 bg-background px-4 py-4 border-t"
+      className="z-50 flex shrink-0 gap-3 bg-background px-4 py-4 border-t"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
     >
       <Button
@@ -746,13 +746,16 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   );
 
   const mobileSheet = isMobile && open && typeof document !== 'undefined' ? createPortal(
-    <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[9999] flex items-end overflow-hidden" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/60" onClick={() => onOpenChange(false)} />
       <div
-        className="fixed inset-x-0 bottom-0 flex flex-col w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden"
-        style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+        className="relative z-[10000] flex w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl"
+        style={{
+          height: 'min(86dvh, 720px)',
+          maxHeight: 'calc(100dvh - env(safe-area-inset-top) - 12px)',
+        }}
       >
-        <div className="relative shrink-0 px-4 pt-5 pb-3 border-b pr-14">
+        <div className="relative shrink-0 px-4 pt-5 pb-3 border-b pr-14 bg-background">
           <h2 className="text-xl font-medium text-primary">Add Extra Guest</h2>
           <p className="text-sm text-muted-foreground mt-2">
             Choose if the extra guest is an{' '}
@@ -768,8 +771,8 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           </button>
         </div>
         <div
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-3 pb-32"
-          style={{ WebkitOverflowScrolling: 'touch' as any }}
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-3 pb-8"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {bodyContent}
         </div>
