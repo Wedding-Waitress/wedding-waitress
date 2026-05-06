@@ -1,86 +1,78 @@
 ## Goal
 
-On the My Events page, make the **Create Event** and **Edit Event** popups open as a **bottom sheet** on mobile (< 768px). Desktop and tablet behaviour stays exactly the same.
+On mobile (< 768px), make the **Create Event** and **Edit Event** modals truly full-screen — header at top, scrollable body in the middle, Save/Cancel pinned to the bottom with safe-area padding. Desktop and tablet (≥ 768px) stay exactly as they are today.
 
-## What's wrong today
+## What's wrong now
 
-The Create / Edit Event modal uses the shared `DialogContent` with `fullScreenOnMobile`. On mobile we top-anchor it (`max-lg:top-[2dvh]`), which on a real iPhone with the keyboard open pushes the form upward and clips the top, while the green Save / red Cancel footer floats mid-screen (as in the screenshots). It needs to behave like a native bottom sheet.
+Both modals currently use `bottomSheetOnMobile` on the shared `DialogContent`. On a real iPhone the sheet still floats mid-screen at ~85dvh with rounded top corners and the form body shows a grey gap above "My Events" behind it (see screenshots). The user wants no sheet — full viewport, no rounded corners, no float.
 
-## Scope
+## Changes
 
-- Only two files behaviourally affected:
-  - `src/components/Dashboard/EventCreateModal.tsx`
-  - `src/components/Dashboard/EventEditModal.tsx`
-- One additive change to the shared dialog primitive:
-  - `src/components/ui/dialog.tsx` — add a new optional `bottomSheetOnMobile` prop. **No change to existing default behaviour**, so every other modal in the app is untouched.
+### 1. `src/components/ui/dialog.tsx` — add a new variant
 
-## Implementation
-
-### 1. `src/components/ui/dialog.tsx` (additive only)
-
-Add a new prop on `DialogContent`:
+Add a third boolean prop alongside the existing two:
 
 ```ts
-bottomSheetOnMobile?: boolean;
+trueFullScreenOnMobile?: boolean;
 ```
 
-When `bottomSheetOnMobile` is true, on `max-md:` (< 768px) only, override positioning with these classes (instead of the existing `fullScreenOnMobile` / `max-sm` block):
+Keep `fullScreenOnMobile` and `bottomSheetOnMobile` untouched so no other modal in the app changes.
 
-- `max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:top-auto`
+When `trueFullScreenOnMobile` is true, on `max-md:` (< 768px) only, override the default centered positioning with:
+
+- `max-md:fixed max-md:inset-0`
+- `max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0`
 - `max-md:translate-x-0 max-md:translate-y-0`
-- `max-md:w-full max-md:max-w-full max-md:mx-0`
-- `max-md:max-h-[85vh] max-md:overflow-y-auto`
-- `max-md:rounded-t-[20px] max-md:rounded-b-none`
-- Slide-up animation: `max-md:data-[state=open]:slide-in-from-bottom max-md:data-[state=closed]:slide-out-to-bottom` (and disable the existing zoom on mobile via `max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100`)
+- `max-md:w-full max-md:h-[100dvh] max-md:max-h-[100dvh]`
+- `max-md:m-0 max-md:rounded-none max-md:border-0`
+- `max-md:flex max-md:flex-col`
+- Disable the zoom/slide-from-top animation on mobile: `max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100 max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2`
+- Do not render the bottom-sheet drag handle in this mode.
 
-Inside `DialogContent`, when `bottomSheetOnMobile` is true, render a small grey drag handle as the first child, visible only on mobile:
-
-```tsx
-{bottomSheetOnMobile && (
-  <div className="md:hidden mx-auto -mt-2 mb-2 h-1 w-10 rounded-full bg-[#ccc]" />
-)}
-```
-
-Backdrop tap-to-close already exists via Radix `DialogOverlay` (`bg-black/80`) — we'll keep it (it's already semi-transparent dark and closes the sheet on tap). No extra backdrop needed.
-
-`fullScreenOnMobile` and existing default behaviour remain unchanged, so no other dialog in the app is affected.
+Desktop classes (`left-[50%] top-[50%] translate-...`, `sm:rounded-lg`, etc.) remain unchanged because they are only overridden inside the `max-md:` prefix.
 
 ### 2. `EventCreateModal.tsx` and `EventEditModal.tsx`
 
 On the `<DialogContent>`:
-- Replace `fullScreenOnMobile` with `bottomSheetOnMobile`.
-- Remove the mobile-only width overrides (`max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto`) so the sheet spans full width on mobile. Desktop classes (`max-w-3xl`, `max-h-[90vh]`, `flex flex-col`, `px-4 sm:px-8`) stay as-is.
-- No change to header, body, footer, fields, validation, or any other JSX.
 
-### 3. Keyboard awareness
+- Replace `bottomSheetOnMobile` with `trueFullScreenOnMobile`.
+- Update className from `"max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8"` to `"max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"` so on mobile the height fills the viewport and no extra horizontal padding fights the full-bleed layout. Desktop classes are preserved exactly.
+- No JSX, field, validation, header, or footer text changes.
 
-The sheet body already uses `overflow-y-auto`. To make sure the focused input scrolls into view above the iOS keyboard, add a tiny effect inside both modals:
+### 3. Pin footer to bottom on mobile (both modals)
 
-```ts
-useEffect(() => {
-  if (!isOpen) return;
-  const onFocus = (e: FocusEvent) => {
-    const t = e.target as HTMLElement | null;
-    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) {
-      setTimeout(() => t.scrollIntoView({ block: "center", behavior: "smooth" }), 150);
-    }
-  };
-  document.addEventListener("focusin", onFocus);
-  return () => document.removeEventListener("focusin", onFocus);
-}, [isOpen]);
+The body div already has `flex-1 overflow-y-auto`. Update the wrapping `DialogFooter` (or its container) on each modal so on mobile only it sticks to the bottom of the viewport with safe-area padding:
+
+Add these utility classes to the existing footer wrapper without altering its other styles:
+
+```
+max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0
+max-md:bg-background max-md:border-t max-md:border-border
+max-md:px-4 max-md:pt-3
+max-md:pb-[max(16px,env(safe-area-inset-bottom))]
 ```
 
-Pure behaviour, no UI change.
+Also remove the existing `pb-40` from the scroll container on mobile (replace `pb-40` with `pb-40 max-md:pb-6`) so the form body no longer reserves 160px of empty space — the sticky footer handles spacing.
+
+### 4. Keyboard awareness
+
+Existing `focusin` → `scrollIntoView` effect inside both modals stays as-is. With a sticky footer and `flex-1 overflow-y-auto` body, focused inputs continue to scroll into view above the iOS keyboard.
 
 ## Out of scope
 
-- All other modals across the app stay exactly as they are.
-- No changes to desktop/tablet visuals (≥ 768px).
-- No changes to My Events list, cards, buttons, headers, or any other page.
-- Guest List, Tables, etc. are not touched.
+- All other modals/popups across the app (they don't use `trueFullScreenOnMobile`).
+- Desktop and tablet layouts (≥ 768px) — visually and behaviourally unchanged.
+- My Events page itself, list, cards, headers, buttons.
+- Guest List, Tables, and every other page.
 
 ## Acceptance
 
-- iPhone: tapping Create or Edit on My Events slides a sheet up from the bottom with a grey drag handle, rounded top corners, ~85vh tall, scrollable; tapping the dark backdrop closes it; focused inputs scroll above the keyboard; Save / Cancel footer sits at the bottom of the sheet content as today.
-- Tablet (≥ 768px) and Desktop: modal looks and behaves exactly as it does now.
-- No other page or modal changes.
+- iPhone (< 768px): tapping Create or Edit on My Events opens a modal that fills the entire screen edge-to-edge with no rounded corners, no drag handle, no visible page behind it. Header at top, scrollable form in the middle, green Save / red Cancel pinned at the bottom respecting the iOS home-indicator safe area. Focused inputs scroll above the keyboard.
+- Tablet (≥ 768px) and Desktop: identical to today.
+- No other modal or page is affected.
+
+## Files touched
+
+- `src/components/ui/dialog.tsx` (additive prop only)
+- `src/components/Dashboard/EventCreateModal.tsx`
+- `src/components/Dashboard/EventEditModal.tsx`
