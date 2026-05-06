@@ -42,7 +42,7 @@ export function usePinchToZoom(
   options: UsePinchToZoomOptions = {}
 ): UsePinchToZoomReturn {
   const {
-    minScale = 0.5,
+    minScale = 0.25,
     maxScale = 3.0,
     initialScale = 1,
     fitToContainer = false,
@@ -61,7 +61,8 @@ export function usePinchToZoom(
   const panStart = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const lastTapTime = useRef(0);
 
-  const effectiveMin = fitToContainer ? fitScale : minScale;
+  // Never let the floor fall below the user-supplied minScale.
+  const effectiveMin = fitToContainer ? Math.max(minScale, fitScale) : minScale;
 
   const reset = useCallback(() => {
     setIsAnimating(true);
