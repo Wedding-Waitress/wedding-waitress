@@ -314,16 +314,15 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   // page/card transforms, overflow clipping, or dialog primitives.
   if (isMobile && open && typeof document !== 'undefined') {
     return createPortal(
-      <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 z-[9999] flex items-end overflow-hidden" role="dialog" aria-modal="true">
         <div
           className="fixed inset-0 bg-black/60"
           onClick={() => onOpenChange(false)}
         />
         <div
-          className="fixed inset-x-0 bottom-0 flex flex-col w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden"
-          style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+          className="relative z-[10000] flex h-[min(86dvh,720px)] max-h-[calc(100dvh-env(safe-area-inset-top)-12px)] w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl"
         >
-          <div className="relative shrink-0 px-4 pt-5 pb-3 border-b">
+          <div className="relative shrink-0 px-4 pt-5 pb-3 border-b bg-background">
             <h2 className="text-center text-lg font-semibold text-primary pr-10">
               {headerTitle}
             </h2>
@@ -338,13 +337,13 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             <div className="mt-2 px-1">{headerSubtitle}</div>
           </div>
           <div
-            className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-5 pb-32"
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-5 pb-8"
             style={{ WebkitOverflowScrolling: 'touch' as any }}
           >
             {formBody}
           </div>
           <div
-            className="sticky bottom-0 z-50 flex shrink-0 flex-row gap-3 bg-background border-t px-4 py-4"
+            className="z-50 flex shrink-0 flex-row gap-3 bg-background border-t px-4 py-4"
             style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
           >
             {footerButtons}
