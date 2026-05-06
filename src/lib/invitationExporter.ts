@@ -236,5 +236,5 @@ export async function exportBulkPDF(
     onProgress?.(i + 1, guests.length);
   }
 
-  pdf.save('invitations-all-guests.pdf');
+  await savePdfAsync(pdf, 'invitations-all-guests.pdf');
 }
