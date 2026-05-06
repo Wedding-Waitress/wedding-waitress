@@ -399,5 +399,5 @@ export const exportFullSeatingChartToPdf = async (
   const pageLabel = pageNum ? 'Single Page' : 'All Pages';
   const safeName = event.name.replace(/[\/:*?"<>|]/g, '');
   const fileName = `${safeName}-Full Seating Chart-${pageLabel}-${formattedDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
