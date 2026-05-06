@@ -33,6 +33,8 @@ interface DialogContentProps
   fullScreenOnMobile?: boolean;
   /** Render as a bottom sheet on mobile (< 768px). Desktop unchanged. */
   bottomSheetOnMobile?: boolean;
+  /** Render as a true full-screen modal on mobile (< 768px), edge-to-edge, no rounded corners. Desktop unchanged. */
+  trueFullScreenOnMobile?: boolean;
   /** Custom className for the overlay behind the dialog */
   overlayClassName?: string;
 }
