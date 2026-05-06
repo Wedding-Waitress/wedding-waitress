@@ -488,7 +488,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
             style={{ 
               width: `${PAGE_WIDTH_MM}mm`, 
-              height: '305mm',
+              height: '325mm',
+              minHeight: '325mm',
               minWidth: `${PAGE_WIDTH_MM}mm`,
               maxWidth: `${PAGE_WIDTH_MM}mm`,
               overflow: 'hidden',
@@ -580,13 +581,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
             </div>
 
-            {/* ── ZONE 3: FOOTER (fixed position at bottom of preview) ── */}
+            {/* ── ZONE 3: FOOTER (anchored to bottom printable area — master template parity) ── */}
             <div style={{
               position: 'absolute',
-              top: `${FOOTER_START_MM + FOOTER_GAP_MM + 3}mm`,
               left: `${MARGIN_LEFT_MM}mm`,
               right: `${MARGIN_LEFT_MM}mm`,
-              bottom: '5mm',
+              bottom: '12.7mm',
               overflow: 'hidden',
             }}>
               {settings.showLogo && (

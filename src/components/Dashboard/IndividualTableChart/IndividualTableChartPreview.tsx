@@ -444,13 +444,14 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
             className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-auto"
             style={{ 
               width: '210mm', 
-              height: '297mm',
+              height: '325mm',
+              minHeight: '325mm',
               minWidth: '210mm',
               maxWidth: '210mm',
               boxSizing: 'border-box'
             }}
           >
-            <div style={{ padding: '1.27cm', boxSizing: 'border-box' }} className="h-full flex flex-col relative">
+            <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm', boxSizing: 'border-box', minHeight: '325mm' }} className="h-full flex flex-col relative">
             {/* Header Section - Running Sheet Style */}  
             <div className="text-center mb-2">
               {/* Event Name - Large Purple Bold */}
