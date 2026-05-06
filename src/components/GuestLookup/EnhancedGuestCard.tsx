@@ -311,7 +311,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 <Button
                   type="button"
                   size="sm"
-                  onPointerDown={handleAddGuestPointerDown}
                   onClick={handleAddGuestClick}
                   className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
@@ -328,7 +327,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <div className="flex justify-center">
                 <Button
                   type="button"
-                  onPointerDown={handleEditDetailsPointerDown}
                   onClick={handleEditDetailsClick}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
                 >
