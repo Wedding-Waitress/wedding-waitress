@@ -51,9 +51,9 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           <Settings className="w-5 h-5 text-primary" />
           <CardTitle className="text-2xl font-bold text-foreground">Chart Settings</CardTitle>
         </div>
-        <CardDescription>Customise how your dietary requirements chart is displayed and exported</CardDescription>
+        <CardDescription className="mb-4">Customise how your dietary requirements chart is displayed and exported</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 pt-2">
         {/* Sort Order */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">

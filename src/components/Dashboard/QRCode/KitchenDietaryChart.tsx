@@ -594,7 +594,16 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
           {/* A4 Page Display (Right - 3 columns) */}
           <div className="lg:col-span-3 print:hidden">
-            {dietaryGuests.length === 0 ? (
+            {(guestsLoading || tablesLoading || settingsLoading) ? (
+              <Card className="ww-box">
+                <CardContent className="p-6">
+                  <div className="text-center py-8">
+                    <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-muted border-t-primary animate-spin" />
+                    <p className="text-muted-foreground font-medium">Loading dietary requirements...</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : dietaryGuests.length === 0 ? (
               <Card className="ww-box">
                 <CardContent className="p-6">
                   <div className="text-center py-8">
