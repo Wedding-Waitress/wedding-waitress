@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -276,14 +276,14 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   return (
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden max-md:!fixed max-md:!inset-x-0 max-md:!top-auto max-md:!bottom-0 max-md:!h-[92dvh] max-md:!max-h-[92dvh] max-md:!translate-x-0 max-md:!translate-y-0 max-md:!rounded-t-2xl max-md:!overflow-hidden" fullScreenOnMobile>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!transform-none max-lg:!rounded-none max-lg:!border-0 max-lg:!overflow-visible" fullScreenOnMobile>
         {/* Custom purple circle close button */}
         <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
           <X className="w-5 h-5 text-primary" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>
 
-        <DialogHeader className="pt-4 shrink-0 max-md:pr-12">
+        <DialogHeader className="pt-4 shrink-0 max-lg:pr-12">
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             Add Extra Guest
           </DialogTitle>
@@ -293,7 +293,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
           </p>
         </DialogHeader>
 
-        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container overscroll-contain px-3 sm:px-2">
+        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container overscroll-contain px-3 sm:px-2 max-lg:pb-28">
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
             <Label className="text-sm font-medium mb-1.5 block">Guest Category <span className="text-destructive">*</span></Label>
@@ -557,7 +557,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
               {/* Save button for couple/family */}
               {partyMembers.length > 0 && (
-                <div className="flex gap-3 pt-3">
+                <div className="flex gap-3 pt-3 max-lg:hidden">
                   <Button
                     type="button"
                     className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
@@ -677,7 +677,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-3">
+              <div className="flex gap-3 pt-3 max-lg:hidden">
                 <Button
                   type="button"
                   variant="destructive"
@@ -700,6 +700,29 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             </>
           )}
         </div>
+
+        {(guestType === 'individual' || partyMembers.length > 0) && (
+          <div className="sticky bottom-0 z-50 flex shrink-0 gap-3 bg-background px-3 sm:px-2 py-4 border-t max-lg:pb-[max(16px,env(safe-area-inset-bottom))] lg:hidden">
+            <Button
+              type="button"
+              variant="destructive"
+              className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => { resetForm(); onOpenChange(false); }}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              className="flex-1 rounded-full bg-green-500 hover:bg-green-600 text-white"
+              disabled={saving || (guestType !== 'individual' && partyMembers.length === 0)}
+              onClick={handleSave}
+            >
+              {saving ? 'Adding...' : 'Add Guest'}
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
 
