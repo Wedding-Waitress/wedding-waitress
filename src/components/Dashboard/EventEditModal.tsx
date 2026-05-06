@@ -310,8 +310,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8"
-        bottomSheetOnMobile
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"
+        trueFullScreenOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
           <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>
