@@ -47,7 +47,6 @@ import { useTables } from '@/hooks/useTables';
 
 import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
@@ -343,7 +342,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
             {/* Preview */}
             <div className="lg:col-span-3">
-              <PinchZoomContainer naturalWidth={794}>
                 <FullSeatingChartPreview 
                   event={selectedEvent!} 
                   guests={sortedGuests}
@@ -351,7 +349,6 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   tableNameMap={tableNameMap}
                   tableIdNameMap={tableIdNameMap}
                 />
-              </PinchZoomContainer>
             </div>
           </div>
         ) : isDataReady && !hasGuests ? (

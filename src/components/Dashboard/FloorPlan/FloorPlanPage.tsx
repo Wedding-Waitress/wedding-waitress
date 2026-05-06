@@ -18,7 +18,6 @@ import { useEvents } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
 import { toast } from 'sonner';
 
@@ -284,7 +283,6 @@ export const FloorPlanPage = ({
           {/* Visual Preview */}
           <div className="lg:col-span-4 order-2 lg:order-2">
             <Card className="relative border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-3 sm:p-6">
-              <PinchZoomContainer naturalWidth={1100}>
                 <CeremonyFloorPlanVisual
                   floorPlan={floorPlan}
                   onSeatUpdate={updateSeatAssignment}
@@ -294,7 +292,6 @@ export const FloorPlanPage = ({
                   onBridalPartyRoleUpdate={updateBridalPartyRole}
                   getBridalPartyRole={getBridalPartyRole}
                 />
-              </PinchZoomContainer>
             </Card>
           </div>
 

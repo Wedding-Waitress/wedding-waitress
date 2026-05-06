@@ -18,7 +18,6 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -637,7 +636,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 )}
 
                 {/* A4 Page Container - Screen View (pinch-to-zoom on <1024px) */}
-                <PinchZoomContainer naturalWidth={794}>
 
 
                   <div 
@@ -798,7 +796,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       </div>
                     </div>
                   </div>
-                </PinchZoomContainer>
 
                 {/* Page Navigation Bottom */}
                 {totalPages > 1 && (

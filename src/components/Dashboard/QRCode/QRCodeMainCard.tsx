@@ -35,8 +35,6 @@ import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
-
 interface QRCodeMainCardProps {
   eventId: string;
 }
@@ -501,7 +499,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
-        <PinchZoomContainer naturalWidth={1000}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
           <div className="bg-white rounded-lg border border-primary p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
@@ -737,7 +734,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </div>
           </div>
         </div>
-        </PinchZoomContainer>
 
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
@@ -750,7 +746,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </p>
             
             {/* 2x2 Grid for all modules */}
-            <PinchZoomContainer naturalWidth={1000}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* RSVP Invite Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
@@ -1852,7 +1847,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 </Accordion>
               </div>
             </div>
-            </PinchZoomContainer>
           </CardContent>
         </Card>
 

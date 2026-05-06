@@ -20,8 +20,6 @@ import { DJMCQuestionnaireSection } from './DJMCQuestionnaireSection';
 import { DJMCShareModal } from './DJMCShareModal';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import { useEvents } from '@/hooks/useEvents';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
-
 interface DJMCQuestionnairePageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
@@ -214,7 +212,6 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
           </CardContent>
         </Card>
       ) : questionnaire ? (
-        <PinchZoomContainer naturalWidth={1200}>
         <div className="space-y-4">
           {/* Event header */}
           {selectedEvent && (
@@ -286,7 +283,6 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             />
           ))}
         </div>
-        </PinchZoomContainer>
       ) : null}
 
       {/* Share Modal */}

@@ -28,8 +28,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
 import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
-import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
-
 interface PlaceCardsPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
@@ -267,7 +265,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* Stats + Card Dimensions Row - Side by Side */}
           {selectedEvent && assignedGuests.length > 0 && (
-            <PinchZoomContainer naturalWidth={1000}>
             <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-start justify-between gap-4">
               {/* Left: Statistics Box */}
               <div className="w-full lg:flex-1 min-w-0 border border-primary rounded-xl p-4 text-sm space-y-2">
@@ -310,7 +307,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 </div>
               )}
             </div>
-            </PinchZoomContainer>
           )}
 
           {/* SEPARATOR */}
@@ -462,7 +458,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
           {/* Right Panel - Preview */}
           <div className="lg:col-span-5 min-w-0">
-            <PinchZoomContainer naturalWidth={794}>
             <PlaceCardPreview
               settings={settings}
               guests={assignedGuests}
@@ -474,7 +469,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               onSettingsChange={updateSettings}
               onOverflowChange={setTextOverflowing}
             />
-            </PinchZoomContainer>
           </div>
         </div>
       )}
