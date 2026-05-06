@@ -557,7 +557,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
 
               {/* Save button for couple/family */}
               {partyMembers.length > 0 && (
-                <div className="flex gap-3 pt-3">
+                <div className="flex gap-3 pt-3 max-lg:hidden">
                   <Button
                     type="button"
                     className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
@@ -677,7 +677,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-3">
+              <div className="flex gap-3 pt-3 max-lg:hidden">
                 <Button
                   type="button"
                   variant="destructive"
@@ -700,6 +700,29 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             </>
           )}
         </div>
+
+        {(guestType === 'individual' || partyMembers.length > 0) && (
+          <div className="sticky bottom-0 z-50 flex shrink-0 gap-3 bg-background px-3 sm:px-2 py-4 border-t max-lg:pb-[max(16px,env(safe-area-inset-bottom))] lg:hidden">
+            <Button
+              type="button"
+              variant="destructive"
+              className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => { resetForm(); onOpenChange(false); }}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              className="flex-1 rounded-full bg-green-500 hover:bg-green-600 text-white"
+              disabled={saving || (guestType !== 'individual' && partyMembers.length === 0)}
+              onClick={handleSave}
+            >
+              {saving ? 'Adding...' : 'Add Guest'}
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
 
