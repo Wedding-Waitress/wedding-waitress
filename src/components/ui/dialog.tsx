@@ -66,7 +66,17 @@ const DialogContent = React.forwardRef<
         // its top half hidden behind the address bar. We top-align on mobile
         // and use dvh (dynamic viewport height) so the dialog always fits the
         // currently visible viewport on iPhone/Android.
-        bottomSheetOnMobile
+        trueFullScreenOnMobile
+          ? [
+              "max-md:fixed max-md:inset-0 max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0",
+              "max-md:translate-x-0 max-md:translate-y-0",
+              "max-md:w-full max-md:max-w-full max-md:h-[100dvh] max-md:max-h-[100dvh]",
+              "max-md:m-0 max-md:rounded-none max-md:border-0",
+              "max-md:flex max-md:flex-col",
+              "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
+              "max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2",
+            ]
+          : bottomSheetOnMobile
           ? [
               "max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:top-auto",
               "max-md:translate-x-0 max-md:translate-y-0",
