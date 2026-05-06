@@ -581,13 +581,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
             </div>
 
-            {/* ── ZONE 3: FOOTER (fixed position at bottom of preview) ── */}
+            {/* ── ZONE 3: FOOTER (anchored to bottom printable area — master template parity) ── */}
             <div style={{
               position: 'absolute',
-              top: `${FOOTER_START_MM + FOOTER_GAP_MM + 3}mm`,
               left: `${MARGIN_LEFT_MM}mm`,
               right: `${MARGIN_LEFT_MM}mm`,
-              bottom: '5mm',
+              bottom: '12.7mm',
               overflow: 'hidden',
             }}>
               {settings.showLogo && (
