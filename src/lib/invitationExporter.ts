@@ -223,7 +223,10 @@ export async function exportBulkPDF(
   for (let i = 0; i < guests.length; i++) {
     const guest = guests[i];
     const name = `${guest.first_name}${guest.last_name ? ' ' + guest.last_name : ''}`;
-    if (i > 0) pdf.addPage([opts.widthMm, opts.heightMm]);
+    if (i > 0) {
+      pdf.addPage([opts.widthMm, opts.heightMm]);
+      await yieldToBrowser();
+    }
 
     const el = buildInvitationElement(opts, name);
     const canvas = await captureElement(el);
