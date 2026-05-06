@@ -565,5 +565,5 @@ export const exportDietaryChartToPdf = async (
     return `${dd}-${mm}-${yyyy}`;
   })() : new Date().toISOString().split('T')[0];
   const fileName = `${safeName}-Dietary Requirements-${pageLabel}-${eventDate}.pdf`;
-  pdf.save(fileName);
+  await savePdfAsync(pdf, fileName);
 };
