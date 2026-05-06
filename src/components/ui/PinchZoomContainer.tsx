@@ -56,26 +56,35 @@ export const PinchZoomContainer: React.FC<PinchZoomContainerProps> = ({
     }
   }, [showHint]);
 
+  // Only "activate" transform/overflow/touchAction when the user is actually
+  // zoomed/panned. At rest we leave the DOM untouched so position:fixed,
+  // position:sticky, dropdowns, popovers, modals, and responsive layouts
+  // inside behave normally.
+  const isTransformed =
+    isTouch &&
+    (Math.abs(scale - 1) > 0.001 || translateX !== 0 || translateY !== 0);
+
   return (
     <div
       ref={containerRef}
-      className={className}
+      className={`pinch-zoom-wrapper ${className ?? ''}`}
       style={{
         position: 'relative',
-        overflow: 'hidden',
-        touchAction: 'pan-y',
+        overflow: isTransformed ? 'hidden' : 'visible',
+        touchAction: isTransformed ? 'pan-y' : 'auto',
         width: '100%',
       }}
     >
       <div
-        {...handlers}
+        {...(isTouch ? handlers : {})}
         style={{
-          transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
-          transformOrigin: 'top center',
+          transform: isTransformed
+            ? `translate(${translateX}px, ${translateY}px) scale(${scale})`
+            : undefined,
+          transformOrigin: '0 0',
           transition: isAnimating ? 'transform 0.3s ease' : undefined,
-          width: fitToContainer ? 'max-content' : '100%',
-          margin: fitToContainer ? '0 auto' : undefined,
-          willChange: 'transform',
+          width: '100%',
+          willChange: isTransformed ? 'transform' : undefined,
         }}
       >
         {children}
