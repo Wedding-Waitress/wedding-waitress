@@ -7,6 +7,7 @@ import {
   FOOTER_META_Y_MM, FOOTER_LOGO_Y_MM, FOOTER_START_MM,
   paginateGuests,
 } from '@/lib/fullSeatingChartLayout';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
 
 interface Guest {
   id: string;
