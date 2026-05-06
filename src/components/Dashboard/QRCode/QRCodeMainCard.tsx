@@ -32,6 +32,7 @@ import { useWelcomeVideoUpload } from '@/hooks/useWelcomeVideoUpload';
 import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
 import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
+import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
@@ -92,7 +93,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const selectedEvent = events.find(event => event.id === eventId);
   const currentEvent = events.find(event => event.id === eventId);
   const { dynamicUrl } = useEventDynamicQR(eventId);
-  const eventUrl = dynamicUrl || `https://…/live-view/${eventId}`;
+  const eventUrl = dynamicUrl || (selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : '');
 
   // QR Settings State - Enhanced
   const [qrColors, setQrColors] = useState<QRColorsSettings>({ ...defaultColors });
@@ -449,6 +450,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const handleLiveView = () => {
     if (eventUrl) {
       window.open(eventUrl, '_blank');
+    } else {
+      toast({
+        title: "Live View not ready",
+        description: "Please wait a moment for the guest link to finish loading.",
+        variant: "destructive"
+      });
     }
   };
   const handleCopyLink = async () => {

@@ -142,16 +142,38 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     }
   };
 
+  const openAddGuest = () => {
+    onAddGuest?.();
+  };
+
+  const openEditDetails = () => {
+    onEdit?.(guest);
+  };
+
   const handleAddGuestClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    onAddGuest?.();
+    openAddGuest();
   };
 
   const handleEditDetailsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    onEdit?.(guest);
+    openEditDetails();
+  };
+
+  const handleAddGuestPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== 'touch') return;
+    event.preventDefault();
+    event.stopPropagation();
+    openAddGuest();
+  };
+
+  const handleEditDetailsPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== 'touch') return;
+    event.preventDefault();
+    event.stopPropagation();
+    openEditDetails();
   };
 
   return (
@@ -270,13 +292,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Action Buttons - centered in full card width */}
           {isEditable && (
-            <div className="grid grid-cols-2 gap-3 pt-1 sm:flex sm:flex-wrap sm:justify-center">
+            <div className="flex flex-wrap gap-3 justify-center pt-1">
               <Button
                 type="button"
                 size="sm"
                 onClick={() => updateRsvp('Attending')}
                 disabled={updatingRsvp}
-                className="lv-premium-btn w-full sm:w-auto bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                className="lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -288,7 +310,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 size="sm"
                 onClick={() => updateRsvp('Not Attending')}
                 disabled={updatingRsvp}
-                className="lv-premium-btn w-full sm:w-auto bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                className="lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -299,8 +321,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 <Button
                   type="button"
                   size="sm"
+                  onPointerDown={handleAddGuestPointerDown}
                   onClick={handleAddGuestClick}
-                  className="lv-premium-btn col-span-2 justify-self-center bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0 sm:col-span-1"
+                  className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
                   Add Guest
                 </Button>
@@ -315,6 +338,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <div className="flex justify-center">
                 <Button
                   type="button"
+                  onPointerDown={handleEditDetailsPointerDown}
                   onClick={handleEditDetailsClick}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
                 >
