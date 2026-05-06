@@ -299,14 +299,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     </>
   );
 
-  const innerContent = (
-    <>
-      {closeBtn}
-
-        <DialogHeader className="pt-4 shrink-0 max-lg:pr-12">
-          {headerContent}
-        </DialogHeader>
-
+  const bodyContent = (
         <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container overscroll-contain px-3 sm:px-2 max-lg:pb-28">
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
