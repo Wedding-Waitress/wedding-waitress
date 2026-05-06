@@ -107,6 +107,19 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     setReceptionOverrides(prev => new Set(prev).add(field));
   };
 
+  // Mobile keyboard awareness: scroll focused input into view above the iOS keyboard
+  useEffect(() => {
+    if (!isOpen) return;
+    const onFocus = (e: FocusEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) {
+        setTimeout(() => t.scrollIntoView({ block: "center", behavior: "smooth" }), 150);
+      }
+    };
+    document.addEventListener("focusin", onFocus);
+    return () => document.removeEventListener("focusin", onFocus);
+  }, [isOpen]);
+
   // Auto-sync ceremony fields to reception fields (matching Create Modal pattern)
   useEffect(() => {
     if (!formData.reception_enabled || !formData.ceremony_enabled) return;
@@ -297,8 +310,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto"
-        fullScreenOnMobile
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8"
+        bottomSheetOnMobile
       >
         <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
           <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>

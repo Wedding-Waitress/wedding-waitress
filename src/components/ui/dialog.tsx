@@ -31,6 +31,8 @@ interface DialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   /** Make dialog full-screen on mobile (< 640px) */
   fullScreenOnMobile?: boolean;
+  /** Render as a bottom sheet on mobile (< 768px). Desktop unchanged. */
+  bottomSheetOnMobile?: boolean;
   /** Custom className for the overlay behind the dialog */
   overlayClassName?: string;
 }
@@ -38,7 +40,7 @@ interface DialogContentProps
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, fullScreenOnMobile = false, overlayClassName, ...props }, ref) => (
+>(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, overlayClassName, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
@@ -62,7 +64,17 @@ const DialogContent = React.forwardRef<
         // its top half hidden behind the address bar. We top-align on mobile
         // and use dvh (dynamic viewport height) so the dialog always fits the
         // currently visible viewport on iPhone/Android.
-        fullScreenOnMobile
+        bottomSheetOnMobile
+          ? [
+              "max-md:left-0 max-md:right-0 max-md:bottom-0 max-md:top-auto",
+              "max-md:translate-x-0 max-md:translate-y-0",
+              "max-md:w-full max-md:max-w-full max-md:mx-0",
+              "max-md:max-h-[85dvh] max-md:overflow-y-auto",
+              "max-md:rounded-t-[20px] max-md:rounded-b-none",
+              "max-md:data-[state=open]:slide-in-from-bottom max-md:data-[state=closed]:slide-out-to-bottom",
+              "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
+            ]
+          : fullScreenOnMobile
           ? [
               "max-lg:w-[calc(100%-2rem)] max-lg:max-w-[calc(100%-2rem)] max-lg:mx-auto",
               "max-lg:top-[2dvh] max-lg:translate-y-0",
@@ -76,6 +88,9 @@ const DialogContent = React.forwardRef<
       )}
       {...props}
     >
+      {bottomSheetOnMobile && (
+        <div className="md:hidden mx-auto mb-2 h-1 w-10 rounded-full bg-[#ccc]" aria-hidden />
+      )}
       {children}
       <DialogPrimitive.Close title="Exit" className="absolute right-4 top-4 inline-flex shrink-0 items-center justify-center h-10 w-10 min-h-[40px] min-w-[40px] aspect-square box-border rounded-full border-2 border-primary bg-white p-0 m-0 leading-none opacity-100 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
         <X className="h-4 w-4 shrink-0 text-primary stroke-[2.5] block" />
