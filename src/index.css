@@ -247,6 +247,12 @@ html {
     min-height: 100vh;
   }
 
+  /* Universal: never allow horizontal page scroll on any device */
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   * {
     @apply border-border;
   }
