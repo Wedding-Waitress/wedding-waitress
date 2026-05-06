@@ -391,6 +391,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </DialogHeader>
 
+        <div className="space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container">{bodyContent}</div>
+        {/* legacy wrapper retained below for context — original content moved into bodyContent */}
+        {false && (
         <div className="space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container">
           {/* Validation Message */}
           {!formData.ceremony_enabled && !formData.reception_enabled && (
