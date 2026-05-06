@@ -515,7 +515,17 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <X className="h-4 w-4 text-primary" strokeWidth={2.5} />
         </button>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-          {renderHeader()}
+          <div className="flex flex-col gap-3 items-center pt-8 gap-5 pr-12">
+            <h2 className="text-xl font-medium text-primary whitespace-nowrap w-full text-center">Edit Event</h2>
+            <div className="flex-1 w-full max-w-full px-3">
+              <Input
+                value={formData.event_name}
+                onChange={(e) => { markReceptionOverride('event_name'); setFormData(prev => ({ ...prev, event_name: e.target.value })); }}
+                placeholder="Add the name of your event - e.g., Jason & Linda's Wedding"
+                className="h-11 text-base border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
+              />
+            </div>
+          </div>
           <div className="space-y-4 py-3">
             {bodyContent}
           </div>
