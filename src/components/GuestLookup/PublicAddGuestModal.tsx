@@ -287,20 +287,19 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     </button>
   );
 
-  const innerContent = (
+  const headerContent = (
     <>
-      {closeBtn}
+      <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+        Add Extra Guest
+      </DialogTitle>
+      <p className="text-sm text-muted-foreground mt-3 pr-12">
+        Choose if the extra guest is an<br />
+        <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
+      </p>
+    </>
+  );
 
-        <DialogHeader className="pt-4 shrink-0 max-lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
-            Add Extra Guest
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-3 pr-12">
-            Choose if the extra guest is an<br />
-            <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
-          </p>
-        </DialogHeader>
-
+  const bodyContent = (
         <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container overscroll-contain px-3 sm:px-2 max-lg:pb-28">
           {/* Guest Type Selector */}
           <div className="pt-1 pb-2">
@@ -708,46 +707,73 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             </>
           )}
         </div>
+  );
 
-        {(guestType === 'individual' || partyMembers.length > 0) && (
-          <div className="sticky bottom-0 z-50 flex shrink-0 gap-3 bg-background px-3 sm:px-2 py-4 border-t max-lg:pb-[max(16px,env(safe-area-inset-bottom))] lg:hidden">
-            <Button
-              type="button"
-              variant="destructive"
-              className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => { resetForm(); onOpenChange(false); }}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="default"
-              className="flex-1 rounded-full bg-green-500 hover:bg-green-600 text-white"
-              disabled={saving || (guestType !== 'individual' && partyMembers.length === 0)}
-              onClick={handleSave}
-            >
-              {saving ? 'Adding...' : 'Add Guest'}
-            </Button>
-          </div>
-        )}
+  const mobileFooter = (guestType === 'individual' || partyMembers.length > 0) ? (
+    <div
+      className="sticky bottom-0 z-50 flex shrink-0 gap-3 bg-background px-4 py-4 border-t"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
+    >
+      <Button
+        type="button"
+        variant="destructive"
+        className="flex-1 rounded-full bg-red-600 hover:bg-red-700 text-white"
+        onClick={() => { resetForm(); onOpenChange(false); }}
+        disabled={saving}
+      >
+        Cancel
+      </Button>
+      <Button
+        type="button"
+        variant="default"
+        className="flex-1 rounded-full bg-green-500 hover:bg-green-600 text-white"
+        disabled={saving || (guestType !== 'individual' && partyMembers.length === 0)}
+        onClick={handleSave}
+      >
+        {saving ? 'Adding...' : 'Add Guest'}
+      </Button>
+    </div>
+  ) : null;
+
+  const desktopInner = (
+    <>
+      {closeBtn}
+      <DialogHeader className="pt-4 shrink-0 max-lg:pr-12">
+        {headerContent}
+      </DialogHeader>
+      {bodyContent}
     </>
   );
 
-  const mobileSheet = isMobile && open ? createPortal(
+  const mobileSheet = isMobile && open && typeof document !== 'undefined' ? createPortal(
     <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/60" onClick={() => onOpenChange(false)} />
-      <div className="fixed bottom-0 left-0 right-0 flex flex-col max-h-[92dvh] w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden">
-        <div
-          className="relative flex-1 flex flex-col overflow-hidden"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
-        >
-          {/* The innerContent renders its own scroll body and sticky footer.
-              We add a flex column wrapper so it fills the sheet. */}
-          <div className="flex-1 flex flex-col overflow-hidden px-4 pt-5">
-            {innerContent}
-          </div>
+      <div
+        className="fixed inset-x-0 bottom-0 flex flex-col w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden"
+        style={{ top: 'max(env(safe-area-inset-top), 12px)' }}
+      >
+        <div className="relative shrink-0 px-4 pt-5 pb-3 border-b pr-14">
+          <h2 className="text-xl font-medium text-primary">Add Extra Guest</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            Choose if the extra guest is an{' '}
+            <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
+          </p>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={() => onOpenChange(false)}
+            className="absolute right-3 top-3 inline-flex items-center justify-center h-9 w-9 rounded-full border-2 border-primary bg-white"
+          >
+            <X className="h-4 w-4 text-primary" />
+          </button>
         </div>
+        <div
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-3 pb-32"
+          style={{ WebkitOverflowScrolling: 'touch' as any }}
+        >
+          {bodyContent}
+        </div>
+        {mobileFooter}
       </div>
     </div>,
     document.body
@@ -759,7 +785,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     {!isMobile && (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden">
-        {innerContent}
+        {desktopInner}
       </DialogContent>
     </Dialog>
     )}
