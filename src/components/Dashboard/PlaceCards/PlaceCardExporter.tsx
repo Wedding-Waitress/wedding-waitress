@@ -187,6 +187,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
       for (let i = 0; i < placeCards.length; i += 6) {
         if (pageIndex > 0) {
           pdf.addPage();
+          await yieldToBrowser();
         }
 
         // Add page title
