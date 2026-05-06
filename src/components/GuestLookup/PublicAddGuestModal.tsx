@@ -746,14 +746,11 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   );
 
   const mobileSheet = isMobile && open && typeof document !== 'undefined' ? createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-end overflow-hidden" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[9999] overflow-hidden" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/60" onClick={() => onOpenChange(false)} />
       <div
-        className="relative z-[10000] flex w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl"
-        style={{
-          height: 'min(86dvh, 720px)',
-          maxHeight: 'calc(100dvh - env(safe-area-inset-top) - 12px)',
-        }}
+        className="fixed inset-x-0 top-0 bottom-0 z-[10000] flex w-full min-w-0 flex-col overflow-hidden bg-background shadow-2xl"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 12px)' }}
       >
         <div className="relative shrink-0 px-4 pt-5 pb-3 border-b pr-14 bg-background">
           <h2 className="text-xl font-medium text-primary">Add Extra Guest</h2>
