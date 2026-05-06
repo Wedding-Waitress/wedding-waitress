@@ -95,6 +95,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   const [memberForm, setMemberForm] = useState<PartyMember>(emptyMember());
   const [saving, setSaving] = useState(false);
   const [showPartnerPrompt, setShowPartnerPrompt] = useState(false);
+  const isMobile = useIsMobile();
   const { toast } = useToast();
 
   // Determine the effective group type: existing members affect category auto-detection
