@@ -1044,6 +1044,12 @@ button:active, a:active, [role="button"]:active {
   transform: scale(0.985);
   transition: transform 80ms ease-out;
 }
+/* Don't apply press-scale inside a pinch-zoom wrapper — it fights the wrapper transform on iOS */
+.pinch-zoom-wrapper button:active,
+.pinch-zoom-wrapper a:active,
+.pinch-zoom-wrapper [role="button"]:active {
+  transform: none;
+}
 /* Cap heavy animations to feel snappy */
 .transition-all, .transition, .transition-colors, .transition-opacity, .transition-transform {
   transition-duration: 180ms;
