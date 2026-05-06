@@ -12,6 +12,7 @@
 import jsPDF from 'jspdf';
 import { CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { format } from 'date-fns';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
 
 // Define the event type inline to avoid circular dependency with hooks
