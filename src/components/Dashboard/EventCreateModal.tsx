@@ -72,6 +72,19 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   };
 
   // Live sync from Ceremony to Reception (excludes start_time and finish_time)
+  // Mobile keyboard awareness: scroll focused input into view above the iOS keyboard
+  useEffect(() => {
+    if (!isOpen) return;
+    const onFocus = (e: FocusEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) {
+        setTimeout(() => t.scrollIntoView({ block: "center", behavior: "smooth" }), 150);
+      }
+    };
+    document.addEventListener("focusin", onFocus);
+    return () => document.removeEventListener("focusin", onFocus);
+  }, [isOpen]);
+
   useEffect(() => {
     if (!formData.reception_enabled || !formData.ceremony_enabled) return;
 
