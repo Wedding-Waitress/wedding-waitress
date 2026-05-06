@@ -248,7 +248,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
 
       // Save the PDF
       const fileName = `${event?.name || 'Event'}_Place_Cards.pdf`;
-      pdf.save(fileName);
+      await savePdfAsync(pdf, fileName);
 
       toast({
         title: "Success",
