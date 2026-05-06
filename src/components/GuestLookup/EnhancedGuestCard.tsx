@@ -150,30 +150,20 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     onEdit?.(guest);
   };
 
-  const handleAddGuestClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openAddGuest();
+  const blurActive = () => {
+    const el = document.activeElement as HTMLElement | null;
+    if (el && typeof el.blur === 'function') el.blur();
   };
 
-  const handleEditDetailsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openEditDetails();
+  const handleAddGuestClick = () => {
+    blurActive();
+    // Defer slightly so the iOS keyboard can dismiss before the modal mounts
+    setTimeout(() => openAddGuest(), 0);
   };
 
-  const handleAddGuestPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType !== 'touch') return;
-    event.preventDefault();
-    event.stopPropagation();
-    openAddGuest();
-  };
-
-  const handleEditDetailsPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType !== 'touch') return;
-    event.preventDefault();
-    event.stopPropagation();
-    openEditDetails();
+  const handleEditDetailsClick = () => {
+    blurActive();
+    setTimeout(() => openEditDetails(), 0);
   };
 
   return (
@@ -321,7 +311,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 <Button
                   type="button"
                   size="sm"
-                  onPointerDown={handleAddGuestPointerDown}
                   onClick={handleAddGuestClick}
                   className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
@@ -338,7 +327,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
               <div className="flex justify-center">
                 <Button
                   type="button"
-                  onPointerDown={handleEditDetailsPointerDown}
                   onClick={handleEditDetailsClick}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
                 >

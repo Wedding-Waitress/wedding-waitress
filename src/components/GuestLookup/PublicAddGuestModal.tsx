@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -93,6 +95,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   const [memberForm, setMemberForm] = useState<PartyMember>(emptyMember());
   const [saving, setSaving] = useState(false);
   const [showPartnerPrompt, setShowPartnerPrompt] = useState(false);
+  const isMobile = useIsMobile();
   const { toast } = useToast();
 
   // Determine the effective group type: existing members affect category auto-detection
@@ -273,15 +276,20 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     }
   };
 
-  return (
+  const closeBtn = (
+    <button
+      type="button"
+      aria-label="Close"
+      onClick={() => onOpenChange(false)}
+      className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity"
+    >
+      <X className="w-5 h-5 text-primary" />
+    </button>
+  );
+
+  const innerContent = (
     <>
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!transform-none max-lg:!rounded-none max-lg:!border-0 max-lg:!overflow-visible" fullScreenOnMobile>
-        {/* Custom purple circle close button */}
-        <DialogPrimitive.Close className="absolute right-4 top-4 z-10 w-9 h-9 aspect-square rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
-          <X className="w-5 h-5 text-primary" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
+      {closeBtn}
 
         <DialogHeader className="pt-4 shrink-0 max-lg:pr-12">
           <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
@@ -723,9 +731,38 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
             </Button>
           </div>
         )}
+    </>
+  );
+
+  const mobileSheet = isMobile && open ? createPortal(
+    <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 bg-black/60" onClick={() => onOpenChange(false)} />
+      <div className="fixed bottom-0 left-0 right-0 flex flex-col max-h-[92dvh] w-full bg-background rounded-t-2xl shadow-2xl overflow-hidden">
+        <div
+          className="relative flex-1 flex flex-col overflow-hidden"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)' }}
+        >
+          {/* The innerContent renders its own scroll body and sticky footer.
+              We add a flex column wrapper so it fills the sheet. */}
+          <div className="flex-1 flex flex-col overflow-hidden px-4 pt-5">
+            {innerContent}
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  ) : null;
+
+  return (
+    <>
+    {mobileSheet}
+    {!isMobile && (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden">
+        {innerContent}
       </DialogContent>
     </Dialog>
-
+    )}
       {/* Partner/Friend Prompt for Individual */}
       <Dialog open={showPartnerPrompt} onOpenChange={setShowPartnerPrompt}>
         <DialogContent className="max-w-sm [&>button:last-child]:hidden">
