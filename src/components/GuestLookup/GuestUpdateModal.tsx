@@ -332,7 +332,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           </div>
         )}
 
-        <DialogFooter className="flex flex-row gap-3 sm:flex-row sm:justify-center">
+        <DialogFooter className="flex flex-row gap-3 sm:flex-row sm:justify-center px-6 py-4 border-t shrink-0 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
           {isEditable && (
             <Button 
               onClick={handleSave} 
