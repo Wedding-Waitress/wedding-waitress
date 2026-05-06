@@ -270,13 +270,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
 
           {/* Action Buttons - centered in full card width */}
           {isEditable && (
-            <div className="grid grid-cols-2 gap-3 pt-1 sm:flex sm:flex-wrap sm:justify-center">
+            <div className="flex flex-wrap gap-3 justify-center pt-1">
               <Button
                 type="button"
                 size="sm"
                 onClick={() => updateRsvp('Attending')}
                 disabled={updatingRsvp}
-                className="lv-premium-btn w-full sm:w-auto bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                className="lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -288,7 +288,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 size="sm"
                 onClick={() => updateRsvp('Not Attending')}
                 disabled={updatingRsvp}
-                className="lv-premium-btn w-full sm:w-auto bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                className="lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
               >
                 {updatingRsvp ? (
                   <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
@@ -300,7 +300,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   type="button"
                   size="sm"
                   onClick={handleAddGuestClick}
-                  className="lv-premium-btn col-span-2 justify-self-center bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0 sm:col-span-1"
+                  className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
                   Add Guest
                 </Button>
