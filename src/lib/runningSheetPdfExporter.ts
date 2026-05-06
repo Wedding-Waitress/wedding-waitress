@@ -370,7 +370,7 @@ export const exportRunningSheetPDF = async (
       drawPageFooter(pdf, logoDataUrl, page + 1, totalPages, timestamp);
     }
 
-    pdf.save(getRunningSheetPdfFileName(event));
+    await savePdfAsync(pdf, getRunningSheetPdfFileName(event));
   } finally {
     document.body.removeChild(container);
   }
