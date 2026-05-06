@@ -338,7 +338,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             <div className="mt-2 px-1">{headerSubtitle}</div>
           </div>
           <div
-            className="flex-1 overflow-y-auto overscroll-contain px-4 pt-5 pb-28"
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 pt-5 pb-32"
             style={{ WebkitOverflowScrolling: 'touch' as any }}
           >
             {formBody}
