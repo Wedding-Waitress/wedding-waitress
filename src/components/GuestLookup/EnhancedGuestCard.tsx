@@ -150,30 +150,20 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     onEdit?.(guest);
   };
 
-  const handleAddGuestClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openAddGuest();
+  const blurActive = () => {
+    const el = document.activeElement as HTMLElement | null;
+    if (el && typeof el.blur === 'function') el.blur();
   };
 
-  const handleEditDetailsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    openEditDetails();
+  const handleAddGuestClick = () => {
+    blurActive();
+    // Defer slightly so the iOS keyboard can dismiss before the modal mounts
+    setTimeout(() => openAddGuest(), 0);
   };
 
-  const handleAddGuestPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType !== 'touch') return;
-    event.preventDefault();
-    event.stopPropagation();
-    openAddGuest();
-  };
-
-  const handleEditDetailsPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType !== 'touch') return;
-    event.preventDefault();
-    event.stopPropagation();
-    openEditDetails();
+  const handleEditDetailsClick = () => {
+    blurActive();
+    setTimeout(() => openEditDetails(), 0);
   };
 
   return (
