@@ -69,6 +69,7 @@ export const generateCeremonyFloorPlanPDF = async (
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
+    ...PDF_DEFAULT_OPTIONS,
   });
 
   let yPos = MARGIN_TOP;
