@@ -287,18 +287,24 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     </button>
   );
 
+  const headerContent = (
+    <>
+      <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+        Add Extra Guest
+      </DialogTitle>
+      <p className="text-sm text-muted-foreground mt-3 pr-12">
+        Choose if the extra guest is an<br />
+        <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
+      </p>
+    </>
+  );
+
   const innerContent = (
     <>
       {closeBtn}
 
         <DialogHeader className="pt-4 shrink-0 max-lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
-            Add Extra Guest
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground mt-3 pr-12">
-            Choose if the extra guest is an<br />
-            <span className="text-pink-500 font-medium">Individual</span>, your partner (<span className="text-orange-500 font-medium">Couple</span>) or <span className="text-blue-600 font-medium">Family</span>.
-          </p>
+          {headerContent}
         </DialogHeader>
 
         <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container overscroll-contain px-3 sm:px-2 max-lg:pb-28">
