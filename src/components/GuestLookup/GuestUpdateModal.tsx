@@ -320,7 +320,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           onClick={() => onOpenChange(false)}
         />
         <div
-          className="relative z-[10000] flex h-[min(86dvh,720px)] max-h-[calc(100dvh-env(safe-area-inset-top)-12px)] w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl"
+          className="relative z-[10000] flex w-full min-w-0 flex-col overflow-hidden rounded-t-2xl bg-background shadow-2xl"
+          style={{
+            height: 'min(86dvh, 720px)',
+            maxHeight: 'calc(100dvh - env(safe-area-inset-top) - 12px)',
+          }}
         >
           <div className="relative shrink-0 px-4 pt-5 pb-3 border-b bg-background">
             <h2 className="text-center text-lg font-semibold text-primary pr-10">
