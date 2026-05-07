@@ -68,6 +68,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
   const [localRsvp, setLocalRsvp] = useState<RsvpStatus>(normalizeRsvp(guest.rsvp));
+  const [pendingRsvp, setPendingRsvp] = useState<RsvpStatus | null>(null);
   const suppressNextClickRef = React.useRef(false);
   useEffect(() => {
     setLocalRsvp(normalizeRsvp(guest.rsvp));
