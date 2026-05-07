@@ -1,61 +1,87 @@
-## DJ & MC Questionnaire — Tablet Layout Fix
+## Permanent Account IDs + Unique Event IDs (amended)
 
-The current page renders awkwardly at tablet widths (768–1023px): the section rows squeeze every column, inputs collapse, and the top "Export Controls" panel overflows the event-selector card. Desktop (≥1024px) and mobile must be left untouched.
+### 1. Database migration
 
-### Heads-up: locked file approval needed
+**`profiles` table:**
+- Add `country_code text` (ISO-2, uppercase; nullable, defaults to `XX` when unknown).
+- Add `account_id text` (will become `NOT NULL` after backfill).
+- Unique index `profiles_account_id_unique` on `account_id` — this index is the **final authority** preventing duplicates.
 
-`DJMCQuestionnairePage.tsx` and `DJMCQuestionnaireSection.tsx` carry the "PRODUCTION-READY — LOCKED FOR PRODUCTION" header (last locked 2026-02-19). Per project rules I must confirm before editing locked files. Approving this plan = approval to touch only the tablet-specific (`md:`/`lg:`) breakpoints in those two files. No desktop, mobile, or behavior changes.
+**`events` table:**
+- Add `event_id text` (will become `NOT NULL` after backfill).
+- Unique index `events_event_id_unique` on `event_id` — final authority preventing duplicates.
 
-### Scope (tablet only, 768–1023px)
+**Generator functions (SECURITY DEFINER, search_path=public):**
+- `generate_account_id(_country text) returns text`
+  - Charset `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`, length **8**, generated from `gen_random_bytes(8)` (cryptographic).
+  - Loops up to 50 attempts, checking `NOT EXISTS (SELECT 1 FROM profiles WHERE account_id = candidate)`.
+  - Returns `UPPER(COALESCE(NULLIF(_country,''),'XX')) || '-' || random8`.
+  - Example: `AU-7K29X8QF`.
+- `generate_event_id() returns text`
+  - Same charset, length **8**, prefix `EV-`. Collision check against `events.event_id`.
+  - Example: `EV-4K2M9AZ7`.
 
-Files edited:
-- `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx`
-- `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection.tsx`
+**BEFORE INSERT triggers (server-side, ignore client values):**
+- `profiles_set_account_id`: **always overwrites** with `generate_account_id(NEW.country_code)` — `NEW.account_id := generate_account_id(...)` runs unconditionally, so any value the client sends is discarded. Client cannot inject a custom ID.
+- `events_set_event_id`: same pattern — `NEW.event_id := generate_event_id()` unconditionally.
+- (For backfill we temporarily skip the trigger by using `ALTER TABLE ... DISABLE TRIGGER` for that one statement, then re-enable; or, equivalently, set the value inside the trigger only when `NEW.account_id IS NULL OR NEW.account_id !~ '^[A-Z]{2}-[A-Z0-9]{8}$'` — both keep client-supplied values from being honoured. The plan uses the unconditional-overwrite version for simplicity and maximum safety.)
 
-No other files touched. Sidebar already hides via `useIsMobile` (<1024px) → hamburger overlay already in place; nothing to change there.
+**BEFORE UPDATE immutability triggers:**
+- `profiles_account_id_immutable` and `events_event_id_immutable`: `RAISE EXCEPTION` if value changes after creation.
 
-### Changes
+**One-time backfill (same migration, runs before NOT NULL):**
+- `UPDATE profiles SET account_id = generate_account_id(COALESCE(country_code,'XX')) WHERE account_id IS NULL;`
+- `UPDATE events SET event_id = generate_event_id() WHERE event_id IS NULL;`
+- Loop: re-run until 0 rows remain (defensive against any insert-during-migration race).
 
-1. **Page header card (`DJMCQuestionnairePage.tsx`, ~line 142–185)**
-   - Change the `flex items-center justify-between gap-4 flex-wrap` row so the Export Controls block wraps cleanly under the Event selector on tablet (`max-lg:w-full max-lg:mt-3`) instead of being squeezed beside it.
-   - Make the inner Export Controls panel `max-lg:w-full`, with the two action buttons wrapping to two equal-width pills on tablet.
-   - Keep desktop (`lg:`) layout identical (selector left, controls right).
+**Lock down columns after backfill:**
+- `ALTER TABLE profiles ALTER COLUMN account_id SET NOT NULL;`
+- `ALTER TABLE events ALTER COLUMN event_id SET NOT NULL;`
 
-2. **Wedding/event details strip (~line 211–256)**
-   - No structural change; just allow the Ceremony / Reception two-column flex to wrap to a single stacked column on tablet (already uses `flex-wrap`, confirm `min-w-[280px]` doesn't force overflow at 768px → drop to `max-lg:min-w-0 max-lg:w-full`).
+**RLS:** existing policies on `profiles` / `events` already cover the new columns (own-row read). No policy changes needed. Because the triggers overwrite client input on INSERT and block any UPDATE, RLS need not police these specific columns separately — the unique indexes + triggers are the source of truth.
 
-3. **Section cards — horizontal scroll for the row table (`DJMCQuestionnaireSection.tsx`, ~line 337–498)**
-   - Wrap the column header (`<div className="flex items-center gap-2 px-1 py-2 …">`) **and** the `DndContext`/rows region in a single shared scroll container:
-     ```
-     <div className="max-lg:overflow-x-auto">
-       <div className="max-lg:min-w-[900px]">
-         {column header}
-         {DndContext / rows}
-         {Add Row button}
-       </div>
-     </div>
-     ```
-   - This preserves desktop widths exactly (no `max-lg:` styles affect ≥1024px) while on tablet the existing flex/basis columns keep their proportions inside a 900px scroll canvas — so every drag handle, mic icon, YouTube link, comment, download, and Add Row stays full-size and aligned.
-   - Add `max-lg:overflow-x-hidden` on the parent `<Card>` so only the inner row area scrolls (header/title/badges stay fixed and readable).
+### 2. Country detection on signup
 
-4. **Card spacing**
-   - The page already wraps sections in `space-y-4`; bump to `max-lg:space-y-5` so cards breathe on tablet. No desktop change.
+- New util `src/lib/countryFromLocale.ts`: maps `Intl.DateTimeFormat().resolvedOptions().timeZone` and `navigator.language` region to an ISO-2 country code. Falls back to `XX`.
+- In existing signup flow (`SignUpModal` / `EmbeddedSignUpForm`), after the auth user is created, write `country_code` (only) to the new `profiles` row. The DB trigger then generates `account_id` server-side. No client-side ID generation anywhere.
 
-5. **Section header (title + badges + icons row, line 209–316)**
-   - Allow the right-side icon cluster (`MessageSquare`, `MoreVertical`, `Download`) to stay inline; allow the left title group to wrap badges below the title on tablet via `max-lg:flex-wrap` on the inner `flex items-center gap-3` div. Prevents the "Total Song Count" / "Total Speakers" badges from pushing icons off-card.
+### 3. Frontend display (minimal, scoped)
 
-### Out of scope (explicitly NOT changing)
+**`src/hooks/useProfile.ts`** — extend `UserProfile` with `account_id: string | null` and `country_code: string | null` (read-only).
 
-- Desktop layout (≥1024px) — pixel-identical.
-- Mobile (<768px) — untouched this round per request.
-- Any logic, data, PDF export, share modal, or drag-and-drop behavior.
-- Sidebar / hamburger (already correct via `useIsMobile`).
-- Any other page or feature.
+**`src/components/Dashboard/AppSidebar.tsx`** (sidebar footer profile area, ~line 199) — add one small line under the user name:
+```tsx
+{profile?.account_id && (
+  <span className="text-[11px] text-muted-foreground/80 truncate">
+    Account ID: {profile.account_id}
+  </span>
+)}
+```
+No other layout changes. Works PC/tablet/mobile.
 
-### Verification
+**`src/components/Account/AccountInfoCard.tsx`** — add a read-only `Row label="Account ID" value={profile?.account_id || '—'}`.
 
-After implementation, view at 820×1180 (iPad) and 768×1024:
-- Sidebar hidden, hamburger top-right works.
-- Top card: selector + export controls stack cleanly, no overflow.
-- Each section card is full-width with horizontal scroll inside; all icons visible at full size.
-- Switch to ≥1024px → layout matches current desktop screenshot exactly.
+**`src/components/Dashboard/EventsTable.tsx`** (My Events page only)
+- Extend local `Event` interface with `event_id?: string | null`.
+- **Desktop/tablet table:** insert `<TableHead className="w-24">Event ID</TableHead>` between Countdown and Event Name, plus a matching `<TableCell>` rendering `event.event_id` in `font-mono text-xs text-muted-foreground`.
+- **Mobile card view:** add a small line under the event name: `<p className="text-xs font-mono text-muted-foreground">{event.event_id}</p>`. No layout restructuring.
+
+**`src/hooks/useEvents.ts`** — confirm the events query returns `event_id` (likely already `select('*')`). If `get_events_with_guest_count` RPC is used and doesn't include `event_id`, update the RPC return columns in the same migration.
+
+### 4. Explicitly NOT changed
+- Internal `events.id` (uuid) PK and every FK/join/realtime channel stay exactly as today. `event_id` is a display/lookup string only.
+- No styling, spacing, colors, buttons, or other pages touched.
+- All locked pages remain untouched aside from the two tiny additions above (sidebar footer line + My Events column).
+
+### 5. Security & guarantees
+- **Server-side only:** triggers overwrite any client-supplied `account_id` / `event_id`, so the frontend cannot dictate IDs.
+- **Crypto-random:** 8 chars × 36 charset = ~2.8 × 10¹² combinations per country prefix → astronomically low collision probability.
+- **Unique indexes are final authority:** any race that produced a duplicate would fail the INSERT; the generator's retry loop transparently retries on conflict.
+- **Immutable:** UPDATE triggers raise an exception if either ID is changed.
+- **NOT NULL after backfill:** schema-level guarantee that every account/event has an ID forever.
+
+### Technical summary
+- 1 SQL migration: 2 columns added to `profiles`, 1 column to `events`, 2 generator functions, 4 triggers (2 INSERT-overwrite, 2 UPDATE-immutability), 2 unique indexes, backfill loop, 2 `SET NOT NULL`, optional RPC return-columns update.
+- 4 small frontend edits: `useProfile.ts`, `AppSidebar.tsx`, `EventsTable.tsx`, `AccountInfoCard.tsx`.
+- 1 new util: `src/lib/countryFromLocale.ts`.
+- 1 small signup patch to write `country_code` only.
