@@ -176,10 +176,13 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
         </CardContent>
       </Card>
 
-      {/* Two-column layout: URL/Controls (left) + Guest Live View Configuration (right) */}
+      {/* Two-column layout: Guest Live View Configuration (left) + URL/Controls (right) */}
       {selectedEvent && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {/* LEFT: Kiosk URL & Controls */}
+          {/* LEFT: Guest Live View Configuration */}
+          <KioskLiveViewConfig eventId={selectedEvent.id} />
+
+          {/* RIGHT: Kiosk URL & Controls */}
           <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
