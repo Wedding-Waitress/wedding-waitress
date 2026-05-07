@@ -161,21 +161,21 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
       {/* Event Selector */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="py-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex-shrink-0">
+          <div className="flex items-center justify-between gap-4 flex-wrap max-sm:flex-col max-sm:items-stretch">
+            <div className="flex-shrink-0 max-sm:w-full">
               <StandardEventSelector events={events} selectedEventId={selectedEventId} onEventSelect={onEventSelect} />
             </div>
 
             {selectedEventId && sheet && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ-MC or any of your vendors.</span>
                 </div>
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-3 flex-wrap max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
+                    className="inline-flex items-center justify-center gap-2 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors max-sm:w-full max-sm:text-sm"
                   >
                     <Share2 className="h-3 w-3" />
                     Share
@@ -183,7 +183,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                   <button
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 max-sm:w-full max-sm:text-sm"
                   >
                     {downloadingPDF ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
                     Download PDF
