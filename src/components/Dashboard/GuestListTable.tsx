@@ -1549,7 +1549,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
-      className={`text-white ${condition ? yesColor : noColor}`}
+      className={`text-white lv-premium-shade ${condition ? yesColor : noColor}`}
     >
       {condition ? "YES" : "NO"}
     </Badge>
