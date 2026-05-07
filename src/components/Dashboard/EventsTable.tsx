@@ -366,6 +366,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <TableHeader>
                 <TableRow className="border-b-0">
                   <TableHead className="w-20">Countdown</TableHead>
+                  <TableHead className="w-24">Event ID</TableHead>
                   <TableHead className="w-32">Event Name</TableHead>
                   <TableHead className="w-24">Event Date</TableHead>
                   <TableHead className="w-28">Venue</TableHead>
