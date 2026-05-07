@@ -81,21 +81,14 @@ export const KioskView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [lastActivity, setLastActivity] = useState(Date.now());
 
-  // Auto-reset inactivity timeout (30 seconds)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (Date.now() - lastActivity > 30000) {
-        setSearchTerm('');
-        setLastActivity(Date.now());
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [lastActivity]);
-
-  // Reset activity timer on any interaction
+  // No auto-clear: results stay until manually cleared or new search
   const handleActivity = () => {
     setLastActivity(Date.now());
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    handleActivity();
   };
 
   // Fetch event and guests data
@@ -131,6 +124,8 @@ export const KioskView: React.FC = () => {
           ceremony_finish_time: firstRow.ceremony_finish_time,
           partner1_name: firstRow.partner1_name,
           partner2_name: firstRow.partner2_name,
+          kiosk_show_rsvp_status: (firstRow as any).kiosk_show_rsvp_status ?? true,
+          kiosk_show_dietary: (firstRow as any).kiosk_show_dietary ?? true,
         };
         setEvent(eventData);
 
