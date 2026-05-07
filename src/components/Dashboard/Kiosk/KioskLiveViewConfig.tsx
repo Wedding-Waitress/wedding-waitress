@@ -171,63 +171,134 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
           {/* LEFT COLUMN: RSVP Invite, Welcome Video, Reception Floor Plan */}
           <div className="flex flex-col gap-3">
-          {tiles.map((tile) => {
-            const enabled = !!(visibility as any)?.[tile.visKey];
-            const conf = (modules as any)?.[tile.configKey];
-            return (
-              <div
-                key={tile.visKey as string}
-                className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
-              >
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
-                  <div className="flex items-center gap-3 max-lg:items-start">
-                    <div className="max-lg:mt-0.5 max-lg:shrink-0">{tile.icon}</div>
-                    <div>
-                      <h4 className="text-sm font-semibold">{tile.title}</h4>
-                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">
-                        {tile.description}
-                      </p>
+          {(() => {
+            const renderTile = (tile: ModuleTile) => {
+              const enabled = !!(visibility as any)?.[tile.visKey];
+              const conf = (modules as any)?.[tile.configKey];
+              return (
+                <div
+                  key={tile.visKey as string}
+                  className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
+                >
+                  <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                    <div className="flex items-center gap-3 max-lg:items-start">
+                      <div className="max-lg:mt-0.5 max-lg:shrink-0">{tile.icon}</div>
+                      <div>
+                        <h4 className="text-sm font-semibold">{tile.title}</h4>
+                        <p className="text-xs text-muted-foreground max-lg:mt-1.5">
+                          {tile.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
+                      <span
+                        className={`text-xs whitespace-nowrap ${
+                          enabled ? 'text-green-600' : 'text-red-500'
+                        }`}
+                      >
+                        {enabled ? 'Displayed on app' : 'Not displayed on app'}
+                      </span>
+                      <Switch
+                        checked={enabled}
+                        onCheckedChange={(c) => updateVisibility(tile.visKey as any, c)}
+                        className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
+                      />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
-                    <span
-                      className={`text-xs whitespace-nowrap ${
-                        enabled ? 'text-green-600' : 'text-red-500'
-                      }`}
-                    >
-                      {enabled ? 'Displayed on app' : 'Not displayed on app'}
-                    </span>
-                    <Switch
-                      checked={enabled}
-                      onCheckedChange={(c) => updateVisibility(tile.visKey as any, c)}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
+
+                  {enabled && (
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value={`${tile.visKey}-cfg`} className="border-0">
+                        <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                          <span className="text-[#856A4C]">Configure {tile.title} Settings</span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-3 pt-2">
+                            {conf?.file_url ? (
+                              <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                                <div className="flex-1 min-w-0 max-lg:basis-full">
+                                  <p className="text-xs font-medium truncate">{conf.file_name}</p>
+                                  {conf.uploaded_at && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Uploaded {new Date(conf.uploaded_at).toLocaleDateString()}
+                                    </p>
+                                  )}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="lv-premium-shade"
+                                  onClick={() => triggerFile(tile.configKey, tile.bucket)}
+                                >
+                                  Replace
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="lv-premium-shade"
+                                  onClick={() => handleRemove(tile.configKey, tile.bucket)}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            ) : (
+                              <div
+                                className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                                onClick={() => triggerFile(tile.configKey, tile.bucket)}
+                              >
+                                <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                <p className="text-xs font-medium">{tile.uploadLabel}</p>
+                                <p className="text-xs text-muted-foreground">{tile.accept}</p>
+                              </div>
+                            )}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
+                </div>
+              );
+            };
+
+            const heroTile = (
+              <div key="hero" className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="flex items-center gap-3">
+                  <ImageIcon className="h-5 w-5 text-[#856A4C]" />
+                  <div>
+                    <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Upload an image to replace the background behind your event header
+                    </p>
+                    <p className="text-sm font-semibold text-[#856A4C] mt-1">
+                      📸 For best results, use a horizontal landscape (6×4) photo.
+                    </p>
                   </div>
                 </div>
-
-                {enabled && (
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value={`${tile.visKey}-cfg`} className="border-0">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-[#856A4C]">Configure {tile.title} Settings</span>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-3 pt-2">
-                          {conf?.file_url ? (
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
-                              <div className="flex-1 min-w-0 max-lg:basis-full">
-                                <p className="text-xs font-medium truncate">{conf.file_name}</p>
-                                {conf.uploaded_at && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Uploaded {new Date(conf.uploaded_at).toLocaleDateString()}
-                                  </p>
-                                )}
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="hero-cfg" className="border-0">
+                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <span className="text-[#856A4C]">Configure Hero Background</span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-3 pt-2">
+                        {(modules as any)?.hero_image_config?.file_url ? (
+                          <div className="space-y-3">
+                            <div className="relative rounded-md overflow-hidden border">
+                              <img
+                                src={(modules as any).hero_image_config.file_url}
+                                alt="Hero preview"
+                                className="w-full h-32 object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">Preview with overlay</span>
                               </div>
+                            </div>
+                            <div className="flex gap-2">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="lv-premium-shade"
-                                onClick={() => triggerFile(tile.configKey, tile.bucket)}
+                                onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                               >
                                 Replace
                               </Button>
@@ -235,141 +306,87 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 size="sm"
                                 variant="destructive"
                                 className="lv-premium-shade"
-                                onClick={() => handleRemove(tile.configKey, tile.bucket)}
+                                onClick={() => handleRemove('hero_image_config', 'live-view-uploads')}
                               >
                                 Remove
                               </Button>
                             </div>
-                          ) : (
-                            <div
-                              className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                              onClick={() => triggerFile(tile.configKey, tile.bucket)}
-                            >
-                              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                              <p className="text-xs font-medium">{tile.uploadLabel}</p>
-                              <p className="text-xs text-muted-foreground">{tile.accept}</p>
-                            </div>
-                          )}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Hero Image / Logo Module */}
-          <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-            <div className="flex items-center gap-3">
-              <ImageIcon className="h-5 w-5 text-[#856A4C]" />
-              <div>
-                <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
-                <p className="text-xs text-muted-foreground">
-                  Upload an image to replace the background behind your event header
-                </p>
-                <p className="text-sm font-semibold text-[#856A4C] mt-1">
-                  📸 For best results, use a horizontal landscape (6×4) photo.
-                </p>
-              </div>
-            </div>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="hero-cfg" className="border-0">
-                <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                  <span className="text-[#856A4C]">Configure Hero Background</span>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-3 pt-2">
-                    {(modules as any)?.hero_image_config?.file_url ? (
-                      <div className="space-y-3">
-                        <div className="relative rounded-md overflow-hidden border">
-                          <img
-                            src={(modules as any).hero_image_config.file_url}
-                            alt="Hero preview"
-                            className="w-full h-32 object-cover"
-                          />
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">Preview with overlay</span>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="lv-premium-shade"
+                        ) : (
+                          <div
+                            className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                           >
-                            Replace
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="lv-premium-shade"
-                            onClick={() => handleRemove('hero_image_config', 'live-view-uploads')}
-                          >
-                            Remove
-                          </Button>
-                        </div>
+                            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-xs font-medium">Upload Photo or Logo</p>
+                            <p className="text-xs text-muted-foreground">JPG or PNG</p>
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <div
-                        className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
-                      >
-                        <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-xs font-medium">Upload Photo or Logo</p>
-                        <p className="text-xs text-muted-foreground">JPG or PNG</p>
-                      </div>
-                    )}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            );
+
+            const togglesTile = (
+              <div key="toggles" className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <h4 className="text-sm font-semibold">Kiosk Display Toggles</h4>
+                <p className="text-xs text-muted-foreground">
+                  Control which guest details appear on the kiosk result card.
+                </p>
+
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-sm">Show RSVP Status</span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs whitespace-nowrap ${
+                        visibility?.kiosk_show_rsvp_status ? 'text-green-600' : 'text-red-500'
+                      }`}
+                    >
+                      {visibility?.kiosk_show_rsvp_status ? 'On' : 'Off'}
+                    </span>
+                    <Switch
+                      checked={!!visibility?.kiosk_show_rsvp_status}
+                      onCheckedChange={(c) => updateVisibility('kiosk_show_rsvp_status', c)}
+                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
+                    />
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
+                </div>
 
-          {/* Kiosk Display Toggles */}
-          <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-            <h4 className="text-sm font-semibold">Kiosk Display Toggles</h4>
-            <p className="text-xs text-muted-foreground">
-              Control which guest details appear on the kiosk result card.
-            </p>
-
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-sm">Show RSVP Status</span>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-xs whitespace-nowrap ${
-                    visibility?.kiosk_show_rsvp_status ? 'text-green-600' : 'text-red-500'
-                  }`}
-                >
-                  {visibility?.kiosk_show_rsvp_status ? 'On' : 'Off'}
-                </span>
-                <Switch
-                  checked={!!visibility?.kiosk_show_rsvp_status}
-                  onCheckedChange={(c) => updateVisibility('kiosk_show_rsvp_status', c)}
-                  className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                />
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Show Dietary Requirements</span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs whitespace-nowrap ${
+                        visibility?.kiosk_show_dietary ? 'text-green-600' : 'text-red-500'
+                      }`}
+                    >
+                      {visibility?.kiosk_show_dietary ? 'On' : 'Off'}
+                    </span>
+                    <Switch
+                      checked={!!visibility?.kiosk_show_dietary}
+                      onCheckedChange={(c) => updateVisibility('kiosk_show_dietary', c)}
+                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            );
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Show Dietary Requirements</span>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-xs whitespace-nowrap ${
-                    visibility?.kiosk_show_dietary ? 'text-green-600' : 'text-red-500'
-                  }`}
-                >
-                  {visibility?.kiosk_show_dietary ? 'On' : 'Off'}
-                </span>
-                <Switch
-                  checked={!!visibility?.kiosk_show_dietary}
-                  onCheckedChange={(c) => updateVisibility('kiosk_show_dietary', c)}
-                  className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                />
-              </div>
-            </div>
-          </div>
+            return (
+              <>
+                <div className="flex flex-col gap-3">
+                  {tiles.slice(0, 3).map(renderTile)}
+                </div>
+                <div className="flex flex-col gap-3">
+                  {tiles.slice(3).map(renderTile)}
+                  {heroTile}
+                  {togglesTile}
+                </div>
+              </>
+            );
+          })()}
         </div>
       </CardContent>
     </Card>
