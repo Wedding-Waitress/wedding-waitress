@@ -8,6 +8,8 @@ export interface UserProfile {
   email: string | null;
   mobile: string | null;
   display_countdown_event_id: string | null;
+  account_id: string | null;
+  country_code: string | null;
 }
 
 // Module-level cache for instant loading
