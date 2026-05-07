@@ -102,6 +102,18 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   const existingMemberCount = existingGroupMembers.length; // excludes the referring guest
   const totalExistingGroup = existingMemberCount + 1; // including the referring guest
 
+  // Actual classification of the EXISTING group (no stale carry-over).
+  // 1 person => individual, exactly 2 => couple, 3+ => family.
+  const actualExistingType: GuestType =
+    totalExistingGroup >= 3 ? 'family' : totalExistingGroup === 2 ? 'couple' : 'individual';
+
+  // Whether the existing referring + group members should be displayed under the
+  // currently selected category tab. Couple tab must ONLY show real 2-person couples;
+  // Family tab must ONLY show real 3+ groups. Otherwise, hide them entirely.
+  const showExistingMembersForCategory =
+    (guestType === 'couple' && actualExistingType === 'couple') ||
+    (guestType === 'family' && actualExistingType === 'family');
+
   const resetForm = () => {
     setGuestType('individual');
     setGuest(emptyGuest());
