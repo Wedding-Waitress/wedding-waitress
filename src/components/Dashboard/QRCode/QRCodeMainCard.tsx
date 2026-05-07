@@ -1025,9 +1025,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               </div>
                               <div className="flex gap-2">
                                 <Button 
-                                  variant="outline" 
+                                  variant="default" 
                                   size="sm" 
-                                  className="lv-premium-shade"
+                                  className="lv-premium-shade text-white"
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
@@ -1041,13 +1041,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     input.click();
                                   }}
                                 >
-                                  <Upload className="w-3 h-3 mr-1" />
+                                  <RotateCcw className="w-3 h-3 mr-1" />
                                   Replace
                                 </Button>
                                 <Button 
-                                  variant="outline" 
+                                  variant="destructive" 
                                   size="sm" 
-                                  className="lv-premium-shade text-destructive" 
+                                  className="lv-premium-shade text-white" 
                                   onClick={async () => {
                                     if (confirm('Are you sure you want to remove this video?')) {
                                       await deleteVideo();
