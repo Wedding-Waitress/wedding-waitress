@@ -26,9 +26,11 @@ interface Guest {
 
 interface KioskGuestCardProps {
   guest: Guest;
+  showRsvp?: boolean;
+  showDietary?: boolean;
 }
 
-export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest }) => {
+export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest, showRsvp = true, showDietary = true }) => {
   const getRSVPColor = (rsvp: string) => {
     const normalized = normalizeRsvp(rsvp);
     switch (normalized) {
@@ -115,18 +117,20 @@ export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest }) => {
         </div>
 
         {/* RSVP Status */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <RSVPIcon className="w-5 h-5 mr-2" />
-            <span className="text-lg font-medium text-foreground">RSVP Status:</span>
+        {showRsvp && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <RSVPIcon className="w-5 h-5 mr-2" />
+              <span className="text-lg font-medium text-foreground">RSVP Status:</span>
+            </div>
+            <Badge className={`px-4 py-2 text-lg font-medium ${getRSVPColor(guest.rsvp)}`}>
+              {getRsvpDisplayLabel(guest.rsvp)}
+            </Badge>
           </div>
-          <Badge className={`px-4 py-2 text-lg font-medium ${getRSVPColor(guest.rsvp)}`}>
-            {getRsvpDisplayLabel(guest.rsvp)}
-          </Badge>
-        </div>
+        )}
 
         {/* Dietary Requirements */}
-        {guest.dietary && guest.dietary !== 'NA' && guest.dietary !== 'None' && (
+        {showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary !== 'None' && (
           <div className="flex items-start p-3 bg-blue-50 rounded-lg border border-blue-200">
             <Utensils className="w-5 h-5 text-blue-500 mr-3 mt-1 flex-shrink-0" />
             <div>
