@@ -254,9 +254,6 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               )}
             </CardContent>
           </Card>
-
-          {/* RIGHT: Guest Live View Configuration */}
-          <KioskLiveViewConfig eventId={selectedEvent.id} />
         </div>
       )}
 
