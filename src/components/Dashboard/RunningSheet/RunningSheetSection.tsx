@@ -236,45 +236,50 @@ export function RunningSheetSection({
 
           <CollapsibleContent>
             <CardContent className="pt-0 px-2 pb-3">
-              {/* Column headers */}
-              <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                <div className="w-6 shrink-0" />
-                <div className="basis-1/5 min-w-0">Time</div>
-                <div className="flex-1 min-w-0">Event</div>
-                <div className="basis-1/5 min-w-0">Who</div>
-                <div className="w-16 shrink-0" />
-              </div>
+              {/* Tablet-only horizontal scroll wrapper preserves desktop layout */}
+              <div className="max-lg:overflow-x-auto max-lg:[-webkit-overflow-scrolling:touch] lg:overflow-visible">
+                <div className="max-lg:min-w-[1024px]">
+                  {/* Column headers */}
+                  <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    <div className="w-6 shrink-0" />
+                    <div className="basis-1/5 min-w-0">Time</div>
+                    <div className="flex-1 min-w-0">Event</div>
+                    <div className="basis-1/5 min-w-0">Who</div>
+                    <div className="w-16 shrink-0" />
+                  </div>
 
-              {/* Rows */}
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                  {items.map(item => (
-                    <RunningSheetRow
-                      key={item.id}
-                      item={item}
-                      onUpdate={handleUpdateWithUndo}
-                      onDuplicate={onDuplicateItem}
-                      onDelete={onDeleteItem}
-                      onClearText={(itemId) => handleUpdateWithUndo(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
-                      onInsertFromDJMC={onInsertFromDJMC}
-                      onUndo={handleUndo}
-                      canUndo={undoStack.length > 0}
-                      hasDJMCData={hasDJMCData}
-                      disabled={disabled}
-                    />
-                  ))}
-                </SortableContext>
-              </DndContext>
+                  {/* Rows */}
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                      {items.map(item => (
+                        <RunningSheetRow
+                          key={item.id}
+                          item={item}
+                          onUpdate={handleUpdateWithUndo}
+                          onDuplicate={onDuplicateItem}
+                          onDelete={onDeleteItem}
+                          onClearText={(itemId) => handleUpdateWithUndo(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
+                          onInsertFromDJMC={onInsertFromDJMC}
+                          onUndo={handleUndo}
+                          canUndo={undoStack.length > 0}
+                          hasDJMCData={hasDJMCData}
+                          disabled={disabled}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
 
-              {/* Add Row */}
-              {!disabled && (
-                <div className="mt-3 flex justify-center">
-                  <Button variant="outline" size="sm" onClick={onAddItem} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Row
-                  </Button>
+                  {/* Add Row */}
+                  {!disabled && (
+                    <div className="mt-3 flex justify-center">
+                      <Button variant="outline" size="sm" onClick={onAddItem} className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Add Row
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </CardContent>
           </CollapsibleContent>
         </Collapsible>
