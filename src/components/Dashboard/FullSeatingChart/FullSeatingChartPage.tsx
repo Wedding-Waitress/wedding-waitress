@@ -281,10 +281,10 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 </Select>
               </div>
               {selectedEvent && (
-                <>
+                <div className="flex flex-wrap items-center gap-2 max-md:w-full">
                   <Badge 
                     variant="outline"
-                    className="ml-4 bg-white border-primary text-primary rounded-full"
+                    className="lg:ml-4 bg-white border-primary text-primary rounded-full"
                   >
                     <Users className="w-4 h-4 mr-1.5" />
                     {guestsLoading ? "Loading..." : `${guests.length} guests`}
@@ -295,7 +295,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   >
                     {isDataReady ? (hasGuests ? 'Ready to Generate' : 'No Guests') : 'Loading Data...'}
                   </Badge>
-                </>
+                </div>
               )}
             </div>
 
