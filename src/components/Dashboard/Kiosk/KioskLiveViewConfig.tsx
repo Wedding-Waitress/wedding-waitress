@@ -168,7 +168,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
           Configure which modules your guests can access on the kiosk live view.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch auto-rows-fr">
           {(() => {
             const renderTile = (tile: ModuleTile) => {
               const enabled = !!(visibility as any)?.[tile.visKey];
@@ -176,7 +176,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               return (
                 <div
                   key={tile.visKey as string}
-                  className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
+                  className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
                 >
                   <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                     <div className="flex items-center gap-3 max-lg:items-start">
@@ -205,7 +205,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                   </div>
 
                   {enabled && (
-                    <Accordion type="single" collapsible className="w-full">
+                    <Accordion type="single" collapsible className="w-full mt-auto">
                       <AccordionItem value={`${tile.visKey}-cfg`} className="border-0">
                         <AccordionTrigger className="text-sm py-2 hover:no-underline">
                           <span className="text-[#856A4C]">Configure {tile.title} Settings</span>
@@ -259,7 +259,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
             };
 
             const heroTile = (
-              <div key="hero" className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div key="hero" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-3">
                   <ImageIcon className="h-5 w-5 text-[#856A4C]" />
                   <div>
@@ -272,7 +272,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                     </p>
                   </div>
                 </div>
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" collapsible className="w-full mt-auto">
                   <AccordionItem value="hero-cfg" className="border-0">
                     <AccordionTrigger className="text-sm py-2 hover:no-underline">
                       <span className="text-[#856A4C]">Configure Hero Background</span>
@@ -328,7 +328,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
             );
 
             const togglesTile = (
-              <div key="toggles" className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div key="toggles" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <h4 className="text-sm font-semibold">Kiosk Display Toggles</h4>
                 <p className="text-xs text-muted-foreground">
                   Control which guest details appear on the kiosk result card.
@@ -372,16 +372,20 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               </div>
             );
 
+            // Row order: RSVP+Menu | Welcome+Hero | Floor Plan+Toggles
+            const rsvp = tiles[0];
+            const welcome = tiles[1];
+            const floorPlan = tiles[2];
+            const menu = tiles[3];
+
             return (
               <>
-                <div className="flex flex-col gap-3">
-                  {tiles.slice(0, 3).map(renderTile)}
-                </div>
-                <div className="flex flex-col gap-3">
-                  {tiles.slice(3).map(renderTile)}
-                  {heroTile}
-                  {togglesTile}
-                </div>
+                {renderTile(rsvp)}
+                {renderTile(menu)}
+                {renderTile(welcome)}
+                {heroTile}
+                {renderTile(floorPlan)}
+                {togglesTile}
               </>
             );
           })()}
