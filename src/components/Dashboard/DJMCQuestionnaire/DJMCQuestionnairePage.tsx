@@ -224,7 +224,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               }`}>
                 {/* Ceremony Section */}
                 {selectedEvent.ceremony_enabled && (
-                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full">
+                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full max-sm:text-center">
                     <div>
                       <span className="font-semibold text-primary">Ceremony:</span>
                       <span className="ml-2 text-muted-foreground">
