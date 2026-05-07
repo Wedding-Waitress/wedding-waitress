@@ -1447,7 +1447,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             type="submit"
             variant="default"
             size="xs"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 sm:order-1 lv-premium-shade"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 sm:order-1 lv-premium-shade bg-green-400"
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
