@@ -335,6 +335,8 @@ export function DJMCQuestionnaireSection({
 
         <CollapsibleContent>
           <CardContent className="pt-0 px-2 pb-3">
+            <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2">
+              <div className="max-lg:min-w-[900px]">
             {/* Subtitle for sections that have one (e.g., Do Not Play List) */}
             {section.section_subtitle && (
               <p className="text-sm text-muted-foreground mb-3 italic px-2">
