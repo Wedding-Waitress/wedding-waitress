@@ -169,23 +169,23 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ & MC or any of your vendors.</span>
                 </div>
-                <div className="flex items-center gap-3 flex-wrap max-lg:gap-2">
+                <div className="flex items-center gap-3 flex-wrap max-lg:gap-2 max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm"
                   >
-                    <Share2 className="w-3 h-3" />
+                    <Share2 className="w-3 h-3 max-sm:w-4 max-sm:h-4" />
                     Share with DJ/MC
                   </button>
                   <button
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm"
                   >
                     {downloadingPDF ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <Loader2 className="w-3 h-3 animate-spin max-sm:w-4 max-sm:h-4" />
                     ) : (
-                      <FileText className="w-3 h-3" />
+                      <FileText className="w-3 h-3 max-sm:w-4 max-sm:h-4" />
                     )}
                     Download entire questionnaire PDF
                   </button>
