@@ -1574,6 +1574,8 @@ export type Database = {
         Row: {
           event_id: string
           id: string
+          kiosk_show_dietary: boolean
+          kiosk_show_rsvp_status: boolean
           show_ceremony: boolean
           show_floor_plan: boolean
           show_invite_video: boolean
@@ -1589,6 +1591,8 @@ export type Database = {
         Insert: {
           event_id: string
           id?: string
+          kiosk_show_dietary?: boolean
+          kiosk_show_rsvp_status?: boolean
           show_ceremony?: boolean
           show_floor_plan?: boolean
           show_invite_video?: boolean
@@ -1604,6 +1608,8 @@ export type Database = {
         Update: {
           event_id?: string
           id?: string
+          kiosk_show_dietary?: boolean
+          kiosk_show_rsvp_status?: boolean
           show_ceremony?: boolean
           show_floor_plan?: boolean
           show_invite_video?: boolean
