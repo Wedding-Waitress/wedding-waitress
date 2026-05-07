@@ -245,16 +245,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <span className="text-lg font-normal text-[#967A59]">
+              <span className="hidden lg:inline text-lg font-normal text-[#967A59]">
                 Full Seating Chart for {selectedEvent.name}
               </span>
             )}
           </div>
 
           {/* Bottom row: Choose Event dropdown, badges, and export controls */}
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between pt-2 border-t max-lg:px-2">
+            <div className="flex flex-wrap items-center gap-3 lg:gap-4">
+              <div className="flex flex-wrap items-center gap-3 lg:space-x-4">
                 <label className="text-sm font-medium text-foreground whitespace-nowrap">
                   Choose Event:
                 </label>
