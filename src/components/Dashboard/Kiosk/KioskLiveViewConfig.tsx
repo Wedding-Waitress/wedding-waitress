@@ -169,6 +169,8 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+          {/* LEFT COLUMN: RSVP Invite, Welcome Video, Reception Floor Plan */}
+          <div className="flex flex-col gap-3">
           {tiles.map((tile) => {
             const enabled = !!(visibility as any)?.[tile.visKey];
             const conf = (modules as any)?.[tile.configKey];
