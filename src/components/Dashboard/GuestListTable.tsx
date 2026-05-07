@@ -2532,7 +2532,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
                             {relationsHidden ? (
-                              <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-semibold">OFF</span>
+                              <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-semibold lv-premium-shade">OFF</span>
                             ) : (
                             (() => {
                               const relationDisplay = getResolvedRelationDisplay(
