@@ -2008,13 +2008,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="lg:hidden mt-3 mb-3 mx-4 flex flex-col gap-3">
           {/* Filter tabs row */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white lv-premium-shade">
               {individualCount} Individual
             </div>
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white lv-premium-shade">
               {coupleCount} Couple
             </div>
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white lv-premium-shade">
               {familyCount} Family
             </div>
           </div>
