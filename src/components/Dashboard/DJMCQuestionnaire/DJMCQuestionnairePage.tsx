@@ -212,7 +212,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
           </CardContent>
         </Card>
       ) : questionnaire ? (
-        <div className="space-y-4">
+        <div className="space-y-4 max-lg:space-y-5">
           {/* Event header */}
           {selectedEvent && (
             <div className="text-center py-4 border-b border-border space-y-3">
@@ -224,7 +224,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               }`}>
                 {/* Ceremony Section */}
                 {selectedEvent.ceremony_enabled && (
-                  <div className="text-left min-w-[280px]">
+                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full">
                     <div>
                       <span className="font-semibold text-primary">Ceremony:</span>
                       <span className="ml-2 text-muted-foreground">
@@ -244,7 +244,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                 
                 {/* Reception Section */}
                 {selectedEvent.reception_enabled !== false && (
-                  <div className="text-left min-w-[280px]">
+                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full">
                     <div>
                       <span className="font-semibold text-primary">Reception:</span>
                       <span className="ml-2 text-muted-foreground">
