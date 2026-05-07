@@ -754,7 +754,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </p>
             
             {/* 2x2 Grid for all modules */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* RSVP Invite Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
