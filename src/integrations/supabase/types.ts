@@ -693,6 +693,7 @@ export type Database = {
           event_created: string
           event_date_override: string | null
           event_display_name: string | null
+          event_id: string
           event_planner_email: string | null
           event_timezone: string | null
           event_type: string
@@ -750,6 +751,7 @@ export type Database = {
           event_created?: string
           event_date_override?: string | null
           event_display_name?: string | null
+          event_id: string
           event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
@@ -807,6 +809,7 @@ export type Database = {
           event_created?: string
           event_date_override?: string | null
           event_display_name?: string | null
+          event_id?: string
           event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
@@ -1911,6 +1914,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_id: string
+          country_code: string | null
           created_at: string | null
           display_countdown_event_id: string | null
           email: string | null
@@ -1920,6 +1925,8 @@ export type Database = {
           mobile: string | null
         }
         Insert: {
+          account_id: string
+          country_code?: string | null
           created_at?: string | null
           display_countdown_event_id?: string | null
           email?: string | null
@@ -1929,6 +1936,8 @@ export type Database = {
           mobile?: string | null
         }
         Update: {
+          account_id?: string
+          country_code?: string | null
           created_at?: string | null
           display_countdown_event_id?: string | null
           email?: string | null
@@ -2682,6 +2691,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _random_id8: { Args: never; Returns: string }
       add_dj_mc_item_by_token: {
         Args: {
           at_order_index?: number
@@ -2761,6 +2771,7 @@ export type Database = {
         Args: { item_id: string; share_token: string }
         Returns: Json
       }
+      generate_account_id: { Args: { _country: string }; Returns: string }
       generate_dj_mc_share_token: {
         Args: {
           _permission?: string
@@ -2771,6 +2782,7 @@ export type Database = {
         Returns: string
       }
       generate_dynamic_qr_code: { Args: never; Returns: string }
+      generate_event_id: { Args: never; Returns: string }
       generate_guest_access_token: {
         Args: { _event_id: string; _guest_id: string; _validity_days?: number }
         Returns: string
@@ -2828,6 +2840,7 @@ export type Database = {
           created_date_local: string
           date: string
           event_created: string
+          event_id: string
           event_timezone: string
           event_type: string
           expiry_date: string
