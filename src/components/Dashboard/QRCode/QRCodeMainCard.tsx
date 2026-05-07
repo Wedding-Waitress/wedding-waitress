@@ -1750,7 +1750,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <span className="text-white font-bold text-sm">Preview with overlay</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                            <div className="flex items-center gap-2 p-3 bg-background rounded-md border border-[#856A4C]/45 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] max-lg:flex-wrap">
                               <div className="flex-1 min-w-0 max-lg:basis-full">
                                 <p className="text-xs font-medium truncate">
                                   {moduleSettings.hero_image_config.file_name}
@@ -1762,8 +1762,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <div className="hidden max-lg:block max-lg:basis-full border-t border-border" />
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="lv-premium-shade"
+                                variant="default"
+                                className="lv-premium-shade text-white"
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -1795,12 +1795,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   input.click();
                                 }}
                               >
+                                <RotateCcw className="h-3 w-3 mr-1" />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade"
+                                className="lv-premium-shade text-white"
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.hero_image_config?.file_url) {
                                     try {
@@ -1814,6 +1815,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   }
                                 }}
                               >
+                                <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
                               </Button>
                             </div>
