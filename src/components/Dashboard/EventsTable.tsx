@@ -304,6 +304,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
                         </div>
                       </div>
+                      {event.event_id && (
+                        <p className="mt-1 text-xs font-mono text-muted-foreground pl-7">ID: {event.event_id}</p>
+                      )}
 
                       {/* Always-visible details (tightened spacing) */}
                       <div className="mt-1.5 space-y-0">
