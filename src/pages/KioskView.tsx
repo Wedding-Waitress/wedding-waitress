@@ -33,9 +33,43 @@ interface Event {
   name: string;
   date: string;
   venue: string;
+  venue_address?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_venue_address?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
 }
+
+const ordinalSuffix = (n: number) => {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+};
+
+const formatHeaderDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
+  const day = d.getDate();
+  const month = d.toLocaleDateString('en-GB', { month: 'long' });
+  const year = d.getFullYear();
+  return `${weekday}, ${day}${ordinalSuffix(day)} ${month} ${year}`;
+};
+
+const formatTime = (t?: string | null) => {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h, 10);
+  const min = m || '00';
+  const period = hr >= 12 ? 'PM' : 'AM';
+  const h12 = hr % 12 || 12;
+  return `${h12}:${min} ${period}`;
+};
 
 export const KioskView: React.FC = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
@@ -86,6 +120,13 @@ export const KioskView: React.FC = () => {
           name: firstRow.event_name,
           date: firstRow.event_date,
           venue: firstRow.event_venue,
+          venue_address: (firstRow as any).event_venue_address ?? null,
+          start_time: firstRow.event_start_time,
+          finish_time: firstRow.event_finish_time,
+          ceremony_venue: firstRow.ceremony_venue,
+          ceremony_venue_address: (firstRow as any).ceremony_venue_address ?? null,
+          ceremony_start_time: firstRow.ceremony_start_time,
+          ceremony_finish_time: firstRow.ceremony_finish_time,
           partner1_name: firstRow.partner1_name,
           partner2_name: firstRow.partner2_name,
         };
@@ -259,28 +300,36 @@ export const KioskView: React.FC = () => {
     <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="w-full px-8 py-6">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-3">
-              <h1 className="text-3xl font-bold">{event.name}</h1>
-            </div>
-            <div className="flex items-center justify-center gap-6 text-white/90 text-lg">
-              <div className="flex items-center">
-                <Calendar className="w-5 h-5 mr-3" />
-                <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
+        <div className="w-full px-4 sm:px-8 py-6">
+          <div className="text-center flex flex-col items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
+            {event.date && (
+              <div className="flex items-center justify-center text-white/90 text-base sm:text-lg">
+                <Calendar className="w-5 h-5 mr-2 shrink-0" />
+                <span>{formatHeaderDate(event.date)}</span>
               </div>
-              {event.venue && (
-                <div className="flex items-center">
-                  <MapPin className="w-5 h-5 mr-3" />
-                  <span>{event.venue}</span>
-                </div>
-              )}
-            </div>
+            )}
+            {event.venue && (
+              <div className="flex items-center justify-center text-white/90 text-base sm:text-lg">
+                <MapPin className="w-5 h-5 mr-2 shrink-0" />
+                <span>{event.venue}</span>
+              </div>
+            )}
+            {event.venue_address && (
+              <div className="text-white/80 text-sm sm:text-base">{event.venue_address}</div>
+            )}
+            {(event.ceremony_start_time || event.ceremony_finish_time) && (
+              <div className="text-white/80 text-sm sm:text-base">
+                Ceremony: {formatTime(event.ceremony_start_time)}
+                {event.ceremony_finish_time ? ` – ${formatTime(event.ceremony_finish_time)}` : ''}
+              </div>
+            )}
+            {(event.start_time || event.finish_time) && (
+              <div className="text-white/80 text-sm sm:text-base">
+                Reception: {formatTime(event.start_time)}
+                {event.finish_time ? ` – ${formatTime(event.finish_time)}` : ''}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -289,7 +338,7 @@ export const KioskView: React.FC = () => {
       <div className="w-full px-8 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Search Section */}
-          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8 max-md:mb-32">
+          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
             <CardContent className="p-12 max-md:p-5">
               <div className="text-center mb-8 max-md:mb-5">
                 <Search className="w-16 h-16 mx-auto text-primary mb-4 max-md:w-10 max-md:h-10 max-md:mb-3" />
@@ -363,24 +412,21 @@ export const KioskView: React.FC = () => {
               )}
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Footer Help */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20 max-md:relative max-md:mt-8">
-        <div className="w-full px-8 py-4 max-md:px-4 max-md:py-3">
-          <div className="text-center space-y-3">
+          {/* Footer Help (under Find Your Table section) */}
+          <div className="mt-10 text-center flex flex-col items-center gap-5">
             <p className="text-lg text-white/90">
               Need assistance? Please contact event staff
             </p>
-            <a 
-              href="https://www.weddingwaitress.com.au/" 
-              target="_blank" 
+            <a
+              href="https://weddingwaitress.com.au"
+              target="_blank"
               rel="noopener noreferrer"
+              className="inline-block"
             >
-              <img 
-                src="/wedding-waitress-logo-full.png" 
-                alt="Wedding Waitress" 
+              <img
+                src="/wedding-waitress-logo-full.png"
+                alt="Wedding Waitress"
                 className="h-10 md:h-12 w-auto mx-auto brightness-0 invert"
               />
             </a>
