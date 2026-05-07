@@ -107,7 +107,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:max-lg:space-y-8 md:max-lg:px-2">
       {/* Header */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader>
