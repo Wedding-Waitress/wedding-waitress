@@ -338,7 +338,7 @@ export const KioskView: React.FC = () => {
       <div className="w-full px-8 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Search Section */}
-          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8 max-md:mb-32">
+          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
             <CardContent className="p-12 max-md:p-5">
               <div className="text-center mb-8 max-md:mb-5">
                 <Search className="w-16 h-16 mx-auto text-primary mb-4 max-md:w-10 max-md:h-10 max-md:mb-3" />
