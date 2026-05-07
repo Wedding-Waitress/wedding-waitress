@@ -1883,7 +1883,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       }
                       handleAddGuest();
                     }}
-                    className="bg-primary hover:bg-primary/90 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
+                    className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
                   >
                     <Users className="w-5 h-5" />
                     + Add Guest
