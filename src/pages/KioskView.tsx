@@ -412,24 +412,21 @@ export const KioskView: React.FC = () => {
               )}
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Footer Help */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20 max-md:relative max-md:mt-8">
-        <div className="w-full px-8 py-4 max-md:px-4 max-md:py-3">
-          <div className="text-center space-y-3">
+          {/* Footer Help (under Find Your Table section) */}
+          <div className="mt-10 text-center flex flex-col items-center gap-5">
             <p className="text-lg text-white/90">
               Need assistance? Please contact event staff
             </p>
-            <a 
-              href="https://www.weddingwaitress.com.au/" 
-              target="_blank" 
+            <a
+              href="https://weddingwaitress.com.au"
+              target="_blank"
               rel="noopener noreferrer"
+              className="inline-block"
             >
-              <img 
-                src="/wedding-waitress-logo-full.png" 
-                alt="Wedding Waitress" 
+              <img
+                src="/wedding-waitress-logo-full.png"
+                alt="Wedding Waitress"
                 className="h-10 md:h-12 w-auto mx-auto brightness-0 invert"
               />
             </a>
