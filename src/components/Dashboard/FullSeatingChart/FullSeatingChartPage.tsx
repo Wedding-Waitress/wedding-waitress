@@ -301,14 +301,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
               {/* Export Controls */}
               {isDataReady && hasGuests && (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
-                  <div className="flex items-center">
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 w-full lg:w-auto">
+                  <div className="flex flex-wrap items-center">
                     <span className="font-bold text-sm">Export Controls</span>
                     <span className="text-muted-foreground ml-2 text-sm">
                       Download the Full Seating Chart and share it with your vendors.
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
