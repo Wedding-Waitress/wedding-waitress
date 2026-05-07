@@ -335,7 +335,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       {/* Main Content */}
       {selectedEventId ? (
         isDataReady && hasGuests ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-lg:px-2">
             {/* Customization Panel */}
             <div className="lg:col-span-1">
               <FullSeatingChartCustomizer
@@ -346,6 +346,18 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
             {/* Preview */}
             <div className="lg:col-span-3">
+              <div className="lg:hidden overflow-x-auto -mx-2 px-2 pb-2">
+                <div className="min-w-[820px] flex justify-center">
+                  <FullSeatingChartPreview 
+                    event={selectedEvent!} 
+                    guests={sortedGuests}
+                    settings={settings}
+                    tableNameMap={tableNameMap}
+                    tableIdNameMap={tableIdNameMap}
+                  />
+                </div>
+              </div>
+              <div className="hidden lg:block">
                 <FullSeatingChartPreview 
                   event={selectedEvent!} 
                   guests={sortedGuests}
@@ -353,6 +365,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   tableNameMap={tableNameMap}
                   tableIdNameMap={tableIdNameMap}
                 />
+              </div>
             </div>
           </div>
         ) : isDataReady && !hasGuests ? (
