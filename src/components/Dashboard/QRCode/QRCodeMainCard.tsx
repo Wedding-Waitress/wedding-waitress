@@ -1204,7 +1204,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.floor_plan_config?.source === 'upload' && (
                             <div className="mt-3">
                               {moduleSettings?.floor_plan_config?.file_url ? (
-                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                                <div className="flex items-center gap-2 p-3 bg-background rounded-md border border-[#856A4C]/45 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] max-lg:flex-wrap">
                                   <div className="flex-1 min-w-0 max-lg:basis-full">
                                     <p className="text-xs font-medium truncate">
                                       {moduleSettings.floor_plan_config.file_name}
@@ -1215,8 +1215,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   </div>
                                   <Button
                                     size="sm"
-                                    variant="outline"
-                                    className="lv-premium-shade"
+                                    variant="default"
+                                    className="lv-premium-shade text-white"
                                     onClick={() => {
                                       const input = document.createElement('input');
                                       input.type = 'file';
