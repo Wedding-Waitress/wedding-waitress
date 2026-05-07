@@ -300,28 +300,36 @@ export const KioskView: React.FC = () => {
     <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
-        <div className="w-full px-8 py-6">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-3">
-              <h1 className="text-3xl font-bold">{event.name}</h1>
-            </div>
-            <div className="flex items-center justify-center gap-6 text-white/90 text-lg">
-              <div className="flex items-center">
-                <Calendar className="w-5 h-5 mr-3" />
-                <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
+        <div className="w-full px-4 sm:px-8 py-6">
+          <div className="text-center flex flex-col items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
+            {event.date && (
+              <div className="flex items-center justify-center text-white/90 text-base sm:text-lg">
+                <Calendar className="w-5 h-5 mr-2 shrink-0" />
+                <span>{formatHeaderDate(event.date)}</span>
               </div>
-              {event.venue && (
-                <div className="flex items-center">
-                  <MapPin className="w-5 h-5 mr-3" />
-                  <span>{event.venue}</span>
-                </div>
-              )}
-            </div>
+            )}
+            {event.venue && (
+              <div className="flex items-center justify-center text-white/90 text-base sm:text-lg">
+                <MapPin className="w-5 h-5 mr-2 shrink-0" />
+                <span>{event.venue}</span>
+              </div>
+            )}
+            {event.venue_address && (
+              <div className="text-white/80 text-sm sm:text-base">{event.venue_address}</div>
+            )}
+            {(event.ceremony_start_time || event.ceremony_finish_time) && (
+              <div className="text-white/80 text-sm sm:text-base">
+                Ceremony: {formatTime(event.ceremony_start_time)}
+                {event.ceremony_finish_time ? ` – ${formatTime(event.ceremony_finish_time)}` : ''}
+              </div>
+            )}
+            {(event.start_time || event.finish_time) && (
+              <div className="text-white/80 text-sm sm:text-base">
+                Reception: {formatTime(event.start_time)}
+                {event.finish_time ? ` – ${formatTime(event.finish_time)}` : ''}
+              </div>
+            )}
           </div>
         </div>
       </div>
