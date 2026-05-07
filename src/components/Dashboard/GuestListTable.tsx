@@ -2441,7 +2441,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="px-2 py-2 text-center align-middle">
                             <Badge 
                               className={cn(
-                                "text-white cursor-pointer",
+                                "text-white cursor-pointer lv-premium-shade",
                                 guest.notes && /has added:/i.test(guest.notes.replace(/^\[NEW\+\]/, ''))
                                   ? guest.notes.startsWith('[NEW+]')
                                     ? "bg-green-500 hover:bg-green-600 animate-flash"
