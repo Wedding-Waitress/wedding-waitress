@@ -2587,7 +2587,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   <Tooltip>
                                     <TooltipTrigger>
                                       <span className={cn(
-                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
+                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer lv-premium-shade",
                                         hasNewAlert && "animate-flash"
                                       )}>{hasPlusGuestHistory ? "Yes" : "Yes"}</span>
                                     </TooltipTrigger>
@@ -2598,7 +2598,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 </TooltipProvider>
                               );
                             })() : (
-                              <Badge className="text-white bg-red-500">No</Badge>
+                              <Badge className="text-white bg-red-500 lv-premium-shade">No</Badge>
                             )}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
