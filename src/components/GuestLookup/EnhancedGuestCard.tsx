@@ -20,6 +20,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
 import { formatDisplayDate } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Guest {
   id: string;
@@ -58,6 +68,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
   const [localRsvp, setLocalRsvp] = useState<RsvpStatus>(normalizeRsvp(guest.rsvp));
+  const [pendingRsvp, setPendingRsvp] = useState<RsvpStatus | null>(null);
   const suppressNextClickRef = React.useRef(false);
   useEffect(() => {
     setLocalRsvp(normalizeRsvp(guest.rsvp));
@@ -91,20 +102,19 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     }
   };
 
-  const updateRsvp = async (newRsvp: string) => {
+  const performRsvpUpdate = async (newRsvp: string) => {
     setUpdatingRsvp(true);
     const prev = localRsvp;
     const normalized = normalizeRsvp(newRsvp);
     setLocalRsvp(normalized);
-    
+
     console.log('📤 Updating RSVP:', {
       guest_id: guest.id,
       event_id: guest.event_id,
       rsvp: normalized
     });
-    
+
     try {
-      // Use RPC function to bypass RLS for public updates
       const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
         _guest_id: guest.id,
         _event_id: guest.event_id,
@@ -117,7 +127,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         console.error('❌ RPC Error:', error);
         throw error;
       }
-      
+
       if (!data) {
         console.error('❌ Update returned false - event may not allow public updates');
         throw new Error('Update failed - event may not allow public updates');
@@ -128,7 +138,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         title: "RSVP Updated",
         description: `Your RSVP has been updated to ${normalized}`,
       });
-      
+
       onUpdate?.();
     } catch (error) {
       console.error('❌ Error updating RSVP:', error);
@@ -141,6 +151,24 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     } finally {
       setUpdatingRsvp(false);
     }
+  };
+
+  const updateRsvp = (newRsvp: string) => {
+    const normalized = normalizeRsvp(newRsvp);
+    // First-time RSVP (currently Pending) → instant update, no popup
+    if (localRsvp === 'Pending') {
+      void performRsvpUpdate(normalized);
+      return;
+    }
+    // Already responded → require confirmation, even if same choice
+    setPendingRsvp(normalized);
+  };
+
+  const confirmPendingRsvp = () => {
+    if (pendingRsvp) {
+      void performRsvpUpdate(pendingRsvp);
+    }
+    setPendingRsvp(null);
   };
 
   const openAddGuest = () => {
@@ -364,6 +392,22 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           )}
         </div>
       </CardContent>
+      <AlertDialog open={pendingRsvp !== null} onOpenChange={(open) => { if (!open) setPendingRsvp(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>RSVP Already Submitted</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">You have already responded to this invitation.</span>
+              <span className="block">Changing your RSVP may affect seating arrangements, catering, and event planning.</span>
+              <span className="block">Are you sure you want to send this update to the organiser?</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Current RSVP</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPendingRsvp}>Yes, Update RSVP</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
