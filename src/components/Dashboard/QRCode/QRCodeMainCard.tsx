@@ -1643,12 +1643,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   input.click();
                                 }}
                               >
+                                <RotateCcw className="h-3 w-3 mr-1" />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade"
+                                className="lv-premium-shade text-white"
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.menu_config?.file_url) {
                                     try {
@@ -1662,6 +1663,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   }
                                 }}
                               >
+                                <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
                               </Button>
                             </div>
