@@ -751,7 +751,7 @@ export type Database = {
           event_created?: string
           event_date_override?: string | null
           event_display_name?: string | null
-          event_id: string
+          event_id?: string
           event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
@@ -1925,7 +1925,7 @@ export type Database = {
           mobile: string | null
         }
         Insert: {
-          account_id: string
+          account_id?: string
           country_code?: string | null
           created_at?: string | null
           display_countdown_event_id?: string | null
