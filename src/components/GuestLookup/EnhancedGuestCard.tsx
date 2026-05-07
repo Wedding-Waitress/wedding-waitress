@@ -102,20 +102,19 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     }
   };
 
-  const updateRsvp = async (newRsvp: string) => {
+  const performRsvpUpdate = async (newRsvp: string) => {
     setUpdatingRsvp(true);
     const prev = localRsvp;
     const normalized = normalizeRsvp(newRsvp);
     setLocalRsvp(normalized);
-    
+
     console.log('📤 Updating RSVP:', {
       guest_id: guest.id,
       event_id: guest.event_id,
       rsvp: normalized
     });
-    
+
     try {
-      // Use RPC function to bypass RLS for public updates
       const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
         _guest_id: guest.id,
         _event_id: guest.event_id,
@@ -128,7 +127,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         console.error('❌ RPC Error:', error);
         throw error;
       }
-      
+
       if (!data) {
         console.error('❌ Update returned false - event may not allow public updates');
         throw new Error('Update failed - event may not allow public updates');
@@ -139,7 +138,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         title: "RSVP Updated",
         description: `Your RSVP has been updated to ${normalized}`,
       });
-      
+
       onUpdate?.();
     } catch (error) {
       console.error('❌ Error updating RSVP:', error);
@@ -152,6 +151,24 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     } finally {
       setUpdatingRsvp(false);
     }
+  };
+
+  const updateRsvp = (newRsvp: string) => {
+    const normalized = normalizeRsvp(newRsvp);
+    // First-time RSVP (currently Pending) → instant update, no popup
+    if (localRsvp === 'Pending') {
+      void performRsvpUpdate(normalized);
+      return;
+    }
+    // Already responded → require confirmation, even if same choice
+    setPendingRsvp(normalized);
+  };
+
+  const confirmPendingRsvp = () => {
+    if (pendingRsvp) {
+      void performRsvpUpdate(pendingRsvp);
+    }
+    setPendingRsvp(null);
   };
 
   const openAddGuest = () => {
