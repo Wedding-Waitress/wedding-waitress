@@ -42,6 +42,8 @@ interface Event {
   ceremony_finish_time?: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  kiosk_show_rsvp_status?: boolean;
+  kiosk_show_dietary?: boolean;
 }
 
 const ordinalSuffix = (n: number) => {
