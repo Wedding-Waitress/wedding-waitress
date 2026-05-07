@@ -2496,7 +2496,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               return (
                                 <Badge 
                                   variant={getRsvpBadgeVariant(guest.rsvp)} 
-                                  className="text-xs text-white px-2 py-0.5 leading-tight"
+                                  className="text-xs text-white px-2 py-0.5 leading-tight lv-premium-shade"
                                 >
                                   {isNotAttending ? (
                                     <>Not<br />Attending</>
