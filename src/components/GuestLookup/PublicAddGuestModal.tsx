@@ -365,10 +365,10 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1">
                   <Users className="w-4 h-4" />
-                  <span>Members ({totalExistingGroup + partyMembers.length})</span>
+                  <span>Members ({(showExistingMembersForCategory ? totalExistingGroup : 0) + partyMembers.length})</span>
                 </div>
-                {/* Couple: show add button until partner added (max 1 member) */}
-                {guestType === 'couple' && partyMembers.length < 1 && (
+                {/* Couple: only allow when group is not already a family; max 1 added member */}
+                {guestType === 'couple' && actualExistingType !== 'family' && partyMembers.length < 1 && (
                   <Button
                     type="button"
                     variant="outline"
@@ -395,8 +395,15 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                 )}
               </div>
 
-              {/* Auto-populated referring guest (read-only) */}
-              {addedByGuestName && (
+              {/* Inform the user when their group is already a family but they're on Couple tab */}
+              {guestType === 'couple' && actualExistingType === 'family' && (
+                <p className="text-xs text-muted-foreground text-center py-2">
+                  Your group is already a Family ({totalExistingGroup} members). A Couple can only contain 2 people. Switch to the <span className="text-blue-600 font-medium">Family</span> tab to view or add more members.
+                </p>
+              )}
+
+              {/* Auto-populated referring guest (read-only) — only when category matches */}
+              {addedByGuestName && showExistingMembersForCategory && (
                 <div className="space-y-1">
                   <div className="flex items-center justify-between bg-[#F5F0EB] py-1.5 px-3 rounded-lg border border-primary/20">
                     <div className="flex-1">
@@ -407,14 +414,14 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                 </div>
               )}
 
-              {/* Show existing group members (read-only) */}
-              {existingGroupMembers.length > 0 && (
+              {/* Show existing group members (read-only) — only when category matches */}
+              {existingGroupMembers.length > 0 && showExistingMembersForCategory && (
                 <div className="space-y-1">
                   {existingGroupMembers.map((member, idx) => (
                     <div key={idx} className="flex items-center justify-between bg-gray-50 py-1.5 px-3 rounded-lg border border-gray-200">
                       <div className="flex-1">
                         <p className="font-medium text-sm text-gray-700">{member.first_name} {member.last_name}</p>
-                        <p className="text-xs text-muted-foreground">Family member</p>
+                        <p className="text-xs text-muted-foreground">{actualExistingType === 'couple' ? 'Partner' : 'Family member'}</p>
                       </div>
                     </div>
                   ))}
