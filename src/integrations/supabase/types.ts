@@ -2886,12 +2886,14 @@ export type Database = {
           ceremony_finish_time: string
           ceremony_start_time: string
           ceremony_venue: string
+          ceremony_venue_address: string
           event_date: string
           event_finish_time: string
           event_id: string
           event_name: string
           event_start_time: string
           event_venue: string
+          event_venue_address: string
           floor_plan_config: Json
           guest_added_by_guest_id: string
           guest_allow_plus_one: boolean

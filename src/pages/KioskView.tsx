@@ -33,9 +33,43 @@ interface Event {
   name: string;
   date: string;
   venue: string;
+  venue_address?: string | null;
+  start_time?: string | null;
+  finish_time?: string | null;
+  ceremony_venue?: string | null;
+  ceremony_venue_address?: string | null;
+  ceremony_start_time?: string | null;
+  ceremony_finish_time?: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
 }
+
+const ordinalSuffix = (n: number) => {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+};
+
+const formatHeaderDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const weekday = d.toLocaleDateString('en-GB', { weekday: 'long' });
+  const day = d.getDate();
+  const month = d.toLocaleDateString('en-GB', { month: 'long' });
+  const year = d.getFullYear();
+  return `${weekday}, ${day}${ordinalSuffix(day)} ${month} ${year}`;
+};
+
+const formatTime = (t?: string | null) => {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h, 10);
+  const min = m || '00';
+  const period = hr >= 12 ? 'PM' : 'AM';
+  const h12 = hr % 12 || 12;
+  return `${h12}:${min} ${period}`;
+};
 
 export const KioskView: React.FC = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
