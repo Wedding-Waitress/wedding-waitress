@@ -42,6 +42,8 @@ interface Event {
   ceremony_finish_time?: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  kiosk_show_rsvp_status?: boolean;
+  kiosk_show_dietary?: boolean;
 }
 
 const ordinalSuffix = (n: number) => {
@@ -79,21 +81,14 @@ export const KioskView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [lastActivity, setLastActivity] = useState(Date.now());
 
-  // Auto-reset inactivity timeout (30 seconds)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (Date.now() - lastActivity > 30000) {
-        setSearchTerm('');
-        setLastActivity(Date.now());
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [lastActivity]);
-
-  // Reset activity timer on any interaction
+  // No auto-clear: results stay until manually cleared or new search
   const handleActivity = () => {
     setLastActivity(Date.now());
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    handleActivity();
   };
 
   // Fetch event and guests data
@@ -129,6 +124,8 @@ export const KioskView: React.FC = () => {
           ceremony_finish_time: firstRow.ceremony_finish_time,
           partner1_name: firstRow.partner1_name,
           partner2_name: firstRow.partner2_name,
+          kiosk_show_rsvp_status: (firstRow as any).kiosk_show_rsvp_status ?? true,
+          kiosk_show_dietary: (firstRow as any).kiosk_show_dietary ?? true,
         };
         setEvent(eventData);
 
@@ -318,12 +315,6 @@ export const KioskView: React.FC = () => {
             {event.venue_address && (
               <div className="text-white/80 text-sm sm:text-base">{event.venue_address}</div>
             )}
-            {(event.ceremony_start_time || event.ceremony_finish_time) && (
-              <div className="text-white/80 text-sm sm:text-base">
-                Ceremony: {formatTime(event.ceremony_start_time)}
-                {event.ceremony_finish_time ? ` – ${formatTime(event.ceremony_finish_time)}` : ''}
-              </div>
-            )}
             {(event.start_time || event.finish_time) && (
               <div className="text-white/80 text-sm sm:text-base">
                 Reception: {formatTime(event.start_time)}
@@ -386,11 +377,31 @@ export const KioskView: React.FC = () => {
           {searchTerm.length > 0 && (
             <div className="space-y-6">
               {filteredGuests.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredGuests.map((guest) => (
-                    <KioskGuestCard key={guest.id} guest={guest} />
-                  ))}
-                </div>
+                <>
+                  {filteredGuests.length === 1 && (
+                    <h2 className="text-center text-2xl sm:text-3xl font-bold text-white mb-2">
+                      Welcome, {filteredGuests[0].first_name} 👋
+                    </h2>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredGuests.map((guest) => (
+                      <KioskGuestCard
+                        key={guest.id}
+                        guest={guest}
+                        showRsvp={event.kiosk_show_rsvp_status !== false}
+                        showDietary={event.kiosk_show_dietary !== false}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex justify-center pt-2">
+                    <button
+                      onClick={handleClearSearch}
+                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full text-base font-medium bg-white/95 text-foreground hover:bg-white shadow-lg min-w-[180px]"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                </>
               ) : (
                 <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl">
                   <CardContent className="p-12 text-center">
@@ -406,6 +417,14 @@ export const KioskView: React.FC = () => {
                       <p className="text-sm text-orange-600">
                         Your name might be listed differently on the guest list
                       </p>
+                    </div>
+                    <div className="flex justify-center pt-6">
+                      <button
+                        onClick={handleClearSearch}
+                        className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-8 rounded-full text-base font-medium border-2 border-primary text-primary bg-background hover:bg-primary/5 min-w-[180px]"
+                      >
+                        Clear Search
+                      </button>
                     </div>
                   </CardContent>
                 </Card>

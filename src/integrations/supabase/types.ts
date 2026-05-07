@@ -2913,6 +2913,8 @@ export type Database = {
           guest_table_id: string
           guest_table_no: number
           hero_image_config: Json
+          kiosk_show_dietary: boolean
+          kiosk_show_rsvp_status: boolean
           menu_config: Json
           partner1_name: string
           partner2_name: string
