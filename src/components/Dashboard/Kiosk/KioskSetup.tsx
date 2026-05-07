@@ -208,11 +208,20 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
               </div>
 
-              {/* Action Buttons: stacked mobile, 2-col tablet/desktop, 3-col only on 2xl */}
-              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3">
+              {/* Action Buttons: stacked vertically full-width */}
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={generateQRCode}
+                  disabled={isGeneratingQR}
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
+                >
+                  <QrCode className="w-5 h-5" />
+                  {isGeneratingQR ? 'Generating...' : 'Generate QR'}
+                </button>
+
                 <button
                   onClick={handleOpenKiosk}
-                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full min-w-0"
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full"
                 >
                   <ExternalLink className="w-5 h-5" />
                   Open Kiosk
@@ -220,19 +229,10 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
                 <button
                   onClick={handleFullscreen}
-                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full min-w-0"
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full"
                 >
                   <Maximize className="w-5 h-5" />
                   Launch Fullscreen
-                </button>
-
-                <button
-                  onClick={generateQRCode}
-                  disabled={isGeneratingQR}
-                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full min-w-0 md:col-span-2 2xl:col-span-1"
-                >
-                  <QrCode className="w-5 h-5" />
-                  {isGeneratingQR ? 'Generating...' : 'Generate QR'}
                 </button>
               </div>
 
