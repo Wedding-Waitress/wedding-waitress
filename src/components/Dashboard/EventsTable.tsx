@@ -394,6 +394,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" onClick={() => handleEventSelect(event.id)} />
                         </div>
                       </TableCell>
+                      <TableCell className="w-24">
+                        <span className="font-mono text-xs text-muted-foreground">{event.event_id || '—'}</span>
+                      </TableCell>
                       <TableCell className="font-medium w-32">
                         <div className="flex items-center">
                           {event.name}
