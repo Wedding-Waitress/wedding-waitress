@@ -24,6 +24,7 @@ import {
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildKioskUrl } from '@/lib/urlUtils';
+import { KioskLiveViewConfig } from './KioskLiveViewConfig';
 import QRCode from 'qrcode';
 
 interface KioskSetupProps {
@@ -175,77 +176,83 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
         </CardContent>
       </Card>
 
-      {/* Kiosk URL and Controls */}
+      {/* Two-column layout: URL/Controls (left) + Guest Live View Configuration (right) */}
       {selectedEvent && (
-        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-              <ExternalLink className="w-5 h-5 text-foreground" />
-              Kiosk URL & Controls
-            </CardTitle>
-            <CardDescription>
-              Use this URL to set up your kiosk device
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* URL Display */}
-            <div className="p-4 bg-muted rounded-lg">
-              <div className="flex flex-col md:max-lg:flex-col lg:flex-row items-stretch md:max-lg:items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
-                <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* LEFT: Kiosk URL & Controls */}
+          <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
+                <ExternalLink className="w-5 h-5 text-foreground" />
+                Kiosk URL & Controls
+              </CardTitle>
+              <CardDescription>
+                Use this URL to set up your kiosk device
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* URL Display */}
+              <div className="p-4 bg-muted rounded-lg">
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
+                  <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
+                  <button
+                    onClick={handleCopyUrl}
+                    className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0 w-full lg:w-auto"
+                  >
+                    <Copy className="w-5 h-5" />
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons: stacked mobile, 2-col tablet/desktop, 3-col only on 2xl */}
+              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3">
                 <button
-                  onClick={handleCopyUrl}
-                  className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0 w-full lg:w-auto"
+                  onClick={handleOpenKiosk}
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full min-w-0"
                 >
-                  <Copy className="w-5 h-5" />
-                  Copy
+                  <ExternalLink className="w-5 h-5" />
+                  Open Kiosk
+                </button>
+
+                <button
+                  onClick={handleFullscreen}
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full min-w-0"
+                >
+                  <Maximize className="w-5 h-5" />
+                  Launch Fullscreen
+                </button>
+
+                <button
+                  onClick={generateQRCode}
+                  disabled={isGeneratingQR}
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full min-w-0 md:col-span-2 2xl:col-span-1"
+                >
+                  <QrCode className="w-5 h-5" />
+                  {isGeneratingQR ? 'Generating...' : 'Generate QR'}
                 </button>
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:max-lg:gap-3">
-              <button 
-                onClick={handleOpenKiosk}
-                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full min-w-0"
-              >
-                <ExternalLink className="w-6 h-6" />
-                Open Kiosk
-              </button>
-              
-              <button 
-                onClick={handleFullscreen}
-                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full min-w-0"
-              >
-                <Maximize className="w-6 h-6" />
-                Launch Fullscreen
-              </button>
-              
-              <button 
-                onClick={generateQRCode}
-                disabled={isGeneratingQR}
-                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full min-w-0"
-              >
-                <QrCode className="w-6 h-6" />
-                {isGeneratingQR ? 'Generating...' : 'Generate QR'}
-              </button>
-            </div>
+              {/* QR Code Display */}
+              {qrCodeDataUrl && (
+                <div className="text-center p-6 bg-white rounded-lg border">
+                  <h4 className="font-semibold mb-4">QR Code for Kiosk Setup</h4>
+                  <img
+                    src={qrCodeDataUrl}
+                    alt="Kiosk QR Code"
+                    className="mx-auto mb-4"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Scan this QR code to quickly open the kiosk on a tablet or mobile device
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-            {/* QR Code Display */}
-            {qrCodeDataUrl && (
-              <div className="text-center p-6 bg-white rounded-lg border">
-                <h4 className="font-semibold mb-4">QR Code for Kiosk Setup</h4>
-                <img 
-                  src={qrCodeDataUrl} 
-                  alt="Kiosk QR Code" 
-                  className="mx-auto mb-4"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Scan this QR code to quickly open the kiosk on a tablet or mobile device
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {/* RIGHT: Guest Live View Configuration */}
+          <KioskLiveViewConfig eventId={selectedEvent.id} />
+        </div>
       )}
 
       {/* Setup Instructions */}
