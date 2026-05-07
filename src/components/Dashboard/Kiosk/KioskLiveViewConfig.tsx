@@ -163,12 +163,12 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
           Guest Live View Configuration
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
           Configure which modules your guests can access on the kiosk live view.
         </p>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
           {tiles.map((tile) => {
             const enabled = !!(visibility as any)?.[tile.visKey];
             const conf = (modules as any)?.[tile.configKey];
