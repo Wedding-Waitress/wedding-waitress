@@ -244,7 +244,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                 
                 {/* Reception Section */}
                 {selectedEvent.reception_enabled !== false && (
-                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full">
+                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full max-sm:text-center">
                     <div>
                       <span className="font-semibold text-primary">Reception:</span>
                       <span className="ml-2 text-muted-foreground">
