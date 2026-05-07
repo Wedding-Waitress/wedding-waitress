@@ -1442,26 +1442,26 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         </Form>
         </div>
 
-        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2">
-          <Button
-            type="button"
-            variant="destructive"
-            size="xs"
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 sm:flex-row sm:justify-end sm:space-x-2">
           <Button
             type="submit"
             variant="default"
             size="xs"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 sm:order-1 lv-premium-shade"
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="xs"
+            className="rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 sm:order-2 lv-premium-shade"
+            onClick={handleClose}
+            disabled={loading}
+          >
+            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>

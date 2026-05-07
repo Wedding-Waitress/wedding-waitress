@@ -87,23 +87,23 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
         </div>
 
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button 
-            variant="default" 
-            size="xs"
-            className="rounded-full"
-            onClick={handleClose} 
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
           <Button
             variant="destructive"
             size="xs"
-            className="rounded-full"
+            className="rounded-full sm:order-1 lv-premium-shade"
             onClick={handleConfirm}
             disabled={!isConfirmValid || isLoading}
           >
             {isLoading ? 'Deleting...' : 'Delete Guest'}
+          </Button>
+          <Button 
+            variant="default" 
+            size="xs"
+            className="rounded-full sm:order-2 lv-premium-shade"
+            onClick={handleClose} 
+            disabled={isLoading}
+          >
+            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>

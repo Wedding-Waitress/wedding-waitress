@@ -1549,7 +1549,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   const renderPill = (condition: boolean, yesColor = "bg-green-500", noColor = "bg-red-500") => (
     <Badge 
-      className={`text-white ${condition ? yesColor : noColor}`}
+      className={`text-white lv-premium-shade ${condition ? yesColor : noColor}`}
     >
       {condition ? "YES" : "NO"}
     </Badge>
@@ -1844,7 +1844,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   size="sm"
                                   onClick={() => { void handleSavePartnerNames(); }}
                                   disabled={isSaving}
-                                  className="h-8 rounded-full px-4 text-sm"
+                                  className="h-8 rounded-full px-4 text-sm lv-premium-shade"
                                 >
                                   {isSaving ? 'Saving...' : 'Save Names'}
                                 </Button>
@@ -1883,7 +1883,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       }
                       handleAddGuest();
                     }}
-                    className="bg-primary hover:bg-primary/90 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base"
+                    className="bg-primary hover:bg-primary/90 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
                   >
                     <Users className="w-5 h-5" />
                     + Add Guest
@@ -2008,13 +2008,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="lg:hidden mt-3 mb-3 mx-4 flex flex-col gap-3">
           {/* Filter tabs row */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white lv-premium-shade">
               {individualCount} Individual
             </div>
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white lv-premium-shade">
               {coupleCount} Couple
             </div>
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white">
+            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white lv-premium-shade">
               {familyCount} Family
             </div>
           </div>
@@ -2030,7 +2030,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 className="pl-10 w-full border-2 border-primary h-10 rounded-full text-sm"
               />
             </div>
-            <div className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-xs font-medium h-10 px-3 bg-white border-2 border-primary text-foreground flex-shrink-0">
+            <div className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-xs font-medium h-10 px-3 bg-white border-2 border-primary text-foreground flex-shrink-0 lv-premium-shade">
               <Users className="w-3.5 h-3.5" />
               {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
             </div>
@@ -2057,16 +2057,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
               />
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0 lv-premium-shade">
               {individualCount} Individual
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0 lv-premium-shade">
               {coupleCount} Couple
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0 lv-premium-shade">
               {familyCount} Family
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border-2 border-primary text-foreground">
+            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border-2 border-primary text-foreground lv-premium-shade">
               <Users className="w-4 h-4" />
               {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
             </div>
@@ -2441,7 +2441,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="px-2 py-2 text-center align-middle">
                             <Badge 
                               className={cn(
-                                "text-white cursor-pointer",
+                                "text-white cursor-pointer lv-premium-shade",
                                 guest.notes && /has added:/i.test(guest.notes.replace(/^\[NEW\+\]/, ''))
                                   ? guest.notes.startsWith('[NEW+]')
                                     ? "bg-green-500 hover:bg-green-600 animate-flash"
@@ -2483,7 +2483,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
                               return (
-                                <Badge className={`text-xs ${config.className}`}>
+                                <Badge className={`text-xs lv-premium-shade ${config.className}`}>
                                   {config.label}
                                 </Badge>
                               );
@@ -2496,7 +2496,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               return (
                                 <Badge 
                                   variant={getRsvpBadgeVariant(guest.rsvp)} 
-                                  className="text-xs text-white px-2 py-0.5 leading-tight"
+                                  className="text-xs text-white px-2 py-0.5 leading-tight lv-premium-shade"
                                 >
                                   {isNotAttending ? (
                                     <>Not<br />Attending</>
@@ -2532,7 +2532,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
                             {relationsHidden ? (
-                              <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-semibold">OFF</span>
+                              <span className="inline-flex items-center justify-center px-3 py-0.5 rounded-full bg-red-500 text-white text-xs font-semibold lv-premium-shade">OFF</span>
                             ) : (
                             (() => {
                               const relationDisplay = getResolvedRelationDisplay(
@@ -2571,7 +2571,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               }
                               
                               return (
-                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${colorClasses}`}>
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold lv-premium-shade ${colorClasses}`}>
                                   {typeLabel}
                                 </span>
                               );
@@ -2587,7 +2587,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   <Tooltip>
                                     <TooltipTrigger>
                                       <span className={cn(
-                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer",
+                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer lv-premium-shade",
                                         hasNewAlert && "animate-flash"
                                       )}>{hasPlusGuestHistory ? "Yes" : "Yes"}</span>
                                     </TooltipTrigger>
@@ -2598,7 +2598,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 </TooltipProvider>
                               );
                             })() : (
-                              <Badge className="text-white bg-red-500">No</Badge>
+                              <Badge className="text-white bg-red-500 lv-premium-shade">No</Badge>
                             )}
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">
