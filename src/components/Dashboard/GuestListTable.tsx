@@ -1844,7 +1844,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   size="sm"
                                   onClick={() => { void handleSavePartnerNames(); }}
                                   disabled={isSaving}
-                                  className="h-8 rounded-full px-4 text-sm"
+                                  className="h-8 rounded-full px-4 text-sm lv-premium-shade"
                                 >
                                   {isSaving ? 'Saving...' : 'Save Names'}
                                 </Button>
