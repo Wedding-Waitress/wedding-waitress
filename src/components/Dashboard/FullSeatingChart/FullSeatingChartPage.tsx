@@ -227,7 +227,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const hasGuests = guests.length > 0;
 
   return (
-    <div className="space-y-6 full-seating-chart-dark-purple">
+    <div className="space-y-6 full-seating-chart-dark-purple max-md:px-4">
       {/* Header */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
         <CardHeader className="space-y-4">
