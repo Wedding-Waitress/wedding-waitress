@@ -215,10 +215,10 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 <button
                   onClick={generateQRCode}
                   disabled={isGeneratingQR}
-                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full text-white bg-[#967A59] hover:bg-[#856A4C] transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
                 >
-                  <QrCode className="w-5 h-5" />
-                  {isGeneratingQR ? 'Generating...' : 'Generate QR'}
+                  <QrCode className="w-5 h-5 text-white" />
+                  {isGeneratingQR ? 'Generating...' : 'Generate QR Code'}
                 </button>
 
                 <button
