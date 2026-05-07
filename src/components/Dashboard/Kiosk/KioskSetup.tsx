@@ -190,11 +190,11 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
           <CardContent className="space-y-6">
             {/* URL Display */}
             <div className="p-4 bg-muted rounded-lg">
-              <div className="flex items-center justify-between">
-                <code className="text-sm break-all flex-1 mr-4">{kioskUrl}</code>
+              <div className="flex flex-col md:max-lg:flex-col lg:flex-row items-stretch md:max-lg:items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
+                <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
                 <button
                   onClick={handleCopyUrl}
-                  className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0"
+                  className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0 w-full lg:w-auto"
                 >
                   <Copy className="w-5 h-5" />
                   Copy
@@ -203,10 +203,10 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:max-lg:gap-3">
               <button 
                 onClick={handleOpenKiosk}
-                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
+                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full min-w-0"
               >
                 <ExternalLink className="w-6 h-6" />
                 Open Kiosk
@@ -214,7 +214,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               
               <button 
                 onClick={handleFullscreen}
-                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors"
+                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full min-w-0"
               >
                 <Maximize className="w-6 h-6" />
                 Launch Fullscreen
@@ -223,7 +223,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <button 
                 onClick={generateQRCode}
                 disabled={isGeneratingQR}
-                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                className="inline-flex items-center justify-center gap-2 h-14 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full min-w-0"
               >
                 <QrCode className="w-6 h-6" />
                 {isGeneratingQR ? 'Generating...' : 'Generate QR'}
