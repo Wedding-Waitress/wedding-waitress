@@ -154,8 +154,8 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       {/* Event Selector */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="py-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex-shrink-0">
+          <div className="flex items-center justify-between gap-4 flex-wrap max-lg:flex-col max-lg:items-stretch">
+            <div className="flex-shrink-0 max-lg:w-full">
               <StandardEventSelector
                 events={events}
                 selectedEventId={selectedEventId}
@@ -164,12 +164,12 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             </div>
 
             {selectedEventId && questionnaire && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
+              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 max-lg:w-full">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ & MC or any of your vendors.</span>
                 </div>
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-3 flex-wrap max-lg:gap-2">
                   <button
                     onClick={() => setShowShareModal(true)}
                     className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors"
@@ -212,7 +212,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
           </CardContent>
         </Card>
       ) : questionnaire ? (
-        <div className="space-y-4">
+        <div className="space-y-4 max-lg:space-y-5">
           {/* Event header */}
           {selectedEvent && (
             <div className="text-center py-4 border-b border-border space-y-3">
@@ -224,7 +224,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               }`}>
                 {/* Ceremony Section */}
                 {selectedEvent.ceremony_enabled && (
-                  <div className="text-left min-w-[280px]">
+                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full">
                     <div>
                       <span className="font-semibold text-primary">Ceremony:</span>
                       <span className="ml-2 text-muted-foreground">
@@ -244,7 +244,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                 
                 {/* Reception Section */}
                 {selectedEvent.reception_enabled !== false && (
-                  <div className="text-left min-w-[280px]">
+                  <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full">
                     <div>
                       <span className="font-semibold text-primary">Reception:</span>
                       <span className="ml-2 text-muted-foreground">

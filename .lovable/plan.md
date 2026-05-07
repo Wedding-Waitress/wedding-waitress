@@ -1,78 +1,61 @@
-## Goal
+## DJ & MC Questionnaire — Tablet Layout Fix
 
-On mobile (< 768px), make the **Create Event** and **Edit Event** modals truly full-screen — header at top, scrollable body in the middle, Save/Cancel pinned to the bottom with safe-area padding. Desktop and tablet (≥ 768px) stay exactly as they are today.
+The current page renders awkwardly at tablet widths (768–1023px): the section rows squeeze every column, inputs collapse, and the top "Export Controls" panel overflows the event-selector card. Desktop (≥1024px) and mobile must be left untouched.
 
-## What's wrong now
+### Heads-up: locked file approval needed
 
-Both modals currently use `bottomSheetOnMobile` on the shared `DialogContent`. On a real iPhone the sheet still floats mid-screen at ~85dvh with rounded top corners and the form body shows a grey gap above "My Events" behind it (see screenshots). The user wants no sheet — full viewport, no rounded corners, no float.
+`DJMCQuestionnairePage.tsx` and `DJMCQuestionnaireSection.tsx` carry the "PRODUCTION-READY — LOCKED FOR PRODUCTION" header (last locked 2026-02-19). Per project rules I must confirm before editing locked files. Approving this plan = approval to touch only the tablet-specific (`md:`/`lg:`) breakpoints in those two files. No desktop, mobile, or behavior changes.
 
-## Changes
+### Scope (tablet only, 768–1023px)
 
-### 1. `src/components/ui/dialog.tsx` — add a new variant
+Files edited:
+- `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnairePage.tsx`
+- `src/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection.tsx`
 
-Add a third boolean prop alongside the existing two:
+No other files touched. Sidebar already hides via `useIsMobile` (<1024px) → hamburger overlay already in place; nothing to change there.
 
-```ts
-trueFullScreenOnMobile?: boolean;
-```
+### Changes
 
-Keep `fullScreenOnMobile` and `bottomSheetOnMobile` untouched so no other modal in the app changes.
+1. **Page header card (`DJMCQuestionnairePage.tsx`, ~line 142–185)**
+   - Change the `flex items-center justify-between gap-4 flex-wrap` row so the Export Controls block wraps cleanly under the Event selector on tablet (`max-lg:w-full max-lg:mt-3`) instead of being squeezed beside it.
+   - Make the inner Export Controls panel `max-lg:w-full`, with the two action buttons wrapping to two equal-width pills on tablet.
+   - Keep desktop (`lg:`) layout identical (selector left, controls right).
 
-When `trueFullScreenOnMobile` is true, on `max-md:` (< 768px) only, override the default centered positioning with:
+2. **Wedding/event details strip (~line 211–256)**
+   - No structural change; just allow the Ceremony / Reception two-column flex to wrap to a single stacked column on tablet (already uses `flex-wrap`, confirm `min-w-[280px]` doesn't force overflow at 768px → drop to `max-lg:min-w-0 max-lg:w-full`).
 
-- `max-md:fixed max-md:inset-0`
-- `max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0`
-- `max-md:translate-x-0 max-md:translate-y-0`
-- `max-md:w-full max-md:h-[100dvh] max-md:max-h-[100dvh]`
-- `max-md:m-0 max-md:rounded-none max-md:border-0`
-- `max-md:flex max-md:flex-col`
-- Disable the zoom/slide-from-top animation on mobile: `max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100 max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2`
-- Do not render the bottom-sheet drag handle in this mode.
+3. **Section cards — horizontal scroll for the row table (`DJMCQuestionnaireSection.tsx`, ~line 337–498)**
+   - Wrap the column header (`<div className="flex items-center gap-2 px-1 py-2 …">`) **and** the `DndContext`/rows region in a single shared scroll container:
+     ```
+     <div className="max-lg:overflow-x-auto">
+       <div className="max-lg:min-w-[900px]">
+         {column header}
+         {DndContext / rows}
+         {Add Row button}
+       </div>
+     </div>
+     ```
+   - This preserves desktop widths exactly (no `max-lg:` styles affect ≥1024px) while on tablet the existing flex/basis columns keep their proportions inside a 900px scroll canvas — so every drag handle, mic icon, YouTube link, comment, download, and Add Row stays full-size and aligned.
+   - Add `max-lg:overflow-x-hidden` on the parent `<Card>` so only the inner row area scrolls (header/title/badges stay fixed and readable).
 
-Desktop classes (`left-[50%] top-[50%] translate-...`, `sm:rounded-lg`, etc.) remain unchanged because they are only overridden inside the `max-md:` prefix.
+4. **Card spacing**
+   - The page already wraps sections in `space-y-4`; bump to `max-lg:space-y-5` so cards breathe on tablet. No desktop change.
 
-### 2. `EventCreateModal.tsx` and `EventEditModal.tsx`
+5. **Section header (title + badges + icons row, line 209–316)**
+   - Allow the right-side icon cluster (`MessageSquare`, `MoreVertical`, `Download`) to stay inline; allow the left title group to wrap badges below the title on tablet via `max-lg:flex-wrap` on the inner `flex items-center gap-3` div. Prevents the "Total Song Count" / "Total Speakers" badges from pushing icons off-card.
 
-On the `<DialogContent>`:
+### Out of scope (explicitly NOT changing)
 
-- Replace `bottomSheetOnMobile` with `trueFullScreenOnMobile`.
-- Update className from `"max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8"` to `"max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"` so on mobile the height fills the viewport and no extra horizontal padding fights the full-bleed layout. Desktop classes are preserved exactly.
-- No JSX, field, validation, header, or footer text changes.
+- Desktop layout (≥1024px) — pixel-identical.
+- Mobile (<768px) — untouched this round per request.
+- Any logic, data, PDF export, share modal, or drag-and-drop behavior.
+- Sidebar / hamburger (already correct via `useIsMobile`).
+- Any other page or feature.
 
-### 3. Pin footer to bottom on mobile (both modals)
+### Verification
 
-The body div already has `flex-1 overflow-y-auto`. Update the wrapping `DialogFooter` (or its container) on each modal so on mobile only it sticks to the bottom of the viewport with safe-area padding:
-
-Add these utility classes to the existing footer wrapper without altering its other styles:
-
-```
-max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0
-max-md:bg-background max-md:border-t max-md:border-border
-max-md:px-4 max-md:pt-3
-max-md:pb-[max(16px,env(safe-area-inset-bottom))]
-```
-
-Also remove the existing `pb-40` from the scroll container on mobile (replace `pb-40` with `pb-40 max-md:pb-6`) so the form body no longer reserves 160px of empty space — the sticky footer handles spacing.
-
-### 4. Keyboard awareness
-
-Existing `focusin` → `scrollIntoView` effect inside both modals stays as-is. With a sticky footer and `flex-1 overflow-y-auto` body, focused inputs continue to scroll into view above the iOS keyboard.
-
-## Out of scope
-
-- All other modals/popups across the app (they don't use `trueFullScreenOnMobile`).
-- Desktop and tablet layouts (≥ 768px) — visually and behaviourally unchanged.
-- My Events page itself, list, cards, headers, buttons.
-- Guest List, Tables, and every other page.
-
-## Acceptance
-
-- iPhone (< 768px): tapping Create or Edit on My Events opens a modal that fills the entire screen edge-to-edge with no rounded corners, no drag handle, no visible page behind it. Header at top, scrollable form in the middle, green Save / red Cancel pinned at the bottom respecting the iOS home-indicator safe area. Focused inputs scroll above the keyboard.
-- Tablet (≥ 768px) and Desktop: identical to today.
-- No other modal or page is affected.
-
-## Files touched
-
-- `src/components/ui/dialog.tsx` (additive prop only)
-- `src/components/Dashboard/EventCreateModal.tsx`
-- `src/components/Dashboard/EventEditModal.tsx`
+After implementation, view at 820×1180 (iPad) and 768×1024:
+- Sidebar hidden, hamburger top-right works.
+- Top card: selector + export controls stack cleanly, no overflow.
+- Each section card is full-width with horizontal scroll inside; all icons visible at full size.
+- Switch to ≥1024px → layout matches current desktop screenshot exactly.

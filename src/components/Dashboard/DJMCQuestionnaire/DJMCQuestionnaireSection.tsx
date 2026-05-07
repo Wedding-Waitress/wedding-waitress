@@ -203,7 +203,7 @@ export function DJMCQuestionnaireSection({
 
   return (
     <>
-      <Card className="border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className="border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] max-lg:overflow-hidden">
         <Collapsible open={!section.is_collapsed} onOpenChange={(open) => onUpdateSection({ is_collapsed: !open })}>
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
@@ -228,7 +228,7 @@ export function DJMCQuestionnaireSection({
                     className="h-8 text-lg font-bold flex-1"
                   />
                 ) : (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 max-lg:flex-wrap">
                     <h3
                       onClick={handleLabelClick}
                       className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors"
@@ -335,6 +335,8 @@ export function DJMCQuestionnaireSection({
 
         <CollapsibleContent>
           <CardContent className="pt-0 px-2 pb-3">
+            <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2">
+              <div className="max-lg:min-w-[900px]">
             {/* Subtitle for sections that have one (e.g., Do Not Play List) */}
             {section.section_subtitle && (
               <p className="text-sm text-muted-foreground mb-3 italic px-2">
@@ -496,6 +498,8 @@ export function DJMCQuestionnaireSection({
                 <Plus className="h-4 w-4 mr-2" />
                 Add Row
               </Button>
+              </div>
+            </div>
             </CardContent>
           </CollapsibleContent>
         </Collapsible>
