@@ -120,6 +120,13 @@ export const KioskView: React.FC = () => {
           name: firstRow.event_name,
           date: firstRow.event_date,
           venue: firstRow.event_venue,
+          venue_address: (firstRow as any).event_venue_address ?? null,
+          start_time: firstRow.event_start_time,
+          finish_time: firstRow.event_finish_time,
+          ceremony_venue: firstRow.ceremony_venue,
+          ceremony_venue_address: (firstRow as any).ceremony_venue_address ?? null,
+          ceremony_start_time: firstRow.ceremony_start_time,
+          ceremony_finish_time: firstRow.ceremony_finish_time,
           partner1_name: firstRow.partner1_name,
           partner2_name: firstRow.partner2_name,
         };
