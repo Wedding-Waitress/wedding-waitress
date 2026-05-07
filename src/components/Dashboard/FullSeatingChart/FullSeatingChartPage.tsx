@@ -308,9 +308,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                       Download the Full Seating Chart and share it with your vendors.
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-2">
                     <button
-                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      className="inline-flex items-center justify-center gap-2 h-9 md:h-7 px-3 md:px-2.5 text-sm md:text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full md:w-auto"
                       onClick={handleDownloadPdf}
                       disabled={isExporting}
                     >
@@ -318,7 +318,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                       Download single page PDF
                     </button>
                     <button
-                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      className="inline-flex items-center justify-center gap-2 h-9 md:h-7 px-3 md:px-2.5 text-sm md:text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full md:w-auto"
                       onClick={handleDownloadPdfAll}
                       disabled={isExporting}
                     >
