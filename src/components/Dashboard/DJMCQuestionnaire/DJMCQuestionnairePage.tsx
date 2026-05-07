@@ -212,7 +212,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
           </CardContent>
         </Card>
       ) : questionnaire ? (
-        <div className="space-y-4 max-lg:space-y-5">
+        <div className="space-y-4 max-lg:space-y-5 max-sm:space-y-6">
           {/* Event header */}
           {selectedEvent && (
             <div className="text-center py-4 border-b border-border space-y-3">
