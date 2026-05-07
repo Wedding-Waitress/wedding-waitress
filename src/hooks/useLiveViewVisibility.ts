@@ -15,6 +15,8 @@ interface LiveViewVisibility {
   show_floor_plan: boolean;
   show_menu: boolean;
   show_reception_floor_plan: boolean;
+  kiosk_show_rsvp_status: boolean;
+  kiosk_show_dietary: boolean;
   updated_at: string;
 }
 
@@ -55,6 +57,8 @@ export const useLiveViewVisibility = (eventId: string | null) => {
             show_floor_plan: false,
             show_menu: false,
             show_reception_floor_plan: false,
+            kiosk_show_rsvp_status: true,
+            kiosk_show_dietary: true,
           })
           .select()
           .single();
