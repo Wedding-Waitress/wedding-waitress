@@ -245,16 +245,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <span className="text-lg font-normal text-[#967A59]">
+              <span className="hidden lg:inline text-lg font-normal text-[#967A59]">
                 Full Seating Chart for {selectedEvent.name}
               </span>
             )}
           </div>
 
           {/* Bottom row: Choose Event dropdown, badges, and export controls */}
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between pt-2 border-t max-lg:px-2">
+            <div className="flex flex-wrap items-center gap-3 lg:gap-4">
+              <div className="flex flex-wrap items-center gap-3 lg:space-x-4">
                 <label className="text-sm font-medium text-foreground whitespace-nowrap">
                   Choose Event:
                 </label>
@@ -301,14 +301,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
               {/* Export Controls */}
               {isDataReady && hasGuests && (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3">
-                  <div className="flex items-center">
+                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 w-full lg:w-auto">
+                  <div className="flex flex-wrap items-center">
                     <span className="font-bold text-sm">Export Controls</span>
                     <span className="text-muted-foreground ml-2 text-sm">
                       Download the Full Seating Chart and share it with your vendors.
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
@@ -335,7 +335,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       {/* Main Content */}
       {selectedEventId ? (
         isDataReady && hasGuests ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-lg:px-2">
             {/* Customization Panel */}
             <div className="lg:col-span-1">
               <FullSeatingChartCustomizer
@@ -346,6 +346,18 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
             {/* Preview */}
             <div className="lg:col-span-3">
+              <div className="lg:hidden overflow-x-auto -mx-2 px-2 pb-2">
+                <div className="min-w-[820px] flex justify-center">
+                  <FullSeatingChartPreview 
+                    event={selectedEvent!} 
+                    guests={sortedGuests}
+                    settings={settings}
+                    tableNameMap={tableNameMap}
+                    tableIdNameMap={tableIdNameMap}
+                  />
+                </div>
+              </div>
+              <div className="hidden lg:block">
                 <FullSeatingChartPreview 
                   event={selectedEvent!} 
                   guests={sortedGuests}
@@ -353,6 +365,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   tableNameMap={tableNameMap}
                   tableIdNameMap={tableIdNameMap}
                 />
+              </div>
             </div>
           </div>
         ) : isDataReady && !hasGuests ? (
