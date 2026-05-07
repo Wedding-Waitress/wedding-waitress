@@ -154,13 +154,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   };
 
   const updateRsvp = (newRsvp: string) => {
+    if (updatingRsvp) return;
     const normalized = normalizeRsvp(newRsvp);
+    // Same choice → no-op (no popup, no sync)
+    if (normalized === localRsvp) return;
     // First-time RSVP (currently Pending) → instant update, no popup
     if (localRsvp === 'Pending') {
       void performRsvpUpdate(normalized);
       return;
     }
-    // Already responded → require confirmation, even if same choice
+    // Changing to a different RSVP after already responding → confirm
     setPendingRsvp(normalized);
   };
 
