@@ -392,6 +392,22 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           )}
         </div>
       </CardContent>
+      <AlertDialog open={pendingRsvp !== null} onOpenChange={(open) => { if (!open) setPendingRsvp(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>RSVP Already Submitted</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <span className="block">You have already responded to this invitation.</span>
+              <span className="block">Changing your RSVP may affect seating arrangements, catering, and event planning.</span>
+              <span className="block">Are you sure you want to send this update to the organiser?</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Current RSVP</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPendingRsvp}>Yes, Update RSVP</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
