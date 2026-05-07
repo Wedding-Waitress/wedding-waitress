@@ -200,6 +200,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     <span className="text-sm font-medium truncate text-foreground">
                       {userDisplayName}
                     </span>
+                    {profile?.account_id && (
+                      <span className="text-[11px] text-muted-foreground/80 truncate">
+                        Account ID: {profile.account_id}
+                      </span>
+                    )}
                   </div>
                   <ChevronUp className="ml-auto h-4 w-4 opacity-60" />
                 </SidebarMenuButton>

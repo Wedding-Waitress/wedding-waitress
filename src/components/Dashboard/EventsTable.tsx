@@ -56,6 +56,7 @@ interface Event {
   partner2_name: string | null;
   rsvp_deadline: string | null;
   event_type?: 'seated' | 'cocktail';
+  event_id?: string | null;
 }
 
 // Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
@@ -303,6 +304,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
                         </div>
                       </div>
+                      {event.event_id && (
+                        <p className="mt-1 text-xs font-mono text-muted-foreground pl-7">ID: {event.event_id}</p>
+                      )}
 
                       {/* Always-visible details (tightened spacing) */}
                       <div className="mt-1.5 space-y-0">
@@ -365,6 +369,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <TableHeader>
                 <TableRow className="border-b-0">
                   <TableHead className="w-20">Countdown</TableHead>
+                  <TableHead className="w-24">Event ID</TableHead>
                   <TableHead className="w-32">Event Name</TableHead>
                   <TableHead className="w-24">Event Date</TableHead>
                   <TableHead className="w-28">Venue</TableHead>
@@ -391,6 +396,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <div className="flex items-center justify-center">
                           <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" onClick={() => handleEventSelect(event.id)} />
                         </div>
+                      </TableCell>
+                      <TableCell className="w-24">
+                        <span className="font-mono text-xs text-muted-foreground">{event.event_id || '—'}</span>
                       </TableCell>
                       <TableCell className="font-medium w-32">
                         <div className="flex items-center">
@@ -483,7 +491,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   })}
                   {/* Purple footer row - matching header background */}
                   <TableRow className="bg-primary hover:bg-primary border-t-0">
-                    <TableCell colSpan={11} className="h-12">
+                    <TableCell colSpan={12} className="h-12">
                       {/* Empty footer row with same height as data rows */}
                     </TableCell>
                   </TableRow>
