@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
   Upload,
   Settings,
+  RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -213,7 +215,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                         <AccordionContent>
                           <div className="space-y-3 pt-2">
                             {conf?.file_url ? (
-                              <div className="flex items-center gap-2 p-3 bg-background rounded-md border max-lg:flex-wrap">
+                              <div className="flex items-center gap-2 p-3 bg-background rounded-md border border-[#856A4C]/45 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] max-lg:flex-wrap">
                                 <div className="flex-1 min-w-0 max-lg:basis-full">
                                   <p className="text-xs font-medium truncate">{conf.file_name}</p>
                                   {conf.uploaded_at && (
@@ -224,18 +226,20 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 </div>
                                 <Button
                                   size="sm"
-                                  variant="outline"
-                                  className="lv-premium-shade"
+                                  variant="default"
+                                  className="lv-premium-shade text-white"
                                   onClick={() => triggerFile(tile.configKey, tile.bucket)}
                                 >
+                                  <RotateCcw className="h-3 w-3 mr-1" />
                                   Replace
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  className="lv-premium-shade"
+                                  className="lv-premium-shade text-white"
                                   onClick={() => handleRemove(tile.configKey, tile.bucket)}
                                 >
+                                  <Trash2 className="h-3 w-3 mr-1" />
                                   Remove
                                 </Button>
                               </div>
@@ -294,18 +298,20 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="lv-premium-shade"
+                                variant="default"
+                                className="lv-premium-shade text-white"
                                 onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                               >
+                                <RotateCcw className="h-3 w-3 mr-1" />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade"
+                                className="lv-premium-shade text-white"
                                 onClick={() => handleRemove('hero_image_config', 'live-view-uploads')}
                               >
+                                <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
                               </Button>
                             </div>
