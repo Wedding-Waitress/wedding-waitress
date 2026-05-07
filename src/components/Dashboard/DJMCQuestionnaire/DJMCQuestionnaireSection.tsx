@@ -228,7 +228,7 @@ export function DJMCQuestionnaireSection({
                     className="h-8 text-lg font-bold flex-1"
                   />
                 ) : (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 max-lg:flex-wrap">
                     <h3
                       onClick={handleLabelClick}
                       className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors"
