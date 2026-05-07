@@ -367,8 +367,8 @@ export const KioskView: React.FC = () => {
       </div>
 
       {/* Footer Help */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20">
-        <div className="w-full px-8 py-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20 max-md:relative max-md:mt-8">
+        <div className="w-full px-8 py-4 max-md:px-4 max-md:py-3">
           <div className="text-center space-y-3">
             <p className="text-lg text-white/90">
               Need assistance? Please contact event staff
