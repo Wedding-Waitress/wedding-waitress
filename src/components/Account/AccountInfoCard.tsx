@@ -19,6 +19,7 @@ export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
   return (
     <SectionCard icon={icon} title="Account Info" description="Your personal details">
       <dl className="space-y-3 text-sm">
+        <Row label="Account ID" value={profile?.account_id || '—'} />
         <Row label="Name" value={fullName} />
         <Row label="Email" value={profile?.email || '—'} />
         <Row label="Phone" value={profile?.mobile || '—'} />
