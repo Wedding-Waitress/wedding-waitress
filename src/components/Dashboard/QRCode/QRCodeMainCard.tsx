@@ -710,7 +710,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Open Live View - Full Width */}
             <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="lv-premium-shade w-full bg-green-500 hover:bg-green-600 text-white border-0">
               <ExternalLink className="h-4 w-4 mr-2" />
-              Open Live View
+              Open Live View App
             </Button>
             
             {/* Copy Link - Full Width */}
