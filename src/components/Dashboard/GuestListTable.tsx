@@ -2571,7 +2571,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               }
                               
                               return (
-                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${colorClasses}`}>
+                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold lv-premium-shade ${colorClasses}`}>
                                   {typeLabel}
                                 </span>
                               );
