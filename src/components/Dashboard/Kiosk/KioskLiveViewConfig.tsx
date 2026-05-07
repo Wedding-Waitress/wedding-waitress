@@ -298,18 +298,20 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                variant="outline"
-                                className="lv-premium-shade"
+                                variant="default"
+                                className="lv-premium-shade text-white"
                                 onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                               >
+                                <RotateCcw className="h-3 w-3 mr-1" />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade"
+                                className="lv-premium-shade text-white"
                                 onClick={() => handleRemove('hero_image_config', 'live-view-uploads')}
                               >
+                                <Trash2 className="h-3 w-3 mr-1" />
                                 Remove
                               </Button>
                             </div>
