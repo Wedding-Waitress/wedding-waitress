@@ -941,7 +941,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              className="lv-premium-shade flex-1"
+                              className="lv-premium-shade flex-1 border-[#856A4C]/45"
                               onClick={() => {
                                 if (eventUrl) {
                                   window.open(eventUrl + '?tab=rsvp-invite', '_blank');
@@ -954,7 +954,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             <Button
                               size="sm"
                               variant="outline"
-                              className="lv-premium-shade flex-1"
+                              className="lv-premium-shade flex-1 border-[#856A4C]/45"
                               onClick={() => {
                                 if (eventUrl) {
                                   navigator.clipboard.writeText(eventUrl + '?tab=rsvp-invite');
