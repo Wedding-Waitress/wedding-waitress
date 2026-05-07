@@ -289,25 +289,25 @@ export const KioskView: React.FC = () => {
       <div className="w-full px-8 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Search Section */}
-          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
-            <CardContent className="p-12">
-              <div className="text-center mb-8">
-                <Search className="w-16 h-16 mx-auto text-primary mb-4" />
-                <h2 className="text-3xl font-bold text-foreground mb-2">Find Your Table</h2>
-                <p className="text-xl text-muted-foreground">
+          <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8 max-md:mb-32">
+            <CardContent className="p-12 max-md:p-5">
+              <div className="text-center mb-8 max-md:mb-5">
+                <Search className="w-16 h-16 mx-auto text-primary mb-4 max-md:w-10 max-md:h-10 max-md:mb-3" />
+                <h2 className="text-3xl font-bold text-foreground mb-2 max-md:text-xl">Find Your Table</h2>
+                <p className="text-xl text-muted-foreground max-md:text-base">
                   Type your name to find your seating assignment
                 </p>
               </div>
 
               {/* Large Search Input */}
-              <div className="relative max-w-2xl mx-auto mb-8">
-                <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-muted-foreground w-6 h-6" />
+              <div className="relative w-full max-w-2xl mx-auto mb-8 max-md:mb-4">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground w-6 h-6 max-md:left-3 max-md:w-5 max-md:h-5 pointer-events-none" />
                 <Input
                   type="text"
-                  placeholder="Enter your first or last name..."
+                  placeholder="Enter your name..."
                   value={searchTerm}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-16 text-2xl h-20 text-center font-medium border-2 focus:border-primary shadow-lg"
+                  className="pl-16 text-2xl h-20 text-center font-medium border-2 focus:border-primary shadow-lg max-md:pl-10 max-md:pr-3 max-md:text-base max-md:h-12 max-md:text-left"
                   autoFocus
                 />
               </div>
@@ -367,8 +367,8 @@ export const KioskView: React.FC = () => {
       </div>
 
       {/* Footer Help */}
-      <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20">
-        <div className="w-full px-8 py-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-black/20 backdrop-blur-sm border-t border-white/20 max-md:relative max-md:mt-8">
+        <div className="w-full px-8 py-4 max-md:px-4 max-md:py-3">
           <div className="text-center space-y-3">
             <p className="text-lg text-white/90">
               Need assistance? Please contact event staff
