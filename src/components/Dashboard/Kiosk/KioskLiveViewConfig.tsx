@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
   Upload,
   Settings,
+  RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
