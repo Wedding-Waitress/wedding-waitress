@@ -97,8 +97,9 @@ import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
 import { ResendSmartRsvpModal } from './ResendSmartRsvpModal';
-import { DeliveryAnalyticsPanel } from './DeliveryAnalyticsPanel';
-import { SmsLogsHistory } from './SmsLogsHistory';
+import { SmartRsvpFeatureStrip } from './SmartRsvpFeatureStrip';
+import { SmartRsvpAnalyticsPanel } from './SmartRsvpAnalyticsPanel';
+import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
 import { CheckCircle2 } from 'lucide-react';
@@ -258,7 +259,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
   const [showOverageModal, setShowOverageModal] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
-  const [showSmartPanel, setShowSmartPanel] = useState(false);
+  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
@@ -1635,32 +1636,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 )}
               </div>
 
-              {/* Smart RSVP & Messaging — analytics & resend (visible once activated) */}
+              {/* Smart RSVP & Messaging — Analytics + Resend (visible once activated) */}
               {hasRsvpPurchase && selectedEventId && (
-                <div className="mb-4 space-y-2">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={() => setShowSmartPanel((v) => !v)}
-                      className="text-xs font-medium text-primary hover:underline lv-premium-shade rounded px-2 py-1"
-                    >
-                      {showSmartPanel ? 'Hide' : 'Show'} Smart RSVP analytics & history
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowResendModal(true)}
-                      className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90"
-                      title="Resend Smart RSVP to a precise audience"
-                    >
-                      Resend Smart RSVP
-                    </button>
-                  </div>
-                  {showSmartPanel && (
-                    <div className="space-y-3">
-                      <DeliveryAnalyticsPanel eventId={selectedEventId} />
-                      <SmsLogsHistory eventId={selectedEventId} />
-                    </div>
-                  )}
+                <div className="mb-4 flex items-center justify-end gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setShowAnalyticsPanel(true)}
+                    className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full border-2 border-primary text-primary bg-background px-3 py-1.5 text-xs font-semibold hover:bg-primary/5"
+                    title="Open Smart RSVP Analytics"
+                  >
+                    Smart RSVP Analytics
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowResendModal(true)}
+                    className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90"
+                    title="Resend Smart RSVP to a precise audience"
+                  >
+                    Resend Smart RSVP
+                  </button>
                 </div>
               )}
 
@@ -1694,6 +1688,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     ×
                   </button>
                 </div>
+              )}
+
+              {/* Smart RSVP premium feature strip — sits above Step 1/2/3 */}
+              {selectedEventId && (
+                <SmartRsvpFeatureStrip
+                  className="mb-4"
+                  onCommandCentre={() => {
+                    document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  onCommunications={() => setShowAnalyticsPanel(true)}
+                  onDelivery={() => setShowResendModal(true)}
+                  onIntelligence={() => setShowAnalyticsPanel(true)}
+                />
               )}
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
@@ -2282,9 +2289,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                         {/* Bottom: invite status + actions */}
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#EDE5DB]">
-                          <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
-                            {invite.label}
-                          </Badge>
+                          <div className="flex items-center flex-wrap gap-1.5 min-w-0">
+                            <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
+                              {invite.label}
+                            </Badge>
+                            <GuestDeliveryBadges
+                              inviteStatus={guest.rsvp_invite_status}
+                              rsvp={guest.rsvp}
+                              purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                            />
+                          </div>
                           <div className="flex items-center gap-1">
                             <Button
                               variant="ghost"
@@ -2517,9 +2531,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
                               return (
-                                <Badge className={`text-xs lv-premium-shade ${config.className}`}>
-                                  {config.label}
-                                </Badge>
+                                <span className="inline-flex items-center justify-center flex-wrap gap-1">
+                                  <Badge className={`text-xs lv-premium-shade ${config.className}`}>
+                                    {config.label}
+                                  </Badge>
+                                  <GuestDeliveryBadges
+                                    inviteStatus={guest.rsvp_invite_status}
+                                    rsvp={guest.rsvp}
+                                    purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                                  />
+                                </span>
                               );
                             })()}
                           </TableCell>
@@ -2987,6 +3008,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           }}
         />
 
+        {/* Smart RSVP Analytics — slide-over */}
+        <SmartRsvpAnalyticsPanel
+          eventId={selectedEventId}
+          open={showAnalyticsPanel}
+          onOpenChange={setShowAnalyticsPanel}
+        />
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}

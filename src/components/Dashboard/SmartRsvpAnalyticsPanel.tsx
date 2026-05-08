@@ -1,0 +1,259 @@
+/**
+ * SmartRsvpAnalyticsPanel
+ *
+ * Premium slide-over surfacing the full Smart RSVP & Messaging analytics
+ * for an event: KPI summary at top, then a per-guest delivery table with
+ * search, method filter and sort.
+ */
+import React, { useEffect, useMemo, useState } from 'react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
+import { DeliveryAnalyticsPanel } from './DeliveryAnalyticsPanel';
+import { GuestDeliveryBadges } from './GuestDeliveryBadges';
+import { normalizeRsvp } from '@/lib/rsvp';
+import { Search } from 'lucide-react';
+
+interface Props {
+  eventId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+interface GuestRow {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  mobile: string | null;
+  rsvp: string | null;
+  rsvp_invite_status: string | null;
+  rsvp_invite_sent_at: string | null;
+}
+
+interface SmsLog {
+  guest_id: string | null;
+  status: string;
+  delivery_method: string | null;
+  created_at: string;
+  delivered_at: string | null;
+  error_message: string | null;
+}
+
+interface EmailLog {
+  guest_id: string;
+  status: string;
+  sent_at: string;
+}
+
+type MethodFilter = 'all' | 'email' | 'sms' | 'both';
+type SortKey = 'name' | 'sent' | 'status';
+
+export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpenChange }) => {
+  const [guests, setGuests] = useState<GuestRow[]>([]);
+  const [smsLogs, setSmsLogs] = useState<SmsLog[]>([]);
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [purchaseMethod, setPurchaseMethod] = useState<'email' | 'sms' | 'both' | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [methodFilter, setMethodFilter] = useState<MethodFilter>('all');
+  const [sortKey, setSortKey] = useState<SortKey>('name');
+
+  useEffect(() => {
+    if (!open || !eventId) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const [g, s, e, p] = await Promise.all([
+          supabase.from('guests')
+            .select('id, first_name, last_name, email, mobile, rsvp, rsvp_invite_status, rsvp_invite_sent_at')
+            .eq('event_id', eventId),
+          supabase.from('sms_send_logs')
+            .select('guest_id, status, delivery_method, created_at, delivered_at, error_message')
+            .eq('event_id', eventId),
+          supabase.from('rsvp_invite_logs')
+            .select('guest_id, status, sent_at')
+            .eq('event_id', eventId).eq('channel', 'email'),
+          supabase.from('rsvp_invite_purchases')
+            .select('delivery_method').eq('event_id', eventId).eq('status', 'completed')
+            .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+        ]);
+        if (cancelled) return;
+        setGuests((g.data ?? []) as GuestRow[]);
+        setSmsLogs((s.data ?? []) as SmsLog[]);
+        setEmailLogs((e.data ?? []) as EmailLog[]);
+        const dm = (p.data as any)?.delivery_method;
+        setPurchaseMethod(dm === 'email' || dm === 'sms' || dm === 'both' ? dm : null);
+      } catch (err) {
+        console.error('[SmartRsvpAnalyticsPanel] load failed', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, eventId]);
+
+  const rows = useMemo(() => {
+    const smsByGuest = new Map<string, SmsLog[]>();
+    smsLogs.forEach(l => {
+      if (!l.guest_id) return;
+      const arr = smsByGuest.get(l.guest_id) ?? [];
+      arr.push(l);
+      smsByGuest.set(l.guest_id, arr);
+    });
+    const emailByGuest = new Map<string, EmailLog[]>();
+    emailLogs.forEach(l => {
+      const arr = emailByGuest.get(l.guest_id) ?? [];
+      arr.push(l);
+      emailByGuest.set(l.guest_id, arr);
+    });
+
+    return guests.map(g => {
+      const sms = smsByGuest.get(g.id) ?? [];
+      const emails = emailByGuest.get(g.id) ?? [];
+      const status = (g.rsvp_invite_status || '').toLowerCase();
+      const method: 'email' | 'sms' | 'both' | null =
+        status === 'both_sent' ? 'both'
+        : status === 'sms_sent' ? 'sms'
+        : status === 'email_sent' || status === 'mail_sent' ? 'email'
+        : purchaseMethod;
+      const lastSms = sms.sort((a,b) => +new Date(b.created_at) - +new Date(a.created_at))[0];
+      const failed = sms.some(l => (l.status || '').toLowerCase().includes('fail') || l.status === 'blocked');
+      const resendCount = sms.length + emails.length;
+      const credits = sms.filter(l => (l.status || '').toLowerCase() === 'sent').length;
+      const responded = (() => {
+        const r = normalizeRsvp(g.rsvp);
+        return r === 'Attending' || r === 'Not Attending';
+      })();
+      return {
+        id: g.id,
+        name: `${g.first_name ?? ''} ${g.last_name ?? ''}`.trim(),
+        contact: method === 'sms' ? (g.mobile || '—') : method === 'email' ? (g.email || '—') : (g.email || g.mobile || '—'),
+        method,
+        sentAt: g.rsvp_invite_sent_at || lastSms?.created_at || null,
+        deliveredAt: lastSms?.delivered_at || null,
+        deliveryStatus: failed ? 'Failed' : status && status !== 'not_sent' ? 'Delivered' : 'Pending',
+        rsvp: normalizeRsvp(g.rsvp),
+        responded,
+        failed,
+        resendCount,
+        credits,
+        inviteStatus: g.rsvp_invite_status,
+        rsvpRaw: g.rsvp,
+      };
+    });
+  }, [guests, smsLogs, emailLogs, purchaseMethod]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    let out = rows.filter(r => {
+      if (q && !(r.name.toLowerCase().includes(q) || r.contact.toLowerCase().includes(q))) return false;
+      if (methodFilter !== 'all' && r.method !== methodFilter) return false;
+      return true;
+    });
+    if (sortKey === 'name') out = out.sort((a,b) => a.name.localeCompare(b.name));
+    else if (sortKey === 'sent') out = out.sort((a,b) => +new Date(b.sentAt || 0) - +new Date(a.sentAt || 0));
+    else if (sortKey === 'status') out = out.sort((a,b) => a.deliveryStatus.localeCompare(b.deliveryStatus));
+    return out;
+  }, [rows, search, methodFilter, sortKey]);
+
+  const fmt = (d: string | null) => d ? new Date(d).toLocaleString() : '—';
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Smart RSVP Analytics</SheetTitle>
+          <SheetDescription>
+            Smart RSVP delivery history and per-guest tracking for this event.
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="mt-4 space-y-4">
+          <DeliveryAnalyticsPanel eventId={eventId} />
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search guest or contact…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9 h-9"
+              />
+            </div>
+            <Select value={methodFilter} onValueChange={(v) => setMethodFilter(v as MethodFilter)}>
+              <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All methods</SelectItem>
+                <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="sms">SMS</SelectItem>
+                <SelectItem value="both">Email + SMS</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+              <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Sort: Name</SelectItem>
+                <SelectItem value="sent">Sort: Sent date</SelectItem>
+                <SelectItem value="status">Sort: Status</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="rounded-lg border border-border overflow-hidden">
+            <div className="max-h-[55vh] overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/40 sticky top-0">
+                  <tr className="text-left">
+                    <th className="px-3 py-2 font-semibold">Guest</th>
+                    <th className="px-3 py-2 font-semibold">Method</th>
+                    <th className="px-3 py-2 font-semibold">Contact</th>
+                    <th className="px-3 py-2 font-semibold">Sent</th>
+                    <th className="px-3 py-2 font-semibold">Delivery</th>
+                    <th className="px-3 py-2 font-semibold">Response</th>
+                    <th className="px-3 py-2 font-semibold text-right">Sends</th>
+                    <th className="px-3 py-2 font-semibold text-right">Credits</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">Loading…</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No matching guests.</td></tr>
+                  ) : filtered.map(r => (
+                    <tr key={r.id} className="border-t border-border/60">
+                      <td className="px-3 py-2 font-medium text-foreground">{r.name || '—'}</td>
+                      <td className="px-3 py-2">
+                        <GuestDeliveryBadges
+                          inviteStatus={r.inviteStatus}
+                          rsvp={r.rsvpRaw}
+                          purchaseDeliveryMethod={purchaseMethod}
+                          className="ml-0"
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-muted-foreground truncate max-w-[160px]">{r.contact}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{fmt(r.sentAt)}</td>
+                      <td className="px-3 py-2">
+                        <span className={
+                          r.deliveryStatus === 'Failed' ? 'text-red-600 font-semibold'
+                          : r.deliveryStatus === 'Delivered' ? 'text-green-700 font-semibold'
+                          : 'text-amber-700 font-semibold'
+                        }>{r.deliveryStatus}</span>
+                      </td>
+                      <td className="px-3 py-2">{r.responded ? r.rsvp : 'Pending'}</td>
+                      <td className="px-3 py-2 text-right">{r.resendCount}</td>
+                      <td className="px-3 py-2 text-right">{r.credits}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
