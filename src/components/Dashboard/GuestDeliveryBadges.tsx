@@ -24,6 +24,8 @@ interface Props {
   inviteStatus?: string | null;            // guest.rsvp_invite_status
   rsvp?: string | null;                    // guest.rsvp
   purchaseDeliveryMethod?: DeliveryMethod; // fallback from rsvp_invite_purchases
+  /** When true, render a tiny inline "Low Credits" pill (remaining ≤ 24). */
+  lowCredits?: boolean;
   className?: string;
 }
 
