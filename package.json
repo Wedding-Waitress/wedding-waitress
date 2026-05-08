@@ -9,7 +9,11 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:storage": "node scripts/check-event-storage.mjs",
+    "pretest": "node scripts/check-event-storage.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
