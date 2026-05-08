@@ -4,48 +4,47 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNotificationSettings } from '@/hooks/useNotificationSettings';
 import { Mail, MessageSquare, Eye, EyeOff, ExternalLink, Loader2 } from 'lucide-react';
 
+/**
+ * AdminNotificationSettings
+ * Email (Resend) is admin-managed.
+ * SMS is now Wedding Waitress fully-managed Smart RSVP & Messaging — no Twilio fields shown.
+ */
 export const AdminNotificationSettings = () => {
   const { settings, loading, updateSettings } = useNotificationSettings();
-  const [showKeys, setShowKeys] = useState({
-    resendApiKey: false,
-    twilioAuthToken: false,
-  });
+  const [showKeys, setShowKeys] = useState({ resendApiKey: false });
   const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     resend_api_key: '',
     from_email: '',
     email_enabled: false,
-    sms_provider: 'twilio' as 'twilio' | 'messagemedia' | 'telnyx',
-    twilio_account_sid: '',
-    twilio_auth_token: '',
-    twilio_messaging_service_sid: '',
-    sms_enabled: false,
   });
 
-  // Update form when settings load
   useEffect(() => {
     if (settings) {
       setFormData({
         resend_api_key: settings.resend_api_key || '',
         from_email: settings.from_email || '',
         email_enabled: settings.email_enabled,
-        sms_provider: (settings.sms_provider || 'twilio') as any,
-        twilio_account_sid: settings.twilio_account_sid || '',
-        twilio_auth_token: settings.twilio_auth_token || '',
-        twilio_messaging_service_sid: settings.twilio_messaging_service_sid || '',
-        sms_enabled: settings.sms_enabled,
       });
     }
   }, [settings]);
 
   const handleSave = async () => {
     setIsSaving(true);
-    await updateSettings(formData);
+    // Smart RSVP & Messaging is fully managed: SMS provider always 'wedding_waitress',
+    // and no per-user Twilio creds are stored. Preserve existing nullable fields.
+    await updateSettings({
+      ...formData,
+      sms_provider: 'wedding_waitress',
+      twilio_account_sid: null,
+      twilio_auth_token: null,
+      twilio_messaging_service_sid: null,
+      sms_enabled: true,
+    });
     setIsSaving(false);
   };
 
@@ -120,129 +119,32 @@ export const AdminNotificationSettings = () => {
               onChange={(e) => setFormData({ ...formData, from_email: e.target.value })}
               placeholder="noreply@yourdomain.com"
             />
-            <p className="text-xs text-muted-foreground">
-              Make sure this domain is verified in{' '}
-              <a
-                href="https://resend.com/domains"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline inline-flex items-center gap-1"
-              >
-                Resend <ExternalLink className="h-3 w-3" />
-              </a>
+          </div>
+        </div>
+      </Card>
+
+      {/* Smart RSVP & Messaging — fully managed */}
+      <Card className="p-6 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <MessageSquare className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">Smart RSVP &amp; Messaging</h2>
+            <p className="text-sm text-muted-foreground">
+              Fully managed by Wedding Waitress — no provider setup required.
             </p>
           </div>
         </div>
+        <p className="text-sm text-muted-foreground pl-14">
+          SMS sending uses Wedding Waitress&apos; managed messaging infrastructure. Each event
+          includes 250 SMS credits with the Smart RSVP &amp; Messaging activation. Top-ups are
+          available per event for $99 AUD (250 credits).
+        </p>
       </Card>
 
-      {/* SMS Settings */}
-      <Card className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <MessageSquare className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold">SMS</h2>
-              <p className="text-sm text-muted-foreground">Send questionnaires via SMS</p>
-            </div>
-          </div>
-          <Switch
-            checked={formData.sms_enabled}
-            onCheckedChange={(checked) => setFormData({ ...formData, sms_enabled: checked })}
-          />
-        </div>
-
-        <div className="space-y-4 pl-14">
-          <div className="space-y-2">
-            <Label htmlFor="sms_provider">SMS Provider</Label>
-            <Select
-              value={formData.sms_provider}
-              onValueChange={(value: any) => setFormData({ ...formData, sms_provider: value })}
-            >
-              <SelectTrigger id="sms_provider">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="twilio">Twilio</SelectItem>
-                <SelectItem value="messagemedia">MessageMedia</SelectItem>
-                <SelectItem value="telnyx">Telnyx</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {formData.sms_provider === 'twilio' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="twilio_account_sid">Account SID</Label>
-                <Input
-                  id="twilio_account_sid"
-                  value={formData.twilio_account_sid}
-                  onChange={(e) => setFormData({ ...formData, twilio_account_sid: e.target.value })}
-                  placeholder="AC..."
-                  className="font-mono text-sm"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="twilio_auth_token">Auth Token</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="twilio_auth_token"
-                    type={showKeys.twilioAuthToken ? 'text' : 'password'}
-                    value={formData.twilio_auth_token}
-                    onChange={(e) => setFormData({ ...formData, twilio_auth_token: e.target.value })}
-                    placeholder="••••••••"
-                    className="font-mono text-sm"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowKeys({ ...showKeys, twilioAuthToken: !showKeys.twilioAuthToken })}
-                  >
-                    {showKeys.twilioAuthToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="twilio_messaging_service_sid">Messaging Service SID</Label>
-                <Input
-                  id="twilio_messaging_service_sid"
-                  value={formData.twilio_messaging_service_sid}
-                  onChange={(e) => setFormData({ ...formData, twilio_messaging_service_sid: e.target.value })}
-                  placeholder="MG..."
-                  className="font-mono text-sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Get credentials from{' '}
-                  <a
-                    href="https://console.twilio.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    Twilio Console <ExternalLink className="h-3 w-3" />
-                  </a>
-                </p>
-              </div>
-            </>
-          )}
-
-          {formData.sms_provider === 'messagemedia' && (
-            <p className="text-sm text-muted-foreground">MessageMedia integration coming soon</p>
-          )}
-
-          {formData.sms_provider === 'telnyx' && (
-            <p className="text-sm text-muted-foreground">Telnyx integration coming soon</p>
-          )}
-        </div>
-      </Card>
-
-      {/* Save Button */}
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving} size="lg">
+        <Button onClick={handleSave} disabled={isSaving} size="lg" className="lv-premium-shade">
           {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save Settings
         </Button>
