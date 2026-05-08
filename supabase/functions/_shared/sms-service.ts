@@ -171,6 +171,13 @@ export async function sendSmsAndAccount(
   if (messagingServiceSid) form.append("MessagingServiceSid", messagingServiceSid);
   else if (phone) form.append("From", phone);
 
+  // Attach Twilio status callback so delivered/failed/blocked transitions
+  // flow into sms_send_logs via the twilio-delivery-webhook edge function.
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  if (supabaseUrl) {
+    form.append("StatusCallback", `${supabaseUrl}/functions/v1/twilio-delivery-webhook`);
+  }
+
   let twilioSid: string | undefined;
   let errorMessage: string | undefined;
   let errorCode: string | undefined;
