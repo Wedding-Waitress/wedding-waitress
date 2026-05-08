@@ -471,6 +471,9 @@ export const MyEventsPage: React.FC = () => {
       </Card>
 
       {/* Events Table with controlled radios */}
+        <div className="flex justify-end px-1 mb-2">
+          <EventUsagePill />
+        </div>
         <div className="overflow-x-auto">
           <EventsTable 
             events={events} 
