@@ -98,8 +98,7 @@ export const Dashboard = () => {
     const urlTab = searchParams.get('tab') || 'dashboard';
     if (urlTab !== activeTab) setActiveTabState(urlTab);
   }, [searchParams, activeTab]);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [globalSelectedEventId, setGlobalSelectedEventId] = useState<string | null>(null);
+  const [showCreateTableModal_placeholder] = useState(false); // (kept slot for ordering)
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const navigate = useNavigate();
