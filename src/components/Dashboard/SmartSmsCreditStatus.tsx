@@ -114,6 +114,30 @@ export const projectSends = (
   };
 };
 
+/**
+ * Per-credit AUD value, derived dynamically from the centralized
+ * `SMS_TOPUP` constants. Adapts automatically if pricing or included
+ * credits change.
+ */
+export const getCreditUnitValueAud = (): number => {
+  if (!SMS_TOPUP.credits || SMS_TOPUP.credits <= 0) return 0;
+  return SMS_TOPUP.price_aud / SMS_TOPUP.credits;
+};
+
+const audFormatter = new Intl.NumberFormat('en-AU', {
+  style: 'currency',
+  currency: 'AUD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/** "Approx. $9.10 AUD value remaining" — empty string when unactivated. */
+export const formatRemainingValue = (remaining: number, total: number): string => {
+  if (total <= 0 || remaining <= 0) return '';
+  const value = remaining * getCreditUnitValueAud();
+  return `Approx. ${audFormatter.format(value)} AUD value remaining`;
+};
+
 const stateBadgeLabel: Record<CreditHealthState, string> = {
   healthy: 'Healthy',
   low: 'Low',
@@ -154,6 +178,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
   const health = getCreditHealth(credits.remaining, credits.total);
   const ctaDisabled = topupLoading || processing;
   const projection = projectSends(credits.remaining, recipientCount);
+  const valueLine = formatRemainingValue(credits.remaining, credits.total);
 
   // Compact variant — analytics header strip
   if (variant === 'compact') {
@@ -169,6 +194,9 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
             {health.state === 'healthy' || health.state === 'low'
               ? projection.invites
               : health.message}
+            {valueLine && (
+              <span className="text-muted-foreground/80"> · {valueLine}</span>
+            )}
           </div>
         </div>
         <Badge variant="outline" className={cn('text-[10px] font-semibold', stateBadgeClasses[health.state])}>
@@ -215,6 +243,11 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
                 </>
               )}
             </div>
+            {valueLine && (
+              <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                {valueLine}
+              </div>
+            )}
             <div
               className={cn(
                 'mt-2 text-xs flex items-start gap-1.5',
