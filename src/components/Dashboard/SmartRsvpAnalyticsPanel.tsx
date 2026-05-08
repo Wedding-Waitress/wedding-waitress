@@ -171,27 +171,100 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         const r = normalizeRsvp(g.rsvp);
         return r === 'Attending' || r === 'Not Attending';
       })();
+      const sendsCount = sms.length + emails.length;
+      const isResend = sendsCount > 1;
+      const respondedAt = g.rsvp_date ? new Date(g.rsvp_date).getTime() : null;
+      const sentAtIso = g.rsvp_invite_sent_at || lastSms?.created_at || null;
+      const sentAtMs = sentAtIso ? new Date(sentAtIso).getTime() : null;
+      const responseMs = responded && respondedAt && sentAtMs && respondedAt >= sentAtMs
+        ? respondedAt - sentAtMs
+        : null;
+      const daysSinceSent = sentAtMs ? (Date.now() - sentAtMs) / 86_400_000 : null;
+
+      let intel: IntelTag = null;
+      if (deliveryStatus === 'Failed' || deliveryStatus === 'Blocked') intel = 'delivery_issue';
+      else if (responded && responseMs !== null && responseMs <= 24 * 3_600_000) intel = 'fast_responder';
+      else if (!responded && sendsCount >= 2) intel = 'multiple_resends';
+      else if (!responded && daysSinceSent !== null && daysSinceSent >= 7) intel = 'needs_followup';
+
       return {
         id: g.id,
         name: `${g.first_name ?? ''} ${g.last_name ?? ''}`.trim(),
         contact: method === 'sms' ? (g.mobile || '—') : method === 'email' ? (g.email || '—') : (g.email || g.mobile || '—'),
         method,
-        sentAt: g.rsvp_invite_sent_at || lastSms?.created_at || null,
+        sentAt: sentAtIso,
+        sentAtMs,
         deliveredAt: lastSms?.delivered_at || null,
         lastStatusAt: lastSms?.last_status_at || lastSms?.delivered_at || lastSms?.failed_at || null,
         deliveryStatus,
         rsvp: normalizeRsvp(g.rsvp),
         responded,
+        respondedAt,
+        responseMs,
+        isResend,
         failed: isFailedStatus,
-        resendCount,
+        resendCount: sendsCount,
         credits,
         inviteStatus: g.rsvp_invite_status,
         rsvpRaw: g.rsvp,
         twilioErrorCode: lastSms?.twilio_error_code || null,
         twilioErrorMessage: lastSms?.twilio_error_message || lastSms?.error_message || null,
+        intel,
       };
     });
   }, [guests, smsLogs, emailLogs, purchaseMethod]);
+
+  // Intelligence KPI calculations
+  const intelligence = useMemo(() => {
+    const invited = rows.filter(r => r.sentAt).length;
+    const deliveredCount = rows.filter(r => r.deliveryStatus === 'Delivered').length;
+    const failedCount = rows.filter(r => r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked').length;
+    const deliveryDenom = deliveredCount + failedCount;
+    const deliveryRate = deliveryDenom > 0 ? Math.round((deliveredCount / deliveryDenom) * 100) : null;
+    const respondedCount = rows.filter(r => r.responded).length;
+    const responseRate = invited > 0 ? Math.round((respondedCount / invited) * 100) : null;
+
+    const responseTimes = rows.map(r => r.responseMs).filter((v): v is number => v !== null && v > 0);
+    const avgResponseMs = responseTimes.length >= 2
+      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+      : null;
+
+    // Best method: highest response rate among methods with >=3 invitations
+    const methodGroups: Array<'email' | 'sms' | 'both'> = ['email', 'sms', 'both'];
+    const methodPerf = methodGroups.map(m => {
+      const inGroup = rows.filter(r => r.method === m && r.sentAt);
+      const respGroup = inGroup.filter(r => r.responded).length;
+      return { method: m, total: inGroup.length, rate: inGroup.length > 0 ? respGroup / inGroup.length : 0 };
+    }).filter(g => g.total >= 3).sort((a, b) => b.rate - a.rate);
+    const bestMethod = methodPerf[0] ?? null;
+
+    const resendAttempts = rows.filter(r => r.isResend).length;
+    const resendResponded = rows.filter(r => r.isResend && r.responded).length;
+    const resendSuccessRate = resendAttempts > 0 ? Math.round((resendResponded / resendAttempts) * 100) : null;
+
+    return { deliveryRate, responseRate, avgResponseMs, bestMethod, resendSuccessRate, invited, respondedCount, deliveredCount, failedCount, resendAttempts };
+  }, [rows]);
+
+  const insights = useMemo(() => {
+    const arr: string[] = [];
+    if (intelligence.bestMethod) {
+      const label = intelligence.bestMethod.method === 'both' ? 'Email + SMS' : intelligence.bestMethod.method === 'sms' ? 'SMS' : 'Email';
+      arr.push(`${label} invitations are generating the strongest response performance.`);
+    }
+    const followups = rows.filter(r => r.intel === 'needs_followup' || r.intel === 'multiple_resends').length;
+    if (followups > 0) arr.push(`${followups} guest${followups === 1 ? '' : 's'} still require follow-up.`);
+    if (intelligence.deliveryRate !== null && intelligence.deliveryRate >= 95) arr.push('SMS and email delivery performance is excellent.');
+    if (intelligence.avgResponseMs !== null && intelligence.avgResponseMs <= 48 * 3_600_000) arr.push('Most guests respond within 48 hours.');
+    if (intelligence.resendSuccessRate !== null && intelligence.resendSuccessRate >= 40) arr.push('Resend campaigns are converting well.');
+    return arr;
+  }, [intelligence, rows]);
+
+  const [insightIdx, setInsightIdx] = useState(0);
+  useEffect(() => {
+    if (insights.length <= 1) return;
+    const t = setInterval(() => setInsightIdx(i => (i + 1) % insights.length), 6000);
+    return () => clearInterval(t);
+  }, [insights.length]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
