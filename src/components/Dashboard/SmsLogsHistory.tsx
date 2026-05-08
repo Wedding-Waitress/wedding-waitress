@@ -102,14 +102,33 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
 
   if (!eventId) return null;
 
+  const filteredRows = methodFilter === 'all'
+    ? rows
+    : rows.filter(r => (r.delivery_method ?? 'sms').toLowerCase() === methodFilter);
+
   return (
     <Card className="p-4 space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h3 className="text-sm font-semibold">SMS history</h3>
-        {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        <div className="flex items-center gap-2">
+          <Select value={methodFilter} onValueChange={(v) => setMethodFilter(v as typeof methodFilter)}>
+            <SelectTrigger className="h-8 w-[150px] text-xs">
+              <SelectValue placeholder="Filter method" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All methods</SelectItem>
+              <SelectItem value="email">Email only</SelectItem>
+              <SelectItem value="sms">SMS only</SelectItem>
+              <SelectItem value="both">Email + SMS</SelectItem>
+            </SelectContent>
+          </Select>
+          {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </div>
       </div>
-      {rows.length === 0 && !loading ? (
-        <p className="text-sm text-muted-foreground">No SMS sent yet.</p>
+      {filteredRows.length === 0 && !loading ? (
+        <p className="text-sm text-muted-foreground">
+          {rows.length === 0 ? 'No SMS sent yet.' : 'No entries match this filter.'}
+        </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
