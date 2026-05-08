@@ -19,9 +19,9 @@ const toneIcon = {
 };
 
 const toneBg = {
-  warning: 'bg-[#FBF3E8] border-[#EBD9BD]',
-  info: 'bg-[#FBF7F2] border-[#E8E1D6]',
-  positive: 'bg-[#F1F7F1] border-[#D7E7D7]',
+  warning: 'bg-[#FBF4E8] border-[#EDDDC0]',
+  info: 'bg-[#FBF8F2] border-[#ECE5D8]',
+  positive: 'bg-[#F4F9F4] border-[#DCEBDC]',
 };
 
 export const SmartRecommendationsSection = ({
@@ -50,14 +50,24 @@ export const SmartRecommendationsSection = ({
       description="Suggested next actions"
       icon={<Sparkles className="w-4 h-4" />}
       badge={actionable || ''}
+      badgeTone="warning"
     >
       <div className="space-y-2">
         {recs.map(r => (
-          <div key={r.id} className={`rounded-xl border p-3 flex gap-3 ${toneBg[r.tone]}`}>
-            <div className="mt-0.5">{toneIcon[r.tone]}</div>
+          <div
+            key={r.id}
+            className={`rounded-xl border px-3 py-2.5 flex gap-3 ${toneBg[r.tone]}`}
+          >
+            <div className="mt-0.5 shrink-0">{toneIcon[r.tone]}</div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-[#1D1D1F]">{r.title}</div>
-              {r.detail && <div className="text-xs text-[#6E6E73] mt-0.5">{r.detail}</div>}
+              <div className="text-[13px] font-medium text-[#1D1D1F] leading-snug">
+                {r.title}
+              </div>
+              {r.detail && (
+                <div className="text-[11.5px] text-[#6E6E73] mt-0.5 leading-snug">
+                  {r.detail}
+                </div>
+              )}
             </div>
           </div>
         ))}
