@@ -1690,6 +1690,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
               )}
 
+              {/* Smart RSVP premium feature strip — sits above Step 1/2/3 */}
+              {selectedEventId && (
+                <SmartRsvpFeatureStrip
+                  className="mb-4"
+                  onCommandCentre={() => {
+                    document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  onCommunications={() => setShowAnalyticsPanel(true)}
+                  onDelivery={() => setShowResendModal(true)}
+                  onIntelligence={() => setShowAnalyticsPanel(true)}
+                />
+              )}
+
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
