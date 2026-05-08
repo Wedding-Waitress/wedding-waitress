@@ -32,7 +32,30 @@ interface GuestRow {
   rsvp: string | null;
   rsvp_invite_status: string | null;
   rsvp_invite_sent_at: string | null;
+  rsvp_date: string | null;
 }
+
+type IntelTag =
+  | 'fast_responder'
+  | 'needs_followup'
+  | 'multiple_resends'
+  | 'delivery_issue'
+  | 'vip_pending'
+  | null;
+
+type UrgencyFilter = 'all' | 'no_response_7d' | 'failed_delivery' | 'needs_attention' | 'recent_response';
+
+const humanizeDuration = (ms: number): string => {
+  if (!isFinite(ms) || ms <= 0) return '—';
+  const hours = ms / 3_600_000;
+  if (hours < 1) {
+    const m = Math.max(1, Math.round(ms / 60_000));
+    return `${m} Min Avg. Response`;
+  }
+  if (hours < 48) return `${Math.round(hours)} Hours Avg. Response`;
+  const days = hours / 24;
+  return `${days.toFixed(1)} Days Avg. Response`;
+};
 
 interface SmsLog {
   guest_id: string | null;
@@ -65,6 +88,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<MethodFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('name');
+  const [urgencyFilter, setUrgencyFilter] = useState<UrgencyFilter>('all');
   const { credits: smsCredits } = useSmsCredits(eventId);
 
   useEffect(() => {
@@ -75,7 +99,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
       try {
         const [g, s, e, p] = await Promise.all([
           supabase.from('guests')
-            .select('id, first_name, last_name, email, mobile, rsvp, rsvp_invite_status, rsvp_invite_sent_at')
+            .select('id, first_name, last_name, email, mobile, rsvp, rsvp_invite_status, rsvp_invite_sent_at, rsvp_date')
             .eq('event_id', eventId),
           supabase.from('sms_send_logs')
             .select('guest_id, status, delivery_method, created_at, delivered_at, failed_at, last_status_at, error_message, twilio_error_code, twilio_error_message')
@@ -141,46 +165,128 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         // fallback for email-only or pre-webhook history
         deliveryStatus = 'Delivered';
       }
-      const resendCount = sms.length + emails.length;
       const credits = sms.filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
       const responded = (() => {
         const r = normalizeRsvp(g.rsvp);
         return r === 'Attending' || r === 'Not Attending';
       })();
+      const sendsCount = sms.length + emails.length;
+      const isResend = sendsCount > 1;
+      const respondedAt = g.rsvp_date ? new Date(g.rsvp_date).getTime() : null;
+      const sentAtIso = g.rsvp_invite_sent_at || lastSms?.created_at || null;
+      const sentAtMs = sentAtIso ? new Date(sentAtIso).getTime() : null;
+      const responseMs = responded && respondedAt && sentAtMs && respondedAt >= sentAtMs
+        ? respondedAt - sentAtMs
+        : null;
+      const daysSinceSent = sentAtMs ? (Date.now() - sentAtMs) / 86_400_000 : null;
+
+      let intel: IntelTag = null;
+      if (deliveryStatus === 'Failed' || deliveryStatus === 'Blocked') intel = 'delivery_issue';
+      else if (responded && responseMs !== null && responseMs <= 24 * 3_600_000) intel = 'fast_responder';
+      else if (!responded && sendsCount >= 2) intel = 'multiple_resends';
+      else if (!responded && daysSinceSent !== null && daysSinceSent >= 7) intel = 'needs_followup';
+
       return {
         id: g.id,
         name: `${g.first_name ?? ''} ${g.last_name ?? ''}`.trim(),
         contact: method === 'sms' ? (g.mobile || '—') : method === 'email' ? (g.email || '—') : (g.email || g.mobile || '—'),
         method,
-        sentAt: g.rsvp_invite_sent_at || lastSms?.created_at || null,
+        sentAt: sentAtIso,
+        sentAtMs,
         deliveredAt: lastSms?.delivered_at || null,
         lastStatusAt: lastSms?.last_status_at || lastSms?.delivered_at || lastSms?.failed_at || null,
         deliveryStatus,
         rsvp: normalizeRsvp(g.rsvp),
         responded,
+        respondedAt,
+        responseMs,
+        isResend,
         failed: isFailedStatus,
-        resendCount,
+        resendCount: sendsCount,
         credits,
         inviteStatus: g.rsvp_invite_status,
         rsvpRaw: g.rsvp,
         twilioErrorCode: lastSms?.twilio_error_code || null,
         twilioErrorMessage: lastSms?.twilio_error_message || lastSms?.error_message || null,
+        intel,
       };
     });
   }, [guests, smsLogs, emailLogs, purchaseMethod]);
 
+  // Intelligence KPI calculations
+  const intelligence = useMemo(() => {
+    const invited = rows.filter(r => r.sentAt).length;
+    const deliveredCount = rows.filter(r => r.deliveryStatus === 'Delivered').length;
+    const failedCount = rows.filter(r => r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked').length;
+    const deliveryDenom = deliveredCount + failedCount;
+    const deliveryRate = deliveryDenom > 0 ? Math.round((deliveredCount / deliveryDenom) * 100) : null;
+    const respondedCount = rows.filter(r => r.responded).length;
+    const responseRate = invited > 0 ? Math.round((respondedCount / invited) * 100) : null;
+
+    const responseTimes = rows.map(r => r.responseMs).filter((v): v is number => v !== null && v > 0);
+    const avgResponseMs = responseTimes.length >= 2
+      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+      : null;
+
+    // Best method: highest response rate among methods with >=3 invitations
+    const methodGroups: Array<'email' | 'sms' | 'both'> = ['email', 'sms', 'both'];
+    const methodPerf = methodGroups.map(m => {
+      const inGroup = rows.filter(r => r.method === m && r.sentAt);
+      const respGroup = inGroup.filter(r => r.responded).length;
+      return { method: m, total: inGroup.length, rate: inGroup.length > 0 ? respGroup / inGroup.length : 0 };
+    }).filter(g => g.total >= 3).sort((a, b) => b.rate - a.rate);
+    const bestMethod = methodPerf[0] ?? null;
+
+    const resendAttempts = rows.filter(r => r.isResend).length;
+    const resendResponded = rows.filter(r => r.isResend && r.responded).length;
+    const resendSuccessRate = resendAttempts > 0 ? Math.round((resendResponded / resendAttempts) * 100) : null;
+
+    return { deliveryRate, responseRate, avgResponseMs, bestMethod, resendSuccessRate, invited, respondedCount, deliveredCount, failedCount, resendAttempts };
+  }, [rows]);
+
+  const insights = useMemo(() => {
+    const arr: string[] = [];
+    if (intelligence.bestMethod) {
+      const label = intelligence.bestMethod.method === 'both' ? 'Email + SMS' : intelligence.bestMethod.method === 'sms' ? 'SMS' : 'Email';
+      arr.push(`${label} invitations are generating the strongest response performance.`);
+    }
+    const followups = rows.filter(r => r.intel === 'needs_followup' || r.intel === 'multiple_resends').length;
+    if (followups > 0) arr.push(`${followups} guest${followups === 1 ? '' : 's'} still require follow-up.`);
+    if (intelligence.deliveryRate !== null && intelligence.deliveryRate >= 95) arr.push('SMS and email delivery performance is excellent.');
+    if (intelligence.avgResponseMs !== null && intelligence.avgResponseMs <= 48 * 3_600_000) arr.push('Most guests respond within 48 hours.');
+    if (intelligence.resendSuccessRate !== null && intelligence.resendSuccessRate >= 40) arr.push('Resend campaigns are converting well.');
+    return arr;
+  }, [intelligence, rows]);
+
+  const [insightIdx, setInsightIdx] = useState(0);
+  useEffect(() => {
+    if (insights.length <= 1) return;
+    const t = setInterval(() => setInsightIdx(i => (i + 1) % insights.length), 6000);
+    return () => clearInterval(t);
+  }, [insights.length]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const now = Date.now();
     let out = rows.filter(r => {
       if (q && !(r.name.toLowerCase().includes(q) || r.contact.toLowerCase().includes(q))) return false;
       if (methodFilter !== 'all' && r.method !== methodFilter) return false;
+      if (urgencyFilter === 'no_response_7d') {
+        if (r.responded || !r.sentAtMs || (now - r.sentAtMs) < 7 * 86_400_000) return false;
+      } else if (urgencyFilter === 'failed_delivery') {
+        if (r.deliveryStatus !== 'Failed' && r.deliveryStatus !== 'Blocked') return false;
+      } else if (urgencyFilter === 'needs_attention') {
+        if (!(r.intel === 'needs_followup' || r.intel === 'multiple_resends' || r.intel === 'delivery_issue')) return false;
+      } else if (urgencyFilter === 'recent_response') {
+        if (!r.responded || !r.respondedAt || (now - r.respondedAt) > 7 * 86_400_000) return false;
+      }
       return true;
     });
     if (sortKey === 'name') out = out.sort((a,b) => a.name.localeCompare(b.name));
     else if (sortKey === 'sent') out = out.sort((a,b) => +new Date(b.sentAt || 0) - +new Date(a.sentAt || 0));
     else if (sortKey === 'status') out = out.sort((a,b) => a.deliveryStatus.localeCompare(b.deliveryStatus));
     return out;
-  }, [rows, search, methodFilter, sortKey]);
+  }, [rows, search, methodFilter, sortKey, urgencyFilter]);
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleString() : '—';
   const relTime = (d: string | null) => {
@@ -230,6 +336,35 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             );
           })()}
 
+          {/* Smart RSVP Intelligence KPI row */}
+          {(() => {
+            const intelChip = (label: string, value: React.ReactNode, sub?: string, tooltip?: string, tone = 'border-border bg-card') => (
+              <div className={`flex-1 min-w-[140px] rounded-xl border px-3 py-2 ${tone}`} title={tooltip}>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+                <div className="text-sm font-semibold text-foreground">{value}</div>
+                {sub && <div className="text-[10px] text-muted-foreground/80 mt-0.5">{sub}</div>}
+              </div>
+            );
+            const bestLabel = intelligence.bestMethod
+              ? (intelligence.bestMethod.method === 'both' ? 'Email + SMS' : intelligence.bestMethod.method === 'sms' ? 'SMS' : 'Email')
+              : 'Not enough data';
+            return (
+              <div className="flex flex-wrap gap-2">
+                {intelChip('Delivery Rate', intelligence.deliveryRate === null ? '—' : `${intelligence.deliveryRate}%`, undefined, 'Percentage of invitations successfully delivered.', 'border-emerald-200/70 bg-emerald-50/40')}
+                {intelChip('Response Rate', intelligence.responseRate === null ? '—' : `${intelligence.responseRate}%`, undefined, 'Percentage of invited guests who submitted an RSVP.', 'border-primary/30 bg-primary/5')}
+                {intelChip('Avg. Response', intelligence.avgResponseMs === null ? 'Not enough responses yet' : humanizeDuration(intelligence.avgResponseMs), undefined, 'Average time between invitation sent and RSVP received.')}
+                {intelChip('Best Method', bestLabel, intelligence.bestMethod ? 'Highest response performance.' : undefined, 'Delivery method with the strongest RSVP response rate.')}
+                {intelChip('Resend Success', intelligence.resendSuccessRate === null ? '—' : `${intelligence.resendSuccessRate}%`, undefined, 'Guests who responded after receiving a resend.', 'border-amber-200/70 bg-amber-50/40')}
+              </div>
+            );
+          })()}
+
+          {insights.length > 0 && (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground/80 italic">
+              {insights[insightIdx % insights.length]}
+            </div>
+          )}
+
           <DeliveryAnalyticsPanel eventId={eventId} />
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -261,6 +396,38 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             </Select>
           </div>
 
+          {/* Urgency / segmentation chips */}
+          {(() => {
+            const opts: Array<{ key: UrgencyFilter; label: string }> = [
+              { key: 'all', label: 'All guests' },
+              { key: 'no_response_7d', label: 'No Response > 7 days' },
+              { key: 'failed_delivery', label: 'Failed Delivery' },
+              { key: 'needs_attention', label: 'Needs Attention' },
+              { key: 'recent_response', label: 'Recently Responded' },
+            ];
+            return (
+              <div className="flex flex-wrap gap-1.5">
+                {opts.map(o => {
+                  const active = urgencyFilter === o.key;
+                  return (
+                    <button
+                      key={o.key}
+                      type="button"
+                      onClick={() => setUrgencyFilter(o.key)}
+                      className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
+                        active
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
           <div className="rounded-lg border border-border overflow-hidden">
             <div className="max-h-[55vh] overflow-y-auto">
               <table className="w-full text-xs">
@@ -283,7 +450,22 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                     <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No matching guests.</td></tr>
                   ) : filtered.map(r => (
                     <tr key={r.id} className="border-t border-border/60">
-                      <td className="px-3 py-2 font-medium text-foreground">{r.name || '—'}</td>
+                      <td className="px-3 py-2 font-medium text-foreground">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span>{r.name || '—'}</span>
+                          {r.intel && (() => {
+                            const map: Record<Exclude<IntelTag, null>, { label: string; cls: string }> = {
+                              fast_responder: { label: 'Fast Responder', cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+                              needs_followup: { label: 'Needs Follow-Up', cls: 'border-amber-200 bg-amber-50 text-amber-700' },
+                              multiple_resends: { label: 'Multiple Resends', cls: 'border-orange-200 bg-orange-50 text-orange-700' },
+                              delivery_issue: { label: 'Delivery Issue', cls: 'border-red-200 bg-red-50 text-red-700' },
+                              vip_pending: { label: 'VIP Pending', cls: 'border-primary/30 bg-primary/5 text-primary' },
+                            };
+                            const t = map[r.intel];
+                            return <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${t.cls}`}>{t.label}</span>;
+                          })()}
+                        </div>
+                      </td>
                       <td className="px-3 py-2">
                         <GuestDeliveryBadges
                           inviteStatus={r.inviteStatus}
