@@ -108,7 +108,7 @@ export const GuestIntelligencePanel = ({ open, onClose, guests, tables, event }:
             <SeatingIntelligenceSection guests={guests} tables={tables} />
             <EngagementIntelligenceSection guests={guests} eventId={event?.id ?? null} />
             <SmartRecommendationsSection guests={guests} tables={tables} event={event} />
-            <ActivityTimelineAccessSection guests={guests} />
+            <ActivityTimelineAccessSection guests={guests} eventId={event?.id ?? null} />
           </Accordion>
 
           <p className="text-[11px] text-[#6E6E73] text-center mt-6 px-4 leading-relaxed">
