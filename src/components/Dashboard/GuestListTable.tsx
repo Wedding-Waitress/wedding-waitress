@@ -2524,9 +2524,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
                               return (
-                                <Badge className={`text-xs lv-premium-shade ${config.className}`}>
-                                  {config.label}
-                                </Badge>
+                                <span className="inline-flex items-center justify-center flex-wrap gap-1">
+                                  <Badge className={`text-xs lv-premium-shade ${config.className}`}>
+                                    {config.label}
+                                  </Badge>
+                                  <GuestDeliveryBadges
+                                    inviteStatus={guest.rsvp_invite_status}
+                                    rsvp={guest.rsvp}
+                                    purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                                  />
+                                </span>
                               );
                             })()}
                           </TableCell>
