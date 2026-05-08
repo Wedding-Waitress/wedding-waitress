@@ -62,6 +62,7 @@ serve(async (req) => {
       purchase_type,
       guest_count_at_purchase,
       idempotency_key,
+      delivery_method,
     } = await req.json();
     if (!price_id) throw new Error("price_id is required");
 
