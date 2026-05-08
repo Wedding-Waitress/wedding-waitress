@@ -35,7 +35,22 @@ export const useAccountRole = () => {
     return () => { cancelled = true; };
   }, []);
 
-  return { role, loading, isMaster: role === "master", isStandard: role === "standard" };
+  const isMaster = role === "master";
+  return {
+    role,
+    loading,
+    isMaster,
+    isStandard: role === "standard",
+    permissions: {
+      manageBilling: isMaster,
+      changePlan: isMaster,
+      purchaseEvents: isMaster,
+      deleteEvent: isMaster,
+      manageUsers: isMaster,
+      manageVendorPro: isMaster,
+      deleteAccount: isMaster,
+    },
+  };
 };
 
 export const requireMaster = (role: AccountRole): boolean => role === "master";
