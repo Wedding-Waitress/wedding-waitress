@@ -99,7 +99,11 @@ export const GuestIntelligencePanel = ({ open, onClose, guests, tables, event }:
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-5 py-5 scroll-smooth">
           <Accordion type="multiple" defaultValue={['rsvp']} className="space-y-3">
             <RsvpIntelligenceSection guests={guests} eventId={event?.id ?? null} />
-            <RelationshipIntelligenceSection guests={guests} />
+            <RelationshipIntelligenceSection
+              guests={guests}
+              partner1Name={event?.partner1_name ?? null}
+              partner2Name={event?.partner2_name ?? null}
+            />
             <DietaryIntelligenceSection guests={guests} />
             <SeatingIntelligenceSection guests={guests} tables={tables} />
             <EngagementIntelligenceSection guests={guests} />

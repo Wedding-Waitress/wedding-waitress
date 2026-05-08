@@ -13,6 +13,8 @@ export interface EventLite {
   date?: string | null;
   rsvp_deadline?: string | null;
   guest_limit?: number | null;
+  partner1_name?: string | null;
+  partner2_name?: string | null;
 }
 
 export interface RsvpInsights {
@@ -42,25 +44,78 @@ export interface RelationshipInsights {
   unspecified: number;
   topRoles: Array<{ role: string; count: number }>;
   imbalance: boolean;
+  topFamilies: Array<{ name: string; count: number }>;
+  familyGroupsCount: number;
+  inFamilyGroup: number;
+  individuals: number;
+  coupleUnits: number; // primary + plus-one pairs (counted as units)
+  plusOnesAdded: number;
+  plusOnesAttending: number;
+  plusOnesPending: number;
+  plusOneSlotsOpen: number; // primaries with allow_plus_one but no plus-one added
+  categorized: number; // has relation_partner OR relation_role
+  uncategorized: number;
+  coveragePct: number; // 0-1
+  vipCount: number;
 }
+
+const VIP_ROLE_HINTS = ['parent', 'mother', 'father', 'bride', 'groom', 'best', 'maid', 'matron', 'bridal_party', 'wedding_party', 'immediate'];
 
 export const computeRelationshipInsights = (guests: Guest[]): RelationshipInsights => {
   let p1 = 0, p2 = 0, none = 0;
   const roles = new Map<string, number>();
+  const families = new Map<string, number>();
+  let plusOnesAdded = 0, plusOnesAttending = 0, plusOnesPending = 0, plusOneSlotsOpen = 0;
+  let categorized = 0, vipCount = 0, inFamily = 0;
+
+  // map of primary -> has plus-one child added
+  const primaryHasChild = new Set<string>();
+  for (const g of guests) if (g.added_by_guest_id) primaryHasChild.add(g.added_by_guest_id);
+
   for (const g of guests) {
     if (g.relation_partner === 'partner_one') p1++;
     else if (g.relation_partner === 'partner_two') p2++;
     else none++;
     const r = (g.relation_role || '').trim();
     if (r) roles.set(r, (roles.get(r) ?? 0) + 1);
+    const fam = (g.family_group || '').trim();
+    if (fam) {
+      families.set(fam, (families.get(fam) ?? 0) + 1);
+      inFamily++;
+    }
+    if (g.added_by_guest_id) {
+      plusOnesAdded++;
+      const s = normalizeRsvp(g.rsvp);
+      if (s === 'Attending') plusOnesAttending++;
+      else if (s === 'Pending') plusOnesPending++;
+    } else if (g.allow_plus_one && !primaryHasChild.has(g.id)) {
+      plusOneSlotsOpen++;
+    }
+    if (g.relation_partner || r) categorized++;
+    if (r && VIP_ROLE_HINTS.some(h => r.toLowerCase().includes(h))) vipCount++;
   }
   const topRoles = Array.from(roles.entries())
     .map(([role, count]) => ({ role, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 4);
+  const topFamilies = Array.from(families.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 4);
   const sided = p1 + p2;
   const imbalance = sided > 0 && (Math.max(p1, p2) / sided) > 0.7;
-  return { partnerOne: p1, partnerTwo: p2, unspecified: none, topRoles, imbalance };
+  const coupleUnits = guests.filter(g => !g.added_by_guest_id && g.allow_plus_one && primaryHasChild.has(g.id)).length;
+  const individuals = guests.filter(g => !g.added_by_guest_id && !(g.family_group || '').trim() && !(g.allow_plus_one && primaryHasChild.has(g.id))).length;
+  const total = guests.length;
+  return {
+    partnerOne: p1, partnerTwo: p2, unspecified: none, topRoles, imbalance,
+    topFamilies, familyGroupsCount: families.size, inFamilyGroup: inFamily,
+    individuals, coupleUnits,
+    plusOnesAdded, plusOnesAttending, plusOnesPending, plusOneSlotsOpen,
+    categorized, uncategorized: total - categorized,
+    coveragePct: total ? categorized / total : 0,
+    vipCount,
+  };
 };
 
 export interface DietaryInsights {
