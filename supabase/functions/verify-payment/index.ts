@@ -147,6 +147,10 @@ serve(async (req) => {
         .eq("stripe_session_id", session_id)
         .maybeSingle();
 
+      const dmRaw = (metadata.delivery_method || "").toString();
+      const deliveryMethod =
+        dmRaw === "email" || dmRaw === "sms" || dmRaw === "both" ? dmRaw : null;
+
       if (!existing) {
         await supabase.from("rsvp_invite_purchases").insert({
           user_id: userId,
@@ -160,6 +164,7 @@ serve(async (req) => {
           purchased_limit: purchasedLimit,
           overage_blocks: 0,
           guest_count_at_purchase: guestCountAtPurchase,
+          delivery_method: deliveryMethod,
         });
       }
 
