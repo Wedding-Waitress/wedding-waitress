@@ -18,6 +18,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export type TableType = 'round' | 'square' | 'long';
 
@@ -40,6 +41,7 @@ export interface TableWithGuestCount extends Table {
 
 // Module-level cache for instant loading on tab switches
 const tablesCache = new Map<string, TableWithGuestCount[]>();
+registerCache(() => { tablesCache.clear(); });
 
 export const useTables = (eventId: string | null) => {
   const cached = eventId ? tablesCache.get(eventId) : undefined;

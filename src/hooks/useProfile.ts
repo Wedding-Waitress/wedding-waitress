@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface UserProfile {
   id: string;
@@ -14,6 +15,7 @@ export interface UserProfile {
 
 // Module-level cache for instant loading
 let profileCache: UserProfile | null = null;
+registerCache(() => { profileCache = null; });
 
 export const useProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(profileCache);

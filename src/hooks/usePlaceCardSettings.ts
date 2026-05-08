@@ -18,6 +18,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface PlaceCardSettings {
   id?: string;
@@ -64,6 +65,7 @@ export interface PlaceCardSettings {
 
 // Module-level cache for instant loading on tab switches
 const placeCardCache = new Map<string, PlaceCardSettings>();
+registerCache(() => { placeCardCache.clear(); });
 
 export const usePlaceCardSettings = (eventId: string | null) => {
   const cached = eventId ? placeCardCache.get(eventId) : undefined;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface DietaryChartSettings {
   sortBy: 'firstName' | 'lastName' | 'tableNo' | 'dietary';
@@ -30,6 +31,7 @@ const DEFAULT_SETTINGS: DietaryChartSettings = {
 
 // Module-level cache for instant loading on tab switches
 const settingsCache = new Map<string, DietaryChartSettings>();
+registerCache(() => { settingsCache.clear(); });
 
 export const useDietaryChartSettings = (eventId: string | null) => {
   const cached = eventId ? settingsCache.get(eventId) : undefined;

@@ -20,6 +20,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Guest } from '@/hooks/useGuests';
+import { registerCache } from '@/lib/cacheRegistry';
 
 interface RealtimeGuestUpdate {
   guestId: string;
@@ -43,6 +44,7 @@ interface UseRealtimeGuestsReturn {
 
 // Module-level cache for instant loading on tab switches
 const guestsCache = new Map<string, Guest[]>();
+registerCache(() => { guestsCache.clear(); });
 
 export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsReturn => {
   const cached = eventId ? guestsCache.get(eventId) : undefined;

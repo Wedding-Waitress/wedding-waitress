@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface TextZone {
   id: string;
@@ -74,6 +75,7 @@ const parseRow = (d: any): InvitationCardSettings => ({
 
 // Module-level cache for instant loading on tab switches
 const invitationCache = new Map<string, { artworks: InvitationCardSettings[]; activeId: string | null }>();
+registerCache(() => { invitationCache.clear(); });
 
 export const useInvitationCardSettings = (eventId: string | null) => {
   const cached = eventId ? invitationCache.get(eventId) : undefined;
