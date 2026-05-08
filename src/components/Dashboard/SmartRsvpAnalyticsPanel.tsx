@@ -38,7 +38,11 @@ interface SmsLog {
   delivery_method: string | null;
   created_at: string;
   delivered_at: string | null;
+  failed_at: string | null;
+  last_status_at: string | null;
   error_message: string | null;
+  twilio_error_code: string | null;
+  twilio_error_message: string | null;
 }
 
 interface EmailLog {
@@ -71,7 +75,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             .select('id, first_name, last_name, email, mobile, rsvp, rsvp_invite_status, rsvp_invite_sent_at')
             .eq('event_id', eventId),
           supabase.from('sms_send_logs')
-            .select('guest_id, status, delivery_method, created_at, delivered_at, error_message')
+            .select('guest_id, status, delivery_method, created_at, delivered_at, failed_at, last_status_at, error_message, twilio_error_code, twilio_error_message')
             .eq('event_id', eventId),
           supabase.from('rsvp_invite_logs')
             .select('guest_id, status, sent_at')
@@ -120,9 +124,22 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         : status === 'email_sent' || status === 'mail_sent' ? 'email'
         : purchaseMethod;
       const lastSms = sms.sort((a,b) => +new Date(b.created_at) - +new Date(a.created_at))[0];
-      const failed = sms.some(l => (l.status || '').toLowerCase().includes('fail') || l.status === 'blocked');
+      const lastStatus = (lastSms?.status || '').toLowerCase();
+      const isFailedStatus = lastStatus === 'failed' || lastStatus === 'undelivered' || lastStatus === 'blocked';
+      const isDelivered = lastStatus === 'delivered';
+      const isPendingSent = lastStatus === 'queued' || lastStatus === 'sent';
+      let deliveryStatus: 'Delivered' | 'Failed' | 'Blocked' | 'Pending' = 'Pending';
+      if (lastSms) {
+        if (isDelivered) deliveryStatus = 'Delivered';
+        else if (lastStatus === 'blocked') deliveryStatus = 'Blocked';
+        else if (isFailedStatus) deliveryStatus = 'Failed';
+        else if (isPendingSent) deliveryStatus = 'Pending';
+      } else if (status && status !== 'not_sent') {
+        // fallback for email-only or pre-webhook history
+        deliveryStatus = 'Delivered';
+      }
       const resendCount = sms.length + emails.length;
-      const credits = sms.filter(l => (l.status || '').toLowerCase() === 'sent').length;
+      const credits = sms.filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
       const responded = (() => {
         const r = normalizeRsvp(g.rsvp);
         return r === 'Attending' || r === 'Not Attending';
@@ -134,14 +151,17 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         method,
         sentAt: g.rsvp_invite_sent_at || lastSms?.created_at || null,
         deliveredAt: lastSms?.delivered_at || null,
-        deliveryStatus: failed ? 'Failed' : status && status !== 'not_sent' ? 'Delivered' : 'Pending',
+        lastStatusAt: lastSms?.last_status_at || lastSms?.delivered_at || lastSms?.failed_at || null,
+        deliveryStatus,
         rsvp: normalizeRsvp(g.rsvp),
         responded,
-        failed,
+        failed: isFailedStatus,
         resendCount,
         credits,
         inviteStatus: g.rsvp_invite_status,
         rsvpRaw: g.rsvp,
+        twilioErrorCode: lastSms?.twilio_error_code || null,
+        twilioErrorMessage: lastSms?.twilio_error_message || lastSms?.error_message || null,
       };
     });
   }, [guests, smsLogs, emailLogs, purchaseMethod]);
@@ -160,6 +180,17 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
   }, [rows, search, methodFilter, sortKey]);
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleString() : '—';
+  const relTime = (d: string | null) => {
+    if (!d) return '';
+    const ms = Date.now() - new Date(d).getTime();
+    if (ms < 60_000) return 'just now';
+    const m = Math.floor(ms / 60_000);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const days = Math.floor(h / 24);
+    return `${days}d ago`;
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -237,11 +268,23 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                       <td className="px-3 py-2 text-muted-foreground truncate max-w-[160px]">{r.contact}</td>
                       <td className="px-3 py-2 text-muted-foreground">{fmt(r.sentAt)}</td>
                       <td className="px-3 py-2">
-                        <span className={
-                          r.deliveryStatus === 'Failed' ? 'text-red-600 font-semibold'
-                          : r.deliveryStatus === 'Delivered' ? 'text-green-700 font-semibold'
-                          : 'text-amber-700 font-semibold'
-                        }>{r.deliveryStatus}</span>
+                        <span
+                          className={
+                            r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked' ? 'text-red-600 font-semibold'
+                            : r.deliveryStatus === 'Delivered' ? 'text-green-700 font-semibold'
+                            : 'text-amber-700 font-semibold'
+                          }
+                          title={
+                            (r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked') && (r.twilioErrorCode || r.twilioErrorMessage)
+                              ? `Twilio ${r.twilioErrorCode ?? ''}${r.twilioErrorCode && r.twilioErrorMessage ? ': ' : ''}${r.twilioErrorMessage ?? ''}`.trim()
+                              : r.lastStatusAt ? `Updated ${fmt(r.lastStatusAt)}` : undefined
+                          }
+                        >
+                          {r.deliveryStatus}
+                        </span>
+                        {r.lastStatusAt && (
+                          <div className="text-[10px] text-muted-foreground">{relTime(r.lastStatusAt)}</div>
+                        )}
                       </td>
                       <td className="px-3 py-2">{r.responded ? r.rsvp : 'Pending'}</td>
                       <td className="px-3 py-2 text-right">{r.resendCount}</td>
