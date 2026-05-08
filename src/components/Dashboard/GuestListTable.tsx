@@ -1636,32 +1636,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 )}
               </div>
 
-              {/* Smart RSVP & Messaging — analytics & resend (visible once activated) */}
+              {/* Smart RSVP & Messaging — Analytics + Resend (visible once activated) */}
               {hasRsvpPurchase && selectedEventId && (
-                <div className="mb-4 space-y-2">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <button
-                      type="button"
-                      onClick={() => setShowSmartPanel((v) => !v)}
-                      className="text-xs font-medium text-primary hover:underline lv-premium-shade rounded px-2 py-1"
-                    >
-                      {showSmartPanel ? 'Hide' : 'Show'} Smart RSVP analytics & history
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowResendModal(true)}
-                      className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90"
-                      title="Resend Smart RSVP to a precise audience"
-                    >
-                      Resend Smart RSVP
-                    </button>
-                  </div>
-                  {showSmartPanel && (
-                    <div className="space-y-3">
-                      <DeliveryAnalyticsPanel eventId={selectedEventId} />
-                      <SmsLogsHistory eventId={selectedEventId} />
-                    </div>
-                  )}
+                <div className="mb-4 flex items-center justify-end gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setShowAnalyticsPanel(true)}
+                    className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full border-2 border-primary text-primary bg-background px-3 py-1.5 text-xs font-semibold hover:bg-primary/5"
+                    title="Open Smart RSVP Analytics"
+                  >
+                    Smart RSVP Analytics
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowResendModal(true)}
+                    className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90"
+                    title="Resend Smart RSVP to a precise audience"
+                  >
+                    Resend Smart RSVP
+                  </button>
                 </div>
               )}
 
