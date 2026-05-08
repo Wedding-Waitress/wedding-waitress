@@ -34,13 +34,26 @@ export const PLAN_PRICES = {
   },
 } as const;
 
-// ── Vendor Pro (monthly subscription) ──────────────────────────────
+// ── Vendor Pro (monthly subscription, AUD baseline) ────────────────
+// Updated 2026-05-08: A$299/mo, 100 events included, up to 10 account users.
+// Multi-currency price IDs live in `currencyPricing.ts` and `planRegistry.ts`.
 export const VENDOR_PRO = {
-  product_id: 'prod_UOQiLXxbgeXKZu',
-  price_id: 'price_1TPdqw5GzTmqOxGKLqFbLHHe',
+  product_id: 'prod_UTm2XBA5rX9dGN',
+  price_id: 'price_1TUoUX5GzTmqOxGK4eswrMPQ',
   name: 'Vendor Pro',
-  price_aud: 249,
+  price_aud: 299,
+  included_events: 100,
+  max_users: 10,
   plan_db_id: '632b476a-39da-4f6f-8457-9ba104d571da',
+} as const;
+
+// ── Additional Event SKU (one-time, per extra event) ───────────────
+// Multi-currency variants live in `planRegistry.ts` (ADDITIONAL_EVENT.prices).
+export const ADDITIONAL_EVENT_AUD = {
+  product_id: 'prod_UTm7byFGV7E127',
+  price_id: 'price_1TUoZ15GzTmqOxGKDRmvofDh',
+  name: 'Additional Event',
+  price_aud: 99,
 } as const;
 
 // ── RSVP Invite Bundles (one-time, per event) ──────────────────────

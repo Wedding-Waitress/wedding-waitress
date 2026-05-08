@@ -59,12 +59,16 @@ export const PLAN_PRICING: Record<CurrencyCode, {
   },
 };
 
-/** Vendor Pro monthly pricing per currency */
+/**
+ * Vendor Pro monthly pricing per currency.
+ * Updated 2026-05-08 — A$299/mo (100 events included, up to 10 account users).
+ * Source of truth: src/lib/planRegistry.ts (PLAN_REGISTRY.vendor_pro.prices).
+ */
 export const VENDOR_PRICING: Record<CurrencyCode, VendorPricing> = {
-  AUD: { price: 249, price_id: 'price_1T0vEC5GzTmqOxGK9AK1MNLL' },
-  USD: { price: 179.99, price_id: 'price_1TMhpW5GzTmqOxGKXIsQO8UN' },
-  GBP: { price: 149.99, price_id: 'price_1TMhpx5GzTmqOxGK72DX28oD' },
-  EUR: { price: 169.99, price_id: 'price_1TMhqX5GzTmqOxGKyDaRmRFo' },
+  AUD: { price: 299,    price_id: 'price_1TUoUX5GzTmqOxGK4eswrMPQ' },
+  USD: { price: 209.99, price_id: 'price_1TUoV75GzTmqOxGKLz0sDReg' },
+  GBP: { price: 179.99, price_id: 'price_1TUoY15GzTmqOxGK7AUbx77Q' },
+  EUR: { price: 199.99, price_id: 'price_1TUoYZ5GzTmqOxGKt03J6gOj' },
 };
 
 /** Format a price with the correct currency symbol */
