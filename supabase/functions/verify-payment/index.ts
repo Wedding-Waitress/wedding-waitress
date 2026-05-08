@@ -128,6 +128,34 @@ serve(async (req) => {
 
     logStep("Product identified", { productId, eventId, userId });
 
+    // ── Additional Event Purchase (one-time, A$99 SKU) ──
+    const purchaseTypeMeta = (metadata.purchase_type || "").toString();
+    if (purchaseTypeMeta === "additional_event" || productId === "prod_UTm7byFGV7E127") {
+      const amountCents = session.amount_total || 0;
+      const currency = (session.currency || "AUD").toUpperCase();
+      const { data: existingAddl } = await supabase
+        .from("additional_event_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
+      if (!existingAddl) {
+        await supabase.from("additional_event_purchases").insert({
+          user_id: userId,
+          event_id: eventId || null,
+          stripe_session_id: session_id,
+          stripe_price_id: price?.id || null,
+          amount: amountCents,
+          currency,
+          status: "paid",
+        });
+        logStep("Additional event slot recorded", { userId, amountCents, currency });
+      }
+      return new Response(
+        JSON.stringify({ success: true, type: "additional_event" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // ── RSVP Tier Purchase (initial) ──
     if (RSVP_PRODUCT_IDS.has(productId)) {
       if (!eventId) throw new Error("event_id is required for RSVP purchase");
