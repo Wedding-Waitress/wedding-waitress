@@ -1695,7 +1695,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <SmartRsvpFeatureStrip
                   className="mb-4"
                   onCommandCentre={() => {
-                    document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth' });
+                    document
+                      .getElementById('smart-rsvp-command-centre')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
                   onCommunications={() => setShowAnalyticsPanel(true)}
                   onDelivery={() => setShowResendModal(true)}
@@ -1938,7 +1940,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           </div>
 
           {/* Control Buttons Row */}
-          <div className="flex items-center justify-between gap-2 flex-wrap mb-4 sm:mb-6 mt-4">
+          <div id="smart-rsvp-command-centre" className="flex items-center justify-between gap-2 flex-wrap mb-4 sm:mb-6 mt-4">
 
             {/* LEFT SIDE: Plus-guest notification banner */}
             <div className="flex flex-col gap-1">
