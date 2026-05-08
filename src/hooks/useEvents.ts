@@ -141,6 +141,22 @@ export const useEvents = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not authenticated');
 
+      // Permission gate: Master Account Holder only.
+      const { data: membership } = await supabase
+        .from('account_members' as any)
+        .select('role')
+        .eq('member_user_id', user.user.id)
+        .order('invited_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if ((membership as any)?.role === 'standard') {
+        toast({
+          title: 'Restricted',
+          description: 'Only the Master Account Holder can create events.',
+        });
+        return null as any;
+      }
+
       // Get browser timezone and calculate local dates
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const today = new Date();
@@ -268,6 +284,26 @@ export const useEvents = () => {
 
   const deleteEvent = async (id: string) => {
     try {
+      // Permission gate: Master Account Holder only.
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        const { data: membership } = await supabase
+          .from('account_members' as any)
+          .select('role')
+          .eq('member_user_id', authUser.id)
+          .order('invited_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        const role = (membership as any)?.role;
+        if (role === 'standard') {
+          toast({
+            title: 'Restricted',
+            description: 'Only the Master Account Holder can delete events.',
+          });
+          return;
+        }
+      }
+
       const { error } = await supabase
         .from('events')
         .delete()

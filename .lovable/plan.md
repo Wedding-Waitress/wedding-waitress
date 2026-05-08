@@ -1,67 +1,120 @@
-# Event Selection — Hardening Pass
+# Admin Gated Access & Permission Hardening — Phase 1
 
-Lightweight only. No redesign, no architecture changes.
+Surgical hardening pass. No redesigns. No new RBAC system. Foundation already exists (`account_members`, `useAccountRole`, `is_account_master`, `account_event_access`); this plan finishes wiring it through the UI and adds matching server-side guards.
 
-## 1. Add testing infrastructure (only if missing)
-- Add devDeps: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`.
-- Add `vitest.config.ts` (jsdom env, `@/` alias, `src/test/setup.ts`).
-- Add `src/test/setup.ts` (jest-dom + matchMedia stub).
-- Add `"vitest/globals"` to `tsconfig.app.json` types.
+---
 
-## 2. Tests for `useSelectedEvent`
-File: `src/hooks/useSelectedEvent.test.ts`
-- **Persistence**: `setSelectedEventId('a')` → `localStorage['ww:selected_event_id'] === 'a'`.
-- **Legacy migration**: seed `sessionStorage['ww:session_selected_event']` and `localStorage['active_event_id']`, re-import module, assert unified key holds value and legacy keys removed.
-- **Auto-recovery**: hook with stored id `'gone'` and events `[{id:'b'},{id:'c'}]` → resolves to `'b'`. Empty events → `null`.
-- **Custom events**: `ww:selected-event-set`, `ww:selected-event-cleared`, `ww:auth-cleared` update state correctly.
-- **Cross-tab**: synthetic `StorageEvent` for unified key updates hook value without remount.
-- **Multi-tab deletion**: starting with events `[A,B]` and id `A`, re-render with events `[B]` → state becomes `B`.
+## 1. Permission primitives (single source of truth)
 
-## 3. Tests for `cacheRegistry`
-File: `src/lib/cacheRegistry.test.ts`
-- All registered clearers run on `ww:auth-cleared`.
-- A throwing clearer does not stop subsequent clearers.
+Add tiny helpers so every gated surface uses identical logic:
 
-## 4. Tests for `useEvents` selection side-effects
-File: `src/hooks/useEvents.selection.test.ts` (mocks supabase client + toast)
-- `createEvent` success → `ww:selected-event-set` dispatched with new id.
-- `deleteEvent` of currently-selected event → `ww:selected-event-cleared` dispatched.
-- `SIGNED_OUT` → `ww:auth-cleared` dispatched and `eventsCache` reset.
+- `src/lib/permissions.ts` — pure mapping: `canManageBilling`, `canPurchaseEvents`, `canDeleteEvent`, `canManageUsers`, `canManageVendorPro`, `canDeleteAccount`. Each takes `{ role: AccountRole }` (and later `{ collaboratorRole }` — left as TODO comment).
+- Extend `src/hooks/useAccountRole.ts`: keep current API, add `permissions` object derived from `role` so call sites are one-liners.
+- `src/components/permissions/MasterOnly.tsx` — renders children when master; otherwise renders a **disabled clone** wrapped in a premium tooltip ("Only the Master Account Holder can manage billing and account access.").
+- `src/components/permissions/LockedTooltip.tsx` — small wrapper around shadcn `Tooltip` with brand-styled lock icon (`Lock` from lucide, `#967A59`).
 
-## 5. Refactor the one remaining direct read
-- `src/hooks/useEvents.ts` `deleteEvent`: replace `localStorage.getItem('ww:selected_event_id')` with `getSelectedEventId()` from `@/hooks/useSelectedEvent`. Keeps the hook as the only module touching the storage key.
+No styling redesign — uses existing tokens and `lv-premium-shade`.
 
-## 6. Lint guard against legacy / direct event-storage reads
-Add `scripts/check-event-storage.mjs` (run via `npm run check:storage`, also from a `pretest` script). It greps for any reference to the keys below **outside** `src/hooks/useSelectedEvent.ts`:
-- `ww:selected_event_id`
-- `ww:session_selected_event` (legacy)
-- `active_event_id` (legacy, exact-token match — won't false-positive on `activeEventId`)
+## 2. Account page gating (`/dashboard/account`)
 
-Existing per-event sort key (`guestSort_${eventId}`) and unrelated `ww:returnTab` / `ww:rsvpSelectedCount` / `ww:place_cards_selected_table` / `ww:individual_table_chart_*` keys are NOT event-id storage and are explicitly out of scope.
+`Account.tsx` is locked, so we only edit the inner cards (already structured for this). All edits are additive — no layout changes.
 
-## 7. Final verification grep + report (per user request)
-After all of the above land, run a single read-only sweep and include the output verbatim in the report:
-```
-rg -n "ww:selected_event_id|ww:session_selected_event|\bactive_event_id\b" src/
-rg -n "(local|session)Storage\.(get|set|remove)Item\(['\"]ww:" src/ \
-  | rg -v "ww:returnTab|ww:rsvpSelectedCount|ww:place_cards_|ww:individual_table_chart_"
-rg -n "selectedEventId" src/ -l | xargs -I{} rg -n "useState<string \\| null>\\(null\\)" {} -l
-```
-Confirm:
-- The only file matching the unified key is `useSelectedEvent.ts`.
-- No file outside the hook reads/writes legacy keys.
-- No component re-introduces a parallel `useState<string | null>` for event selection.
+| Card | Action | Master | Standard |
+|------|--------|--------|----------|
+| `AccountAccessCard` | Invite / Manage Users | visible (today) | hide buttons (already gated — verify) |
+| `SubscriptionCard` | "Change Plan" button | enabled | **disabled + LockedTooltip** |
+| `BillingCard` | Update card / view invoices / portal links | enabled | disabled + tooltip; invoice list stays read-only visible |
+| `UsageCard` | — | unchanged | unchanged (read-only for all) |
+| `HistoryCard` | — | unchanged | unchanged (read-only) |
+| `SecurityCard` | Change password | always enabled (own account) | always enabled |
+| `SecurityCard` | Delete account (if present) | enabled | hidden |
 
-## What is NOT changing
-- No selector UI changes.
-- No additional hooks, no context provider, no architecture rewrites.
-- Locked surfaces untouched (Landing, Dashboard shell, My Events, Tables, Guest List desktop table, auth modals).
-- Stripe / public route logic untouched.
-- Unrelated `sessionStorage` keys (`ww:returnTab`, `ww:rsvpSelectedCount`, place-cards / individual-chart selected table) remain — out of scope.
+Standard users still see plan name, usage, history → satisfies "still see plan information, account usage, collaboration visibility".
+
+## 3. Events surface gating
+
+Sensitive actions: **create event**, **delete event**, **purchase additional event**.
+
+`EventsTable.tsx` carries a production lock header. Two options:
+
+**Option A (preferred — surgical, no layout change):** gate at the handler/button props passed in from `Dashboard.tsx` / `MyEventsPage`. Pass `canDelete`/`canCreate`/`canPurchase` and let existing button render disabled with tooltip via shared `LockedTooltip`. This requires a tiny addition to `EventsTable.tsx` props and conditional `disabled` on the existing `Trash2` / `Plus` / `Buy more` buttons — additive only, no redesign.
+
+**Option B:** intercept inside the handlers (`deleteEvent`, `createEvent`, `purchaseAdditionalEvent`) and pop a `LockedSheet` instead of executing. Zero UI markup change.
+
+→ **Going with Option B** to avoid touching the locked table file. The locked file's UI stays byte-identical; the gate lives inside `useEvents.ts` (`deleteEvent`, `createEvent`) and `useAdditionalEventPurchase` (or equivalent). Returns a friendly `{ blocked: true, reason }` and the call site shows a `ComingSoonSheet`-style explanatory sheet (reuse existing `ComingSoonSheet` pattern).
+
+If you want Option A (visual disabled state in the table itself) — say so and I will treat it as explicit override of the lock header.
+
+## 4. Vendor Pro gating
+
+`useUserPlan` already exposes `plan_name`. Add `isVendorPro` derivation in `useAccountRole` result. Vendor-pro **owner** = master; vendor-pro **standard** seat = standard. Same gates from §1 apply automatically — no separate code path. Vendor-specific admin controls (capacity, seat management) get the same `MasterOnly` wrapper.
+
+## 5. Server-side guards (defense in depth)
+
+Add a single migration that closes the loopholes a determined Standard user could exploit via direct API:
+
+1. **`events` DELETE policy** — replace existing user-only delete policy with: `auth.uid() = user_id AND public.is_account_master(auth.uid())`. (Current standard members are scaffolded but cannot delete other-account events anyway because of `user_id` scoping; this just prevents a master from delegating delete to a standard seat in the future.)
+2. **`additional_event_purchases` INSERT** — keep service-role only (already enforced via edge function); add a RAISE EXCEPTION guard inside the `create-additional-event-checkout` edge function: reject if caller is not master.
+3. **`stripe-customer-portal` / `create-checkout-session` / `cancel-subscription` edge functions** — early return `403` when `is_account_master(user.id)` is false. Read JWT, call RPC, abort.
+4. **`account_members` / `account_invitations` / `event_collaborators`** — policies already restrict to `account_owner_id = auth.uid()` (master). Verify and document.
+
+No table schema changes. Migration is a few `DROP POLICY`/`CREATE POLICY` + edge function edits.
+
+## 6. Public route safety
+
+Audit-only — no edits expected. Verify:
+- `/s/:slug`, `/kiosk/:slug`, vendor share tokens, reset-password and token routes never read `useAccountRole` and never render any control gated by it.
+- Token-validated RPCs (`get_public_event_with_data_secure`, `update_guest_with_token`, etc.) do not consult `account_members` — confirmed by grep.
+
+Deliverable: a one-paragraph confirmation in the final report.
+
+## 7. Cleanup (minimal, only-if-confirmed-redundant)
+
+- Remove the legacy `requireMaster(role)` re-export if nothing imports it (`useAccountRole` now exposes `isMaster`).
+- Remove any duplicated inline `role === 'master'` checks in favor of `usePermissions()`.
+
+No other deletions.
+
+## 8. Mobile QA
+
+For each gated control: verify on 375px viewport that
+- disabled state retains brand color contrast,
+- `LockedTooltip` renders as a tap-to-show popover (not hover-only),
+- no overflow / horizontal scroll introduced,
+- `pt-6+` header rule and 44px touch targets respected.
+
+Quick screenshot pass via preview at the end.
+
+---
 
 ## Files touched
-- new: `vitest.config.ts`, `src/test/setup.ts`, `src/hooks/useSelectedEvent.test.ts`, `src/lib/cacheRegistry.test.ts`, `src/hooks/useEvents.selection.test.ts`, `scripts/check-event-storage.mjs`
-- edited: `package.json` (devDeps + scripts), `tsconfig.app.json` (types), `src/hooks/useEvents.ts` (replace direct localStorage read in `deleteEvent`)
+
+Created
+- `src/lib/permissions.ts`
+- `src/components/permissions/MasterOnly.tsx`
+- `src/components/permissions/LockedTooltip.tsx`
+- `supabase/migrations/<ts>_master_only_destructive_guards.sql`
+
+Edited
+- `src/hooks/useAccountRole.ts` (add `permissions` + `isVendorPro`)
+- `src/components/Account/SubscriptionCard.tsx` (button gate)
+- `src/components/Account/BillingCard.tsx` (button gate)
+- `src/components/Account/SecurityCard.tsx` (delete-account gate, if present)
+- `src/hooks/useEvents.ts` (`deleteEvent`, `createEvent` master guard + sheet trigger)
+- additional-event purchase hook (master guard)
+- `supabase/functions/create-checkout-session/index.ts`
+- `supabase/functions/create-additional-event-checkout/index.ts` (or current name)
+- `supabase/functions/stripe-customer-portal/index.ts`
+- `supabase/functions/cancel-subscription/index.ts` (if present)
+
+Not touched (locked)
+- `Account.tsx`, `EventsTable.tsx`, `Landing.tsx`, all public-route pages, auth modals, pricing page, Stripe architecture.
 
 ## Deliverable
-Concise hardening report: tests added with pass results, lint guard wired, the one direct-read refactor, and the verbatim final grep output proving `useSelectedEvent` is the single source of truth.
+
+After merge, report will contain:
+1. List of every action gated + UX shown to standard users.
+2. Server-side guards added.
+3. Confirmation Standard Users cannot reach billing/destructive flows (UI + API).
+4. Public route safety confirmation.
+5. Open future-role considerations (collaborator/bride/groom/venue staff/planner) noted as TODOs in `permissions.ts`.

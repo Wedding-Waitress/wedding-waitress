@@ -4,6 +4,7 @@ import { LucideIcon, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SectionCard } from './SectionCard';
 import { useAccountBilling } from '@/hooks/useAccountBilling';
+import { MasterOnly } from '@/components/permissions/MasterOnly';
 
 interface Props {
   icon: LucideIcon;
@@ -58,15 +59,17 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
               Download Invoice
               <ExternalLink className="ml-1 w-3.5 h-3.5" />
             </Button>
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
-              disabled={!data.portalUrl}
-              onClick={() => data.portalUrl && window.open(data.portalUrl, '_blank', 'noopener')}
-            >
-              Update Payment Method
-              <ExternalLink className="ml-1 w-3.5 h-3.5" />
-            </Button>
+            <MasterOnly>
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
+                disabled={!data.portalUrl}
+                onClick={() => data.portalUrl && window.open(data.portalUrl, '_blank', 'noopener')}
+              >
+                Update Payment Method
+                <ExternalLink className="ml-1 w-3.5 h-3.5" />
+              </Button>
+            </MasterOnly>
           </div>
         </>
       )}
