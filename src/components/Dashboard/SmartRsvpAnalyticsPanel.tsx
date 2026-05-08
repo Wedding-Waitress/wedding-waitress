@@ -124,9 +124,22 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         : status === 'email_sent' || status === 'mail_sent' ? 'email'
         : purchaseMethod;
       const lastSms = sms.sort((a,b) => +new Date(b.created_at) - +new Date(a.created_at))[0];
-      const failed = sms.some(l => (l.status || '').toLowerCase().includes('fail') || l.status === 'blocked');
+      const lastStatus = (lastSms?.status || '').toLowerCase();
+      const isFailedStatus = lastStatus === 'failed' || lastStatus === 'undelivered' || lastStatus === 'blocked';
+      const isDelivered = lastStatus === 'delivered';
+      const isPendingSent = lastStatus === 'queued' || lastStatus === 'sent';
+      let deliveryStatus: 'Delivered' | 'Failed' | 'Blocked' | 'Pending' = 'Pending';
+      if (lastSms) {
+        if (isDelivered) deliveryStatus = 'Delivered';
+        else if (lastStatus === 'blocked') deliveryStatus = 'Blocked';
+        else if (isFailedStatus) deliveryStatus = 'Failed';
+        else if (isPendingSent) deliveryStatus = 'Pending';
+      } else if (status && status !== 'not_sent') {
+        // fallback for email-only or pre-webhook history
+        deliveryStatus = 'Delivered';
+      }
       const resendCount = sms.length + emails.length;
-      const credits = sms.filter(l => (l.status || '').toLowerCase() === 'sent').length;
+      const credits = sms.filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
       const responded = (() => {
         const r = normalizeRsvp(g.rsvp);
         return r === 'Attending' || r === 'Not Attending';
@@ -138,14 +151,17 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         method,
         sentAt: g.rsvp_invite_sent_at || lastSms?.created_at || null,
         deliveredAt: lastSms?.delivered_at || null,
-        deliveryStatus: failed ? 'Failed' : status && status !== 'not_sent' ? 'Delivered' : 'Pending',
+        lastStatusAt: lastSms?.last_status_at || lastSms?.delivered_at || lastSms?.failed_at || null,
+        deliveryStatus,
         rsvp: normalizeRsvp(g.rsvp),
         responded,
-        failed,
+        failed: isFailedStatus,
         resendCount,
         credits,
         inviteStatus: g.rsvp_invite_status,
         rsvpRaw: g.rsvp,
+        twilioErrorCode: lastSms?.twilio_error_code || null,
+        twilioErrorMessage: lastSms?.twilio_error_message || lastSms?.error_message || null,
       };
     });
   }, [guests, smsLogs, emailLogs, purchaseMethod]);
