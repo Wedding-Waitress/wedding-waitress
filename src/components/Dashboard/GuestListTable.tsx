@@ -262,6 +262,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showOverageModal, setShowOverageModal] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false);
+  const [showIntelligencePanel, setShowIntelligencePanel] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { credits: smsCredits } = useSmsCredits(selectedEventId);
