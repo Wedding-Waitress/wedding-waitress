@@ -11,6 +11,7 @@ import { useEventLimits } from '@/hooks/useEventLimits';
 import { useAccountSeats } from '@/hooks/useAccountSeats';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { MasterOnly } from '@/components/permissions/MasterOnly';
 
 interface Props {
   icon: LucideIcon;
@@ -127,15 +128,17 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
         </div>
       </div>
       <div className="mt-6">
-        <Button
-          onClick={handleUpgrade}
-          disabled={busy}
-          className="lv-premium-shade bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
-          size="sm"
-        >
-          {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          Change Plan
-        </Button>
+        <MasterOnly>
+          <Button
+            onClick={handleUpgrade}
+            disabled={busy}
+            className="lv-premium-shade bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
+            size="sm"
+          >
+            {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            Change Plan
+          </Button>
+        </MasterOnly>
       </div>
     </SectionCard>
   );
