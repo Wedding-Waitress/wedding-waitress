@@ -2289,9 +2289,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                         {/* Bottom: invite status + actions */}
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#EDE5DB]">
-                          <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
-                            {invite.label}
-                          </Badge>
+                          <div className="flex items-center flex-wrap gap-1.5 min-w-0">
+                            <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
+                              {invite.label}
+                            </Badge>
+                            <GuestDeliveryBadges
+                              inviteStatus={guest.rsvp_invite_status}
+                              rsvp={guest.rsvp}
+                              purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                            />
+                          </div>
                           <div className="flex items-center gap-1">
                             <Button
                               variant="ghost"
