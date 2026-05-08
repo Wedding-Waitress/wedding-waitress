@@ -264,6 +264,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
+  const { credits: smsCredits } = useSmsCredits(selectedEventId);
+  const smsHealth = getCreditHealth(smsCredits.remaining, smsCredits.total);
+  const smsEmpty = smsHealth.state === 'empty';
+  const smsLowCredit = smsHealth.state === 'critical' || smsHealth.state === 'empty';
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
 
   // RSVP payment-success return handler: close bulk modal, clear selection,
