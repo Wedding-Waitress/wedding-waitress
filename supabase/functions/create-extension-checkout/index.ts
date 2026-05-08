@@ -35,6 +35,18 @@ serve(async (req) => {
     const user = userData.user;
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Master-only guard for billing/checkout flows.
+    {
+      const { data: isMaster } = await supabase.rpc("is_account_master", { _user_id: user.id });
+      if (isMaster === false) {
+        logStep("Blocked non-master extension checkout", { userId: user.id });
+        return new Response(
+          JSON.stringify({ error: "Only the Master Account Holder can manage billing." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     const { price_id, extension_months } = await req.json();
     if (!price_id || !extension_months) throw new Error("price_id and extension_months required");
 
