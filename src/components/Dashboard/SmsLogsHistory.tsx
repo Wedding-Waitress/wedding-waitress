@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Mail, MessageSquare } from 'lucide-react';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 
 interface LogRow {
   id: string;
@@ -52,6 +55,7 @@ const MethodBadge = ({ method }: { method?: string | null }) => {
 export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
   const [rows, setRows] = useState<LogRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [methodFilter, setMethodFilter] = useState<'all' | 'email' | 'sms' | 'both'>('all');
 
   useEffect(() => {
     if (!eventId) return;
@@ -98,14 +102,33 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
 
   if (!eventId) return null;
 
+  const filteredRows = methodFilter === 'all'
+    ? rows
+    : rows.filter(r => (r.delivery_method ?? 'sms').toLowerCase() === methodFilter);
+
   return (
     <Card className="p-4 space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <h3 className="text-sm font-semibold">SMS history</h3>
-        {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        <div className="flex items-center gap-2">
+          <Select value={methodFilter} onValueChange={(v) => setMethodFilter(v as typeof methodFilter)}>
+            <SelectTrigger className="h-8 w-[150px] text-xs">
+              <SelectValue placeholder="Filter method" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All methods</SelectItem>
+              <SelectItem value="email">Email only</SelectItem>
+              <SelectItem value="sms">SMS only</SelectItem>
+              <SelectItem value="both">Email + SMS</SelectItem>
+            </SelectContent>
+          </Select>
+          {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        </div>
       </div>
-      {rows.length === 0 && !loading ? (
-        <p className="text-sm text-muted-foreground">No SMS sent yet.</p>
+      {filteredRows.length === 0 && !loading ? (
+        <p className="text-sm text-muted-foreground">
+          {rows.length === 0 ? 'No SMS sent yet.' : 'No entries match this filter.'}
+        </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -120,7 +143,7 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
               </tr>
             </thead>
             <tbody>
-              {rows.map(r => (
+              {filteredRows.map(r => (
                 <tr key={r.id} className="border-t border-border/50">
                   <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="py-1.5 pr-3">{r.guest_name}</td>

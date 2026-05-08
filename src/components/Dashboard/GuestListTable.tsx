@@ -96,6 +96,9 @@ import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
 import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
+import { ResendSmartRsvpModal } from './ResendSmartRsvpModal';
+import { DeliveryAnalyticsPanel } from './DeliveryAnalyticsPanel';
+import { SmsLogsHistory } from './SmsLogsHistory';
 import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
 import { CheckCircle2 } from 'lucide-react';
@@ -254,6 +257,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
   const [showOverageModal, setShowOverageModal] = useState(false);
+  const [showResendModal, setShowResendModal] = useState(false);
+  const [showSmartPanel, setShowSmartPanel] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
@@ -1630,6 +1635,35 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 )}
               </div>
 
+              {/* Smart RSVP & Messaging — analytics & resend (visible once activated) */}
+              {hasRsvpPurchase && selectedEventId && (
+                <div className="mb-4 space-y-2">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setShowSmartPanel((v) => !v)}
+                      className="text-xs font-medium text-primary hover:underline lv-premium-shade rounded px-2 py-1"
+                    >
+                      {showSmartPanel ? 'Hide' : 'Show'} Smart RSVP analytics & history
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowResendModal(true)}
+                      className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90"
+                      title="Resend Smart RSVP to a precise audience"
+                    >
+                      Resend Smart RSVP
+                    </button>
+                  </div>
+                  {showSmartPanel && (
+                    <div className="space-y-3">
+                      <DeliveryAnalyticsPanel eventId={selectedEventId} />
+                      <SmsLogsHistory eventId={selectedEventId} />
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Inline RSVP success banner (auto-hides ~8s) */}
               {rsvpSuccessBanner && (
                 <div
@@ -2938,7 +2972,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           tierLabel={rsvpPurchase?.guest_tier_label || ''}
         />
 
-        {/* Guest Limit Dialog */}
+        {/* Resend Smart RSVP — precision re-targeting */}
+        <ResendSmartRsvpModal
+          isOpen={showResendModal}
+          onClose={() => setShowResendModal(false)}
+          eventId={selectedEventId}
+          onSend={async (channel, guestIds) => {
+            if (!selectedEventId || guestIds.length === 0) return false;
+            const result = channel === 'email'
+              ? await sendEmailInvites(selectedEventId, guestIds)
+              : await sendSmsInvites(selectedEventId, guestIds);
+            if (result) await refetchGuests();
+            return !!result;
+          }}
+        />
+
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
