@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';
 import { RunningSheetSection } from '@/components/Dashboard/RunningSheet/RunningSheetSection';
 import { RunningSheetItem } from '@/types/runningSheet';
+import { decodeShareToken } from '@/lib/shareTokens';
 
 interface RunningSheetData {
   sheet_id: string;
