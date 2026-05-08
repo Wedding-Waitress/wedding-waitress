@@ -123,26 +123,107 @@ export interface DietaryInsights {
   pctOfAttending: number;
   breakdown: Array<{ tag: string; count: number }>;
   topTag: string | null;
+  // Extended
+  attendingTotal: number;
+  totalGuests: number;
+  missing: number; // attending guests with no dietary info
+  completionPct: number; // recorded (with or without 'none') / attending
+  categories: Array<{ key: string; label: string; count: number; tone: 'neutral' | 'warning' }>;
+  alerts: Array<{ key: string; label: string; count: number }>;
+  topCategory: { label: string; count: number } | null;
+  attentionNotes: Array<{ id: string; text: string }>;
 }
+
+const CATEGORY_DEFS: Array<{ key: string; label: string; patterns: RegExp; tone: 'neutral' | 'warning' }> = [
+  { key: 'vegetarian', label: 'Vegetarian', patterns: /\bveg(etarian)?\b/i, tone: 'neutral' },
+  { key: 'vegan', label: 'Vegan', patterns: /\bvegan\b/i, tone: 'neutral' },
+  { key: 'halal', label: 'Halal', patterns: /\bhalal\b/i, tone: 'neutral' },
+  { key: 'kosher', label: 'Kosher', patterns: /\bkosher\b/i, tone: 'neutral' },
+  { key: 'gluten_free', label: 'Gluten-Free', patterns: /gluten[\s-]?free|\bgf\b|coeliac|celiac/i, tone: 'neutral' },
+  { key: 'dairy_free', label: 'Dairy-Free', patterns: /dairy[\s-]?free|lactose/i, tone: 'neutral' },
+  { key: 'nut_allergy', label: 'Nut Allergy', patterns: /\bnut(s)?\b|peanut|almond|cashew/i, tone: 'warning' },
+  { key: 'shellfish', label: 'Shellfish Allergy', patterns: /shellfish|prawn|shrimp|crab|lobster/i, tone: 'warning' },
+  { key: 'egg', label: 'Egg Allergy', patterns: /\begg(s)?\b/i, tone: 'warning' },
+  { key: 'soy', label: 'Soy', patterns: /\bsoy\b|soya/i, tone: 'neutral' },
+  { key: 'pescatarian', label: 'Pescatarian', patterns: /pescatarian|fish only/i, tone: 'neutral' },
+  { key: 'kids_meal', label: 'Kids Meal', patterns: /kid(s)?|child(ren)?/i, tone: 'neutral' },
+];
+
+const isMissingDietary = (d: string) => {
+  const v = d.trim().toLowerCase();
+  return !v || v === 'na' || v === 'n/a' || v === 'none' || v === 'no' || v === '-';
+};
 
 export const computeDietaryInsights = (guests: Guest[]): DietaryInsights => {
   const attending = guests.filter(g => normalizeRsvp(g.rsvp) === 'Attending');
   const map = new Map<string, number>();
+  const catCounts = new Map<string, number>();
   let totalWithDietary = 0;
-  for (const g of guests) {
+  let missing = 0;
+  let othersCount = 0;
+
+  for (const g of attending) {
     const d = (g.dietary || '').trim();
-    if (!d || d.toLowerCase() === 'none' || d.toLowerCase() === 'no') continue;
+    if (isMissingDietary(d)) {
+      missing++;
+      continue;
+    }
     totalWithDietary++;
     map.set(d, (map.get(d) ?? 0) + 1);
+    let matched = false;
+    for (const def of CATEGORY_DEFS) {
+      if (def.patterns.test(d)) {
+        catCounts.set(def.key, (catCounts.get(def.key) ?? 0) + 1);
+        matched = true;
+      }
+    }
+    if (!matched) othersCount++;
   }
+
   const breakdown = Array.from(map.entries())
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => b.count - a.count);
+
+  const categories = CATEGORY_DEFS
+    .map(d => ({ key: d.key, label: d.label, count: catCounts.get(d.key) ?? 0, tone: d.tone }))
+    .filter(c => c.count > 0);
+  if (othersCount > 0) categories.push({ key: 'other', label: 'Other', count: othersCount, tone: 'neutral' });
+
+  const alerts = categories
+    .filter(c => c.tone === 'warning')
+    .map(c => ({ key: c.key, label: c.label, count: c.count }));
+
+  const topCategory = categories.length
+    ? [...categories].sort((a, b) => b.count - a.count)[0]
+    : null;
+
+  const attentionNotes: Array<{ id: string; text: string }> = [];
+  const halal = catCounts.get('halal') ?? 0;
+  const kids = catCounts.get('kids_meal') ?? 0;
+  const allergyTotal = alerts.reduce((s, a) => s + a.count, 0);
+  if (halal >= 5) attentionNotes.push({ id: 'halal', text: `Large halal guest count (${halal}) — coordinate with caterer.` });
+  if (kids >= 3) attentionNotes.push({ id: 'kids', text: `${kids} kids meals — confirm child-friendly menu options.` });
+  if (allergyTotal >= 3) attentionNotes.push({ id: 'allergies', text: `${allergyTotal} allergy-sensitive guests — flag plates clearly.` });
+  if (attending.length > 0 && missing / attending.length > 0.3) {
+    attentionNotes.push({ id: 'missing', text: `Over 30% of attending guests are missing dietary info.` });
+  }
+
+  const recorded = totalWithDietary + (attending.length - totalWithDietary - missing); // recorded includes "none"
+  const completionPct = attending.length ? Math.max(0, Math.min(1, (attending.length - missing) / attending.length)) : 0;
+
   return {
     totalWithDietary,
     pctOfAttending: attending.length ? totalWithDietary / attending.length : 0,
     breakdown: breakdown.slice(0, 6),
     topTag: breakdown[0]?.tag ?? null,
+    attendingTotal: attending.length,
+    totalGuests: guests.length,
+    missing,
+    completionPct,
+    categories: categories.sort((a, b) => b.count - a.count),
+    alerts,
+    topCategory: topCategory ? { label: topCategory.label, count: topCategory.count } : null,
+    attentionNotes,
   };
 };
 
