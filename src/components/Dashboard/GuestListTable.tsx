@@ -3108,6 +3108,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             date: (selectedEvent as any).date ?? null,
             rsvp_deadline: (selectedEvent as any).rsvp_deadline ?? null,
             guest_limit: (selectedEvent as any).guest_limit ?? null,
+            partner1_name: (selectedEvent as any).partner1_name ?? null,
+            partner2_name: (selectedEvent as any).partner2_name ?? null,
           } : null}
         />
 
