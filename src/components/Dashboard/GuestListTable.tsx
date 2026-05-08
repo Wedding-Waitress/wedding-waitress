@@ -606,23 +606,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
   };
 
-  // Load selected event from localStorage on mount only if no prop provided
-  useEffect(() => {
-    if (propSelectedEventId === undefined) {
-      const savedEventId = localStorage.getItem('active_event_id');
-      if (savedEventId && events.some(event => event.id === savedEventId)) {
-        setLocalSelectedEventId(savedEventId);
-        
-        // Load saved sort preference for this event
-        const savedSort = localStorage.getItem(`guestSort_${savedEventId}`);
-        if (savedSort && SORT_OPTIONS.some(opt => opt.value === savedSort)) {
-          setSortBy(savedSort as SortOption);
-        } else {
-          setSortBy('first_name');
-        }
-      }
-    }
-  }, [events, propSelectedEventId]);
+  // Selection persistence handled centrally by useSelectedEvent (Dashboard).
+  // Sort preference for the standalone case is loaded when the user picks an event below.
 
 
   // Save sort preference when changed
