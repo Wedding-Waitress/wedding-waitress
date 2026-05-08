@@ -14,6 +14,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { RunningSheetItem, RunningSheetShareToken } from '@/types/runningSheet';
+import { registerCache } from '@/lib/cacheRegistry';
 
 interface RunningSheetData {
   id: string;
@@ -40,6 +41,7 @@ const DEFAULT_ROWS: Omit<RunningSheetItem, 'id' | 'sheet_id' | 'created_at' | 'u
 
 // Module-level cache so data persists across tab switches / remounts
 const sheetCache = new Map<string, { sheet: RunningSheetData; sectionLabel: string; sectionNotes: string | null; shareTokens: RunningSheetShareToken[] }>();
+registerCache(() => { sheetCache.clear(); });
 
 // Self-save cooldown: ignore realtime events within this window after a local save
 const SELF_SAVE_COOLDOWN_MS = 2000;

@@ -14,6 +14,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface Guest {
   id: string;
@@ -45,6 +46,7 @@ export interface Guest {
 
 // Module-level cache for instant loading on tab switches
 const guestDataCache = new Map<string, Guest[]>();
+registerCache(() => { guestDataCache.clear(); });
 
 export const useGuests = (eventId: string | null) => {
   const cached = eventId ? guestDataCache.get(eventId) : undefined;

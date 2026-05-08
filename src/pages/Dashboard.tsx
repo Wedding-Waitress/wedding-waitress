@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Undo2 } from "lucide-react";
 import { normalizeRsvp } from '@/lib/rsvp';
 import { useEvents } from '@/hooks/useEvents';
+import { useSelectedEvent } from '@/hooks/useSelectedEvent';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
@@ -97,8 +98,7 @@ export const Dashboard = () => {
     const urlTab = searchParams.get('tab') || 'dashboard';
     if (urlTab !== activeTab) setActiveTabState(urlTab);
   }, [searchParams, activeTab]);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [globalSelectedEventId, setGlobalSelectedEventId] = useState<string | null>(null);
+  
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const navigate = useNavigate();
@@ -118,6 +118,17 @@ export const Dashboard = () => {
     setActiveEventId: setEventsActiveEventId,
     refetch: refetchEvents
   } = useEvents();
+
+  // Unified global event selection (single source of truth across all dashboard tabs).
+  const {
+    selectedEventId,
+    selectedEvent,
+    setSelectedEventId,
+  } = useSelectedEvent(events);
+  // Backward-compat aliases — both names now refer to the same value.
+  const globalSelectedEventId = selectedEventId;
+  const setGlobalSelectedEventId = setSelectedEventId;
+
   const {
     profile,
     loading: profileLoading,
@@ -182,28 +193,11 @@ export const Dashboard = () => {
     onRefreshTables: fetchTables
   });
 
-  // Get selected event for tables
-  const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+  // Get selected event type (selectedEvent now comes from useSelectedEvent above)
   const selectedEventType = selectedEvent?.event_type || 'seated';
 
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
-
-  // Load selected event from sessionStorage ONCE on mount (GLOBAL - session-scoped)
-  const hasInitialized = useRef(false);
-  useEffect(() => {
-    // Only initialize once, and only if we have events and haven't set an event yet
-    if (hasInitialized.current || events.length === 0 || selectedEventId !== null) {
-      return;
-    }
-    
-    const savedEventId = sessionStorage.getItem('ww:session_selected_event');
-    if (savedEventId && events.find(e => e.id === savedEventId)) {
-      setGlobalSelectedEventId(savedEventId);
-      setSelectedEventId(savedEventId);
-      hasInitialized.current = true;
-    }
-  }, [events.length, selectedEventId]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
@@ -233,12 +227,10 @@ export const Dashboard = () => {
     };
   }, [selectedEventId]);
 
-  // Handle GLOBAL event selection (used by all pages)
+  // Handle GLOBAL event selection (used by all pages) — writes through useSelectedEvent.
   const handleGlobalEventSelect = (eventId: string) => {
     if (eventId === "no-event") return;
-    setGlobalSelectedEventId(eventId);
-    setSelectedEventId(eventId); // Keep backward compatibility
-    sessionStorage.setItem('ww:session_selected_event', eventId);
+    setSelectedEventId(eventId);
   };
   
   // Legacy handler (for backward compatibility)

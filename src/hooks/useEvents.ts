@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface Event {
   id: string;
@@ -49,7 +50,7 @@ export interface Event {
 
 // Module-level cache for instant loading on return visits
 let eventsCache: Event[] | null = null;
-
+registerCache(() => { eventsCache = null; });
 export const useEvents = () => {
   const [events, setEvents] = useState<Event[]>(eventsCache ?? []);
   const [loading, setLoading] = useState(!eventsCache);
@@ -216,6 +217,10 @@ export const useEvents = () => {
       // Set the newly created event as active immediately
       setActiveEventId(data.id);
       await updateDisplayCountdownEvent(data.id);
+      // Promote new event to global selected event
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('ww:selected-event-set', { detail: data.id }));
+      }
       
       await fetchEvents();
       toast({
@@ -273,6 +278,13 @@ export const useEvents = () => {
       if (activeEventId === id) {
         setActiveEventId(null);
       }
+      // Clear global selection if it was the deleted event
+      if (typeof window !== 'undefined') {
+        const stored = window.localStorage.getItem('ww:selected_event_id');
+        if (stored === id) {
+          window.dispatchEvent(new Event('ww:selected-event-cleared'));
+        }
+      }
       
       toast({
         title: "Success",
@@ -306,9 +318,9 @@ export const useEvents = () => {
       // Initial fetch for authenticated users
       fetchEvents();
 
-      // Set up realtime subscription for this user's events
+      // Set up realtime subscription for this user's events (channel name unique per user to avoid collisions on remounts)
       const channel = supabase
-        .channel('events-changes')
+        .channel(`events-changes:${user.id}`)
         .on(
           'postgres_changes',
           {
@@ -342,6 +354,10 @@ export const useEvents = () => {
         setEvents([]);
         setActiveEventId(null);
         setLoading(false);
+        // Clear all module-level caches and global selection
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('ww:auth-cleared'));
+        }
       }
     });
 

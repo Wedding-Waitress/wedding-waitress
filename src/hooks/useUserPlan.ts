@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface UserPlan {
   plan_name: string;
@@ -17,6 +18,7 @@ export interface UserPlan {
 
 // Module-level cache for instant loading
 let planCache: UserPlan | null = null;
+registerCache(() => { planCache = null; });
 
 export const useUserPlan = () => {
   const [plan, setPlan] = useState<UserPlan | null>(planCache);
