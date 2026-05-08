@@ -38,7 +38,7 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
       try {
         const { data: logs } = await supabase
           .from('sms_send_logs')
-          .select('id, created_at, to_masked, status, twilio_sid, error_message, guest_id')
+          .select('id, created_at, to_masked, status, twilio_sid, error_message, guest_id, delivery_method')
           .eq('event_id', eventId)
           .order('created_at', { ascending: false })
           .limit(limit);
