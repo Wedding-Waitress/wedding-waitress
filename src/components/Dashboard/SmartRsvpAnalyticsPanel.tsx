@@ -165,7 +165,6 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         // fallback for email-only or pre-webhook history
         deliveryStatus = 'Delivered';
       }
-      const resendCount = sms.length + emails.length;
       const credits = sms.filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
       const responded = (() => {
         const r = normalizeRsvp(g.rsvp);
