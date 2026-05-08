@@ -13,6 +13,7 @@ import { DJMCSection, DJMCItem, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES } from '@/lib/djMCQuestionnaireTemplates';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { DJMCQuestionnaireSection } from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection';
+import { decodeShareToken, sameShareToken } from '@/lib/shareTokens';
 
 interface PublicQuestionnaireData {
   questionnaire_id: string;
