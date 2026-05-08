@@ -50,6 +50,8 @@ interface Event {
   ceremony_venue_address?: string | null;
   ceremony_venue_phone?: string | null;
   ceremony_venue_contact?: string | null;
+  ceremony_venue_contact_email?: string | null;
+  venue_contact_email?: string | null;
   ceremony_guest_limit?: number | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
@@ -82,6 +84,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     ceremony_venue_address: '',
     ceremony_venue_phone: '',
     ceremony_venue_contact: '',
+    ceremony_venue_contact_email: '',
     ceremony_guest_limit: '' as string | number,
     ceremony_start_time: '',
     ceremony_finish_time: '',
@@ -96,6 +99,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     venue_address: '',
     venue_phone: '',
     venue_contact: '',
+    venue_contact_email: '',
     start_time: '',
     finish_time: '',
     guest_limit: '' as string | number,
@@ -137,6 +141,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_venue_address: 'venue_address',
         ceremony_venue_phone: 'venue_phone',
         ceremony_venue_contact: 'venue_contact',
+        ceremony_venue_contact_email: 'venue_contact_email',
       };
       for (const [srcKey, destKey] of Object.entries(syncMap)) {
         if (!receptionOverrides.has(destKey)) {
