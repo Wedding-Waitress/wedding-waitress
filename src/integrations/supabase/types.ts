@@ -1107,6 +1107,63 @@ export type Database = {
           },
         ]
       }
+      guest_activities: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["guest_activity_type"]
+          channel: Database["public"]["Enums"]["guest_activity_channel"]
+          created_at: string
+          event_id: string
+          guest_id: string
+          id: string
+          metadata: Json
+          occurred_at: string
+          status: Database["public"]["Enums"]["guest_activity_status"]
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["guest_activity_type"]
+          channel?: Database["public"]["Enums"]["guest_activity_channel"]
+          created_at?: string
+          event_id: string
+          guest_id: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          status?: Database["public"]["Enums"]["guest_activity_status"]
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["guest_activity_type"]
+          channel?: Database["public"]["Enums"]["guest_activity_channel"]
+          created_at?: string
+          event_id?: string
+          guest_id?: string
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          status?: Database["public"]["Enums"]["guest_activity_status"]
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_activities_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_activities_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_communication_preferences: {
         Row: {
           created_at: string | null
@@ -3188,6 +3245,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_guest_activity: {
+        Args: {
+          _activity_type: Database["public"]["Enums"]["guest_activity_type"]
+          _channel?: Database["public"]["Enums"]["guest_activity_channel"]
+          _guest_id: string
+          _metadata?: Json
+          _occurred_at?: string
+          _status?: Database["public"]["Enums"]["guest_activity_status"]
+          _summary?: string
+        }
+        Returns: string
+      }
       log_sms_send: {
         Args: {
           _delivery_method?: string
@@ -3376,6 +3445,23 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "collaborator" | "owner"
+      guest_activity_channel: "email" | "sms" | "whatsapp" | "system" | "web"
+      guest_activity_status: "success" | "failure" | "pending" | "info"
+      guest_activity_type:
+        | "invited_email"
+        | "invited_sms"
+        | "delivered"
+        | "opened"
+        | "clicked"
+        | "responded"
+        | "resent"
+        | "reminder_sent"
+        | "rsvp_changed"
+        | "plus_one_added"
+        | "note_added"
+        | "bounced"
+        | "failed"
+        | "unsubscribed"
       sms_delivery_status:
         | "queued"
         | "sent"
@@ -3511,6 +3597,24 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "collaborator", "owner"],
+      guest_activity_channel: ["email", "sms", "whatsapp", "system", "web"],
+      guest_activity_status: ["success", "failure", "pending", "info"],
+      guest_activity_type: [
+        "invited_email",
+        "invited_sms",
+        "delivered",
+        "opened",
+        "clicked",
+        "responded",
+        "resent",
+        "reminder_sent",
+        "rsvp_changed",
+        "plus_one_added",
+        "note_added",
+        "bounced",
+        "failed",
+        "unsubscribed",
+      ],
       sms_delivery_status: [
         "queued",
         "sent",
