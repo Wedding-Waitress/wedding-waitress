@@ -267,16 +267,26 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const now = Date.now();
     let out = rows.filter(r => {
       if (q && !(r.name.toLowerCase().includes(q) || r.contact.toLowerCase().includes(q))) return false;
       if (methodFilter !== 'all' && r.method !== methodFilter) return false;
+      if (urgencyFilter === 'no_response_7d') {
+        if (r.responded || !r.sentAtMs || (now - r.sentAtMs) < 7 * 86_400_000) return false;
+      } else if (urgencyFilter === 'failed_delivery') {
+        if (r.deliveryStatus !== 'Failed' && r.deliveryStatus !== 'Blocked') return false;
+      } else if (urgencyFilter === 'needs_attention') {
+        if (!(r.intel === 'needs_followup' || r.intel === 'multiple_resends' || r.intel === 'delivery_issue')) return false;
+      } else if (urgencyFilter === 'recent_response') {
+        if (!r.responded || !r.respondedAt || (now - r.respondedAt) > 7 * 86_400_000) return false;
+      }
       return true;
     });
     if (sortKey === 'name') out = out.sort((a,b) => a.name.localeCompare(b.name));
     else if (sortKey === 'sent') out = out.sort((a,b) => +new Date(b.sentAt || 0) - +new Date(a.sentAt || 0));
     else if (sortKey === 'status') out = out.sort((a,b) => a.deliveryStatus.localeCompare(b.deliveryStatus));
     return out;
-  }, [rows, search, methodFilter, sortKey]);
+  }, [rows, search, methodFilter, sortKey, urgencyFilter]);
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleString() : '—';
   const relTime = (d: string | null) => {
