@@ -450,7 +450,22 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                     <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No matching guests.</td></tr>
                   ) : filtered.map(r => (
                     <tr key={r.id} className="border-t border-border/60">
-                      <td className="px-3 py-2 font-medium text-foreground">{r.name || '—'}</td>
+                      <td className="px-3 py-2 font-medium text-foreground">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span>{r.name || '—'}</span>
+                          {r.intel && (() => {
+                            const map: Record<Exclude<IntelTag, null>, { label: string; cls: string }> = {
+                              fast_responder: { label: 'Fast Responder', cls: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+                              needs_followup: { label: 'Needs Follow-Up', cls: 'border-amber-200 bg-amber-50 text-amber-700' },
+                              multiple_resends: { label: 'Multiple Resends', cls: 'border-orange-200 bg-orange-50 text-orange-700' },
+                              delivery_issue: { label: 'Delivery Issue', cls: 'border-red-200 bg-red-50 text-red-700' },
+                              vip_pending: { label: 'VIP Pending', cls: 'border-primary/30 bg-primary/5 text-primary' },
+                            };
+                            const t = map[r.intel];
+                            return <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${t.cls}`}>{t.label}</span>;
+                          })()}
+                        </div>
+                      </td>
                       <td className="px-3 py-2">
                         <GuestDeliveryBadges
                           inviteStatus={r.inviteStatus}
