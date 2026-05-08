@@ -99,7 +99,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
       try {
         const [g, s, e, p] = await Promise.all([
           supabase.from('guests')
-            .select('id, first_name, last_name, email, mobile, rsvp, rsvp_invite_status, rsvp_invite_sent_at')
+            .select('id, first_name, last_name, email, mobile, rsvp, rsvp_invite_status, rsvp_invite_sent_at, rsvp_date')
             .eq('event_id', eventId),
           supabase.from('sms_send_logs')
             .select('guest_id, status, delivery_method, created_at, delivered_at, failed_at, last_status_at, error_message, twilio_error_code, twilio_error_message')
