@@ -58,6 +58,15 @@ export const getRsvpTier = (guestCount: number) => {
   return RSVP_TIERS.find(t => guestCount >= t.min && guestCount <= t.max) ?? RSVP_TIERS[RSVP_TIERS.length - 1];
 };
 
+// ── Smart RSVP & Messaging — SMS Top-up (one-time, 250 credits) ────
+export const SMS_TOPUP = {
+  product_id: 'prod_UTh041rdR91og1',
+  price_id: 'price_1TUjcr5GzTmqOxGKFoK9ZKrZ',
+  name: 'Smart RSVP & Messaging — SMS Top-up (250 credits)',
+  price_aud: 99,
+  credits: 250,
+} as const;
+
 // ── RSVP Invite Overage (one-time, $10 AUD per 10 extra guests) ────
 export const RSVP_OVERAGE = {
   product_id: 'prod_URud0pt0K8Sl9i',
