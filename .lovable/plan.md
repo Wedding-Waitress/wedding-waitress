@@ -1,137 +1,63 @@
+## Smart RSVP & Messaging — Final Hardening
 
-# Smart RSVP & Messaging — Final Implementation Plan
+Two small additions before declaring production-ready, then final QA.
 
-Move SMS from "users bring their own Twilio" to a fully managed Wedding Waitress messaging service, and rebrand the existing $99 RSVP unlock as **Smart RSVP & Messaging** with **250 SMS credits** included and $99 + GST top-up packs.
+### 1. Delivery-status readiness in `sms_send_logs`
 
----
+Migration:
+- Replace the existing free-text `status` with a Postgres enum `sms_delivery_status` containing: `queued`, `sent`, `delivered`, `undelivered`, `failed`, `blocked`.
+- Add nullable columns: `delivered_at timestamptz`, `last_status_at timestamptz default now()`, `error_code text` (Twilio numeric error code, separate from `error` message).
+- Add unique index on `twilio_sid` (partial, where not null) so future webhooks can upsert by SID.
+- Add index on `(event_id, last_status_at desc)` for history view performance.
+- Update `log_sms_send` RPC to accept the enum and set `last_status_at = now()`.
+- Add (but do not wire yet) a `update_sms_delivery_status(_twilio_sid, _status, _error_code, _error)` SECURITY DEFINER RPC — placeholder for the future webhook.
 
-## 1. Database (single new migration)
+Code:
+- `sms-service.ts`: write initial log as `queued` immediately before the Twilio call, then update to `sent`/`failed`/`blocked` after the response (so future webhook updates flow naturally from `sent → delivered/undelivered`).
+- `SmsLogsHistory.tsx`: render the new statuses with appropriate badge colors; gracefully handle rows still on the old values.
 
-### `sms_pricing_constants` (single-row config table for future flexibility)
-- `id` (singleton), `included_credits` (default 250), `topup_credits` (default 250), `topup_price_aud` (default 99), `gst_rate` (default 0.10)
-- Read-only to clients; admin-only writes via RLS.
+No webhook endpoint, no Twilio status-callback wiring — schema and helpers only.
 
-### `sms_credits`
-- `user_id`, `event_id`, `total`, `used`, `remaining` (generated `total - used`), `last_topup_at`, timestamps
-- Unique on (`user_id`, `event_id`)
-- RLS: owner-select only; all writes via SECURITY DEFINER RPCs.
+### 2. Anti-double-click / duplicate-checkout protection
 
-### `sms_send_logs` (audit)
-- `user_id`, `event_id`, `guest_id`, `to_masked` (last 4 digits), `twilio_sid`, `status` (`sent`/`failed`), `error_message`, `created_at`
-- Owner-select only.
+`useSmsTopup`:
+- Guard re-entry with a ref (`inFlightRef`) in addition to the `loading` state so rapid double-clicks before React re-renders are also blocked.
+- Use the existing `PaymentProcessingContext` (`startProcessing`) on click and only `stopProcessing` on error — successful path keeps the global overlay through the Stripe redirect, matching how other purchases behave.
+- Idempotency: pass a generated `idempotency_key` (uuid, stable per click attempt) in the `create-checkout` body so a retried invoke cannot create two Stripe sessions; `create-checkout` forwards it as Stripe's `Idempotency-Key` header on `checkout.sessions.create`.
 
-### RPCs (all SECURITY DEFINER, search_path=public)
-- `get_sms_credits(_user_id, _event_id) → { total, used, remaining }`
-- `add_sms_credits(_user_id, _event_id, _amount, _source) → void` — upsert + increment, set `last_topup_at`
-- `consume_sms_credit(_user_id, _event_id, _guest_id, _twilio_sid) → boolean` — atomic `UPDATE … WHERE remaining > 0 RETURNING true`; only called **after** Twilio success
-- `log_sms_send(_user_id, _event_id, _guest_id, _to_masked, _twilio_sid, _status, _error) → void`
+`SmsCreditMeter.tsx` (and any other top-up CTA):
+- Disable the button as soon as it's clicked using both `topupLoading` and the global `processing` flag.
+- Show a `Loader2` spinner + "Starting checkout…" label while pending.
+- Add `aria-busy` and `pointer-events-none` for safety.
 
-### Backfill (in same migration)
-- For every user with a completed `rsvp_invite_purchases` (`purchase_type='rsvp_tier'` or legacy NULL): insert one `sms_credits` row with `total=250, used=0` if missing.
+`create-checkout` edge function:
+- Accept optional `idempotency_key`; if present, pass `{ idempotencyKey }` as the Stripe request options. No behavior change when absent.
 
----
+### 3. Final QA + deployment verification
 
-## 2. Stripe & checkout
+Audit pass (ripgrep) across the repo for any remaining:
+- "Connect Twilio" / "Twilio credentials" / "twilio_account_sid" UI strings or fields
+- Old `notification_settings` Twilio columns referenced anywhere
+- Hard-coded SMS pricing or 250-credit literals outside `stripePrices.ts` / `sms_pricing_constants`
+- Top-up CTAs missing the disabled/loading guard
+- Edge function imports/paths
 
-- Reuse the existing $99 RSVP tier price as the **Smart RSVP & Messaging activation price** (label change only — no new Stripe product).
-- Create one new Stripe price: **SMS Top-up — 250 credits — $99 AUD** via the Stripe tool. Save id in `src/lib/stripePrices.ts` as `SMS_TOPUP`.
-- New edge function `create-sms-topup-checkout`: takes `event_id`, creates a one-time Stripe Checkout session with `metadata: { type: 'sms_topup', user_id, event_id }`.
-- `verify-payment`: add two branches
-  - Smart RSVP activation completion → call `add_sms_credits(user_id, event_id, 250, 'activation')`
-  - `metadata.type='sms_topup'` completion → call `add_sms_credits(user_id, event_id, 250, 'topup')` and insert a `rsvp_invite_purchases` row with `purchase_type='sms_topup'` for billing history.
+Manual + tool checks:
+- Deploy `send-rsvp-sms`, `verify-payment`, `create-checkout`; tail logs for cold-start errors.
+- `supabase--curl_edge_functions` smoke tests: top-up checkout creation, send-sms with zero credits (expect `blocked`), send-sms happy path on a test event.
+- Verify `useSmsCredits` realtime updates after a simulated `consume_sms_credit`.
+- Confirm `SmsLogsHistory` renders new + legacy rows.
+- Verify Account → Usage shows credit balance correctly.
 
----
+### Deliverables at the end
 
-## 3. Edge function: `send-rsvp-sms` (rewrite)
+- Files changed list
+- New migration summary
+- New/updated edge functions
+- Stripe flow recap (initial grant + $99 top-up, idempotent)
+- Testing checklist with pass/fail
+- Any remaining manual steps (Twilio status-callback URL config — deferred until webhook is built)
 
-- Remove ALL reads from `notification_settings`.
-- Use platform secrets only:
-  - **Primary**: `TWILIO_MESSAGING_SERVICE_SID` → POST with `MessagingServiceSid`
-  - **Fallback**: if not set, use `TWILIO_PHONE_NUMBER` as `From`
-  - Auth always uses `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN`
-- For each guest in the batch:
-  1. Pre-check: if `get_sms_credits().remaining <= 0` → stop loop, return `{ sent, failed, skipped, blocked: true, error: 'SMS credits exhausted' }`
-  2. Call Twilio
-  3. Only on Twilio success **AND** valid `sid` returned → `consume_sms_credit(...)`
-  4. On any Twilio failure → do **not** consume; call `log_sms_send(status='failed', error)`; continue to next guest
-- 1 successful Twilio send = exactly 1 credit deducted (per-message accounting confirmed).
-- Returns `{ sent, failed, skipped, credits_remaining }`.
+### Locked surfaces
 
----
-
-## 4. Reusable service layer
-
-New file `supabase/functions/_shared/sms-service.ts` exporting:
-- `getCredits(adminClient, userId, eventId)`
-- `consumeCredit(adminClient, userId, eventId, guestId, twilioSid)`
-- `logSend(adminClient, ...)`
-- `sendTwilioSms({ to, body })` — handles MessagingService/Phone fallback in one place
-- `sendBulkSms({ adminClient, userId, eventId, recipients })` — orchestrates the loop with the credit safety rule
-
-`send-rsvp-sms` and any future SMS feature (reminders, guest messaging) all use this single helper.
-
----
-
-## 5. Frontend
-
-### Removed entirely (no UI, no DB writes)
-- All Twilio fields in `AdminNotificationSettings.tsx`: Account SID, Auth Token, Messaging Service SID, From phone, SMS provider dropdown.
-- The Twilio fields stay in the DB table for now (write `null` only) so existing rows aren't lost — backward-compatible. The hook stops writing them.
-- `useNotificationSettings.ts`: removes SMS write surface; keeps email (Resend) intact.
-
-### New
-- `src/lib/smsPricing.ts` — central constants (mirrors `sms_pricing_constants` defaults; loaded on app start, with hard-coded fallback): `INCLUDED_CREDITS`, `TOPUP_CREDITS`, `TOPUP_PRICE_AUD`, `GST_RATE`, helpers like `formatPriceWithGst()`.
-- `src/hooks/useSmsCredits.ts` — `{ total, used, remaining, loading, refetch }` with realtime subscription on `sms_credits`.
-- `src/components/Dashboard/SmsCreditMeter.tsx` — shows `"X of Y SMS credits used · Z remaining"`, color tiers:
-  - `≤ 50`: amber notice
-  - `≤ 25`: red notice + inline "Top up" link
-  - `0`: hard-locked banner + primary "Purchase 250 more SMS credits ($99 + GST)" CTA → `create-sms-topup-checkout`
-- New modal `SmsTopupModal.tsx` — Stripe checkout launcher (mirrors `RsvpActivationModal` pattern).
-
-### Updated
-- `RsvpActivationModal.tsx` — relabel to **"Smart RSVP & Messaging"**; bullets become:
-  - SMS invitations
-  - RSVP reminders
-  - Email invitations
-  - Guest messaging
-  - RSVP tracking
-  - **250 SMS message credits included**
-- `GuestListTable.tsx` SMS send drawer — embeds `SmsCreditMeter`; SMS send buttons are **disabled** when `remaining === 0` and replaced with a "Purchase 250 more SMS credits" CTA. (No layout changes — the desktop table is locked; only the side panel/drawer is touched.)
-- `Account/BillingCard.tsx` + `HistoryCard.tsx` — show Smart RSVP & Messaging activation + each top-up as separate line items; show current credit balance.
-- All user-facing wording swap (search/replace audit): "RSVP Invitations", "RSVP Upgrade", "SMS setup", "Connect Twilio" → **"Smart RSVP & Messaging"**.
-
----
-
-## 6. Safety guarantees
-
-- **Credit deduction is atomic and post-success only** — RPC returns boolean; any failure path skips deduction.
-- **Backward compat**:
-  - Existing `rsvp_invite_purchases` rows continue to gate access (no logic change).
-  - Existing notification_settings table preserved (Twilio columns ignored, never re-written).
-  - Resend email flow untouched.
-  - Reminder scheduling unchanged — it just calls the new `send-rsvp-sms` which now enforces credits.
-- **Hard zero-state**: when `remaining === 0`, every SMS send entry-point is disabled at component level (button `disabled`, visual locked state) AND server-side (function returns 402-style block).
-
----
-
-## 7. Files touched
-
-```
-supabase/migrations/<new>.sql
-supabase/functions/_shared/sms-service.ts                  # NEW
-supabase/functions/send-rsvp-sms/index.ts                  # rewrite
-supabase/functions/verify-payment/index.ts                 # 2 new branches
-supabase/functions/create-sms-topup-checkout/index.ts      # NEW
-src/lib/smsPricing.ts                                      # NEW
-src/lib/stripePrices.ts                                    # add SMS_TOPUP
-src/hooks/useSmsCredits.ts                                 # NEW
-src/hooks/useNotificationSettings.ts                       # SMS writes removed
-src/components/Admin/AdminNotificationSettings.tsx         # remove Twilio block
-src/components/Dashboard/SmsCreditMeter.tsx                # NEW
-src/components/Dashboard/SmsTopupModal.tsx                 # NEW
-src/components/Dashboard/RsvpActivationModal.tsx           # relabel + 250 credits bullet
-src/components/Dashboard/GuestListTable.tsx                # meter + zero-state lock (drawer only)
-src/components/Account/BillingCard.tsx, HistoryCard.tsx    # new line items + balance
-```
-
-Ready to implement.
+No changes to locked public/dashboard pages, Guest List desktop table, or any snapshot-protected file.
