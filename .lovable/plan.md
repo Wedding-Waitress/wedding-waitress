@@ -1,124 +1,87 @@
-## Smart SMS Credit Status — Premium Credit Intelligence Layer
+## Guest Intelligence Centre — Phase 1 Architecture
 
-Goal: turn hidden SMS credit state into a calm, premium, glanceable surface inside the Smart RSVP ecosystem — without new pages, new sidebar entries, or layout changes to locked surfaces.
+Replace the current placeholder side panel inside `GuestListTable.tsx` with a premium, modular accordion-driven Intelligence panel. No new pages, no routing changes, no duplication of Communications Centre analytics.
 
-### 1. New component — `SmartSmsCreditStatus`
+### Scope
+- File touched (UI integration): `src/components/Dashboard/GuestListTable.tsx` (only the `showIntelligencePanel` block, ~lines 3099–3131).
+- New folder: `src/components/Dashboard/GuestIntelligence/` for modular sections.
+- No DB migrations. Pure client-side derivations from already-loaded `guests` + `tables` + `selectedEvent`.
 
-File: `src/components/Dashboard/SmartSmsCreditStatus.tsx`
+### New Component Structure
+```
+src/components/Dashboard/GuestIntelligence/
+  GuestIntelligencePanel.tsx          // shell: header + accordion container + close
+  IntelligenceSection.tsx             // reusable accordion item (title, icon, badge, children)
+  InsightCard.tsx                     // reusable summary chip/row (label, value, tone)
+  sections/
+    RsvpIntelligenceSection.tsx
+    RelationshipIntelligenceSection.tsx
+    DietaryIntelligenceSection.tsx
+    SeatingIntelligenceSection.tsx
+    EngagementIntelligenceSection.tsx
+    SmartRecommendationsSection.tsx
+    ActivityTimelineAccessSection.tsx
+  lib/
+    computeGuestInsights.ts           // pure derivations from guests/tables
+```
 
-Reusable, premium status card. Two visual variants via prop:
-- `variant="full"` — used in Guest List top controls row.
-- `variant="compact"` — used as a header strip inside Smart RSVP Analytics panel.
+Each section receives `{ guests, tables, event }` and renders its own light insight rows. Sections are independently swappable later (Phase 2 can add backend-derived insights without touching siblings).
 
-Data source: existing `useSmsCredits(eventId)` hook (already realtime-synced via the `sms_credits` channel + extended after webhook updates by reusing the same hook). No new hooks required for fetching.
+### Panel Shell (UI)
+- Slide-in side panel: `w-full sm:w-[520px] lg:w-[560px]`, white surface, `border-l border-[#E8E1D6]`, soft shadow.
+- Header: "Event Intelligence Overview" + 1-line muted description + close `×`.
+- Optional 3-chip "at a glance" row (Total Guests · Confirmed · Pending) — derived only, no comm metrics.
+- Body: shadcn `Accordion type="multiple"` with the 7 sections, all collapsed by default except RSVP Intelligence.
+- Smooth scrolling, generous spacing (`space-y-3`), consistent brand tokens (`#1D1D1F`, `#6E6E73`, `#967A59`, `#FBF7F2`).
+- Mobile: full-width sheet, accordions stack, 16px padding, sticky header.
 
-Display elements:
-- Headline: `"{remaining} SMS Credits Remaining"`.
-- Sub-headline: `"Approx. {remaining} more SMS invitations"` (1 credit ≈ 1 invitation; future-ready helper accepts an optional `recipientCount` prop for "Enough for ~X more campaigns").
-- Health pill (Healthy / Low / Critical / Empty) with semantic color tokens.
-- Calm contextual message line (matches health state).
-- "Top Up Credits" pill button — `lv-premium-shade`, wired to existing `useSmsTopup().startTopup(eventId)` (no new Stripe code).
+### Section Content (Phase 1 — lightweight derivations only)
 
-States and thresholds (overrides hook's percent-based `isLow` with absolute thresholds per spec):
-- Healthy: `remaining >= 100` → green accent, "running smoothly" copy, no warning.
-- Low: `25 <= remaining <= 99` → amber accent, "running low" copy.
-- Critical: `1 <= remaining <= 24` → red accent, "Only {n} SMS credits remaining."
-- Empty: `remaining === 0` (and `total > 0`) → red locked state, "You've used all included SMS credits.", Top Up CTA emphasised.
-- Unactivated (`total === 0`): render nothing in `compact`; in `full` show a muted "Smart RSVP not active yet" line (no CTA noise).
+1. **RSVP Intelligence** — Confirmed / Pending / Declined counts + response rate %, "X guests still pending" warning chip. (No delivery KPIs — those stay in Communications Centre.)
+2. **Relationship Intelligence** — Breakdown by `relation_partner` (Partner 1 vs Partner 2 balance) and top relation roles; flag imbalance >70/30.
+3. **Dietary Intelligence** — Counts per dietary tag, % of confirmed guests with dietary needs, "Top requirement" highlight.
+4. **Seating Intelligence** — Assigned vs Unassigned, tables near capacity (≥90%), empty tables, over-capacity warnings.
+5. **Engagement Intelligence** — Lightweight signal mix from existing fields only: `rsvp_invite_status` summary (sent vs not-sent), guests with email vs mobile coverage. No open/click duplication.
+6. **Smart Recommendations** — Rule-based suggestions derived from above (e.g. "12 guests unassigned — open Tables", "8 pending RSVPs past midpoint to event date — consider a reminder", "3 dietary needs without table assignment").
+7. **Guest Activity Timeline Access** — Short explainer + a single CTA "Open per-guest timeline" that surfaces the existing `GuestActivityTimeline` component for a chosen guest (via a small guest picker). Keeps the previously-built timeline reachable without duplicating it globally.
 
-Styling: Wedding Waitress card surface, rounded-2xl, soft shadow, semantic tokens only. No raw color classes.
+### Reusable Primitives
+- `InsightCard`: `{ label, value, tone?: 'neutral'|'positive'|'warning'|'info', hint? }` — small rounded card, brand colors.
+- `IntelligenceSection`: wraps shadcn `AccordionItem` with icon + title + optional count badge + children slot.
 
-### 2. Placement (only two)
+### Derivation Rules (in `computeGuestInsights.ts`)
+- Use `normalizeRsvp` from `src/lib/rsvp.ts` for status counts.
+- Response rate = (Confirmed + Declined) / Total.
+- Table capacity uses `tables.limit_seats` vs guests with matching `table_id`.
+- All derivations memoized (`useMemo`) inside the panel.
 
-A. Guest List top controls row — `src/components/Dashboard/GuestListTable.tsx`
-- Mount `<SmartSmsCreditStatus variant="full" eventId={eventId} />` in the existing controls/feature-strip area near `SmartRsvpFeatureStrip` / Analytics / Resend buttons (around the existing strip at line ~1695).
-- No column changes, no table-structure changes (locked desktop table preserved).
+### Anti-Duplication Guardrails
+- No delivery, open, click, bounce, resend, or send-success metrics (those live in `SmartRsvpAnalyticsPanel` / Communications Centre).
+- No global activity feed — only per-guest access via existing `GuestActivityTimeline`.
+- No new realtime subscriptions; reuses already-loaded props.
 
-B. Smart RSVP Analytics panel — `src/components/Dashboard/SmartRsvpAnalyticsPanel.tsx`
-- Mount `<SmartSmsCreditStatus variant="compact" eventId={eventId} />` at the top summary area, above the existing per-guest rows.
-- Add a compact KPI chip row beneath it (see §4).
+### Integration Step
+Replace lines ~3099–3131 in `GuestListTable.tsx` with:
+```tsx
+<GuestIntelligencePanel
+  open={showIntelligencePanel}
+  onClose={() => setShowIntelligencePanel(false)}
+  guests={guests}
+  tables={tables}
+  event={selectedEvent}
+/>
+```
 
-The legacy `SmsCreditMeter` is left untouched (still works elsewhere if used) but the Guest List instance is replaced by the new component to avoid duplication. (If `SmsCreditMeter` is currently mounted in the same Guest List spot, swap it; otherwise leave alone.)
+### Out of Scope (Phase 1)
+- Backend RPCs / aggregations
+- AI-generated insights (Phase 2 hook point reserved in `SmartRecommendationsSection`)
+- Cross-event benchmarks
+- Editing actions inside the panel (read-only insights only)
 
-### 3. Guest List delivery-badge low-credit pill
+### Responsive
+- Desktop: 520–560px right-docked panel.
+- Tablet: 480px.
+- Mobile: full-width with sticky header, scrollable body, accordion-stacked sections.
 
-Inside `GuestDeliveryBadges.tsx` (or the badge cell already rendered in the Send RSVP & Invite column):
-- When `remaining <= 24`, render a tiny inline `"Low Credits"` pill alongside the existing badge.
-- Pure additive — no column added, no width change, no layout shift on healthy state.
-- Reads credits via `useSmsCredits` (already realtime).
-
-### 4. Analytics KPI chips
-
-Inside `SmartRsvpAnalyticsPanel.tsx`, a new compact `KpiChips` row (in same file, no new component file needed) shows:
-- Credits Remaining (from `useSmsCredits`)
-- Credits Used (from `useSmsCredits`)
-- SMS Delivered (count where latest `sms_send_logs.status = 'delivered'`)
-- SMS Failed (count where latest status in `failed | undelivered | blocked`)
-- Delivery Success % (`delivered / (delivered + failed)` rounded, `—` if zero)
-
-Computed from data already loaded by the panel — no extra queries. Styling matches existing analytics chips (no redesign).
-
-### 5. Empty-credit protection
-
-When `isEmpty` (`remaining === 0`, `total > 0`):
-- Disable SMS send + resend SMS actions: pass an `smsDisabled` flag (derived from `useSmsCredits`) into:
-  - The "Send RSVP & Invite" SMS button row in `GuestListTable.tsx`.
-  - `ResendSmartRsvpModal.tsx` "Resend SMS" / "Resend only failed SMS" buttons.
-- Keep email actions fully enabled.
-- Tooltip / inline helper on disabled buttons: `"SMS credits required to continue Smart RSVP messaging."`
-- The full credit card already surfaces the Top Up CTA.
-
-### 6. Realtime strategy
-
-- `useSmsCredits` already subscribes to `sms_credits` postgres changes for the event. This covers: send (decrement), top-up (increment), webhook-triggered adjustments (any future credit refund), resend.
-- All consumers (`SmartSmsCreditStatus` full + compact, badge low-credit pill, KPI chips, send-button disabled state) share this hook → one subscription per mount, all UI updates atomically.
-- No new channels, no polling.
-
-### 7. Projection logic (lightweight, no ML)
-
-Helper `projectSends(remaining, recipientCount?)`:
-- Default: `1 credit ≈ 1 SMS invitation` → "Approx. {remaining} more SMS invitations".
-- If `recipientCount` provided (selected guests with mobile + SMS pref): `campaigns = floor(remaining / max(1, recipientCount))` → "Enough for approximately {campaigns} more RSVP campaigns."
-- Pure function in component file; no analytics, no historical averages in this phase.
-
-### 8. Threshold + lock logic (single source of truth)
-
-Add `getCreditHealth(remaining, total)` helper inside the new component file, returning `{ state: 'healthy'|'low'|'critical'|'empty'|'unactivated', tone, message }`. Reused by:
-- The full + compact card.
-- The `Low Credits` badge pill (`state === 'critical' || state === 'empty'`).
-- The SMS-button disabled flag (`state === 'empty'`).
-
-### 9. Out of scope (explicit)
-
-No auto top-up, subscription plans, usage billing, AI optimisation, heatmaps, advanced forecasting, spend analytics, separate billing pages, new dashboard sections, or admin panels. No edits to: locked desktop guest table, Step 1/2/3 cards, payment modal UI, routing, sidebar, public pages, Stripe wiring.
-
-### 10. Affected files
-
-- `src/components/Dashboard/SmartSmsCreditStatus.tsx` (new)
-- `src/components/Dashboard/GuestListTable.tsx` (mount full variant in top controls; pass `smsDisabled` to SMS send buttons)
-- `src/components/Dashboard/SmartRsvpAnalyticsPanel.tsx` (mount compact variant + KPI chips row)
-- `src/components/Dashboard/GuestDeliveryBadges.tsx` (inline `Low Credits` pill when `remaining <= 24`)
-- `src/components/Dashboard/ResendSmartRsvpModal.tsx` (disable SMS resend buttons + tooltip when empty)
-
-No DB migrations, no edge function changes, no new hooks.
-
-### 11. Testing checklist
-
-- Healthy (≥100): green accent, no warning, sends enabled.
-- Low (25–99): amber accent, calm "running low" copy, sends enabled, no badge pill.
-- Critical (1–24): red accent, stronger copy, `Low Credits` pill renders inline in delivery badge cell, sends still enabled.
-- Empty (0, total>0): locked red state, SMS send + resend SMS disabled with tooltip, email send still works, Top Up CTA prominent.
-- Unactivated (total=0): full variant shows muted "not active" line, compact variant renders nothing.
-- Top Up CTA launches existing Stripe topup flow (no regressions to payment modal).
-- After successful send: `sms_credits` realtime event updates all surfaces (card, KPI chips, badge pill, button disabled state) without refresh.
-- After top-up webhook: credits jump up, locked state clears, SMS buttons re-enable live.
-- Locked desktop Guest List table layout unchanged (visual diff vs snapshot).
-- Mobile + tablet: full card stacks cleanly; compact chips wrap; no horizontal scroll.
-
-### 12. Updated areas summary
-
-- Guest List → top controls row gains the `SmartSmsCreditStatus` (full).
-- Guest List → delivery badge cell gains conditional `Low Credits` micro-pill.
-- Guest List → SMS send buttons disabled when empty.
-- Smart RSVP Analytics → compact credit status header + KPI chips row.
-- Resend Smart RSVP modal → SMS resend buttons disabled when empty.
+### Deliverable
+A modular, premium, clutter-free Guest Intelligence Centre side panel scaffolded for independent section evolution, with zero overlap against Communications Centre.
