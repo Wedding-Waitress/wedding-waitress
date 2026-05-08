@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Undo2 } from "lucide-react";
 import { normalizeRsvp } from '@/lib/rsvp';
 import { useEvents } from '@/hooks/useEvents';
+import { useSelectedEvent } from '@/hooks/useSelectedEvent';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
