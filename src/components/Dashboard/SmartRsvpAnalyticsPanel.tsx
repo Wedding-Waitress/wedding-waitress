@@ -268,11 +268,23 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                       <td className="px-3 py-2 text-muted-foreground truncate max-w-[160px]">{r.contact}</td>
                       <td className="px-3 py-2 text-muted-foreground">{fmt(r.sentAt)}</td>
                       <td className="px-3 py-2">
-                        <span className={
-                          r.deliveryStatus === 'Failed' ? 'text-red-600 font-semibold'
-                          : r.deliveryStatus === 'Delivered' ? 'text-green-700 font-semibold'
-                          : 'text-amber-700 font-semibold'
-                        }>{r.deliveryStatus}</span>
+                        <span
+                          className={
+                            r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked' ? 'text-red-600 font-semibold'
+                            : r.deliveryStatus === 'Delivered' ? 'text-green-700 font-semibold'
+                            : 'text-amber-700 font-semibold'
+                          }
+                          title={
+                            (r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked') && (r.twilioErrorCode || r.twilioErrorMessage)
+                              ? `Twilio ${r.twilioErrorCode ?? ''}${r.twilioErrorCode && r.twilioErrorMessage ? ': ' : ''}${r.twilioErrorMessage ?? ''}`.trim()
+                              : r.lastStatusAt ? `Updated ${fmt(r.lastStatusAt)}` : undefined
+                          }
+                        >
+                          {r.deliveryStatus}
+                        </span>
+                        {r.lastStatusAt && (
+                          <div className="text-[10px] text-muted-foreground">{relTime(r.lastStatusAt)}</div>
+                        )}
                       </td>
                       <td className="px-3 py-2">{r.responded ? r.rsvp : 'Pending'}</td>
                       <td className="px-3 py-2 text-right">{r.resendCount}</td>
