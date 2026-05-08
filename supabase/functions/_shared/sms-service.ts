@@ -67,6 +67,7 @@ async function insertLog(
     twilio_sid: string | null;
     status: "queued" | "sent" | "failed" | "blocked";
     error?: string | null;
+    delivery_method?: 'email' | 'sms' | 'both';
   }
 ): Promise<string | null> {
   const { data, error } = await admin.rpc("log_sms_send", {
@@ -77,6 +78,7 @@ async function insertLog(
     _twilio_sid: args.twilio_sid,
     _status: args.status,
     _error: args.error ?? null,
+    _delivery_method: args.delivery_method ?? 'sms',
   });
   if (error) {
     console.error("[sms-service] log_sms_send failed", error);
