@@ -300,6 +300,60 @@ serve(async (req) => {
     }
 
 
+    // ── Smart RSVP & Messaging — SMS Top-up ──
+    if (productId === SMS_TOPUP_PRODUCT_ID) {
+      if (!eventId) throw new Error("event_id is required for SMS top-up");
+
+      const amountPaid = (session.amount_total || 0) / 100;
+      const blocks = lineItem?.quantity ?? 1;
+      const credits = SMS_TOPUP_CREDITS * blocks;
+
+      // Idempotency: only grant credits + record once per session
+      const { data: existing } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("rsvp_invite_purchases").insert({
+          user_id: userId,
+          event_id: eventId,
+          amount_paid: amountPaid,
+          guest_tier_label: `SMS Top-up +${credits} credits`,
+          stripe_session_id: session_id,
+          stripe_payment_id: session.payment_intent as string,
+          status: "completed",
+          purchase_type: "sms_topup",
+          purchased_limit: null,
+          overage_blocks: 0,
+          guest_count_at_purchase: null,
+        });
+
+        try {
+          await supabase.rpc("add_sms_credits", {
+            _user_id: userId,
+            _event_id: eventId,
+            _amount: credits,
+            _source: "topup",
+          });
+          logStep("SMS top-up credits granted", { eventId, credits });
+        } catch (e) {
+          console.error("[VERIFY-PAYMENT] add_sms_credits (topup) failed", e);
+        }
+      }
+
+      return new Response(JSON.stringify({
+        type: "sms_topup",
+        status: "completed",
+        amount_paid: amountPaid,
+        credits_added: credits,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // ── Plan Extension Purchase ──
     if (EXTENSION_PRODUCT_IDS.has(productId)) {
       const extensionMonths = parseInt(metadata.extension_months || "0", 10);
