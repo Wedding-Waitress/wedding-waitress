@@ -1,120 +1,102 @@
-# Admin Gated Access & Permission Hardening — Phase 1
+# Venue Referral & Network Growth — Phase 1
 
-Surgical hardening pass. No redesigns. No new RBAC system. Foundation already exists (`account_members`, `useAccountRole`, `is_account_master`, `account_event_access`); this plan finishes wiring it through the UI and adds matching server-side guards.
+Elegant, low-friction venue referral built on top of the existing Create Event flow and Dashboard. Nothing about onboarding/signup changes; nothing nags.
 
----
+## 1. Schema (single migration)
 
-## 1. Permission primitives (single source of truth)
+**Extend `events`** (additive, nullable — zero friction):
+- `venue_contact_email text`
+- `reception_venue_contact_email text` (mirrors existing `venue_contact` naming pattern)
+- (Coordinator name reuses existing `venue_contact` / `ceremony_venue_contact` — no new column.)
 
-Add tiny helpers so every gated surface uses identical logic:
+**New table `venue_invitations`**:
+- `event_id` (fk events, on delete cascade)
+- `account_id` / `user_id` (referring account)
+- `venue_name text`
+- `venue_email text not null`
+- `venue_contact_name text`
+- `status text` default `'sent'` (sent | bounced | opened | converted — only `sent` written in Phase 1)
+- `sent_at timestamptz default now()`
+- `created_at`, unique `(event_id, venue_email)`
 
-- `src/lib/permissions.ts` — pure mapping: `canManageBilling`, `canPurchaseEvents`, `canDeleteEvent`, `canManageUsers`, `canManageVendorPro`, `canDeleteAccount`. Each takes `{ role: AccountRole }` (and later `{ collaboratorRole }` — left as TODO comment).
-- Extend `src/hooks/useAccountRole.ts`: keep current API, add `permissions` object derived from `role` so call sites are one-liners.
-- `src/components/permissions/MasterOnly.tsx` — renders children when master; otherwise renders a **disabled clone** wrapped in a premium tooltip ("Only the Master Account Holder can manage billing and account access.").
-- `src/components/permissions/LockedTooltip.tsx` — small wrapper around shadcn `Tooltip` with brand-styled lock icon (`Lock` from lucide, `#967A59`).
+**New table `event_referral_dismissals`**:
+- `user_id`, `event_id`, `dismissed_at`, `snooze_until timestamptz` (nullable)
+- PK `(user_id, event_id)`
 
-No styling redesign — uses existing tokens and `lv-premium-shade`.
+**RLS**: owner-only select/insert/update on both new tables (master role per existing `is_account_master` pattern for `venue_invitations` insert).
 
-## 2. Account page gating (`/dashboard/account`)
+## 2. Event Create modal
 
-`Account.tsx` is locked, so we only edit the inner cards (already structured for this). All edits are additive — no layout changes.
+`src/components/Dashboard/EventCreateModal.tsx` — add an optional collapsible block at the bottom of the Reception section:
 
-| Card | Action | Master | Standard |
-|------|--------|--------|----------|
-| `AccountAccessCard` | Invite / Manage Users | visible (today) | hide buttons (already gated — verify) |
-| `SubscriptionCard` | "Change Plan" button | enabled | **disabled + LockedTooltip** |
-| `BillingCard` | Update card / view invoices / portal links | enabled | disabled + tooltip; invoice list stays read-only visible |
-| `UsageCard` | — | unchanged | unchanged (read-only for all) |
-| `HistoryCard` | — | unchanged | unchanged (read-only) |
-| `SecurityCard` | Change password | always enabled (own account) | always enabled |
-| `SecurityCard` | Delete account (if present) | enabled | hidden |
+> **Venue Coordinator (optional)**
+> - Coordinator Name (reuses `venue_contact`)
+> - Coordinator Email (`venue_contact_email`) — type=email, no required, no inline validation pressure
 
-Standard users still see plan name, usage, history → satisfies "still see plan information, account usage, collaboration visibility".
+Same minimal block in `EventEditModal.tsx`. Mobile rules followed (full-width, h-11, gap-5).
 
-## 3. Events surface gating
+## 3. First-event detection + referral card
 
-Sensitive actions: **create event**, **delete event**, **purchase additional event**.
+New hook `useFirstEventReferral(events)`:
+- "First event" = the user's earliest event by `created_at` AND total event count === 1, OR — for users with multiple events — the most recently created event whose dismissal row doesn't exist yet (only surfaces once).
+- Hidden if a row exists in `event_referral_dismissals` for that event with `snooze_until` null (dismissed forever) or `snooze_until > now()`.
 
-`EventsTable.tsx` carries a production lock header. Two options:
+New component `src/components/Dashboard/VenueReferralCard.tsx`:
+- Rendered on the **Dashboard Overview** tab only, above existing cards, and on the **My Events** page after a successful create (one-time inline confirmation banner).
+- Compact `dashboard-card` with small purple/brown venue icon, headline "Using a participating venue?", body copy from spec, two actions:
+  - `Invite My Venue` (premium primary, `lv-premium-shade`)
+  - `Not now` (ghost) → writes dismissal with `snooze_until = now() + 14 days`
+  - small `×` → permanent dismiss (no snooze)
+- Mobile: stacks, full-width buttons, `px-4`.
 
-**Option A (preferred — surgical, no layout change):** gate at the handler/button props passed in from `Dashboard.tsx` / `MyEventsPage`. Pass `canDelete`/`canCreate`/`canPurchase` and let existing button render disabled with tooltip via shared `LockedTooltip`. This requires a tiny addition to `EventsTable.tsx` props and conditional `disabled` on the existing `Trash2` / `Plus` / `Buy more` buttons — additive only, no redesign.
+## 4. Invite Venue modal
 
-**Option B:** intercept inside the handlers (`deleteEvent`, `createEvent`, `purchaseAdditionalEvent`) and pop a `LockedSheet` instead of executing. Zero UI markup change.
+`src/components/Dashboard/InviteVenueModal.tsx` (follows locked Mobile Modal System):
+- Prefills `venue_name` from event, `venue_email` + `venue_contact_name` from event venue fields if present.
+- Two inputs (email required, name optional) + read-only preview of the invitation copy.
+- Footer: green **Send Invitation** left, red **Cancel** right.
+- On submit: insert into `venue_invitations`, invoke edge function `send-venue-invitation`, toast success, persist any newly-entered email back onto `events.venue_contact_email` for reuse.
 
-→ **Going with Option B** to avoid touching the locked table file. The locked file's UI stays byte-identical; the gate lives inside `useEvents.ts` (`deleteEvent`, `createEvent`) and `useAdditionalEventPurchase` (or equivalent). Returns a friendly `{ blocked: true, reason }` and the call site shows a `ComingSoonSheet`-style explanatory sheet (reuse existing `ComingSoonSheet` pattern).
+## 5. Edge function `send-venue-invitation`
 
-If you want Option A (visual disabled state in the table itself) — say so and I will treat it as explicit override of the lock header.
+- Auth: requires user JWT; verifies caller owns `event_id`.
+- Renders an elegant React Email template `venue-invitation.tsx` under `_shared/transactional-email-templates/`:
+  - Subject: "An invitation to explore Wedding Waitress"
+  - Body tone per spec — couple is using WW, venue may benefit; bullets: guest management, RSVP coordination, planning workflows, seating management, operational efficiency. No pricing, no "free", no urgency. Signed off with the couple's names + event date.
+  - CTA button → `https://weddingwaitress.com/for-venues?ref=<event_id>` (existing public domain).
+- Sends via the existing transactional queue (`send-transactional-email`) — no new email infra.
+- Logs send into `email_send_log` automatically via the queue.
 
-## 4. Vendor Pro gating
+## 6. Vendor Pro positioning
 
-`useUserPlan` already exposes `plan_name`. Add `isVendorPro` derivation in `useAccountRole` result. Vendor-pro **owner** = master; vendor-pro **standard** seat = standard. Same gates from §1 apply automatically — no separate code path. Vendor-specific admin controls (capacity, seat management) get the same `MasterOnly` wrapper.
+Subtle one-line footer inside the invitation email and the referral card: *"Built for couples, planners, and venues coordinating events together."* No plan names, no pricing, no enterprise jargon.
 
-## 5. Server-side guards (defense in depth)
+## 7. Files
 
-Add a single migration that closes the loopholes a determined Standard user could exploit via direct API:
+**New**
+- `supabase/migrations/<ts>_venue_referrals.sql`
+- `src/components/Dashboard/VenueReferralCard.tsx`
+- `src/components/Dashboard/InviteVenueModal.tsx`
+- `src/hooks/useFirstEventReferral.ts`
+- `src/hooks/useVenueInvitations.ts`
+- `supabase/functions/send-venue-invitation/index.ts`
+- `supabase/functions/_shared/transactional-email-templates/venue-invitation.tsx` + registry entry
 
-1. **`events` DELETE policy** — replace existing user-only delete policy with: `auth.uid() = user_id AND public.is_account_master(auth.uid())`. (Current standard members are scaffolded but cannot delete other-account events anyway because of `user_id` scoping; this just prevents a master from delegating delete to a standard seat in the future.)
-2. **`additional_event_purchases` INSERT** — keep service-role only (already enforced via edge function); add a RAISE EXCEPTION guard inside the `create-additional-event-checkout` edge function: reject if caller is not master.
-3. **`stripe-customer-portal` / `create-checkout-session` / `cancel-subscription` edge functions** — early return `403` when `is_account_master(user.id)` is false. Read JWT, call RPC, abort.
-4. **`account_members` / `account_invitations` / `event_collaborators`** — policies already restrict to `account_owner_id = auth.uid()` (master). Verify and document.
+**Edited (minimal, additive only)**
+- `src/components/Dashboard/EventCreateModal.tsx` — optional coordinator email field
+- `src/components/Dashboard/EventEditModal.tsx` — same
+- `src/components/Dashboard/DashboardOverview.tsx` — render `<VenueReferralCard/>` at top when hook returns an event
 
-No table schema changes. Migration is a few `DROP POLICY`/`CREATE POLICY` + edge function edits.
+## 8. Guardrails honored
+- No locked surfaces touched (Landing, public pages, locked Dashboard shell utilities, GuestListTable, EventsTable layout).
+- No signup/onboarding interruption — card only appears on Dashboard Overview after first event exists.
+- No automatic emails — strictly user-initiated via the modal.
+- Mobile rules, premium button shade, and modal system applied.
+- Dismissible + snoozable; never re-prompts within 14 days; never re-prompts at all if `×` used.
 
-## 6. Public route safety
-
-Audit-only — no edits expected. Verify:
-- `/s/:slug`, `/kiosk/:slug`, vendor share tokens, reset-password and token routes never read `useAccountRole` and never render any control gated by it.
-- Token-validated RPCs (`get_public_event_with_data_secure`, `update_guest_with_token`, etc.) do not consult `account_members` — confirmed by grep.
-
-Deliverable: a one-paragraph confirmation in the final report.
-
-## 7. Cleanup (minimal, only-if-confirmed-redundant)
-
-- Remove the legacy `requireMaster(role)` re-export if nothing imports it (`useAccountRole` now exposes `isMaster`).
-- Remove any duplicated inline `role === 'master'` checks in favor of `usePermissions()`.
-
-No other deletions.
-
-## 8. Mobile QA
-
-For each gated control: verify on 375px viewport that
-- disabled state retains brand color contrast,
-- `LockedTooltip` renders as a tap-to-show popover (not hover-only),
-- no overflow / horizontal scroll introduced,
-- `pt-6+` header rule and 44px touch targets respected.
-
-Quick screenshot pass via preview at the end.
-
----
-
-## Files touched
-
-Created
-- `src/lib/permissions.ts`
-- `src/components/permissions/MasterOnly.tsx`
-- `src/components/permissions/LockedTooltip.tsx`
-- `supabase/migrations/<ts>_master_only_destructive_guards.sql`
-
-Edited
-- `src/hooks/useAccountRole.ts` (add `permissions` + `isVendorPro`)
-- `src/components/Account/SubscriptionCard.tsx` (button gate)
-- `src/components/Account/BillingCard.tsx` (button gate)
-- `src/components/Account/SecurityCard.tsx` (delete-account gate, if present)
-- `src/hooks/useEvents.ts` (`deleteEvent`, `createEvent` master guard + sheet trigger)
-- additional-event purchase hook (master guard)
-- `supabase/functions/create-checkout-session/index.ts`
-- `supabase/functions/create-additional-event-checkout/index.ts` (or current name)
-- `supabase/functions/stripe-customer-portal/index.ts`
-- `supabase/functions/cancel-subscription/index.ts` (if present)
-
-Not touched (locked)
-- `Account.tsx`, `EventsTable.tsx`, `Landing.tsx`, all public-route pages, auth modals, pricing page, Stripe architecture.
-
-## Deliverable
-
-After merge, report will contain:
-1. List of every action gated + UX shown to standard users.
-2. Server-side guards added.
-3. Confirmation Standard Users cannot reach billing/destructive flows (UI + API).
-4. Public route safety confirmation.
-5. Open future-role considerations (collaborator/bride/groom/venue staff/planner) noted as TODOs in `permissions.ts`.
+## 9. Deliverable confirmation (post-implementation)
+- Card appears on `/dashboard` overview once user has ≥1 event and no permanent dismissal.
+- First-event detection via `useFirstEventReferral` (count + dismissal table).
+- Invite flow: card → modal (prefilled) → edge function → queued email → row in `venue_invitations`.
+- Stored data: `venue_invitations` (referral lineage) + `events.venue_contact_email` (reusable) + `event_referral_dismissals` (UX state).
+- Zero changes to signup, auth, onboarding, or required event fields.
