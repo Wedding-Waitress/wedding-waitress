@@ -88,6 +88,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<MethodFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('name');
+  const [urgencyFilter, setUrgencyFilter] = useState<UrgencyFilter>('all');
   const { credits: smsCredits } = useSmsCredits(eventId);
 
   useEffect(() => {
