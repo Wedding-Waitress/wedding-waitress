@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.handle-email-suppression]
 verify_jwt = false
+
+[functions.twilio-delivery-webhook]
+verify_jwt = false
