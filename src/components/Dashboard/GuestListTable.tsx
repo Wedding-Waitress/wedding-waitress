@@ -2099,7 +2099,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
 
         {/* DESKTOP layout */}
-        <div className="hidden lg:flex mt-2 mb-3 mx-3 sm:mx-6 items-center justify-start gap-2 flex-wrap">
+        <div className="hidden lg:flex mt-2 mb-8 mx-3 sm:mx-6 items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -2123,6 +2123,64 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <Users className="w-4 h-4" />
               {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
             </div>
+          </div>
+
+          {/* RIGHT SIDE: Sort By + Import/Export (desktop only — tablet keeps them in the upper row) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  disabled={!selectedEventId}
+                >
+                  <ArrowUpDown className="w-3 h-3" />
+                  Sort By
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                {SORT_OPTIONS.map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() => handleSortChange(option.value)}
+                    className={`gap-2 ${sortBy === option.value ? "bg-accent" : ""} ${option.value === 'individuals_first' ? 'text-pink-500' : option.value === 'couples_first' ? 'text-orange-500' : option.value === 'families_first' ? 'text-blue-600' : option.value === 'default' ? 'text-red-500' : ''}`}
+                  >
+                    <option.icon className="h-4 w-4" />
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  disabled={!selectedEventId}
+                >
+                  <FileText className="w-3 h-3" />
+                  Import / Export CSV
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={downloadTemplate}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Template
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleImportCSV}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={exportGuestList}
+                  disabled={guestCount === 0}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Guest List
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
