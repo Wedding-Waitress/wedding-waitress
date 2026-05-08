@@ -678,20 +678,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setGuestToDelete(null);
   };
 
-  // Save selected event to localStorage when changed - use same key as Table Setup
+  // Selection change handler — delegates to parent (Dashboard) when wired,
+  // otherwise updates local fallback state. Persistence is centralised in useSelectedEvent.
   const handleEventSelect = (eventId: string) => {
-    // Filter out placeholder values
-    if (eventId === "no-event") {
-      return;
-    }
-    
+    if (eventId === "no-event") return;
     if (propOnEventSelect) {
-      // Use prop callback if provided (when used from Dashboard)
       propOnEventSelect(eventId);
     } else {
-      // Use local state if standalone
       setLocalSelectedEventId(eventId);
-      localStorage.setItem('active_event_id', eventId);
     }
     
     // Load sort preference for new event
