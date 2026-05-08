@@ -354,6 +354,10 @@ export const useEvents = () => {
         setEvents([]);
         setActiveEventId(null);
         setLoading(false);
+        // Clear all module-level caches and global selection
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('ww:auth-cleared'));
+        }
       }
     });
 
