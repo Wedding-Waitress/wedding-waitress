@@ -178,6 +178,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
   const health = getCreditHealth(credits.remaining, credits.total);
   const ctaDisabled = topupLoading || processing;
   const projection = projectSends(credits.remaining, recipientCount);
+  const valueLine = formatRemainingValue(credits.remaining, credits.total);
 
   // Compact variant — analytics header strip
   if (variant === 'compact') {
