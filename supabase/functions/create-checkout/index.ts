@@ -61,6 +61,7 @@ serve(async (req) => {
       quantity,
       purchase_type,
       guest_count_at_purchase,
+      idempotency_key,
     } = await req.json();
     if (!price_id) throw new Error("price_id is required");
 
@@ -135,8 +136,12 @@ serve(async (req) => {
       sessionParams.cancel_url = `${origin}/dashboard`;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-    logStep("Checkout session created", { sessionId: session.id });
+    const requestOptions =
+      typeof idempotency_key === "string" && idempotency_key.length > 0
+        ? { idempotencyKey: idempotency_key }
+        : undefined;
+    const session = await stripe.checkout.sessions.create(sessionParams, requestOptions);
+    logStep("Checkout session created", { sessionId: session.id, idempotent: !!requestOptions });
 
     // Derive Stripe publishable key from the secret-key environment so the
     // embedded client can initialise Stripe.js without a separate build secret.

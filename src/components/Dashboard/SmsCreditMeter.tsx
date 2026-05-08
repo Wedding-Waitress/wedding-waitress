@@ -5,6 +5,7 @@ import { MessageSquare, AlertTriangle, Loader2 } from 'lucide-react';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { useSmsTopup } from '@/hooks/useSmsTopup';
 import { SMS_TOPUP } from '@/lib/stripePrices';
+import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
 
 interface Props {
   eventId: string | null | undefined;
@@ -18,6 +19,8 @@ interface Props {
 export const SmsCreditMeter = ({ eventId, compact }: Props) => {
   const { credits, loading, isLow, isEmpty, isUnactivated } = useSmsCredits(eventId);
   const { startTopup, loading: topupLoading } = useSmsTopup();
+  const { processing } = usePaymentProcessing();
+  const disabled = topupLoading || processing;
 
   if (!eventId) return null;
 
@@ -51,10 +54,18 @@ export const SmsCreditMeter = ({ eventId, compact }: Props) => {
         <Button
           size="sm"
           onClick={() => startTopup(eventId)}
-          disabled={topupLoading}
-          className="lv-premium-shade"
+          disabled={disabled}
+          aria-busy={disabled}
+          className={`lv-premium-shade ${disabled ? 'pointer-events-none opacity-80' : ''}`}
         >
-          {topupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : `Top up +${SMS_TOPUP.credits}`}
+          {disabled ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Starting checkout…
+            </span>
+          ) : (
+            `Top up +${SMS_TOPUP.credits}`
+          )}
         </Button>
       </div>
 

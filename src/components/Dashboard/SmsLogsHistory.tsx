@@ -104,7 +104,15 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
                   <td className="py-1.5 pr-3">SMS</td>
                   <td className="py-1.5 pr-3">
                     <Badge
-                      variant={r.status === 'sent' ? 'default' : r.status === 'blocked' ? 'secondary' : 'destructive'}
+                      variant={
+                        r.status === 'delivered' || r.status === 'sent'
+                          ? 'default'
+                          : r.status === 'queued'
+                          ? 'outline'
+                          : r.status === 'blocked'
+                          ? 'secondary'
+                          : 'destructive' /* failed | undelivered */
+                      }
                     >
                       {r.status}
                     </Badge>
