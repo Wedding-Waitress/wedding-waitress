@@ -117,6 +117,8 @@ export async function sendSmsAndAccount(
   const phone = Deno.env.get("TWILIO_PHONE_NUMBER");
   const masked = maskPhone(input.to);
 
+  const dm = input.delivery_method ?? 'sms';
+
   if (!sid || !token || (!messagingServiceSid && !phone)) {
     const err = "SMS provider not configured";
     await insertLog(admin, {
@@ -127,11 +129,13 @@ export async function sendSmsAndAccount(
       twilio_sid: null,
       status: "failed",
       error: err,
+      delivery_method: dm,
     });
     return { ok: false, status: "failed", error: err };
   }
 
-  // Pre-check: credit must be available
+  // Pre-check: credit must be available. Failed/blocked sends NEVER consume
+  // credits (consume_sms_credit is only called after a successful Twilio SID).
   const remaining = await getRemainingCredits(admin, input.user_id, input.event_id);
   if (remaining <= 0) {
     await insertLog(admin, {
@@ -142,6 +146,7 @@ export async function sendSmsAndAccount(
       twilio_sid: null,
       status: "blocked",
       error: "No SMS credits remaining",
+      delivery_method: dm,
     });
     return { ok: false, status: "blocked", error: "No SMS credits remaining" };
   }
@@ -154,6 +159,7 @@ export async function sendSmsAndAccount(
     to_masked: masked,
     twilio_sid: null,
     status: "queued",
+    delivery_method: dm,
   });
 
   // 2. Send via Twilio REST API
