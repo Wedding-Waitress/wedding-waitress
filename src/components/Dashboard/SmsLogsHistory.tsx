@@ -1,0 +1,126 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Loader2 } from 'lucide-react';
+
+interface LogRow {
+  id: string;
+  created_at: string;
+  to_masked: string | null;
+  status: string;
+  twilio_sid: string | null;
+  error_message: string | null;
+  guest_id: string | null;
+  guest_name?: string;
+  guest_rsvp?: string | null;
+}
+
+interface Props {
+  eventId: string | null | undefined;
+  limit?: number;
+}
+
+/**
+ * SmsLogsHistory — paginated audit log of SMS sends for an event.
+ * Shows recipient (masked), status, timestamp, RSVP response, and error if failed.
+ */
+export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
+  const [rows, setRows] = useState<LogRow[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!eventId) return;
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const { data: logs } = await supabase
+          .from('sms_send_logs')
+          .select('id, created_at, to_masked, status, twilio_sid, error_message, guest_id')
+          .eq('event_id', eventId)
+          .order('created_at', { ascending: false })
+          .limit(limit);
+
+        const guestIds = Array.from(new Set((logs ?? []).map(r => r.guest_id).filter(Boolean))) as string[];
+        const guestMap: Record<string, { name: string; rsvp: string | null }> = {};
+        if (guestIds.length) {
+          const { data: guests } = await supabase
+            .from('guests')
+            .select('id, first_name, last_name, rsvp')
+            .in('id', guestIds);
+          (guests ?? []).forEach(g => {
+            guestMap[g.id] = {
+              name: `${g.first_name ?? ''} ${g.last_name ?? ''}`.trim() || '—',
+              rsvp: g.rsvp ?? null,
+            };
+          });
+        }
+
+        if (cancelled) return;
+        setRows(
+          (logs ?? []).map(r => ({
+            ...r,
+            guest_name: r.guest_id ? guestMap[r.guest_id]?.name : '—',
+            guest_rsvp: r.guest_id ? guestMap[r.guest_id]?.rsvp : null,
+          }))
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [eventId, limit]);
+
+  if (!eventId) return null;
+
+  return (
+    <Card className="p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">SMS history</h3>
+        {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+      </div>
+      {rows.length === 0 && !loading ? (
+        <p className="text-sm text-muted-foreground">No SMS sent yet.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead className="text-muted-foreground">
+              <tr className="text-left">
+                <th className="py-1.5 pr-3">When</th>
+                <th className="py-1.5 pr-3">Guest</th>
+                <th className="py-1.5 pr-3">To</th>
+                <th className="py-1.5 pr-3">Method</th>
+                <th className="py-1.5 pr-3">Status</th>
+                <th className="py-1.5 pr-3">RSVP</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.id} className="border-t border-border/50">
+                  <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
+                  <td className="py-1.5 pr-3">{r.guest_name}</td>
+                  <td className="py-1.5 pr-3 font-mono">{r.to_masked ?? '—'}</td>
+                  <td className="py-1.5 pr-3">SMS</td>
+                  <td className="py-1.5 pr-3">
+                    <Badge
+                      variant={r.status === 'sent' ? 'default' : r.status === 'blocked' ? 'secondary' : 'destructive'}
+                    >
+                      {r.status}
+                    </Badge>
+                    {r.error_message && r.status !== 'sent' && (
+                      <div className="text-[10px] text-muted-foreground mt-0.5 max-w-[260px] truncate" title={r.error_message}>
+                        {r.error_message}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-1.5 pr-3">{r.guest_rsvp ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+};

@@ -117,10 +117,9 @@ export const useNotificationSettings = () => {
                        !!settings?.resend_api_key && 
                        !!settings?.from_email;
                        
-  const smsEnabled = settings?.sms_enabled && 
-                     !!settings?.sms_provider &&
-                     !!settings?.twilio_account_sid &&
-                     !!settings?.twilio_auth_token;
+  // Smart RSVP & Messaging is fully managed — SMS is enabled platform-wide.
+  // Per-event credit availability is checked separately via useSmsCredits.
+  const smsEnabled = true;
 
   return {
     settings,

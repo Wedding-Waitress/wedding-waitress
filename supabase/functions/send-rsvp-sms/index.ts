@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getAdminSupabase, getRemainingCredits, sendSmsAndAccount } from "../_shared/sms-service.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,9 +7,7 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
     const authHeader = req.headers.get('Authorization');
@@ -18,48 +17,46 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const twilioSid = Deno.env.get('TWILIO_ACCOUNT_SID');
-    const twilioToken = Deno.env.get('TWILIO_AUTH_TOKEN');
-    const twilioPhone = Deno.env.get('TWILIO_PHONE_NUMBER');
-
-    if (!twilioSid || !twilioToken || !twilioPhone) {
-      return new Response(JSON.stringify({ error: 'SMS is not configured. Twilio credentials are missing.' }), {
-        status: 503,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(authHeader.replace('Bearer ', ''));
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    const userId = claimsData.claims.sub;
+    const userId = claimsData.claims.sub as string;
 
     const { event_id, guest_ids } = await req.json();
     if (!event_id || !guest_ids?.length) {
       return new Response(JSON.stringify({ error: 'event_id and guest_ids required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const admin = getAdminSupabase();
 
-    // Verify user owns the event
-    const { data: event, error: eventError } = await adminClient
+    const { data: event, error: eventError } = await admin
       .from('events')
-      .select('id, name, date, venue, slug, partner1_name, partner2_name')
+      .select('id, name, date, venue, slug, partner1_name, partner2_name, user_id')
       .eq('id', event_id)
-      .eq('user_id', userId)
       .single();
 
-    if (eventError || !event) {
+    if (eventError || !event || event.user_id !== userId) {
       return new Response(JSON.stringify({ error: 'Event not found or unauthorized' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { data: guests, error: guestsError } = await adminClient
+    // Pre-flight credit check
+    const initialRemaining = await getRemainingCredits(admin, userId, event_id);
+    if (initialRemaining <= 0) {
+      return new Response(JSON.stringify({
+        error: 'No SMS credits remaining. Please purchase a top-up to continue sending.',
+        code: 'NO_CREDITS',
+        remaining: 0,
+      }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const { data: guests, error: guestsError } = await admin
       .from('guests')
       .select('id, first_name, last_name, mobile, rsvp_invite_status')
       .eq('event_id', event_id)
@@ -69,83 +66,64 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Failed to fetch guests' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    let sent = 0;
-    let failed = 0;
-    let skipped = 0;
-
     const baseUrl = 'https://weddingwaitress.com.au';
     const rsvpLink = `${baseUrl}/s/${event.slug}`;
     const partnerNames = [event.partner1_name, event.partner2_name].filter(Boolean).join(' & ');
     const eventDate = event.date ? new Date(event.date).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBA';
 
+    let sent = 0, failed = 0, skipped = 0, blocked = 0;
+    let remaining = initialRemaining;
+
     for (const guest of guests) {
-      if (!guest.mobile || !guest.mobile.trim()) {
-        skipped++;
+      if (!guest.mobile || !guest.mobile.trim()) { skipped++; continue; }
+
+      if (remaining <= 0) {
+        blocked++;
         continue;
       }
 
       const smsBody = `Do not reply to this message. ${partnerNames || 'You are'} invite${partnerNames ? '' : 'd'} you to ${event.name} on ${eventDate}${event.venue ? ` at ${event.venue}` : ''}. RSVP here: ${rsvpLink}`;
 
-      try {
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-        const authString = btoa(`${twilioSid}:${twilioToken}`);
+      const result = await sendSmsAndAccount(admin, {
+        user_id: userId,
+        event_id,
+        guest_id: guest.id,
+        to: guest.mobile,
+        body: smsBody,
+      });
 
-        const formData = new URLSearchParams();
-        formData.append('To', guest.mobile);
-        formData.append('From', twilioPhone);
-        formData.append('Body', smsBody);
+      if (result.status === 'sent') {
+        const newStatus = guest.rsvp_invite_status === 'email_sent' ? 'both_sent' : 'sms_sent';
+        await admin.from('guests').update({
+          rsvp_invite_status: newStatus,
+          rsvp_invite_sent_at: new Date().toISOString(),
+        }).eq('id', guest.id);
 
-        const smsRes = await fetch(twilioUrl, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${authString}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: formData.toString(),
+        await admin.from('rsvp_invite_logs').insert({
+          event_id,
+          guest_id: guest.id,
+          user_id: userId,
+          channel: 'sms',
+          status: 'sent',
         });
-
-        const smsResult = await smsRes.json();
-
-        if (smsRes.ok || smsResult.sid) {
-          const newStatus = guest.rsvp_invite_status === 'email_sent' ? 'both_sent' : 'sms_sent';
-          await adminClient.from('guests').update({
-            rsvp_invite_status: newStatus,
-            rsvp_invite_sent_at: new Date().toISOString(),
-          }).eq('id', guest.id);
-
-          await adminClient.from('rsvp_invite_logs').insert({
-            event_id,
-            guest_id: guest.id,
-            user_id: userId,
-            channel: 'sms',
-            status: 'sent',
-          });
-          sent++;
-        } else {
-          await adminClient.from('rsvp_invite_logs').insert({
-            event_id,
-            guest_id: guest.id,
-            user_id: userId,
-            channel: 'sms',
-            status: 'failed',
-            error_message: JSON.stringify(smsResult),
-          });
-          failed++;
-        }
-      } catch (err) {
-        await adminClient.from('rsvp_invite_logs').insert({
+        sent++;
+        remaining = Math.max(0, remaining - 1);
+      } else if (result.status === 'blocked') {
+        blocked++;
+      } else {
+        await admin.from('rsvp_invite_logs').insert({
           event_id,
           guest_id: guest.id,
           user_id: userId,
           channel: 'sms',
           status: 'failed',
-          error_message: String(err),
+          error_message: result.error ?? 'unknown',
         });
         failed++;
       }
     }
 
-    return new Response(JSON.stringify({ sent, failed, skipped }), {
+    return new Response(JSON.stringify({ sent, failed, skipped, blocked, remaining }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

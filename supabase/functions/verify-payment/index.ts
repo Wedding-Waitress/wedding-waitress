@@ -34,6 +34,11 @@ const RSVP_PRODUCT_IDS = new Set([
 // RSVP overage product ID ($10 AUD per 10 extra guests)
 const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
 
+// Smart RSVP & Messaging — SMS top-up product ($99 AUD = 250 credits)
+const SMS_TOPUP_PRODUCT_ID = "prod_UTh041rdR91og1";
+const SMS_TOPUP_CREDITS = 250;
+const SMS_INCLUDED_CREDITS = 250;
+
 // Map RSVP tier product IDs -> guest limit unlocked by that tier
 const RSVP_TIER_LIMITS: Record<string, number> = {
   "prod_Tyt1bSwrpOzxNd": 100,
@@ -158,6 +163,21 @@ serve(async (req) => {
         });
       }
 
+      // Grant included SMS credits on first activation (idempotent at row level)
+      if (!existing) {
+        try {
+          await supabase.rpc("add_sms_credits", {
+            _user_id: userId,
+            _event_id: eventId,
+            _amount: SMS_INCLUDED_CREDITS,
+            _source: "rsvp_tier_activation",
+          });
+          logStep("Granted included SMS credits", { eventId, credits: SMS_INCLUDED_CREDITS });
+        } catch (e) {
+          console.error("[VERIFY-PAYMENT] add_sms_credits (activation) failed", e);
+        }
+      }
+
       logStep("RSVP tier purchase recorded", { eventId, amountPaid, purchasedLimit });
 
       // Fire-and-forget confirmation email (only on first verification).
@@ -279,6 +299,60 @@ serve(async (req) => {
       });
     }
 
+
+    // ── Smart RSVP & Messaging — SMS Top-up ──
+    if (productId === SMS_TOPUP_PRODUCT_ID) {
+      if (!eventId) throw new Error("event_id is required for SMS top-up");
+
+      const amountPaid = (session.amount_total || 0) / 100;
+      const blocks = lineItem?.quantity ?? 1;
+      const credits = SMS_TOPUP_CREDITS * blocks;
+
+      // Idempotency: only grant credits + record once per session
+      const { data: existing } = await supabase
+        .from("rsvp_invite_purchases")
+        .select("id")
+        .eq("stripe_session_id", session_id)
+        .maybeSingle();
+
+      if (!existing) {
+        await supabase.from("rsvp_invite_purchases").insert({
+          user_id: userId,
+          event_id: eventId,
+          amount_paid: amountPaid,
+          guest_tier_label: `SMS Top-up +${credits} credits`,
+          stripe_session_id: session_id,
+          stripe_payment_id: session.payment_intent as string,
+          status: "completed",
+          purchase_type: "sms_topup",
+          purchased_limit: null,
+          overage_blocks: 0,
+          guest_count_at_purchase: null,
+        });
+
+        try {
+          await supabase.rpc("add_sms_credits", {
+            _user_id: userId,
+            _event_id: eventId,
+            _amount: credits,
+            _source: "topup",
+          });
+          logStep("SMS top-up credits granted", { eventId, credits });
+        } catch (e) {
+          console.error("[VERIFY-PAYMENT] add_sms_credits (topup) failed", e);
+        }
+      }
+
+      return new Response(JSON.stringify({
+        type: "sms_topup",
+        status: "completed",
+        amount_paid: amountPaid,
+        credits_added: credits,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
 
     // ── Plan Extension Purchase ──
     if (EXTENSION_PRODUCT_IDS.has(productId)) {
