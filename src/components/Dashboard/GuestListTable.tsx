@@ -2972,7 +2972,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           tierLabel={rsvpPurchase?.guest_tier_label || ''}
         />
 
-        {/* Guest Limit Dialog */}
+        {/* Resend Smart RSVP — precision re-targeting */}
+        <ResendSmartRsvpModal
+          isOpen={showResendModal}
+          onClose={() => setShowResendModal(false)}
+          eventId={selectedEventId}
+          onSend={async (channel, guestIds) => {
+            if (!selectedEventId || guestIds.length === 0) return false;
+            const result = channel === 'email'
+              ? await sendEmailInvites(selectedEventId, guestIds)
+              : await sendSmsInvites(selectedEventId, guestIds);
+            if (result) await refetchGuests();
+            return !!result;
+          }}
+        />
+
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
