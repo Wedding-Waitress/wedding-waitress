@@ -54,7 +54,7 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 export function RunningSheetPublicView() {
   const params = useParams<{ token: string; eventSlug?: string }>();
-  const token = params.token || params.eventSlug;
+  const token = decodeShareToken(params.token || params.eventSlug);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<RunningSheetData | null>(null);
@@ -69,9 +69,13 @@ export function RunningSheetPublicView() {
   const fetchData = useCallback(async () => {
     if (!token) {
       setError('Invalid share link');
+      setData(null);
       setLoading(false);
       return;
     }
+    // Reset stale state when token changes so previous event data never flashes.
+    setError(null);
+    setLoading(true);
     try {
       const { data: result, error: fetchError } = await supabase.rpc(
         'get_running_sheet_by_token',
@@ -80,11 +84,13 @@ export function RunningSheetPublicView() {
       if (fetchError) {
         console.error('Error fetching running sheet:', fetchError);
         setError('This link is invalid or has expired');
+        setData(null);
         setLoading(false);
         return;
       }
       if (!result || result.length === 0) {
         setError('This link is invalid or has expired');
+        setData(null);
         setLoading(false);
         return;
       }
