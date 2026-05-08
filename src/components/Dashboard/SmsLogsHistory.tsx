@@ -109,7 +109,7 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
   return (
     <Card className="p-4 space-y-3">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h3 className="text-sm font-semibold">SMS history</h3>
+        <h3 className="text-sm font-semibold">Smart RSVP Delivery History</h3>
         <div className="flex items-center gap-2">
           <Select value={methodFilter} onValueChange={(v) => setMethodFilter(v as typeof methodFilter)}>
             <SelectTrigger className="h-8 w-[150px] text-xs">
