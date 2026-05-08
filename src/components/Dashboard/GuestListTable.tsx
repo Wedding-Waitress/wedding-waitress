@@ -1977,7 +1977,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
               <TooltipProvider>
                 {/* Sort By Dropdown - hidden on mobile */}
-                <div className="hidden sm:block">
+                <div className="hidden sm:block lg:hidden">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
@@ -2016,7 +2016,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </div>
 
                 {/* Import/Export CSV Dropdown - hidden on mobile */}
-                <div className="hidden sm:block">
+                <div className="hidden sm:block lg:hidden">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
