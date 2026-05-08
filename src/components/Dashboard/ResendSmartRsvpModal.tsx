@@ -83,20 +83,30 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
     (async () => {
       setLoading(true);
       try {
-        const [{ data: g }, { data: failed }] = await Promise.all([
+        const [{ data: g }, { data: logs }] = await Promise.all([
           supabase
             .from('guests')
             .select('id, first_name, last_name, rsvp, rsvp_invite_status, email, mobile')
             .eq('event_id', eventId),
           supabase
             .from('sms_send_logs')
-            .select('guest_id, status')
+            .select('guest_id, status, last_status_at, created_at')
             .eq('event_id', eventId)
-            .in('status', ['failed', 'undelivered', 'blocked']),
+            .order('last_status_at', { ascending: false }),
         ]);
         if (cancelled) return;
         setGuests((g ?? []) as GuestLite[]);
-        setFailedSmsGuestIds(new Set((failed ?? []).map((r: any) => r.guest_id).filter(Boolean)));
+        // Latest log per guest. Only include guests whose latest status is failed/undelivered/blocked.
+        const latestByGuest = new Map<string, string>();
+        (logs ?? []).forEach((r: any) => {
+          if (!r.guest_id) return;
+          if (!latestByGuest.has(r.guest_id)) latestByGuest.set(r.guest_id, (r.status || '').toLowerCase());
+        });
+        const failedSet = new Set<string>();
+        latestByGuest.forEach((status, gid) => {
+          if (status === 'failed' || status === 'undelivered' || status === 'blocked') failedSet.add(gid);
+        });
+        setFailedSmsGuestIds(failedSet);
       } finally {
         if (!cancelled) setLoading(false);
       }
