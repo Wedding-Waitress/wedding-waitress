@@ -9,6 +9,7 @@ import {
   paginateGuests, type PageSlice,
 } from '@/lib/fullSeatingChartLayout';
 import { FileText, Eye } from 'lucide-react';
+import { decodeShareToken } from '@/lib/shareTokens';
 
 interface SharedGuest {
   id: string;
