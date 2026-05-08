@@ -2842,6 +2842,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                });
                return;
              }
+             if (smsEmpty) {
+               toast({
+                 title: "SMS credits required",
+                 description: "SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.",
+                 variant: "destructive",
+                 className: "[&_*]:text-white",
+               });
+               return;
+             }
              setSendChannel('sms');
             if (hasRsvpPurchase && rsvpPurchase) {
               if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
