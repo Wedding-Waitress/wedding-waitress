@@ -396,6 +396,38 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             </Select>
           </div>
 
+          {/* Urgency / segmentation chips */}
+          {(() => {
+            const opts: Array<{ key: UrgencyFilter; label: string }> = [
+              { key: 'all', label: 'All guests' },
+              { key: 'no_response_7d', label: 'No Response > 7 days' },
+              { key: 'failed_delivery', label: 'Failed Delivery' },
+              { key: 'needs_attention', label: 'Needs Attention' },
+              { key: 'recent_response', label: 'Recently Responded' },
+            ];
+            return (
+              <div className="flex flex-wrap gap-1.5">
+                {opts.map(o => {
+                  const active = urgencyFilter === o.key;
+                  return (
+                    <button
+                      key={o.key}
+                      type="button"
+                      onClick={() => setUrgencyFilter(o.key)}
+                      className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
+                        active
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
           <div className="rounded-lg border border-border overflow-hidden">
             <div className="max-h-[55vh] overflow-y-auto">
               <table className="w-full text-xs">
