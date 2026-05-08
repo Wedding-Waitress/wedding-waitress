@@ -28,6 +28,8 @@ const formatDate = (iso: string | null) => {
 export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { plan, isTrialExpired } = useUserPlan();
   const { data: billing } = useAccountBilling();
+  const { includedEvents, additionalPurchased, remaining } = useEventLimits();
+  const { usedSeats, maxSeats } = useAccountSeats();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<string | null>(null);
