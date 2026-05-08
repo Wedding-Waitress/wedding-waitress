@@ -1,87 +1,137 @@
-## Permanent Account IDs + Unique Event IDs (amended)
 
-### 1. Database migration
+# Smart RSVP & Messaging — Final Implementation Plan
 
-**`profiles` table:**
-- Add `country_code text` (ISO-2, uppercase; nullable, defaults to `XX` when unknown).
-- Add `account_id text` (will become `NOT NULL` after backfill).
-- Unique index `profiles_account_id_unique` on `account_id` — this index is the **final authority** preventing duplicates.
+Move SMS from "users bring their own Twilio" to a fully managed Wedding Waitress messaging service, and rebrand the existing $99 RSVP unlock as **Smart RSVP & Messaging** with **250 SMS credits** included and $99 + GST top-up packs.
 
-**`events` table:**
-- Add `event_id text` (will become `NOT NULL` after backfill).
-- Unique index `events_event_id_unique` on `event_id` — final authority preventing duplicates.
+---
 
-**Generator functions (SECURITY DEFINER, search_path=public):**
-- `generate_account_id(_country text) returns text`
-  - Charset `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`, length **8**, generated from `gen_random_bytes(8)` (cryptographic).
-  - Loops up to 50 attempts, checking `NOT EXISTS (SELECT 1 FROM profiles WHERE account_id = candidate)`.
-  - Returns `UPPER(COALESCE(NULLIF(_country,''),'XX')) || '-' || random8`.
-  - Example: `AU-7K29X8QF`.
-- `generate_event_id() returns text`
-  - Same charset, length **8**, prefix `EV-`. Collision check against `events.event_id`.
-  - Example: `EV-4K2M9AZ7`.
+## 1. Database (single new migration)
 
-**BEFORE INSERT triggers (server-side, ignore client values):**
-- `profiles_set_account_id`: **always overwrites** with `generate_account_id(NEW.country_code)` — `NEW.account_id := generate_account_id(...)` runs unconditionally, so any value the client sends is discarded. Client cannot inject a custom ID.
-- `events_set_event_id`: same pattern — `NEW.event_id := generate_event_id()` unconditionally.
-- (For backfill we temporarily skip the trigger by using `ALTER TABLE ... DISABLE TRIGGER` for that one statement, then re-enable; or, equivalently, set the value inside the trigger only when `NEW.account_id IS NULL OR NEW.account_id !~ '^[A-Z]{2}-[A-Z0-9]{8}$'` — both keep client-supplied values from being honoured. The plan uses the unconditional-overwrite version for simplicity and maximum safety.)
+### `sms_pricing_constants` (single-row config table for future flexibility)
+- `id` (singleton), `included_credits` (default 250), `topup_credits` (default 250), `topup_price_aud` (default 99), `gst_rate` (default 0.10)
+- Read-only to clients; admin-only writes via RLS.
 
-**BEFORE UPDATE immutability triggers:**
-- `profiles_account_id_immutable` and `events_event_id_immutable`: `RAISE EXCEPTION` if value changes after creation.
+### `sms_credits`
+- `user_id`, `event_id`, `total`, `used`, `remaining` (generated `total - used`), `last_topup_at`, timestamps
+- Unique on (`user_id`, `event_id`)
+- RLS: owner-select only; all writes via SECURITY DEFINER RPCs.
 
-**One-time backfill (same migration, runs before NOT NULL):**
-- `UPDATE profiles SET account_id = generate_account_id(COALESCE(country_code,'XX')) WHERE account_id IS NULL;`
-- `UPDATE events SET event_id = generate_event_id() WHERE event_id IS NULL;`
-- Loop: re-run until 0 rows remain (defensive against any insert-during-migration race).
+### `sms_send_logs` (audit)
+- `user_id`, `event_id`, `guest_id`, `to_masked` (last 4 digits), `twilio_sid`, `status` (`sent`/`failed`), `error_message`, `created_at`
+- Owner-select only.
 
-**Lock down columns after backfill:**
-- `ALTER TABLE profiles ALTER COLUMN account_id SET NOT NULL;`
-- `ALTER TABLE events ALTER COLUMN event_id SET NOT NULL;`
+### RPCs (all SECURITY DEFINER, search_path=public)
+- `get_sms_credits(_user_id, _event_id) → { total, used, remaining }`
+- `add_sms_credits(_user_id, _event_id, _amount, _source) → void` — upsert + increment, set `last_topup_at`
+- `consume_sms_credit(_user_id, _event_id, _guest_id, _twilio_sid) → boolean` — atomic `UPDATE … WHERE remaining > 0 RETURNING true`; only called **after** Twilio success
+- `log_sms_send(_user_id, _event_id, _guest_id, _to_masked, _twilio_sid, _status, _error) → void`
 
-**RLS:** existing policies on `profiles` / `events` already cover the new columns (own-row read). No policy changes needed. Because the triggers overwrite client input on INSERT and block any UPDATE, RLS need not police these specific columns separately — the unique indexes + triggers are the source of truth.
+### Backfill (in same migration)
+- For every user with a completed `rsvp_invite_purchases` (`purchase_type='rsvp_tier'` or legacy NULL): insert one `sms_credits` row with `total=250, used=0` if missing.
 
-### 2. Country detection on signup
+---
 
-- New util `src/lib/countryFromLocale.ts`: maps `Intl.DateTimeFormat().resolvedOptions().timeZone` and `navigator.language` region to an ISO-2 country code. Falls back to `XX`.
-- In existing signup flow (`SignUpModal` / `EmbeddedSignUpForm`), after the auth user is created, write `country_code` (only) to the new `profiles` row. The DB trigger then generates `account_id` server-side. No client-side ID generation anywhere.
+## 2. Stripe & checkout
 
-### 3. Frontend display (minimal, scoped)
+- Reuse the existing $99 RSVP tier price as the **Smart RSVP & Messaging activation price** (label change only — no new Stripe product).
+- Create one new Stripe price: **SMS Top-up — 250 credits — $99 AUD** via the Stripe tool. Save id in `src/lib/stripePrices.ts` as `SMS_TOPUP`.
+- New edge function `create-sms-topup-checkout`: takes `event_id`, creates a one-time Stripe Checkout session with `metadata: { type: 'sms_topup', user_id, event_id }`.
+- `verify-payment`: add two branches
+  - Smart RSVP activation completion → call `add_sms_credits(user_id, event_id, 250, 'activation')`
+  - `metadata.type='sms_topup'` completion → call `add_sms_credits(user_id, event_id, 250, 'topup')` and insert a `rsvp_invite_purchases` row with `purchase_type='sms_topup'` for billing history.
 
-**`src/hooks/useProfile.ts`** — extend `UserProfile` with `account_id: string | null` and `country_code: string | null` (read-only).
+---
 
-**`src/components/Dashboard/AppSidebar.tsx`** (sidebar footer profile area, ~line 199) — add one small line under the user name:
-```tsx
-{profile?.account_id && (
-  <span className="text-[11px] text-muted-foreground/80 truncate">
-    Account ID: {profile.account_id}
-  </span>
-)}
+## 3. Edge function: `send-rsvp-sms` (rewrite)
+
+- Remove ALL reads from `notification_settings`.
+- Use platform secrets only:
+  - **Primary**: `TWILIO_MESSAGING_SERVICE_SID` → POST with `MessagingServiceSid`
+  - **Fallback**: if not set, use `TWILIO_PHONE_NUMBER` as `From`
+  - Auth always uses `TWILIO_ACCOUNT_SID` + `TWILIO_AUTH_TOKEN`
+- For each guest in the batch:
+  1. Pre-check: if `get_sms_credits().remaining <= 0` → stop loop, return `{ sent, failed, skipped, blocked: true, error: 'SMS credits exhausted' }`
+  2. Call Twilio
+  3. Only on Twilio success **AND** valid `sid` returned → `consume_sms_credit(...)`
+  4. On any Twilio failure → do **not** consume; call `log_sms_send(status='failed', error)`; continue to next guest
+- 1 successful Twilio send = exactly 1 credit deducted (per-message accounting confirmed).
+- Returns `{ sent, failed, skipped, credits_remaining }`.
+
+---
+
+## 4. Reusable service layer
+
+New file `supabase/functions/_shared/sms-service.ts` exporting:
+- `getCredits(adminClient, userId, eventId)`
+- `consumeCredit(adminClient, userId, eventId, guestId, twilioSid)`
+- `logSend(adminClient, ...)`
+- `sendTwilioSms({ to, body })` — handles MessagingService/Phone fallback in one place
+- `sendBulkSms({ adminClient, userId, eventId, recipients })` — orchestrates the loop with the credit safety rule
+
+`send-rsvp-sms` and any future SMS feature (reminders, guest messaging) all use this single helper.
+
+---
+
+## 5. Frontend
+
+### Removed entirely (no UI, no DB writes)
+- All Twilio fields in `AdminNotificationSettings.tsx`: Account SID, Auth Token, Messaging Service SID, From phone, SMS provider dropdown.
+- The Twilio fields stay in the DB table for now (write `null` only) so existing rows aren't lost — backward-compatible. The hook stops writing them.
+- `useNotificationSettings.ts`: removes SMS write surface; keeps email (Resend) intact.
+
+### New
+- `src/lib/smsPricing.ts` — central constants (mirrors `sms_pricing_constants` defaults; loaded on app start, with hard-coded fallback): `INCLUDED_CREDITS`, `TOPUP_CREDITS`, `TOPUP_PRICE_AUD`, `GST_RATE`, helpers like `formatPriceWithGst()`.
+- `src/hooks/useSmsCredits.ts` — `{ total, used, remaining, loading, refetch }` with realtime subscription on `sms_credits`.
+- `src/components/Dashboard/SmsCreditMeter.tsx` — shows `"X of Y SMS credits used · Z remaining"`, color tiers:
+  - `≤ 50`: amber notice
+  - `≤ 25`: red notice + inline "Top up" link
+  - `0`: hard-locked banner + primary "Purchase 250 more SMS credits ($99 + GST)" CTA → `create-sms-topup-checkout`
+- New modal `SmsTopupModal.tsx` — Stripe checkout launcher (mirrors `RsvpActivationModal` pattern).
+
+### Updated
+- `RsvpActivationModal.tsx` — relabel to **"Smart RSVP & Messaging"**; bullets become:
+  - SMS invitations
+  - RSVP reminders
+  - Email invitations
+  - Guest messaging
+  - RSVP tracking
+  - **250 SMS message credits included**
+- `GuestListTable.tsx` SMS send drawer — embeds `SmsCreditMeter`; SMS send buttons are **disabled** when `remaining === 0` and replaced with a "Purchase 250 more SMS credits" CTA. (No layout changes — the desktop table is locked; only the side panel/drawer is touched.)
+- `Account/BillingCard.tsx` + `HistoryCard.tsx` — show Smart RSVP & Messaging activation + each top-up as separate line items; show current credit balance.
+- All user-facing wording swap (search/replace audit): "RSVP Invitations", "RSVP Upgrade", "SMS setup", "Connect Twilio" → **"Smart RSVP & Messaging"**.
+
+---
+
+## 6. Safety guarantees
+
+- **Credit deduction is atomic and post-success only** — RPC returns boolean; any failure path skips deduction.
+- **Backward compat**:
+  - Existing `rsvp_invite_purchases` rows continue to gate access (no logic change).
+  - Existing notification_settings table preserved (Twilio columns ignored, never re-written).
+  - Resend email flow untouched.
+  - Reminder scheduling unchanged — it just calls the new `send-rsvp-sms` which now enforces credits.
+- **Hard zero-state**: when `remaining === 0`, every SMS send entry-point is disabled at component level (button `disabled`, visual locked state) AND server-side (function returns 402-style block).
+
+---
+
+## 7. Files touched
+
 ```
-No other layout changes. Works PC/tablet/mobile.
+supabase/migrations/<new>.sql
+supabase/functions/_shared/sms-service.ts                  # NEW
+supabase/functions/send-rsvp-sms/index.ts                  # rewrite
+supabase/functions/verify-payment/index.ts                 # 2 new branches
+supabase/functions/create-sms-topup-checkout/index.ts      # NEW
+src/lib/smsPricing.ts                                      # NEW
+src/lib/stripePrices.ts                                    # add SMS_TOPUP
+src/hooks/useSmsCredits.ts                                 # NEW
+src/hooks/useNotificationSettings.ts                       # SMS writes removed
+src/components/Admin/AdminNotificationSettings.tsx         # remove Twilio block
+src/components/Dashboard/SmsCreditMeter.tsx                # NEW
+src/components/Dashboard/SmsTopupModal.tsx                 # NEW
+src/components/Dashboard/RsvpActivationModal.tsx           # relabel + 250 credits bullet
+src/components/Dashboard/GuestListTable.tsx                # meter + zero-state lock (drawer only)
+src/components/Account/BillingCard.tsx, HistoryCard.tsx    # new line items + balance
+```
 
-**`src/components/Account/AccountInfoCard.tsx`** — add a read-only `Row label="Account ID" value={profile?.account_id || '—'}`.
-
-**`src/components/Dashboard/EventsTable.tsx`** (My Events page only)
-- Extend local `Event` interface with `event_id?: string | null`.
-- **Desktop/tablet table:** insert `<TableHead className="w-24">Event ID</TableHead>` between Countdown and Event Name, plus a matching `<TableCell>` rendering `event.event_id` in `font-mono text-xs text-muted-foreground`.
-- **Mobile card view:** add a small line under the event name: `<p className="text-xs font-mono text-muted-foreground">{event.event_id}</p>`. No layout restructuring.
-
-**`src/hooks/useEvents.ts`** — confirm the events query returns `event_id` (likely already `select('*')`). If `get_events_with_guest_count` RPC is used and doesn't include `event_id`, update the RPC return columns in the same migration.
-
-### 4. Explicitly NOT changed
-- Internal `events.id` (uuid) PK and every FK/join/realtime channel stay exactly as today. `event_id` is a display/lookup string only.
-- No styling, spacing, colors, buttons, or other pages touched.
-- All locked pages remain untouched aside from the two tiny additions above (sidebar footer line + My Events column).
-
-### 5. Security & guarantees
-- **Server-side only:** triggers overwrite any client-supplied `account_id` / `event_id`, so the frontend cannot dictate IDs.
-- **Crypto-random:** 8 chars × 36 charset = ~2.8 × 10¹² combinations per country prefix → astronomically low collision probability.
-- **Unique indexes are final authority:** any race that produced a duplicate would fail the INSERT; the generator's retry loop transparently retries on conflict.
-- **Immutable:** UPDATE triggers raise an exception if either ID is changed.
-- **NOT NULL after backfill:** schema-level guarantee that every account/event has an ID forever.
-
-### Technical summary
-- 1 SQL migration: 2 columns added to `profiles`, 1 column to `events`, 2 generator functions, 4 triggers (2 INSERT-overwrite, 2 UPDATE-immutability), 2 unique indexes, backfill loop, 2 `SET NOT NULL`, optional RPC return-columns update.
-- 4 small frontend edits: `useProfile.ts`, `AppSidebar.tsx`, `EventsTable.tsx`, `AccountInfoCard.tsx`.
-- 1 new util: `src/lib/countryFromLocale.ts`.
-- 1 small signup patch to write `country_code` only.
+Ready to implement.
