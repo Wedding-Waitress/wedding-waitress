@@ -116,12 +116,21 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
         </div>
         <Row label="Start date" value={formatDate(startDate)} />
         <Row label="Expiry date" value={formatDate(plan?.expires_at ?? null)} />
+        <div className="pt-3 mt-1 border-t border-border/50">
+          <div className="text-[11px] uppercase tracking-wide font-medium text-muted-foreground mb-1">
+            Plan inclusions
+          </div>
+          <Row label="Included events" value={`${includedEvents}`} />
+          <Row label="Additional events purchased" value={`${additionalPurchased}`} />
+          <Row label="Remaining events" value={`${remaining}`} />
+          <Row label="User seats" value={`${usedSeats} / ${maxSeats}`} />
+        </div>
       </div>
       <div className="mt-6">
         <Button
           onClick={handleUpgrade}
           disabled={busy}
-          className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
+          className="lv-premium-shade bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
           size="sm"
         >
           {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
