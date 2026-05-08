@@ -219,8 +219,10 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
               </button>
               <button
                 type="button"
-                onClick={() => setChannel('sms')}
-                className={`rounded-lg border-2 p-3 flex items-center justify-center gap-2 text-sm lv-premium-shade ${
+                onClick={() => { if (!smsEmpty) setChannel('sms'); }}
+                disabled={smsEmpty}
+                title={smsEmpty ? 'SMS credits required to continue Smart RSVP messaging.' : undefined}
+                className={`rounded-lg border-2 p-3 flex items-center justify-center gap-2 text-sm lv-premium-shade disabled:opacity-50 disabled:cursor-not-allowed ${
                   channel === 'sms' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
                 }`}
               >
