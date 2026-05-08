@@ -45,6 +45,7 @@ export const Account: React.FC = () => {
 
       <div className="space-y-5 sm:space-y-6">
         <AccountInfoCard icon={User} />
+        <AccountAccessCard icon={Users} />
         <SubscriptionCard icon={CreditCard} />
         <BillingCard icon={Receipt} />
         <UsageCard icon={BarChart3} />
