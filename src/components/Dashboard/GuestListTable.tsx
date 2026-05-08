@@ -262,6 +262,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showOverageModal, setShowOverageModal] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false);
+  const [showIntelligencePanel, setShowIntelligencePanel] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { credits: smsCredits } = useSmsCredits(selectedEventId);
@@ -1707,7 +1708,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   }}
                   onCommunications={() => setShowAnalyticsPanel(true)}
                   onDelivery={() => setShowResendModal(true)}
-                  onIntelligence={() => setShowAnalyticsPanel(true)}
+                  onIntelligence={() => setShowIntelligencePanel(true)}
                 />
               )}
 
@@ -3030,12 +3031,46 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           }}
         />
 
-        {/* Smart RSVP Analytics — slide-over */}
+        {/* Smart RSVP Analytics — slide-over (Communications Centre) */}
         <SmartRsvpAnalyticsPanel
           eventId={selectedEventId}
           open={showAnalyticsPanel}
           onOpenChange={setShowAnalyticsPanel}
         />
+
+        {/* Guest Intelligence Centre — minimal placeholder (analytics intentionally
+            removed to avoid duplication with Communications Centre). */}
+        {showIntelligencePanel && (
+          <div
+            className="fixed inset-0 z-[60] bg-black/40 flex items-stretch justify-end"
+            onClick={() => setShowIntelligencePanel(false)}
+          >
+            <div
+              className="w-full sm:w-[480px] bg-white h-full overflow-y-auto p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest Intelligence Centre</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowIntelligencePanel(false)}
+                  className="text-[#6E6E73] hover:text-[#1D1D1F] text-xl leading-none"
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-sm text-[#6E6E73] mb-6">
+                Smart guest insights are coming soon — RSVP intelligence, engagement analytics,
+                relationship signals, behavioural patterns and AI-driven recommendations will live here.
+              </p>
+              <div className="rounded-2xl border border-[#E8E1D6] bg-[#FBF7F2]/60 p-4 text-sm text-[#6E6E73]">
+                For delivery analytics, KPIs and per-guest communication history, please use the
+                <span className="font-medium text-[#1D1D1F]"> Communications Centre</span>.
+              </div>
+            </div>
+          </div>
+        )}
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
