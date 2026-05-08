@@ -50,7 +50,7 @@ export interface Event {
 
 // Module-level cache for instant loading on return visits
 let eventsCache: Event[] | null = null;
-
+registerCache(() => { eventsCache = null; });
 export const useEvents = () => {
   const [events, setEvents] = useState<Event[]>(eventsCache ?? []);
   const [loading, setLoading] = useState(!eventsCache);
