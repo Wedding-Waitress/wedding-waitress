@@ -2475,6 +2475,111 @@ export type Database = {
           },
         ]
       }
+      sms_credits: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          last_topup_at: string | null
+          remaining: number | null
+          total: number
+          updated_at: string
+          used: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          last_topup_at?: string | null
+          remaining?: number | null
+          total?: number
+          updated_at?: string
+          used?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          last_topup_at?: string | null
+          remaining?: number | null
+          total?: number
+          updated_at?: string
+          used?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sms_pricing_constants: {
+        Row: {
+          created_at: string
+          gst_rate: number
+          id: string
+          included_credits: number
+          is_active: boolean
+          topup_credits: number
+          topup_price_aud: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          gst_rate?: number
+          id?: string
+          included_credits?: number
+          is_active?: boolean
+          topup_credits?: number
+          topup_price_aud?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          gst_rate?: number
+          id?: string
+          included_credits?: number
+          is_active?: boolean
+          topup_credits?: number
+          topup_price_aud?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sms_send_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_id: string
+          guest_id: string | null
+          id: string
+          status: string
+          to_masked: string | null
+          twilio_sid: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_id: string
+          guest_id?: string | null
+          id?: string
+          status: string
+          to_masked?: string | null
+          twilio_sid?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_id?: string
+          guest_id?: string | null
+          id?: string
+          status?: string
+          to_masked?: string | null
+          twilio_sid?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           can_send_email: boolean
@@ -2718,6 +2823,15 @@ export type Database = {
         Args: { at_order_index?: number; share_token: string }
         Returns: Json
       }
+      add_sms_credits: {
+        Args: {
+          _amount: number
+          _event_id: string
+          _source?: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       can_access_event: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
@@ -2734,6 +2848,15 @@ export type Database = {
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       clear_dj_mc_section_items_by_token: {
         Args: { p_section_id: string; share_token: string }
+        Returns: boolean
+      }
+      consume_sms_credit: {
+        Args: {
+          _event_id: string
+          _guest_id: string
+          _twilio_sid: string
+          _user_id: string
+        }
         Returns: boolean
       }
       deduct_communication_credit: {
@@ -3002,6 +3125,14 @@ export type Database = {
           permission: string
         }[]
       }
+      get_sms_credits: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: {
+          remaining: number
+          total: number
+          used: number
+        }[]
+      }
       get_user_plan: {
         Args: { _user_id: string }
         Returns: {
@@ -3022,6 +3153,18 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_sms_send: {
+        Args: {
+          _error?: string
+          _event_id: string
+          _guest_id: string
+          _status: string
+          _to_masked: string
+          _twilio_sid: string
+          _user_id: string
+        }
+        Returns: undefined
       }
       public_manage_guest_group: {
         Args: {
