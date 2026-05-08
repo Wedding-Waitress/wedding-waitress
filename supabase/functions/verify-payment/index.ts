@@ -34,6 +34,11 @@ const RSVP_PRODUCT_IDS = new Set([
 // RSVP overage product ID ($10 AUD per 10 extra guests)
 const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
 
+// Smart RSVP & Messaging — SMS top-up product ($99 AUD = 250 credits)
+const SMS_TOPUP_PRODUCT_ID = "prod_UTh041rdR91og1";
+const SMS_TOPUP_CREDITS = 250;
+const SMS_INCLUDED_CREDITS = 250;
+
 // Map RSVP tier product IDs -> guest limit unlocked by that tier
 const RSVP_TIER_LIMITS: Record<string, number> = {
   "prod_Tyt1bSwrpOzxNd": 100,
