@@ -243,6 +243,11 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
                 </>
               )}
             </div>
+            {valueLine && (
+              <div className="text-[11px] text-muted-foreground/80 mt-0.5">
+                {valueLine}
+              </div>
+            )}
             <div
               className={cn(
                 'mt-2 text-xs flex items-start gap-1.5',
