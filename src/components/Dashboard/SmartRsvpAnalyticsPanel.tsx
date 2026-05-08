@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { DeliveryAnalyticsPanel } from './DeliveryAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
+import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
+import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { Search } from 'lucide-react';
 
