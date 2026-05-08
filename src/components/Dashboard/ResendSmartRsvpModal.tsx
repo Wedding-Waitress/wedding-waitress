@@ -139,6 +139,14 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
   );
 
   const handleSend = async () => {
+    if (channel === 'sms' && smsEmpty) {
+      toast({
+        title: 'SMS credits required',
+        description: 'SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (reachable.length === 0) {
       toast({
         title: 'No reachable guests',
