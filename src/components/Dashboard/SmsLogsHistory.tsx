@@ -102,7 +102,9 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
                   <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="py-1.5 pr-3">{r.guest_name}</td>
                   <td className="py-1.5 pr-3 font-mono">{r.to_masked ?? '—'}</td>
-                  <td className="py-1.5 pr-3">SMS</td>
+                  <td className="py-1.5 pr-3">
+                    <MethodBadge method={r.delivery_method} />
+                  </td>
                   <td className="py-1.5 pr-3">
                     <Badge
                       variant={
