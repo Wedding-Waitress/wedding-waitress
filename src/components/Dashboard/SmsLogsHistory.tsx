@@ -22,6 +22,29 @@ interface Props {
   limit?: number;
 }
 
+const MethodBadge = ({ method }: { method?: string | null }) => {
+  const m = (method ?? 'sms').toLowerCase();
+  if (m === 'email') {
+    return (
+      <Badge variant="outline" className="border-blue-500/40 text-blue-700 bg-blue-500/10 gap-1">
+        <Mail className="w-3 h-3" /> Email
+      </Badge>
+    );
+  }
+  if (m === 'both') {
+    return (
+      <Badge variant="outline" className="border-primary/40 text-primary bg-primary/10 gap-1">
+        <Mail className="w-3 h-3" /> + <MessageSquare className="w-3 h-3" /> Email + SMS
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 bg-emerald-500/10 gap-1">
+      <MessageSquare className="w-3 h-3" /> SMS
+    </Badge>
+  );
+};
+
 /**
  * SmsLogsHistory — paginated audit log of SMS sends for an event.
  * Shows recipient (masked), status, timestamp, RSVP response, and error if failed.
