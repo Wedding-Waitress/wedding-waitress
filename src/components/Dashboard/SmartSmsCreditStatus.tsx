@@ -137,6 +137,8 @@ export const formatRemainingValue = (remaining: number, total: number): string =
   const value = remaining * getCreditUnitValueAud();
   return `Approx. ${audFormatter.format(value)} AUD value remaining`;
 };
+
+const stateBadgeLabel: Record<CreditHealthState, string> = {
   healthy: 'Healthy',
   low: 'Low',
   critical: 'Critical',
