@@ -180,6 +180,17 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
   }, [rows, search, methodFilter, sortKey]);
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleString() : '—';
+  const relTime = (d: string | null) => {
+    if (!d) return '';
+    const ms = Date.now() - new Date(d).getTime();
+    if (ms < 60_000) return 'just now';
+    const m = Math.floor(ms / 60_000);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const days = Math.floor(h / 24);
+    return `${days}d ago`;
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
