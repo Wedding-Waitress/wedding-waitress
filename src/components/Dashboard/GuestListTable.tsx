@@ -77,6 +77,7 @@ import { cn } from "@/lib/utils";
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
+import { GuestIntelligencePanel } from './GuestIntelligence/GuestIntelligencePanel';
 import { AddGuestModal } from './AddGuestModal';
 import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
 
