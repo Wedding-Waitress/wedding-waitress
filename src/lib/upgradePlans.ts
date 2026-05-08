@@ -42,9 +42,9 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
     original_price_aud: PLAN_PRICES.premium.original_price_aud,
     price_id: PLAN_PRICES.premium.price_id,
     mode: "payment",
-    description: "Up to 200 guests · 2 events included · 3 account users",
+    description: "Up to 200 guests · 3 events included · 3 account users",
     features: [
-      "2 events included",
+      "3 events included",
       "Add extra events for A$99 each",
       "Up to 3 account users",
       "Up to 200 guests",
