@@ -222,7 +222,7 @@ export const GuestBulkActionsBar = ({
             <span className="text-sm font-medium text-foreground">Select All Guests</span>
           </div>
 
-          {/* Send Email & SMS via Wedding Waitress (combined) */}
+          {/* Send Email or SMS via Wedding Waitress (combined) */}
           {onSendEmail && (
             <button
               onClick={onSendEmail}
@@ -230,7 +230,7 @@ export const GuestBulkActionsBar = ({
             >
               <Mail className="w-5 h-5 text-blue-500" />
               <Phone className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-medium text-foreground">Send Email &amp; SMS via Wedding Waitress</span>
+              <span className="text-sm font-medium text-foreground">Send Email or SMS via Wedding Waitress</span>
             </button>
           )}
 

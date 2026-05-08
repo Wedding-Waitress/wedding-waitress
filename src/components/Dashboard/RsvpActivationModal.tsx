@@ -1,15 +1,10 @@
 /**
- * PRODUCTION-READY -- LOCKED FOR PRODUCTION
+ * RSVP Activation Modal
  *
- * The Guest List page feature is COMPLETE and APPROVED for production use.
- *
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break guest list management
- * - Changes could break bulk actions and RSVP workflows
- * - Changes could break real-time synchronisation
- *
- * Last locked: 2026-02-19
+ * Updated 2026-05-08: Smart RSVP & Messaging credit-based migration.
+ * Owner-authorised change — adds delivery method selector, refreshed
+ * bundle bullets, new pricing copy, and forwards `delivery_method`
+ * into Stripe checkout metadata for future analytics.
  */
 import React, { useState } from 'react';
 import {
@@ -20,11 +15,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, CreditCard, Check, Loader2 } from "lucide-react";
+import { Mail, Phone, CreditCard, Check, Loader2, MessageSquare } from "lucide-react";
 import { getPricingTier } from '@/hooks/useRsvpPurchase';
 import { getRsvpTier } from '@/lib/stripePrices';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
+type DeliveryMethod = 'email' | 'sms' | 'both';
 
 interface RsvpActivationModalProps {
   isOpen: boolean;
@@ -33,6 +30,14 @@ interface RsvpActivationModalProps {
   onPayNow: () => void;
   eventId?: string | null;
 }
+
+const BUNDLE_FEATURES = [
+  'Unlimited Email Invitations',
+  '250 SMS Credits Included',
+  'Smart RSVP Tracking',
+  'Guest Delivery History',
+  'RSVP Response Monitoring',
+];
 
 export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
   isOpen,
@@ -43,9 +48,23 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
 }) => {
   const pricing = getPricingTier(totalGuestCount);
   const [loading, setLoading] = useState(false);
+  const [method, setMethod] = useState<DeliveryMethod | null>(null);
+  const [attempted, setAttempted] = useState(false);
   const { toast } = useToast();
 
+  const canPay = !!method && !loading;
+
   const handlePayNow = async () => {
+    setAttempted(true);
+    if (!method) {
+      toast({
+        title: "Select an invitation method",
+        description: "Please select at least one invitation method.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!eventId) {
       onPayNow();
       return;
@@ -59,6 +78,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         mode: 'payment',
         event_id: eventId,
         plan_type: 'rsvp',
+        delivery_method: method,
       };
 
       const invokeAttempt = async () => {
@@ -72,22 +92,18 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
       try {
         data = await invokeAttempt();
       } catch {
-        // Retry once after 2s (handles cold starts)
         await new Promise(r => setTimeout(r, 2000));
         data = await invokeAttempt();
       }
 
       console.log("Stripe URL:", data?.url);
       if (data?.url) {
-        // Always return to Guest List after RSVP payment + remember count for success modal.
         try {
           sessionStorage.setItem('ww:returnTab', 'guest-list');
           sessionStorage.setItem('ww:rsvpSelectedCount', String(totalGuestCount ?? 0));
+          sessionStorage.setItem('ww:rsvpDeliveryMethod', method);
         } catch {}
         onClose();
-        // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside
-        // any iframe (e.g. the Lovable preview). Break out to the top window;
-        // if cross-origin top-nav is blocked, fall back to a new tab.
         const inIframe = window.self !== window.top;
         if (inIframe) {
           try {
@@ -112,6 +128,33 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
     }
   };
 
+  const MethodCard = ({
+    value,
+    title,
+    icons,
+  }: {
+    value: DeliveryMethod;
+    title: string;
+    icons: React.ReactNode;
+  }) => {
+    const selected = method === value;
+    return (
+      <button
+        type="button"
+        onClick={() => setMethod(value)}
+        aria-pressed={selected}
+        className={`min-h-[64px] rounded-lg border-2 p-3 flex flex-col items-center justify-center gap-1.5 text-center transition-all lv-premium-shade ${
+          selected
+            ? 'border-primary ring-2 ring-primary/30 bg-primary/5'
+            : 'border-border hover:border-primary/50 hover:bg-muted/40'
+        }`}
+      >
+        <div className="flex items-center gap-1.5">{icons}</div>
+        <span className="text-xs font-medium text-foreground leading-tight">{title}</span>
+      </button>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
@@ -123,20 +166,46 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {/* Delivery method selector */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Choose your delivery method:</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <MethodCard
+                value="email"
+                title="Email Invitations"
+                icons={<Mail className="w-5 h-5 text-blue-500" />}
+              />
+              <MethodCard
+                value="sms"
+                title="SMS Invitations"
+                icons={<MessageSquare className="w-5 h-5 text-green-500" />}
+              />
+              <MethodCard
+                value="both"
+                title="Email + SMS"
+                icons={
+                  <>
+                    <Mail className="w-5 h-5 text-blue-500" />
+                    <MessageSquare className="w-5 h-5 text-green-500" />
+                  </>
+                }
+              />
+            </div>
+            {attempted && !method && (
+              <p className="text-xs text-destructive">Please select at least one invitation method.</p>
+            )}
+          </div>
+
           {/* What you get */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <p className="text-sm font-medium">RSVP Invite Bundle includes:</p>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-500" />
-                <Mail className="w-4 h-4 text-blue-500" />
-                Unlimited Email Invitations
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-green-500" />
-                <Phone className="w-4 h-4 text-green-500" />
-                Unlimited SMS Invitations
-              </li>
+            <ul className="space-y-1.5">
+              {BUNDLE_FEATURES.map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-green-500 shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -146,20 +215,31 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
               Based on your guest list ({pricing.label})
             </p>
             <p className="text-3xl font-bold text-primary">${pricing.price} AUD</p>
+            <p className="text-xs text-foreground font-medium">One-time activation per event</p>
             <p className="text-xs text-muted-foreground">
-              One-time payment per event • Includes both Email & SMS
+              Includes 250 SMS credits + unlimited email invitations.
             </p>
           </div>
+
+          <p className="text-xs text-muted-foreground text-center px-2">
+            SMS credits are only consumed when sending SMS invitations.
+            Additional SMS credits can be purchased anytime.
+          </p>
         </div>
 
         <DialogFooter className="gap-2 pb-6">
-          <Button onClick={onClose} className="rounded-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
+          <Button
+            onClick={onClose}
+            className="rounded-full bg-red-500 hover:bg-red-600 text-white lv-premium-shade"
+            disabled={loading}
+          >
             Cancel
           </Button>
           <Button
             onClick={handlePayNow}
-            disabled={loading}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white"
+            disabled={!canPay}
+            aria-busy={loading}
+            className="rounded-full bg-green-500 hover:bg-green-600 text-white lv-premium-shade disabled:opacity-60"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />

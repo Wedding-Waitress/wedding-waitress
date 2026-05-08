@@ -1,63 +1,81 @@
-## Smart RSVP & Messaging — Final Hardening
+## Smart RSVP & Messaging Modal Upgrade
 
-Two small additions before declaring production-ready, then final QA.
+Update the RSVP activation modal + trigger label to reflect the new credit-based messaging system. Scope is intentionally narrow — no changes to locked Guest List table layouts or other RSVP modals.
 
-### 1. Delivery-status readiness in `sms_send_logs`
+### 1. Trigger button wording
+File: `src/components/Dashboard/GuestBulkActionsBar.tsx` (line 233)
+- "Send Email & SMS via Wedding Waitress" → "Send Email or SMS via Wedding Waitress"
+- Update adjacent comment on line 225 to match.
 
-Migration:
-- Replace the existing free-text `status` with a Postgres enum `sms_delivery_status` containing: `queued`, `sent`, `delivered`, `undelivered`, `failed`, `blocked`.
-- Add nullable columns: `delivered_at timestamptz`, `last_status_at timestamptz default now()`, `error_code text` (Twilio numeric error code, separate from `error` message).
-- Add unique index on `twilio_sid` (partial, where not null) so future webhooks can upsert by SID.
-- Add index on `(event_id, last_status_at desc)` for history view performance.
-- Update `log_sms_send` RPC to accept the enum and set `last_status_at = now()`.
-- Add (but do not wire yet) a `update_sms_delivery_status(_twilio_sid, _status, _error_code, _error)` SECURITY DEFINER RPC — placeholder for the future webhook.
+### 2. RsvpActivationModal — delivery method selector
+File: `src/components/Dashboard/RsvpActivationModal.tsx`
 
-Code:
-- `sms-service.ts`: write initial log as `queued` immediately before the Twilio call, then update to `sent`/`failed`/`blocked` after the response (so future webhook updates flow naturally from `sent → delivered/undelivered`).
-- `SmsLogsHistory.tsx`: render the new statuses with appropriate badge colors; gracefully handle rows still on the old values.
+Add a new section ABOVE the pricing card with three selectable cards:
+- Email Invitations (Mail icon)
+- SMS Invitations (Phone icon)
+- Email + SMS Invitations (both icons)
 
-No webhook endpoint, no Twilio status-callback wiring — schema and helpers only.
+Behaviour:
+- Single-select (radio-style cards) — picking one swaps selection
+- New state: `const [method, setMethod] = useState<'email' | 'sms' | 'both' | null>(null)`
+- Selected card uses premium styling: `border-primary ring-2 ring-primary/30 bg-primary/5 lv-premium-shade`
+- Unselected: `border-border hover:border-primary/50 hover:bg-muted/40`
+- Mobile: stack vertically (`grid grid-cols-1 sm:grid-cols-3 gap-2`)
+- 44px+ tap targets
 
-### 2. Anti-double-click / duplicate-checkout protection
+### 3. Bundle bullets (replace existing 2-item list)
+New list:
+- ✓ Unlimited Email Invitations
+- ✓ 250 SMS Credits Included
+- ✓ Smart RSVP Tracking
+- ✓ Guest Delivery History
+- ✓ RSVP Response Monitoring
 
-`useSmsTopup`:
-- Guard re-entry with a ref (`inFlightRef`) in addition to the `loading` state so rapid double-clicks before React re-renders are also blocked.
-- Use the existing `PaymentProcessingContext` (`startProcessing`) on click and only `stopProcessing` on error — successful path keeps the global overlay through the Stripe redirect, matching how other purchases behave.
-- Idempotency: pass a generated `idempotency_key` (uuid, stable per click attempt) in the `create-checkout` body so a retried invoke cannot create two Stripe sessions; `create-checkout` forwards it as Stripe's `Idempotency-Key` header on `checkout.sessions.create`.
+### 4. Pricing card copy
+- Keep `Based on your guest list (...)` and `$X AUD`
+- Replace `One-time payment per event • Includes both Email & SMS` with two lines:
+  - `One-time activation per event`
+  - small muted: `Includes 250 SMS credits + unlimited email invitations.`
 
-`SmsCreditMeter.tsx` (and any other top-up CTA):
-- Disable the button as soon as it's clicked using both `topupLoading` and the global `processing` flag.
-- Show a `Loader2` spinner + "Starting checkout…" label while pending.
-- Add `aria-busy` and `pointer-events-none` for safety.
+### 5. Usage clarification (under pricing card)
+Small muted text:
+> "SMS credits are only consumed when sending SMS invitations. Additional SMS credits can be purchased anytime."
 
-`create-checkout` edge function:
-- Accept optional `idempotency_key`; if present, pass `{ idempotencyKey }` as the Stripe request options. No behavior change when absent.
+### 6. Validation + Pay button
+- `Pay Now` disabled when: `!method || loading || !eventId`
+- Inline message under the selector when `method === null` AND user has attempted (or always show muted hint): "Please select at least one invitation method."
+- In `handlePayNow`, guard: if `!method` show toast and return.
 
-### 3. Final QA + deployment verification
+### 7. Checkout metadata (future-ready analytics)
+Pass selected method through to Stripe checkout body:
+```ts
+const body = {
+  price_id: tier.price_id,
+  mode: 'payment',
+  event_id: eventId,
+  plan_type: 'rsvp',
+  delivery_method: method,           // 'email' | 'sms' | 'both'
+  metadata: { delivery_method: method },
+};
+```
+`supabase/functions/create-checkout/index.ts` — accept `delivery_method` and forward it into `session.metadata` (and subscription_data.metadata if present) so `verify-payment` and future analytics can read it. No business-logic branching yet (credits already grant 250 regardless; SMS only consumed on actual send).
 
-Audit pass (ripgrep) across the repo for any remaining:
-- "Connect Twilio" / "Twilio credentials" / "twilio_account_sid" UI strings or fields
-- Old `notification_settings` Twilio columns referenced anywhere
-- Hard-coded SMS pricing or 250-credit literals outside `stripePrices.ts` / `sms_pricing_constants`
-- Top-up CTAs missing the disabled/loading guard
-- Edge function imports/paths
+### 8. Out of scope (explicitly NOT touched)
+- Locked desktop Guest List table
+- `SendRsvpConfirmModal`, `RsvpAlreadyPaidModal`, `RsvpOverageModal`, `RsvpPaymentSuccessModal`
+- Credit grant logic, SMS top-up flow, edge functions other than `create-checkout` metadata pass-through
+- Snapshot file under `.lovable/snapshots/...`
 
-Manual + tool checks:
-- Deploy `send-rsvp-sms`, `verify-payment`, `create-checkout`; tail logs for cold-start errors.
-- `supabase--curl_edge_functions` smoke tests: top-up checkout creation, send-sms with zero credits (expect `blocked`), send-sms happy path on a test event.
-- Verify `useSmsCredits` realtime updates after a simulated `consume_sms_credit`.
-- Confirm `SmsLogsHistory` renders new + legacy rows.
-- Verify Account → Usage shows credit balance correctly.
+### Technical notes
+- Keep existing retry/iframe break-out logic in `handlePayNow` intact
+- Selected-card styling uses existing semantic tokens + `lv-premium-shade`
+- All new buttons get `lv-premium-shade` per global rule
+- The "LOCKED" header on `RsvpActivationModal.tsx` predates the credit-based migration; this update is explicitly authorised by the current request, so the file will be modified and the header comment updated to note the 2026-05-08 messaging-system upgrade.
 
-### Deliverables at the end
-
-- Files changed list
-- New migration summary
-- New/updated edge functions
-- Stripe flow recap (initial grant + $99 top-up, idempotent)
-- Testing checklist with pass/fail
-- Any remaining manual steps (Twilio status-callback URL config — deferred until webhook is built)
-
-### Locked surfaces
-
-No changes to locked public/dashboard pages, Guest List desktop table, or any snapshot-protected file.
+### Testing checklist
+- Modal opens with no method preselected → Pay disabled, hint visible
+- Selecting each card highlights it and enables Pay
+- Switching selection updates state correctly
+- Pay Now sends `delivery_method` in checkout body (verify in network tab)
+- Mobile (≤640px): cards stack, footer buttons stay equal-width
+- Trigger button now reads "Send Email or SMS via Wedding Waitress"

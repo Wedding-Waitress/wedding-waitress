@@ -62,6 +62,7 @@ serve(async (req) => {
       purchase_type,
       guest_count_at_purchase,
       idempotency_key,
+      delivery_method,
     } = await req.json();
     if (!price_id) throw new Error("price_id is required");
 
@@ -125,6 +126,10 @@ serve(async (req) => {
           purchaseTypeMeta === "rsvp_overage" ? String(lineQuantity) : "",
         guest_count_at_purchase:
           guest_count_at_purchase != null ? String(guest_count_at_purchase) : "",
+        delivery_method:
+          delivery_method === "email" || delivery_method === "sms" || delivery_method === "both"
+            ? delivery_method
+            : "",
       },
     };
 
