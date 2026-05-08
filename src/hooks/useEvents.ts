@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 import { registerCache } from '@/lib/cacheRegistry';
+import { getSelectedEventId } from '@/hooks/useSelectedEvent';
 
 export interface Event {
   id: string;
@@ -278,12 +279,9 @@ export const useEvents = () => {
       if (activeEventId === id) {
         setActiveEventId(null);
       }
-      // Clear global selection if it was the deleted event
-      if (typeof window !== 'undefined') {
-        const stored = window.localStorage.getItem('ww:selected_event_id');
-        if (stored === id) {
-          window.dispatchEvent(new Event('ww:selected-event-cleared'));
-        }
+      // Clear global selection if it was the deleted event (route through useSelectedEvent — single source of truth)
+      if (typeof window !== 'undefined' && getSelectedEventId() === id) {
+        window.dispatchEvent(new Event('ww:selected-event-cleared'));
       }
       
       toast({
