@@ -13,6 +13,13 @@ export interface SmsSendInput {
   guest_id: string | null;
   to: string;
   body: string;
+  /**
+   * Campaign delivery method this SMS belongs to. Defaults to 'sms' (SMS-only
+   * campaign). When the host chose 'both', pass 'both' so logs/analytics can
+   * distinguish combined campaigns from SMS-only ones. 'email' is never used
+   * here (no SMS would be sent), but accepted for type completeness.
+   */
+  delivery_method?: 'email' | 'sms' | 'both';
 }
 
 export interface SmsSendResult {
@@ -60,6 +67,7 @@ async function insertLog(
     twilio_sid: string | null;
     status: "queued" | "sent" | "failed" | "blocked";
     error?: string | null;
+    delivery_method?: 'email' | 'sms' | 'both';
   }
 ): Promise<string | null> {
   const { data, error } = await admin.rpc("log_sms_send", {
@@ -70,6 +78,7 @@ async function insertLog(
     _twilio_sid: args.twilio_sid,
     _status: args.status,
     _error: args.error ?? null,
+    _delivery_method: args.delivery_method ?? 'sms',
   });
   if (error) {
     console.error("[sms-service] log_sms_send failed", error);
@@ -108,6 +117,8 @@ export async function sendSmsAndAccount(
   const phone = Deno.env.get("TWILIO_PHONE_NUMBER");
   const masked = maskPhone(input.to);
 
+  const dm = input.delivery_method ?? 'sms';
+
   if (!sid || !token || (!messagingServiceSid && !phone)) {
     const err = "SMS provider not configured";
     await insertLog(admin, {
@@ -118,11 +129,13 @@ export async function sendSmsAndAccount(
       twilio_sid: null,
       status: "failed",
       error: err,
+      delivery_method: dm,
     });
     return { ok: false, status: "failed", error: err };
   }
 
-  // Pre-check: credit must be available
+  // Pre-check: credit must be available. Failed/blocked sends NEVER consume
+  // credits (consume_sms_credit is only called after a successful Twilio SID).
   const remaining = await getRemainingCredits(admin, input.user_id, input.event_id);
   if (remaining <= 0) {
     await insertLog(admin, {
@@ -133,6 +146,7 @@ export async function sendSmsAndAccount(
       twilio_sid: null,
       status: "blocked",
       error: "No SMS credits remaining",
+      delivery_method: dm,
     });
     return { ok: false, status: "blocked", error: "No SMS credits remaining" };
   }
@@ -145,6 +159,7 @@ export async function sendSmsAndAccount(
     to_masked: masked,
     twilio_sid: null,
     status: "queued",
+    delivery_method: dm,
   });
 
   // 2. Send via Twilio REST API

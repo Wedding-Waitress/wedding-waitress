@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, MessageSquare } from 'lucide-react';
 
 interface LogRow {
   id: string;
@@ -12,6 +12,7 @@ interface LogRow {
   twilio_sid: string | null;
   error_message: string | null;
   guest_id: string | null;
+  delivery_method?: string | null;
   guest_name?: string;
   guest_rsvp?: string | null;
 }
@@ -20,6 +21,29 @@ interface Props {
   eventId: string | null | undefined;
   limit?: number;
 }
+
+const MethodBadge = ({ method }: { method?: string | null }) => {
+  const m = (method ?? 'sms').toLowerCase();
+  if (m === 'email') {
+    return (
+      <Badge variant="outline" className="border-blue-500/40 text-blue-700 bg-blue-500/10 gap-1">
+        <Mail className="w-3 h-3" /> Email
+      </Badge>
+    );
+  }
+  if (m === 'both') {
+    return (
+      <Badge variant="outline" className="border-primary/40 text-primary bg-primary/10 gap-1">
+        <Mail className="w-3 h-3" /> + <MessageSquare className="w-3 h-3" /> Email + SMS
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="outline" className="border-emerald-500/40 text-emerald-700 bg-emerald-500/10 gap-1">
+      <MessageSquare className="w-3 h-3" /> SMS
+    </Badge>
+  );
+};
 
 /**
  * SmsLogsHistory — paginated audit log of SMS sends for an event.
@@ -37,7 +61,7 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
       try {
         const { data: logs } = await supabase
           .from('sms_send_logs')
-          .select('id, created_at, to_masked, status, twilio_sid, error_message, guest_id')
+          .select('id, created_at, to_masked, status, twilio_sid, error_message, guest_id, delivery_method')
           .eq('event_id', eventId)
           .order('created_at', { ascending: false })
           .limit(limit);
@@ -101,7 +125,9 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
                   <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="py-1.5 pr-3">{r.guest_name}</td>
                   <td className="py-1.5 pr-3 font-mono">{r.to_masked ?? '—'}</td>
-                  <td className="py-1.5 pr-3">SMS</td>
+                  <td className="py-1.5 pr-3">
+                    <MethodBadge method={r.delivery_method} />
+                  </td>
                   <td className="py-1.5 pr-3">
                     <Badge
                       variant={

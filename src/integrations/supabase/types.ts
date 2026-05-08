@@ -2208,6 +2208,7 @@ export type Database = {
         Row: {
           amount_paid: number
           created_at: string
+          delivery_method: string | null
           event_id: string
           guest_count_at_purchase: number | null
           guest_tier_label: string | null
@@ -2223,6 +2224,7 @@ export type Database = {
         Insert: {
           amount_paid: number
           created_at?: string
+          delivery_method?: string | null
           event_id: string
           guest_count_at_purchase?: number | null
           guest_tier_label?: string | null
@@ -2238,6 +2240,7 @@ export type Database = {
         Update: {
           amount_paid?: number
           created_at?: string
+          delivery_method?: string | null
           event_id?: string
           guest_count_at_purchase?: number | null
           guest_tier_label?: string | null
@@ -2548,6 +2551,7 @@ export type Database = {
         Row: {
           created_at: string
           delivered_at: string | null
+          delivery_method: string
           error_code: string | null
           error_message: string | null
           event_id: string
@@ -2562,6 +2566,7 @@ export type Database = {
         Insert: {
           created_at?: string
           delivered_at?: string | null
+          delivery_method?: string
           error_code?: string | null
           error_message?: string | null
           event_id: string
@@ -2576,6 +2581,7 @@ export type Database = {
         Update: {
           created_at?: string
           delivered_at?: string | null
+          delivery_method?: string
           error_code?: string | null
           error_message?: string | null
           event_id?: string
@@ -2965,6 +2971,10 @@ export type Database = {
           start_time: string
         }[]
       }
+      get_event_messaging_analytics: {
+        Args: { _event_id: string }
+        Returns: Json
+      }
       get_events_with_guest_count: {
         Args: never
         Returns: {
@@ -3165,6 +3175,7 @@ export type Database = {
       }
       log_sms_send: {
         Args: {
+          _delivery_method?: string
           _error?: string
           _event_id: string
           _guest_id: string
