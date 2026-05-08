@@ -289,6 +289,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                           inviteStatus={r.inviteStatus}
                           rsvp={r.rsvpRaw}
                           purchaseDeliveryMethod={purchaseMethod}
+                          lowCredits={getCreditHealth(smsCredits.remaining, smsCredits.total).state === 'critical' || smsCredits.remaining === 0}
                           className="ml-0"
                         />
                       </td>
