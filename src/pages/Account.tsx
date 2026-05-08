@@ -2,8 +2,9 @@
 // Accessible via profile dropdown in DashboardHeader. Do NOT modify without explicit owner approval.
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { User, CreditCard, Receipt, BarChart3, History, Lock } from 'lucide-react';
+import { User, CreditCard, Receipt, BarChart3, History, Lock, Users } from 'lucide-react';
 import { AccountInfoCard } from '@/components/Account/AccountInfoCard';
+import { AccountAccessCard } from '@/components/Account/AccountAccessCard';
 import { SubscriptionCard } from '@/components/Account/SubscriptionCard';
 import { BillingCard } from '@/components/Account/BillingCard';
 import { UsageCard } from '@/components/Account/UsageCard';
