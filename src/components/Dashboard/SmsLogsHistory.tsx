@@ -143,7 +143,7 @@ export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
               </tr>
             </thead>
             <tbody>
-              {rows.map(r => (
+              {filteredRows.map(r => (
                 <tr key={r.id} className="border-t border-border/50">
                   <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="py-1.5 pr-3">{r.guest_name}</td>
