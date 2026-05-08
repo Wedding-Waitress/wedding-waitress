@@ -336,6 +336,35 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             );
           })()}
 
+          {/* Smart RSVP Intelligence KPI row */}
+          {(() => {
+            const intelChip = (label: string, value: React.ReactNode, sub?: string, tooltip?: string, tone = 'border-border bg-card') => (
+              <div className={`flex-1 min-w-[140px] rounded-xl border px-3 py-2 ${tone}`} title={tooltip}>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+                <div className="text-sm font-semibold text-foreground">{value}</div>
+                {sub && <div className="text-[10px] text-muted-foreground/80 mt-0.5">{sub}</div>}
+              </div>
+            );
+            const bestLabel = intelligence.bestMethod
+              ? (intelligence.bestMethod.method === 'both' ? 'Email + SMS' : intelligence.bestMethod.method === 'sms' ? 'SMS' : 'Email')
+              : 'Not enough data';
+            return (
+              <div className="flex flex-wrap gap-2">
+                {intelChip('Delivery Rate', intelligence.deliveryRate === null ? '—' : `${intelligence.deliveryRate}%`, undefined, 'Percentage of invitations successfully delivered.', 'border-emerald-200/70 bg-emerald-50/40')}
+                {intelChip('Response Rate', intelligence.responseRate === null ? '—' : `${intelligence.responseRate}%`, undefined, 'Percentage of invited guests who submitted an RSVP.', 'border-primary/30 bg-primary/5')}
+                {intelChip('Avg. Response', intelligence.avgResponseMs === null ? 'Not enough responses yet' : humanizeDuration(intelligence.avgResponseMs), undefined, 'Average time between invitation sent and RSVP received.')}
+                {intelChip('Best Method', bestLabel, intelligence.bestMethod ? 'Highest response performance.' : undefined, 'Delivery method with the strongest RSVP response rate.')}
+                {intelChip('Resend Success', intelligence.resendSuccessRate === null ? '—' : `${intelligence.resendSuccessRate}%`, undefined, 'Guests who responded after receiving a resend.', 'border-amber-200/70 bg-amber-50/40')}
+              </div>
+            );
+          })()}
+
+          {insights.length > 0 && (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground/80 italic">
+              {insights[insightIdx % insights.length]}
+            </div>
+          )}
+
           <DeliveryAnalyticsPanel eventId={eventId} />
 
           <div className="flex items-center gap-2 flex-wrap">
