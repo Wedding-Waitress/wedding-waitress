@@ -1,10 +1,12 @@
 /**
- * RSVP Activation Modal
+ * RSVP Activation Modal — Smart RSVP & Messaging
  *
- * Updated 2026-05-08: Smart RSVP & Messaging credit-based migration.
- * Owner-authorised change — adds delivery method selector, refreshed
- * bundle bullets, new pricing copy, and forwards `delivery_method`
- * into Stripe checkout metadata for future analytics.
+ * Updated 2026-05-08:
+ *  - Brand rename ("Activate Smart RSVP & Messaging") + premium subtitle
+ *  - Combined-option sales line under delivery method picker
+ *  - Persistence: sessionStorage + DB (last activation's delivery_method) restore
+ *    so the user's prior selection survives Stripe redirect, refresh, modal reopen
+ *    and post-payment return.
  */
 import React, { useEffect, useState } from 'react';
 import {
@@ -15,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, CreditCard, Check, Loader2, MessageSquare } from "lucide-react";
+import { Mail, CreditCard, Check, Loader2, MessageSquare } from "lucide-react";
 import { getPricingTier } from '@/hooks/useRsvpPurchase';
 import { getRsvpTier } from '@/lib/stripePrices';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +41,11 @@ const BUNDLE_FEATURES = [
   'RSVP Response Monitoring',
 ];
 
+const STORAGE_KEY = 'ww:rsvpDeliveryMethod';
+
+const isMethod = (v: unknown): v is DeliveryMethod =>
+  v === 'email' || v === 'sms' || v === 'both';
+
 export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
   isOpen,
   onClose,
@@ -51,6 +58,41 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
   const [method, setMethod] = useState<DeliveryMethod | null>(null);
   const [attempted, setAttempted] = useState(false);
   const { toast } = useToast();
+
+  // Restore prior selection on open: prefer the last completed activation's
+  // saved delivery_method (so already-activated events reopen with their choice
+  // pre-selected), otherwise fall back to sessionStorage (abandoned checkout).
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const stored = sessionStorage.getItem(STORAGE_KEY);
+        if (isMethod(stored)) setMethod(stored);
+      } catch { /* ignore */ }
+
+      if (!eventId) return;
+      try {
+        const { data } = await supabase
+          .from('rsvp_invite_purchases')
+          .select('delivery_method')
+          .eq('event_id', eventId)
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        const dbMethod = (data as { delivery_method?: string } | null)?.delivery_method;
+        if (!cancelled && isMethod(dbMethod)) setMethod(dbMethod);
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen, eventId]);
+
+  // Persist current selection so an abandoned checkout reopens with it.
+  useEffect(() => {
+    if (!method) return;
+    try { sessionStorage.setItem(STORAGE_KEY, method); } catch { /* ignore */ }
+  }, [method]);
 
   const canPay = !!method && !loading;
 
@@ -96,12 +138,11 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         data = await invokeAttempt();
       }
 
-      console.log("Stripe URL:", data?.url);
       if (data?.url) {
         try {
           sessionStorage.setItem('ww:returnTab', 'guest-list');
           sessionStorage.setItem('ww:rsvpSelectedCount', String(totalGuestCount ?? 0));
-          sessionStorage.setItem('ww:rsvpDeliveryMethod', method);
+          sessionStorage.setItem(STORAGE_KEY, method);
         } catch {}
         onClose();
         const inIframe = window.self !== window.top;
@@ -161,14 +202,20 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center gap-2 text-lg mt-8 text-left">
             <Mail className="w-5 h-5 text-primary" />
-            Activate and Send RSVP Invites
+            Activate Smart RSVP & Messaging
           </DialogTitle>
+          <p className="text-xs text-muted-foreground text-center px-4 pt-1">
+            Fully managed RSVP invitations, messaging, tracking and delivery history.
+          </p>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           {/* Delivery method selector */}
           <div className="space-y-2">
             <p className="text-sm font-medium">Choose your delivery method:</p>
+            <p className="font-medium text-primary text-center mt-2 mb-3">
+              Choose Email and SMS together for one low price
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <MethodCard
                 value="email"
