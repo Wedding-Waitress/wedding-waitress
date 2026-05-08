@@ -2547,33 +2547,42 @@ export type Database = {
       sms_send_logs: {
         Row: {
           created_at: string
+          delivered_at: string | null
+          error_code: string | null
           error_message: string | null
           event_id: string
           guest_id: string | null
           id: string
-          status: string
+          last_status_at: string
+          status: Database["public"]["Enums"]["sms_delivery_status"]
           to_masked: string | null
           twilio_sid: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
+          delivered_at?: string | null
+          error_code?: string | null
           error_message?: string | null
           event_id: string
           guest_id?: string | null
           id?: string
-          status: string
+          last_status_at?: string
+          status: Database["public"]["Enums"]["sms_delivery_status"]
           to_masked?: string | null
           twilio_sid?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
+          delivered_at?: string | null
+          error_code?: string | null
           error_message?: string | null
           event_id?: string
           guest_id?: string | null
           id?: string
-          status?: string
+          last_status_at?: string
+          status?: Database["public"]["Enums"]["sms_delivery_status"]
           to_masked?: string | null
           twilio_sid?: string | null
           user_id?: string
@@ -3164,7 +3173,7 @@ export type Database = {
           _twilio_sid: string
           _user_id: string
         }
-        Returns: undefined
+        Returns: string
       }
       public_manage_guest_group: {
         Args: {
@@ -3299,6 +3308,25 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_sms_delivery_status: {
+        Args: {
+          _error?: string
+          _error_code?: string
+          _status: string
+          _twilio_sid: string
+        }
+        Returns: boolean
+      }
+      update_sms_log_status: {
+        Args: {
+          _error?: string
+          _error_code?: string
+          _id: string
+          _status: string
+          _twilio_sid?: string
+        }
+        Returns: undefined
+      }
       upsert_notification_settings: {
         Args: {
           _email_enabled?: boolean
@@ -3320,6 +3348,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "collaborator" | "owner"
+      sms_delivery_status:
+        | "queued"
+        | "sent"
+        | "delivered"
+        | "undelivered"
+        | "failed"
+        | "blocked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3448,6 +3483,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "collaborator", "owner"],
+      sms_delivery_status: [
+        "queued",
+        "sent",
+        "delivered",
+        "undelivered",
+        "failed",
+        "blocked",
+      ],
     },
   },
 } as const
