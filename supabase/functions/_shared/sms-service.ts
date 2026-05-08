@@ -13,6 +13,13 @@ export interface SmsSendInput {
   guest_id: string | null;
   to: string;
   body: string;
+  /**
+   * Campaign delivery method this SMS belongs to. Defaults to 'sms' (SMS-only
+   * campaign). When the host chose 'both', pass 'both' so logs/analytics can
+   * distinguish combined campaigns from SMS-only ones. 'email' is never used
+   * here (no SMS would be sent), but accepted for type completeness.
+   */
+  delivery_method?: 'email' | 'sms' | 'both';
 }
 
 export interface SmsSendResult {
