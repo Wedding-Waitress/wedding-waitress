@@ -30,18 +30,27 @@ export const ResetPassword = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Check if this is a valid password reset session
+    // Listen FIRST so the recovery hash is captured if it arrives async.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setIsValidSession(true);
+    });
+
     const checkSession = async () => {
       try {
+        // Real recovery sessions arrive with `type=recovery` in the URL hash.
+        const hash = typeof window !== 'undefined' ? window.location.hash : '';
+        const isRecoveryLink = hash.includes('type=recovery');
+
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error || !session) {
           setIsValidSession(false);
           return;
         }
 
-        // Check if this is a recovery session (password reset)
-        if (session.user.aud === 'authenticated') {
+        // Only allow this page when the session was created by a recovery link.
+        // Logged-in users who land here without a recovery hash are bounced to /.
+        if (isRecoveryLink) {
           setIsValidSession(true);
         } else {
           setIsValidSession(false);
@@ -52,6 +61,7 @@ export const ResetPassword = () => {
     };
 
     checkSession();
+    return () => { subscription?.unsubscribe(); };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,11 +84,14 @@ export const ResetPassword = () => {
       if (error) {
         setError(error.message);
       } else {
+        // Sign out the temporary recovery session so the user re-authenticates
+        // with their new password instead of remaining silently logged in.
+        await supabase.auth.signOut();
         toast({
           title: "Password updated!",
-          description: "Your password has been successfully updated."
+          description: "Please sign in with your new password."
         });
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (err) {
       setError('Failed to update password. Please try again.');

@@ -13,6 +13,7 @@ import { DJMCSection, DJMCItem, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES } from '@/lib/djMCQuestionnaireTemplates';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { DJMCQuestionnaireSection } from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection';
+import { decodeShareToken, sameShareToken } from '@/lib/shareTokens';
 
 interface PublicQuestionnaireData {
   questionnaire_id: string;
@@ -64,7 +65,7 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 export function DJMCPublicView() {
   const params = useParams<{ token: string; eventSlug?: string }>();
-  const token = params.token || params.eventSlug;
+  const token = decodeShareToken(params.token || params.eventSlug);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
@@ -75,9 +76,14 @@ export function DJMCPublicView() {
   const fetchData = useCallback(async () => {
     if (!token) {
       setError('Invalid share link');
+      setData(null);
       setLoading(false);
       return;
     }
+
+    // Reset stale state when token changes so previous event data never flashes.
+    setError(null);
+    setLoading(true);
 
     try {
       const { data: result, error: fetchError } = await supabase.rpc(
@@ -88,12 +94,14 @@ export function DJMCPublicView() {
       if (fetchError) {
         console.error('Error fetching questionnaire:', fetchError);
         setError('This link is invalid or has expired');
+        setData(null);
         setLoading(false);
         return;
       }
 
       if (!result || result.length === 0) {
         setError('This link is invalid or has expired');
+        setData(null);
         setLoading(false);
         return;
       }
@@ -161,10 +169,7 @@ export function DJMCPublicView() {
       }, (payload) => {
         const updatedToken = payload.new as any;
         if (updatedToken && data) {
-          const tokenMatches = updatedToken.token === token || 
-            updatedToken.token === token + '=' || 
-            updatedToken.token === token + '==';
-          if (tokenMatches && updatedToken.permission !== data.permission) {
+          if (sameShareToken(updatedToken.token, token) && updatedToken.permission !== data.permission) {
             setData(prev => prev ? { ...prev, permission: updatedToken.permission } : prev);
           }
         }
