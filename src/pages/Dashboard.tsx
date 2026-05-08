@@ -193,28 +193,11 @@ export const Dashboard = () => {
     onRefreshTables: fetchTables
   });
 
-  // Get selected event for tables
-  const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
+  // Get selected event type (selectedEvent now comes from useSelectedEvent above)
   const selectedEventType = selectedEvent?.event_type || 'seated';
 
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
-
-  // Load selected event from sessionStorage ONCE on mount (GLOBAL - session-scoped)
-  const hasInitialized = useRef(false);
-  useEffect(() => {
-    // Only initialize once, and only if we have events and haven't set an event yet
-    if (hasInitialized.current || events.length === 0 || selectedEventId !== null) {
-      return;
-    }
-    
-    const savedEventId = sessionStorage.getItem('ww:session_selected_event');
-    if (savedEventId && events.find(e => e.id === savedEventId)) {
-      setGlobalSelectedEventId(savedEventId);
-      setSelectedEventId(savedEventId);
-      hasInitialized.current = true;
-    }
-  }, [events.length, selectedEventId]);
 
   // Maintain a stable ref to fetchTables to avoid effect re-installs
   const fetchTablesRef = useRef(fetchTables);
