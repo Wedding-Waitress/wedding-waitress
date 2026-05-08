@@ -2558,6 +2558,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                     inviteStatus={guest.rsvp_invite_status}
                                     rsvp={guest.rsvp}
                                     purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                                    lowCredits={smsLowCredit}
                                   />
                                 </span>
                               );
