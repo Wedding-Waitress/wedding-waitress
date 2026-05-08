@@ -32,7 +32,30 @@ interface GuestRow {
   rsvp: string | null;
   rsvp_invite_status: string | null;
   rsvp_invite_sent_at: string | null;
+  rsvp_date: string | null;
 }
+
+type IntelTag =
+  | 'fast_responder'
+  | 'needs_followup'
+  | 'multiple_resends'
+  | 'delivery_issue'
+  | 'vip_pending'
+  | null;
+
+type UrgencyFilter = 'all' | 'no_response_7d' | 'failed_delivery' | 'needs_attention' | 'recent_response';
+
+const humanizeDuration = (ms: number): string => {
+  if (!isFinite(ms) || ms <= 0) return '—';
+  const hours = ms / 3_600_000;
+  if (hours < 1) {
+    const m = Math.max(1, Math.round(ms / 60_000));
+    return `${m} Min Avg. Response`;
+  }
+  if (hours < 48) return `${Math.round(hours)} Hours Avg. Response`;
+  const days = hours / 24;
+  return `${days.toFixed(1)} Days Avg. Response`;
+};
 
 interface SmsLog {
   guest_id: string | null;
