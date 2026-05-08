@@ -233,6 +233,18 @@ export interface SeatingInsights {
   emptyTables: number;
   nearCapacity: Array<{ name: string; used: number; limit: number }>;
   overCapacity: Array<{ name: string; used: number; limit: number }>;
+  // Extended
+  attendingTotal: number;
+  totalTables: number;
+  totalCapacity: number;
+  emptySeats: number;
+  underFilledTables: Array<{ name: string; used: number; limit: number }>;
+  atCapacityTables: Array<{ name: string; used: number; limit: number }>;
+  largestTables: Array<{ name: string; used: number; limit: number }>;
+  completionPct: number; // assigned / attending
+  couplesSeparated: number; // primary+plus-one pairs at different tables
+  couplesPairsConsidered: number;
+  familySplits: Array<{ name: string; tableCount: number; total: number }>;
 }
 
 export const computeSeatingInsights = (guests: Guest[], tables: TableLite[]): SeatingInsights => {
@@ -243,17 +255,78 @@ export const computeSeatingInsights = (guests: Guest[], tables: TableLite[]): Se
   for (const g of attending) {
     if (g.table_id) counts.set(g.table_id, (counts.get(g.table_id) ?? 0) + 1);
   }
-  const emptyTables = tables.filter(t => !counts.get(t.id)).length;
+  const tableInfo = tables.map(t => ({
+    id: t.id,
+    name: t.name,
+    used: counts.get(t.id) ?? 0,
+    limit: t.limit_seats || 0,
+  }));
+  const emptyTables = tableInfo.filter(t => t.used === 0).length;
   const nearCapacity: SeatingInsights['nearCapacity'] = [];
   const overCapacity: SeatingInsights['overCapacity'] = [];
-  for (const t of tables) {
-    const used = counts.get(t.id) ?? 0;
-    const limit = t.limit_seats || 0;
-    if (!limit) continue;
-    if (used > limit) overCapacity.push({ name: t.name, used, limit });
-    else if (used / limit >= 0.9) nearCapacity.push({ name: t.name, used, limit });
+  const underFilledTables: SeatingInsights['underFilledTables'] = [];
+  const atCapacityTables: SeatingInsights['atCapacityTables'] = [];
+  let totalCapacity = 0;
+  for (const t of tableInfo) {
+    if (t.limit) totalCapacity += t.limit;
+    if (!t.limit) continue;
+    if (t.used > t.limit) overCapacity.push({ name: t.name, used: t.used, limit: t.limit });
+    else if (t.used === t.limit) atCapacityTables.push({ name: t.name, used: t.used, limit: t.limit });
+    else if (t.used / t.limit >= 0.9) nearCapacity.push({ name: t.name, used: t.used, limit: t.limit });
+    else if (t.used > 0 && t.used / t.limit <= 0.5) underFilledTables.push({ name: t.name, used: t.used, limit: t.limit });
   }
-  return { assigned, unassigned, emptyTables, nearCapacity, overCapacity };
+  const largestTables = [...tableInfo]
+    .filter(t => t.used > 0)
+    .sort((a, b) => b.used - a.used)
+    .slice(0, 4)
+    .map(t => ({ name: t.name, used: t.used, limit: t.limit }));
+
+  const emptySeats = Math.max(0, totalCapacity - assigned);
+  const completionPct = attending.length ? assigned / attending.length : 0;
+
+  // Couples separated: primary + their plus-one at different tables
+  const byId = new Map(guests.map(g => [g.id, g] as const));
+  let couplesSeparated = 0;
+  let couplesPairsConsidered = 0;
+  for (const g of guests) {
+    if (!g.added_by_guest_id) continue;
+    const primary = byId.get(g.added_by_guest_id);
+    if (!primary) continue;
+    if (!primary.table_id || !g.table_id) continue;
+    couplesPairsConsidered++;
+    if (primary.table_id !== g.table_id) couplesSeparated++;
+  }
+
+  // Family splits: family_group spread across multiple tables (group size >= 3)
+  const familyMap = new Map<string, { tables: Set<string>; total: number }>();
+  for (const g of guests) {
+    const fam = (g.family_group || '').trim();
+    if (!fam || !g.table_id) continue;
+    const entry = familyMap.get(fam) ?? { tables: new Set<string>(), total: 0 };
+    entry.tables.add(g.table_id);
+    entry.total++;
+    familyMap.set(fam, entry);
+  }
+  const familySplits = Array.from(familyMap.entries())
+    .filter(([, v]) => v.total >= 3 && v.tables.size > 1)
+    .map(([name, v]) => ({ name, tableCount: v.tables.size, total: v.total }))
+    .sort((a, b) => b.tableCount - a.tableCount)
+    .slice(0, 4);
+
+  return {
+    assigned, unassigned, emptyTables, nearCapacity, overCapacity,
+    attendingTotal: attending.length,
+    totalTables: tables.length,
+    totalCapacity,
+    emptySeats,
+    underFilledTables,
+    atCapacityTables,
+    largestTables,
+    completionPct,
+    couplesSeparated,
+    couplesPairsConsidered,
+    familySplits,
+  };
 };
 
 export interface EngagementInsights {
