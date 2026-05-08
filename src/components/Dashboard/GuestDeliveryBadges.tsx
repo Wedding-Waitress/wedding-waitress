@@ -24,6 +24,8 @@ interface Props {
   inviteStatus?: string | null;            // guest.rsvp_invite_status
   rsvp?: string | null;                    // guest.rsvp
   purchaseDeliveryMethod?: DeliveryMethod; // fallback from rsvp_invite_purchases
+  /** When true, render a tiny inline "Low Credits" pill (remaining ≤ 24). */
+  lowCredits?: boolean;
   className?: string;
 }
 
@@ -37,6 +39,7 @@ const styles = {
   pending:   'bg-amber-50 text-amber-700 border-amber-200',
   failed:    'bg-red-50 text-red-700 border-red-200',
   responded: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  lowCredits:'bg-red-50 text-red-700 border-red-200',
 };
 
 const deriveMethod = (status?: string | null, fallback?: DeliveryMethod): DeliveryMethod => {
@@ -59,6 +62,7 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
   inviteStatus,
   rsvp,
   purchaseDeliveryMethod,
+  lowCredits,
   className,
 }) => {
   const method = deriveMethod(inviteStatus, purchaseDeliveryMethod);
@@ -67,8 +71,9 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
     const r = normalizeRsvp(rsvp);
     return r === 'Attending' || r === 'Not Attending';
   })();
+  const showLowCreditsPill = lowCredits && (method === 'sms' || method === 'both');
 
-  if (!method && !delivery && !responded) return null;
+  if (!method && !delivery && !responded && !showLowCreditsPill) return null;
 
   return (
     <span className={cn('inline-flex flex-wrap items-center gap-1 ml-1.5 align-middle', className)}>
@@ -85,6 +90,11 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
       {responded && (
         <span className={cn(PILL, styles.responded)} title="Guest has responded">
           Responded
+        </span>
+      )}
+      {showLowCreditsPill && (
+        <span className={cn(PILL, styles.lowCredits)} title="Low SMS credits — top up to keep sending">
+          Low Credits
         </span>
       )}
     </span>

@@ -1,136 +1,124 @@
-## Smart RSVP — Phase 1: Real Twilio Delivery Tracking
+## Smart SMS Credit Status — Premium Credit Intelligence Layer
 
-Backend-first foundation. No new pages. No locked-UI changes. All intelligence flows into existing Guest List / Analytics panel / Communications surfaces.
+Goal: turn hidden SMS credit state into a calm, premium, glanceable surface inside the Smart RSVP ecosystem — without new pages, new sidebar entries, or layout changes to locked surfaces.
 
-### 1. Database migration (single file)
+### 1. New component — `SmartSmsCreditStatus`
 
-Extend `public.sms_send_logs` (some columns already exist — additions only):
+File: `src/components/Dashboard/SmartSmsCreditStatus.tsx`
 
-- add `failed_at timestamptz`
-- add `twilio_error_code text` (alias kept; existing `error_code` retained, new col mirrors Twilio raw code)
-- add `twilio_error_message text`
-- add `raw_twilio_status text`
-- add `webhook_payload jsonb`
-- add `idx_sms_send_logs_guest_id` on `(guest_id)`
-- add `idx_sms_send_logs_event_id` on `(event_id)`
-- (existing) unique `twilio_sid` index, `event_id+last_status_at desc` index — keep
+Reusable, premium status card. Two visual variants via prop:
+- `variant="full"` — used in Guest List top controls row.
+- `variant="compact"` — used as a header strip inside Smart RSVP Analytics panel.
 
-Extend the existing `update_sms_delivery_status` RPC signature to:
+Data source: existing `useSmsCredits(eventId)` hook (already realtime-synced via the `sms_credits` channel + extended after webhook updates by reusing the same hook). No new hooks required for fetching.
 
-```
-update_sms_delivery_status(
-  _twilio_sid text,
-  _status text,
-  _error_code text default null,
-  _error_message text default null,
-  _raw_status text default null,
-  _payload jsonb default null
-) returns boolean  -- SECURITY DEFINER
-```
+Display elements:
+- Headline: `"{remaining} SMS Credits Remaining"`.
+- Sub-headline: `"Approx. {remaining} more SMS invitations"` (1 credit ≈ 1 invitation; future-ready helper accepts an optional `recipientCount` prop for "Enough for ~X more campaigns").
+- Health pill (Healthy / Low / Critical / Empty) with semantic color tokens.
+- Calm contextual message line (matches health state).
+- "Top Up Credits" pill button — `lv-premium-shade`, wired to existing `useSmsTopup().startTopup(eventId)` (no new Stripe code).
 
-Behaviour:
-- locate row by `twilio_sid`
-- normalize status → enum
-- set `delivered_at = now()` when status `delivered`
-- set `failed_at = now()` when status in (`failed`,`undelivered`,`blocked`)
-- always update `last_status_at`, `raw_twilio_status`, `webhook_payload`, `twilio_error_code`, `twilio_error_message`
-- preserve existing `error_code`/`error_message` if new values null
-- return true if a row was updated
+States and thresholds (overrides hook's percent-based `isLow` with absolute thresholds per spec):
+- Healthy: `remaining >= 100` → green accent, "running smoothly" copy, no warning.
+- Low: `25 <= remaining <= 99` → amber accent, "running low" copy.
+- Critical: `1 <= remaining <= 24` → red accent, "Only {n} SMS credits remaining."
+- Empty: `remaining === 0` (and `total > 0`) → red locked state, "You've used all included SMS credits.", Top Up CTA emphasised.
+- Unactivated (`total === 0`): render nothing in `compact`; in `full` show a muted "Smart RSVP not active yet" line (no CTA noise).
 
-### 2. New edge function: `twilio-delivery-webhook`
+Styling: Wedding Waitress card surface, rounded-2xl, soft shadow, semantic tokens only. No raw color classes.
 
-Path: `supabase/functions/twilio-delivery-webhook/index.ts`
-Config: `verify_jwt = false` in `supabase/config.toml` (Twilio cannot send Supabase JWTs).
+### 2. Placement (only two)
 
-Responsibilities:
-- Accept `POST` `application/x-www-form-urlencoded` from Twilio
-- Validate `X-Twilio-Signature` using `TWILIO_AUTH_TOKEN` and the full request URL + sorted form params (HMAC-SHA1, base64). Reject with 403 on mismatch. Log masked failures.
-- Parse: `MessageSid`, `MessageStatus`, `ErrorCode`, `ErrorMessage`, `To`, `From`, `SmsStatus`
-- Map Twilio → internal status:
-  - `queued` → `queued`
-  - `accepted`/`sending`/`sent` → `sent`
-  - `delivered` → `delivered`
-  - `undelivered` → `undelivered` (treated as failed for resend logic)
-  - `failed` → `failed`
-  - `blocked` (Twilio code 30004/30005/30006 family) → `blocked`
-- Call `update_sms_delivery_status` RPC via service-role client with full payload
-- Always return 200 to Twilio after handling (even unknown SID) to prevent retries storm; log unknown SIDs
-- CORS: not needed (Twilio→server), but include OPTIONS handler returning 200
+A. Guest List top controls row — `src/components/Dashboard/GuestListTable.tsx`
+- Mount `<SmartSmsCreditStatus variant="full" eventId={eventId} />` in the existing controls/feature-strip area near `SmartRsvpFeatureStrip` / Analytics / Resend buttons (around the existing strip at line ~1695).
+- No column changes, no table-structure changes (locked desktop table preserved).
 
-### 3. Outbound integration update
+B. Smart RSVP Analytics panel — `src/components/Dashboard/SmartRsvpAnalyticsPanel.tsx`
+- Mount `<SmartSmsCreditStatus variant="compact" eventId={eventId} />` at the top summary area, above the existing per-guest rows.
+- Add a compact KPI chip row beneath it (see §4).
 
-`supabase/functions/_shared/sms-service.ts`:
-- When constructing the Twilio `Messages.json` POST, append `StatusCallback` = `${SUPABASE_URL}/functions/v1/twilio-delivery-webhook`
-- Keep existing queued-log → sent transition; webhook later upgrades to delivered/failed/blocked
+The legacy `SmsCreditMeter` is left untouched (still works elsewhere if used) but the Guest List instance is replaced by the new component to avoid duplication. (If `SmsCreditMeter` is currently mounted in the same Guest List spot, swap it; otherwise leave alone.)
 
-No changes to credit consumption logic.
+### 3. Guest List delivery-badge low-credit pill
 
-### 4. Resend Smart RSVP — real failed targeting
+Inside `GuestDeliveryBadges.tsx` (or the badge cell already rendered in the Send RSVP & Invite column):
+- When `remaining <= 24`, render a tiny inline `"Low Credits"` pill alongside the existing badge.
+- Pure additive — no column added, no width change, no layout shift on healthy state.
+- Reads credits via `useSmsCredits` (already realtime).
 
-`src/components/Dashboard/ResendSmartRsvpModal.tsx` (and any Smart RSVP analytics resend hooks):
-- "Resend only failed SMS" now filters guests whose **latest** `sms_send_logs` row for the event has `status in ('failed','undelivered','blocked')` AND no later `delivered`
-- Exclude: `delivered`, `queued`, `sent`, `pending`
-- Use a small selector helper backed by a query joining latest log per guest
+### 4. Analytics KPI chips
 
-### 5. Delivery badges — real states
+Inside `SmartRsvpAnalyticsPanel.tsx`, a new compact `KpiChips` row (in same file, no new component file needed) shows:
+- Credits Remaining (from `useSmsCredits`)
+- Credits Used (from `useSmsCredits`)
+- SMS Delivered (count where latest `sms_send_logs.status = 'delivered'`)
+- SMS Failed (count where latest status in `failed | undelivered | blocked`)
+- Delivery Success % (`delivered / (delivered + failed)` rounded, `—` if zero)
 
-`src/components/Dashboard/GuestDeliveryBadges.tsx` (existing, inline only — no new columns):
-- Source from latest `sms_send_logs` row per guest (already wired to logs; switch the status mapping)
-- Color priority:
-  - `delivered` → green
-  - `queued`/`sent` → amber
-  - `failed`/`undelivered` → red
-  - `blocked` → dark red
-- Keep current chip footprint (Email / SMS / Email+SMS / Responded)
-- Render in: RSVP Status cell (desktop inline), mobile/tablet cards, Smart RSVP Analytics panel rows
+Computed from data already loaded by the panel — no extra queries. Styling matches existing analytics chips (no redesign).
 
-### 6. Smart RSVP Analytics panel enhancements (no redesign)
+### 5. Empty-credit protection
 
-`src/components/Dashboard/SmartRsvpAnalyticsPanel.tsx`:
-- Per-row status reflects real webhook state
-- Add `last_status_at` timestamp shown next to status pill ("Updated 2m ago")
-- Add tooltip on failed rows showing `twilio_error_code` + `twilio_error_message`
+When `isEmpty` (`remaining === 0`, `total > 0`):
+- Disable SMS send + resend SMS actions: pass an `smsDisabled` flag (derived from `useSmsCredits`) into:
+  - The "Send RSVP & Invite" SMS button row in `GuestListTable.tsx`.
+  - `ResendSmartRsvpModal.tsx` "Resend SMS" / "Resend only failed SMS" buttons.
+- Keep email actions fully enabled.
+- Tooltip / inline helper on disabled buttons: `"SMS credits required to continue Smart RSVP messaging."`
+- The full credit card already surfaces the Top Up CTA.
 
-### 7. Security
+### 6. Realtime strategy
 
-- Twilio signature validation mandatory
-- Service-role key only used inside the edge function
-- Webhook never trusts client-supplied `MessageSid` outside Twilio-signed payloads
-- Suspicious requests logged with masked phone, no secrets
+- `useSmsCredits` already subscribes to `sms_credits` postgres changes for the event. This covers: send (decrement), top-up (increment), webhook-triggered adjustments (any future credit refund), resend.
+- All consumers (`SmartSmsCreditStatus` full + compact, badge low-credit pill, KPI chips, send-button disabled state) share this hook → one subscription per mount, all UI updates atomically.
+- No new channels, no polling.
 
-### 8. Out of scope (Phase 2+)
+### 7. Projection logic (lightweight, no ML)
 
-Low-credit UI, projected sends, guest timelines, advanced KPI cards, response-time analytics, open/click tracking, heatmaps.
+Helper `projectSends(remaining, recipientCount?)`:
+- Default: `1 credit ≈ 1 SMS invitation` → "Approx. {remaining} more SMS invitations".
+- If `recipientCount` provided (selected guests with mobile + SMS pref): `campaigns = floor(remaining / max(1, recipientCount))` → "Enough for approximately {campaigns} more RSVP campaigns."
+- Pure function in component file; no analytics, no historical averages in this phase.
 
-### Affected files
+### 8. Threshold + lock logic (single source of truth)
 
-- `supabase/migrations/<new>.sql` (new)
-- `supabase/functions/twilio-delivery-webhook/index.ts` (new)
-- `supabase/config.toml` (add function entry, `verify_jwt = false`)
-- `supabase/functions/_shared/sms-service.ts` (add StatusCallback)
-- `src/components/Dashboard/GuestDeliveryBadges.tsx` (real-status mapping)
-- `src/components/Dashboard/SmartRsvpAnalyticsPanel.tsx` (timestamp + error tooltip)
-- `src/components/Dashboard/ResendSmartRsvpModal.tsx` (real failed filter)
-- `src/hooks/useMessagingAnalytics.ts` (add latest-log-per-guest selector if missing)
+Add `getCreditHealth(remaining, total)` helper inside the new component file, returning `{ state: 'healthy'|'low'|'critical'|'empty'|'unactivated', tone, message }`. Reused by:
+- The full + compact card.
+- The `Low Credits` badge pill (`state === 'critical' || state === 'empty'`).
+- The SMS-button disabled flag (`state === 'empty'`).
 
-### Testing instructions
+### 9. Out of scope (explicit)
 
-1. Apply migration; confirm columns + indexes exist (`\d sms_send_logs`).
-2. Send a test SMS from Guest List → row appears with `status='sent'`, `twilio_sid` populated.
-3. Tail edge function logs: `twilio-delivery-webhook`. Twilio fires `queued` → `sent` → `delivered` callbacks; verify each transition updates `status`, `last_status_at`, `delivered_at`.
-4. Force a failure (invalid number `+15005550001` Twilio magic) → row becomes `failed`, `failed_at` set, error code/message captured.
-5. Open Smart RSVP Analytics panel → row shows real status + relative timestamp; failed row shows error tooltip.
-6. Open Resend Smart RSVP → "Resend failed SMS" lists only the magic-number guest.
-7. Tamper the `X-Twilio-Signature` header → webhook returns 403 and DB unchanged.
+No auto top-up, subscription plans, usage billing, AI optimisation, heatmaps, advanced forecasting, spend analytics, separate billing pages, new dashboard sections, or admin panels. No edits to: locked desktop guest table, Step 1/2/3 cards, payment modal UI, routing, sidebar, public pages, Stripe wiring.
 
-### Twilio Console configuration
+### 10. Affected files
 
-Per-message `StatusCallback` is set in code, so **no Console change is required**. Optional hardening: in Messaging Service → Integration, set Status Callback URL to:
+- `src/components/Dashboard/SmartSmsCreditStatus.tsx` (new)
+- `src/components/Dashboard/GuestListTable.tsx` (mount full variant in top controls; pass `smsDisabled` to SMS send buttons)
+- `src/components/Dashboard/SmartRsvpAnalyticsPanel.tsx` (mount compact variant + KPI chips row)
+- `src/components/Dashboard/GuestDeliveryBadges.tsx` (inline `Low Credits` pill when `remaining <= 24`)
+- `src/components/Dashboard/ResendSmartRsvpModal.tsx` (disable SMS resend buttons + tooltip when empty)
 
-```
-https://xytxkidpourwdbzzwcdp.supabase.co/functions/v1/twilio-delivery-webhook
-```
+No DB migrations, no edge function changes, no new hooks.
 
-Webhook URL: `https://xytxkidpourwdbzzwcdp.supabase.co/functions/v1/twilio-delivery-webhook`
+### 11. Testing checklist
 
-Required secret already present: `TWILIO_AUTH_TOKEN` (used for signature validation).
+- Healthy (≥100): green accent, no warning, sends enabled.
+- Low (25–99): amber accent, calm "running low" copy, sends enabled, no badge pill.
+- Critical (1–24): red accent, stronger copy, `Low Credits` pill renders inline in delivery badge cell, sends still enabled.
+- Empty (0, total>0): locked red state, SMS send + resend SMS disabled with tooltip, email send still works, Top Up CTA prominent.
+- Unactivated (total=0): full variant shows muted "not active" line, compact variant renders nothing.
+- Top Up CTA launches existing Stripe topup flow (no regressions to payment modal).
+- After successful send: `sms_credits` realtime event updates all surfaces (card, KPI chips, badge pill, button disabled state) without refresh.
+- After top-up webhook: credits jump up, locked state clears, SMS buttons re-enable live.
+- Locked desktop Guest List table layout unchanged (visual diff vs snapshot).
+- Mobile + tablet: full card stacks cleanly; compact chips wrap; no horizontal scroll.
+
+### 12. Updated areas summary
+
+- Guest List → top controls row gains the `SmartSmsCreditStatus` (full).
+- Guest List → delivery badge cell gains conditional `Low Credits` micro-pill.
+- Guest List → SMS send buttons disabled when empty.
+- Smart RSVP Analytics → compact credit status header + KPI chips row.
+- Resend Smart RSVP modal → SMS resend buttons disabled when empty.

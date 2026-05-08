@@ -23,6 +23,8 @@ import {
 import { Mail, MessageSquare, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSmsCredits } from '@/hooks/useSmsCredits';
+import { getCreditHealth } from './SmartSmsCreditStatus';
 
 export type ResendAudience = 'failed_sms' | 'non_responders' | 'email_only' | 'sms_only';
 export type ResendChannel = 'email' | 'sms';
@@ -70,6 +72,8 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
   const [sending, setSending] = useState(false);
   const [guests, setGuests] = useState<GuestLite[]>([]);
   const [failedSmsGuestIds, setFailedSmsGuestIds] = useState<Set<string>>(new Set());
+  const { credits: smsCredits } = useSmsCredits(eventId);
+  const smsEmpty = getCreditHealth(smsCredits.remaining, smsCredits.total).state === 'empty';
 
   // Auto-pair audience → channel for clarity
   useEffect(() => {
@@ -135,6 +139,14 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
   );
 
   const handleSend = async () => {
+    if (channel === 'sms' && smsEmpty) {
+      toast({
+        title: 'SMS credits required',
+        description: 'SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (reachable.length === 0) {
       toast({
         title: 'No reachable guests',
@@ -207,8 +219,10 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
               </button>
               <button
                 type="button"
-                onClick={() => setChannel('sms')}
-                className={`rounded-lg border-2 p-3 flex items-center justify-center gap-2 text-sm lv-premium-shade ${
+                onClick={() => { if (!smsEmpty) setChannel('sms'); }}
+                disabled={smsEmpty}
+                title={smsEmpty ? 'SMS credits required to continue Smart RSVP messaging.' : undefined}
+                className={`rounded-lg border-2 p-3 flex items-center justify-center gap-2 text-sm lv-premium-shade disabled:opacity-50 disabled:cursor-not-allowed ${
                   channel === 'sms' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
                 }`}
               >
@@ -230,6 +244,13 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
               <span>No guests in this segment have a valid {channel === 'email' ? 'email address' : 'mobile number'}. Switch channel or audience.</span>
             </div>
           )}
+
+          {channel === 'sms' && smsEmpty && (
+            <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-md p-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.</span>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="gap-2 pb-4">
@@ -242,7 +263,8 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
           </Button>
           <Button
             onClick={handleSend}
-            disabled={sending || loading || reachable.length === 0}
+            disabled={sending || loading || reachable.length === 0 || (channel === 'sms' && smsEmpty)}
+            title={channel === 'sms' && smsEmpty ? 'SMS credits required to continue Smart RSVP messaging.' : undefined}
             className="rounded-full bg-green-500 hover:bg-green-600 text-white lv-premium-shade disabled:opacity-60"
           >
             {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}

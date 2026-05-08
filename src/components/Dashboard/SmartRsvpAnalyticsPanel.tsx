@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { DeliveryAnalyticsPanel } from './DeliveryAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
+import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
+import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { Search } from 'lucide-react';
 
@@ -63,6 +65,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<MethodFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('name');
+  const { credits: smsCredits } = useSmsCredits(eventId);
 
   useEffect(() => {
     if (!open || !eventId) return;
@@ -203,6 +206,30 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         </SheetHeader>
 
         <div className="mt-4 space-y-4">
+          <SmartSmsCreditStatus eventId={eventId} variant="compact" />
+
+          {(() => {
+            const delivered = rows.filter(r => r.deliveryStatus === 'Delivered').length;
+            const failed = rows.filter(r => r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked').length;
+            const total = delivered + failed;
+            const successPct = total > 0 ? Math.round((delivered / total) * 100) : null;
+            const chip = (label: string, value: React.ReactNode, tone: string) => (
+              <div className={`flex-1 min-w-[110px] rounded-xl border px-3 py-2 ${tone}`}>
+                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+                <div className="text-sm font-semibold text-foreground">{value}</div>
+              </div>
+            );
+            return (
+              <div className="flex flex-wrap gap-2">
+                {chip('Credits Remaining', smsCredits.remaining, 'border-emerald-200 bg-emerald-50/40')}
+                {chip('Credits Used', smsCredits.used, 'border-border bg-muted/40')}
+                {chip('SMS Delivered', delivered, 'border-green-200 bg-green-50/40')}
+                {chip('SMS Failed', failed, 'border-red-200 bg-red-50/40')}
+                {chip('Delivery Success', successPct === null ? '—' : `${successPct}%`, 'border-primary/30 bg-primary/5')}
+              </div>
+            );
+          })()}
+
           <DeliveryAnalyticsPanel eventId={eventId} />
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -262,6 +289,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                           inviteStatus={r.inviteStatus}
                           rsvp={r.rsvpRaw}
                           purchaseDeliveryMethod={purchaseMethod}
+                          lowCredits={getCreditHealth(smsCredits.remaining, smsCredits.total).state === 'critical' || smsCredits.remaining === 0}
                           className="ml-0"
                         />
                       </td>

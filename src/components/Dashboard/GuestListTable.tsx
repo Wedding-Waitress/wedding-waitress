@@ -97,6 +97,8 @@ import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
 import { ResendSmartRsvpModal } from './ResendSmartRsvpModal';
+import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
+import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { SmartRsvpFeatureStrip } from './SmartRsvpFeatureStrip';
 import { SmartRsvpAnalyticsPanel } from './SmartRsvpAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
@@ -262,6 +264,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
+  const { credits: smsCredits } = useSmsCredits(selectedEventId);
+  const smsHealth = getCreditHealth(smsCredits.remaining, smsCredits.total);
+  const smsEmpty = smsHealth.state === 'empty';
+  const smsLowCredit = smsHealth.state === 'critical' || smsHealth.state === 'empty';
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
 
   // RSVP payment-success return handler: close bulk modal, clear selection,
@@ -1705,6 +1711,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 />
               )}
 
+              {/* Smart SMS Credit Status — premium credit intelligence */}
+              {selectedEventId && (
+                <SmartSmsCreditStatus
+                  eventId={selectedEventId}
+                  variant="full"
+                  recipientCount={selectedGuestIds.size || undefined}
+                  className="mb-4"
+                />
+              )}
+
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
@@ -2299,6 +2315,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               inviteStatus={guest.rsvp_invite_status}
                               rsvp={guest.rsvp}
                               purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                              lowCredits={smsLowCredit}
                             />
                           </div>
                           <div className="flex items-center gap-1">
@@ -2541,6 +2558,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                     inviteStatus={guest.rsvp_invite_status}
                                     rsvp={guest.rsvp}
                                     purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
+                                    lowCredits={smsLowCredit}
                                   />
                                 </span>
                               );
@@ -2821,6 +2839,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                toast({
                  title: "No guests selected",
                  description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
+                 variant: "destructive",
+                 className: "[&_*]:text-white",
+               });
+               return;
+             }
+             if (smsEmpty) {
+               toast({
+                 title: "SMS credits required",
+                 description: "SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.",
                  variant: "destructive",
                  className: "[&_*]:text-white",
                });
