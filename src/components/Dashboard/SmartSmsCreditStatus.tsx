@@ -194,6 +194,9 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
             {health.state === 'healthy' || health.state === 'low'
               ? projection.invites
               : health.message}
+            {valueLine && (
+              <span className="text-muted-foreground/80"> · {valueLine}</span>
+            )}
           </div>
         </div>
         <Badge variant="outline" className={cn('text-[10px] font-semibold', stateBadgeClasses[health.state])}>
