@@ -114,7 +114,29 @@ export const projectSends = (
   };
 };
 
-const stateBadgeLabel: Record<CreditHealthState, string> = {
+/**
+ * Per-credit AUD value, derived dynamically from the centralized
+ * `SMS_TOPUP` constants. Adapts automatically if pricing or included
+ * credits change.
+ */
+export const getCreditUnitValueAud = (): number => {
+  if (!SMS_TOPUP.credits || SMS_TOPUP.credits <= 0) return 0;
+  return SMS_TOPUP.price_aud / SMS_TOPUP.credits;
+};
+
+const audFormatter = new Intl.NumberFormat('en-AU', {
+  style: 'currency',
+  currency: 'AUD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/** "Approx. $9.10 AUD value remaining" — empty string when unactivated. */
+export const formatRemainingValue = (remaining: number, total: number): string => {
+  if (total <= 0 || remaining <= 0) return '';
+  const value = remaining * getCreditUnitValueAud();
+  return `Approx. ${audFormatter.format(value)} AUD value remaining`;
+};
   healthy: 'Healthy',
   low: 'Low',
   critical: 'Critical',
