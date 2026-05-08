@@ -50,6 +50,8 @@ interface Event {
   ceremony_venue_address?: string | null;
   ceremony_venue_phone?: string | null;
   ceremony_venue_contact?: string | null;
+  ceremony_venue_contact_email?: string | null;
+  venue_contact_email?: string | null;
   ceremony_guest_limit?: number | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
@@ -82,6 +84,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     ceremony_venue_address: '',
     ceremony_venue_phone: '',
     ceremony_venue_contact: '',
+    ceremony_venue_contact_email: '',
     ceremony_guest_limit: '' as string | number,
     ceremony_start_time: '',
     ceremony_finish_time: '',
@@ -96,6 +99,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     venue_address: '',
     venue_phone: '',
     venue_contact: '',
+    venue_contact_email: '',
     start_time: '',
     finish_time: '',
     guest_limit: '' as string | number,
@@ -137,6 +141,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_venue_address: 'venue_address',
         ceremony_venue_phone: 'venue_phone',
         ceremony_venue_contact: 'venue_contact',
+        ceremony_venue_contact_email: 'venue_contact_email',
       };
       for (const [srcKey, destKey] of Object.entries(syncMap)) {
         if (!receptionOverrides.has(destKey)) {
@@ -184,6 +189,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_venue_address: event.ceremony_venue_address || '',
         ceremony_venue_phone: event.ceremony_venue_phone || '',
         ceremony_venue_contact: event.ceremony_venue_contact || '',
+        ceremony_venue_contact_email: event.ceremony_venue_contact_email || '',
         ceremony_guest_limit: event.ceremony_guest_limit ?? 10,
         ceremony_start_time: event.ceremony_start_time || '',
         ceremony_finish_time: event.ceremony_finish_time || '',
@@ -198,6 +204,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         venue_address: event.venue_address || '',
         venue_phone: event.venue_phone || '',
         venue_contact: event.venue_contact || '',
+        venue_contact_email: event.venue_contact_email || '',
         start_time: event.start_time || '',
         finish_time: event.finish_time || '',
         guest_limit: event.guest_limit ?? 10,
@@ -263,6 +270,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_venue_address: formData.ceremony_enabled ? formData.ceremony_venue_address : null,
         ceremony_venue_phone: formData.ceremony_enabled ? formData.ceremony_venue_phone : null,
         ceremony_venue_contact: formData.ceremony_enabled ? formData.ceremony_venue_contact : null,
+        ceremony_venue_contact_email: formData.ceremony_enabled ? (formData.ceremony_venue_contact_email || null) : null,
         ceremony_guest_limit: formData.ceremony_enabled ? ceremonyGuestLimit : null,
         ceremony_start_time: formData.ceremony_enabled ? formData.ceremony_start_time : null,
         ceremony_finish_time: formData.ceremony_enabled ? formData.ceremony_finish_time : null,
@@ -281,6 +289,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         venue_address: formData.reception_enabled ? formData.venue_address : null,
         venue_phone: formData.reception_enabled ? formData.venue_phone : null,
         venue_contact: formData.reception_enabled ? formData.venue_contact : null,
+        venue_contact_email: formData.reception_enabled ? (formData.venue_contact_email || null) : null,
         start_time: formData.reception_enabled ? formData.start_time : null,
         finish_time: formData.reception_enabled ? formData.finish_time : null,
         guest_limit: formData.reception_enabled ? receptionGuestLimit : ceremonyGuestLimit,
@@ -380,8 +389,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Location Details</Label>
-                <LocationDetailsPopover address={formData.ceremony_venue_address} phone={formData.ceremony_venue_phone} contact={formData.ceremony_venue_contact}
-                  onSave={({ address, phone, contact }) => setFormData((prev) => ({ ...prev, ceremony_venue_address: address, ceremony_venue_phone: phone, ceremony_venue_contact: contact }))} />
+                <LocationDetailsPopover address={formData.ceremony_venue_address} phone={formData.ceremony_venue_phone} contact={formData.ceremony_venue_contact} email={formData.ceremony_venue_contact_email}
+                  onSave={({ address, phone, contact, email }) => setFormData((prev) => ({ ...prev, ceremony_venue_address: address, ceremony_venue_phone: phone, ceremony_venue_contact: contact, ceremony_venue_contact_email: email ?? '' }))} />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -462,8 +471,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">Location/Venue Details</Label>
-                <LocationDetailsPopover address={formData.venue_address} phone={formData.venue_phone} contact={formData.venue_contact}
-                  onSave={({ address, phone, contact }) => { markReceptionOverride('venue_address'); markReceptionOverride('venue_phone'); markReceptionOverride('venue_contact'); setFormData((prev) => ({ ...prev, venue_address: address, venue_phone: phone, venue_contact: contact })); }} />
+                <LocationDetailsPopover address={formData.venue_address} phone={formData.venue_phone} contact={formData.venue_contact} email={formData.venue_contact_email}
+                  onSave={({ address, phone, contact, email }) => { markReceptionOverride('venue_address'); markReceptionOverride('venue_phone'); markReceptionOverride('venue_contact'); markReceptionOverride('venue_contact_email'); setFormData((prev) => ({ ...prev, venue_address: address, venue_phone: phone, venue_contact: contact, venue_contact_email: email ?? '' })); }} />
               </div>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">

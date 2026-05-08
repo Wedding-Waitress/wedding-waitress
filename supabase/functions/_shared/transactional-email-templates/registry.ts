@@ -14,6 +14,7 @@ import { template as adminNewSignup } from './admin-new-signup.tsx'
 import { template as adminNewPayment } from './admin-new-payment.tsx'
 import { template as contactFormMessage } from './contact-form-message.tsx'
 import { template as rsvpInvitationsSent } from './rsvp-invitations-sent.tsx'
+import { template as venueInvitationInline } from './venue-invitation-inline.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'welcome': welcome,
@@ -21,4 +22,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'admin-new-payment': adminNewPayment,
   'contact-form-message': contactFormMessage,
   'rsvp-invitations-sent': rsvpInvitationsSent,
+  'venue-invitation-inline': venueInvitationInline,
 }

@@ -742,6 +742,35 @@ export type Database = {
           },
         ]
       }
+      event_referral_dismissals: {
+        Row: {
+          dismissed_at: string
+          event_id: string
+          snooze_until: string | null
+          user_id: string
+        }
+        Insert: {
+          dismissed_at?: string
+          event_id: string
+          snooze_until?: string | null
+          user_id: string
+        }
+        Update: {
+          dismissed_at?: string
+          event_id?: string
+          snooze_until?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_referral_dismissals_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_shortlinks: {
         Row: {
           click_count: number | null
@@ -795,6 +824,7 @@ export type Database = {
           ceremony_venue: string | null
           ceremony_venue_address: string | null
           ceremony_venue_contact: string | null
+          ceremony_venue_contact_email: string | null
           ceremony_venue_phone: string | null
           created_at: string
           created_date_local: string | null
@@ -836,6 +866,7 @@ export type Database = {
           venue: string | null
           venue_address: string | null
           venue_contact: string | null
+          venue_contact_email: string | null
           venue_lat: number | null
           venue_lng: number | null
           venue_name: string | null
@@ -853,6 +884,7 @@ export type Database = {
           ceremony_venue?: string | null
           ceremony_venue_address?: string | null
           ceremony_venue_contact?: string | null
+          ceremony_venue_contact_email?: string | null
           ceremony_venue_phone?: string | null
           created_at?: string
           created_date_local?: string | null
@@ -894,6 +926,7 @@ export type Database = {
           venue?: string | null
           venue_address?: string | null
           venue_contact?: string | null
+          venue_contact_email?: string | null
           venue_lat?: number | null
           venue_lng?: number | null
           venue_name?: string | null
@@ -911,6 +944,7 @@ export type Database = {
           ceremony_venue?: string | null
           ceremony_venue_address?: string | null
           ceremony_venue_contact?: string | null
+          ceremony_venue_contact_email?: string | null
           ceremony_venue_phone?: string | null
           created_at?: string
           created_date_local?: string | null
@@ -952,6 +986,7 @@ export type Database = {
           venue?: string | null
           venue_address?: string | null
           venue_contact?: string | null
+          venue_contact_email?: string | null
           venue_lat?: number | null
           venue_lng?: number | null
           venue_name?: string | null
@@ -2940,6 +2975,50 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venue_invitations: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          sent_at: string
+          status: string
+          user_id: string
+          venue_contact_name: string | null
+          venue_email: string
+          venue_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          sent_at?: string
+          status?: string
+          user_id: string
+          venue_contact_name?: string | null
+          venue_email: string
+          venue_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          sent_at?: string
+          status?: string
+          user_id?: string
+          venue_contact_name?: string | null
+          venue_email?: string
+          venue_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_invitations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]

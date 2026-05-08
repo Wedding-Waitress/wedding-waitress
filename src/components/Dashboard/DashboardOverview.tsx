@@ -3,8 +3,10 @@ import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart3 } from 'lucide-react';
 import type { Guest } from '@/hooks/useGuests';
+import { useFirstEventReferral, type ReferralEventLite } from '@/hooks/useFirstEventReferral';
+import { VenueReferralCard } from './VenueReferralCard';
 
-interface EventLite { id: string; name: string }
+interface EventLite extends ReferralEventLite { id: string; name: string }
 
 interface DashboardOverviewProps {
   selectedEventId: string | null;
@@ -27,6 +29,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onEventSelect,
   events,
 }) => {
+  const { referralEvent, dismiss } = useFirstEventReferral(events);
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
@@ -35,6 +39,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           Overview of your event. RSVP &amp; messaging operations live in Guest List.
         </p>
       </div>
+
+      {referralEvent && (
+        <VenueReferralCard event={referralEvent} onDismiss={dismiss} />
+      )}
 
       {events.length > 0 && (
         <Card className="ww-box">
