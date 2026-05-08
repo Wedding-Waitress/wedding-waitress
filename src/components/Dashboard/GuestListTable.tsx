@@ -97,6 +97,8 @@ import { RsvpActivationModal } from './RsvpActivationModal';
 import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
 import { RsvpOverageModal } from './RsvpOverageModal';
 import { ResendSmartRsvpModal } from './ResendSmartRsvpModal';
+import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
+import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { SmartRsvpFeatureStrip } from './SmartRsvpFeatureStrip';
 import { SmartRsvpAnalyticsPanel } from './SmartRsvpAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
