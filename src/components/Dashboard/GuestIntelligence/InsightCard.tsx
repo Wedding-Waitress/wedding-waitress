@@ -10,10 +10,10 @@ interface Props {
 }
 
 const toneStyles: Record<Tone, string> = {
-  neutral: 'bg-white border-[#E8E1D6]',
-  positive: 'bg-[#F1F7F1] border-[#D7E7D7]',
-  warning: 'bg-[#FBF3E8] border-[#EBD9BD]',
-  info: 'bg-[#F4F1EC] border-[#E8E1D6]',
+  neutral: 'bg-white border-[#ECE5D8]',
+  positive: 'bg-[#F4F9F4] border-[#DCEBDC]',
+  warning: 'bg-[#FBF4E8] border-[#EDDDC0]',
+  info: 'bg-[#FAF6EF] border-[#ECE5D8]',
 };
 
 const toneText: Record<Tone, string> = {
@@ -24,10 +24,19 @@ const toneText: Record<Tone, string> = {
 };
 
 export const InsightCard = ({ label, value, hint, tone = 'neutral' }: Props) => (
-  <div className={cn('rounded-xl border p-3', toneStyles[tone])}>
-    <div className="text-[11px] uppercase tracking-wide text-[#6E6E73]">{label}</div>
-    <div className={cn('text-lg font-semibold mt-0.5', toneText[tone])}>{value}</div>
-    {hint && <div className="text-xs text-[#6E6E73] mt-1">{hint}</div>}
+  <div
+    className={cn(
+      'rounded-xl border px-3 py-2.5 min-h-[68px] flex flex-col justify-center transition-colors',
+      toneStyles[tone],
+    )}
+  >
+    <div className="text-[10.5px] uppercase tracking-[0.04em] text-[#6E6E73] font-medium leading-none">
+      {label}
+    </div>
+    <div className={cn('text-[17px] font-semibold mt-1.5 leading-none tabular-nums', toneText[tone])}>
+      {value}
+    </div>
+    {hint && <div className="text-[11px] text-[#6E6E73] mt-1.5 leading-snug">{hint}</div>}
   </div>
 );
 

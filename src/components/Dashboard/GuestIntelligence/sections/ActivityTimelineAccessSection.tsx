@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { History } from 'lucide-react';
 import IntelligenceSection from '../IntelligenceSection';
+import EmptyHint from '../EmptyHint';
 import { GuestActivityTimeline } from '@/components/Dashboard/GuestActivityTimeline';
 import type { Guest } from '@/hooks/useGuests';
 
@@ -17,27 +18,31 @@ export const ActivityTimelineAccessSection = ({ guests }: { guests: Guest[] }) =
       description="Per-guest CRM-style history"
       icon={<History className="w-4 h-4" />}
     >
-      <p className="text-xs text-[#6E6E73] mb-3 leading-relaxed">
+      <p className="text-[12px] text-[#6E6E73] mb-3 leading-relaxed">
         Inspect a chronological record of invites, responses, reminders and updates for any guest.
       </p>
-      <select
-        value={guestId}
-        onChange={(e) => setGuestId(e.target.value)}
-        className="w-full h-10 rounded-lg border border-[#E8E1D6] bg-white px-3 text-sm text-[#1D1D1F] mb-3"
-      >
-        <option value="">Select a guest…</option>
-        {sorted.map(g => (
-          <option key={g.id} value={g.id}>
-            {g.first_name} {g.last_name}
-          </option>
-        ))}
-      </select>
-      {guestId ? (
-        <GuestActivityTimeline guestId={guestId} defaultOpen />
+      {guests.length === 0 ? (
+        <EmptyHint>Add guests first to view activity timelines.</EmptyHint>
       ) : (
-        <div className="rounded-xl border border-dashed border-[#E8E1D6] p-4 text-xs text-[#6E6E73] text-center">
-          Select a guest to view their activity history.
-        </div>
+        <>
+          <select
+            value={guestId}
+            onChange={e => setGuestId(e.target.value)}
+            className="w-full h-10 rounded-lg border border-[#ECE5D8] bg-white px-3 text-[13px] text-[#1D1D1F] mb-3 focus:outline-none focus:ring-2 focus:ring-[#967A59]/20 focus:border-[#967A59]/40 transition"
+          >
+            <option value="">Select a guest…</option>
+            {sorted.map(g => (
+              <option key={g.id} value={g.id}>
+                {g.first_name} {g.last_name}
+              </option>
+            ))}
+          </select>
+          {guestId ? (
+            <GuestActivityTimeline guestId={guestId} defaultOpen />
+          ) : (
+            <EmptyHint>Select a guest to view their activity history.</EmptyHint>
+          )}
+        </>
       )}
     </IntelligenceSection>
   );
