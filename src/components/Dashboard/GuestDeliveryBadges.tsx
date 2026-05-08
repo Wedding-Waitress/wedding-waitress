@@ -62,6 +62,7 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
   inviteStatus,
   rsvp,
   purchaseDeliveryMethod,
+  lowCredits,
   className,
 }) => {
   const method = deriveMethod(inviteStatus, purchaseDeliveryMethod);
@@ -70,8 +71,9 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
     const r = normalizeRsvp(rsvp);
     return r === 'Attending' || r === 'Not Attending';
   })();
+  const showLowCreditsPill = lowCredits && (method === 'sms' || method === 'both');
 
-  if (!method && !delivery && !responded) return null;
+  if (!method && !delivery && !responded && !showLowCreditsPill) return null;
 
   return (
     <span className={cn('inline-flex flex-wrap items-center gap-1 ml-1.5 align-middle', className)}>
@@ -88,6 +90,11 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
       {responded && (
         <span className={cn(PILL, styles.responded)} title="Guest has responded">
           Responded
+        </span>
+      )}
+      {showLowCreditsPill && (
+        <span className={cn(PILL, styles.lowCredits)} title="Low SMS credits — top up to keep sending">
+          Low Credits
         </span>
       )}
     </span>
