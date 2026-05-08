@@ -227,12 +227,10 @@ export const Dashboard = () => {
     };
   }, [selectedEventId]);
 
-  // Handle GLOBAL event selection (used by all pages)
+  // Handle GLOBAL event selection (used by all pages) — writes through useSelectedEvent.
   const handleGlobalEventSelect = (eventId: string) => {
     if (eventId === "no-event") return;
-    setGlobalSelectedEventId(eventId);
-    setSelectedEventId(eventId); // Keep backward compatibility
-    sessionStorage.setItem('ww:session_selected_event', eventId);
+    setSelectedEventId(eventId);
   };
   
   // Legacy handler (for backward compatibility)
