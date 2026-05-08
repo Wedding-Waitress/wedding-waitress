@@ -163,6 +163,21 @@ serve(async (req) => {
         });
       }
 
+      // Grant included SMS credits on first activation (idempotent at row level)
+      if (!existing) {
+        try {
+          await supabase.rpc("add_sms_credits", {
+            _user_id: userId,
+            _event_id: eventId,
+            _amount: SMS_INCLUDED_CREDITS,
+            _source: "rsvp_tier_activation",
+          });
+          logStep("Granted included SMS credits", { eventId, credits: SMS_INCLUDED_CREDITS });
+        } catch (e) {
+          console.error("[VERIFY-PAYMENT] add_sms_credits (activation) failed", e);
+        }
+      }
+
       logStep("RSVP tier purchase recorded", { eventId, amountPaid, purchasedLimit });
 
       // Fire-and-forget confirmation email (only on first verification).
