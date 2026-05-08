@@ -3008,6 +3008,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           }}
         />
 
+        {/* Smart RSVP Analytics — slide-over */}
+        <SmartRsvpAnalyticsPanel
+          eventId={selectedEventId}
+          open={showAnalyticsPanel}
+          onOpenChange={setShowAnalyticsPanel}
+        />
 
         <GuestLimitDialog
           isOpen={showGuestLimitDialog}
