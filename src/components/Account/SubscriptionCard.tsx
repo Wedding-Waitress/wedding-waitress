@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { SectionCard } from './SectionCard';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useAccountBilling } from '@/hooks/useAccountBilling';
+import { useEventLimits } from '@/hooks/useEventLimits';
+import { useAccountSeats } from '@/hooks/useAccountSeats';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
