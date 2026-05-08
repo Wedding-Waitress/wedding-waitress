@@ -1708,7 +1708,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   }}
                   onCommunications={() => setShowAnalyticsPanel(true)}
                   onDelivery={() => setShowResendModal(true)}
-                  onIntelligence={() => setShowAnalyticsPanel(true)}
+                  onIntelligence={() => setShowIntelligencePanel(true)}
                 />
               )}
 
