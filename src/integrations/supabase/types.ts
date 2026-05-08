@@ -14,6 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_invitations: {
+        Row: {
+          accepted_user_id: string | null
+          account_owner_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_user_id?: string | null
+          account_owner_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_user_id?: string | null
+          account_owner_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: []
+      }
+      account_members: {
+        Row: {
+          accepted_at: string | null
+          account_owner_id: string
+          created_at: string
+          id: string
+          invited_at: string
+          member_user_id: string
+          role: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          account_owner_id: string
+          created_at?: string
+          id?: string
+          invited_at?: string
+          member_user_id: string
+          role?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          account_owner_id?: string
+          created_at?: string
+          id?: string
+          invited_at?: string
+          member_user_id?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      additional_event_purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          event_id: string | null
+          id: string
+          status: string
+          stripe_price_id: string | null
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          event_id?: string | null
+          id?: string
+          status?: string
+          stripe_price_id?: string | null
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          event_id?: string | null
+          id?: string
+          status?: string
+          stripe_price_id?: string | null
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "additional_event_purchases_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_otp_codes: {
         Row: {
           attempts: number
@@ -2677,7 +2787,9 @@ export type Database = {
           extra_event_price: number
           guest_limit: number | null
           id: string
+          included_events: number
           is_active: boolean
+          max_users: number
           name: string
           price_aud: number
           table_limit: number | null
@@ -2692,7 +2804,9 @@ export type Database = {
           extra_event_price: number
           guest_limit?: number | null
           id?: string
+          included_events?: number
           is_active?: boolean
+          max_users?: number
           name: string
           price_aud: number
           table_limit?: number | null
@@ -2707,7 +2821,9 @@ export type Database = {
           extra_event_price?: number
           guest_limit?: number | null
           id?: string
+          included_events?: number
           is_active?: boolean
+          max_users?: number
           name?: string
           price_aud?: number
           table_limit?: number | null
@@ -2884,6 +3000,10 @@ export type Database = {
     }
     Functions: {
       _random_id8: { Args: never; Returns: string }
+      account_event_access: {
+        Args: { _event_id: string; _user_id: string }
+        Returns: boolean
+      }
       add_dj_mc_item_by_token: {
         Args: {
           at_order_index?: number
@@ -3245,6 +3365,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_account_master: { Args: { _user_id: string }; Returns: boolean }
       log_guest_activity: {
         Args: {
           _activity_type: Database["public"]["Enums"]["guest_activity_type"]
@@ -3444,7 +3565,12 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "collaborator" | "owner"
+      app_role:
+        | "admin"
+        | "collaborator"
+        | "owner"
+        | "account_master"
+        | "account_standard"
       guest_activity_channel: "email" | "sms" | "whatsapp" | "system" | "web"
       guest_activity_status: "success" | "failure" | "pending" | "info"
       guest_activity_type:
@@ -3596,7 +3722,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "collaborator", "owner"],
+      app_role: [
+        "admin",
+        "collaborator",
+        "owner",
+        "account_master",
+        "account_standard",
+      ],
       guest_activity_channel: ["email", "sms", "whatsapp", "system", "web"],
       guest_activity_status: ["success", "failure", "pending", "info"],
       guest_activity_type: [

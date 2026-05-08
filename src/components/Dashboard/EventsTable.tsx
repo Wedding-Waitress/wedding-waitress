@@ -35,6 +35,8 @@ import { format } from 'date-fns';
 import { formatDisplayTime } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEventLimits } from '@/hooks/useEventLimits';
+import { AdditionalEventModal } from './AdditionalEventModal';
 
 // Define Event type locally
 interface Event {
@@ -159,6 +161,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     event: null
   });
   const [createModal, setCreateModal] = useState(false);
+  const [addEventModal, setAddEventModal] = useState(false);
+  const eventLimits = useEventLimits();
+  const handleCreateClick = () => {
+    if (!eventLimits.loading && eventLimits.atCap) setAddEventModal(true);
+    else setCreateModal(true);
+  };
   const handleEventSelect = (eventId: string) => {
     // Immediate UI update (no await)
     setActiveEventId(eventId);
@@ -263,7 +271,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   {events.length} Event{events.length !== 1 ? 's' : ''} Created
                 </Badge>
               )}
-              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => setCreateModal(true)}>
+              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
                 <Plus className="w-4 h-4" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
@@ -519,5 +527,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       isOpen: false,
       event: null
     })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} />
+
+      <AdditionalEventModal
+        isOpen={addEventModal}
+        onClose={() => setAddEventModal(false)}
+        includedEvents={eventLimits.includedEvents}
+        currentEvents={eventLimits.currentEvents}
+      />
     </>;
 };
