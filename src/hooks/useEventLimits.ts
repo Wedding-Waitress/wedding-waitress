@@ -38,7 +38,7 @@ export const useEventLimits = (): EventLimitsState => {
   useEffect(() => { fetchCounts(); }, [fetchCounts]);
 
   const registry = getPlanByName(plan?.plan_name);
-  const includedEvents = registry?.limits.includedEvents ?? 1;
+  const includedEvents = registry?.limits.includedEvents ?? 3;
   const additionalPurchased = counts.additional;
   const totalAllowed = includedEvents + additionalPurchased;
   const currentEvents = counts.events;
