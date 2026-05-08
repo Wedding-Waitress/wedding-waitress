@@ -244,6 +244,13 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
               <span>No guests in this segment have a valid {channel === 'email' ? 'email address' : 'mobile number'}. Switch channel or audience.</span>
             </div>
           )}
+
+          {channel === 'sms' && smsEmpty && (
+            <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-md p-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.</span>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="gap-2 pb-4">
