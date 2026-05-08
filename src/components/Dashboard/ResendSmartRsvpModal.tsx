@@ -72,6 +72,8 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
   const [sending, setSending] = useState(false);
   const [guests, setGuests] = useState<GuestLite[]>([]);
   const [failedSmsGuestIds, setFailedSmsGuestIds] = useState<Set<string>>(new Set());
+  const { credits: smsCredits } = useSmsCredits(eventId);
+  const smsEmpty = getCreditHealth(smsCredits.remaining, smsCredits.total).state === 'empty';
 
   // Auto-pair audience → channel for clarity
   useEffect(() => {
