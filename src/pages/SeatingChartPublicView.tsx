@@ -84,30 +84,47 @@ export function SeatingChartPublicView() {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    if (!token) return;
+    const tokenParam = decodeShareToken(token);
+    if (!tokenParam) {
+      setError('This link is invalid or has expired.');
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data: result, error: err } = await supabase.rpc('get_seating_chart_by_token' as any, {
-        share_token: decodeURIComponent(token),
-      });
+      setError(null);
+      setData(null);
+      try {
+        const { data: result, error: err } = await supabase.rpc('get_seating_chart_by_token' as any, {
+          share_token: tokenParam,
+        });
 
-      if (err || !result || (Array.isArray(result) && result.length === 0)) {
+        if (cancelled) return;
+        if (err || !result || (Array.isArray(result) && result.length === 0)) {
+          setError('This link is invalid or has expired.');
+          setLoading(false);
+          return;
+        }
+
+        const row = Array.isArray(result) ? result[0] : result;
+        setData({
+          event_id: row.event_id,
+          event_name: row.event_name,
+          event_date: row.event_date,
+          event_venue: row.event_venue,
+          permission: row.permission,
+          guests: typeof row.guests === 'string' ? JSON.parse(row.guests) : row.guests || [],
+        });
+      } catch (e) {
+        if (cancelled) return;
+        console.error('Seating chart fetch failed:', e);
         setError('This link is invalid or has expired.');
-        setLoading(false);
-        return;
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-
-      const row = Array.isArray(result) ? result[0] : result;
-      setData({
-        event_id: row.event_id,
-        event_name: row.event_name,
-        event_date: row.event_date,
-        event_venue: row.event_venue,
-        permission: row.permission,
-        guests: typeof row.guests === 'string' ? JSON.parse(row.guests) : row.guests || [],
-      });
-      setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [token]);
 
   const pages = useMemo(() => {
