@@ -98,7 +98,7 @@ export const Dashboard = () => {
     const urlTab = searchParams.get('tab') || 'dashboard';
     if (urlTab !== activeTab) setActiveTabState(urlTab);
   }, [searchParams, activeTab]);
-  const [showCreateTableModal_placeholder] = useState(false); // (kept slot for ordering)
+  
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const navigate = useNavigate();
