@@ -126,6 +126,10 @@ serve(async (req) => {
           purchaseTypeMeta === "rsvp_overage" ? String(lineQuantity) : "",
         guest_count_at_purchase:
           guest_count_at_purchase != null ? String(guest_count_at_purchase) : "",
+        delivery_method:
+          delivery_method === "email" || delivery_method === "sms" || delivery_method === "both"
+            ? delivery_method
+            : "",
       },
     };
 
