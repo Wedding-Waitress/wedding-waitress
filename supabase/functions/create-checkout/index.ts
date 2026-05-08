@@ -70,7 +70,9 @@ serve(async (req) => {
     const isEmbedded = ui_mode === "embedded";
     const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
     const purchaseTypeMeta =
-      purchase_type === "rsvp_overage" ? "rsvp_overage" : (purchase_type || "");
+      purchase_type === "rsvp_overage" ? "rsvp_overage" :
+      purchase_type === "additional_event" ? "additional_event" :
+      (purchase_type || "");
     logStep("Checkout params", {
       price_id,
       checkoutMode,
