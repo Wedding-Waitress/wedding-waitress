@@ -1711,6 +1711,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 />
               )}
 
+              {/* Smart SMS Credit Status — premium credit intelligence */}
+              {selectedEventId && (
+                <SmartSmsCreditStatus
+                  eventId={selectedEventId}
+                  variant="full"
+                  recipientCount={selectedGuestIds.size || undefined}
+                  className="mb-4"
+                />
+              )}
+
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
