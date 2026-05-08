@@ -2555,13 +2555,18 @@ export type Database = {
           error_code: string | null
           error_message: string | null
           event_id: string
+          failed_at: string | null
           guest_id: string | null
           id: string
           last_status_at: string
+          raw_twilio_status: string | null
           status: Database["public"]["Enums"]["sms_delivery_status"]
           to_masked: string | null
+          twilio_error_code: string | null
+          twilio_error_message: string | null
           twilio_sid: string | null
           user_id: string
+          webhook_payload: Json | null
         }
         Insert: {
           created_at?: string
@@ -2570,13 +2575,18 @@ export type Database = {
           error_code?: string | null
           error_message?: string | null
           event_id: string
+          failed_at?: string | null
           guest_id?: string | null
           id?: string
           last_status_at?: string
+          raw_twilio_status?: string | null
           status: Database["public"]["Enums"]["sms_delivery_status"]
           to_masked?: string | null
+          twilio_error_code?: string | null
+          twilio_error_message?: string | null
           twilio_sid?: string | null
           user_id: string
+          webhook_payload?: Json | null
         }
         Update: {
           created_at?: string
@@ -2585,13 +2595,18 @@ export type Database = {
           error_code?: string | null
           error_message?: string | null
           event_id?: string
+          failed_at?: string | null
           guest_id?: string | null
           id?: string
           last_status_at?: string
+          raw_twilio_status?: string | null
           status?: Database["public"]["Enums"]["sms_delivery_status"]
           to_masked?: string | null
+          twilio_error_code?: string | null
+          twilio_error_message?: string | null
           twilio_sid?: string | null
           user_id?: string
+          webhook_payload?: Json | null
         }
         Relationships: []
       }
@@ -3321,8 +3336,10 @@ export type Database = {
       }
       update_sms_delivery_status: {
         Args: {
-          _error?: string
           _error_code?: string
+          _error_message?: string
+          _payload?: Json
+          _raw_status?: string
           _status: string
           _twilio_sid: string
         }
