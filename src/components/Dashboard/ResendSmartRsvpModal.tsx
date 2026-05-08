@@ -23,6 +23,8 @@ import {
 import { Mail, MessageSquare, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSmsCredits } from '@/hooks/useSmsCredits';
+import { getCreditHealth } from './SmartSmsCreditStatus';
 
 export type ResendAudience = 'failed_sms' | 'non_responders' | 'email_only' | 'sms_only';
 export type ResendChannel = 'email' | 'sms';
