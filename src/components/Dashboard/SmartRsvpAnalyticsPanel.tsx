@@ -38,7 +38,11 @@ interface SmsLog {
   delivery_method: string | null;
   created_at: string;
   delivered_at: string | null;
+  failed_at: string | null;
+  last_status_at: string | null;
   error_message: string | null;
+  twilio_error_code: string | null;
+  twilio_error_message: string | null;
 }
 
 interface EmailLog {
