@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, MessageSquare } from 'lucide-react';
 
 interface LogRow {
   id: string;
@@ -12,6 +12,7 @@ interface LogRow {
   twilio_sid: string | null;
   error_message: string | null;
   guest_id: string | null;
+  delivery_method?: string | null;
   guest_name?: string;
   guest_rsvp?: string | null;
 }
