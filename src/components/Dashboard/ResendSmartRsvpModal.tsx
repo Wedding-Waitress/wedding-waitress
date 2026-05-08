@@ -256,7 +256,8 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
           </Button>
           <Button
             onClick={handleSend}
-            disabled={sending || loading || reachable.length === 0}
+            disabled={sending || loading || reachable.length === 0 || (channel === 'sms' && smsEmpty)}
+            title={channel === 'sms' && smsEmpty ? 'SMS credits required to continue Smart RSVP messaging.' : undefined}
             className="rounded-full bg-green-500 hover:bg-green-600 text-white lv-premium-shade disabled:opacity-60"
           >
             {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
