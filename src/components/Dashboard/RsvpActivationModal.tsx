@@ -6,7 +6,7 @@
  * bundle bullets, new pricing copy, and forwards `delivery_method`
  * into Stripe checkout metadata for future analytics.
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
