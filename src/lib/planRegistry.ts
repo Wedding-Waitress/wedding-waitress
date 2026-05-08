@@ -46,7 +46,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "prod_UOQhHcOhFdrhOs",
     plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
     mode: "payment",
-    limits: { guests: 100, includedEvents: 2, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 100, includedEvents: 3, additionalEventPrice: 99, maxUsers: 3 },
     prices: {
       AUD: { price: 99,    originalPrice: 199,    price_id: "price_1T0vD35GzTmqOxGK3k6EQZee" },
       USD: { price: 74.99, originalPrice: 149.99, price_id: "price_1TMhcx5GzTmqOxGKxMjCfQkz" },
