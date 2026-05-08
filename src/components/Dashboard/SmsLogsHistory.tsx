@@ -55,6 +55,7 @@ const MethodBadge = ({ method }: { method?: string | null }) => {
 export const SmsLogsHistory = ({ eventId, limit = 50 }: Props) => {
   const [rows, setRows] = useState<LogRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [methodFilter, setMethodFilter] = useState<'all' | 'email' | 'sms' | 'both'>('all');
 
   useEffect(() => {
     if (!eventId) return;
