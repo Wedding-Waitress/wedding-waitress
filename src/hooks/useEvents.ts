@@ -278,6 +278,13 @@ export const useEvents = () => {
       if (activeEventId === id) {
         setActiveEventId(null);
       }
+      // Clear global selection if it was the deleted event
+      if (typeof window !== 'undefined') {
+        const stored = window.localStorage.getItem('ww:selected_event_id');
+        if (stored === id) {
+          window.dispatchEvent(new Event('ww:selected-event-cleared'));
+        }
+      }
       
       toast({
         title: "Success",
