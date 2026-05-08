@@ -217,6 +217,10 @@ export const useEvents = () => {
       // Set the newly created event as active immediately
       setActiveEventId(data.id);
       await updateDisplayCountdownEvent(data.id);
+      // Promote new event to global selected event
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('ww:selected-event-set', { detail: data.id }));
+      }
       
       await fetchEvents();
       toast({
