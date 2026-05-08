@@ -118,6 +118,17 @@ export const Dashboard = () => {
     setActiveEventId: setEventsActiveEventId,
     refetch: refetchEvents
   } = useEvents();
+
+  // Unified global event selection (single source of truth across all dashboard tabs).
+  const {
+    selectedEventId,
+    selectedEvent,
+    setSelectedEventId,
+  } = useSelectedEvent(events);
+  // Backward-compat aliases — both names now refer to the same value.
+  const globalSelectedEventId = selectedEventId;
+  const setGlobalSelectedEventId = setSelectedEventId;
+
   const {
     profile,
     loading: profileLoading,
