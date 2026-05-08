@@ -318,9 +318,9 @@ export const useEvents = () => {
       // Initial fetch for authenticated users
       fetchEvents();
 
-      // Set up realtime subscription for this user's events
+      // Set up realtime subscription for this user's events (channel name unique per user to avoid collisions on remounts)
       const channel = supabase
-        .channel('events-changes')
+        .channel(`events-changes:${user.id}`)
         .on(
           'postgres_changes',
           {
