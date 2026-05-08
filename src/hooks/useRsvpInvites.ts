@@ -79,13 +79,22 @@ export const useRsvpInvites = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        toast({ title: "Error", description: result.error || "Failed to send SMS", variant: "destructive" });
+        const isNoCredits = result?.code === 'NO_CREDITS' || response.status === 402;
+        toast({
+          title: isNoCredits ? 'No SMS credits remaining' : 'Error',
+          description: isNoCredits
+            ? 'Top up your Smart RSVP & Messaging credits to continue sending SMS.'
+            : (result.error || 'Failed to send SMS'),
+          variant: 'destructive',
+        });
         return null;
       }
 
+      const blocked = (result as any).blocked ?? 0;
       toast({
-        title: "SMS Sent",
-        description: `Sent: ${result.sent}, Failed: ${result.failed}, Skipped: ${result.skipped}`,
+        title: blocked > 0 ? 'Some SMS blocked' : 'SMS Sent',
+        description: `Sent: ${result.sent}, Failed: ${result.failed}, Skipped: ${result.skipped}${blocked ? `, Blocked (no credits): ${blocked}` : ''}`,
+        variant: blocked > 0 ? 'destructive' : 'default',
       });
 
       return result;
