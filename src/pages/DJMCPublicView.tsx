@@ -169,10 +169,7 @@ export function DJMCPublicView() {
       }, (payload) => {
         const updatedToken = payload.new as any;
         if (updatedToken && data) {
-          const tokenMatches = updatedToken.token === token || 
-            updatedToken.token === token + '=' || 
-            updatedToken.token === token + '==';
-          if (tokenMatches && updatedToken.permission !== data.permission) {
+          if (sameShareToken(updatedToken.token, token) && updatedToken.permission !== data.permission) {
             setData(prev => prev ? { ...prev, permission: updatedToken.permission } : prev);
           }
         }
