@@ -814,6 +814,7 @@ export type Database = {
       }
       events: {
         Row: {
+          allow_guest_plus_ones: boolean
           ceremony_date: string | null
           ceremony_enabled: boolean | null
           ceremony_finish_time: string | null
@@ -874,6 +875,7 @@ export type Database = {
           venue_place_id: string | null
         }
         Insert: {
+          allow_guest_plus_ones?: boolean
           ceremony_date?: string | null
           ceremony_enabled?: boolean | null
           ceremony_finish_time?: string | null
@@ -934,6 +936,7 @@ export type Database = {
           venue_place_id?: string | null
         }
         Update: {
+          allow_guest_plus_ones?: boolean
           ceremony_date?: string | null
           ceremony_enabled?: boolean | null
           ceremony_finish_time?: string | null
