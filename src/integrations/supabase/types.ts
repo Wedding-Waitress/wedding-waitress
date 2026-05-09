@@ -382,6 +382,36 @@ export type Database = {
           },
         ]
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          metadata: Json
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind: string
+          metadata?: Json
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       dietary_chart_settings: {
         Row: {
           created_at: string
@@ -3357,6 +3387,17 @@ export type Database = {
           table_no: number
         }[]
       }
+      get_my_credit_transactions: {
+        Args: { p_limit?: number }
+        Returns: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          kind: string
+        }[]
+      }
+      get_my_credits_balance: { Args: never; Returns: number }
       get_my_referral_stats: {
         Args: never
         Returns: {
