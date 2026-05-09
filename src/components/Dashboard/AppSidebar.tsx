@@ -296,21 +296,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
       <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
       <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
-      <Dialog open={placeholder !== null} onOpenChange={(o) => !o && setPlaceholder(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{placeholder ? placeholderCopy[placeholder].title : ''}</DialogTitle>
-            <DialogDescription>
-              {placeholder ? placeholderCopy[placeholder].body : ''}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPlaceholder(null)} className="lv-premium-shade">
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ReferralRewardsModal open={referralOpen} onOpenChange={setReferralOpen} />
     </Sidebar>
   );
 };
