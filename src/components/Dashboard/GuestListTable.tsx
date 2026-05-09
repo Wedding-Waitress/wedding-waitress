@@ -1598,6 +1598,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     </Badge>
   );
 
+  const getMailingLines = (g: any): string[] => {
+    const lines: string[] = [];
+    const addr = (g?.mailing_address || '').trim();
+    const suburb = (g?.mailing_suburb || '').trim();
+    const state = (g?.mailing_state || '').trim();
+    const postcode = (g?.mailing_postcode || '').trim();
+    if (addr) lines.push(addr);
+    if (suburb) lines.push(suburb);
+    const last = [state, postcode].filter(Boolean).join(' ').trim();
+    if (last) lines.push(last);
+    return lines;
+  };
+
+  const renderAddressPill = (g: any) => {
+    const received = g?.address_received === true;
+    if (!received) {
+      return <Badge className="text-white lv-premium-shade bg-red-500">NO</Badge>;
+    }
+    const lines = getMailingLines(g);
+    const pill = <Badge className="text-white lv-premium-shade bg-green-500 cursor-default">YES</Badge>;
+    if (lines.length === 0) return pill;
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild><span>{pill}</span></TooltipTrigger>
+          <TooltipContent>
+            {lines.map((l, i) => (<div key={i} className="text-xs leading-tight">{l}</div>))}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+
   if (loading) {
     return (
       <Card className="p-8 text-center">
