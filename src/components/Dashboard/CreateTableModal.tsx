@@ -298,18 +298,18 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent
-        className="max-w-xl max-h-[85vh] flex flex-col px-4 sm:px-10 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto"
-        fullScreenOnMobile={false}
+    <Sheet open={isOpen} onOpenChange={handleClose}>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
       >
-        <DialogHeader className="max-lg:pt-6 lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
+        <SheetHeader className="px-6 pt-6 max-lg:pt-6 lg:pr-12">
+          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary">
             {editingTable ? 'Edit Table' : 'Create Table'}
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
         
-        <div className="space-y-4 sm:space-y-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-4 sm:space-y-6 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
           <div className="grid gap-2">
             <Label htmlFor="name">Table Name or No *</Label>
             <Input
