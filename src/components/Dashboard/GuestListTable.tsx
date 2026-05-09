@@ -774,6 +774,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setAllowGuestPlusOnes(next);
     try {
       await updateEvent(selectedEventId, { allow_guest_plus_ones: next } as any);
+      toast({
+        title: "Success",
+        description: next ? "Allow guests to add +1 turned on" : "Allow guests to add +1 turned off",
+      });
     } catch (err) {
       setAllowGuestPlusOnes(previous);
       toast({ title: "Couldn't save", description: "Failed to update plus-one setting. Please try again.", variant: "destructive" });
