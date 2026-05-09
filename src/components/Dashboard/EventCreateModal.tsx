@@ -585,7 +585,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <Button
             variant="destructive"
             onClick={handleClose}
-            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full max-lg:order-2 max-lg:w-full"
+            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full max-lg:order-2 max-lg:w-full"
           >
             <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
             Cancel
