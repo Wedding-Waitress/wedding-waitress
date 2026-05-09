@@ -904,10 +904,13 @@ export const GuestLookup: React.FC = () => {
                                 guest={guest}
                                 onUpdate={refreshGuestData}
                                 isEditable={isEditable}
-                                onEdit={handleEditGuest}
+                                onEdit={showUpdateDetails ? handleEditGuest : undefined}
                                 onAddGuest={(event as any)?.allow_guest_plus_ones ? () => handleAddGuest(guest) : undefined}
                                 rsvpDeadline={event?.rsvp_deadline}
                                 additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
+                                showRsvpButtons={showRsvpButtons}
+                                showAddPlusOne={showAddPlusOne}
+                                showUpdateDetails={showUpdateDetails}
                               />
                             ))
                           ) : isOpenSearchMode ? (
