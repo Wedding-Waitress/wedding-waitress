@@ -37,8 +37,10 @@ const StatCard: React.FC<{ label: string; value: number | string }> = ({ label, 
 
 export const ReferralRewardsModal: React.FC<Props> = ({ open, onOpenChange }) => {
   const { code, link, stats, loading } = useReferral(open);
+  const { balance, transactions } = useCredits(open);
 
-  const allZero = stats.total === 0 && stats.signed_up === 0 && stats.pending === 0 && stats.credits_earned === 0;
+  const creditsEarned = balance || stats.credits_earned;
+  const allZero = stats.total === 0 && stats.signed_up === 0 && stats.pending === 0 && creditsEarned === 0;
 
   const copy = async (value: string, label: string) => {
     try {
