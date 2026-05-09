@@ -82,7 +82,7 @@ export const useEvents = () => {
           ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact,
           ceremony_guest_limit, ceremony_start_time, 
           ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled,
-          venue_address, venue_phone, venue_contact
+          venue_address, venue_phone, venue_contact, allow_guest_plus_ones
         `),
       ]);
       
