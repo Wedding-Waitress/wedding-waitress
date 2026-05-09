@@ -105,7 +105,7 @@ import { SmartRsvpAnalyticsPanel } from './SmartRsvpAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
