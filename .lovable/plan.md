@@ -1,55 +1,55 @@
-## Phase 3 — Address Status Column in Guest List Table
+## Phase 4 — Live View Mailing Address Integration
 
-Single file: `src/components/Dashboard/GuestListTable.tsx`. No DB, no other files, no other features touched.
+Additive only. Existing RSVP cutoff (`isEditable`), event-day search rules, QR seating, lock window, plus-one logic, welcome media — all untouched.
 
-### 1. Desktop table (lg block, ~line 2522)
+### 1. Backend RPCs (required — public flow uses SECURITY DEFINER only)
 
-Gated by `collectGuestAddresses === true` (state already exists, line 189/765).
+Two RPC updates (no table schema changes, no RLS changes):
 
-**colgroup (line 2525-2541):** when toggle ON, insert a new narrow `<col style={{ width: '5%' }} />` after the Email col (line 2533). Trim 1pt each from a few wider cols (Relation 8→7, Dietary 8→7, Family 7→6, First/Last 7%→7%) to absorb the 5% — keep total = 100. Render the extra `<col>` conditionally so the layout is byte-identical when OFF.
+**a. `update_guest_rsvp_public`** — add 4 optional params and write address fields:
+- `_mailing_address text DEFAULT NULL`
+- `_mailing_suburb text DEFAULT NULL`
+- `_mailing_state text DEFAULT NULL`
+- `_mailing_postcode text DEFAULT NULL`
 
-**Header row (line 2542-2617):** conditionally render a new `<TableHead>` "Address" between Email (2559) and the + Guest header (2560). Same classes as Email/Mobile head cells. No new styling primitives.
+In the UPDATE, set each field via `COALESCE(_x, mailing_x)` (existing pattern for mobile/email/notes). Compute `address_received` after update inside the same statement: `address_received = (COALESCE(NULLIF(trim(COALESCE(_mailing_address, mailing_address)), ''), NULLIF(trim(COALESCE(_mailing_suburb, mailing_suburb)), ''), NULLIF(trim(COALESCE(_mailing_state, mailing_state)), ''), NULLIF(trim(COALESCE(_mailing_postcode, mailing_postcode)), '')) IS NOT NULL)`. Add the 4 fields to the `guest_update_logs` payload jsonb. Function signature change → `DROP FUNCTION` then `CREATE OR REPLACE`.
 
-**Body cell:** in every guest body row that mirrors the headers, conditionally render a centered cell containing a status pill:
-- `address_received === true` → green pill "YES" (reuse existing success pill classes already used in the table for YES — same component as Mobile/Email YES/NO pills shown in the screenshot).
-- otherwise → red pill "NO" (same red pill).
-- Wrap the YES pill in the existing `Tooltip` (already imported, used at line 2583) showing non-empty lines:
-  - line 1: `mailing_address`
-  - line 2: `mailing_suburb`
-  - line 3: `mailing_state` + " " + `mailing_postcode` (joined, trimmed)
-  Skip empty lines. NO pill gets no tooltip.
+**b. `get_public_event_with_data_secure`** — extend the returned row set:
+- event-level: `event_collect_guest_addresses boolean`
+- guest-level: `guest_mailing_address text`, `guest_mailing_suburb text`, `guest_mailing_state text`, `guest_mailing_postcode text`, `guest_address_received boolean`
 
-Group header rows (orange/blue) get the same conditional empty `<TableCell />` inserted in the same position so colspan/alignment stays correct (or bump their existing colSpan by 1 when toggle ON).
+Existing privacy toggles (`show_venue`, `show_partner_names`, `show_event_date`) are unaffected. No new RLS, no new table.
 
-### 2. Mobile card view (max-lg, ~line 2418 grid)
+### 2. `src/pages/GuestLookup.tsx`
 
-When `collectGuestAddresses === true`, add one more cell to the `grid-cols-2` info grid after Email:
+- Extend `eventData` (line ~266) with `collect_guest_addresses: !!firstRow.event_collect_guest_addresses`.
+- Extend the transformed `guests` map (line ~286) with the 4 mailing fields + `address_received` (default null/false).
+- No changes to search logic, lock-window logic, RSVP flow, +1 flow, welcome/menu/floor plan.
 
-```
-Address
-[YES] / [NO]   (same pill component, no tooltip)
-```
+### 3. `src/components/GuestLookup/GuestUpdateModal.tsx`
 
-Label uses the same `text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]` style as Mobile/Email labels. No full address text on mobile.
+- Extend `Guest` and `Event` interfaces with `mailing_address?`, `mailing_suburb?`, `mailing_state?`, `mailing_postcode?` and `collect_guest_addresses?: boolean`.
+- Add 4 fields to `formData` defaults + both `useEffect` resets (initial + fresh fetch). Extend the fresh-fetch `select` to include the 4 mailing columns.
+- In `handleSave`, pass the 4 fields (trimmed → null) into the RPC call. Address_received is computed server-side, no client logic needed.
+- **Render** a new section ONLY when `event?.collect_guest_addresses === true && isEditable === true`, placed **after Mobile Number, before Dietary Requirements** (closest match to "after Email/Mobile, before notes/preferences"):
+  - Reuses existing `<Label>` + `<Input className="border-primary w-full">` styles, `space-y-2` per field, parent `space-y-4` spacing.
+  - Order: Mailing Address (full width), Suburb (full width), State + Postcode in `grid grid-cols-2 gap-4`. Mobile-first stacking already inherited.
+  - Inputs use `maxLength` 200 / 100 / 100 / 20 to mirror Phase 2 schema.
+- When `isEditable === false` (24hr lock window) the existing early-return block already hides everything → address fields automatically disappear. No extra logic.
+- When `event?.collect_guest_addresses !== true` → section never renders, no spacing reserved.
 
-### 3. Hidden when toggle OFF
+### 4. `src/components/GuestLookup/EnhancedGuestCard.tsx`
 
-Every addition above is wrapped in `collectGuestAddresses && (...)`:
-- extra `<col>` not rendered → colgroup totals back to current widths
-- header cell not rendered
-- body cells not rendered
-- mobile grid cell not rendered
-- group-header colSpan unchanged
+No changes. Mailing addresses must NOT appear on the guest summary/seating card per spec.
 
-Result: when `collect_guest_addresses` is false the table is byte-identical to today.
+### Files NOT touched
 
-### Out of scope (explicit)
-
-GuestLookup, EnhancedGuestCard, AddGuestModal, Live View, RSVP/seating/QR, invites, SMS/email, imports/exports, Google Places, validation, family/couple sharing, DB schema. No new dependency. No new shared helper unless a 3-line `formatMailingLines(guest)` inline helper is added at top of the file.
+GuestListTable.tsx, AddGuestModal.tsx, seating charts, invitations, SMS/email, imports/exports, kiosk, stationery. No DB table/column/RLS changes (Phase 2 already added columns).
 
 ### Verification
 
-- Toggle OFF → desktop table + mobile cards visually unchanged (no extra column, no spacing, no header).
-- Toggle ON → Address column appears between Email and + Guest; YES = green, NO = red; hover YES on desktop → tooltip with up to 3 non-empty lines; mobile cards show Address: YES/NO pill, no full address.
-- No table overflow at 1280/1366/1440/1920; group header rows still align.
-- Existing locked behaviors (group headers, First Name alignment, Send RSVP & Invite column, table-fixed) preserved when toggle OFF; minimally adjusted only when ON.
+- Toggle OFF → no address fields anywhere in Live View; existing flow byte-identical.
+- Toggle ON + before lock window → 4 fields appear in Update modal between Mobile and Dietary; preload from DB; save persists; `address_received` auto-flips correctly server-side.
+- Toggle ON + inside 24hr lock → entire editable form hidden by existing `!isEditable` branch; address fields hidden too.
+- Search rules (full-name pre-event vs partial event-day), RSVP, +1, QR seating, welcome media, floor plans — all unchanged.
+- Mobile: reused existing input/spacing primitives, no overflow.
