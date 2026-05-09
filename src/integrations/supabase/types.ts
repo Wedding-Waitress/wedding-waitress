@@ -2379,6 +2379,54 @@ export type Database = {
           },
         ]
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          referred_user_id: string | null
+          referrer_user_id: string
+          signed_up_at: string | null
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          referred_user_id?: string | null
+          referrer_user_id: string
+          signed_up_at?: string | null
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string
+          signed_up_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       rsvp_invite_logs: {
         Row: {
           channel: string
@@ -3309,7 +3357,17 @@ export type Database = {
           table_no: number
         }[]
       }
+      get_my_referral_stats: {
+        Args: never
+        Returns: {
+          credits_earned: number
+          pending: number
+          signed_up: number
+          total: number
+        }[]
+      }
       get_notification_settings: { Args: { _user_id: string }; Returns: Json }
+      get_or_create_my_referral_code: { Args: never; Returns: string }
       get_public_ceremony_floor_plan: {
         Args: { event_slug: string }
         Returns: {
@@ -3507,6 +3565,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      record_referral_signup: { Args: { p_code: string }; Returns: undefined }
       reorder_dj_mc_items_by_token: {
         Args: { item_ids: string[]; p_section_id: string; share_token: string }
         Returns: boolean
