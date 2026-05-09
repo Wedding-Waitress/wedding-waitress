@@ -186,6 +186,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
   const [showAddModal, setShowAddModal] = useState(false);
   const [allowGuestPlusOnes, setAllowGuestPlusOnes] = useState(false);
+  const [collectGuestAddresses, setCollectGuestAddresses] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests, updateGuest } = useRealtimeGuests(selectedEventId);
   // Mobile-only: locally acknowledged +1 alerts so highlight clears instantly
   // before the backend [NEW+] strip lands via realtime.
@@ -761,6 +762,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
       // Sync Step 3 toggle from persisted event setting
       setAllowGuestPlusOnes(!!(selectedEvent as any)?.allow_guest_plus_ones);
+      setCollectGuestAddresses(!!(selectedEvent as any)?.collect_guest_addresses);
     }
   }, [selectedEvent]); // Removed guests.length to prevent toggle reset
 
@@ -781,6 +783,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     } catch (err) {
       setAllowGuestPlusOnes(previous);
       toast({ title: "Couldn't save", description: "Failed to update plus-one setting. Please try again.", variant: "destructive" });
+    }
+  };
+
+  // Persist Step 4 collect-guest-addresses toggle (optimistic + rollback)
+  const handleCollectGuestAddressesChange = async (next: boolean) => {
+    if (!selectedEventId) {
+      toast({ title: "No event selected", description: "Please select an event first", variant: "destructive" });
+      return;
+    }
+    const previous = collectGuestAddresses;
+    setCollectGuestAddresses(next);
+    try {
+      await updateEvent(selectedEventId, { collect_guest_addresses: next } as any);
+      toast({
+        title: "Success",
+        description: next ? "Guest mailing address collection turned on" : "Guest mailing address collection turned off",
+      });
+    } catch (err) {
+      setCollectGuestAddresses(previous);
+      toast({ title: "Couldn't save", description: "Failed to update mailing address setting. Please try again.", variant: "destructive" });
     }
   };
 
@@ -1731,7 +1753,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               )}
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-primary mb-0.5">Step 1: Set Up Your Event</h3>
@@ -1982,9 +2004,47 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </button>
                 </div>
 
-                {/* BOX 4: Step 4 - Add Your Guests */}
+                {/* BOX 4: Step 4 - Guest Contact Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 4: Add Your Guests</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 4: Guest Contact Settings</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Control what guest information can be collected through Live View RSVP.</p>
+
+                  {selectedEventId ? (
+                    <>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label className="text-sm font-medium text-foreground">Collect Guest Mailing Addresses</Label>
+                      </div>
+                      <div className="force-toggle-colors-step4 flex items-center gap-3 mb-2">
+                        {!collectGuestAddresses && <span className="text-xs font-medium text-red-500">OFF</span>}
+                        <Switch
+                          checked={collectGuestAddresses}
+                          onCheckedChange={handleCollectGuestAddressesChange}
+                          className="transition-colors duration-200"
+                        />
+                        {collectGuestAddresses && <span className="text-xs font-medium text-green-500">ON</span>}
+                        <style>{`
+                          .force-toggle-colors-step4 [data-state="checked"][role="switch"] { background-color: #22c55e !important; }
+                          .force-toggle-colors-step4 [data-state="unchecked"][role="switch"] { background-color: #ef4444 !important; }
+                          .force-toggle-colors-step4 [data-state="checked"][role="switch"]:hover { background-color: #22c55e !important; }
+                          .force-toggle-colors-step4 [data-state="unchecked"][role="switch"]:hover { background-color: #ef4444 !important; }
+                        `}</style>
+                      </div>
+
+                      <div className="border-t border-border my-4" />
+
+                      <div className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+                        <p>Guests will be able to securely submit or update their mailing address through the Live View RSVP app.</p>
+                        <p>Useful for printed invitations, thank-you cards, and wedding correspondence.</p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">Select an event first to configure contact settings</p>
+                  )}
+                </div>
+
+                {/* BOX 5: Step 5 - Add Your Guests */}
+                <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 5: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
                   <Button
