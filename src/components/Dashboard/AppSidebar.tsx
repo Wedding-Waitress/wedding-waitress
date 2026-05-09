@@ -16,9 +16,22 @@ import {
   Music,
   Mail,
   UserCircle,
-  ChevronUp
+  ChevronUp,
+  Sparkles,
+  LifeBuoy,
+  Gift
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { useNavigate, useLocation } from 'react-router-dom';
