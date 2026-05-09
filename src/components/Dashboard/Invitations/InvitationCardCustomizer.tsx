@@ -722,13 +722,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     Notes / Caption
                   </Label>
                   <Textarea
-                    placeholder="Add any notes or captions for this invitation design..."
+                    placeholder={notesPlaceholder || 'Add any notes or captions for this invitation design...'}
                     value={localNotes}
                     onChange={e => setLocalNotes(e.target.value)}
                     rows={4}
                   />
                   <p className="text-xs text-muted-foreground">
-                    This is for your reference only and won't appear on the invitation.
+                    {notesHelper || "This is for your reference only and won't appear on the invitation."}
                   </p>
                 </div>
 
