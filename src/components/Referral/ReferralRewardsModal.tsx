@@ -5,6 +5,23 @@ import { Input } from '@/components/ui/input';
 import { Copy, Share2, Gift, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useReferral } from '@/hooks/useReferral';
+import { useCredits, CreditTransaction } from '@/hooks/useCredits';
+
+const KIND_LABELS: Record<string, string> = {
+  welcome_bonus: 'Welcome bonus',
+  referral_signup_bonus: 'Referral signup bonus',
+  referral_reward: 'Referral reward',
+  testimonial_reward: 'Testimonial reward',
+  admin_bonus: 'Bonus credit',
+  promotional_credit: 'Promotional bonus',
+  manual_adjustment: 'Adjustment',
+};
+
+const formatDate = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return ''; }
+};
 
 interface Props {
   open: boolean;
@@ -20,8 +37,10 @@ const StatCard: React.FC<{ label: string; value: number | string }> = ({ label, 
 
 export const ReferralRewardsModal: React.FC<Props> = ({ open, onOpenChange }) => {
   const { code, link, stats, loading } = useReferral(open);
+  const { balance, transactions } = useCredits(open);
 
-  const allZero = stats.total === 0 && stats.signed_up === 0 && stats.pending === 0 && stats.credits_earned === 0;
+  const creditsEarned = balance || stats.credits_earned;
+  const allZero = stats.total === 0 && stats.signed_up === 0 && stats.pending === 0 && creditsEarned === 0;
 
   const copy = async (value: string, label: string) => {
     try {
@@ -114,12 +133,41 @@ export const ReferralRewardsModal: React.FC<Props> = ({ open, onOpenChange }) =>
             <StatCard label="Total referrals" value={stats.total} />
             <StatCard label="Successful signups" value={stats.signed_up} />
             <StatCard label="Pending referrals" value={stats.pending} />
-            <StatCard label="Credits earned" value={stats.credits_earned} />
+            <StatCard label="Credits earned" value={creditsEarned} />
           </div>
           {allZero && (
             <p className="text-xs text-center mt-3" style={{ color: '#6E6E73' }}>
               Start sharing your referral link to earn Wedding Waitress Credits.
             </p>
+          )}
+        </div>
+
+        {/* Recent Credit Activity */}
+        <div className="mt-4">
+          <div className="text-sm font-medium mb-2" style={{ color: '#1D1D1F' }}>Recent Credit Activity</div>
+          {transactions.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-[#E8E1D6] bg-white/50 p-4 text-center">
+              <p className="text-xs" style={{ color: '#6E6E73' }}>No credit activity yet.</p>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {transactions.map((t: CreditTransaction) => (
+                <li
+                  key={t.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-[#E8E1D6] bg-white/70 px-3 py-2.5"
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm truncate" style={{ color: '#1D1D1F' }}>
+                      {t.description || KIND_LABELS[t.kind] || 'Credit'}
+                    </div>
+                    <div className="text-[11px]" style={{ color: '#6E6E73' }}>{formatDate(t.created_at)}</div>
+                  </div>
+                  <div className="text-sm font-medium tabular-nums whitespace-nowrap" style={{ color: '#A88654' }}>
+                    {t.amount > 0 ? `+${t.amount}` : t.amount} Credits
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
 
