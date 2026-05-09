@@ -5,6 +5,23 @@ import { Input } from '@/components/ui/input';
 import { Copy, Share2, Gift, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useReferral } from '@/hooks/useReferral';
+import { useCredits, CreditTransaction } from '@/hooks/useCredits';
+
+const KIND_LABELS: Record<string, string> = {
+  welcome_bonus: 'Welcome bonus',
+  referral_signup_bonus: 'Referral signup bonus',
+  referral_reward: 'Referral reward',
+  testimonial_reward: 'Testimonial reward',
+  admin_bonus: 'Bonus credit',
+  promotional_credit: 'Promotional bonus',
+  manual_adjustment: 'Adjustment',
+};
+
+const formatDate = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return ''; }
+};
 
 interface Props {
   open: boolean;
