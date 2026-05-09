@@ -1785,14 +1785,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 />
               )}
 
-              {/* Guest Live View Protection (APP) — informational banner */}
+              {/* Guest Live View Protection (APP) - In the "QR Code Seating Chart" page! — informational banner */}
               <div className="bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="bg-primary/10 text-primary rounded-full p-2.5 shrink-0">
                     <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-bold text-primary mb-1">Guest Live View Protection (APP)</h3>
+                    <h3 className="text-base font-bold text-primary mb-1">Guest Live View Protection (APP) - In the "QR Code Seating Chart" page!</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       7 days before your event, RSVP responses, guest edits, and +1 requests are automatically hidden from the Live View app for security and event-day stability.
                     </p>
