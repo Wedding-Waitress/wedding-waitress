@@ -3341,6 +3341,7 @@ export type Database = {
           ceremony_venue: string
           ceremony_venue_address: string
           event_allow_guest_plus_ones: boolean
+          event_collect_guest_addresses: boolean
           event_date: string
           event_finish_time: string
           event_id: string
@@ -3350,12 +3351,17 @@ export type Database = {
           event_venue_address: string
           floor_plan_config: Json
           guest_added_by_guest_id: string
+          guest_address_received: boolean
           guest_allow_plus_one: boolean
           guest_dietary: string
           guest_family_group: string
           guest_first_name: string
           guest_id: string
           guest_last_name: string
+          guest_mailing_address: string
+          guest_mailing_postcode: string
+          guest_mailing_state: string
+          guest_mailing_suburb: string
           guest_rsvp: string
           guest_seat_no: number
           guest_table_id: string
@@ -3579,6 +3585,10 @@ export type Database = {
           _email?: string
           _event_id: string
           _guest_id: string
+          _mailing_address?: string
+          _mailing_postcode?: string
+          _mailing_state?: string
+          _mailing_suburb?: string
           _mobile?: string
           _notes?: string
           _rsvp?: string
