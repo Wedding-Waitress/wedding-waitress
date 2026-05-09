@@ -241,6 +241,44 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           placeholder="Enter your email address" disabled={!isEditable}
           className="border-primary w-full" />
       </div>
+      {event?.collect_guest_addresses && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="mailing_address">Mailing Address</Label>
+            <Input id="mailing_address" type="text" value={formData.mailing_address}
+              onChange={(e) => setFormData({ ...formData, mailing_address: e.target.value })}
+              placeholder="14 Somerville Road" disabled={!isEditable}
+              maxLength={200}
+              className="border-primary w-full" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="mailing_suburb">Suburb</Label>
+            <Input id="mailing_suburb" type="text" value={formData.mailing_suburb}
+              onChange={(e) => setFormData({ ...formData, mailing_suburb: e.target.value })}
+              placeholder="Sunshine West" disabled={!isEditable}
+              maxLength={100}
+              className="border-primary w-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="mailing_state">State</Label>
+              <Input id="mailing_state" type="text" value={formData.mailing_state}
+                onChange={(e) => setFormData({ ...formData, mailing_state: e.target.value })}
+                placeholder="VIC" disabled={!isEditable}
+                maxLength={100}
+                className="border-primary w-full" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mailing_postcode">Postcode</Label>
+              <Input id="mailing_postcode" type="text" inputMode="numeric" value={formData.mailing_postcode}
+                onChange={(e) => setFormData({ ...formData, mailing_postcode: e.target.value })}
+                placeholder="3020" disabled={!isEditable}
+                maxLength={20}
+                className="border-primary w-full" />
+            </div>
+          </div>
+        </>
+      )}
       <div className="space-y-2">
         <Label htmlFor="mobile">Mobile Number</Label>
         <Input id="mobile" type="tel" value={formData.mobile}
