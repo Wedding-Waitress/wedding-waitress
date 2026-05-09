@@ -1193,6 +1193,85 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               />
             </div>
 
+            {(selectedEvent as any)?.collect_guest_addresses === true && (
+              <>
+                <FormField
+                  control={form.control}
+                  name={"mailing_address" as any}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Street address"
+                          className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name={"mailing_suburb" as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Suburb</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Suburb"
+                            className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={"mailing_state" as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="State"
+                            className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name={"mailing_postcode" as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Postcode</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Postcode"
+                            className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+
             {/* Table Assignment - Stack on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField
