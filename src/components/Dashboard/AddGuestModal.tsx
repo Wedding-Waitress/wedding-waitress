@@ -146,6 +146,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   }>>([]);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [manualInviteStatus, setManualInviteStatus] = useState((editGuest as any)?.rsvp_invite_status || 'not_sent');
+
+  // Relationship Group Override (Phase 1) — only writes to guests.family_group
+  const detectGroupType = (fg?: string | null): 'individual' | 'couple' | 'family' => {
+    const v = (fg || '').trim();
+    if (!v) return 'individual';
+    if (v.includes(' & ') || v.endsWith(' Couple')) return 'couple';
+    return 'family';
+  };
+  const [groupTypeOverride, setGroupTypeOverride] = useState<'individual' | 'couple' | 'family'>('individual');
+  const [partnerGuestId, setPartnerGuestId] = useState<string>('');
+  const [familyGroupNameOverride, setFamilyGroupNameOverride] = useState<string>('');
+  const [eventGuestsForOverride, setEventGuestsForOverride] = useState<Array<{ id: string; first_name: string; last_name: string; family_group: string | null }>>([]);
   const [memberForm, setMemberForm] = useState({
     first_name: '',
     last_name: '',
