@@ -11,8 +11,8 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { X, Save, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -494,8 +494,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   );
 
   const renderHeader = () => (
-    <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 px-6 pt-6">
-      <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</SheetTitle>
+    <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
+      <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>
       <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
         <Input
           value={formData.event_name}
@@ -504,7 +504,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           className="h-11 sm:h-9 text-base sm:text-sm border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
         />
       </div>
-    </SheetHeader>
+    </DialogHeader>
   );
 
   if (isMobile) {
@@ -560,13 +560,13 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent
+        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"
+        trueFullScreenOnMobile
       >
-        <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 px-6 pt-6">
-          <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</SheetTitle>
+        <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
+          <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>
           <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
             <Input
               value={formData.event_name}
@@ -575,32 +575,30 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               className="h-11 sm:h-9 text-base sm:text-sm border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
             />
           </div>
-        </SheetHeader>
+        </DialogHeader>
 
-        <div className="space-y-4 py-3 px-6 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-4 py-3 overflow-y-auto flex-1 mobile-scroll-container">
           {bodyContent}
         </div>
 
-        <div className="flex flex-row justify-end gap-2 pt-2 px-6 pb-4 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
-          <Button
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
+          <Button 
+            variant="destructive" 
+            onClick={onClose}
+            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full max-lg:h-11"
+          >
+            Cancel
+          </Button>
+          <Button 
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white inline-flex items-center justify-center lg:h-12 lg:px-8 lg:text-base lg:font-semibold max-lg:order-1 max-lg:w-full max-lg:h-11"
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11"
           >
-            <Save className="hidden lg:inline-block w-5 h-5 mr-2" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onClose}
-            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white inline-flex items-center justify-center lg:h-12 lg:px-8 lg:text-base lg:font-semibold max-lg:order-2 max-lg:w-full max-lg:h-11"
-          >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
-            Cancel
-          </Button>
-        </div>
-      </SheetContent>
-    </Sheet>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
