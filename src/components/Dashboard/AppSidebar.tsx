@@ -34,6 +34,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
+import { GetHelpModal } from '@/components/Support/GetHelpModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProfile } from '@/hooks/useProfile';
@@ -98,7 +99,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
-  const [placeholder, setPlaceholder] = React.useState<null | 'upgrade' | 'help' | 'referral'>(null);
+  const [placeholder, setPlaceholder] = React.useState<null | 'upgrade' | 'referral'>(null);
+  const [helpOpen, setHelpOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
@@ -111,9 +113,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-  const placeholderCopy: Record<'upgrade' | 'help' | 'referral', { title: string; body: string }> = {
+  const placeholderCopy: Record<'upgrade' | 'referral', { title: string; body: string }> = {
     upgrade: { title: 'Upgrade Plan', body: 'Full upgrade flow arrives in Stage 3.' },
-    help: { title: 'Get Help', body: 'Help centre arrives in Stage 2.' },
     referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
   };
 
@@ -256,7 +257,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   Upgrade Plan
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setPlaceholder('help')}
+                  onClick={() => setHelpOpen(true)}
                   className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <LifeBuoy className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
@@ -295,6 +296,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </SidebarMenu>
       </SidebarFooter>
       {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
+      <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
       <Dialog open={placeholder !== null} onOpenChange={(o) => !o && setPlaceholder(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
