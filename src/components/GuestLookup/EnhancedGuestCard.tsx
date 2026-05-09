@@ -336,33 +336,37 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           </div>
 
           {/* Action Buttons - centered in full card width */}
-          {isEditable && (
+          {isEditable && (showRsvpButtons || (onAddGuest && showAddPlusOne)) && (
             <div className="flex flex-wrap gap-3 justify-center pt-1">
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => updateRsvp('Attending')}
-                disabled={updatingRsvp}
-                className="lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
-              >
-                {updatingRsvp ? (
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                ) : null}
-                Accept
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => updateRsvp('Not Attending')}
-                disabled={updatingRsvp}
-                className="lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
-              >
-                {updatingRsvp ? (
-                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                ) : null}
-                Decline
-              </Button>
-              {onAddGuest && (
+              {showRsvpButtons && (
+                <>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => updateRsvp('Attending')}
+                    disabled={updatingRsvp}
+                    className="lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                  >
+                    {updatingRsvp ? (
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    ) : null}
+                    Accept
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => updateRsvp('Not Attending')}
+                    disabled={updatingRsvp}
+                    className="lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                  >
+                    {updatingRsvp ? (
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    ) : null}
+                    Decline
+                  </Button>
+                </>
+              )}
+              {onAddGuest && showAddPlusOne && (
                 <Button
                   type="button"
                   size="sm"
@@ -377,7 +381,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           )}
 
           {/* Divider + Update Your Details (moved from top) */}
-          {onEdit && isEditable && (
+          {onEdit && isEditable && showUpdateDetails && (
             <>
               <div className="my-6 border-t border-border" />
               <div className="flex justify-center">
