@@ -1277,7 +1277,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       </SelectTrigger>
                       <SelectContent>
                         {eventGuestsForOverride
-                          .filter(g => g.id !== editGuest.id)
+                          .filter(g =>
+                            g.id !== editGuest.id &&
+                            !(g.family_group ?? '').includes(' & ') &&
+                            !(g.family_group ?? '').endsWith(' Couple')
+                          )
                           .map(g => (
                             <SelectItem key={g.id} value={g.id}>
                               {`${g.first_name} ${g.last_name || ''}`.trim()}
