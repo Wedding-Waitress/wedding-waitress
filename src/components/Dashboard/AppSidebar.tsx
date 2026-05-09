@@ -296,6 +296,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </SidebarMenu>
       </SidebarFooter>
       {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
+      <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
       <Dialog open={placeholder !== null} onOpenChange={(o) => !o && setPlaceholder(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
