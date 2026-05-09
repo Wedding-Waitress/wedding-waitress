@@ -1075,7 +1075,7 @@ export const GuestLookup: React.FC = () => {
         helperText={moduleSettings?.update_details_config?.helper_text}
         allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
-        isEditable={isEditable}
+        isEditable={isEditable && showUpdateDetails}
         allGuests={guests}
       />
 
