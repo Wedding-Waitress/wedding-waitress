@@ -2712,6 +2712,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          {collectGuestAddresses && (
+                            <TableCell className="px-2 py-2 text-center align-middle">{renderAddressPill(guest)}</TableCell>
+                          )}
                           <TableCell className="px-2 py-2 text-center align-middle">
                             <Badge 
                               className={cn(
