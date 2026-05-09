@@ -112,9 +112,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-  const placeholderCopy: Record<'upgrade' | 'help' | 'referral', { title: string; body: string }> = {
+  const placeholderCopy: Record<'upgrade' | 'referral', { title: string; body: string }> = {
     upgrade: { title: 'Upgrade Plan', body: 'Full upgrade flow arrives in Stage 3.' },
-    help: { title: 'Get Help', body: 'Help centre arrives in Stage 2.' },
     referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
   };
 
