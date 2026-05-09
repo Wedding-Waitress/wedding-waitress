@@ -1,160 +1,95 @@
-## Stage 7 — QR Seating Signs (Unified Stationery Engine)
+# Stage 7 Finalization Plan (approved with DOM-preservation guardrail)
 
-QR Seating Signs is a sibling clone of Invitations & Cards built on **one shared stationery editor core**. Reuse, extract, never duplicate. Invitations and Signage become thin **configuration layers** on top of identical primitives.
+## CRITICAL GUARDRAIL (added per user)
 
-### Architecture rule
+> During extraction, preserve all existing DOM hierarchy/order for Invitations wherever possible. Do not refactor merely for code elegance if it risks changing rendering, spacing, hydration, responsiveness, or export output.
 
-Refactor the Invitations editor's reusable pieces into a shared core consumed by both pages:
+Concretely this means:
+- Same parent → child node order in the rendered tree.
+- Same wrapper `<div>`s, same `className` strings, same inline styles, same data-attributes.
+- Same conditional render order (e.g., tabs render in the same sequence).
+- Same React key strategy on lists (no key changes that would force remounts).
+- Same hook call order in `InvitationCardCustomizer` / `InvitationCardPreview` (no reordering of `useState`/`useEffect`).
+- No `<Fragment>` collapsing or wrapper-div removal "for cleanliness".
+- If extracting a block would require any structural change, leave the block inline in Invitations and only have Signage consume the new primitive.
 
-```
-src/components/Stationery/core/
-  StationeryPreviewShell.tsx     // cream container, inner shadow, A4 stage, scaling
-  StationeryEditorCard.tsx       // editor card + tab shell
-  StationeryTabs.tsx             // brown pill tab strip
-  StationeryStripSelector.tsx    // top brown pill strip (Invitation/SaveTheDate/ThankYou OR Portrait/Landscape)
-  StationeryExportPanel.tsx      // header export controls (PDF/PNG)
-  StationeryZoomControls.tsx     // right-edge +/- /%
-  BackgroundTab.tsx              // upload/gallery/canva, opacity, color picker
-  TextZonesTab.tsx               // preset chips, custom zone, empty state
-  QRCodeTab.tsx                  // event picker, show toggle, draggable QR
-  MessagesTab.tsx                // notes/caption
-  CanvasObject.tsx               // unified draggable/resizable object renderer
-  ColorSwatchPopover.tsx         // exact swatch popup currently used by Invitations
-  hooks/
-    useCanvasObjects.ts          // unified text/qr/future object model
-    useStationeryExport.ts       // 300 DPI PDF + PNG (jsPDF + html2canvas)
-    useImageUpload.ts            // 5MB cap, accepted MIME, compression, preview
-    useStationeryAutosave.ts     // debounced per-event persist
-```
+## 1. PinchZoom Preview Wrapper (Signage only)
 
-Invitations and Signage import from `Stationery/core/` and pass configuration:
-- field set, preset chips, allowed orientations/sizes, default QR position, file naming, persistence table, etc.
+`src/components/Dashboard/Signage/SignagePage.tsx`:
+- Wrap ONLY the preview area in `<PinchZoomContainer naturalWidth={...}>`.
+- `naturalWidth = 794` (portrait) / `1123` (landscape), switched on `signageSettings.orientation`.
+- Do NOT wrap header, event selector, tab strip, editor controls, or export buttons.
+- Touch detection stays internal to the container (`navigator.maxTouchPoints > 0`).
+- Invitations preview is NOT wrapped (locked behavior preserved).
 
-### No Invitations regression (hard guardrail)
+## 2. Stationery/core Shared Primitive Extraction (DOM-preserving)
 
-Per `mem://standards/no-silent-feature-removal`, the extraction must be **behaviour-preserving** for Invitations:
-- Identical rendered DOM, identical export bytes (snapshot before/after), identical mobile behaviour, identical Canva integration, identical QR rendering, identical styling tokens.
-- Strategy: keep `InvitationCardCustomizer.tsx` and `InvitationCardPreview.tsx` as the source files; move pure pieces into `Stationery/core/` and have the existing Invitations files re-export/wrap them. No prop renames. No CSS class renames.
-- If any divergence is unavoidable, stop and ask before merging.
+**New folder:** `src/components/Stationery/core/`
 
-### Unified canvas object model
+**Extraction rule:** each primitive is a 1:1 lift of an existing JSX block from `InvitationCardCustomizer.tsx` / `InvitationCardPreview.tsx`. Internal markup is copied verbatim. Props expose only the values that already vary (titles, labels, callbacks, data) — not structure.
 
-Every text zone, QR, and future logo/icon/overlay shares one shape:
+Primitives:
+- `StationeryEditorShell.tsx` — header card + event selector + export slot wrapper.
+- `StationeryPreviewShell.tsx` — cream container + A4 stage + scaling logic.
+- `StationeryTabs.tsx` — Background / Text Zones / QR Code / Messages tab strip.
+- `StationeryStripSelector.tsx` — brown-pill selector (Save the Date / Thank You for Invitations; Portrait / Landscape for Signage). Identical DOM, identical classes.
+- `StationeryZoomControls.tsx` — zoom +/− control, lifted as-is.
+- `StationeryExportPanel.tsx` — export button group.
+- `BackgroundTab.tsx`, `TextZonesTab.tsx`, `QRCodeTab.tsx`, `MessagesTab.tsx` — tab body components, markup unchanged.
+- `ColorSwatchPopover.tsx` — color picker popover, lifted as-is.
 
-```ts
-type CanvasObject = {
-  id: string;
-  type: 'text' | 'qr' | 'image' | 'logo' | 'shape';
-  x: number; y: number;          // mm on A4 sheet
-  width: number; height: number; // mm
-  rotation: number;              // deg
-  locked: boolean;
-  zIndex: number;
-  styles: Record<string, unknown>; // type-specific (font, color, opacity, etc.)
-  meta?: Record<string, unknown>;  // type-specific payload (text content, qr url, image src)
-};
-```
+Hooks:
+- `useStationeryAutosave.ts` — generic wrapper around the existing Invitations autosave pattern (table name + payload shape parameterized). Same debounce, same toast, same write semantics.
+- `useImageUpload.ts` — shared background/image upload pipeline (Canva + standard), parameterized by storage folder. Same compression and preview behavior.
+- `useStationeryExport.ts` — thin wrapper over existing `invitationExporter.ts` (filename + orientation params). Underlying export engine unchanged.
 
-Drag/resize/select/delete handled by the same `CanvasObject` renderer. Future logos, icons, table cards, decorative overlays, and drag/drop templates plug in without rewrites.
+**Invitations refactor flow:**
+1. For each primitive, lift JSX from Invitations into `core/` byte-equivalently.
+2. Replace the inline block in `InvitationCardCustomizer.tsx` / `InvitationCardPreview.tsx` with `<CorePrimitive ...sameProps />`.
+3. If a lift would change DOM order, classes, hook order, or hydration shape — STOP and leave it inline; Signage will use the core version, Invitations keeps the inline version.
+4. No prop renames on Invitations public APIs.
+5. No CSS token, className, or design-token edits.
 
-### Sidebar + naming
+**Signage refactor flow:**
+1. `SignagePage.tsx` rebuilt as a slim composition of core primitives + the Portrait/Landscape variant of `StationeryStripSelector`.
+2. Drops the current direct-import-with-overrides path on `InvitationCardCustomizer`.
+3. `useSignageSettings.ts` keeps its public shape; uses `useStationeryAutosave` internally.
 
-- Sidebar label: **QR Seating Signs**
-- Main page header card title: **QR Code Seating Chart Sign**
-- Editor card heading: **QR Code Seating Chart & Wedding Sign Designer**
-- `AppSidebar.tsx` adds the entry under `qr-code` (icon `Printer`).
-- `Dashboard.tsx` `case 'signage'` already wired; add `signage` to stats-bar exclusion.
+## 3. Invitations Regression Verification Pass
 
-### Top page (mirrors Invitations exactly)
+**Static checks:**
+- TypeScript build clean.
+- Diff `InvitationCardCustomizer.tsx` and `InvitationCardPreview.tsx`: confirm same rendered DOM order, same classNames, same hook order.
+- No changes to `invitationExporter.ts` behavior.
+- No changes to locked design tokens.
 
-Header card → green info card (A4-only, 300 DPI, scan-to-find-seat, background <5MB) → `Choose Event:` dropdown (left) + Export Controls (right) with **Download PDF** + **Download PNG** via `StationeryExportPanel`.
+**Functional checklist (Invitations route only):**
+- Save the Date / Thank You strip selector: same brown active pill, hover, height, radius, responsive stacking.
+- Background tab: color picker popover, image upload (standard + Canva), remove-image — all identical.
+- Text Zones tab: add/edit/delete, font picker, color, alignment — identical.
+- QR Code tab: same rendering, position, size, contrast.
+- Messages tab: identical.
+- Zoom controls: +/− and reset identical.
+- Export: same PDF/PNG output, same 300 DPI quality, same filename.
+- Autosave: same debounce, same toast, same DB write.
+- Mobile responsiveness: identical breakpoints/stacking.
 
-### Sign template strip
+**Signage smoke (no full QA yet):**
+- Portrait ↔ Landscape flip.
+- QR clamp ≥ 17% portrait / ≥ 12% landscape; default bottom-center / bottom-right.
+- Export filename `WW-Sign-{EventName}-{Orientation}.pdf` / `.png`.
+- PinchZoom active on touch devices only; not wrapping header/selector/exports.
 
-`StationeryStripSelector` configured with two pills only: **Portrait** | **Landscape**. Same height/spacing/brown active pill animation as Invitations. No third option. No 4-layout selector. No theme cards.
+**Output:** short pass/fail checklist with any deltas found and fixed.
 
-### Editor tabs
+## Order of operations
 
-`Text Zones | Background | Add QR Code | Messages` rendered via shared `StationeryTabs` + the four shared tab components.
+1. Extract core primitives + hooks (DOM-preserving lifts only).
+2. Refactor Invitations to consume core where safe; leave inline where not.
+3. Refactor Signage to consume core directly (drop prop-override piggyback).
+4. Add PinchZoom wrapper around Signage preview only.
+5. Run regression checklist; report results. No user-facing testing requested yet.
 
-**Text Zones** — preset chips: Couple Names, Event Name, Event Date, Venue, Welcome Message, QR Instructions. Welcome Message default `"Please scan the QR code to find your table."`; QR Instructions default `"Scan to find your seat"`. Custom zone + empty state + Reset.
-- **Preset auto-styling**: each preset inserts at a curated default position with centered alignment, readable font size, safe spacing from edges, and never overlapping the default QR zone. Feels professionally designed on first insert.
+## Out of scope
 
-**Background** — direct reuse: No bg / Full bg radios, Choose File / Image Gallery / Design with Canva, image preview + Remove, "QR Code Sign Customisation" heading (only wording change), Image Opacity dropdown 0–100%, Card Background Colour via `ColorSwatchPopover`. Reset.
-
-**Add QR Code** — heading "Add QR Code to Sign", event picker, Show QR on Canvas toggle, QR preview via existing `AdvancedQRGenerator` + `buildGuestLookupUrl`. Drag + resize on canvas. Reset.
-
-**Messages** — Notes/Caption textarea with signage-specific placeholder + helper. Reset.
-
-### QR safety + default placement
-
-- **Default position**: bottom-center on Portrait, bottom-right safe zone on Landscape. Never inside the text content area.
-- **Min size**: ≥ 35mm on the A4 sheet (~413px @ 300 DPI). Resize handles clamp.
-- **Contrast**: dark FG on light BG enforced.
-- **Render**: 300 DPI in exports — never upscaled from preview bitmap.
-
-### Preview (mirrors Invitations + landscape safety)
-
-`StationeryPreviewShell` — same cream container, inner shadow, scaling, scroll, zoom controls, breathing room.
-- A4 portrait (210×297mm) or landscape (297×210mm) per strip.
-- **Landscape safety**: never stretch, crop, overflow, or go edge-to-edge. Force extra padding (≥ 32px desktop / 24px mobile) around the A4 stage. Fit via `Math.min((maxW − pad) / sheetW, (maxH − pad) / sheetH)`. Landscape gets *more* whitespace than portrait.
-- Wrapped in `<PinchZoomContainer naturalWidth={794}>` per memory rule.
-
-### Export consistency
-
-`useStationeryExport` produces PDF + PNG that **match the live preview exactly**: same scaling, spacing, QR position, opacity, typography, landscape padding. Filenames `WW-Sign-{EventName}-{Orientation}.pdf` / `.png` per `mem://standards/export-filenames`. No "preview vs export" drift.
-
-### Persistence (autosave)
-
-`useStationeryAutosave` debounces (~400ms) and persists per event:
-`orientation, textZones[], qr {position, size, enabled}, background {imageUrl, opacity, color}, notes`.
-
-Migration: new table `signage_settings` (event_id PK, jsonb columns, RLS by `auth.uid() = user_id`) following the existing settings-table pattern. Users can leave and return.
-
-### Performance guard
-
-- `CanvasObject` is `React.memo` with shallow-equality on its slice of state.
-- Drag/resize updates use refs + `requestAnimationFrame`, only committing to React state on pointer-up.
-- Background image kept as a stable URL/blob ref; not re-decoded on every keystroke.
-- QR re-renders only when its URL/size/colors change.
-
-### Responsive parity
-
-Tablet/mobile follows Invitations exactly: same stacking, editor/preview collapse, spacing, sidebar, overflow.
-
-### Future-ready, hidden in V1
-
-`CanvasObject` already supports `image | logo | shape`. Hooks/extension points stubbed for logo uploads, image overlays, decorative assets, seating-chart themes, premium templates, sponsor/vendor branding. **Not surfaced in V1 UI.** Existing `signageTemplateEngine.ts`, `SignageTemplateCard.tsx`, and the 10 themes stay on disk untouched.
-
-### Implementation priority order
-
-1. Exact Invitations parity shell (extract `Stationery/core/` + verify zero Invitations regression).
-2. Stable shared infrastructure (canvas object model, autosave, export).
-3. Live preview correctness (portrait + landscape padding, zoom).
-4. Export correctness (PDF + PNG match preview exactly).
-5. Mobile responsiveness.
-6. Future extensibility hooks (no UI surface).
-
-Do not optimise fancy features before parity + stability are perfect.
-
-### Files
-
-- `src/components/Stationery/core/*` — new shared primitives extracted from Invitations.
-- `src/components/Dashboard/Invitations/InvitationCardCustomizer.tsx` + `InvitationCardPreview.tsx` + `InvitationExporter.tsx` — refactored to consume the shared core, with **identical rendered output**.
-- `src/components/Dashboard/Signage/SignagePage.tsx` — slim composition of the shared core configured for signage.
-- `src/components/Dashboard/Signage/SignageEditorTabs.tsx` / `SignagePreview.tsx` / `SignageExporter.tsx` — thin signage-specific wrappers.
-- `src/hooks/useSignageSettings.ts` — wraps `useStationeryAutosave` for the new table.
-- `src/components/Dashboard/AppSidebar.tsx` — Signage entry.
-- `src/pages/Dashboard.tsx` — stats-bar exclusion only.
-- New migration: `signage_settings` table with RLS.
-
-### Standards compliance
-
-- All buttons get `lv-premium-shade`.
-- Brand tokens `#967A59` brown / cream / Inter preserved.
-- PinchZoom on the preview area only.
-- `no-silent-feature-removal` applies to every Invitations touchpoint.
-
-### Out of scope (unchanged)
-
-Drag-and-drop full editor beyond Invitations parity, printing fulfillment, checkout, credits redemption, advanced template marketplace, additional fully-rendered themes.
+Drag-and-drop beyond Invitations parity, printing, checkout, credits, marketplace, additional themes, sponsor branding UI, retroactive PinchZoom on existing pages.
