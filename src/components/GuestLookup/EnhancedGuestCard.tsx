@@ -54,6 +54,12 @@ interface EnhancedGuestCardProps {
   isEditable?: boolean;
   rsvpDeadline?: string | null;
   additionalGuestCount?: number;
+  /** 7-day auto-protection: when false, Accept/Decline are hidden */
+  showRsvpButtons?: boolean;
+  /** 7-day auto-protection: when false, Add +1 Guest is hidden */
+  showAddPlusOne?: boolean;
+  /** 7-day auto-protection: when false, Update Your Details is hidden */
+  showUpdateDetails?: boolean;
 }
 
 export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
@@ -63,7 +69,10 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   onAddGuest,
   isEditable = true,
   rsvpDeadline,
-  additionalGuestCount
+  additionalGuestCount,
+  showRsvpButtons = true,
+  showAddPlusOne = true,
+  showUpdateDetails = true,
 }) => {
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
