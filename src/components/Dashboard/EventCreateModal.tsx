@@ -577,7 +577,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <Button
             onClick={handleCreate}
             disabled={!isFormValid || isSaving}
-            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
+            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
           >
             <CalendarPlus className="hidden lg:inline-block w-5 h-5 mr-2" />
             {isSaving ? 'Creating...' : 'Create Event'}
