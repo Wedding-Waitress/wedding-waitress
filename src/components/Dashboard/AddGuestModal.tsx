@@ -286,6 +286,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setShowRelationAssignment(false);
     setPendingFormData(null);
     setPeopleToAssign([]);
+    setGroupTypeOverride('individual');
+    setPartnerGuestId('');
+    setFamilyGroupNameOverride('');
     onClose();
   };
 
