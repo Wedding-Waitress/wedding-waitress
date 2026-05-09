@@ -230,18 +230,18 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     await onSettingsChange({ text_zones: newZones });
   };
 
-  const addPresetZone = async (preset: typeof PRESET_ZONES[number]) => {
+  const addPresetZone = async (preset: PresetZoneDef) => {
     const exists = textZones.some(z => z.type === 'preset' && z.preset_field === preset.field);
     if (exists) {
       toast({ title: "Already Added", description: `${preset.label} zone already exists` });
       return;
     }
-    const yOffset = PRESET_Y_POSITIONS[preset.field] ?? (8 + textZones.length * 12);
+    const yOffset = activePresetYPositions[preset.field] ?? (8 + textZones.length * 12);
     const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
     zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
     
     // Apply per-preset font/size overrides
-    const style = PRESET_STYLES[preset.field];
+    const style = activePresetStyles[preset.field];
     if (style) {
       zone.font_family = style.font_family;
       zone.font_size = style.font_size;
