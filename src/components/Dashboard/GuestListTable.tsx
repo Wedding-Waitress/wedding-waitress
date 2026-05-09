@@ -1932,7 +1932,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                     <div className="flex items-center justify-between gap-3 py-1">
                       <Label className="text-sm font-medium text-foreground">Allow Guests To Add +1s</Label>
-                      <Switch checked={allowGuestPlusOnes} onCheckedChange={setAllowGuestPlusOnes} />
+                      <Switch checked={allowGuestPlusOnes} onCheckedChange={handleAllowGuestPlusOnesChange} />
                     </div>
 
                     <div className="border-t border-border my-4" />
