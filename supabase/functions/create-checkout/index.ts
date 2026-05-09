@@ -75,6 +75,7 @@ serve(async (req) => {
       guest_count_at_purchase,
       idempotency_key,
       delivery_method,
+      upgrade_from_plan,
     } = await req.json();
     if (!price_id) throw new Error("price_id is required");
 
@@ -82,6 +83,7 @@ serve(async (req) => {
     const isEmbedded = ui_mode === "embedded";
     const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
     const purchaseTypeMeta =
+      upgrade_from_plan ? "plan_upgrade" :
       purchase_type === "rsvp_overage" ? "rsvp_overage" :
       purchase_type === "additional_event" ? "additional_event" :
       (purchase_type || "");
@@ -93,6 +95,7 @@ serve(async (req) => {
       isEmbedded,
       quantity: lineQuantity,
       purchase_type: purchaseTypeMeta,
+      upgrade_from_plan: upgrade_from_plan || "",
     });
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
