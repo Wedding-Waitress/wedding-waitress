@@ -185,6 +185,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Use prop selectedEventId if provided, otherwise use local state
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
   const [showAddModal, setShowAddModal] = useState(false);
+  const [allowGuestPlusOnes, setAllowGuestPlusOnes] = useState(false);
   const { guests, loading: guestsLoading, deleteGuest, refetchGuests, updateGuest } = useRealtimeGuests(selectedEventId);
   // Mobile-only: locally acknowledged +1 alerts so highlight clears instantly
   // before the backend [NEW+] strip lands via realtime.
