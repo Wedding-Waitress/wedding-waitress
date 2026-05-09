@@ -162,6 +162,9 @@ export const GetHelpModal: React.FC<GetHelpModalProps> = ({ open, onOpenChange }
           <p className="text-sm text-muted-foreground text-center mt-1">
             We typically reply within 24 hours.
           </p>
+          <p className="text-xs text-muted-foreground/80 text-center mt-1.5">
+            Select the option that best matches your request.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="px-5 py-5 max-lg:gap-5 space-y-5" noValidate>
