@@ -2457,6 +2457,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Email</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{guest.email?.trim() || '—'}</div>
                           </div>
+                          {collectGuestAddresses && (
+                            <div>
+                              <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Address</div>
+                              <div className="mt-1">{renderAddressPill(guest)}</div>
+                            </div>
+                          )}
                           <div>
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Table No</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{getTableName(guest) || '—'}</div>
