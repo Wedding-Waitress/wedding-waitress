@@ -6,7 +6,7 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Check, Users, Calendar, ArrowRight, Plus, X } from 'lucide-react';
+import { Sparkles, Check, Users, Calendar, ArrowRight, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
