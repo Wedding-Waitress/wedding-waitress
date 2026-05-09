@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus } from 'lucide-react';
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Trash2 } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
@@ -1446,20 +1446,22 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             type="submit"
             variant="default"
             size="xs"
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 sm:order-1 lv-premium-shade bg-green-400"
+            className="inline-flex items-center justify-center rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 sm:order-1 lv-premium-shade bg-green-400 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
+            <UserPlus className="hidden lg:inline-block w-5 h-5 mr-2" />
             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
           </Button>
           <Button
             type="button"
             variant="destructive"
             size="xs"
-            className="rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 sm:order-2 lv-premium-shade"
+            className="inline-flex items-center justify-center rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 sm:order-2 lv-premium-shade lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
             onClick={handleClose}
             disabled={loading}
           >
+            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
             Cancel
           </Button>
         </div>
