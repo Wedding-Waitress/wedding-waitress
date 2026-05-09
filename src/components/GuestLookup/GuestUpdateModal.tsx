@@ -241,6 +241,13 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           placeholder="Enter your email address" disabled={!isEditable}
           className="border-primary w-full" />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="mobile">Mobile Number</Label>
+        <Input id="mobile" type="tel" value={formData.mobile}
+          onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+          placeholder="0411569505" disabled={!isEditable}
+          className="border-primary w-full" />
+      </div>
       {event?.collect_guest_addresses && (
         <>
           <div className="space-y-2">
@@ -279,13 +286,6 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           </div>
         </>
       )}
-      <div className="space-y-2">
-        <Label htmlFor="mobile">Mobile Number</Label>
-        <Input id="mobile" type="tel" value={formData.mobile}
-          onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-          placeholder="0411569505" disabled={!isEditable}
-          className="border-primary w-full" />
-      </div>
       <div className="space-y-2">
         <Label htmlFor="dietary">Dietary Requirements</Label>
         <Select value={formData.dietary}
