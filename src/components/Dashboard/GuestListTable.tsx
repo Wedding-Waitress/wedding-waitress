@@ -526,6 +526,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         .update({ relation_mode: newMode })
         .eq('id', selectedEventId);
       if (error) throw error;
+      toast({
+        title: "Success",
+        description: hidden ? "Enabled relationships turned off" : "Enabled relationships turned on",
+      });
     } catch (error) {
       console.error('Error updating relation visibility:', error);
       // Revert
@@ -770,6 +774,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setAllowGuestPlusOnes(next);
     try {
       await updateEvent(selectedEventId, { allow_guest_plus_ones: next } as any);
+      toast({
+        title: "Success",
+        description: next ? "Allow guests to add +1 turned on" : "Allow guests to add +1 turned off",
+      });
     } catch (err) {
       setAllowGuestPlusOnes(previous);
       toast({ title: "Couldn't save", description: "Failed to update plus-one setting. Please try again.", variant: "destructive" });
