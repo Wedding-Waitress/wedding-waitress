@@ -99,8 +99,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
-  const [placeholder, setPlaceholder] = React.useState<null | 'upgrade' | 'referral'>(null);
+  const [placeholder, setPlaceholder] = React.useState<null | 'referral'>(null);
   const [helpOpen, setHelpOpen] = React.useState(false);
+  const [upgradeOpen, setUpgradeOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
@@ -113,8 +114,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-  const placeholderCopy: Record<'upgrade' | 'referral', { title: string; body: string }> = {
-    upgrade: { title: 'Upgrade Plan', body: 'Full upgrade flow arrives in Stage 3.' },
+  const placeholderCopy: Record<'referral', { title: string; body: string }> = {
     referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
   };
 
