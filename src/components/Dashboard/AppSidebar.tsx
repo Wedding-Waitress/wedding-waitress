@@ -100,9 +100,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
-  const [placeholder, setPlaceholder] = React.useState<null | 'referral'>(null);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
+  const [referralOpen, setReferralOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
