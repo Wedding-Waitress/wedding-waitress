@@ -223,7 +223,7 @@ export const GuestLookup: React.FC = () => {
 
   // Handle deep-link for editing a specific guest (?edit=<guest_id>)
   useEffect(() => {
-    if (guests.length === 0 || !isEditable) return;
+    if (guests.length === 0 || !isEditable || !showUpdateDetails) return;
     
     const params = new URLSearchParams(window.location.search);
     const editGuestId = params.get('edit');
@@ -240,7 +240,7 @@ export const GuestLookup: React.FC = () => {
         window.history.replaceState({}, '', newUrl.toString());
       }
     }
-  }, [guests, isEditable]);
+  }, [guests, isEditable, showUpdateDetails]);
 
   // Fetch event and guests data using public RPC function
   useEffect(() => {
