@@ -36,6 +36,7 @@ import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { GetHelpModal } from '@/components/Support/GetHelpModal';
 import { UpgradePlanModal } from '@/components/Subscription/UpgradePlanModal';
+import { ReferralRewardsModal } from '@/components/Referral/ReferralRewardsModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProfile } from '@/hooks/useProfile';
@@ -100,9 +101,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
-  const [placeholder, setPlaceholder] = React.useState<null | 'referral'>(null);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
+  const [referralOpen, setReferralOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
@@ -115,9 +116,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-  const placeholderCopy: Record<'referral', { title: string; body: string }> = {
-    referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
-  };
 
   const userInitials = (() => {
     const f = profile?.first_name?.[0] || '';
@@ -265,7 +263,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   Get Help
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setPlaceholder('referral')}
+                  onClick={() => setReferralOpen(true)}
                   className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <Gift className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
@@ -299,21 +297,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
       <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
       <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
-      <Dialog open={placeholder !== null} onOpenChange={(o) => !o && setPlaceholder(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{placeholder ? placeholderCopy[placeholder].title : ''}</DialogTitle>
-            <DialogDescription>
-              {placeholder ? placeholderCopy[placeholder].body : ''}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPlaceholder(null)} className="lv-premium-shade">
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ReferralRewardsModal open={referralOpen} onOpenChange={setReferralOpen} />
     </Sidebar>
   );
 };

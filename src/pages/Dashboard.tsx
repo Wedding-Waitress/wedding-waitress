@@ -80,7 +80,6 @@ import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 
-
 export const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<Session | null>(null);
@@ -98,6 +97,10 @@ export const Dashboard = () => {
     const urlTab = searchParams.get('tab') || 'dashboard';
     if (urlTab !== activeTab) setActiveTabState(urlTab);
   }, [searchParams, activeTab]);
+
+  // Attribute pending referral on first authenticated dashboard mount
+  useEffect(() => { import('@/hooks/useReferral').then(m => m.consumePendingReferral()); }, []);
+
   
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
