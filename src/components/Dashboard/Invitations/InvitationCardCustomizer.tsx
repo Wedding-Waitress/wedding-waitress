@@ -23,6 +23,14 @@ import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
 
 
+export interface PresetZoneDef {
+  field: string;
+  label: string;
+  defaultText: string;
+  getDisabled?: (eventData: Record<string, string>) => boolean;
+  getText?: (eventData: Record<string, string>) => string;
+}
+
 interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
   onSettingsChange: (settings: Partial<InvitationCardSettings>) => Promise<boolean>;
@@ -30,6 +38,19 @@ interface InvitationCardCustomizerProps {
   events?: { id: string; name: string; slug?: string | null }[];
   qrDataUrl?: string | null;
   onQrEventChange?: (eventId: string | null) => void;
+  // Optional configuration for sibling stationery editors (e.g. QR Seating Signs).
+  // All default to Invitations behavior — leaving every existing call site unchanged.
+  headerTitle?: string;
+  presetZones?: PresetZoneDef[];
+  presetYPositions?: Record<string, number>;
+  presetStyles?: Record<string, { font_family: string; font_size: number }>;
+  textZonesIntro?: string;
+  bgSectionTitle?: string;
+  qrTabTitle?: string;
+  notesPlaceholder?: string;
+  notesHelper?: string;
+  imageUploadFolder?: string;
+  storageBucket?: string;
 }
 
 const formatOrdinalDate = (dateStr: string): string => {
