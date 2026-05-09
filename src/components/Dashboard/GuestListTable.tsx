@@ -2591,6 +2591,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Last Name</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Mobile</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Email</TableHead>
+                {collectGuestAddresses && (
+                  <TableHead className="px-2 py-2 text-xs text-center align-middle">Address</TableHead>
+                )}
                 <TableHead 
                   className="px-2 py-2 text-xs text-center align-middle cursor-pointer hover:bg-primary/80 transition-colors select-none"
                   onClick={async () => {
