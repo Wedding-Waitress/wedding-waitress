@@ -2004,9 +2004,47 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </button>
                 </div>
 
-                {/* BOX 4: Step 4 - Add Your Guests */}
+                {/* BOX 4: Step 4 - Guest Contact Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 4: Add Your Guests</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 4: Guest Contact Settings</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Control what guest information can be collected through Live View RSVP.</p>
+
+                  {selectedEventId ? (
+                    <>
+                      <div className="flex items-center justify-between mb-1">
+                        <Label className="text-sm font-medium text-foreground">Collect Guest Mailing Addresses</Label>
+                      </div>
+                      <div className="force-toggle-colors-step4 flex items-center gap-3 mb-2">
+                        {!collectGuestAddresses && <span className="text-xs font-medium text-red-500">OFF</span>}
+                        <Switch
+                          checked={collectGuestAddresses}
+                          onCheckedChange={handleCollectGuestAddressesChange}
+                          className="transition-colors duration-200"
+                        />
+                        {collectGuestAddresses && <span className="text-xs font-medium text-green-500">ON</span>}
+                        <style>{`
+                          .force-toggle-colors-step4 [data-state="checked"][role="switch"] { background-color: #22c55e !important; }
+                          .force-toggle-colors-step4 [data-state="unchecked"][role="switch"] { background-color: #ef4444 !important; }
+                          .force-toggle-colors-step4 [data-state="checked"][role="switch"]:hover { background-color: #22c55e !important; }
+                          .force-toggle-colors-step4 [data-state="unchecked"][role="switch"]:hover { background-color: #ef4444 !important; }
+                        `}</style>
+                      </div>
+
+                      <div className="border-t border-border my-4" />
+
+                      <div className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+                        <p>Guests will be able to securely submit or update their mailing address through the Live View RSVP app.</p>
+                        <p>Useful for printed invitations, thank-you cards, and wedding correspondence.</p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">Select an event first to configure contact settings</p>
+                  )}
+                </div>
+
+                {/* BOX 5: Step 5 - Add Your Guests */}
+                <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 5: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
                   <Button
