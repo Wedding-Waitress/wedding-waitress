@@ -16,9 +16,22 @@ import {
   Music,
   Mail,
   UserCircle,
-  ChevronUp
+  ChevronUp,
+  Sparkles,
+  LifeBuoy,
+  Gift
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -85,10 +98,24 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
+  const [placeholder, setPlaceholder] = React.useState<null | 'upgrade' | 'help' | 'referral'>(null);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
   const { profile } = useProfile();
+  const { plan } = useUserPlan();
+
+  const planDisplayName = (() => {
+    const raw = plan?.plan_name?.trim();
+    if (!raw || raw.toLowerCase() === 'starter' || raw.toLowerCase() === 'free') return 'Free';
+    return raw;
+  })();
+
+  const placeholderCopy: Record<'upgrade' | 'help' | 'referral', { title: string; body: string }> = {
+    upgrade: { title: 'Upgrade Plan', body: 'Full upgrade flow arrives in Stage 3.' },
+    help: { title: 'Get Help', body: 'Help centre arrives in Stage 2.' },
+    referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
+  };
 
   const userInitials = (() => {
     const f = profile?.first_name?.[0] || '';
@@ -200,11 +227,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     <span className="text-sm font-medium truncate text-foreground">
                       {userDisplayName}
                     </span>
-                    {profile?.account_id && (
-                      <span className="text-[11px] text-muted-foreground/80 truncate">
-                        Account ID: {profile.account_id}
-                      </span>
-                    )}
+                    <span className="text-[11px] truncate">
+                      <span className="text-muted-foreground/80">Current Plan:</span>
+                      <span className="ml-1 text-foreground/90 font-medium">{planDisplayName}</span>
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto h-4 w-4 opacity-60" />
                 </SidebarMenuButton>
@@ -222,14 +248,38 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   <UserCircle className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setPlaceholder('upgrade')}
+                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
+                  Upgrade Plan
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setPlaceholder('help')}
+                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                >
+                  <LifeBuoy className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
+                  Get Help
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setPlaceholder('referral')}
+                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                >
+                  <Gift className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
+                  Referral / Affiliate Rewards
+                </DropdownMenuItem>
                 {isOwnerAdmin && (
-                  <DropdownMenuItem
-                    onClick={() => setOtpOpen(true)}
-                    className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
-                  >
-                    <Shield className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
-                    Admin Panel
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuItem
+                      onClick={() => setOtpOpen(true)}
+                      className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                    >
+                      <Shield className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
+                      Admin Panel
+                    </DropdownMenuItem>
+                  </>
                 )}
                 <DropdownMenuSeparator className="my-1" />
                 <DropdownMenuItem
@@ -245,6 +295,21 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </SidebarMenu>
       </SidebarFooter>
       {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
+      <Dialog open={placeholder !== null} onOpenChange={(o) => !o && setPlaceholder(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{placeholder ? placeholderCopy[placeholder].title : ''}</DialogTitle>
+            <DialogDescription>
+              {placeholder ? placeholderCopy[placeholder].body : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPlaceholder(null)} className="lv-premium-shade">
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   );
 };
