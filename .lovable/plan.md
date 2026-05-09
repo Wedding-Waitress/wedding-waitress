@@ -1,43 +1,58 @@
-## Add "Guest Live View Protection" Information Banner
+## Stage 1 — Sidebar Identity + SaaS Control Centre
 
-**Page:** Guest List (`src/components/Dashboard/GuestListTable.tsx`)
+Scope: only `src/components/Dashboard/AppSidebar.tsx` (account footer block + dropdown). No other layouts, no Stripe, no permissions.
 
-**Position:** Insert directly between the `SmartSmsCreditStatus` block (line 1786) and the Step 1–5 grid (line 1789) — i.e. above the 5 setup cards and below the "0 SMS Credits Remaining" section.
+### 1. Replace "Account ID" with "Current Plan"
 
-### Banner design
+In the `SidebarFooter` user button (lines ~199–208):
+- Remove the `{profile?.account_id && ...}` Account ID line entirely.
+- Replace with a single subtle line: `Current Plan: <PlanName>`.
+- Source plan name from `useUserPlan()` → `plan?.plan_name`. Fallback to `Free` when null/loading.
+- Map raw names to display labels: `Starter → Free`, `Essential`, `Premium`, `Unlimited`, `Vendor Basic`, `Vendor Pro` (pass-through for already-clean names).
+- Account ID stays available in My Account page (no change there).
 
-- Full-width card matching existing premium style: `bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)]`, padding `p-4` (slightly shorter than the SMS credits card which uses `p-5`+).
-- Layout: horizontal flex, responsive — icon + text on left, CTA button on right. On mobile (`max-md:`) stacks vertically with button full-width.
-- Icon: `ShieldCheck` from lucide-react in a soft circular badge (`bg-primary/10 text-primary rounded-full p-2.5`).
-- Heading: `Guest Live View Protection` — `text-base font-bold text-primary`.
-- Body: two short lines, `text-sm text-muted-foreground leading-relaxed`:
-  1. "7 days before your event, RSVP responses, guest edits, and +1 requests are automatically hidden from the Live View app for security and event-day stability."
-  2. "You still have full control over what guests can view during the final week through your Guest Live View Configuration settings."
-- Button: `Configure Guest Live View →` — outline variant, with the universal `lv-premium-shade` class (per Core memory rule).
+### 1a. UX polish — two-tone "Current Plan" line
 
-### Button action
+Render as two spans on one line, both `text-[11px] truncate`:
+- Label `Current Plan:` → `text-muted-foreground/80` (muted).
+- Plan name → `text-foreground/90 font-medium ml-1` (slightly brighter, premium feel).
 
-Navigate to QR Code Seating Chart tab and scroll to the Guest Live View Configuration section:
+All plans use the same styling — Free/Starter is NOT dimmed, italicized, or greyed. Every plan name (Free, Essential, Premium, Unlimited, Vendor Basic, Vendor Pro) renders with identical visual weight so every tier feels valid and respected.
 
-```ts
-const url = new URL(window.location.href);
-url.searchParams.set('tab', 'qr-code');
-url.hash = 'guest-live-view-configuration';
-window.history.pushState({}, '', url);
-window.dispatchEvent(new PopStateEvent('popstate'));
-// then on qr-code page, scrollIntoView the anchor element
-```
+### 2. Expand dropdown menu
 
-I will:
-1. Add a stable `id="guest-live-view-configuration"` anchor on the existing Guest Live View Configuration container inside `KioskLiveViewConfig.tsx` (verify exact wrapper) so the scroll target exists.
-2. In the new banner's onClick, set the tab via URL params (matching existing `setActiveTab` pattern in `Dashboard.tsx`) and scroll to that anchor after a short timeout for mount.
+Inside `DropdownMenuContent`, replace current items with this exact order:
 
-### Out of scope
+1. My Account — existing `handleItemClick('account')`, `UserCircle` icon.
+2. Upgrade Plan — `Sparkles` icon, opens placeholder dialog.
+3. Get Help — `LifeBuoy` icon, opens placeholder dialog.
+4. Referral / Affiliate Rewards — `Gift` icon, opens placeholder dialog.
+5. Admin Panel — existing, gated by `isOwnerAdmin`, opens `AdminOtpModal` (unchanged).
+6. Log Out — existing destructive item, `onSignOut` (unchanged).
 
-- No changes to Step 1–5 cards, layout, RSVP logic, QR/seating logic, or business logic.
-- No spacing changes to surrounding elements (banner uses `mb-4` to mirror the SMS credits card's bottom spacing).
+Separators: thin separator above Admin Panel (only when admin) and above Log Out.
+
+### 3. Placeholder modal
+
+One local `useState` `placeholder: null | 'upgrade' | 'help' | 'referral'`. Single shared `<Dialog>` whose title/body switches on the value:
+- Upgrade Plan → "Full upgrade flow arrives in Stage 3."
+- Get Help → "Help centre arrives in Stage 2."
+- Referral / Affiliate Rewards → "Referral rewards arrive in Stage 4."
+
+Each with a single Close button.
+
+### 4. Preserved behaviour (explicitly untouched)
+
+- `DropdownMenu` open/close, `side="top"`, `sideOffset`, classes.
+- All responsive sidebar, hamburger, overlay drawer, mobile/tablet logic.
+- All other sidebar menu items, badges, animations.
+- `AdminOtpModal`, `useIsOwnerAdmin`, `useProfile` usage.
+- `profile.account_id` still fetched (used by My Account).
 
 ### Files modified
 
-- `src/components/Dashboard/GuestListTable.tsx` — insert banner JSX (~30 lines).
-- `src/components/Dashboard/Kiosk/KioskLiveViewConfig.tsx` — add `id` anchor on the Guest Live View Configuration section wrapper (1-line change).
+- `src/components/Dashboard/AppSidebar.tsx` — footer button text + dropdown items + one shared placeholder Dialog (~45 lines changed/added).
+
+### Out of scope (later stages)
+
+Real Upgrade flow, Help system, Referral system, Credits, Testimonials, QR Designer.
