@@ -236,6 +236,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: editGuest.notes || "",
           relation_partner: editGuest.relation_partner || '',
           relation_role: editGuest.relation_role || '',
+          mailing_address: (editGuest as any).mailing_address || "",
+          mailing_suburb: (editGuest as any).mailing_suburb || "",
+          mailing_state: (editGuest as any).mailing_state || "",
+          mailing_postcode: (editGuest as any).mailing_postcode || "",
         });
       } else {
         form.reset({
