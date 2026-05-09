@@ -6,6 +6,7 @@ import { Copy, Share2, Gift, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useReferral } from '@/hooks/useReferral';
 import { useCredits, CreditTransaction } from '@/hooks/useCredits';
+import TestimonialUploadSection from './TestimonialUploadSection';
 
 const KIND_LABELS: Record<string, string> = {
   welcome_bonus: 'Welcome bonus',
@@ -170,6 +171,9 @@ export const ReferralRewardsModal: React.FC<Props> = ({ open, onOpenChange }) =>
             </ul>
           )}
         </div>
+
+        {/* Testimonial upload */}
+        <TestimonialUploadSection open={open} />
 
         {/* Credits use cases */}
         <div className="mt-4 rounded-xl p-4 border border-[#E8E1D6]" style={{ backgroundColor: '#FBF7F1' }}>
