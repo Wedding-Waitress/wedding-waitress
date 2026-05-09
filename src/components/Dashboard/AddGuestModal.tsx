@@ -1441,7 +1441,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         </Form>
         </div>
 
-        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 sm:flex-row sm:justify-end sm:space-x-2">
+        <div className="border-t px-4 sm:px-8 py-4 flex flex-col-reverse gap-3 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 sm:flex-row sm:justify-end sm:space-x-2 sm:gap-0">
           <Button
             type="submit"
             variant="default"
@@ -1462,9 +1462,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           >
             Cancel
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </SheetContent>
+    </Sheet>
 
       <GroupTypeDialog
         isOpen={showGroupTypeDialog}
