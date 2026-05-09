@@ -426,6 +426,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           }`}>
             <div className="max-sm:w-max md:max-lg:w-[210mm]">
               <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
+                <PinchZoomContainer naturalWidth={orientation === 'portrait' ? 794 : 1123}>
                 <InvitationCardPreview
                   settings={asInvitationSettings}
                   eventData={eventData}
@@ -480,6 +481,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   qrDataUrl={qrDataUrl}
                   onQrConfigUpdate={handleQrConfigUpdate}
                 />
+                </PinchZoomContainer>
               </div>
             </div>
           </div>
