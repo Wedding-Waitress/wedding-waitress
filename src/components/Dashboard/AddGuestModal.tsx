@@ -253,8 +253,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
     if (isEdit && editGuest) {
       setManualInviteStatus((editGuest as any).rsvp_invite_status || 'not_sent');
+      const t = detectGroupType(editGuest.family_group);
+      setGroupTypeOverride(t);
+      setFamilyGroupNameOverride(t === 'family' ? (editGuest.family_group || '') : '');
+      setPartnerGuestId('');
     }
   }, [isOpen, isEdit, editGuest, form]);
+
+  // Fetch other guests in this event for the Couple partner picker
+  useEffect(() => {
+    if (!isOpen || !isEdit || !eventId) return;
+    (async () => {
+      const { data } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name, family_group')
+        .eq('event_id', eventId)
+        .order('first_name', { ascending: true });
+      setEventGuestsForOverride((data as any) || []);
+    })();
+  }, [isOpen, isEdit, eventId]);
 
   const handleClose = () => {
     form.reset();
