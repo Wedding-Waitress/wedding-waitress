@@ -80,6 +80,8 @@ import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 
+  // Attribute pending referral on first authenticated dashboard mount
+  useEffect(() => { import('@/hooks/useReferral').then(m => m.consumePendingReferral()); }, []);
 
 export const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
