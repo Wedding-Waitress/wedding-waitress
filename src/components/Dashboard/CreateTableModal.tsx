@@ -48,7 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
-import { Circle, Square } from 'lucide-react';
+import { Circle, Square, Save, Trash2 } from 'lucide-react';
 
 export type TableType = 'round' | 'square' | 'long';
 
