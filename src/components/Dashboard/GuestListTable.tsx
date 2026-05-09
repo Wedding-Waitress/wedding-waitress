@@ -762,6 +762,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
       // Sync Step 3 toggle from persisted event setting
       setAllowGuestPlusOnes(!!(selectedEvent as any)?.allow_guest_plus_ones);
+      setCollectGuestAddresses(!!(selectedEvent as any)?.collect_guest_addresses);
     }
   }, [selectedEvent]); // Removed guests.length to prevent toggle reset
 
