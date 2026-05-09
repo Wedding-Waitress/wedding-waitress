@@ -74,6 +74,11 @@ export const secureGuestSchema = z.object({
     .max(50, "Role selection invalid")
     .optional()
     .or(z.literal('')),
+
+  mailing_address: z.string().max(200).transform(sanitizeString).optional().or(z.literal('')),
+  mailing_suburb: z.string().max(100).transform(sanitizeString).optional().or(z.literal('')),
+  mailing_state: z.string().max(100).transform(sanitizeString).optional().or(z.literal('')),
+  mailing_postcode: z.string().max(20).transform(sanitizeString).optional().or(z.literal('')),
 });
 
 // Enhanced table validation schema

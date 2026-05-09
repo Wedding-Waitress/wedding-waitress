@@ -182,6 +182,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       notes: "",
       relation_partner: '',
       relation_role: '',
+      mailing_address: "",
+      mailing_suburb: "",
+      mailing_state: "",
+      mailing_postcode: "",
     }
   });
 
@@ -232,6 +236,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: editGuest.notes || "",
           relation_partner: editGuest.relation_partner || '',
           relation_role: editGuest.relation_role || '',
+          mailing_address: (editGuest as any).mailing_address || "",
+          mailing_suburb: (editGuest as any).mailing_suburb || "",
+          mailing_state: (editGuest as any).mailing_state || "",
+          mailing_postcode: (editGuest as any).mailing_postcode || "",
         });
       } else {
         form.reset({
@@ -248,6 +256,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           notes: "",
           relation_partner: '',
           relation_role: '',
+          mailing_address: "",
+          mailing_suburb: "",
+          mailing_state: "",
+          mailing_postcode: "",
         });
       }
     }
@@ -665,6 +677,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
 
       // Prepare guest data
+      const hasAnyAddress = !!(
+        (data as any).mailing_address?.trim() ||
+        (data as any).mailing_suburb?.trim() ||
+        (data as any).mailing_state?.trim() ||
+        (data as any).mailing_postcode?.trim()
+      );
+
       const guestData = {
         event_id: eventId,
         user_id: (await supabase.auth.getUser()).data.user?.id!,
@@ -680,6 +699,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         family_group: data.family_group || null,
         notes: data.notes || null,
         assigned: !!(data.table_id),
+        mailing_address: (data as any).mailing_address || null,
+        mailing_suburb: (data as any).mailing_suburb || null,
+        mailing_state: (data as any).mailing_state || null,
+        mailing_postcode: (data as any).mailing_postcode || null,
+        address_received: hasAnyAddress,
       };
 
       // Compute relation_display using current event's partner names
@@ -1168,6 +1192,85 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 )}
               />
             </div>
+
+            {(selectedEvent as any)?.collect_guest_addresses === true && (
+              <>
+                <FormField
+                  control={form.control}
+                  name={"mailing_address" as any}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mailing Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Street address"
+                          className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name={"mailing_suburb" as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Suburb</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Suburb"
+                            className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={"mailing_state" as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="State"
+                            className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name={"mailing_postcode" as any}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Postcode</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Postcode"
+                            className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
 
             {/* Table Assignment - Stack on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

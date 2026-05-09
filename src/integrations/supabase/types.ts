@@ -1404,6 +1404,7 @@ export type Database = {
       guests: {
         Row: {
           added_by_guest_id: string | null
+          address_received: boolean
           allow_plus_one: boolean
           assigned: boolean | null
           created_at: string
@@ -1415,6 +1416,10 @@ export type Database = {
           first_name: string
           id: string
           last_name: string | null
+          mailing_address: string | null
+          mailing_postcode: string | null
+          mailing_state: string | null
+          mailing_suburb: string | null
           mobile: string | null
           notes: string | null
           relation_display: string
@@ -1433,6 +1438,7 @@ export type Database = {
         }
         Insert: {
           added_by_guest_id?: string | null
+          address_received?: boolean
           allow_plus_one?: boolean
           assigned?: boolean | null
           created_at?: string
@@ -1444,6 +1450,10 @@ export type Database = {
           first_name: string
           id?: string
           last_name?: string | null
+          mailing_address?: string | null
+          mailing_postcode?: string | null
+          mailing_state?: string | null
+          mailing_suburb?: string | null
           mobile?: string | null
           notes?: string | null
           relation_display?: string
@@ -1462,6 +1472,7 @@ export type Database = {
         }
         Update: {
           added_by_guest_id?: string | null
+          address_received?: boolean
           allow_plus_one?: boolean
           assigned?: boolean | null
           created_at?: string
@@ -1473,6 +1484,10 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string | null
+          mailing_address?: string | null
+          mailing_postcode?: string | null
+          mailing_state?: string | null
+          mailing_suburb?: string | null
           mobile?: string | null
           notes?: string | null
           relation_display?: string
