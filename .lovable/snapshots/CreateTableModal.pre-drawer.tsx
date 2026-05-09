@@ -20,11 +20,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { secureTableSchema, type SecureTableData } from "@/lib/security/validation";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +49,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
-import { Circle, Square, Save, Trash2 } from 'lucide-react';
+import { Circle, Square } from 'lucide-react';
 
 export type TableType = 'round' | 'square' | 'long';
 
@@ -298,18 +299,18 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleClose}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent
+        className="max-w-xl max-h-[85vh] flex flex-col px-4 sm:px-10 max-lg:w-[calc(100%-3rem)] max-lg:max-w-[calc(100%-3rem)] max-lg:mx-auto"
+        fullScreenOnMobile={false}
       >
-        <SheetHeader className="px-6 pt-6 max-lg:pt-6 lg:pr-12">
-          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary">
+        <DialogHeader className="max-lg:pt-6 lg:pr-12">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary">
             {editingTable ? 'Edit Table' : 'Create Table'}
-          </SheetTitle>
-        </SheetHeader>
+          </DialogTitle>
+        </DialogHeader>
         
-        <div className="space-y-4 sm:space-y-6 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-4 sm:space-y-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
           <div className="grid gap-2">
             <Label htmlFor="name">Table Name or No *</Label>
             <Input
@@ -481,29 +482,27 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           )}
         </div>
 
-        <div className="px-6 py-4 border-t bg-background max-lg:sticky max-lg:bottom-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 lg:flex lg:gap-3">
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:pb-2 lg:flex lg:gap-3">
           <Button
             variant="default"
             size="xs"
-            className="inline-flex items-center justify-center lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-11 lg:px-8 lg:text-base"
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
-            <Save className="hidden lg:inline-block w-5 h-5 mr-2" />
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
           <Button
             variant="destructive"
             size="xs"
-            className="inline-flex items-center justify-center lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
+            className="lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-11 lg:px-8 lg:text-base"
             onClick={handleClose}
             disabled={isSubmitting}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
             Cancel
           </Button>
-        </div>
-      </SheetContent>
+        </DialogFooter>
+      </DialogContent>
 
       <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
         <AlertDialogContent>
@@ -528,6 +527,6 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         variant="exceeded"
         guestLimit={eventGuestLimit || 0}
       />
-    </Sheet>
+    </Dialog>
   );
 };
