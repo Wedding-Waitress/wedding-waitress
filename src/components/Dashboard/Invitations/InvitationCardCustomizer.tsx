@@ -304,7 +304,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette className="h-5 w-5 text-foreground" />
-            Invitations, Save the Date & Thank You Cards
+            {headerTitle || 'Invitations, Save the Date & Thank You Cards'}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -320,14 +320,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             <TabsContent value="text-zones" className="space-y-4">
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Add text zones to your invitation. Preset zones auto-fill from event data but can be overridden.
+                  {textZonesIntro || 'Add text zones to your invitation. Preset zones auto-fill from event data but can be overridden.'}
                 </p>
 
                 {/* Add Preset Zone buttons */}
                 <div className="space-y-2">
                   <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Add Preset Zone</span>
                   <div className="flex flex-wrap gap-2 max-w-fit">
-                    {PRESET_ZONES.map(pz => {
+                    {activePresetZones.map(pz => {
                       const isDisabled = textZones.some(z => z.preset_field === pz.field) || (pz.getDisabled ? pz.getDisabled(eventData) : false);
                       return (
                         <Button
