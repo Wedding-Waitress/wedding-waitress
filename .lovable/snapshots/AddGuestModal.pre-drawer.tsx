@@ -23,11 +23,12 @@ import { secureGuestSchema, type SecureGuestData } from "@/lib/security/validati
 import { logSecurityEvent, guestAddRateLimiter } from "@/lib/security/monitoring";
 import { sanitize, InputSanitizer } from "@/lib/security/inputSanitizer";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -904,18 +905,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   return (
     <>
-    <Sheet open={isOpen} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <SheetContent
-        side="right"
-        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent
+        className="max-w-3xl flex flex-col px-4 sm:px-8 overflow-x-hidden"
+        fullScreenOnMobile
       >
-        <SheetHeader className="px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12">
-          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
+        <DialogHeader className="max-lg:pt-8 max-lg:items-center max-lg:text-center lg:pr-12">
+          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
-          </SheetTitle>
-        </SheetHeader>
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="space-y-3 sm:space-y-4 px-4 sm:px-8 py-4 overflow-y-auto overflow-x-hidden flex-1 mobile-scroll-container">
+        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             
@@ -1441,7 +1442,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         </Form>
         </div>
 
-        <div className="border-t px-4 sm:px-8 py-4 flex flex-col-reverse gap-3 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 sm:flex-row sm:justify-end sm:space-x-2 sm:gap-0">
+        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 sm:flex-row sm:justify-end sm:space-x-2">
           <Button
             type="submit"
             variant="default"
@@ -1462,9 +1463,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           >
             Cancel
           </Button>
-        </div>
-      </SheetContent>
-    </Sheet>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
       <GroupTypeDialog
         isOpen={showGroupTypeDialog}
