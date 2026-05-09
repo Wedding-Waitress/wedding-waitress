@@ -1968,7 +1968,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <div className="border-t border-border my-4" />
 
                     <div className="space-y-2 text-sm text-muted-foreground leading-relaxed">
-                      <p>When you send the RSVP link (app), guests can add a +1 extra guest without being pre-assigned in your guest list.</p>
+                      <p>* When you send the RSVP link (app), guests can add a +1 extra guest without being pre-assigned in your guest list.</p>
                       <p>Recommended for large weddings, paper invitations, verbal invitations, or flexible seating arrangements.</p>
                       <p>If disabled, you can still manually assign plus-ones directly inside your Guest List table. You have full control.</p>
                     </div>
