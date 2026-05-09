@@ -1245,7 +1245,63 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
 
-            {/* RSVP Invite Status Dropdown - Show when editing */}
+            {/* Relationship Group Override (Phase 1) — only changes guests.family_group */}
+            {isEdit && editGuest && (
+              <div className="space-y-3 rounded-xl border-2 border-primary/20 bg-muted/20 p-3">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Guest Group Type</Label>
+                  <Select
+                    value={groupTypeOverride}
+                    onValueChange={(v) => setGroupTypeOverride(v as 'individual' | 'couple' | 'family')}
+                  >
+                    <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="individual">Individual</SelectItem>
+                      <SelectItem value="couple">Couple</SelectItem>
+                      <SelectItem value="family">Family</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Only changes grouping. Does not affect tables, seats, RSVP, dietary, or invites.
+                  </p>
+                </div>
+
+                {groupTypeOverride === 'couple' && (
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Partner Guest</Label>
+                    <Select value={partnerGuestId} onValueChange={setPartnerGuestId}>
+                      <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectValue placeholder="Select partner..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {eventGuestsForOverride
+                          .filter(g => g.id !== editGuest.id)
+                          .map(g => (
+                            <SelectItem key={g.id} value={g.id}>
+                              {`${g.first_name} ${g.last_name || ''}`.trim()}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {groupTypeOverride === 'family' && (
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Family Group Name</Label>
+                    <Input
+                      value={familyGroupNameOverride}
+                      onChange={(e) => setFamilyGroupNameOverride(e.target.value)}
+                      placeholder="e.g. King Family"
+                      className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             {isEdit && editGuest && (
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">RSVP Invite Status</Label>
