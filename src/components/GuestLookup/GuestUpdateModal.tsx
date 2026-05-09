@@ -35,12 +35,18 @@ interface Guest {
   notes?: string;
   rsvp: string;
   family_group?: string | null;
+  mailing_address?: string | null;
+  mailing_suburb?: string | null;
+  mailing_state?: string | null;
+  mailing_postcode?: string | null;
+  address_received?: boolean | null;
 }
 
 interface Event {
   id: string;
   date?: string;
   event_timezone?: string;
+  collect_guest_addresses?: boolean;
 }
 
 interface GuestUpdateModalProps {
