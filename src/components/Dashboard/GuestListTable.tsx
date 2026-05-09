@@ -1810,13 +1810,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <span className="text-xs text-muted-foreground italic mr-2">Optional</span>
                       </div>
                       <div className="force-toggle-colors flex items-center gap-3 mb-2">
-                        <span className="text-xs font-medium text-red-500">OFF</span>
+                        {relationsHidden && <span className="text-xs font-medium text-red-500">OFF</span>}
                         <Switch
                           checked={!relationsHidden}
                           onCheckedChange={(checked) => handleHideRelationsToggle(!checked)}
                           className="transition-colors duration-200"
                         />
-                        <span className="text-xs font-medium text-green-500">ON</span>
+                        {!relationsHidden && <span className="text-xs font-medium text-green-500">ON</span>}
                         <style>{`
                           .force-toggle-colors [data-state="checked"][role="switch"] {
                             background-color: #22c55e !important;
