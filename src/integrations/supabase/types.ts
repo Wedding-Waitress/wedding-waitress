@@ -827,6 +827,7 @@ export type Database = {
           ceremony_venue_contact: string | null
           ceremony_venue_contact_email: string | null
           ceremony_venue_phone: string | null
+          collect_guest_addresses: boolean
           created_at: string
           created_date_local: string | null
           custom_roles: Json | null
@@ -888,6 +889,7 @@ export type Database = {
           ceremony_venue_contact?: string | null
           ceremony_venue_contact_email?: string | null
           ceremony_venue_phone?: string | null
+          collect_guest_addresses?: boolean
           created_at?: string
           created_date_local?: string | null
           custom_roles?: Json | null
@@ -949,6 +951,7 @@ export type Database = {
           ceremony_venue_contact?: string | null
           ceremony_venue_contact_email?: string | null
           ceremony_venue_phone?: string | null
+          collect_guest_addresses?: boolean
           created_at?: string
           created_date_local?: string | null
           custom_roles?: Json | null
