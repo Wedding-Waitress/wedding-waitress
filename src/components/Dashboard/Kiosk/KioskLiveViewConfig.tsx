@@ -435,7 +435,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               </div>
             );
 
-            // Row order: RSVP+Menu | Welcome+Hero | Floor Plan+Toggles
+            // Row order: RSVP+Menu | Welcome+Hero | Floor Plan+Toggles | Auto-Protection
             const rsvp = tiles[0];
             const welcome = tiles[1];
             const floorPlan = tiles[2];
@@ -449,6 +449,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 {heroTile}
                 {renderTile(floorPlan)}
                 {togglesTile}
+                {autoProtectionTile}
               </>
             );
           })()}
