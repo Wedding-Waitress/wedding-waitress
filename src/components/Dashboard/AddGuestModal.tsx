@@ -182,6 +182,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       notes: "",
       relation_partner: '',
       relation_role: '',
+      mailing_address: "",
+      mailing_suburb: "",
+      mailing_state: "",
+      mailing_postcode: "",
     }
   });
 
