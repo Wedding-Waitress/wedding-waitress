@@ -281,11 +281,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) throw new Error('User not authenticated');
       const fileExt = file.name.split('.').pop();
-      const fileName = `invitation-bg-${Date.now()}.${fileExt}`;
-      const filePath = `${user.id}/invitations/${fileName}`;
-      const { error: uploadError } = await supabase.storage.from('invitations').upload(filePath, file);
+      const fileName = `${imageUploadFolder || 'invitations'}-bg-${Date.now()}.${fileExt}`;
+      const folder = imageUploadFolder || 'invitations';
+      const bucket = storageBucket || 'invitations';
+      const filePath = `${user.id}/${folder}/${fileName}`;
+      const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('invitations').getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
       await handleSettingChange('background_image_url', publicUrl);
       toast({ title: "Success", description: "Image uploaded successfully" });
     } catch (error) {
