@@ -904,18 +904,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
   return (
     <>
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent
-        className="max-w-3xl flex flex-col px-4 sm:px-8 overflow-x-hidden"
-        fullScreenOnMobile
+    <Sheet open={isOpen} onOpenChange={(o) => { if (!o) handleClose(); }}>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
       >
-        <DialogHeader className="max-lg:pt-8 max-lg:items-center max-lg:text-center lg:pr-12">
-          <DialogTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
+        <SheetHeader className="px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12">
+          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
 
-        <div className="space-y-3 sm:space-y-4 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className="space-y-3 sm:space-y-4 px-4 sm:px-8 py-4 overflow-y-auto overflow-x-hidden flex-1 mobile-scroll-container">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             
