@@ -2561,6 +2561,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <col style={{ width: '7%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '9%' }} />
+              {collectGuestAddresses && <col style={{ width: '5%' }} />}
               <col style={{ width: '6%' }} />
               <col style={{ width: '6%' }} />
               <col style={{ width: '7%' }} />
