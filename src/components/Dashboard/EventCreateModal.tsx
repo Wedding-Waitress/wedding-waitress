@@ -550,15 +550,15 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     );
   }
 
-  // Desktop / tablet: original Radix Dialog, completely unchanged
+  // Desktop / tablet: right-side slide-out Sheet drawer (matches AddGuestModal)
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent
-        className="max-w-3xl max-h-[90vh] flex flex-col px-4 sm:px-8 max-md:max-h-[100dvh] max-md:px-4"
-        trueFullScreenOnMobile
+    <Sheet open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container"
       >
-        <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
-          <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Create Event</DialogTitle>
+        <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 text-left space-y-0">
+          <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Create Event</SheetTitle>
           <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
             <Input
               value={formData.event_name}
@@ -567,7 +567,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               className="h-11 sm:h-9 text-base sm:text-sm border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
             />
           </div>
-        </DialogHeader>
+        </SheetHeader>
 
         <div className="space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container">
           {bodyContent}
@@ -577,19 +577,21 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <Button
             onClick={handleCreate}
             disabled={!isFormValid || isSaving}
-            className="lv-premium-shade flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
+            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
           >
+            <CalendarPlus className="hidden lg:inline-block w-5 h-5 mr-2" />
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
           <Button
             variant="destructive"
             onClick={handleClose}
-            className="lv-premium-shade flex-1 lg:flex-none lg:order-1 h-11 rounded-full max-lg:order-2 max-lg:w-full"
+            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full max-lg:order-2 max-lg:w-full"
           >
+            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
             Cancel
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
