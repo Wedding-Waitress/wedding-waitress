@@ -170,6 +170,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       });
 
       // Use RPC function to bypass RLS for public updates
+      const addressesEnabled = !!event?.collect_guest_addresses;
       const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
         _guest_id: guest.id,
         _event_id: guest.event_id || event?.id,
@@ -177,7 +178,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         _dietary: formData.dietary,
         _mobile: formData.mobile?.trim() || null,
         _email: formData.email?.trim() || null,
-        _notes: formData.notes?.trim() || null
+        _notes: formData.notes?.trim() || null,
+        _mailing_address: addressesEnabled ? (formData.mailing_address?.trim() || null) : null,
+        _mailing_suburb: addressesEnabled ? (formData.mailing_suburb?.trim() || null) : null,
+        _mailing_state: addressesEnabled ? (formData.mailing_state?.trim() || null) : null,
+        _mailing_postcode: addressesEnabled ? (formData.mailing_postcode?.trim() || null) : null
       });
 
       if (error) {
