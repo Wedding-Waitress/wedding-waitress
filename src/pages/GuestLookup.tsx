@@ -169,6 +169,29 @@ export const GuestLookup: React.FC = () => {
     return now <= deadline;
   }, [event?.rsvp_deadline]);
 
+  // 7-day auto-protection window: true when event.date is today or within the next 7 calendar days
+  // (timezone-aware via the event's configured timezone). Past events do not trigger this.
+  const isWithin7DayAutoProtection = useMemo(() => {
+    if (!event?.date) return false;
+    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+    const today = new Date(todayStr + 'T00:00:00');
+    const eventDay = new Date(event.date + 'T00:00:00');
+    const diffDays = Math.floor((eventDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 7;
+  }, [event?.date, event?.event_timezone]);
+
+  // Per-action overrides stored inside rsvp_invite_config JSON (no DB schema change).
+  // Default OFF — when in 7-day window, actions are hidden unless organiser flips ON.
+  const overrideRsvp = !!moduleSettings?.rsvp_invite_config?.rsvp_override_auto_lock;
+  const overridePlusOne = !!moduleSettings?.rsvp_invite_config?.plus_one_override_auto_lock;
+  const overrideUpdateDetails = !!moduleSettings?.rsvp_invite_config?.update_details_override_auto_lock;
+
+  const showRsvpButtons = !isWithin7DayAutoProtection || overrideRsvp;
+  const showAddPlusOne = !isWithin7DayAutoProtection || overridePlusOne;
+  const showUpdateDetails = !isWithin7DayAutoProtection || overrideUpdateDetails;
+
+
   // Auto-detect event day to switch header wording
   const isEventDay = useMemo(() => {
     if (!event?.date) return false;
