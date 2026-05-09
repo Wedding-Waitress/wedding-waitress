@@ -131,7 +131,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       if (!open || !guest?.id) return;
       const { data, error } = await supabase
         .from('guests')
-        .select('first_name, last_name, mobile, email, dietary, notes, rsvp')
+        .select('first_name, last_name, mobile, email, dietary, notes, rsvp, mailing_address, mailing_suburb, mailing_state, mailing_postcode')
         .eq('id', guest.id)
         .maybeSingle();
       if (!error && data) {
@@ -144,7 +144,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           mobile: data.mobile || '',
           email: data.email || '',
           dietary: data.dietary || 'NA',
-          notes: data.notes || ''
+          notes: data.notes || '',
+          mailing_address: (data as any).mailing_address || '',
+          mailing_suburb: (data as any).mailing_suburb || '',
+          mailing_state: (data as any).mailing_state || '',
+          mailing_postcode: (data as any).mailing_postcode || ''
         });
       }
     };
