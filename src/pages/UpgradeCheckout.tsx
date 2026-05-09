@@ -21,7 +21,13 @@ export const UpgradeCheckout: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const planKey = (params.get('plan') as PlanKey) || 'premium';
+  const fromKey = (params.get('from') as PlanKey | null) || null;
   const plan = PLAN_DETAILS[planKey];
+  const fromPlan = fromKey ? PLAN_DETAILS[fromKey] : null;
+  // Difference-only pricing applies between two one-time wedding plans.
+  const isDiffUpgrade =
+    !!fromPlan && fromPlan.mode === 'payment' && plan?.mode === 'payment' && fromPlan.key !== plan.key;
+  const diffAmount = isDiffUpgrade ? Math.max(0, plan.price_aud - fromPlan!.price_aud) : 0;
 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
@@ -67,6 +73,7 @@ export const UpgradeCheckout: React.FC = () => {
             mode: plan.mode,
             plan_type: plan.key,
             ui_mode: 'embedded',
+            ...(isDiffUpgrade ? { upgrade_from_plan: fromPlan!.key } : {}),
           },
           headers: {
             Authorization: `Bearer ${session.access_token}`,
@@ -97,7 +104,7 @@ export const UpgradeCheckout: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [plan?.price_id, plan?.mode, plan?.key, toast]);
+  }, [plan?.price_id, plan?.mode, plan?.key, isDiffUpgrade, fromPlan?.key, toast]);
 
   if (!plan) {
     return <div className="p-8">Unknown plan.</div>;
@@ -144,9 +151,16 @@ export const UpgradeCheckout: React.FC = () => {
             <div className="border-t border-border pt-4 flex items-center justify-between">
               <span className="text-sm text-gray-600">Total due today</span>
               <span className="text-lg font-bold text-gray-900">
-                A${plan.price_aud}{plan.recurring ? `/${plan.recurring}` : ''}
+                A${isDiffUpgrade ? diffAmount : plan.price_aud}
+                {plan.recurring ? `/${plan.recurring}` : ''}
               </span>
             </div>
+            {isDiffUpgrade && (
+              <p className="text-xs text-muted-foreground mt-2">
+                You only pay the difference between your {fromPlan!.name} (A${fromPlan!.price_aud})
+                and {plan.name} (A${plan.price_aud}).
+              </p>
+            )}
           </div>
 
           {/* RIGHT: Embedded Stripe Checkout */}

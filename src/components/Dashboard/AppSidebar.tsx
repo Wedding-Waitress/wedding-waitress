@@ -35,6 +35,7 @@ import { Button } from '@/components/ui/button';
 import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { GetHelpModal } from '@/components/Support/GetHelpModal';
+import { UpgradePlanModal } from '@/components/Subscription/UpgradePlanModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProfile } from '@/hooks/useProfile';
@@ -99,8 +100,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
-  const [placeholder, setPlaceholder] = React.useState<null | 'upgrade' | 'referral'>(null);
+  const [placeholder, setPlaceholder] = React.useState<null | 'referral'>(null);
   const [helpOpen, setHelpOpen] = React.useState(false);
+  const [upgradeOpen, setUpgradeOpen] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
@@ -113,8 +115,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-  const placeholderCopy: Record<'upgrade' | 'referral', { title: string; body: string }> = {
-    upgrade: { title: 'Upgrade Plan', body: 'Full upgrade flow arrives in Stage 3.' },
+  const placeholderCopy: Record<'referral', { title: string; body: string }> = {
     referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
   };
 
@@ -250,7 +251,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   My Account
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setPlaceholder('upgrade')}
+                  onClick={() => setUpgradeOpen(true)}
                   className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <Sparkles className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
@@ -297,6 +298,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       </SidebarFooter>
       {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
       <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
+      <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
       <Dialog open={placeholder !== null} onOpenChange={(o) => !o && setPlaceholder(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
