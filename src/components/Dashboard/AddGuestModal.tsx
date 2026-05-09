@@ -510,6 +510,90 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
   }, [fetchTakenSeats, getAvailableSeatNumbers, takenSeats, form, isEdit, editGuest]);
 
+
+  // Phase 1 — Relationship Group Override.
+  // ONLY mutates guests.family_group. Never touches table/seat/RSVP/dietary/notes/invites.
+  const cleanupSingleMemberFamily = async (oldGroup: string | null | undefined) => {
+    const g = (oldGroup || '').trim();
+    if (!g) return;
+    const { data: remaining } = await supabase
+      .from('guests')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('family_group', g);
+    if (remaining && remaining.length === 1) {
+      await supabase.from('guests').update({ family_group: null }).eq('id', remaining[0].id);
+    }
+  };
+
+  const applyRelationshipOverride = async (
+    currentGuest: NonNullable<typeof editGuest>,
+    formData: AddGuestFormData
+  ) => {
+    try {
+      const originalType = detectGroupType(currentGuest.family_group);
+      const originalGroup = currentGuest.family_group || null;
+      const newType = groupTypeOverride;
+
+      // No-op if user didn't change anything meaningful
+      if (newType === originalType) {
+        if (newType === 'individual') return;
+        if (newType === 'family') {
+          const desired = familyGroupNameOverride.trim();
+          if (!desired || desired === (originalGroup || '').trim()) return;
+        }
+        if (newType === 'couple' && !partnerGuestId) return;
+      }
+
+      if (newType === 'individual') {
+        await supabase.from('guests').update({ family_group: null }).eq('id', currentGuest.id);
+        await cleanupSingleMemberFamily(originalGroup);
+        return;
+      }
+
+      if (newType === 'family') {
+        const desired = familyGroupNameOverride.trim();
+        if (!desired) {
+          toast({ title: 'Family group name required', description: 'Enter a family group name to apply.', variant: 'destructive' });
+          return;
+        }
+        await supabase.from('guests').update({ family_group: desired }).eq('id', currentGuest.id);
+        if (originalGroup && originalGroup !== desired) {
+          await cleanupSingleMemberFamily(originalGroup);
+        }
+        return;
+      }
+
+      if (newType === 'couple') {
+        if (!partnerGuestId) {
+          toast({ title: 'Partner required', description: 'Select a partner guest to form a couple.', variant: 'destructive' });
+          return;
+        }
+        const partner = eventGuestsForOverride.find(g => g.id === partnerGuestId);
+        if (!partner) return;
+        const currentFirst = (formData.first_name || currentGuest.first_name || '').trim();
+        const partnerFirst = (partner.first_name || '').trim();
+        const coupleName = `${currentFirst} & ${partnerFirst} Couple`;
+        const oldCurrent = originalGroup;
+        const oldPartner = partner.family_group || null;
+        await supabase.from('guests').update({ family_group: coupleName }).eq('id', currentGuest.id);
+        await supabase.from('guests').update({ family_group: coupleName }).eq('id', partner.id);
+        if (oldCurrent && oldCurrent !== coupleName) await cleanupSingleMemberFamily(oldCurrent);
+        if (oldPartner && oldPartner !== coupleName && oldPartner !== oldCurrent) {
+          await cleanupSingleMemberFamily(oldPartner);
+        }
+        return;
+      }
+    } catch (e) {
+      console.error('Relationship override failed:', e);
+      toast({
+        title: 'Relationship override failed',
+        description: 'Guest was saved, but the group change could not be applied.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const onSubmit = async (data: AddGuestFormData) => {
     setLoading(true);
     
