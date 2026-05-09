@@ -151,9 +151,16 @@ export const UpgradeCheckout: React.FC = () => {
             <div className="border-t border-border pt-4 flex items-center justify-between">
               <span className="text-sm text-gray-600">Total due today</span>
               <span className="text-lg font-bold text-gray-900">
-                A${plan.price_aud}{plan.recurring ? `/${plan.recurring}` : ''}
+                A${isDiffUpgrade ? diffAmount : plan.price_aud}
+                {plan.recurring ? `/${plan.recurring}` : ''}
               </span>
             </div>
+            {isDiffUpgrade && (
+              <p className="text-xs text-muted-foreground mt-2">
+                You only pay the difference between your {fromPlan!.name} (A${fromPlan!.price_aud})
+                and {plan.name} (A${plan.price_aud}).
+              </p>
+            )}
           </div>
 
           {/* RIGHT: Embedded Stripe Checkout */}
