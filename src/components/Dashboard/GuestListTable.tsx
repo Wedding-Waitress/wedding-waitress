@@ -786,6 +786,26 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
   };
 
+  // Persist Step 4 collect-guest-addresses toggle (optimistic + rollback)
+  const handleCollectGuestAddressesChange = async (next: boolean) => {
+    if (!selectedEventId) {
+      toast({ title: "No event selected", description: "Please select an event first", variant: "destructive" });
+      return;
+    }
+    const previous = collectGuestAddresses;
+    setCollectGuestAddresses(next);
+    try {
+      await updateEvent(selectedEventId, { collect_guest_addresses: next } as any);
+      toast({
+        title: "Success",
+        description: next ? "Guest mailing address collection turned on" : "Guest mailing address collection turned off",
+      });
+    } catch (err) {
+      setCollectGuestAddresses(previous);
+      toast({ title: "Couldn't save", description: "Failed to update mailing address setting. Please try again.", variant: "destructive" });
+    }
+  };
+
   // Helper function to get table name for a guest
   const getTableName = (guest: any) => {
     if (!guest.table_id) return null;
