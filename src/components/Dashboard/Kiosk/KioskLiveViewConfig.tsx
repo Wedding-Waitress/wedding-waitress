@@ -158,7 +158,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
   ];
 
   return (
-    <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
+    <Card id="guest-live-view-configuration" className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full scroll-mt-24">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
           <Settings className="w-5 h-5 text-foreground" />
