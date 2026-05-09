@@ -481,27 +481,29 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           )}
         </div>
 
-        <DialogFooter className="pt-2 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:pb-2 lg:flex lg:gap-3">
+        <div className="px-6 py-4 border-t bg-background max-lg:sticky max-lg:bottom-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 lg:flex lg:gap-3">
           <Button
             variant="default"
             size="xs"
-            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-11 lg:px-8 lg:text-base"
+            className="inline-flex items-center justify-center lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
+            <Save className="hidden lg:inline-block w-5 h-5 mr-2" />
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
           <Button
             variant="destructive"
             size="xs"
-            className="lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-11 lg:px-8 lg:text-base"
+            className="inline-flex items-center justify-center lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
             onClick={handleClose}
             disabled={isSubmitting}
           >
+            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
             Cancel
           </Button>
-        </DialogFooter>
-      </DialogContent>
+        </div>
+      </SheetContent>
 
       <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
         <AlertDialogContent>
@@ -526,6 +528,6 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         variant="exceeded"
         guestLimit={eventGuestLimit || 0}
       />
-    </Dialog>
+    </Sheet>
   );
 };
