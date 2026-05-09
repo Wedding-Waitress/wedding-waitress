@@ -494,8 +494,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   );
 
   const renderHeader = () => (
-    <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
-      <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</DialogTitle>
+    <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 px-6 pt-6">
+      <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</SheetTitle>
       <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
         <Input
           value={formData.event_name}
@@ -504,7 +504,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           className="h-11 sm:h-9 text-base sm:text-sm border-2 border-primary focus-visible:border-primary focus-visible:ring-0 w-full px-4 truncate rounded-full"
         />
       </div>
-    </DialogHeader>
+    </SheetHeader>
   );
 
   if (isMobile) {
