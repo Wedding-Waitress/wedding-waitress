@@ -73,6 +73,7 @@ export const UpgradeCheckout: React.FC = () => {
             mode: plan.mode,
             plan_type: plan.key,
             ui_mode: 'embedded',
+            ...(isDiffUpgrade ? { upgrade_from_plan: fromPlan!.key } : {}),
           },
           headers: {
             Authorization: `Bearer ${session.access_token}`,
