@@ -182,7 +182,21 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   events = [],
   qrDataUrl,
   onQrEventChange,
+  headerTitle,
+  presetZones,
+  presetYPositions,
+  presetStyles,
+  textZonesIntro,
+  bgSectionTitle,
+  qrTabTitle,
+  notesPlaceholder,
+  notesHelper,
+  imageUploadFolder,
+  storageBucket,
 }) => {
+  const activePresetZones = presetZones || PRESET_ZONES;
+  const activePresetYPositions = presetYPositions || PRESET_Y_POSITIONS;
+  const activePresetStyles = presetStyles || PRESET_STYLES;
   const [uploading, setUploading] = useState(false);
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [localNotes, setLocalNotes] = useState('');
