@@ -1,120 +1,55 @@
-# Phase 2 — Guest Mailing Address: DB + Add/Edit Drawer
+## Phase 3 — Address Status Column in Guest List Table
 
-Add per-guest mailing address fields to `public.guests` and surface them inside the existing Add/Edit Guest drawer (`AddGuestModal.tsx`), gated by the Phase 1 `events.collect_guest_addresses` toggle. No Live View, no table column, no other surfaces.
+Single file: `src/components/Dashboard/GuestListTable.tsx`. No DB, no other files, no other features touched.
 
-## 1. Database migration (`public.guests`)
+### 1. Desktop table (lg block, ~line 2522)
 
-```sql
-ALTER TABLE public.guests
-  ADD COLUMN IF NOT EXISTS mailing_address text,
-  ADD COLUMN IF NOT EXISTS mailing_suburb  text,
-  ADD COLUMN IF NOT EXISTS mailing_state   text,
-  ADD COLUMN IF NOT EXISTS mailing_postcode text,
-  ADD COLUMN IF NOT EXISTS address_received boolean NOT NULL DEFAULT false;
+Gated by `collectGuestAddresses === true` (state already exists, line 189/765).
+
+**colgroup (line 2525-2541):** when toggle ON, insert a new narrow `<col style={{ width: '5%' }} />` after the Email col (line 2533). Trim 1pt each from a few wider cols (Relation 8→7, Dietary 8→7, Family 7→6, First/Last 7%→7%) to absorb the 5% — keep total = 100. Render the extra `<col>` conditionally so the layout is byte-identical when OFF.
+
+**Header row (line 2542-2617):** conditionally render a new `<TableHead>` "Address" between Email (2559) and the + Guest header (2560). Same classes as Email/Mobile head cells. No new styling primitives.
+
+**Body cell:** in every guest body row that mirrors the headers, conditionally render a centered cell containing a status pill:
+- `address_received === true` → green pill "YES" (reuse existing success pill classes already used in the table for YES — same component as Mobile/Email YES/NO pills shown in the screenshot).
+- otherwise → red pill "NO" (same red pill).
+- Wrap the YES pill in the existing `Tooltip` (already imported, used at line 2583) showing non-empty lines:
+  - line 1: `mailing_address`
+  - line 2: `mailing_suburb`
+  - line 3: `mailing_state` + " " + `mailing_postcode` (joined, trimmed)
+  Skip empty lines. NO pill gets no tooltip.
+
+Group header rows (orange/blue) get the same conditional empty `<TableCell />` inserted in the same position so colspan/alignment stays correct (or bump their existing colSpan by 1 when toggle ON).
+
+### 2. Mobile card view (max-lg, ~line 2418 grid)
+
+When `collectGuestAddresses === true`, add one more cell to the `grid-cols-2` info grid after Email:
+
+```
+Address
+[YES] / [NO]   (same pill component, no tooltip)
 ```
 
-No RLS or other schema changes. Supabase types regenerate automatically.
+Label uses the same `text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]` style as Mobile/Email labels. No full address text on mobile.
 
-## 2. Validation schema (`src/lib/security/validation.ts`)
+### 3. Hidden when toggle OFF
 
-Extend `secureGuestSchema` with four optional, sanitized text fields. Keeps existing parsing safe and avoids breaking current callers (all optional, default empty):
+Every addition above is wrapped in `collectGuestAddresses && (...)`:
+- extra `<col>` not rendered → colgroup totals back to current widths
+- header cell not rendered
+- body cells not rendered
+- mobile grid cell not rendered
+- group-header colSpan unchanged
 
-```ts
-mailing_address: z.string().max(200).transform(sanitizeString).optional().or(z.literal('')),
-mailing_suburb:  z.string().max(100).transform(sanitizeString).optional().or(z.literal('')),
-mailing_state:   z.string().max(100).transform(sanitizeString).optional().or(z.literal('')),
-mailing_postcode: z.string().max(20).transform(sanitizeString).optional().or(z.literal('')),
-```
+Result: when `collect_guest_addresses` is false the table is byte-identical to today.
 
-## 3. `src/components/Dashboard/AddGuestModal.tsx`
+### Out of scope (explicit)
 
-Single file, used for both Add and Edit modes.
+GuestLookup, EnhancedGuestCard, AddGuestModal, Live View, RSVP/seating/QR, invites, SMS/email, imports/exports, Google Places, validation, family/couple sharing, DB schema. No new dependency. No new shared helper unless a 3-line `formatMailingLines(guest)` inline helper is added at top of the file.
 
-### 3a. Form defaults + edit reset (lines ~169–251)
+### Verification
 
-Add the four fields to:
-- `form` `defaultValues` → all `""`.
-- The `isEdit && editGuest` reset branch → `editGuest.mailing_address || ""`, etc. (cast `as any` for fields not yet in generated types if needed).
-- The non-edit reset branch → all `""`.
-
-Also extend the inline `editGuest` typing block (line ~80) with the four new optional string fields and `address_received?: boolean` so the cast-free reads compile.
-
-### 3b. New collapsible address section in the form
-
-Insert immediately AFTER the Email FormField row (line 1170, the closing `</div>` of the Mobile/Email grid) and BEFORE the Table/Seat grid (line 1172):
-
-```tsx
-{(selectedEvent as any)?.collect_guest_addresses === true && (
-  <>
-    {/* Mailing Address - full width */}
-    <FormField
-      control={form.control}
-      name="mailing_address"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Mailing Address</FormLabel>
-          <FormControl>
-            <Input
-              placeholder="Street address"
-              className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
-              {...field}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-
-    {/* Suburb + State - 2 col on sm+, stacked on mobile */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <FormField name="mailing_suburb" ... label="Suburb" placeholder="Suburb" />
-      <FormField name="mailing_state"  ... label="State"  placeholder="State"  />
-    </div>
-
-    {/* Postcode - own row, half-width on sm+, full on mobile */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <FormField name="mailing_postcode" ... label="Postcode" placeholder="Postcode" />
-    </div>
-  </>
-)}
-```
-
-All inputs reuse the existing `rounded-full border-2 border-primary ... h-9` styling — zero new CSS, zero drawer width changes. Section renders nothing (no spacing reserved) when toggle is off.
-
-### 3c. Save behavior (lines ~667–711)
-
-Extend `guestData` and `finalGuestData` builders so addresses persist on both Add and Edit:
-
-```ts
-const hasAnyAddress = !!(
-  data.mailing_address?.trim() ||
-  data.mailing_suburb?.trim() ||
-  data.mailing_state?.trim() ||
-  data.mailing_postcode?.trim()
-);
-
-const guestData = {
-  ...existing,
-  mailing_address:  data.mailing_address  || null,
-  mailing_suburb:   data.mailing_suburb   || null,
-  mailing_state:    data.mailing_state    || null,
-  mailing_postcode: data.mailing_postcode || null,
-  address_received: hasAnyAddress,
-};
-```
-
-Saved unconditionally — even when the toggle is OFF the form just submits the existing (untouched) values, so previously-stored addresses are preserved silently and never erased.
-
-## 4. Out of scope (do NOT touch in Phase 2)
-
-GuestLookup / Live View, EnhancedGuestCard, GuestListTable columns, RSVP/seating/QR logic, invitations, SMS/email, exports/imports, Google Places, postal validation, country selector, family/couple sharing of addresses (always per-guest).
-
-## Verification
-
-1. Toggle OFF → no address fields appear in Add or Edit drawer; no spacing reserved.
-2. Toggle ON → 4 fields render (Address full width, Suburb+State 2-col, Postcode 1/2 width on desktop, all stacked on mobile); drawer width unchanged.
-3. Add Guest with addresses → DB row has values + `address_received = true`.
-4. Add Guest with all address fields blank → DB row has `null`s + `address_received = false`.
-5. Edit Guest pre-fills existing addresses; saving updates them and recomputes `address_received`.
-6. Toggle OFF after addresses saved → reopen Edit drawer → fields hidden, but saving unrelated changes preserves stored address values (no erase).
-7. No regressions to existing Mobile/Email/Table/Seat/RSVP/Dietary/Relation/Notes flows.
+- Toggle OFF → desktop table + mobile cards visually unchanged (no extra column, no spacing, no header).
+- Toggle ON → Address column appears between Email and + Guest; YES = green, NO = red; hover YES on desktop → tooltip with up to 3 non-empty lines; mobile cards show Address: YES/NO pill, no full address.
+- No table overflow at 1280/1366/1440/1920; group header rows still align.
+- Existing locked behaviors (group headers, First Name alignment, Send RSVP & Invite column, table-fixed) preserved when toggle OFF; minimally adjusted only when ON.

@@ -1598,6 +1598,39 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     </Badge>
   );
 
+  const getMailingLines = (g: any): string[] => {
+    const lines: string[] = [];
+    const addr = (g?.mailing_address || '').trim();
+    const suburb = (g?.mailing_suburb || '').trim();
+    const state = (g?.mailing_state || '').trim();
+    const postcode = (g?.mailing_postcode || '').trim();
+    if (addr) lines.push(addr);
+    if (suburb) lines.push(suburb);
+    const last = [state, postcode].filter(Boolean).join(' ').trim();
+    if (last) lines.push(last);
+    return lines;
+  };
+
+  const renderAddressPill = (g: any) => {
+    const received = g?.address_received === true;
+    if (!received) {
+      return <Badge className="text-white lv-premium-shade bg-red-500">NO</Badge>;
+    }
+    const lines = getMailingLines(g);
+    const pill = <Badge className="text-white lv-premium-shade bg-green-500 cursor-default">YES</Badge>;
+    if (lines.length === 0) return pill;
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild><span>{pill}</span></TooltipTrigger>
+          <TooltipContent>
+            {lines.map((l, i) => (<div key={i} className="text-xs leading-tight">{l}</div>))}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  };
+
   if (loading) {
     return (
       <Card className="p-8 text-center">
@@ -2424,6 +2457,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Email</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{guest.email?.trim() || '—'}</div>
                           </div>
+                          {collectGuestAddresses && (
+                            <div>
+                              <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Address</div>
+                              <div className="mt-1">{renderAddressPill(guest)}</div>
+                            </div>
+                          )}
                           <div>
                             <div className="text-[11px] uppercase tracking-wide font-semibold text-[#3A3A3C]">Table No</div>
                             <div className="text-[#1D1D1F] font-medium truncate">{getTableName(guest) || '—'}</div>
@@ -2528,6 +2567,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <col style={{ width: '7%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '9%' }} />
+              {collectGuestAddresses && <col style={{ width: '5%' }} />}
               <col style={{ width: '6%' }} />
               <col style={{ width: '6%' }} />
               <col style={{ width: '7%' }} />
@@ -2557,6 +2597,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Last Name</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Mobile</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">Email</TableHead>
+                {collectGuestAddresses && (
+                  <TableHead className="px-2 py-2 text-xs text-center align-middle">Address</TableHead>
+                )}
                 <TableHead 
                   className="px-2 py-2 text-xs text-center align-middle cursor-pointer hover:bg-primary/80 transition-colors select-none"
                   onClick={async () => {
@@ -2619,13 +2662,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                   <TableCell colSpan={15} className="text-center py-8">
+                   <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                   <TableCell colSpan={15} className="text-center py-8">
+                   <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -2635,7 +2678,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
                        <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
-                         <TableCell colSpan={15} className="py-2 px-0">
+                         <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="py-2 px-0">
                            <div className="flex items-center gap-2 pl-[7%]">
                             <Users className="w-4 h-4 text-white" />
                             <span className="font-semibold text-sm text-white">
@@ -2675,6 +2718,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          {collectGuestAddresses && (
+                            <TableCell className="px-2 py-2 text-center align-middle">{renderAddressPill(guest)}</TableCell>
+                          )}
                           <TableCell className="px-2 py-2 text-center align-middle">
                             <Badge 
                               className={cn(
