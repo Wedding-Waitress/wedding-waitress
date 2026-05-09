@@ -146,6 +146,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   }>>([]);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [manualInviteStatus, setManualInviteStatus] = useState((editGuest as any)?.rsvp_invite_status || 'not_sent');
+
+  // Relationship Group Override (Phase 1) — only writes to guests.family_group
+  const detectGroupType = (fg?: string | null): 'individual' | 'couple' | 'family' => {
+    const v = (fg || '').trim();
+    if (!v) return 'individual';
+    if (v.includes(' & ') || v.endsWith(' Couple')) return 'couple';
+    return 'family';
+  };
+  const [groupTypeOverride, setGroupTypeOverride] = useState<'individual' | 'couple' | 'family'>('individual');
+  const [partnerGuestId, setPartnerGuestId] = useState<string>('');
+  const [familyGroupNameOverride, setFamilyGroupNameOverride] = useState<string>('');
+  const [eventGuestsForOverride, setEventGuestsForOverride] = useState<Array<{ id: string; first_name: string; last_name: string; family_group: string | null }>>([]);
   const [memberForm, setMemberForm] = useState({
     first_name: '',
     last_name: '',
@@ -241,8 +253,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
     if (isEdit && editGuest) {
       setManualInviteStatus((editGuest as any).rsvp_invite_status || 'not_sent');
+      const t = detectGroupType(editGuest.family_group);
+      setGroupTypeOverride(t);
+      setFamilyGroupNameOverride(t === 'family' ? (editGuest.family_group || '') : '');
+      setPartnerGuestId('');
     }
   }, [isOpen, isEdit, editGuest, form]);
+
+  // Fetch other guests in this event for the Couple partner picker
+  useEffect(() => {
+    if (!isOpen || !isEdit || !eventId) return;
+    (async () => {
+      const { data } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name, family_group')
+        .eq('event_id', eventId)
+        .order('first_name', { ascending: true });
+      setEventGuestsForOverride((data as any) || []);
+    })();
+  }, [isOpen, isEdit, eventId]);
 
   const handleClose = () => {
     form.reset();
@@ -257,6 +286,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     setShowRelationAssignment(false);
     setPendingFormData(null);
     setPeopleToAssign([]);
+    setGroupTypeOverride('individual');
+    setPartnerGuestId('');
+    setFamilyGroupNameOverride('');
     onClose();
   };
 
@@ -478,6 +510,90 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
   }, [fetchTakenSeats, getAvailableSeatNumbers, takenSeats, form, isEdit, editGuest]);
 
+
+  // Phase 1 — Relationship Group Override.
+  // ONLY mutates guests.family_group. Never touches table/seat/RSVP/dietary/notes/invites.
+  const cleanupSingleMemberFamily = async (oldGroup: string | null | undefined) => {
+    const g = (oldGroup || '').trim();
+    if (!g) return;
+    const { data: remaining } = await supabase
+      .from('guests')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('family_group', g);
+    if (remaining && remaining.length === 1) {
+      await supabase.from('guests').update({ family_group: null }).eq('id', remaining[0].id);
+    }
+  };
+
+  const applyRelationshipOverride = async (
+    currentGuest: NonNullable<typeof editGuest>,
+    formData: AddGuestFormData
+  ) => {
+    try {
+      const originalType = detectGroupType(currentGuest.family_group);
+      const originalGroup = currentGuest.family_group || null;
+      const newType = groupTypeOverride;
+
+      // No-op if user didn't change anything meaningful
+      if (newType === originalType) {
+        if (newType === 'individual') return;
+        if (newType === 'family') {
+          const desired = familyGroupNameOverride.trim();
+          if (!desired || desired === (originalGroup || '').trim()) return;
+        }
+        if (newType === 'couple' && !partnerGuestId) return;
+      }
+
+      if (newType === 'individual') {
+        await supabase.from('guests').update({ family_group: null }).eq('id', currentGuest.id);
+        await cleanupSingleMemberFamily(originalGroup);
+        return;
+      }
+
+      if (newType === 'family') {
+        const desired = familyGroupNameOverride.trim();
+        if (!desired) {
+          toast({ title: 'Family group name required', description: 'Enter a family group name to apply.', variant: 'destructive' });
+          return;
+        }
+        await supabase.from('guests').update({ family_group: desired }).eq('id', currentGuest.id);
+        if (originalGroup && originalGroup !== desired) {
+          await cleanupSingleMemberFamily(originalGroup);
+        }
+        return;
+      }
+
+      if (newType === 'couple') {
+        if (!partnerGuestId) {
+          toast({ title: 'Partner required', description: 'Select a partner guest to form a couple.', variant: 'destructive' });
+          return;
+        }
+        const partner = eventGuestsForOverride.find(g => g.id === partnerGuestId);
+        if (!partner) return;
+        const currentFirst = (formData.first_name || currentGuest.first_name || '').trim();
+        const partnerFirst = (partner.first_name || '').trim();
+        const coupleName = `${currentFirst} & ${partnerFirst} Couple`;
+        const oldCurrent = originalGroup;
+        const oldPartner = partner.family_group || null;
+        await supabase.from('guests').update({ family_group: coupleName }).eq('id', currentGuest.id);
+        await supabase.from('guests').update({ family_group: coupleName }).eq('id', partner.id);
+        if (oldCurrent && oldCurrent !== coupleName) await cleanupSingleMemberFamily(oldCurrent);
+        if (oldPartner && oldPartner !== coupleName && oldPartner !== oldCurrent) {
+          await cleanupSingleMemberFamily(oldPartner);
+        }
+        return;
+      }
+    } catch (e) {
+      console.error('Relationship override failed:', e);
+      toast({
+        title: 'Relationship override failed',
+        description: 'Guest was saved, but the group change could not be applied.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const onSubmit = async (data: AddGuestFormData) => {
     setLoading(true);
     
@@ -643,6 +759,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             return;
           }
           
+          // Apply Relationship Group Override (Phase 1) — touches ONLY family_group
+          await applyRelationshipOverride(editGuest, data);
+
           toast({
             title: "Guest Updated",
             description: `${data.first_name} ${data.last_name} has been updated successfully.`,
@@ -1126,7 +1245,63 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
 
-            {/* RSVP Invite Status Dropdown - Show when editing */}
+            {/* Relationship Group Override (Phase 1) — only changes guests.family_group */}
+            {isEdit && editGuest && (
+              <div className="space-y-3 rounded-xl border-2 border-primary/20 bg-muted/20 p-3">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium">Guest Group Type</Label>
+                  <Select
+                    value={groupTypeOverride}
+                    onValueChange={(v) => setGroupTypeOverride(v as 'individual' | 'couple' | 'family')}
+                  >
+                    <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="individual">Individual</SelectItem>
+                      <SelectItem value="couple">Couple</SelectItem>
+                      <SelectItem value="family">Family</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">
+                    Only changes grouping. Does not affect tables, seats, RSVP, dietary, or invites.
+                  </p>
+                </div>
+
+                {groupTypeOverride === 'couple' && (
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Partner Guest</Label>
+                    <Select value={partnerGuestId} onValueChange={setPartnerGuestId}>
+                      <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
+                        <SelectValue placeholder="Select partner..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {eventGuestsForOverride
+                          .filter(g => g.id !== editGuest.id)
+                          .map(g => (
+                            <SelectItem key={g.id} value={g.id}>
+                              {`${g.first_name} ${g.last_name || ''}`.trim()}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {groupTypeOverride === 'family' && (
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">Family Group Name</Label>
+                    <Input
+                      value={familyGroupNameOverride}
+                      onChange={(e) => setFamilyGroupNameOverride(e.target.value)}
+                      placeholder="e.g. King Family"
+                      className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             {isEdit && editGuest && (
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">RSVP Invite Status</Label>
