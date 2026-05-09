@@ -677,6 +677,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
 
       // Prepare guest data
+      const hasAnyAddress = !!(
+        (data as any).mailing_address?.trim() ||
+        (data as any).mailing_suburb?.trim() ||
+        (data as any).mailing_state?.trim() ||
+        (data as any).mailing_postcode?.trim()
+      );
+
       const guestData = {
         event_id: eventId,
         user_id: (await supabase.auth.getUser()).data.user?.id!,
@@ -692,6 +699,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         family_group: data.family_group || null,
         notes: data.notes || null,
         assigned: !!(data.table_id),
+        mailing_address: (data as any).mailing_address || null,
+        mailing_suburb: (data as any).mailing_suburb || null,
+        mailing_state: (data as any).mailing_state || null,
+        mailing_postcode: (data as any).mailing_postcode || null,
+        address_received: hasAnyAddress,
       };
 
       // Compute relation_display using current event's partner names
