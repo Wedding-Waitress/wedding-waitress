@@ -588,7 +588,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 )}
 
                 <div className="space-y-4 pt-4 border-t">
-                  <h4 className="text-sm font-medium">Invitation Customisation</h4>
+                  <h4 className="text-sm font-medium">{bgSectionTitle || 'Invitation Customisation'}</h4>
                   {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
                     <div className="space-y-2">
                       <Label>Image Opacity</Label>
