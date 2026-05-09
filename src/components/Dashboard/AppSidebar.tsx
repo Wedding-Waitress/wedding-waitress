@@ -19,7 +19,8 @@ import {
   ChevronUp,
   Sparkles,
   LifeBuoy,
-  Gift
+  Gift,
+  Printer
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useUserPlan } from '@/hooks/useUserPlan';
@@ -75,6 +76,7 @@ interface AppSidebarProps {
     { id: "table-list", label: "Tables", icon: MapPin },
     { id: "guest-list", label: "Guest List", icon: Users },
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
+    { id: "signage", label: "QR Seating Signs", icon: Printer },
     { id: "invitations", label: "Invitations & Cards", icon: Mail },
     { id: "place-cards", label: "Name Place Cards", icon: CreditCard },
     { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },

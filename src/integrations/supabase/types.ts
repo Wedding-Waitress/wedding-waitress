@@ -2779,6 +2779,60 @@ export type Database = {
           },
         ]
       }
+      signage_settings: {
+        Row: {
+          background_color: string
+          background_image_opacity: number
+          background_image_type: string
+          background_image_url: string | null
+          background_image_x_position: number
+          background_image_y_position: number
+          created_at: string
+          event_id: string
+          id: string
+          notes: string | null
+          orientation: string
+          qr_config: Json
+          text_zones: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string
+          background_image_opacity?: number
+          background_image_type?: string
+          background_image_url?: string | null
+          background_image_x_position?: number
+          background_image_y_position?: number
+          created_at?: string
+          event_id: string
+          id?: string
+          notes?: string | null
+          orientation?: string
+          qr_config?: Json
+          text_zones?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string
+          background_image_opacity?: number
+          background_image_type?: string
+          background_image_url?: string | null
+          background_image_x_position?: number
+          background_image_y_position?: number
+          created_at?: string
+          event_id?: string
+          id?: string
+          notes?: string | null
+          orientation?: string
+          qr_config?: Json
+          text_zones?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sms_credits: {
         Row: {
           created_at: string

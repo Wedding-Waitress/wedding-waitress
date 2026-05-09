@@ -23,6 +23,14 @@ import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 
 
 
+export interface PresetZoneDef {
+  field: string;
+  label: string;
+  defaultText: string;
+  getDisabled?: (eventData: Record<string, string>) => boolean;
+  getText?: (eventData: Record<string, string>) => string;
+}
+
 interface InvitationCardCustomizerProps {
   settings: InvitationCardSettings | null;
   onSettingsChange: (settings: Partial<InvitationCardSettings>) => Promise<boolean>;
@@ -30,6 +38,19 @@ interface InvitationCardCustomizerProps {
   events?: { id: string; name: string; slug?: string | null }[];
   qrDataUrl?: string | null;
   onQrEventChange?: (eventId: string | null) => void;
+  // Optional configuration for sibling stationery editors (e.g. QR Seating Signs).
+  // All default to Invitations behavior — leaving every existing call site unchanged.
+  headerTitle?: string;
+  presetZones?: PresetZoneDef[];
+  presetYPositions?: Record<string, number>;
+  presetStyles?: Record<string, { font_family: string; font_size: number }>;
+  textZonesIntro?: string;
+  bgSectionTitle?: string;
+  qrTabTitle?: string;
+  notesPlaceholder?: string;
+  notesHelper?: string;
+  imageUploadFolder?: string;
+  storageBucket?: string;
 }
 
 const formatOrdinalDate = (dateStr: string): string => {
@@ -161,7 +182,21 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   events = [],
   qrDataUrl,
   onQrEventChange,
+  headerTitle,
+  presetZones,
+  presetYPositions,
+  presetStyles,
+  textZonesIntro,
+  bgSectionTitle,
+  qrTabTitle,
+  notesPlaceholder,
+  notesHelper,
+  imageUploadFolder,
+  storageBucket,
 }) => {
+  const activePresetZones = presetZones || PRESET_ZONES;
+  const activePresetYPositions = presetYPositions || PRESET_Y_POSITIONS;
+  const activePresetStyles = presetStyles || PRESET_STYLES;
   const [uploading, setUploading] = useState(false);
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [localNotes, setLocalNotes] = useState('');
@@ -195,18 +230,18 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     await onSettingsChange({ text_zones: newZones });
   };
 
-  const addPresetZone = async (preset: typeof PRESET_ZONES[number]) => {
+  const addPresetZone = async (preset: PresetZoneDef) => {
     const exists = textZones.some(z => z.type === 'preset' && z.preset_field === preset.field);
     if (exists) {
       toast({ title: "Already Added", description: `${preset.label} zone already exists` });
       return;
     }
-    const yOffset = PRESET_Y_POSITIONS[preset.field] ?? (8 + textZones.length * 12);
+    const yOffset = activePresetYPositions[preset.field] ?? (8 + textZones.length * 12);
     const zone = createDefaultZone('preset', preset.label, preset.field, Math.min(yOffset, 85));
     zone.text = preset.getText ? preset.getText(eventData) : (eventData[preset.field] || preset.defaultText || '');
     
     // Apply per-preset font/size overrides
-    const style = PRESET_STYLES[preset.field];
+    const style = activePresetStyles[preset.field];
     if (style) {
       zone.font_family = style.font_family;
       zone.font_size = style.font_size;
@@ -246,11 +281,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) throw new Error('User not authenticated');
       const fileExt = file.name.split('.').pop();
-      const fileName = `invitation-bg-${Date.now()}.${fileExt}`;
-      const filePath = `${user.id}/invitations/${fileName}`;
-      const { error: uploadError } = await supabase.storage.from('invitations').upload(filePath, file);
+      const fileName = `${imageUploadFolder || 'invitations'}-bg-${Date.now()}.${fileExt}`;
+      const folder = imageUploadFolder || 'invitations';
+      const bucket = storageBucket || 'invitations';
+      const filePath = `${user.id}/${folder}/${fileName}`;
+      const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('invitations').getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
       await handleSettingChange('background_image_url', publicUrl);
       toast({ title: "Success", description: "Image uploaded successfully" });
     } catch (error) {
@@ -267,7 +304,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette className="h-5 w-5 text-foreground" />
-            Invitations, Save the Date & Thank You Cards
+            {headerTitle || 'Invitations, Save the Date & Thank You Cards'}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -283,14 +320,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             <TabsContent value="text-zones" className="space-y-4">
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Add text zones to your invitation. Preset zones auto-fill from event data but can be overridden.
+                  {textZonesIntro || 'Add text zones to your invitation. Preset zones auto-fill from event data but can be overridden.'}
                 </p>
 
                 {/* Add Preset Zone buttons */}
                 <div className="space-y-2">
                   <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Add Preset Zone</span>
                   <div className="flex flex-wrap gap-2 max-w-fit">
-                    {PRESET_ZONES.map(pz => {
+                    {activePresetZones.map(pz => {
                       const isDisabled = textZones.some(z => z.preset_field === pz.field) || (pz.getDisabled ? pz.getDisabled(eventData) : false);
                       return (
                         <Button
@@ -551,7 +588,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 )}
 
                 <div className="space-y-4 pt-4 border-t">
-                  <h4 className="text-sm font-medium">Invitation Customisation</h4>
+                  <h4 className="text-sm font-medium">{bgSectionTitle || 'Invitation Customisation'}</h4>
                   {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
                     <div className="space-y-2">
                       <Label>Image Opacity</Label>
@@ -604,7 +641,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-primary">
                   <QrCode className="h-5 w-5 inline-block mr-2" />
-                  Add QR Code to Invite
+                  {qrTabTitle || 'Add QR Code to Invite'}
                 </h3>
 
                 <div className="space-y-2">
@@ -685,13 +722,13 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     Notes / Caption
                   </Label>
                   <Textarea
-                    placeholder="Add any notes or captions for this invitation design..."
+                    placeholder={notesPlaceholder || 'Add any notes or captions for this invitation design...'}
                     value={localNotes}
                     onChange={e => setLocalNotes(e.target.value)}
                     rows={4}
                   />
                   <p className="text-xs text-muted-foreground">
-                    This is for your reference only and won't appear on the invitation.
+                    {notesHelper || "This is for your reference only and won't appear on the invitation."}
                   </p>
                 </div>
 
