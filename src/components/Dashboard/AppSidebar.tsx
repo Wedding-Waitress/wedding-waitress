@@ -98,10 +98,24 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const { isAdmin } = useIsAdmin();
   const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
+  const [placeholder, setPlaceholder] = React.useState<null | 'upgrade' | 'help' | 'referral'>(null);
   const navigate = useNavigate();
   const location = useLocation();
   // isMobile already destructured from useSidebar above
   const { profile } = useProfile();
+  const { plan } = useUserPlan();
+
+  const planDisplayName = (() => {
+    const raw = plan?.plan_name?.trim();
+    if (!raw || raw.toLowerCase() === 'starter' || raw.toLowerCase() === 'free') return 'Free';
+    return raw;
+  })();
+
+  const placeholderCopy: Record<'upgrade' | 'help' | 'referral', { title: string; body: string }> = {
+    upgrade: { title: 'Upgrade Plan', body: 'Full upgrade flow arrives in Stage 3.' },
+    help: { title: 'Get Help', body: 'Help centre arrives in Stage 2.' },
+    referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
+  };
 
   const userInitials = (() => {
     const f = profile?.first_name?.[0] || '';
