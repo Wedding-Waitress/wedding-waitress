@@ -34,6 +34,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
+import { GetHelpModal } from '@/components/Support/GetHelpModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useProfile } from '@/hooks/useProfile';
