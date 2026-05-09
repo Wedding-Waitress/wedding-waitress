@@ -361,7 +361,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                   onClick={handleAddGuestClick}
                   className="lv-premium-btn bg-primary text-primary-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                 >
-                  Add Plus One Guest
+                  Add +1 Guest
                 </Button>
               )}
             </div>
