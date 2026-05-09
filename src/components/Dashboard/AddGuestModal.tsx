@@ -675,6 +675,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             return;
           }
           
+          // Apply Relationship Group Override (Phase 1) — touches ONLY family_group
+          await applyRelationshipOverride(editGuest, data);
+
           toast({
             title: "Guest Updated",
             description: `${data.first_name} ${data.last_name} has been updated successfully.`,
