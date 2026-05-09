@@ -1978,7 +1978,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     type="button"
                     className="mt-3 text-sm font-medium text-[#967A59] hover:text-[#7a6347] underline underline-offset-2 self-start"
                   >
-                    Learn More
+                    ​
                   </button>
                 </div>
 
