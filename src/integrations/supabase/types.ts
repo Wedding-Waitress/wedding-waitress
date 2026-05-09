@@ -3322,6 +3322,7 @@ export type Database = {
           ceremony_start_time: string
           ceremony_venue: string
           ceremony_venue_address: string
+          event_allow_guest_plus_ones: boolean
           event_date: string
           event_finish_time: string
           event_id: string
