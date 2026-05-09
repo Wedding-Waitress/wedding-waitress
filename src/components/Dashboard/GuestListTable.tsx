@@ -2066,8 +2066,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <div className="border-t border-border my-4" />
 
                       <div className="space-y-2 text-sm text-muted-foreground leading-relaxed">
-                        <p>Guests will be able to securely submit or update their mailing address through the Live View RSVP app.</p>
-                        <p>Useful for printed invitations, thank-you cards, and wedding correspondence.</p>
+                        <p>If you're sending printed invitations, RSVP cards, or thank-you cards by mail, guests can securely submit or update their physical mailing address through the Live View RSVP app — saving you hours of follow-ups, reducing mistakes, and keeping all guest details organised in one place.</p>
                       </div>
                     </>
                   ) : (
