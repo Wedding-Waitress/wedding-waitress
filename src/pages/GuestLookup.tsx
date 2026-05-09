@@ -276,6 +276,7 @@ export const GuestLookup: React.FC = () => {
               ceremony_venue: (firstRow as any).ceremony_venue ?? null,
               ceremony_start_time: (firstRow as any).ceremony_start_time ?? null,
               ceremony_finish_time: (firstRow as any).ceremony_finish_time ?? null,
+              allow_guest_plus_ones: !!(firstRow as any).event_allow_guest_plus_ones,
             };
         setEvent(eventData);
 
