@@ -131,20 +131,9 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className="sm:max-w-2xl max-h-[92vh] overflow-y-auto p-0 gap-0 max-lg:max-w-[100vw] max-lg:rounded-none"
-          hideClose
         >
-          {/* Header — title centered, X on its own row (mobile rules) */}
-          <DialogHeader className="px-6 pt-6 pb-2 max-lg:px-4 max-lg:pt-5">
-            <div className="flex justify-end max-lg:mb-1">
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={() => onOpenChange(false)}
-                className="h-9 w-9 rounded-full hover:bg-[#F5F0EB] flex items-center justify-center text-muted-foreground transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+          {/* Header — title centered (built-in DialogContent X handles close) */}
+          <DialogHeader className="px-6 pt-12 pb-2 max-lg:px-4 max-lg:pt-12">
             <DialogTitle className="text-center text-xl font-semibold flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5" style={{ color: '#967A59' }} />
               Upgrade your plan
