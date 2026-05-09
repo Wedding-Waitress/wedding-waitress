@@ -169,6 +169,29 @@ export const GuestLookup: React.FC = () => {
     return now <= deadline;
   }, [event?.rsvp_deadline]);
 
+  // 7-day auto-protection window: true when event.date is today or within the next 7 calendar days
+  // (timezone-aware via the event's configured timezone). Past events do not trigger this.
+  const isWithin7DayAutoProtection = useMemo(() => {
+    if (!event?.date) return false;
+    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
+    const today = new Date(todayStr + 'T00:00:00');
+    const eventDay = new Date(event.date + 'T00:00:00');
+    const diffDays = Math.floor((eventDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 7;
+  }, [event?.date, event?.event_timezone]);
+
+  // Per-action overrides stored inside rsvp_invite_config JSON (no DB schema change).
+  // Default OFF — when in 7-day window, actions are hidden unless organiser flips ON.
+  const overrideRsvp = !!moduleSettings?.rsvp_invite_config?.rsvp_override_auto_lock;
+  const overridePlusOne = !!moduleSettings?.rsvp_invite_config?.plus_one_override_auto_lock;
+  const overrideUpdateDetails = !!moduleSettings?.rsvp_invite_config?.update_details_override_auto_lock;
+
+  const showRsvpButtons = !isWithin7DayAutoProtection || overrideRsvp;
+  const showAddPlusOne = !isWithin7DayAutoProtection || overridePlusOne;
+  const showUpdateDetails = !isWithin7DayAutoProtection || overrideUpdateDetails;
+
+
   // Auto-detect event day to switch header wording
   const isEventDay = useMemo(() => {
     if (!event?.date) return false;
@@ -200,7 +223,7 @@ export const GuestLookup: React.FC = () => {
 
   // Handle deep-link for editing a specific guest (?edit=<guest_id>)
   useEffect(() => {
-    if (guests.length === 0 || !isEditable) return;
+    if (guests.length === 0 || !isEditable || !showUpdateDetails) return;
     
     const params = new URLSearchParams(window.location.search);
     const editGuestId = params.get('edit');
@@ -217,7 +240,7 @@ export const GuestLookup: React.FC = () => {
         window.history.replaceState({}, '', newUrl.toString());
       }
     }
-  }, [guests, isEditable]);
+  }, [guests, isEditable, showUpdateDetails]);
 
   // Fetch event and guests data using public RPC function
   useEffect(() => {
@@ -881,10 +904,13 @@ export const GuestLookup: React.FC = () => {
                                 guest={guest}
                                 onUpdate={refreshGuestData}
                                 isEditable={isEditable}
-                                onEdit={handleEditGuest}
+                                onEdit={showUpdateDetails ? handleEditGuest : undefined}
                                 onAddGuest={(event as any)?.allow_guest_plus_ones ? () => handleAddGuest(guest) : undefined}
                                 rsvpDeadline={event?.rsvp_deadline}
                                 additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
+                                showRsvpButtons={showRsvpButtons}
+                                showAddPlusOne={showAddPlusOne}
+                                showUpdateDetails={showUpdateDetails}
                               />
                             ))
                           ) : isOpenSearchMode ? (
@@ -1049,7 +1075,7 @@ export const GuestLookup: React.FC = () => {
         helperText={moduleSettings?.update_details_config?.helper_text}
         allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
-        isEditable={isEditable}
+        isEditable={isEditable && showUpdateDetails}
         allGuests={guests}
       />
 

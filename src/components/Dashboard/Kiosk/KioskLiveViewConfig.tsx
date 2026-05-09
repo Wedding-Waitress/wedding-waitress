@@ -378,7 +378,64 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               </div>
             );
 
-            // Row order: RSVP+Menu | Welcome+Hero | Floor Plan+Toggles
+            // 7-Day Auto-Protection overrides — stored inside rsvp_invite_config JSON
+            const rsvpConf = (modules as any)?.rsvp_invite_config || {};
+            const autoLockKeys = [
+              {
+                key: 'rsvp_override_auto_lock',
+                label: 'Keep RSVP Accept / Decline available',
+              },
+              {
+                key: 'plus_one_override_auto_lock',
+                label: 'Keep Add +1 Guest available',
+              },
+              {
+                key: 'update_details_override_auto_lock',
+                label: 'Keep Update Your Details available',
+              },
+            ] as const;
+            const autoProtectionTile = (
+              <div key="auto-protection" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] md:col-span-2">
+                <div className="flex items-center gap-3">
+                  <Settings className="h-5 w-5 text-[#856A4C]" />
+                  <div>
+                    <h4 className="text-sm font-semibold">7-Day Auto-Protection</h4>
+                    <p className="text-xs text-muted-foreground">
+                      In the 7 days before your event, RSVP, +1 and Update Details are
+                      automatically hidden from guests in the Live View. Turn any toggle ON
+                      to keep that action available during the final week.
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2 pt-2">
+                  {autoLockKeys.map(({ key, label }) => {
+                    const checked = !!rsvpConf[key];
+                    return (
+                      <div key={key} className="flex items-center justify-between">
+                        <span className="text-sm">{label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs whitespace-nowrap ${checked ? 'text-green-600' : 'text-red-500'}`}>
+                            {checked ? 'Override ON' : 'Auto-hide'}
+                          </span>
+                          <Switch
+                            checked={checked}
+                            onCheckedChange={(c) =>
+                              updateModuleConfig('rsvp_invite_config' as any, {
+                                ...rsvpConf,
+                                [key]: c,
+                              })
+                            }
+                            className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+
+            // Row order: RSVP+Menu | Welcome+Hero | Floor Plan+Toggles | Auto-Protection
             const rsvp = tiles[0];
             const welcome = tiles[1];
             const floorPlan = tiles[2];
@@ -392,6 +449,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 {heroTile}
                 {renderTile(floorPlan)}
                 {togglesTile}
+                {autoProtectionTile}
               </>
             );
           })()}
