@@ -115,9 +115,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-  const placeholderCopy: Record<'referral', { title: string; body: string }> = {
-    referral: { title: 'Referral / Affiliate Rewards', body: 'Referral rewards arrive in Stage 4.' },
-  };
 
   const userInitials = (() => {
     const f = profile?.first_name?.[0] || '';
