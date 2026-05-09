@@ -97,7 +97,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     mobile: '',
     email: '',
     dietary: 'NA',
-    notes: ''
+    notes: '',
+    mailing_address: '',
+    mailing_suburb: '',
+    mailing_state: '',
+    mailing_postcode: ''
   });
   const { toast } = useToast();
 
