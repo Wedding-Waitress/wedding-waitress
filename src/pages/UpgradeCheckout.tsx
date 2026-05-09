@@ -104,7 +104,7 @@ export const UpgradeCheckout: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [plan?.price_id, plan?.mode, plan?.key, toast]);
+  }, [plan?.price_id, plan?.mode, plan?.key, isDiffUpgrade, fromPlan?.key, toast]);
 
   if (!plan) {
     return <div className="p-8">Unknown plan.</div>;
