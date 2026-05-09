@@ -129,9 +129,110 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "https://wedding-waitress.lovable.app";
 
+    // ── Plan upgrade — difference-only pricing ────────────────────────
+    // Allowed source→target pairs among one-time wedding plans only.
+    // Source/target prices are looked up from Stripe so currency stays consistent.
+    let upgradeLineItem: Stripe.Checkout.SessionCreateParams.LineItem | null = null;
+    let upgradeDiffMeta = "";
+    if (upgrade_from_plan) {
+      const ALLOWED: Record<string, Record<string, true>> = {
+        essential: { premium: true, unlimited: true },
+        premium: { unlimited: true },
+      };
+      const fromKey = String(upgrade_from_plan);
+      const toKey = String(plan_type || "");
+      if (!ALLOWED[fromKey]?.[toKey]) {
+        return new Response(JSON.stringify({ error: "Invalid upgrade path" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Source plan DB id mapping (kept in sync with planRegistry.ts).
+      const SOURCE_PLAN_DB_ID: Record<string, string> = {
+        essential: "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
+        premium: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8",
+      };
+      // All known price_ids for the source plan across currencies.
+      const SOURCE_PRICE_IDS: Record<string, string[]> = {
+        essential: [
+          "price_1T0vD35GzTmqOxGK3k6EQZee",
+          "price_1TMhcx5GzTmqOxGKxMjCfQkz",
+          "price_1TMheB5GzTmqOxGK2RUVqDvC",
+          "price_1TMher5GzTmqOxGKTI0fTE07",
+          "price_1TPdpf5GzTmqOxGKTiE9x3RG",
+        ],
+        premium: [
+          "price_1T0vDN5GzTmqOxGKf3kyvjxs",
+          "price_1TMhhr5GzTmqOxGKolZGjdWK",
+          "price_1TMhlz5GzTmqOxGK1t1zUOCw",
+          "price_1TMhmL5GzTmqOxGKAW9J3JMC",
+          "price_1TPdq05GzTmqOxGKEPamRNNq",
+        ],
+      };
+
+      // Verify the user actually owns the source plan.
+      const { data: sub } = await supabaseClient
+        .from("user_subscriptions")
+        .select("plan_id, status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!sub || sub.plan_id !== SOURCE_PLAN_DB_ID[fromKey]) {
+        return new Response(JSON.stringify({ error: "Source plan not found on account" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Retrieve target price + product + currency.
+      const targetPrice = await stripe.prices.retrieve(price_id);
+      const targetCurrency = targetPrice.currency;
+      const targetProductId = typeof targetPrice.product === "string"
+        ? targetPrice.product
+        : targetPrice.product?.id;
+      if (!targetProductId || !targetPrice.unit_amount) {
+        throw new Error("Target price is missing product or amount");
+      }
+
+      // Find the source price in the SAME currency.
+      let sourceUnitAmount: number | null = null;
+      for (const pid of SOURCE_PRICE_IDS[fromKey]) {
+        try {
+          const sp = await stripe.prices.retrieve(pid);
+          if (sp.currency === targetCurrency && sp.unit_amount) {
+            sourceUnitAmount = sp.unit_amount;
+            break;
+          }
+        } catch (_) { /* skip missing price */ }
+      }
+      if (sourceUnitAmount == null) {
+        return new Response(JSON.stringify({ error: "Could not resolve source plan price" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const diff = targetPrice.unit_amount - sourceUnitAmount;
+      if (diff <= 0) {
+        return new Response(JSON.stringify({ error: "Upgrade not available for this currency" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      upgradeLineItem = {
+        quantity: 1,
+        price_data: {
+          currency: targetCurrency,
+          product: targetProductId,
+          unit_amount: diff,
+          tax_behavior: "inclusive",
+        },
+      };
+      upgradeDiffMeta = String(diff);
+      logStep("Upgrade difference computed", {
+        fromKey, toKey, currency: targetCurrency, diff,
+      });
+    }
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      line_items: [{ price: price_id, quantity: lineQuantity }],
+      line_items: [upgradeLineItem ?? { price: price_id, quantity: lineQuantity }],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
       metadata: {
@@ -147,6 +248,9 @@ serve(async (req) => {
           delivery_method === "email" || delivery_method === "sms" || delivery_method === "both"
             ? delivery_method
             : "",
+        from_plan: upgrade_from_plan || "",
+        to_plan: upgrade_from_plan ? (plan_type || "") : "",
+        upgrade_diff_amount: upgradeDiffMeta,
       },
     };
 
