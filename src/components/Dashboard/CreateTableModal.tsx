@@ -481,7 +481,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           )}
         </div>
 
-        <div className="px-6 py-4 border-t bg-background max-lg:sticky max-lg:bottom-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 lg:flex lg:gap-3">
+        <div className="px-6 py-4 border-t bg-background max-lg:sticky max-lg:bottom-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 lg:flex lg:justify-end lg:gap-3">
           <Button
             variant="default"
             size="xs"
