@@ -23,12 +23,11 @@ import { secureGuestSchema, type SecureGuestData } from "@/lib/security/validati
 import { logSecurityEvent, guestAddRateLimiter } from "@/lib/security/monitoring";
 import { sanitize, InputSanitizer } from "@/lib/security/inputSanitizer";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Form,
   FormControl,
