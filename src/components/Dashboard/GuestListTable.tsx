@@ -1905,9 +1905,37 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   )}
                 </div>
 
-                {/* BOX 3: Step 3 - Add Your Guests */}
+                {/* BOX 3: Step 3 - Guest RSVP Settings */}
+                <div className="border border-primary rounded-xl p-5 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                  <div>
+                    <h3 className="text-lg font-bold text-primary mb-0.5">Step 3: Guest RSVP Settings</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Control whether invited guests can add additional people during RSVP.</p>
+
+                    <div className="flex items-center justify-between gap-3 py-1">
+                      <Label className="text-sm font-medium text-foreground">Allow Guests To Add +1s</Label>
+                      <Switch checked={allowGuestPlusOnes} onCheckedChange={setAllowGuestPlusOnes} />
+                    </div>
+
+                    <div className="border-t border-border my-4" />
+
+                    <div className="space-y-2 text-sm text-muted-foreground leading-relaxed">
+                      <p>Guests can add an additional guest during RSVP without being pre-assigned in your guest list.</p>
+                      <p>Recommended for large weddings, paper invitations, verbal invitations, or flexible seating arrangements.</p>
+                      <p>If disabled, you can still manually assign plus-ones directly inside your Guest List table.</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="mt-3 text-sm font-medium text-[#967A59] hover:text-[#7a6347] underline underline-offset-2 self-start"
+                  >
+                    Learn More
+                  </button>
+                </div>
+
+                {/* BOX 4: Step 4 - Add Your Guests */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 3: Add Your Guests</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 4: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
                   <Button
