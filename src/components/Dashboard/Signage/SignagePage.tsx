@@ -10,6 +10,7 @@ import {
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Printer } from 'lucide-react';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
 import { toast } from '@/hooks/use-toast';
