@@ -82,7 +82,7 @@ export const useEvents = () => {
           ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact,
           ceremony_guest_limit, ceremony_start_time, 
           ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled,
-          venue_address, venue_phone, venue_contact
+          venue_address, venue_phone, venue_contact, allow_guest_plus_ones
         `),
       ]);
       
@@ -122,6 +122,7 @@ export const useEvents = () => {
           venue_address: extraData.venue_address ?? null,
           venue_phone: extraData.venue_phone ?? null,
           venue_contact: extraData.venue_contact ?? null,
+          allow_guest_plus_ones: extraData.allow_guest_plus_ones ?? false,
         };
       }));
     } catch (error) {

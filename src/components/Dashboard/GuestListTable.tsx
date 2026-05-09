@@ -1930,9 +1930,31 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <h3 className="text-lg font-bold text-primary mb-0.5">Step 3: Guest RSVP Settings</h3>
                     <p className="text-sm text-muted-foreground mb-4">Control whether invited guests can add additional people during RSVP.</p>
 
-                    <div className="flex items-center justify-between gap-3 py-1">
+                    <div className="flex items-center justify-between mb-1">
                       <Label className="text-sm font-medium text-foreground">Allow Guests To Add +1s</Label>
-                      <Switch checked={allowGuestPlusOnes} onCheckedChange={handleAllowGuestPlusOnesChange} />
+                    </div>
+                    <div className="force-toggle-colors-step3 flex items-center gap-3 mb-2">
+                      <span className="text-xs font-medium text-red-500">OFF</span>
+                      <Switch
+                        checked={allowGuestPlusOnes}
+                        onCheckedChange={handleAllowGuestPlusOnesChange}
+                        className="transition-colors duration-200"
+                      />
+                      <span className="text-xs font-medium text-green-500">ON</span>
+                      <style>{`
+                        .force-toggle-colors-step3 [data-state="checked"][role="switch"] {
+                          background-color: #22c55e !important;
+                        }
+                        .force-toggle-colors-step3 [data-state="unchecked"][role="switch"] {
+                          background-color: #ef4444 !important;
+                        }
+                        .force-toggle-colors-step3 [data-state="checked"][role="switch"]:hover {
+                          background-color: #22c55e !important;
+                        }
+                        .force-toggle-colors-step3 [data-state="unchecked"][role="switch"]:hover {
+                          background-color: #ef4444 !important;
+                        }
+                      `}</style>
                     </div>
 
                     <div className="border-t border-border my-4" />
