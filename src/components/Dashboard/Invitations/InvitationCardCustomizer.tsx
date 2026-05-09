@@ -641,7 +641,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-primary">
                   <QrCode className="h-5 w-5 inline-block mr-2" />
-                  Add QR Code to Invite
+                  {qrTabTitle || 'Add QR Code to Invite'}
                 </h3>
 
                 <div className="space-y-2">
