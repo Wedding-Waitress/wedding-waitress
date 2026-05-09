@@ -308,6 +308,11 @@ export const GuestLookup: React.FC = () => {
             family_group: (row as any).guest_family_group || null,
             added_by_guest_id: (row as any).guest_added_by_guest_id || null,
             allow_plus_one: (row as any).guest_allow_plus_one ?? true,
+            mailing_address: (row as any).guest_mailing_address || null,
+            mailing_suburb: (row as any).guest_mailing_suburb || null,
+            mailing_state: (row as any).guest_mailing_state || null,
+            mailing_postcode: (row as any).guest_mailing_postcode || null,
+            address_received: !!(row as any).guest_address_received,
           }));
 
         setGuests(transformedGuests);
