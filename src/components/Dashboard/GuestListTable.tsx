@@ -2656,13 +2656,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <TableBody>
               {guestsLoading ? (
                 <TableRow className="border-card-border">
-                   <TableCell colSpan={15} className="text-center py-8">
+                   <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="text-center py-8">
                     Loading guests...
                   </TableCell>
                 </TableRow>
               ) : totalGuestCount === 0 ? (
                 <TableRow className="border-card-border">
-                   <TableCell colSpan={15} className="text-center py-8">
+                   <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="text-center py-8">
                     {/* Empty - the "No Guests Yet" widget is now in the header */}
                   </TableCell>
                 </TableRow>
@@ -2672,7 +2672,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
                        <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
-                         <TableCell colSpan={15} className="py-2 px-0">
+                         <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="py-2 px-0">
                            <div className="flex items-center gap-2 pl-[7%]">
                             <Users className="w-4 h-4 text-white" />
                             <span className="font-semibold text-sm text-white">
