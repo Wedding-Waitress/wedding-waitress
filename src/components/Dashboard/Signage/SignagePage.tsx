@@ -10,6 +10,7 @@ import {
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Printer } from 'lucide-react';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
 import { toast } from '@/hooks/use-toast';
@@ -425,6 +426,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           }`}>
             <div className="max-sm:w-max md:max-lg:w-[210mm]">
               <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
+                <PinchZoomContainer naturalWidth={orientation === 'portrait' ? 794 : 1123}>
                 <InvitationCardPreview
                   settings={asInvitationSettings}
                   eventData={eventData}
@@ -479,6 +481,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   qrDataUrl={qrDataUrl}
                   onQrConfigUpdate={handleQrConfigUpdate}
                 />
+                </PinchZoomContainer>
               </div>
             </div>
           </div>
