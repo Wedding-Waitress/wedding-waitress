@@ -116,7 +116,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         mobile: guest.mobile || '',
         email: guest.email || '',
         dietary: guest.dietary || 'NA',
-        notes: guest.notes || ''
+        notes: guest.notes || '',
+        mailing_address: guest.mailing_address || '',
+        mailing_suburb: guest.mailing_suburb || '',
+        mailing_state: guest.mailing_state || '',
+        mailing_postcode: guest.mailing_postcode || ''
       });
     }
 }, [guest, open]);
