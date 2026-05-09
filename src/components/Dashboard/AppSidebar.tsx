@@ -250,7 +250,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   My Account
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => setPlaceholder('upgrade')}
+                  onClick={() => setUpgradeOpen(true)}
                   className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
                 >
                   <Sparkles className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
