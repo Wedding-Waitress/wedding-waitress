@@ -122,6 +122,7 @@ export const useEvents = () => {
           venue_address: extraData.venue_address ?? null,
           venue_phone: extraData.venue_phone ?? null,
           venue_contact: extraData.venue_contact ?? null,
+          allow_guest_plus_ones: extraData.allow_guest_plus_ones ?? false,
         };
       }));
     } catch (error) {
