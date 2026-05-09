@@ -105,7 +105,7 @@ import { SmartRsvpAnalyticsPanel } from './SmartRsvpAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -1784,6 +1784,42 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   className="mb-4"
                 />
               )}
+
+              {/* Guest Live View Protection — informational banner */}
+              <div className="bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="bg-primary/10 text-primary rounded-full p-2.5 shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-bold text-primary mb-1">Guest Live View Protection</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      7 days before your event, RSVP responses, guest edits, and +1 requests are automatically hidden from the Live View app for security and event-day stability.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">
+                      You still have full control over what guests can view during the final week through your Guest Live View Configuration settings.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="lv-premium-shade shrink-0 max-md:w-full"
+                  onClick={() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', 'qr-code');
+                    url.hash = 'guest-live-view-configuration';
+                    window.history.pushState({}, '', url);
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    setTimeout(() => {
+                      document
+                        .getElementById('guest-live-view-configuration')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 250);
+                  }}
+                >
+                  Configure Guest Live View →
+                </Button>
+              </div>
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 items-stretch">
