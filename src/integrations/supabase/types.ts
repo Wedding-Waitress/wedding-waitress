@@ -3004,6 +3004,54 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonial_submissions: {
+        Row: {
+          caption: string | null
+          consent_approved: boolean
+          created_at: string
+          duration_seconds: number | null
+          event_name: string | null
+          id: string
+          mime_type: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          size_bytes: number | null
+          status: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          consent_approved?: boolean
+          created_at?: string
+          duration_seconds?: number | null
+          event_name?: string | null
+          id?: string
+          mime_type?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path: string
+          user_id?: string
+        }
+        Update: {
+          caption?: string | null
+          consent_approved?: boolean
+          created_at?: string
+          duration_seconds?: number | null
+          event_name?: string | null
+          id?: string
+          mime_type?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          size_bytes?: number | null
+          status?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -3405,6 +3453,16 @@ export type Database = {
           pending: number
           signed_up: number
           total: number
+        }[]
+      }
+      get_my_testimonial_submissions: {
+        Args: { p_limit?: number }
+        Returns: {
+          caption: string
+          created_at: string
+          event_name: string
+          id: string
+          status: string
         }[]
       }
       get_notification_settings: { Args: { _user_id: string }; Returns: Json }
