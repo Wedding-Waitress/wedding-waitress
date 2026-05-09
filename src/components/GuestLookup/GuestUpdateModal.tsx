@@ -35,12 +35,18 @@ interface Guest {
   notes?: string;
   rsvp: string;
   family_group?: string | null;
+  mailing_address?: string | null;
+  mailing_suburb?: string | null;
+  mailing_state?: string | null;
+  mailing_postcode?: string | null;
+  address_received?: boolean | null;
 }
 
 interface Event {
   id: string;
   date?: string;
   event_timezone?: string;
+  collect_guest_addresses?: boolean;
 }
 
 interface GuestUpdateModalProps {
@@ -91,7 +97,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     mobile: '',
     email: '',
     dietary: 'NA',
-    notes: ''
+    notes: '',
+    mailing_address: '',
+    mailing_suburb: '',
+    mailing_state: '',
+    mailing_postcode: ''
   });
   const { toast } = useToast();
 
@@ -106,7 +116,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         mobile: guest.mobile || '',
         email: guest.email || '',
         dietary: guest.dietary || 'NA',
-        notes: guest.notes || ''
+        notes: guest.notes || '',
+        mailing_address: guest.mailing_address || '',
+        mailing_suburb: guest.mailing_suburb || '',
+        mailing_state: guest.mailing_state || '',
+        mailing_postcode: guest.mailing_postcode || ''
       });
     }
 }, [guest, open]);
@@ -117,7 +131,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       if (!open || !guest?.id) return;
       const { data, error } = await supabase
         .from('guests')
-        .select('first_name, last_name, mobile, email, dietary, notes, rsvp')
+        .select('first_name, last_name, mobile, email, dietary, notes, rsvp, mailing_address, mailing_suburb, mailing_state, mailing_postcode')
         .eq('id', guest.id)
         .maybeSingle();
       if (!error && data) {
@@ -130,7 +144,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           mobile: data.mobile || '',
           email: data.email || '',
           dietary: data.dietary || 'NA',
-          notes: data.notes || ''
+          notes: data.notes || '',
+          mailing_address: (data as any).mailing_address || '',
+          mailing_suburb: (data as any).mailing_suburb || '',
+          mailing_state: (data as any).mailing_state || '',
+          mailing_postcode: (data as any).mailing_postcode || ''
         });
       }
     };
@@ -152,6 +170,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       });
 
       // Use RPC function to bypass RLS for public updates
+      const addressesEnabled = !!event?.collect_guest_addresses;
       const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
         _guest_id: guest.id,
         _event_id: guest.event_id || event?.id,
@@ -159,7 +178,11 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         _dietary: formData.dietary,
         _mobile: formData.mobile?.trim() || null,
         _email: formData.email?.trim() || null,
-        _notes: formData.notes?.trim() || null
+        _notes: formData.notes?.trim() || null,
+        _mailing_address: addressesEnabled ? (formData.mailing_address?.trim() || null) : null,
+        _mailing_suburb: addressesEnabled ? (formData.mailing_suburb?.trim() || null) : null,
+        _mailing_state: addressesEnabled ? (formData.mailing_state?.trim() || null) : null,
+        _mailing_postcode: addressesEnabled ? (formData.mailing_postcode?.trim() || null) : null
       });
 
       if (error) {
@@ -225,6 +248,44 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           placeholder="0411569505" disabled={!isEditable}
           className="border-primary w-full" />
       </div>
+      {event?.collect_guest_addresses && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="mailing_address">Mailing Address</Label>
+            <Input id="mailing_address" type="text" value={formData.mailing_address}
+              onChange={(e) => setFormData({ ...formData, mailing_address: e.target.value })}
+              placeholder="14 Somerville Road" disabled={!isEditable}
+              maxLength={200}
+              className="border-primary w-full" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="mailing_suburb">Suburb</Label>
+            <Input id="mailing_suburb" type="text" value={formData.mailing_suburb}
+              onChange={(e) => setFormData({ ...formData, mailing_suburb: e.target.value })}
+              placeholder="Sunshine West" disabled={!isEditable}
+              maxLength={100}
+              className="border-primary w-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="mailing_state">State</Label>
+              <Input id="mailing_state" type="text" value={formData.mailing_state}
+                onChange={(e) => setFormData({ ...formData, mailing_state: e.target.value })}
+                placeholder="VIC" disabled={!isEditable}
+                maxLength={100}
+                className="border-primary w-full" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mailing_postcode">Postcode</Label>
+              <Input id="mailing_postcode" type="text" inputMode="numeric" value={formData.mailing_postcode}
+                onChange={(e) => setFormData({ ...formData, mailing_postcode: e.target.value })}
+                placeholder="3020" disabled={!isEditable}
+                maxLength={20}
+                className="border-primary w-full" />
+            </div>
+          </div>
+        </>
+      )}
       <div className="space-y-2">
         <Label htmlFor="dietary">Dietary Requirements</Label>
         <Select value={formData.dietary}
