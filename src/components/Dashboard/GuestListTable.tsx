@@ -754,8 +754,27 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       // Check if first guest has been added
       const hasGuests = guests.length > 0;
       setFirstGuestAdded(hasGuests);
+
+      // Sync Step 3 toggle from persisted event setting
+      setAllowGuestPlusOnes(!!(selectedEvent as any)?.allow_guest_plus_ones);
     }
   }, [selectedEvent]); // Removed guests.length to prevent toggle reset
+
+  // Persist Step 3 plus-one toggle to events table (optimistic + rollback)
+  const handleAllowGuestPlusOnesChange = async (next: boolean) => {
+    if (!selectedEventId) {
+      toast({ title: "No event selected", description: "Please select an event first", variant: "destructive" });
+      return;
+    }
+    const previous = allowGuestPlusOnes;
+    setAllowGuestPlusOnes(next);
+    try {
+      await updateEvent(selectedEventId, { allow_guest_plus_ones: next } as any);
+    } catch (err) {
+      setAllowGuestPlusOnes(previous);
+      toast({ title: "Couldn't save", description: "Failed to update plus-one setting. Please try again.", variant: "destructive" });
+    }
+  };
 
   // Helper function to get table name for a guest
   const getTableName = (guest: any) => {
@@ -1913,7 +1932,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                     <div className="flex items-center justify-between gap-3 py-1">
                       <Label className="text-sm font-medium text-foreground">Allow Guests To Add +1s</Label>
-                      <Switch checked={allowGuestPlusOnes} onCheckedChange={setAllowGuestPlusOnes} />
+                      <Switch checked={allowGuestPlusOnes} onCheckedChange={handleAllowGuestPlusOnesChange} />
                     </div>
 
                     <div className="border-t border-border my-4" />
