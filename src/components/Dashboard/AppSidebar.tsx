@@ -76,7 +76,7 @@ interface AppSidebarProps {
     { id: "table-list", label: "Tables", icon: MapPin },
     { id: "guest-list", label: "Guest List", icon: Users },
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
-    { id: "signage", label: "QR Seating Signs", icon: Printer },
+    { id: "signage", label: "Seating Chart Signs", icon: Printer },
     { id: "invitations", label: "Invitations & Cards", icon: Mail },
     { id: "place-cards", label: "Name Place Cards", icon: CreditCard },
     { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
