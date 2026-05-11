@@ -13,7 +13,8 @@ import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGaller
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers } from 'lucide-react';
+import { SignageBulkUploader } from './SignageBulkUploader';
 
 interface SignageGalleryModalProps {
   open: boolean;
