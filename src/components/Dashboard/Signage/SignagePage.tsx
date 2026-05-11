@@ -66,6 +66,18 @@ const PRINT_SIZES: ReadonlyArray<{
   { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts' },
 ];
 
+const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
+  a0: { widthMm: 841, heightMm: 1189 },
+  a1: { widthMm: 594, heightMm: 841 },
+  a2: { widthMm: 420, heightMm: 594 },
+  a3: { widthMm: 297, heightMm: 420 },
+  a4: { widthMm: 210, heightMm: 297 },
+  a5: { widthMm: 148, heightMm: 210 },
+  dl: { widthMm: 99, heightMm: 210 },
+  postcard: { widthMm: 105, heightMm: 148 },
+  business: { widthMm: 90, heightMm: 55 },
+};
+
 // QR safety: enforce ≥35mm rendered size (real venue scannability).
 // A4 portrait width = 210mm → 35/210 ≈ 16.7% ; landscape width = 297mm → 35/297 ≈ 11.8%
 const MIN_QR_SIZE_PERCENT_PORTRAIT = 17;
