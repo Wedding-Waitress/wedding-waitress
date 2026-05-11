@@ -274,7 +274,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </p>
                 <div className="text-muted-foreground space-y-1 mt-3">
                   <p>• All exports are 300 DPI for professional quality</p>
-                  <p>• PDF/PNG match the live preview exactly</p>
+                  <p>• PDF matches the live preview exactly</p>
                   <p>• QR code is sized for real-venue scannability (≥ 35mm)</p>
                   <p>• Portrait or Landscape A4 — display at the entrance or on a table easel</p>
                   <p>• Background images must be smaller than 5MB</p>
