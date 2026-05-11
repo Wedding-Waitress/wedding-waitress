@@ -196,54 +196,11 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-2 flex flex-col gap-2">
-      {/* Compact toolbar: default category + dropzone + apply */}
-      <div className="flex flex-col sm:flex-row gap-2 items-stretch">
-        <Input
-          placeholder="Default category (e.g. Asian Wedding)"
-          value={defaultCat}
-          onChange={(e) => setDefaultCat(e.target.value)}
-          list="signage-cat-presets"
-          disabled={running}
-          className="h-9 sm:max-w-[260px]"
-        />
-        <datalist id="signage-cat-presets">
-          {CATEGORY_PRESETS.map((c) => (
-            <option key={c} value={c} />
-          ))}
-        </datalist>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={applyDefaultCategoryToAll}
-          disabled={running || !defaultCat.trim()}
-          className="lv-premium-shade h-9"
-        >
-          Apply to all
-        </Button>
-        <div
-          onDrop={onDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-1.5 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[36px]"
-          onClick={() => inputRef.current?.click()}
-        >
-          <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-          <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤50 MB)</p>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/png,image/jpeg"
-            multiple
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files?.length) addFiles(e.target.files);
-              e.target.value = '';
-            }}
-          />
-        </div>
-      </div>
+      <datalist id="signage-cat-presets">
+        {CATEGORY_PRESETS.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
 
       {/* Stats + controls */}
       {rows.length > 0 && (
