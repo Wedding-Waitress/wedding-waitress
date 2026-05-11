@@ -274,7 +274,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </p>
                 <div className="text-muted-foreground space-y-1 mt-3">
                   <p>• All exports are 300 DPI for professional quality</p>
-                  <p>• PDF/PNG match the live preview exactly</p>
+                  <p>• PDF matches the live preview exactly</p>
                   <p>• QR code is sized for real-venue scannability (≥ 35mm)</p>
                   <p>• Portrait or Landscape A4 — display at the entrance or on a table easel</p>
                   <p>• Background images must be smaller than 5MB</p>
@@ -311,7 +311,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your sign as PDF or PNG ready for printing.</span>
+                  <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
@@ -320,15 +320,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                     className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
                     {exporting === 'pdf' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                    {exporting === 'pdf' ? 'Exporting…' : 'Download PDF'}
-                  </button>
-                  <button
-                    disabled={!settings || exporting !== null}
-                    onClick={handleDownloadPNG}
-                    className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-primary rounded-full text-primary bg-background hover:bg-primary/10 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
-                  >
-                    {exporting === 'png' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                    {exporting === 'png' ? 'Exporting…' : 'Download PNG'}
+                    {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
                   </button>
                 </div>
               </div>
