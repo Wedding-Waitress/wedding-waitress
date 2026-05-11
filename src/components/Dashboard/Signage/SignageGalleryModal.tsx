@@ -239,7 +239,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 ))}
               </TabsList>
 
-              <TabsContent value={selectedCategory} className="flex-1 mt-4 min-h-0">
+              <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
                 {loading ? (
                   <div className="flex items-center justify-center h-64">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
