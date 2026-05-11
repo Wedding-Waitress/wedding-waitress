@@ -280,7 +280,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="flex-1 min-h-0 h-full pr-1 [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
+                  <ScrollArea className="flex-1 min-h-0 h-full pr-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
