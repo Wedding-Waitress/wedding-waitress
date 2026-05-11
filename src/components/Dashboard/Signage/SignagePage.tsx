@@ -293,35 +293,39 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground">QR Code Seating Chart Sign</h1>
+            <h1 className="text-2xl font-bold text-foreground">Wedding Waitress Signs Studio</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Design a printable A4 sign with a QR code so guests can scan to find their seat — portrait or landscape.
+              Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
+            </p>
+            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mt-1">
+              Wedding Waitress Signs • Print Studio • QR Experience
             </p>
           </div>
 
           {selectedEvent && (
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
-                <p className="font-medium text-green-600">
-                  Manage your A4 QR seating signs
+              <div className="flex-1 border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
+                <p className="font-semibold text-primary">
+                  Professional Wedding Print Guidelines
                 </p>
-                <div className="text-muted-foreground space-y-1 mt-3">
-                  <p>• All exports are 300 DPI for professional quality</p>
-                  <p>• PDF matches the live preview exactly</p>
-                  <p>• QR code is sized for real-venue scannability (≥ 35mm)</p>
-                  <p>• Portrait or Landscape A4 — display at the entrance or on a table easel</p>
-                  <p>• Background images must be smaller than 5MB</p>
-                </div>
+                <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
+                  <li>• All exports are generated at professional 300 DPI quality</li>
+                  <li>• PDFs match the live preview exactly</li>
+                  <li>• QR codes remain venue-scannable at all print sizes</li>
+                  <li>• Australian standard print sizes supported</li>
+                  <li>• Best results recommended via professional print shops</li>
+                  <li>• Portrait layouts optimised for modern wedding signage</li>
+                </ul>
               </div>
             </div>
           )}
 
           <div className="border-b border-border" />
 
-          <div className="flex flex-col gap-4 pt-2">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
+          <div className="flex flex-col gap-6 pt-2">
+            <div className="flex flex-col gap-1.5 w-full lg:w-auto">
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                Selected Wedding/Event
               </label>
               <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
                 <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
