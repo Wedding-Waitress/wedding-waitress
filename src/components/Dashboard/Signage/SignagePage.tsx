@@ -110,7 +110,15 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     return {
       couple_names: coupleNames,
       event_name: selectedEvent.name || '',
-      date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
+      date: selectedEvent.date
+        ? (() => {
+            const [y, m, d] = selectedEvent.date.split('-').map(Number);
+            const dt = new Date(y, (m || 1) - 1, d || 1);
+            return isNaN(dt.getTime())
+              ? formatDisplayDate(selectedEvent.date)
+              : dt.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+          })()
+        : '',
       date_raw: selectedEvent.date || '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
