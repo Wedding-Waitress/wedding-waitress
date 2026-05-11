@@ -429,6 +429,33 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                     All exports are generated as high-resolution print-ready PDFs for professional printing.
                   </p>
                 </div>
+
+                <div className="flex flex-col gap-3">
+                  <h4 className="text-base font-semibold text-primary leading-tight">Recommended Usage</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { icon: Building2, title: 'Main Foyer Sign', size: 'A1 or A0', desc: 'Ideal for venue entrances and easels.' },
+                      { icon: QrCode, title: 'Table Upload Cards', size: 'DL Card or A5', desc: 'Perfect for photo/video uploads and QR access.' },
+                      { icon: Heart, title: 'Guest Keepsake Cards', size: 'Postcard or Business Card', desc: 'Perfect for digital guestbooks and memories.' },
+                    ].map(({ icon: Icon, title, size, desc }) => (
+                      <div key={title} className="rounded-xl border border-primary/20 bg-[hsl(var(--primary)/0.04)] p-4 flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-semibold text-foreground">{title}</span>
+                        </div>
+                        <span className="text-[11px] uppercase tracking-wider text-primary font-medium">Best size: {size}</span>
+                        <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-primary/15 pt-4 mt-4">
+                  <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
+                    <Sparkles className="w-3.5 h-3.5 text-primary/70" />
+                    <span><span className="font-medium text-primary/80">Coming Soon:</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
+                  </p>
+                </div>
               </div>
             )}
           </div>
