@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2, FolderOpen } from 'lucide-react';
+import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 
 const CATEGORY_PRESETS = [
@@ -21,6 +21,31 @@ const CATEGORY_PRESETS = [
 
 const CONCURRENCY = 3;
 const DEFAULT_BULK_CATEGORY = 'Uncategorized';
+
+// Smart auto-categorization from filename keywords.
+const CATEGORY_KEYWORDS: Array<{ category: string; patterns: RegExp[] }> = [
+  { category: 'Asian Wedding', patterns: [/asian/i, /chinese/i, /japanese/i, /korean/i, /lantern/i, /dragon/i, /bamboo/i] },
+  { category: 'Indian Wedding', patterns: [/indian/i, /hindu/i, /mehndi/i, /sangeet/i, /mandala/i, /paisley/i] },
+  { category: 'Persian Wedding', patterns: [/persian/i, /iranian/i, /sofreh/i] },
+  { category: 'Floral', patterns: [/floral/i, /flower/i, /bloom/i, /rose/i, /peony/i, /cherry|sakura/i, /botanical/i] },
+  { category: 'Luxury / Gold', patterns: [/gold/i, /luxury/i, /royal/i, /baroque/i, /ornate/i] },
+  { category: 'Modern / Minimal', patterns: [/modern/i, /minimal/i, /clean/i, /simple/i, /geometric/i] },
+  { category: 'Rustic', patterns: [/rustic/i, /wood/i, /barn/i, /burlap/i, /kraft/i] },
+  { category: 'Vintage', patterns: [/vintage/i, /retro/i, /antique/i, /victorian/i] },
+  { category: 'Tropical', patterns: [/tropical/i, /palm/i, /beach/i, /hawaii/i] },
+  { category: 'Classic / Elegant', patterns: [/classic/i, /elegant/i, /traditional/i, /formal/i] },
+];
+
+const autoCategorize = (filename: string): string => {
+  for (const { category, patterns } of CATEGORY_KEYWORDS) {
+    if (patterns.some((p) => p.test(filename))) return category;
+  }
+  return DEFAULT_BULK_CATEGORY;
+};
+
+export interface SignageBulkUploaderHandle {
+  addFiles: (files: FileList | File[]) => void;
+}
 
 type RowStatus = 'queued' | 'uploading' | 'done' | 'failed';
 
