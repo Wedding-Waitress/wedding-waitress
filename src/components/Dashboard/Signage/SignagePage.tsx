@@ -328,7 +328,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             </div>
 
             {selectedEvent && (
-              <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-5 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
+              <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-6 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
                 <div className="flex flex-col gap-1">
                   <h3 className="text-lg lg:text-xl font-semibold text-primary leading-tight">
                     Print &amp; Export Studio
@@ -341,10 +341,22 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h4 className="text-sm font-semibold text-primary">Choose Print Size</h4>
-                    <span className="text-[11px] text-muted-foreground">Portrait orientation • Australian standard sizes</span>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex flex-col gap-1">
+                      <h4 className="text-base font-semibold text-primary leading-tight">
+                        Professional Wedding Print Sizes
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Choose the perfect format for your foyer signs, table QR cards, upload stations, and wedding keepsakes.
+                      </p>
+                    </div>
+                    <span className="hidden lg:inline-flex self-start rounded-full border border-primary/20 bg-[hsl(var(--primary)/0.06)] px-3 py-1 text-[11px] tracking-wide text-primary whitespace-nowrap">
+                      300 DPI • Print-Shop Ready
+                    </span>
+                  </div>
+                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                    Choose Print Size
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {PRINT_SIZES.map((size) => {
@@ -354,32 +366,32 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           key={size.id}
                           type="button"
                           onClick={() => setPrintSize(size.id)}
-                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all ${
+                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md ${
                             active
-                              ? 'border-primary bg-[hsl(var(--primary)/0.08)] ring-2 ring-primary/30 shadow-soft'
+                              ? 'border-primary bg-[hsl(var(--primary)/0.08)] ring-2 ring-primary/30 shadow-md'
                               : 'border-border bg-background hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.04)]'
                           }`}
                           aria-pressed={active}
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span className={`text-sm font-bold ${active ? 'text-primary' : 'text-foreground'}`}>
+                            <span className={`text-sm font-semibold ${active ? 'text-primary' : 'text-foreground'}`}>
                               {size.label}
                             </span>
                             {size.recommended && (
-                              <span className="text-[9px] uppercase tracking-wider font-semibold text-primary bg-[hsl(var(--primary)/0.12)] px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                                ★ Recommended
+                              <span className="mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 bg-[hsl(var(--primary)/0.14)] text-primary border border-primary/25 whitespace-nowrap">
+                                ⭐ Most Popular
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-muted-foreground font-medium">{size.dims}</span>
-                          <span className="text-[11px] text-muted-foreground/90 leading-snug">{size.best}</span>
+                          <span className="text-[11px] text-muted-foreground/80">{size.dims}</span>
+                          <span className="text-[11px] text-foreground/70 leading-snug">{size.best}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-2 pt-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <button
                       disabled={!settings || exporting !== null || !printSize}
