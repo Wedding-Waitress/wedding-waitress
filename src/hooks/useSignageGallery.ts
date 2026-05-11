@@ -17,6 +17,11 @@ export const useSignageGallery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const syncCategories = (galleryImages: SignageGalleryImage[]) => {
+    const uniqueCategories = [...new Set(galleryImages.map(img => img.category))];
+    setCategories(uniqueCategories);
+  };
+
   const fetchGalleryImages = async () => {
     try {
       setLoading(true);
@@ -32,9 +37,7 @@ export const useSignageGallery = () => {
 
       const galleryImages = (data || []) as unknown as SignageGalleryImage[];
       setImages(galleryImages);
-
-      const uniqueCategories = [...new Set(galleryImages.map(img => img.category))];
-      setCategories(uniqueCategories);
+      syncCategories(galleryImages);
     } catch (err) {
       console.error('Error fetching signage gallery images:', err);
       setError(err instanceof Error ? err.message : 'Failed to load gallery');
@@ -47,11 +50,20 @@ export const useSignageGallery = () => {
     fetchGalleryImages();
   }, []);
 
+  const removeImageFromGallery = (imageId: string) => {
+    setImages(prev => {
+      const next = prev.filter(img => img.id !== imageId);
+      syncCategories(next);
+      return next;
+    });
+  };
+
   return {
     images,
     categories,
     loading,
     error,
+    removeImageFromGallery,
     refetch: fetchGalleryImages,
   };
 };

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
@@ -15,16 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2 } from 'lucide-react';
 import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SignageGalleryModalProps {
@@ -38,7 +27,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error, refetch } = useSignageGallery();
+  const { images, categories, loading, error, removeImageFromGallery, refetch } = useSignageGallery();
   const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,18 +47,42 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const storagePathsForDelete = useMemo(() => {
+    if (!deleteTarget) return [];
+
+    const toStoragePath = (url?: string | null) => {
+      if (!url) return null;
+      const marker = '/storage/v1/object/public/signage-gallery/';
+      const [, path] = url.split(marker);
+      return path ? decodeURIComponent(path.split('?')[0]) : null;
+    };
+
+    return Array.from(new Set([
+      toStoragePath(deleteTarget.image_url),
+      toStoragePath(deleteTarget.thumbnail_url),
+    ].filter(Boolean) as string[]));
+  }, [deleteTarget]);
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    const target = deleteTarget;
     try {
       setDeleting(true);
       const { error } = await supabase
         .from('signage_gallery_images' as any)
         .delete()
-        .eq('id', deleteTarget.id);
+        .eq('id', target.id);
       if (error) throw error;
-      toast({ title: 'Image deleted', description: deleteTarget.name });
+
+      if (storagePathsForDelete.length > 0) {
+        supabase.storage.from('signage-gallery').remove(storagePathsForDelete).then(({ error: storageError }) => {
+          if (storageError) console.warn('Signage gallery storage cleanup failed:', storageError);
+        });
+      }
+
+      removeImageFromGallery(target.id);
+      toast({ title: 'Image deleted', description: target.name });
       setDeleteTarget(null);
-      await refetch();
     } catch (err: any) {
       toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
     } finally {
@@ -312,8 +325,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="flex-1 min-h-0 h-full pr-3 [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-thumb]]:!bg-primary/60 hover:[&_[data-radix-scroll-area-thumb]]:!bg-primary">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
+                  <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
@@ -358,7 +371,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>
@@ -372,26 +385,28 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         )}
       </DialogContent>
 
-      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this image?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Once you delete <span className="font-semibold">{deleteTarget?.name}</span>, you can't go back. This will permanently remove the image from the gallery.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDelete(); }}
-              disabled={deleting}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-foreground">Delete this image?</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Once you delete <span className="font-semibold text-foreground">{deleteTarget.name}</span>, you can't go back. This will permanently remove the image from the gallery.
+            </p>
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button variant="outline" disabled={deleting} onClick={() => setDeleteTarget(null)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 lv-premium-shade"
+              >
+                {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 };
