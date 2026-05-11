@@ -68,6 +68,10 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
   const [defaultCat, setDefaultCat] = useState(defaultCategory);
   const [running, setRunning] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rowsRef = useRef<Row[]>([]);
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
 
   const stats = useMemo(() => {
     const total = rows.length;
