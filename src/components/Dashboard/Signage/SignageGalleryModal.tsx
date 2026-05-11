@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,10 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft } from 'lucide-react';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload } from 'lucide-react';
 
 interface SignageGalleryModalProps {
   open: boolean;
@@ -18,15 +21,37 @@ interface SignageGalleryModalProps {
   onSelectImage: (imageUrl: string) => void;
 }
 
+const fileToBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      const idx = result.indexOf(',');
+      resolve(idx >= 0 ? result.slice(idx + 1) : result);
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
 export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   open,
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error } = useSignageGallery();
+  const { images, categories, loading, error, refetch } = useSignageGallery();
+  const { isAdmin } = useIsAdmin();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewImage, setPreviewImage] = useState<SignageGalleryImage | null>(null);
+
+  // Admin upload state
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadName, setUploadName] = useState('');
+  const [uploadCategory, setUploadCategory] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -40,8 +65,52 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     onOpenChange(false);
   };
 
+  const handleUpload = async () => {
+    if (!uploadFile || !uploadName.trim() || !uploadCategory.trim()) {
+      toast({ title: 'Missing fields', description: 'Provide a name, category, and image file.', variant: 'destructive' });
+      return;
+    }
+    if (uploadFile.size > 50 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Maximum 50 MB per upload.', variant: 'destructive' });
+      return;
+    }
+    try {
+      setUploading(true);
+      const imageBase64 = await fileToBase64(uploadFile);
+      const { data, error: fnErr } = await supabase.functions.invoke('optimize-signage-image', {
+        body: {
+          imageBase64,
+          name: uploadName.trim(),
+          category: uploadCategory.trim(),
+        },
+      });
+      if (fnErr) throw fnErr;
+      const masterKB = Math.round(((data as any)?.masterBytes ?? 0) / 1024);
+      const thumbKB = Math.round(((data as any)?.thumbBytes ?? 0) / 1024);
+      toast({
+        title: 'Uploaded & optimized',
+        description: `Print master ${masterKB} KB · thumbnail ${thumbKB} KB`,
+      });
+      setUploadName('');
+      setUploadCategory('');
+      setUploadFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setShowUpload(false);
+      await refetch();
+    } catch (err: any) {
+      console.error('Signage upload failed', err);
+      toast({
+        title: 'Upload failed',
+        description: err?.message ?? 'Could not optimize and upload the image.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(val) => { if (!val) setPreviewImage(null); onOpenChange(val); }}>
+    <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
@@ -50,8 +119,62 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               Seating Chart Sign Image Gallery
             </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
+            {isAdmin && !previewImage && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto lv-premium-shade"
+                onClick={() => setShowUpload((s) => !s)}
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                {showUpload ? 'Close Upload' : 'Admin Upload'}
+              </Button>
+            )}
           </DialogTitle>
         </DialogHeader>
+
+        {isAdmin && showUpload && !previewImage && (
+          <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                placeholder="Design name (e.g. Asian Wedding – Chinese Lantern Floral)"
+                value={uploadName}
+                onChange={(e) => setUploadName(e.target.value)}
+                disabled={uploading}
+              />
+              <Input
+                placeholder="Category (e.g. Asian Wedding, Floral, Modern)"
+                value={uploadCategory}
+                onChange={(e) => setUploadCategory(e.target.value)}
+                disabled={uploading}
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg"
+                onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                disabled={uploading}
+                className="text-sm"
+              />
+              <Button
+                onClick={handleUpload}
+                disabled={uploading || !uploadFile || !uploadName.trim() || !uploadCategory.trim()}
+                className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
+              >
+                {uploading ? (
+                  <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
+                ) : (
+                  <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Auto-converts PNG → JPG (quality 92, full pixel dimensions for A0 print) and generates an 800px web thumbnail. Max 50 MB.
+            </p>
+          </div>
+        )}
 
         {previewImage ? (
           <div className="flex-1 flex flex-col min-h-0">
@@ -73,7 +196,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-[400px]">
               <img
-                src={previewImage.image_url}
+                src={previewImage.thumbnail_url || previewImage.image_url}
                 alt={previewImage.name}
                 className="max-w-full max-h-[60vh] object-contain"
               />
@@ -125,8 +248,9 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                           className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
                         >
                           <img
-                            src={image.image_url}
+                            src={image.thumbnail_url || image.image_url}
                             alt={image.name}
+                            loading="lazy"
                             className="w-full h-full object-contain"
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
