@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -68,6 +68,10 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
   const [defaultCat, setDefaultCat] = useState(defaultCategory);
   const [running, setRunning] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rowsRef = useRef<Row[]>([]);
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
 
   const stats = useMemo(() => {
     const total = rows.length;
@@ -152,15 +156,39 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
 
   const startUpload = async () => {
     if (running) return;
-    setRunning(true);
 
-    // Snapshot of pending IDs at start; new failures won't auto-retry until user clicks Retry.
-    const pendingIds = rows.filter((r) => r.status === 'queued').map((r) => r.id);
-    if (pendingIds.length === 0) {
-      setRunning(false);
+    // Auto-apply default category to any queued row that has none
+    const trimmedDefault = defaultCat.trim();
+    if (trimmedDefault) {
+      setRows((prev) =>
+        prev.map((r) =>
+          r.status === 'queued' && !r.category.trim() ? { ...r, category: trimmedDefault } : r
+        )
+      );
+      // Sync ref immediately so the workers below see the patched rows
+      rowsRef.current = rowsRef.current.map((r) =>
+        r.status === 'queued' && !r.category.trim() ? { ...r, category: trimmedDefault } : r
+      );
+    }
+
+    const queued = rowsRef.current.filter((r) => r.status === 'queued');
+    if (queued.length === 0) {
       toast({ title: 'Nothing to upload', description: 'All rows are already processed.' });
       return;
     }
+
+    const missing = queued.filter((r) => !r.name.trim() || !r.category.trim());
+    if (missing.length > 0) {
+      toast({
+        title: 'Category required',
+        description: `${missing.length} file(s) have no category. Type a default category at the top and click "Apply to all", or fill in each row.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setRunning(true);
+    const pendingIds = queued.map((r) => r.id);
 
     let cursor = 0;
     const getNext = (): string | null => {
@@ -172,12 +200,7 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
       while (true) {
         const id = getNext();
         if (!id) return;
-        // Read latest row from state via ref-like pattern using setRows(updater)
-        let current: Row | undefined;
-        setRows((prev) => {
-          current = prev.find((r) => r.id === id);
-          return prev;
-        });
+        const current = rowsRef.current.find((r) => r.id === id);
         if (!current) continue;
         // eslint-disable-next-line no-await-in-loop
         await uploadOne(current);
