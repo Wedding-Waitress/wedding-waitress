@@ -37,7 +37,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error, refetch } = useSignageGallery();
+  const { images, categories, loading, error, removeImageFromGallery, refetch } = useSignageGallery();
   const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,10 +56,6 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const bulkDropRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  const removeDeletedImageFromView = () => {
-    void refetch();
-  };
 
   const storagePathsForDelete = useMemo(() => {
     if (!deleteTarget) return [];
@@ -94,9 +90,9 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         });
       }
 
+      removeImageFromGallery(target.id);
       toast({ title: 'Image deleted', description: target.name });
       setDeleteTarget(null);
-      removeDeletedImageFromView();
     } catch (err: any) {
       toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
     } finally {
