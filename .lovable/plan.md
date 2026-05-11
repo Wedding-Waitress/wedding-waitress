@@ -1,95 +1,57 @@
-# Stage 7 Finalization Plan (approved with DOM-preservation guardrail)
+## Goal
 
-## CRITICAL GUARDRAIL (added per user)
+Replace all favicon assets with the brown Wedding Waitress waitress logo you uploaded, so the correct icon appears on browser tabs, Google search results, mobile bookmarks, and Apple home screen — across both `weddingwaitress.com.au` (current) and the old `weddingwaitress.com` deployment.
 
-> During extraction, preserve all existing DOM hierarchy/order for Invitations wherever possible. Do not refactor merely for code elegance if it risks changing rendering, spacing, hydration, responsiveness, or export output.
+## Important context (read first)
 
-Concretely this means:
-- Same parent → child node order in the rendered tree.
-- Same wrapper `<div>`s, same `className` strings, same inline styles, same data-attributes.
-- Same conditional render order (e.g., tabs render in the same sequence).
-- Same React key strategy on lists (no key changes that would force remounts).
-- Same hook call order in `InvitationCardCustomizer` / `InvitationCardPreview` (no reordering of `useState`/`useEffect`).
-- No `<Fragment>` collapsing or wrapper-div removal "for cleanliness".
-- If extracting a block would require any structural change, leave the block inline in Invitations and only have Signage consume the new primitive.
+The site **already references** Wedding Waitress favicons in `index.html` (`favicon.ico`, `favicon-16.png`, `favicon-32.png`, `favicon-180.png`, `favicon-192.png`, `favicon-512.png`) and `manifest.json`. There are **no Lovable/Netlify icons left in the code.** What's actually shown on Google / browser tabs comes from two things:
 
-## 1. PinchZoom Preview Wrapper (Signage only)
+1. The PNG/ICO files sitting in `public/` — these may still be an older version of the logo.
+2. **Google's favicon cache**, which refreshes only when Google re-crawls (often weeks). Nothing in code can force this — it just needs the new file live + time.
 
-`src/components/Dashboard/Signage/SignagePage.tsx`:
-- Wrap ONLY the preview area in `<PinchZoomContainer naturalWidth={...}>`.
-- `naturalWidth = 794` (portrait) / `1123` (landscape), switched on `signageSettings.orientation`.
-- Do NOT wrap header, event selector, tab strip, editor controls, or export buttons.
-- Touch detection stays internal to the container (`navigator.maxTouchPoints > 0`).
-- Invitations preview is NOT wrapped (locked behavior preserved).
+So this task is: regenerate the icon files from your new upload + cache-bust + republish. The old `.com` domain will pick up the new icon **only if it's still pointing at this Lovable project** (a DNS question, not a code question — see step 5).
 
-## 2. Stationery/core Shared Primitive Extraction (DOM-preserving)
+## Plan
 
-**New folder:** `src/components/Stationery/core/`
+### 1. Save the uploaded brown logo as the source
+- Copy `user-uploads://Favicon._Brown._PNG-7.png` to `public/wedding-waitress-favicon-source.png` (kept as the master).
 
-**Extraction rule:** each primitive is a 1:1 lift of an existing JSX block from `InvitationCardCustomizer.tsx` / `InvitationCardPreview.tsx`. Internal markup is copied verbatim. Props expose only the values that already vary (titles, labels, callbacks, data) — not structure.
+### 2. Regenerate all favicon sizes from the source
+Use ImageMagick (via `nix run nixpkgs#imagemagick`) to produce, from the uploaded PNG, on a transparent background, centered with a small safe margin:
+- `public/favicon-16.png` (16×16)
+- `public/favicon-32.png` (32×32)
+- `public/favicon-180.png` (180×180, Apple touch icon)
+- `public/favicon-192.png` (192×192, Android/PWA)
+- `public/favicon-512.png` (512×512, PWA maskable)
+- `public/favicon.ico` (multi-resolution: 16, 32, 48)
+- `public/favicon.png` (512 fallback)
 
-Primitives:
-- `StationeryEditorShell.tsx` — header card + event selector + export slot wrapper.
-- `StationeryPreviewShell.tsx` — cream container + A4 stage + scaling logic.
-- `StationeryTabs.tsx` — Background / Text Zones / QR Code / Messages tab strip.
-- `StationeryStripSelector.tsx` — brown-pill selector (Save the Date / Thank You for Invitations; Portrait / Landscape for Signage). Identical DOM, identical classes.
-- `StationeryZoomControls.tsx` — zoom +/− control, lifted as-is.
-- `StationeryExportPanel.tsx` — export button group.
-- `BackgroundTab.tsx`, `TextZonesTab.tsx`, `QRCodeTab.tsx`, `MessagesTab.tsx` — tab body components, markup unchanged.
-- `ColorSwatchPopover.tsx` — color picker popover, lifted as-is.
+All overwrite existing files. No new filenames introduced — so no other code needs to change.
 
-Hooks:
-- `useStationeryAutosave.ts` — generic wrapper around the existing Invitations autosave pattern (table name + payload shape parameterized). Same debounce, same toast, same write semantics.
-- `useImageUpload.ts` — shared background/image upload pipeline (Canva + standard), parameterized by storage folder. Same compression and preview behavior.
-- `useStationeryExport.ts` — thin wrapper over existing `invitationExporter.ts` (filename + orientation params). Underlying export engine unchanged.
+### 3. Bump the cache-buster in `index.html`
+Change every `?v=3` → `?v=4` on the favicon `<link>` tags so browsers and crawlers fetch the new files immediately instead of serving the cached old one.
 
-**Invitations refactor flow:**
-1. For each primitive, lift JSX from Invitations into `core/` byte-equivalently.
-2. Replace the inline block in `InvitationCardCustomizer.tsx` / `InvitationCardPreview.tsx` with `<CorePrimitive ...sameProps />`.
-3. If a lift would change DOM order, classes, hook order, or hydration shape — STOP and leave it inline; Signage will use the core version, Invitations keeps the inline version.
-4. No prop renames on Invitations public APIs.
-5. No CSS token, className, or design-token edits.
+### 4. Bump cache-buster in `public/manifest.json`
+Same `?v=3` → `?v=4` on the two manifest icon entries (192 + 512).
 
-**Signage refactor flow:**
-1. `SignagePage.tsx` rebuilt as a slim composition of core primitives + the Portrait/Landscape variant of `StationeryStripSelector`.
-2. Drops the current direct-import-with-overrides path on `InvitationCardCustomizer`.
-3. `useSignageSettings.ts` keeps its public shape; uses `useStationeryAutosave` internally.
+### 5. The old `weddingwaitress.com` domain
+This is **not a code change** — it's a DNS / domain setup question. After we publish, what happens on `.com` depends on where it currently points:
 
-## 3. Invitations Regression Verification Pass
+- **If `.com` is still connected to this Lovable project** in Project Settings → Domains: the new favicon will go live there automatically. Google will then refresh its cached favicon over the following days/weeks (we cannot speed this up).
+- **If `.com` is no longer connected**: nothing we change in code can affect it. You would need to either (a) reconnect `.com` in Project Settings → Domains, or (b) set up a 301 redirect from `.com` → `.com.au` at your domain registrar, which is the cleanest long-term fix and consolidates SEO.
 
-**Static checks:**
-- TypeScript build clean.
-- Diff `InvitationCardCustomizer.tsx` and `InvitationCardPreview.tsx`: confirm same rendered DOM order, same classNames, same hook order.
-- No changes to `invitationExporter.ts` behavior.
-- No changes to locked design tokens.
+I'll flag this in the closing message after publishing so you can check Project Settings → Domains and confirm what `.com` is doing.
 
-**Functional checklist (Invitations route only):**
-- Save the Date / Thank You strip selector: same brown active pill, hover, height, radius, responsive stacking.
-- Background tab: color picker popover, image upload (standard + Canva), remove-image — all identical.
-- Text Zones tab: add/edit/delete, font picker, color, alignment — identical.
-- QR Code tab: same rendering, position, size, contrast.
-- Messages tab: identical.
-- Zoom controls: +/− and reset identical.
-- Export: same PDF/PNG output, same 300 DPI quality, same filename.
-- Autosave: same debounce, same toast, same DB write.
-- Mobile responsiveness: identical breakpoints/stacking.
+### 6. Publish
+After the file changes, you click **Publish → Update** so the new favicon goes live on `weddingwaitress.com.au` (and `.com` if it's still connected).
 
-**Signage smoke (no full QA yet):**
-- Portrait ↔ Landscape flip.
-- QR clamp ≥ 17% portrait / ≥ 12% landscape; default bottom-center / bottom-right.
-- Export filename `WW-Sign-{EventName}-{Orientation}.pdf` / `.png`.
-- PinchZoom active on touch devices only; not wrapping header/selector/exports.
+## Out of scope (will NOT touch)
 
-**Output:** short pass/fail checklist with any deltas found and fixed.
+- Any page design, layout, components, copy, colors, or functionality.
+- The `wedding-waitress-logo*.png` files used inside the app (PDF exports, print headers, share images) — those stay as-is.
+- Locked public surface, dashboard UI, or any other locked areas.
+- DNS records / domain registrar settings (I'll only advise; you control your registrar).
 
-## Order of operations
+## Risk
 
-1. Extract core primitives + hooks (DOM-preserving lifts only).
-2. Refactor Invitations to consume core where safe; leave inline where not.
-3. Refactor Signage to consume core directly (drop prop-override piggyback).
-4. Add PinchZoom wrapper around Signage preview only.
-5. Run regression checklist; report results. No user-facing testing requested yet.
-
-## Out of scope
-
-Drag-and-drop beyond Invitations parity, printing, checkout, credits, marketplace, additional themes, sponsor branding UI, retroactive PinchZoom on existing pages.
+Very low. Only static asset replacement + a `v=3 → v=4` string change in two files. No JS, no React, no DB.
