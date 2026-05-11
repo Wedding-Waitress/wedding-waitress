@@ -124,8 +124,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         </DialogHeader>
 
         {isAdmin && showUpload && !previewImage && (
-          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
+          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <Button
                 size="sm"
                 variant={uploadMode === 'bulk' ? 'default' : 'outline'}
@@ -144,50 +144,71 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 <Upload className="h-4 w-4 mr-1" />
                 Single Upload
               </Button>
-            </div>
 
-            {uploadMode === 'bulk' ? (
-              <SignageBulkUploader onAllDone={() => { refetch(); }} />
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Design name (e.g. Asian Wedding – Chinese Lantern Floral)"
-                    value={uploadName}
-                    onChange={(e) => setUploadName(e.target.value)}
-                    disabled={uploading}
-                  />
-                  <Input
-                    placeholder="Category (e.g. Asian Wedding, Floral, Modern)"
-                    value={uploadCategory}
-                    onChange={(e) => setUploadCategory(e.target.value)}
-                    disabled={uploading}
-                  />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              {uploadMode === 'bulk' ? (
+                <div
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (e.dataTransfer.files?.length) bulkRef.current?.addFiles(e.dataTransfer.files);
+                  }}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={() => bulkDropRef.current?.click()}
+                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤50 MB)</p>
                   <input
-                    ref={fileInputRef}
+                    ref={bulkDropRef}
                     type="file"
                     accept="image/png,image/jpeg"
-                    onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-                    disabled={uploading}
-                    className="text-sm"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) bulkRef.current?.addFiles(e.target.files);
+                      e.target.value = '';
+                    }}
                   />
-                  <Button
-                    onClick={handleUpload}
-                    disabled={uploading || !uploadFile}
-                    className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
-                  >
-                    {uploading ? (
-                      <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
-                    ) : (
-                      <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
-                    )}
-                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Saves your full-quality original for print and generates an 800px web thumbnail in the browser. Max 50 MB.
-                </p>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs font-medium truncate">
+                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤50 MB)'}
+                  </p>
+                </div>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Originals saved for print · 800px web thumbnails generated in browser · 3 parallel uploads · Auto-categorized from filename.
+            </p>
+
+            {uploadMode === 'bulk' ? (
+              <SignageBulkUploader ref={bulkRef} onAllDone={() => { refetch(); }} />
+            ) : (
+              <div className="flex flex-col gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <Button
+                  onClick={handleUpload}
+                  disabled={uploading || !uploadFile}
+                  className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade self-start"
+                >
+                  {uploading ? (
+                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
+                  ) : (
+                    <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                  )}
+                </Button>
               </div>
             )}
           </div>
