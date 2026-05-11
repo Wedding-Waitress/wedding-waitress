@@ -305,7 +305,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
           <div className="border-b border-border" />
 
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
+          <div className="flex flex-col gap-4 pt-2">
             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
