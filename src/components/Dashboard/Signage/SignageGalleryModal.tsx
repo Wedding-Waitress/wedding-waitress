@@ -48,6 +48,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
 
   // Admin upload state
   const [showUpload, setShowUpload] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('bulk');
   const [uploadName, setUploadName] = useState('');
   const [uploadCategory, setUploadCategory] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
