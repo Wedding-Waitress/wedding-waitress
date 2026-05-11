@@ -311,11 +311,6 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
         </ScrollArea>
       )}
 
-      {rows.length === 0 && (
-        <p className="text-[11px] text-muted-foreground">
-          Originals saved for print · 800px web thumbnails generated in browser · 3 parallel uploads.
-        </p>
-      )}
 
     </div>
   );
