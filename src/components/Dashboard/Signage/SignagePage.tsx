@@ -410,35 +410,16 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         </Card>
       )}
 
-      {/* Orientation strip — mirrors Invitations card-type tabs visually */}
+      {/* Premium info bar — replaces the legacy Portrait/Landscape selector */}
       {selectedEventId && settings && !settingsLoading && (
-        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-          <CardContent className="pt-6 space-y-4">
-            <div className="grid w-full grid-cols-2 max-sm:h-auto max-sm:gap-1 max-sm:p-1 rounded-md bg-muted text-muted-foreground p-1 h-10 items-center">
-              <button
-                type="button"
-                onClick={() => handleOrientationChange('portrait')}
-                className={`lv-premium-shade inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 ${
-                  orientation === 'portrait' ? 'bg-background text-foreground shadow' : ''
-                }`}
-              >
-                Portrait
-              </button>
-              <button
-                type="button"
-                onClick={() => handleOrientationChange('landscape')}
-                className={`lv-premium-shade inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 ${
-                  orientation === 'landscape' ? 'bg-background text-foreground shadow' : ''
-                }`}
-              >
-                Landscape
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              A4 {orientation === 'portrait' ? '210 × 297mm' : '297 × 210mm'} — designed at print resolution
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-[hsl(var(--primary)/0.18)] bg-gradient-to-br from-[hsl(var(--primary)/0.05)] to-[hsl(var(--primary)/0.02)] shadow-soft px-5 py-4 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+          <p className="text-sm text-foreground/85 font-medium">
+            Portrait print layouts optimised for professional wedding signage.
+          </p>
+          <p className="text-xs text-muted-foreground tracking-wide">
+            300 DPI • Australian standard print sizes • Print-shop ready PDFs
+          </p>
+        </div>
       )}
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
