@@ -47,6 +47,25 @@ const SIGNAGE_PRESET_STYLES: Record<string, { font_family: string; font_size: nu
   qr_instructions: { font_family: 'ET Emilia Grace Demo', font_size: 18 },
 };
 
+// Australian print sizes (portrait). UI-only — does not affect canvas/exporter yet.
+const PRINT_SIZES: ReadonlyArray<{
+  id: string;
+  label: string;
+  dims: string;
+  best: string;
+  recommended?: boolean;
+}> = [
+  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for large venue entrance signs' },
+  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true },
+  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs' },
+  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs' },
+  { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage' },
+  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards' },
+  { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards' },
+  { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards' },
+  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts' },
+];
+
 // QR safety: enforce ≥35mm rendered size (real venue scannability).
 // A4 portrait width = 210mm → 35/210 ≈ 16.7% ; landscape width = 297mm → 35/297 ≈ 11.8%
 const MIN_QR_SIZE_PERCENT_PORTRAIT = 17;
