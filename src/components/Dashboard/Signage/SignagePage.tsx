@@ -308,10 +308,17 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             </div>
 
             {selectedEvent && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
-                <div className="text-sm">
-                  <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
+              <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-4 w-full lg:w-auto lg:whitespace-nowrap shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
+                <div className="flex flex-col gap-1">
+                  <h3 className="text-lg lg:text-xl font-semibold text-primary leading-tight">
+                    Print &amp; Export Studio
+                  </h3>
+                  <p className="text-[11px] lg:text-xs uppercase tracking-[0.14em] text-muted-foreground/80">
+                    Wedding Waitress Signs • Print Studio • QR Experience
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Download your sign as a print-ready PDF.
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
