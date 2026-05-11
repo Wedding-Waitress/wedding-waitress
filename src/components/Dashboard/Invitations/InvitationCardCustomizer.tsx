@@ -51,6 +51,11 @@ interface InvitationCardCustomizerProps {
   notesHelper?: string;
   imageUploadFolder?: string;
   storageBucket?: string;
+  GalleryModalComponent?: React.ComponentType<{
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSelectImage: (imageUrl: string) => void;
+  }>;
 }
 
 const formatOrdinalDate = (dateStr: string): string => {
