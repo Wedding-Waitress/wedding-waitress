@@ -288,7 +288,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
-                          className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
+                          className="group relative aspect-[4/5] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
                         >
                           <img
                             src={image.thumbnail_url || image.image_url}
