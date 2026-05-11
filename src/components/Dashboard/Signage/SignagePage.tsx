@@ -9,7 +9,7 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Printer } from 'lucide-react';
+import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
@@ -293,35 +293,39 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground">QR Code Seating Chart Sign</h1>
+            <h1 className="text-2xl font-bold text-foreground">Wedding Waitress Signs Studio</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Design a printable A4 sign with a QR code so guests can scan to find their seat — portrait or landscape.
+              Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
+            </p>
+            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mt-1">
+              Wedding Waitress Signs • Print Studio • QR Experience
             </p>
           </div>
 
           {selectedEvent && (
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
-                <p className="font-medium text-green-600">
-                  Manage your A4 QR seating signs
+              <div className="flex-1 border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
+                <p className="font-semibold text-primary">
+                  Professional Wedding Print Guidelines
                 </p>
-                <div className="text-muted-foreground space-y-1 mt-3">
-                  <p>• All exports are 300 DPI for professional quality</p>
-                  <p>• PDF matches the live preview exactly</p>
-                  <p>• QR code is sized for real-venue scannability (≥ 35mm)</p>
-                  <p>• Portrait or Landscape A4 — display at the entrance or on a table easel</p>
-                  <p>• Background images must be smaller than 5MB</p>
-                </div>
+                <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
+                  <li>• All exports are generated at professional 300 DPI quality</li>
+                  <li>• PDFs match the live preview exactly</li>
+                  <li>• QR codes remain venue-scannable at all print sizes</li>
+                  <li>• Australian standard print sizes supported</li>
+                  <li>• Best results recommended via professional print shops</li>
+                  <li>• Portrait layouts optimised for modern wedding signage</li>
+                </ul>
               </div>
             </div>
           )}
 
           <div className="border-b border-border" />
 
-          <div className="flex flex-col gap-4 pt-2">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
+          <div className="flex flex-col gap-6 pt-2">
+            <div className="flex flex-col gap-1.5 w-full lg:w-auto">
+              <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                Selected Wedding/Event
               </label>
               <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
                 <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
@@ -423,6 +427,33 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   )}
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                     All exports are generated as high-resolution print-ready PDFs for professional printing.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <h4 className="text-base font-semibold text-primary leading-tight">Recommended Usage</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[
+                      { icon: Building2, title: 'Main Foyer Sign', size: 'A1 or A0', desc: 'Ideal for venue entrances and easels.' },
+                      { icon: QrCode, title: 'Table Upload Cards', size: 'DL Card or A5', desc: 'Perfect for photo/video uploads and QR access.' },
+                      { icon: Heart, title: 'Guest Keepsake Cards', size: 'Postcard or Business Card', desc: 'Perfect for digital guestbooks and memories.' },
+                    ].map(({ icon: Icon, title, size, desc }) => (
+                      <div key={title} className="rounded-xl border border-primary/20 bg-[hsl(var(--primary)/0.04)] p-4 flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2">
+                          <Icon className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-semibold text-foreground">{title}</span>
+                        </div>
+                        <span className="text-[11px] uppercase tracking-wider text-primary font-medium">Best size: {size}</span>
+                        <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-primary/15 pt-4 mt-4">
+                  <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
+                    <Sparkles className="w-3.5 h-3.5 text-primary/70" />
+                    <span><span className="font-medium text-primary/80">Coming Soon:</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
                   </p>
                 </div>
               </div>
