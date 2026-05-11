@@ -13,7 +13,8 @@ import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGaller
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers } from 'lucide-react';
+import { SignageBulkUploader } from './SignageBulkUploader';
 
 interface SignageGalleryModalProps {
   open: boolean;
@@ -47,6 +48,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
 
   // Admin upload state
   const [showUpload, setShowUpload] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('bulk');
   const [uploadName, setUploadName] = useState('');
   const [uploadCategory, setUploadCategory] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -134,45 +136,72 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         </DialogHeader>
 
         {isAdmin && showUpload && !previewImage && (
-          <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col gap-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Input
-                placeholder="Design name (e.g. Asian Wedding – Chinese Lantern Floral)"
-                value={uploadName}
-                onChange={(e) => setUploadName(e.target.value)}
-                disabled={uploading}
-              />
-              <Input
-                placeholder="Category (e.g. Asian Wedding, Floral, Modern)"
-                value={uploadCategory}
-                onChange={(e) => setUploadCategory(e.target.value)}
-                disabled={uploading}
-              />
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg"
-                onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-                disabled={uploading}
-                className="text-sm"
-              />
+          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-3">
+            <div className="flex items-center gap-2">
               <Button
-                onClick={handleUpload}
-                disabled={uploading || !uploadFile || !uploadName.trim() || !uploadCategory.trim()}
-                className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
+                size="sm"
+                variant={uploadMode === 'bulk' ? 'default' : 'outline'}
+                onClick={() => setUploadMode('bulk')}
+                className="lv-premium-shade"
               >
-                {uploading ? (
-                  <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
-                ) : (
-                  <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
-                )}
+                <Layers className="h-4 w-4 mr-1" />
+                Bulk Upload
+              </Button>
+              <Button
+                size="sm"
+                variant={uploadMode === 'single' ? 'default' : 'outline'}
+                onClick={() => setUploadMode('single')}
+                className="lv-premium-shade"
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                Single Upload
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Auto-converts PNG → JPG (quality 92, full pixel dimensions for A0 print) and generates an 800px web thumbnail. Max 50 MB.
-            </p>
+
+            {uploadMode === 'bulk' ? (
+              <SignageBulkUploader onAllDone={() => { refetch(); }} />
+            ) : (
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Input
+                    placeholder="Design name (e.g. Asian Wedding – Chinese Lantern Floral)"
+                    value={uploadName}
+                    onChange={(e) => setUploadName(e.target.value)}
+                    disabled={uploading}
+                  />
+                  <Input
+                    placeholder="Category (e.g. Asian Wedding, Floral, Modern)"
+                    value={uploadCategory}
+                    onChange={(e) => setUploadCategory(e.target.value)}
+                    disabled={uploading}
+                  />
+                </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                    disabled={uploading}
+                    className="text-sm"
+                  />
+                  <Button
+                    onClick={handleUpload}
+                    disabled={uploading || !uploadFile || !uploadName.trim() || !uploadCategory.trim()}
+                    className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
+                  >
+                    {uploading ? (
+                      <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
+                    ) : (
+                      <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Auto-converts PNG → JPG (quality 92, full pixel dimensions for A0 print) and generates an 800px web thumbnail. Max 50 MB.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
