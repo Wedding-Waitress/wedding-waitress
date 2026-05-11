@@ -198,50 +198,54 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
   };
 
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col gap-3">
-      {/* Default category bar */}
-      <div className="flex flex-col sm:flex-row gap-2">
+    <div className="rounded-lg border border-border bg-muted/30 p-2 flex flex-col gap-2">
+      {/* Compact toolbar: default category + dropzone + apply */}
+      <div className="flex flex-col sm:flex-row gap-2 items-stretch">
         <Input
-          placeholder="Default category for new files (e.g. Asian Wedding)"
+          placeholder="Default category (e.g. Asian Wedding)"
           value={defaultCat}
           onChange={(e) => setDefaultCat(e.target.value)}
           list="signage-cat-presets"
           disabled={running}
+          className="h-9 sm:max-w-[260px]"
         />
         <datalist id="signage-cat-presets">
           {CATEGORY_PRESETS.map((c) => (
             <option key={c} value={c} />
           ))}
         </datalist>
-        <Button variant="outline" onClick={applyDefaultCategoryToAll} disabled={running || !defaultCat.trim()} className="lv-premium-shade">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={applyDefaultCategoryToAll}
+          disabled={running || !defaultCat.trim()}
+          className="lv-premium-shade h-9"
+        >
           Apply to all
         </Button>
-      </div>
-
-      {/* Dropzone */}
-      <div
-        onDrop={onDrop}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        className="rounded-lg border-2 border-dashed border-border bg-background/50 px-4 py-6 text-center cursor-pointer hover:border-primary/60 transition-colors"
-        onClick={() => inputRef.current?.click()}
-      >
-        <FolderOpen className="h-8 w-8 mx-auto text-primary mb-2" />
-        <p className="text-sm font-medium">Drag & drop images here, or click to select</p>
-        <p className="text-xs text-muted-foreground mt-1">PNG / JPG · up to 50 MB each · select hundreds at a time</p>
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files?.length) addFiles(e.target.files);
-            e.target.value = '';
+        <div
+          onDrop={onDrop}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
           }}
-        />
+          className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-1.5 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[36px]"
+          onClick={() => inputRef.current?.click()}
+        >
+          <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+          <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤50 MB)</p>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/png,image/jpeg"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files?.length) addFiles(e.target.files);
+              e.target.value = '';
+            }}
+          />
+        </div>
       </div>
 
       {/* Stats + controls */}
@@ -288,7 +292,7 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
 
       {/* Rows */}
       {rows.length > 0 && (
-        <ScrollArea className="h-[360px] rounded-lg border border-border bg-background">
+        <ScrollArea className="h-[160px] rounded-lg border border-border bg-background">
           <div className="divide-y divide-border">
             {rows.map((row) => (
               <div key={row.id} className="flex items-center gap-3 p-2">
@@ -353,9 +357,12 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
         </ScrollArea>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        Each file is saved as the full-quality original for print, with an 800px web thumbnail generated in your browser. 3 files upload in parallel.
-      </p>
+      {rows.length === 0 && (
+        <p className="text-[11px] text-muted-foreground">
+          Originals saved for print · 800px web thumbnails generated in browser · 3 parallel uploads.
+        </p>
+      )}
+
     </div>
   );
 };

@@ -111,7 +111,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               <Button
                 size="sm"
                 variant="outline"
-                className="ml-auto lv-premium-shade"
+                className="ml-auto mr-8 lv-premium-shade"
                 onClick={() => setShowUpload((s) => !s)}
               >
                 <Upload className="h-4 w-4 mr-1" />
@@ -230,7 +230,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
             </div>
 
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-4">
+              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map(category => (
                   <TabsTrigger key={category} value={category}>
@@ -239,7 +239,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 ))}
               </TabsList>
 
-              <TabsContent value={selectedCategory} className="flex-1 mt-4 min-h-0">
+              <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
                 {loading ? (
                   <div className="flex items-center justify-center h-64">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -255,7 +255,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[500px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
+                  <ScrollArea className="flex-1 min-h-0 h-full pr-1 [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
