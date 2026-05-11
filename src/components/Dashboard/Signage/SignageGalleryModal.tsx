@@ -57,8 +57,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const removeDeletedImageFromView = (imageId: string) => {
-    refetch({ keepCurrentData: true });
+  const removeDeletedImageFromView = () => {
+    void refetch();
   };
 
   const storagePathsForDelete = useMemo(() => {
@@ -96,7 +96,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
 
       toast({ title: 'Image deleted', description: target.name });
       setDeleteTarget(null);
-      removeDeletedImageFromView(target.id);
+      removeDeletedImageFromView();
     } catch (err: any) {
       toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
     } finally {
