@@ -1,16 +1,20 @@
 ## Scope
-QR Code Seating Chart Sign page (`/dashboard?tab=signage`) — Export Controls only.
+`src/components/Dashboard/Signage/SignagePage.tsx` — only the Export Controls block (lines 310–327). No other section, no PDF logic.
 
-## Change
-In `src/components/Dashboard/Signage/SignagePage.tsx`:
+## Visual changes
 
-1. Remove the "Download PNG" button (lines 325–332).
-2. Update the PDF button label from "Download PDF" → "Download Print-Ready PDF" (line 323, plus the "Exporting…" state stays).
-3. Update the helper text on line 314 from "Download your sign as PDF or PNG ready for printing." → "Download your sign as a print-ready PDF."
-4. Update the bullet on line 277 from "PDF/PNG match the live preview exactly" → "PDF matches the live preview exactly".
+Restyle the small bordered box into a larger premium "Print & Export Studio" panel:
+
+- Heading: `Export Controls` → **`Print & Export Studio`** (larger, semibold, brown `text-primary`).
+- New muted subtitle directly underneath: **`Wedding Waitress Signs • Print Studio • QR Experience`** (xs, `text-muted-foreground`, tracking-wide).
+- Keep the existing one-liner ("Download your sign as a print-ready PDF.") as a third line for clarity.
+- Increase padding (`p-5 lg:p-6`), gap (`gap-4`), and add stronger shadow (`shadow-soft`) + double-border feel via `border-primary/60` and inner subtle gradient background using brown tones already in the palette (`bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]`).
+- Rounded `rounded-2xl` to match SaaS premium look used elsewhere.
+- The "Download Print-Ready PDF" button stays exactly as-is (no logic, no label, no styling changes).
+- Fully responsive: full-width on mobile/tablet (`w-full`), auto width on `lg:` like today.
 
 ## Out of scope
-- PDF export logic (`handleDownloadPDF`, `exportInvitationPDF`) — untouched.
-- `handleDownloadPNG` function and `exportInvitationPNG` import will be left in place (dead code, harmless) to keep the change minimal and reversible. Can be cleaned up later if you want.
-- No layout, template, QR, styling, DB, or other-page changes.
-- Invitations page (`InvitationExporter.tsx`) — not touched.
+- PDF export logic, filename, or button styling.
+- Size selectors, dropdowns, modals.
+- Any other page or section (header card, designer, preview, sidebar).
+- Removing the already-removed PNG references (none remain in this section).
