@@ -319,4 +319,6 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
 
     </div>
   );
-};
+});
+SignageBulkUploader.displayName = 'SignageBulkUploader';
+
