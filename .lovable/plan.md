@@ -1,57 +1,71 @@
-## Goal
+## Audit results
 
-Replace all favicon assets with the brown Wedding Waitress waitress logo you uploaded, so the correct icon appears on browser tabs, Google search results, mobile bookmarks, and Apple home screen — across both `weddingwaitress.com.au` (current) and the old `weddingwaitress.com` deployment.
+I checked everything — here's the current state vs. what you're asking for.
 
-## Important context (read first)
+### ✅ What's already correct
+- `src/components/SEO/SeoHead.tsx` (used by every page) sets `SITE_URL = 'https://weddingwaitress.com.au'` and emits canonical + `og:url` from that constant.
+- `index.html` canonical, `og:url`, and JSON-LD all point to `https://weddingwaitress.com.au`.
+- All 50+ entries in `public/sitemap.xml` use `https://weddingwaitress.com.au`.
+- `scripts/generate-sitemap.mjs` hardcodes the same `.com.au` base.
+- Non-canonical hosts (Netlify, Lovable previews, `.com`) are blocked from indexing via a `noindex,nofollow` meta tag injected in both `index.html` and `SeoHead.tsx`.
+- No `weddingwaitress.com` (non-`.com.au`) URL exists anywhere in code.
+- OG fallback image is `/wedding-waitress-logo.png` (the brown brand logo, not Lovable).
 
-The site **already references** Wedding Waitress favicons in `index.html` (`favicon.ico`, `favicon-16.png`, `favicon-32.png`, `favicon-180.png`, `favicon-192.png`, `favicon-512.png`) and `manifest.json`. There are **no Lovable/Netlify icons left in the code.** What's actually shown on Google / browser tabs comes from two things:
+### ⚠️ What does NOT match your request
 
-1. The PNG/ICO files sitting in `public/` — these may still be an older version of the logo.
-2. **Google's favicon cache**, which refreshes only when Google re-crawls (often weeks). Nothing in code can force this — it just needs the new file live + time.
+**1. You asked for canonical = `https://www.weddingwaitress.com.au` (WITH `www`).**
+The codebase currently uses the **bare** `https://weddingwaitress.com.au` (no `www`) as canonical everywhere. Both are valid — but only ONE should be canonical, and the other should 301 to it. We need to pick one and align everything.
 
-So this task is: regenerate the icon files from your new upload + cache-bust + republish. The old `.com` domain will pick up the new icon **only if it's still pointing at this Lovable project** (a DNS question, not a code question — see step 5).
+**2. 301 redirects from `.com` → `.com.au`, and bare ↔ www, are NOT something code can do on Lovable hosting.**
+Lovable does not process `_redirects`, `netlify.toml`, or `vercel.json`. 301s are configured at:
+- **Project Settings → Domains** (mark the chosen canonical as **Primary** — Lovable auto-301s the others to it), AND
+- Your **domain registrar's DNS** (for `weddingwaitress.com` → must either be connected to this Lovable project so the Primary redirect kicks in, OR a registrar-level forward set up there).
 
-## Plan
+I can verify and update the code side. The DNS/Primary side you'll need to do in Lovable's UI + your registrar — I'll give exact steps.
 
-### 1. Save the uploaded brown logo as the source
-- Copy `user-uploads://Favicon._Brown._PNG-7.png` to `public/wedding-waitress-favicon-source.png` (kept as the master).
+**3. OG image is the existing brand logo, not the new brown-waitress favicon you uploaded last turn.**
+The OG image (`/wedding-waitress-logo.png`) is a different file from the favicon source. You may want OG to keep the wider logo (better for social previews) OR switch it to the new waitress icon. This is a choice — see Q1 below.
 
-### 2. Regenerate all favicon sizes from the source
-Use ImageMagick (via `nix run nixpkgs#imagemagick`) to produce, from the uploaded PNG, on a transparent background, centered with a small safe margin:
-- `public/favicon-16.png` (16×16)
-- `public/favicon-32.png` (32×32)
-- `public/favicon-180.png` (180×180, Apple touch icon)
-- `public/favicon-192.png` (192×192, Android/PWA)
-- `public/favicon-512.png` (512×512, PWA maskable)
-- `public/favicon.ico` (multi-resolution: 16, 32, 48)
-- `public/favicon.png` (512 fallback)
+---
 
-All overwrite existing files. No new filenames introduced — so no other code needs to change.
+## Questions before I proceed
 
-### 3. Bump the cache-buster in `index.html`
-Change every `?v=3` → `?v=4` on the favicon `<link>` tags so browsers and crawlers fetch the new files immediately instead of serving the cached old one.
+I need 2 confirmations to write the right plan:
 
-### 4. Bump cache-buster in `public/manifest.json`
-Same `?v=3` → `?v=4` on the two manifest icon entries (192 + 512).
+**Q1 — Which canonical do you want?**
+- (A) `https://www.weddingwaitress.com.au` (WITH www) — what you wrote in this message. Cleaner with subdomains, slightly more enterprise-y.
+- (B) `https://weddingwaitress.com.au` (no www) — what your code, sitemap, and Google Search Console verification are currently set to. Modern default, shorter URL.
 
-### 5. The old `weddingwaitress.com` domain
-This is **not a code change** — it's a DNS / domain setup question. After we publish, what happens on `.com` depends on where it currently points:
+⚠️ If you pick (A), every page that's already indexed by Google will need to re-index under `www.` — short-term ranking dip is possible but will recover. If you pick (B), zero SEO disruption.
 
-- **If `.com` is still connected to this Lovable project** in Project Settings → Domains: the new favicon will go live there automatically. Google will then refresh its cached favicon over the following days/weeks (we cannot speed this up).
-- **If `.com` is no longer connected**: nothing we change in code can affect it. You would need to either (a) reconnect `.com` in Project Settings → Domains, or (b) set up a 301 redirect from `.com` → `.com.au` at your domain registrar, which is the cleanest long-term fix and consolidates SEO.
+**Q2 — OG image (social preview when someone shares a link)**
+- (A) Keep the existing brand logo `/wedding-waitress-logo.png` (currently used).
+- (B) Switch to the new brown waitress favicon `/favicon-512.png`.
+- (C) Use a dedicated wider share image — `/wedding-waitress-share-logo.png` already exists in `public/`.
 
-I'll flag this in the closing message after publishing so you can check Project Settings → Domains and confirm what `.com` is doing.
+---
 
-### 6. Publish
-After the file changes, you click **Publish → Update** so the new favicon goes live on `weddingwaitress.com.au` (and `.com` if it's still connected).
+## Plan (assuming answers, will adjust)
 
-## Out of scope (will NOT touch)
+### Code changes I will make
 
-- Any page design, layout, components, copy, colors, or functionality.
-- The `wedding-waitress-logo*.png` files used inside the app (PDF exports, print headers, share images) — those stay as-is.
-- Locked public surface, dashboard UI, or any other locked areas.
-- DNS records / domain registrar settings (I'll only advise; you control your registrar).
+1. **Update `SITE_URL` in `src/components/SEO/SeoHead.tsx`** to your chosen canonical (with or without `www`). This automatically updates canonical, `og:url`, and Twitter URLs on every page.
+2. **Update `index.html`**: canonical link, `og:url`, JSON-LD `url`, the noindex hostname guard (allow only the chosen primary host), and OG image if you pick a new one.
+3. **Update `public/sitemap.xml`** — rewrite all 50+ `<loc>` entries to the chosen canonical host.
+4. **Update `scripts/generate-sitemap.mjs`** — change the hardcoded base URL so future sitemap regenerations are consistent.
+5. **Update OG image references** in `SeoHead.tsx` `DEFAULT_IMAGE` and `index.html` `og:image` per your Q2 answer.
+6. **Verify `public/_redirects` and `public/_headers`** — `_redirects` currently has Netlify-style rules that Lovable hosting ignores anyway. I'll leave them (harmless) unless you want them removed.
 
-## Risk
+### What you'll need to do (I can't — these are platform/DNS, not code)
 
-Very low. Only static asset replacement + a `v=3 → v=4` string change in two files. No JS, no React, no DB.
+7. In **Project Settings → Domains** (Lovable):
+   - Make sure the chosen host (e.g. `www.weddingwaitress.com.au` OR `weddingwaitress.com.au`) is marked as **Primary**. Lovable auto-301s the other one to it.
+   - If `weddingwaitress.com` is listed: keep it connected so Lovable serves the 301 to the `.com.au` Primary.
+   - If `weddingwaitress.com` is NOT listed: at your **domain registrar** for `.com`, set up domain forwarding (301) → `https://www.weddingwaitress.com.au` (or whichever you chose).
+8. Re-submit `sitemap.xml` in **Google Search Console** under the chosen canonical property so Google re-indexes faster.
+
+### Out of scope
+- Page design, copy, components, dashboard, or any locked surface.
+- DNS records (you control your registrar; I'll only advise).
+
+Tell me your Q1 + Q2 picks and I'll execute.
