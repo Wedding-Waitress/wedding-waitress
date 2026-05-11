@@ -16,6 +16,10 @@ import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUpl
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 
+const getErrorMessage = (err: unknown, fallback: string) => (
+  err instanceof Error ? err.message : fallback
+);
+
 interface SignageGalleryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -69,7 +73,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     try {
       setDeleting(true);
       const { error } = await supabase
-        .from('signage_gallery_images' as any)
+        .from('signage_gallery_images' as never)
         .delete()
         .eq('id', target.id);
       if (error) throw error;
@@ -83,8 +87,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       removeImageFromGallery(target.id);
       toast({ title: 'Image deleted', description: target.name });
       setDeleteTarget(null);
-    } catch (err: any) {
-      toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
+    } catch (err) {
+      toast({ title: 'Delete failed', description: getErrorMessage(err, 'Could not delete image.'), variant: 'destructive' });
     } finally {
       setDeleting(false);
     }
@@ -132,11 +136,11 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       if (fileInputRef.current) fileInputRef.current.value = '';
       setShowUpload(false);
       await refetch();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Signage upload failed', err);
       toast({
         title: 'Upload failed',
-        description: err?.message ?? 'Could not optimize and upload the image.',
+        description: getErrorMessage(err, 'Could not optimize and upload the image.'),
         variant: 'destructive',
       });
     } finally {
