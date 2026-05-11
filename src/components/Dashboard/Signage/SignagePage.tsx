@@ -54,16 +54,17 @@ const PRINT_SIZES: ReadonlyArray<{
   dims: string;
   best: string;
   recommended?: boolean;
+  icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for large venue entrance signs' },
-  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true },
-  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs' },
-  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs' },
-  { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage' },
-  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards' },
-  { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards' },
-  { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards' },
-  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts' },
+  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for large venue entrance signs', icon: Presentation },
+  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: MonitorSmartphone },
+  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: ClipboardList },
+  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileImage },
+  { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage', icon: FileText },
+  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards', icon: CreditCard },
+  { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards', icon: PanelsTopLeft },
+  { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards', icon: Mail },
+  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts', icon: Badge },
 ];
 
 const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
