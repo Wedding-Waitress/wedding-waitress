@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2, FolderOpen } from 'lucide-react';
+import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 
 const CATEGORY_PRESETS = [
   'Asian Wedding',
@@ -19,7 +19,6 @@ const CATEGORY_PRESETS = [
   'Tropical',
 ];
 
-const MAX_BYTES = 50 * 1024 * 1024;
 const CONCURRENCY = 3;
 
 type RowStatus = 'queued' | 'uploading' | 'done' | 'failed';
@@ -35,17 +34,6 @@ interface Row {
   masterKB?: number;
   thumbKB?: number;
 }
-
-const prettifyFilename = (filename: string) => {
-  const noExt = filename.replace(/\.[^.]+$/, '');
-  return noExt
-    .replace(/[_\-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
-const randomToken = () => Math.random().toString(36).slice(2, 10);
 
 interface Props {
   defaultCategory?: string;
@@ -83,10 +71,10 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
         id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
         file,
         previewUrl: URL.createObjectURL(file),
-        name: prettifyFilename(file.name),
+        name: prettifySignageFilename(file.name),
         category: defaultCat || '',
-        status: file.size > MAX_BYTES ? 'failed' : 'queued',
-        error: file.size > MAX_BYTES ? `File >50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
+        status: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? 'failed' : 'queued',
+        error: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? `File >50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
       }));
       setRows((prev) => [...prev, ...newRows]);
     },
@@ -130,22 +118,9 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
     }
     updateRow(row.id, { status: 'uploading', error: undefined });
     try {
-      // 1. Upload original directly to storage (bypasses any request-size limits)
-      const ext = (row.file.name.match(/\.([a-zA-Z0-9]+)$/)?.[1] || 'png').toLowerCase();
-      const sourcePath = `sources/${Date.now()}-${randomToken()}.${ext}`;
-      const up = await supabase.storage
-        .from('signage-gallery')
-        .upload(sourcePath, row.file, { contentType: row.file.type, upsert: false });
-      if (up.error) throw up.error;
-
-      // 2. Ask the edge function to optimize + register the gallery row
-      const { data, error: fnErr } = await supabase.functions.invoke('optimize-signage-image', {
-        body: { sourcePath, name: row.name.trim(), category: row.category.trim() },
-      });
-      if (fnErr) throw fnErr;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      const masterKB = Math.round(((data as any)?.masterBytes ?? 0) / 1024);
-      const thumbKB = Math.round(((data as any)?.thumbBytes ?? 0) / 1024);
+      const result = await uploadSignageGalleryImage(row.file, row.name.trim(), row.category.trim());
+      const masterKB = Math.round(result.masterBytes / 1024);
+      const thumbKB = Math.round(result.thumbBytes / 1024);
       updateRow(row.id, { status: 'done', masterKB, thumbKB });
     } catch (err: any) {
       console.error('Bulk upload row failed', err);
@@ -378,8 +353,7 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
       )}
 
       <p className="text-xs text-muted-foreground">
-        Each file is sent straight from your browser to the optimizer (PNG → JPG Q92 print master at full pixel dimensions for A0
-        300 DPI, plus an 800px web thumbnail). Bypasses Lovable chat entirely. 3 files upload in parallel.
+        Each file is saved as the full-quality original for print, with an 800px web thumbnail generated in your browser. 3 files upload in parallel.
       </p>
     </div>
   );
