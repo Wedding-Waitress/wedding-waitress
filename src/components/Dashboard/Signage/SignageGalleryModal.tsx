@@ -16,6 +16,10 @@ import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUpl
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 
+const getErrorMessage = (err: unknown, fallback: string) => (
+  err instanceof Error ? err.message : fallback
+);
+
 interface SignageGalleryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -69,7 +73,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     try {
       setDeleting(true);
       const { error } = await supabase
-        .from('signage_gallery_images' as any)
+        .from('signage_gallery_images' as never)
         .delete()
         .eq('id', target.id);
       if (error) throw error;
@@ -83,8 +87,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       removeImageFromGallery(target.id);
       toast({ title: 'Image deleted', description: target.name });
       setDeleteTarget(null);
-    } catch (err: any) {
-      toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
+    } catch (err) {
+      toast({ title: 'Delete failed', description: getErrorMessage(err, 'Could not delete image.'), variant: 'destructive' });
     } finally {
       setDeleting(false);
     }
@@ -132,11 +136,11 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       if (fileInputRef.current) fileInputRef.current.value = '';
       setShowUpload(false);
       await refetch();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Signage upload failed', err);
       toast({
         title: 'Upload failed',
-        description: err?.message ?? 'Could not optimize and upload the image.',
+        description: getErrorMessage(err, 'Could not optimize and upload the image.'),
         variant: 'destructive',
       });
     } finally {
@@ -146,7 +150,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
-      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
+      <DialogContent className="relative max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
             <div className="flex items-center gap-2">
@@ -383,11 +387,15 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
             </div>
           </>
         )}
-      </DialogContent>
 
-      {deleteTarget && (
-        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-lg">
+        {deleteTarget && (
+          <div
+            className="absolute inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 pointer-events-auto"
+            onPointerDownCapture={(e) => e.stopPropagation()}
+            onMouseMoveCapture={(e) => e.stopPropagation()}
+            onClickCapture={(e) => e.stopPropagation()}
+          >
+            <div className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-lg">
             <h3 className="text-lg font-semibold text-foreground">Delete this image?</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               Once you delete <span className="font-semibold text-foreground">{deleteTarget.name}</span>, you can't go back. This will permanently remove the image from the gallery.
@@ -404,9 +412,10 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
               </Button>
             </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </DialogContent>
     </Dialog>
   );
 };
