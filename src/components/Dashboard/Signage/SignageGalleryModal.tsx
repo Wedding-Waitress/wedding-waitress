@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
@@ -58,18 +57,46 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const removeDeletedImageFromView = (imageId: string) => {
+    refetch({ keepCurrentData: true });
+  };
+
+  const storagePathsForDelete = useMemo(() => {
+    if (!deleteTarget) return [];
+
+    const toStoragePath = (url?: string | null) => {
+      if (!url) return null;
+      const marker = '/storage/v1/object/public/signage-gallery/';
+      const [, path] = url.split(marker);
+      return path ? decodeURIComponent(path.split('?')[0]) : null;
+    };
+
+    return Array.from(new Set([
+      toStoragePath(deleteTarget.image_url),
+      toStoragePath(deleteTarget.thumbnail_url),
+    ].filter(Boolean) as string[]));
+  }, [deleteTarget]);
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    const target = deleteTarget;
     try {
       setDeleting(true);
       const { error } = await supabase
         .from('signage_gallery_images' as any)
         .delete()
-        .eq('id', deleteTarget.id);
+        .eq('id', target.id);
       if (error) throw error;
-      toast({ title: 'Image deleted', description: deleteTarget.name });
+
+      if (storagePathsForDelete.length > 0) {
+        supabase.storage.from('signage-gallery').remove(storagePathsForDelete).then(({ error: storageError }) => {
+          if (storageError) console.warn('Signage gallery storage cleanup failed:', storageError);
+        });
+      }
+
+      toast({ title: 'Image deleted', description: target.name });
       setDeleteTarget(null);
-      await refetch();
+      removeDeletedImageFromView(target.id);
     } catch (err: any) {
       toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
     } finally {
@@ -312,8 +339,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="flex-1 min-h-0 h-full pr-3 [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-thumb]]:!bg-primary/60 hover:[&_[data-radix-scroll-area-thumb]]:!bg-primary">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
+                  <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
@@ -358,7 +385,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>
