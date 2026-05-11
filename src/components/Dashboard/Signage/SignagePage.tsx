@@ -66,6 +66,18 @@ const PRINT_SIZES: ReadonlyArray<{
   { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts' },
 ];
 
+const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
+  a0: { widthMm: 841, heightMm: 1189 },
+  a1: { widthMm: 594, heightMm: 841 },
+  a2: { widthMm: 420, heightMm: 594 },
+  a3: { widthMm: 297, heightMm: 420 },
+  a4: { widthMm: 210, heightMm: 297 },
+  a5: { widthMm: 148, heightMm: 210 },
+  dl: { widthMm: 99, heightMm: 210 },
+  postcard: { widthMm: 105, heightMm: 148 },
+  business: { widthMm: 90, heightMm: 55 },
+};
+
 // QR safety: enforce ≥35mm rendered size (real venue scannability).
 // A4 portrait width = 210mm → 35/210 ≈ 16.7% ; landscape width = 297mm → 35/297 ≈ 11.8%
 const MIN_QR_SIZE_PERCENT_PORTRAIT = 17;
@@ -164,12 +176,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   }, [settings, orientation, updateSettings]);
 
   const handleDownloadPDF = useCallback(async () => {
-    if (!settings || !selectedEvent) return;
+    if (!settings || !selectedEvent || !printSize) return;
+    const dims = PRINT_DIMENSIONS[printSize];
+    if (!dims) return;
     setExporting('pdf');
     try {
-      const isLandscape = orientation === 'landscape';
-      const widthMm = isLandscape ? 297 : 210;
-      const heightMm = isLandscape ? 210 : 297;
+      const { widthMm, heightMm } = dims;
 
       const customText: Record<string, string> = {};
       const customStyles: Record<string, any> = {};
@@ -181,10 +193,11 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         }
       });
 
-      const fileName = `WW-Sign-${selectedEvent.name}-${orientation === 'portrait' ? 'Portrait' : 'Landscape'}.pdf`;
+      const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
+      const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
       await exportInvitationPDF({
         backgroundUrl: settings.background_image_url || '',
-        orientation,
+        orientation: 'portrait',
         widthMm,
         heightMm,
         textZones: settings.text_zones as any,
@@ -194,14 +207,14 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         qrConfig: settings.qr_config,
         qrDataUrl: qrDataUrl || undefined,
       }, undefined, fileName);
-      toast({ title: 'PDF downloaded', description: 'Your QR seating sign PDF has been saved.' });
+      toast({ title: 'PDF downloaded', description: `Your ${sizeLabel} print-ready PDF has been saved.` });
     } catch (err) {
       console.error('Signage PDF export error', err);
       toast({ title: 'Export failed', description: 'Could not generate the PDF.', variant: 'destructive' });
     } finally {
       setExporting(null);
     }
-  }, [settings, selectedEvent, orientation, eventData, qrDataUrl]);
+  }, [settings, selectedEvent, printSize, eventData, qrDataUrl]);
 
   const handleDownloadPNG = useCallback(async () => {
     if (!settings || !selectedEvent) return;
@@ -385,6 +398,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           </div>
                           <span className="text-[11px] text-muted-foreground/80">{size.dims}</span>
                           <span className="text-[11px] text-foreground/70 leading-snug">{size.best}</span>
+                          {active && (
+                            <span className="text-[10px] font-medium text-primary mt-2">✓ Selected for export</span>
+                          )}
                         </button>
                       );
                     })}
@@ -405,6 +421,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   {!printSize && (
                     <p className="text-[11px] text-muted-foreground italic">Select a print size to enable download.</p>
                   )}
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    All exports are generated as high-resolution print-ready PDFs for professional printing.
+                  </p>
                 </div>
               </div>
             )}
