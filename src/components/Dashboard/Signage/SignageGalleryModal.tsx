@@ -111,7 +111,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               <Button
                 size="sm"
                 variant="outline"
-                className="ml-auto lv-premium-shade"
+                className="ml-auto mr-8 lv-premium-shade"
                 onClick={() => setShowUpload((s) => !s)}
               >
                 <Upload className="h-4 w-4 mr-1" />
