@@ -21,7 +21,7 @@ interface SeoHeadProps {
 }
 
 const SITE_URL = 'https://weddingwaitress.com.au';
-const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-logo.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-share-logo.png`;
 
 /**
  * Per-page SEO head. Renders title, meta description, canonical,
