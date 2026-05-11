@@ -83,6 +83,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState<null | 'pdf' | 'png'>(null);
+  const [printSize, setPrintSize] = useState<string | null>(null);
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
