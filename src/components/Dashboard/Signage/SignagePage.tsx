@@ -9,7 +9,7 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles } from 'lucide-react';
+import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
@@ -54,16 +54,17 @@ const PRINT_SIZES: ReadonlyArray<{
   dims: string;
   best: string;
   recommended?: boolean;
+  icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for large venue entrance signs' },
-  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true },
-  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs' },
-  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs' },
-  { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage' },
-  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards' },
-  { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards' },
-  { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards' },
-  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts' },
+  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for large venue entrance signs', icon: Presentation },
+  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: MonitorSmartphone },
+  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: ClipboardList },
+  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileImage },
+  { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage', icon: FileText },
+  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards', icon: CreditCard },
+  { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards', icon: PanelsTopLeft },
+  { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards', icon: Mail },
+  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts', icon: Badge },
 ];
 
 const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
@@ -378,32 +379,40 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {PRINT_SIZES.map((size) => {
                       const active = printSize === size.id;
+                      const Icon = size.icon;
                       return (
                         <button
                           key={size.id}
                           type="button"
                           onClick={() => setPrintSize(size.id)}
-                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md ${
+                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
                             active
-                              ? 'border-primary bg-[hsl(var(--primary)/0.08)] ring-2 ring-primary/30 shadow-md'
-                              : 'border-border bg-background hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.04)]'
+                              ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
+                              : 'border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md'
                           }`}
                           aria-pressed={active}
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span className={`text-sm font-semibold ${active ? 'text-primary' : 'text-foreground'}`}>
-                              {size.label}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <Icon className={`h-4 w-4 transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
+                              <span className={`text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
+                                {size.label}
+                              </span>
+                            </div>
                             {size.recommended && (
-                              <span className="mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 bg-[hsl(var(--primary)/0.14)] text-primary border border-primary/25 whitespace-nowrap">
+                              <span className={`mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
+                                active
+                                  ? 'bg-green-100 border-green-300 text-green-700'
+                                  : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
+                              }`}>
                                 ⭐ Most Popular
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-muted-foreground/80">{size.dims}</span>
-                          <span className="text-[11px] text-foreground/70 leading-snug">{size.best}</span>
+                          <span className={`text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
+                          <span className={`text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
                           {active && (
-                            <span className="text-[10px] font-medium text-primary mt-2">✓ Selected for export</span>
+                            <span className="text-[10px] font-medium text-green-700 mt-2">✓ Selected for export</span>
                           )}
                         </button>
                       );
