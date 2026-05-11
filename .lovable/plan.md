@@ -1,42 +1,31 @@
-## Print Size Cards — Visual Polish
+## Goal
+Decouple the Image Gallery used inside the Seating Chart Signs page from the Invitations gallery, rename it, fix the View-preview behaviour, and ship it empty so new seating-chart-sign designs can be uploaded later. No changes to Invitations & Cards or any other page.
 
-Scope: `src/components/Dashboard/Signage/SignagePage.tsx`. UI/styling only. No export, state, or logic changes.
+## Changes
 
-### 1. Add icons to `PRINT_SIZES`
+### 1. New dedicated gallery (separate from Invitations)
+- New DB table `signage_gallery_images` (same shape as `invitation_gallery_images`: `id, name, category, image_url, sort_order, created_at`) with RLS allowing public read + admin write — mirror policies of the invitation gallery table.
+- New storage bucket `signage-gallery` (public read), mirroring the invitation gallery bucket policies.
+- New hook `src/hooks/useSignageGallery.ts` — clone of `useInvitationGallery` but reading from `signage_gallery_images`.
+- New component `src/components/Dashboard/Signage/SignageGalleryModal.tsx` — clone of `InvitationGalleryModal` but:
+  - Title: "Seating Chart Sign Image Gallery".
+  - Count label uses `signage_gallery_images.length` (not invitation count).
+  - Uses `useSignageGallery`.
 
-Extend the lucide-react import (line 12) with:
-`Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge` (FileText already imported).
+### 2. Wire Signage page to the new gallery (without touching Invitations)
+- Add an optional prop `GalleryModalComponent?` (or `gallerySource: 'invitations' | 'signage'`) to `InvitationCardCustomizer`. Default behaviour stays exactly as today (Invitations page renders the existing `InvitationGalleryModal`).
+- In `SignagePage.tsx`, pass the new `SignageGalleryModal` so the Background tab → Image Gallery button opens the Seating Chart Sign gallery instead of the invitation gallery.
 
-Add an `icon` field on the type and on each entry:
+### 3. Fix View → preview rendering
+- In the new `SignageGalleryModal`, in the preview pane replace the current `max-h-[60vh] object-contain` image with a properly sized container that explicitly sets a min-height and uses `object-contain` inside a flex parent with `flex-1 min-h-[400px]`, so the previewed design always renders before "Use this image" is clicked. (Bug repro in the existing modal: preview area can collapse to 0 height when parent is constrained.)
 
-- a0 → Presentation
-- a1 → MonitorSmartphone
-- a2 → ClipboardList
-- a3 → FileImage
-- a4 → FileText
-- a5 → CreditCard
-- dl → PanelsTopLeft
-- postcard → Mail
-- business → Badge
+### 4. Empty starting state
+- Migration inserts no rows. Modal shows existing empty-state ("No images available yet"). Invitation gallery rows are untouched.
 
-### 2. Restyle each print-size card (lines 382–408)
+## Out of scope
+- Invitations & Cards page, its gallery, modal, hook, table, bucket — all unchanged.
+- Designer logic, PDF export, QR generation, sidebar, other pages, other DB tables.
 
-Card root classes:
-- Base: `lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px]`
-- Inactive: `border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md`
-- Active (green confirmed state): `border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md`
-
-Inside the card:
-- Title row: render `<Icon className="h-4 w-4 transition-all duration-200 {active ? 'text-green-600' : 'text-primary/70'}" />` next to the label.
-- Title: `text-green-700` when active, else `text-foreground`.
-- Dimensions line: `text-green-600/80` when active, else `text-muted-foreground/80`.
-- Helper "Best for…" line: `text-green-700/80` when active, else `text-foreground/70 leading-snug`.
-- "✓ Selected for export": `text-green-700` when active.
-
-Recommended badge:
-- Active: `bg-green-100 border-green-300 text-green-700`
-- Inactive: existing brown `bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25`
-- Add `transition-all duration-200 ease-out` to the badge.
-
-### Out of scope
-- PRINT_DIMENSIONS, handleDownloadPDF, exporter, preview, designer, mobile-specific redesign, orientation, recommended-usage cards below.
+## Technical notes
+- Migration adds: table `signage_gallery_images`, RLS policies (public SELECT, admin INSERT/UPDATE/DELETE via existing `has_role`), storage bucket `signage-gallery` + policies.
+- `InvitationCardCustomizer` change is additive (new optional prop, default = current `InvitationGalleryModal`) so Invitations page renders identically.
