@@ -150,7 +150,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
-      <DialogContent className="relative max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
+      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
             <div className="flex items-center gap-2">
