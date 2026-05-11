@@ -45,17 +45,7 @@ const prettifyFilename = (filename: string) => {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const idx = result.indexOf(',');
-      resolve(idx >= 0 ? result.slice(idx + 1) : result);
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
+const randomToken = () => Math.random().toString(36).slice(2, 10);
 
 interface Props {
   defaultCategory?: string;
@@ -140,11 +130,20 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
     }
     updateRow(row.id, { status: 'uploading', error: undefined });
     try {
-      const imageBase64 = await fileToBase64(row.file);
+      // 1. Upload original directly to storage (bypasses any request-size limits)
+      const ext = (row.file.name.match(/\.([a-zA-Z0-9]+)$/)?.[1] || 'png').toLowerCase();
+      const sourcePath = `sources/${Date.now()}-${randomToken()}.${ext}`;
+      const up = await supabase.storage
+        .from('signage-gallery')
+        .upload(sourcePath, row.file, { contentType: row.file.type, upsert: false });
+      if (up.error) throw up.error;
+
+      // 2. Ask the edge function to optimize + register the gallery row
       const { data, error: fnErr } = await supabase.functions.invoke('optimize-signage-image', {
-        body: { imageBase64, name: row.name.trim(), category: row.category.trim() },
+        body: { sourcePath, name: row.name.trim(), category: row.category.trim() },
       });
       if (fnErr) throw fnErr;
+      if ((data as any)?.error) throw new Error((data as any).error);
       const masterKB = Math.round(((data as any)?.masterBytes ?? 0) / 1024);
       const thumbKB = Math.round(((data as any)?.thumbBytes ?? 0) / 1024);
       updateRow(row.id, { status: 'done', masterKB, thumbKB });

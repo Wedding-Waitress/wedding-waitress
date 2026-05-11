@@ -1,9 +1,11 @@
 // Edge function: optimize-signage-image
-// Accepts a large PNG/JPG, produces:
-//   - Print master JPG (full pixel dimensions, quality 92)
-//   - Web thumbnail JPG (longest edge 800px, quality 75)
-// Uploads both to the `signage-gallery` storage bucket and inserts a row
-// into `signage_gallery_images`. Admin-only.
+// Accepts EITHER:
+//   - { sourcePath, name, category }  (preferred — file already uploaded to signage-gallery bucket under sources/)
+//   - { imageBase64, name, category } (legacy fallback for small images)
+// Produces:
+//   - Print master JPG (full pixel dimensions, quality 92)  -> originals/<slug>-<ts>.jpg
+//   - Web thumbnail JPG (longest edge 800px, quality 75)    -> thumbs/<slug>-<ts>.jpg
+// Inserts a row into `signage_gallery_images`. Admin-only.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Image } from "https://deno.land/x/imagescript@1.2.17/mod.ts";
@@ -60,30 +62,45 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = await req.json();
-    const { imageBase64, name, category } = body ?? {};
-    if (!imageBase64 || !name || !category) {
+    const body = await req.json().catch(() => ({}));
+    const { sourcePath, imageBase64, name, category } = body ?? {};
+
+    if (!name || !category) {
       return new Response(
-        JSON.stringify({ error: "Missing imageBase64, name, or category" }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
+        JSON.stringify({ error: "Missing name or category" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    if (!sourcePath && !imageBase64) {
+      return new Response(
+        JSON.stringify({ error: "Missing sourcePath or imageBase64" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    // Decode base64 -> bytes
-    const binary = atob(imageBase64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    // Load source bytes
+    let bytes: Uint8Array;
+    if (sourcePath) {
+      const { data: dl, error: dlErr } = await admin.storage
+        .from("signage-gallery")
+        .download(sourcePath);
+      if (dlErr || !dl) {
+        return new Response(
+          JSON.stringify({ error: `Failed to download sourcePath: ${dlErr?.message ?? "not found"}` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      bytes = new Uint8Array(await dl.arrayBuffer());
+    } else {
+      const binary = atob(imageBase64);
+      bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    }
 
-    // Decode image
+    // Decode + encode
     const img = await Image.decode(bytes);
-
-    // Print master: full size JPG quality 92
     const masterJpg = await img.encodeJPEG(92);
 
-    // Thumbnail: longest edge 800
     const longest = Math.max(img.width, img.height);
     const scale = longest > 800 ? 800 / longest : 1;
     const thumbW = Math.max(1, Math.round(img.width * scale));
@@ -98,24 +115,17 @@ Deno.serve(async (req) => {
 
     const upMaster = await admin.storage
       .from("signage-gallery")
-      .upload(masterPath, masterJpg, {
-        contentType: "image/jpeg",
-        upsert: true,
-      });
+      .upload(masterPath, masterJpg, { contentType: "image/jpeg", upsert: true });
     if (upMaster.error) throw upMaster.error;
 
     const upThumb = await admin.storage
       .from("signage-gallery")
-      .upload(thumbPath, thumbJpg, {
-        contentType: "image/jpeg",
-        upsert: true,
-      });
+      .upload(thumbPath, thumbJpg, { contentType: "image/jpeg", upsert: true });
     if (upThumb.error) throw upThumb.error;
 
     const masterUrl = admin.storage.from("signage-gallery").getPublicUrl(masterPath).data.publicUrl;
     const thumbUrl = admin.storage.from("signage-gallery").getPublicUrl(thumbPath).data.publicUrl;
 
-    // Determine sort order (append to end of category)
     const { data: maxRow } = await admin
       .from("signage_gallery_images")
       .select("sort_order")
@@ -138,6 +148,11 @@ Deno.serve(async (req) => {
       .single();
     if (insertErr) throw insertErr;
 
+    // Best-effort cleanup of source upload
+    if (sourcePath) {
+      admin.storage.from("signage-gallery").remove([sourcePath]).catch(() => {});
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -153,10 +168,7 @@ Deno.serve(async (req) => {
     console.error("optimize-signage-image error", err);
     return new Response(
       JSON.stringify({ error: (err as Error).message ?? String(err) }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
 });
