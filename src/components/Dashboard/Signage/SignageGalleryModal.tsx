@@ -182,9 +182,6 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 </div>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              Originals saved for print · 800px web thumbnails generated in browser · 3 parallel uploads · Auto-categorized from filename.
-            </p>
 
             {uploadMode === 'bulk' ? (
               <SignageBulkUploader ref={bulkRef} onAllDone={() => { refetch(); }} />
