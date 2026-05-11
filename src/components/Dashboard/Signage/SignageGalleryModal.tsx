@@ -11,22 +11,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers } from 'lucide-react';
 import { SignageBulkUploader } from './SignageBulkUploader';
+import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 
 interface SignageGalleryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelectImage: (imageUrl: string) => void;
 }
-
-const prettifyFilename = (filename: string) => {
-  const noExt = filename.replace(/\.[^.]+$/, '');
-  return noExt.replace(/[_\-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\b\w/g, (c) => c.toUpperCase());
-};
-const randomToken = () => Math.random().toString(36).slice(2, 10);
 
 export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   open,
@@ -62,7 +56,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   };
 
   const handleUpload = async () => {
-    const finalName = uploadName.trim() || (uploadFile ? prettifyFilename(uploadFile.name) : '');
+    const finalName = uploadName.trim() || (uploadFile ? prettifySignageFilename(uploadFile.name) : '');
     const finalCategory = uploadCategory.trim() || 'Uncategorized';
     if (!uploadFile) {
       toast({ title: 'Choose an image', description: 'Please select a PNG or JPG file first.', variant: 'destructive' });
@@ -72,31 +66,18 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       toast({ title: 'Name required', description: 'Give the design a name.', variant: 'destructive' });
       return;
     }
-    if (uploadFile.size > 50 * 1024 * 1024) {
+    if (uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES) {
       toast({ title: 'File too large', description: 'Maximum 50 MB per upload.', variant: 'destructive' });
       return;
     }
     try {
       setUploading(true);
-      // 1. Upload original to storage first (no Base64, no request-size limit)
-      const ext = (uploadFile.name.match(/\.([a-zA-Z0-9]+)$/)?.[1] || 'png').toLowerCase();
-      const sourcePath = `sources/${Date.now()}-${randomToken()}.${ext}`;
-      const up = await supabase.storage
-        .from('signage-gallery')
-        .upload(sourcePath, uploadFile, { contentType: uploadFile.type, upsert: false });
-      if (up.error) throw up.error;
-
-      // 2. Optimize + register
-      const { data, error: fnErr } = await supabase.functions.invoke('optimize-signage-image', {
-        body: { sourcePath, name: finalName, category: finalCategory },
-      });
-      if (fnErr) throw fnErr;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      const masterKB = Math.round(((data as any)?.masterBytes ?? 0) / 1024);
-      const thumbKB = Math.round(((data as any)?.thumbBytes ?? 0) / 1024);
+      const result = await uploadSignageGalleryImage(uploadFile, finalName, finalCategory);
+      const masterKB = Math.round(result.masterBytes / 1024);
+      const thumbKB = Math.round(result.thumbBytes / 1024);
       toast({
-        title: 'Uploaded & optimized',
-        description: `Print master ${masterKB} KB · thumbnail ${thumbKB} KB`,
+        title: 'Uploaded successfully',
+        description: `Original kept for print (${masterKB} KB)${thumbKB ? ` · thumbnail ${thumbKB} KB` : ''}`,
       });
       setUploadName('');
       setUploadCategory('');
@@ -203,7 +184,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Auto-converts PNG → JPG (quality 92, full pixel dimensions for A0 print) and generates an 800px web thumbnail. Max 50 MB.
+                  Saves your full-quality original for print and generates an 800px web thumbnail in the browser. Max 50 MB.
                 </p>
               </div>
             )}
