@@ -192,7 +192,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   />
                   <Button
                     onClick={handleUpload}
-                    disabled={uploading || !uploadFile || !uploadName.trim() || !uploadCategory.trim()}
+                    disabled={uploading || !uploadFile}
                     className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
                   >
                     {uploading ? (
