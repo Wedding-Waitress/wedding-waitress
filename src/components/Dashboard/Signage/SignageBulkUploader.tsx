@@ -20,6 +20,7 @@ const CATEGORY_PRESETS = [
 ];
 
 const CONCURRENCY = 3;
+const DEFAULT_BULK_CATEGORY = 'Uncategorized';
 
 type RowStatus = 'queued' | 'uploading' | 'done' | 'failed';
 
@@ -72,7 +73,7 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
         file,
         previewUrl: URL.createObjectURL(file),
         name: prettifySignageFilename(file.name),
-        category: defaultCat || '',
+        category: defaultCat.trim() || DEFAULT_BULK_CATEGORY,
         status: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? 'failed' : 'queued',
         error: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? `File >50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
       }));
@@ -131,19 +132,19 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
   const startUpload = async () => {
     if (running) return;
 
-    // Auto-apply default category to any queued row that has none
+    // Auto-apply default category to any queued row that has none.
+    // Match single upload behavior: blank category safely becomes Uncategorized.
     const trimmedDefault = defaultCat.trim();
-    if (trimmedDefault) {
-      setRows((prev) =>
-        prev.map((r) =>
-          r.status === 'queued' && !r.category.trim() ? { ...r, category: trimmedDefault } : r
-        )
-      );
-      // Sync ref immediately so the workers below see the patched rows
-      rowsRef.current = rowsRef.current.map((r) =>
-        r.status === 'queued' && !r.category.trim() ? { ...r, category: trimmedDefault } : r
-      );
-    }
+    const fallbackCategory = trimmedDefault || DEFAULT_BULK_CATEGORY;
+    setRows((prev) =>
+      prev.map((r) =>
+        r.status === 'queued' && !r.category.trim() ? { ...r, category: fallbackCategory } : r
+      )
+    );
+    // Sync ref immediately so the workers below see the patched rows
+    rowsRef.current = rowsRef.current.map((r) =>
+      r.status === 'queued' && !r.category.trim() ? { ...r, category: fallbackCategory } : r
+    );
 
     const queued = rowsRef.current.filter((r) => r.status === 'queued');
     if (queued.length === 0) {
@@ -154,8 +155,8 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
     const missing = queued.filter((r) => !r.name.trim() || !r.category.trim());
     if (missing.length > 0) {
       toast({
-        title: 'Category required',
-        description: `${missing.length} file(s) have no category. Type a default category at the top and click "Apply to all", or fill in each row.`,
+        title: 'Name required',
+        description: `${missing.length} file(s) need a design name before uploading.`,
         variant: 'destructive',
       });
       return;
