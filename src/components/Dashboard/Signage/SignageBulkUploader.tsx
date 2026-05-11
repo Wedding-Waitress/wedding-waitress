@@ -357,9 +357,12 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
         </ScrollArea>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        Each file is saved as the full-quality original for print, with an 800px web thumbnail generated in your browser. 3 files upload in parallel.
-      </p>
+      {rows.length === 0 && (
+        <p className="text-[11px] text-muted-foreground">
+          Originals saved for print · 800px web thumbnails generated in browser · 3 parallel uploads.
+        </p>
+      )}
+
     </div>
   );
 };
