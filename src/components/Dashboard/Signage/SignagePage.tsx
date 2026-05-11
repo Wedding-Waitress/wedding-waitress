@@ -28,6 +28,7 @@ const SIGNAGE_PRESET_ZONES: PresetZoneDef[] = [
   { field: 'date', label: 'Event Date', defaultText: '', getText: (ed) => ed.date || '' },
   { field: 'venue', label: 'Venue', defaultText: '', getText: (ed) => ed.venue || '' },
   { field: 'welcome_message', label: 'Welcome Message', defaultText: 'Please scan the QR code to find your table.', getText: () => 'Please scan the QR code to find your table.' },
+  { field: 'welcome_to_our_wedding', label: 'Welcome To Our Wedding', defaultText: 'Welcome To Our Wedding', getText: () => 'Welcome To Our Wedding' },
   { field: 'qr_instructions', label: 'QR Instructions', defaultText: 'Scan to find your seat', getText: () => 'Scan to find your seat' },
 ];
 
