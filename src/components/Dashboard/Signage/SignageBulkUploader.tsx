@@ -292,7 +292,7 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
 
       {/* Rows */}
       {rows.length > 0 && (
-        <ScrollArea className="h-[360px] rounded-lg border border-border bg-background">
+        <ScrollArea className="h-[160px] rounded-lg border border-border bg-background">
           <div className="divide-y divide-border">
             {rows.map((row) => (
               <div key={row.id} className="flex items-center gap-3 p-2">
