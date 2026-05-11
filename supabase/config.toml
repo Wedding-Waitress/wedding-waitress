@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.twilio-delivery-webhook]
 verify_jwt = false
+
+[functions.optimize-signage-image]
+verify_jwt = true
