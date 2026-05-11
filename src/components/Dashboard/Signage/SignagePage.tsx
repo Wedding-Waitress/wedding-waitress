@@ -398,6 +398,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           </div>
                           <span className="text-[11px] text-muted-foreground/80">{size.dims}</span>
                           <span className="text-[11px] text-foreground/70 leading-snug">{size.best}</span>
+                          {active && (
+                            <span className="text-[10px] font-medium text-primary mt-2">✓ Selected for export</span>
+                          )}
                         </button>
                       );
                     })}
@@ -418,6 +421,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   {!printSize && (
                     <p className="text-[11px] text-muted-foreground italic">Select a print size to enable download.</p>
                   )}
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    All exports are generated as high-resolution print-ready PDFs for professional printing.
+                  </p>
                 </div>
               </div>
             )}
