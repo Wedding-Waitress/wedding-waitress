@@ -328,7 +328,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             </div>
 
             {selectedEvent && (
-              <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-4 w-full lg:w-auto lg:whitespace-nowrap shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
+              <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-5 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
                 <div className="flex flex-col gap-1">
                   <h3 className="text-lg lg:text-xl font-semibold text-primary leading-tight">
                     Print &amp; Export Studio
@@ -340,15 +340,59 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                     Download your sign as a print-ready PDF.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    disabled={!settings || exporting !== null}
-                    onClick={handleDownloadPDF}
-                    className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
-                  >
-                    {exporting === 'pdf' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                    {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
-                  </button>
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <h4 className="text-sm font-semibold text-primary">Choose Print Size</h4>
+                    <span className="text-[11px] text-muted-foreground">Portrait orientation • Australian standard sizes</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                    {PRINT_SIZES.map((size) => {
+                      const active = printSize === size.id;
+                      return (
+                        <button
+                          key={size.id}
+                          type="button"
+                          onClick={() => setPrintSize(size.id)}
+                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all ${
+                            active
+                              ? 'border-primary bg-[hsl(var(--primary)/0.08)] ring-2 ring-primary/30 shadow-soft'
+                              : 'border-border bg-background hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.04)]'
+                          }`}
+                          aria-pressed={active}
+                        >
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <span className={`text-sm font-bold ${active ? 'text-primary' : 'text-foreground'}`}>
+                              {size.label}
+                            </span>
+                            {size.recommended && (
+                              <span className="text-[9px] uppercase tracking-wider font-semibold text-primary bg-[hsl(var(--primary)/0.12)] px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                ★ Recommended
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-muted-foreground font-medium">{size.dims}</span>
+                          <span className="text-[11px] text-muted-foreground/90 leading-snug">{size.best}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      disabled={!settings || exporting !== null || !printSize}
+                      onClick={handleDownloadPDF}
+                      className="lv-premium-shade inline-flex items-center gap-2 h-9 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                    >
+                      {exporting === 'pdf' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                      {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
+                    </button>
+                  </div>
+                  {!printSize && (
+                    <p className="text-[11px] text-muted-foreground italic">Select a print size to enable download.</p>
+                  )}
                 </div>
               </div>
             )}
