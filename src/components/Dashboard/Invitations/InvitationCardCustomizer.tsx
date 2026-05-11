@@ -198,6 +198,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   notesHelper,
   imageUploadFolder,
   storageBucket,
+  GalleryModalComponent,
 }) => {
   const activePresetZones = presetZones || PRESET_ZONES;
   const activePresetYPositions = presetYPositions || PRESET_Y_POSITIONS;
