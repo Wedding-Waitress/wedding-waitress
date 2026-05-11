@@ -42,6 +42,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bulkRef = useRef<SignageBulkUploaderHandle>(null);
+  const bulkDropRef = useRef<HTMLInputElement>(null);
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
