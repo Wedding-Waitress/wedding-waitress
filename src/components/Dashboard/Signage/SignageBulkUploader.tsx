@@ -66,12 +66,10 @@ interface Props {
   onAllDone?: () => void;
 }
 
-export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onAllDone }) => {
+export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(({ defaultCategory = '', onAllDone }, ref) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
-  const [defaultCat, setDefaultCat] = useState(defaultCategory);
   const [running, setRunning] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const rowsRef = useRef<Row[]>([]);
   useEffect(() => {
     rowsRef.current = rows;
@@ -98,23 +96,16 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
         file,
         previewUrl: URL.createObjectURL(file),
         name: prettifySignageFilename(file.name),
-        category: defaultCat.trim() || DEFAULT_BULK_CATEGORY,
+        category: autoCategorize(file.name),
         status: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? 'failed' : 'queued',
         error: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? `File >50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
       }));
       setRows((prev) => [...prev, ...newRows]);
     },
-    [defaultCat, toast]
+    [toast]
   );
 
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
-    },
-    [addFiles]
-  );
+  useImperativeHandle(ref, () => ({ addFiles }), [addFiles]);
 
   const updateRow = (id: string, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -131,11 +122,6 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
       prev.filter((r) => r.status === 'done').forEach((r) => URL.revokeObjectURL(r.previewUrl));
       return prev.filter((r) => r.status !== 'done');
     });
-
-  const applyDefaultCategoryToAll = () => {
-    if (!defaultCat.trim()) return;
-    setRows((prev) => prev.map((r) => (r.status === 'done' ? r : { ...r, category: defaultCat })));
-  };
 
   const uploadOne = async (row: Row) => {
     if (!row.name.trim() || !row.category.trim()) {
