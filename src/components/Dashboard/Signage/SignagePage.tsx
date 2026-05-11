@@ -28,6 +28,7 @@ const SIGNAGE_PRESET_ZONES: PresetZoneDef[] = [
   { field: 'date', label: 'Event Date', defaultText: '', getText: (ed) => ed.date || '' },
   { field: 'venue', label: 'Venue', defaultText: '', getText: (ed) => ed.venue || '' },
   { field: 'welcome_message', label: 'Welcome Message', defaultText: 'Please scan the QR code to find your table.', getText: () => 'Please scan the QR code to find your table.' },
+  { field: 'welcome_to_our_wedding', label: 'Welcome To Our Wedding', defaultText: 'Welcome To Our Wedding', getText: () => 'Welcome To Our Wedding' },
   { field: 'qr_instructions', label: 'QR Instructions', defaultText: 'Scan to find your seat', getText: () => 'Scan to find your seat' },
 ];
 
@@ -37,6 +38,7 @@ const SIGNAGE_PRESET_Y_POSITIONS: Record<string, number> = {
   date: 34,
   venue: 42,
   welcome_message: 54,
+  welcome_to_our_wedding: 60,
   qr_instructions: 66,
 };
 
@@ -44,6 +46,7 @@ const SIGNAGE_PRESET_STYLES: Record<string, { font_family: string; font_size: nu
   couple_names: { font_family: 'Great Vibes', font_size: 56 },
   event_name: { font_family: 'ET Emilia Grace Demo', font_size: 28 },
   welcome_message: { font_family: 'ET Emilia Grace Demo', font_size: 22 },
+  welcome_to_our_wedding: { font_family: 'Great Vibes', font_size: 36 },
   qr_instructions: { font_family: 'ET Emilia Grace Demo', font_size: 18 },
 };
 
@@ -110,7 +113,15 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     return {
       couple_names: coupleNames,
       event_name: selectedEvent.name || '',
-      date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
+      date: selectedEvent.date
+        ? (() => {
+            const [y, m, d] = selectedEvent.date.split('-').map(Number);
+            const dt = new Date(y, (m || 1) - 1, d || 1);
+            return isNaN(dt.getTime())
+              ? formatDisplayDate(selectedEvent.date)
+              : dt.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+          })()
+        : '',
       date_raw: selectedEvent.date || '',
       venue: selectedEvent.venue || '',
       time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
