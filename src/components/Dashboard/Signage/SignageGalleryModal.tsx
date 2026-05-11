@@ -242,25 +242,30 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
           </div>
         ) : (
           <>
-            <div className="relative w-[75%]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search images..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            {!isAdmin && (
+              <div className="relative w-[75%]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search images..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            )}
 
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
-                <TabsTrigger value="all">All</TabsTrigger>
-                {categories.map(category => (
-                  <TabsTrigger key={category} value={category}>
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              {!isAdmin && (
+                <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  {categories.map(category => (
+                    <TabsTrigger key={category} value={category}>
+                      {category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              )}
+
 
               <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
                 {loading ? (
