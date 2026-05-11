@@ -143,27 +143,13 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
   const startUpload = async () => {
     if (running) return;
 
-    // Auto-apply default category to any queued row that has none.
-    // Match single upload behavior: blank category safely becomes Uncategorized.
-    const trimmedDefault = defaultCat.trim();
-    const fallbackCategory = trimmedDefault || DEFAULT_BULK_CATEGORY;
-    setRows((prev) =>
-      prev.map((r) =>
-        r.status === 'queued' && !r.category.trim() ? { ...r, category: fallbackCategory } : r
-      )
-    );
-    // Sync ref immediately so the workers below see the patched rows
-    rowsRef.current = rowsRef.current.map((r) =>
-      r.status === 'queued' && !r.category.trim() ? { ...r, category: fallbackCategory } : r
-    );
-
     const queued = rowsRef.current.filter((r) => r.status === 'queued');
     if (queued.length === 0) {
       toast({ title: 'Nothing to upload', description: 'All rows are already processed.' });
       return;
     }
 
-    const missing = queued.filter((r) => !r.name.trim() || !r.category.trim());
+    const missing = queued.filter((r) => !r.name.trim());
     if (missing.length > 0) {
       toast({
         title: 'Name required',
