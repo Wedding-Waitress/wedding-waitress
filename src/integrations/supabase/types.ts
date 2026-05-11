@@ -2787,6 +2787,7 @@ export type Database = {
           image_url: string
           name: string
           sort_order: number
+          thumbnail_url: string | null
         }
         Insert: {
           category: string
@@ -2795,6 +2796,7 @@ export type Database = {
           image_url: string
           name: string
           sort_order?: number
+          thumbnail_url?: string | null
         }
         Update: {
           category?: string
@@ -2803,6 +2805,7 @@ export type Database = {
           image_url?: string
           name?: string
           sort_order?: number
+          thumbnail_url?: string | null
         }
         Relationships: []
       }
