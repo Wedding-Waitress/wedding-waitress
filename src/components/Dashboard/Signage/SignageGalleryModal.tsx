@@ -22,17 +22,11 @@ interface SignageGalleryModalProps {
   onSelectImage: (imageUrl: string) => void;
 }
 
-const fileToBase64 = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const idx = result.indexOf(',');
-      resolve(idx >= 0 ? result.slice(idx + 1) : result);
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
+const prettifyFilename = (filename: string) => {
+  const noExt = filename.replace(/\.[^.]+$/, '');
+  return noExt.replace(/[_\-]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/\b\w/g, (c) => c.toUpperCase());
+};
+const randomToken = () => Math.random().toString(36).slice(2, 10);
 
 export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   open,
@@ -68,8 +62,14 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   };
 
   const handleUpload = async () => {
-    if (!uploadFile || !uploadName.trim() || !uploadCategory.trim()) {
-      toast({ title: 'Missing fields', description: 'Provide a name, category, and image file.', variant: 'destructive' });
+    const finalName = uploadName.trim() || (uploadFile ? prettifyFilename(uploadFile.name) : '');
+    const finalCategory = uploadCategory.trim() || 'Uncategorized';
+    if (!uploadFile) {
+      toast({ title: 'Choose an image', description: 'Please select a PNG or JPG file first.', variant: 'destructive' });
+      return;
+    }
+    if (!finalName) {
+      toast({ title: 'Name required', description: 'Give the design a name.', variant: 'destructive' });
       return;
     }
     if (uploadFile.size > 50 * 1024 * 1024) {
@@ -78,15 +78,20 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     }
     try {
       setUploading(true);
-      const imageBase64 = await fileToBase64(uploadFile);
+      // 1. Upload original to storage first (no Base64, no request-size limit)
+      const ext = (uploadFile.name.match(/\.([a-zA-Z0-9]+)$/)?.[1] || 'png').toLowerCase();
+      const sourcePath = `sources/${Date.now()}-${randomToken()}.${ext}`;
+      const up = await supabase.storage
+        .from('signage-gallery')
+        .upload(sourcePath, uploadFile, { contentType: uploadFile.type, upsert: false });
+      if (up.error) throw up.error;
+
+      // 2. Optimize + register
       const { data, error: fnErr } = await supabase.functions.invoke('optimize-signage-image', {
-        body: {
-          imageBase64,
-          name: uploadName.trim(),
-          category: uploadCategory.trim(),
-        },
+        body: { sourcePath, name: finalName, category: finalCategory },
       });
       if (fnErr) throw fnErr;
+      if ((data as any)?.error) throw new Error((data as any).error);
       const masterKB = Math.round(((data as any)?.masterBytes ?? 0) / 1024);
       const thumbKB = Math.round(((data as any)?.thumbBytes ?? 0) / 1024);
       toast({
