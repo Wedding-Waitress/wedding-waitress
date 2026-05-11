@@ -38,6 +38,7 @@ const SIGNAGE_PRESET_Y_POSITIONS: Record<string, number> = {
   date: 34,
   venue: 42,
   welcome_message: 54,
+  welcome_to_our_wedding: 60,
   qr_instructions: 66,
 };
 
