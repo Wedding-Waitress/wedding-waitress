@@ -55,6 +55,27 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bulkRef = useRef<SignageBulkUploaderHandle>(null);
   const bulkDropRef = useRef<HTMLInputElement>(null);
+  const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      const { error } = await supabase
+        .from('signage_gallery_images' as any)
+        .delete()
+        .eq('id', deleteTarget.id);
+      if (error) throw error;
+      toast({ title: 'Image deleted', description: deleteTarget.name });
+      setDeleteTarget(null);
+      await refetch();
+    } catch (err: any) {
+      toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
