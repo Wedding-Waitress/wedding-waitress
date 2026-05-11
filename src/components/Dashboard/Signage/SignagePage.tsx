@@ -9,7 +9,7 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles } from 'lucide-react';
+import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
