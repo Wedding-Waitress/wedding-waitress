@@ -12,9 +12,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2 } from 'lucide-react';
 import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SignageGalleryModalProps {
   open: boolean;
@@ -44,6 +55,27 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bulkRef = useRef<SignageBulkUploaderHandle>(null);
   const bulkDropRef = useRef<HTMLInputElement>(null);
+  const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeleting(true);
+      const { error } = await supabase
+        .from('signage_gallery_images' as any)
+        .delete()
+        .eq('id', deleteTarget.id);
+      if (error) throw error;
+      toast({ title: 'Image deleted', description: deleteTarget.name });
+      setDeleteTarget(null);
+      await refetch();
+    } catch (err: any) {
+      toast({ title: 'Delete failed', description: err?.message ?? 'Could not delete image.', variant: 'destructive' });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -280,7 +312,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="flex-1 min-h-0 h-full pr-3">
+                  <ScrollArea className="flex-1 min-h-0 h-full pr-3 [&_[data-radix-scroll-area-scrollbar]]:!w-2.5 [&_[data-radix-scroll-area-thumb]]:!bg-primary/60 hover:[&_[data-radix-scroll-area-thumb]]:!bg-primary">
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
@@ -308,6 +340,15 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                               <Check className="h-3.5 w-3.5" />
                               Select
                             </button>
+                            {isAdmin && (
+                              <button
+                                onClick={() => setDeleteTarget(image)}
+                                className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Delete
+                              </button>
+                            )}
                           </div>
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             <p className="text-white text-xs font-medium truncate">
@@ -330,6 +371,27 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
           </>
         )}
       </DialogContent>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this image?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Once you delete <span className="font-semibold">{deleteTarget?.name}</span>, you can't go back. This will permanently remove the image from the gallery.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDelete(); }}
+              disabled={deleting}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };
