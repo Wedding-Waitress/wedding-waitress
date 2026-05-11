@@ -8,6 +8,7 @@ import {
   PresetZoneDef,
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
+import { SignageGalleryModal } from './SignageGalleryModal';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
@@ -537,6 +538,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               notesHelper="This is for your reference only and won't appear on the sign."
               imageUploadFolder="signage"
               storageBucket="invitations"
+              GalleryModalComponent={SignageGalleryModal}
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
