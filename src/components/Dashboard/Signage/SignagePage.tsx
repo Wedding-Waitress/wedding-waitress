@@ -176,12 +176,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   }, [settings, orientation, updateSettings]);
 
   const handleDownloadPDF = useCallback(async () => {
-    if (!settings || !selectedEvent) return;
+    if (!settings || !selectedEvent || !printSize) return;
+    const dims = PRINT_DIMENSIONS[printSize];
+    if (!dims) return;
     setExporting('pdf');
     try {
-      const isLandscape = orientation === 'landscape';
-      const widthMm = isLandscape ? 297 : 210;
-      const heightMm = isLandscape ? 210 : 297;
+      const { widthMm, heightMm } = dims;
 
       const customText: Record<string, string> = {};
       const customStyles: Record<string, any> = {};
@@ -193,10 +193,11 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         }
       });
 
-      const fileName = `WW-Sign-${selectedEvent.name}-${orientation === 'portrait' ? 'Portrait' : 'Landscape'}.pdf`;
+      const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
+      const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
       await exportInvitationPDF({
         backgroundUrl: settings.background_image_url || '',
-        orientation,
+        orientation: 'portrait',
         widthMm,
         heightMm,
         textZones: settings.text_zones as any,
@@ -206,14 +207,14 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         qrConfig: settings.qr_config,
         qrDataUrl: qrDataUrl || undefined,
       }, undefined, fileName);
-      toast({ title: 'PDF downloaded', description: 'Your QR seating sign PDF has been saved.' });
+      toast({ title: 'PDF downloaded', description: `Your ${sizeLabel} print-ready PDF has been saved.` });
     } catch (err) {
       console.error('Signage PDF export error', err);
       toast({ title: 'Export failed', description: 'Could not generate the PDF.', variant: 'destructive' });
     } finally {
       setExporting(null);
     }
-  }, [settings, selectedEvent, orientation, eventData, qrDataUrl]);
+  }, [settings, selectedEvent, printSize, eventData, qrDataUrl]);
 
   const handleDownloadPNG = useCallback(async () => {
     if (!settings || !selectedEvent) return;
