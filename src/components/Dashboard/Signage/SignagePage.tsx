@@ -46,6 +46,7 @@ const SIGNAGE_PRESET_STYLES: Record<string, { font_family: string; font_size: nu
   couple_names: { font_family: 'Great Vibes', font_size: 56 },
   event_name: { font_family: 'ET Emilia Grace Demo', font_size: 28 },
   welcome_message: { font_family: 'ET Emilia Grace Demo', font_size: 22 },
+  welcome_to_our_wedding: { font_family: 'Great Vibes', font_size: 36 },
   qr_instructions: { font_family: 'ET Emilia Grace Demo', font_size: 18 },
 };
 
