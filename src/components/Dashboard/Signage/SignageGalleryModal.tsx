@@ -12,8 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers } from 'lucide-react';
-import { SignageBulkUploader } from './SignageBulkUploader';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen } from 'lucide-react';
+import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 
 interface SignageGalleryModalProps {
@@ -42,6 +42,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const bulkRef = useRef<SignageBulkUploaderHandle>(null);
+  const bulkDropRef = useRef<HTMLInputElement>(null);
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -122,8 +124,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         </DialogHeader>
 
         {isAdmin && showUpload && !previewImage && (
-          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
+          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <Button
                 size="sm"
                 variant={uploadMode === 'bulk' ? 'default' : 'outline'}
@@ -142,50 +144,71 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 <Upload className="h-4 w-4 mr-1" />
                 Single Upload
               </Button>
-            </div>
 
-            {uploadMode === 'bulk' ? (
-              <SignageBulkUploader onAllDone={() => { refetch(); }} />
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Design name (e.g. Asian Wedding – Chinese Lantern Floral)"
-                    value={uploadName}
-                    onChange={(e) => setUploadName(e.target.value)}
-                    disabled={uploading}
-                  />
-                  <Input
-                    placeholder="Category (e.g. Asian Wedding, Floral, Modern)"
-                    value={uploadCategory}
-                    onChange={(e) => setUploadCategory(e.target.value)}
-                    disabled={uploading}
-                  />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              {uploadMode === 'bulk' ? (
+                <div
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (e.dataTransfer.files?.length) bulkRef.current?.addFiles(e.dataTransfer.files);
+                  }}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={() => bulkDropRef.current?.click()}
+                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤50 MB)</p>
                   <input
-                    ref={fileInputRef}
+                    ref={bulkDropRef}
                     type="file"
                     accept="image/png,image/jpeg"
-                    onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-                    disabled={uploading}
-                    className="text-sm"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) bulkRef.current?.addFiles(e.target.files);
+                      e.target.value = '';
+                    }}
                   />
-                  <Button
-                    onClick={handleUpload}
-                    disabled={uploading || !uploadFile}
-                    className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
-                  >
-                    {uploading ? (
-                      <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
-                    ) : (
-                      <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
-                    )}
-                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Saves your full-quality original for print and generates an 800px web thumbnail in the browser. Max 50 MB.
-                </p>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs font-medium truncate">
+                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤50 MB)'}
+                  </p>
+                </div>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Originals saved for print · 800px web thumbnails generated in browser · 3 parallel uploads · Auto-categorized from filename.
+            </p>
+
+            {uploadMode === 'bulk' ? (
+              <SignageBulkUploader ref={bulkRef} onAllDone={() => { refetch(); }} />
+            ) : (
+              <div className="flex flex-col gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <Button
+                  onClick={handleUpload}
+                  disabled={uploading || !uploadFile}
+                  className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade self-start"
+                >
+                  {uploading ? (
+                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
+                  ) : (
+                    <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                  )}
+                </Button>
               </div>
             )}
           </div>
@@ -219,25 +242,30 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
           </div>
         ) : (
           <>
-            <div className="relative w-[75%]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search images..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            {!isAdmin && (
+              <div className="relative w-[75%]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search images..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            )}
 
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
-                <TabsTrigger value="all">All</TabsTrigger>
-                {categories.map(category => (
-                  <TabsTrigger key={category} value={category}>
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              {!isAdmin && (
+                <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  {categories.map(category => (
+                    <TabsTrigger key={category} value={category}>
+                      {category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              )}
+
 
               <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
                 {loading ? (
@@ -260,7 +288,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
-                          className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
+                          className="group relative aspect-[4/5] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
                         >
                           <img
                             src={image.thumbnail_url || image.image_url}

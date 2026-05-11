@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2, FolderOpen } from 'lucide-react';
+import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 
 const CATEGORY_PRESETS = [
@@ -21,6 +21,31 @@ const CATEGORY_PRESETS = [
 
 const CONCURRENCY = 3;
 const DEFAULT_BULK_CATEGORY = 'Uncategorized';
+
+// Smart auto-categorization from filename keywords.
+const CATEGORY_KEYWORDS: Array<{ category: string; patterns: RegExp[] }> = [
+  { category: 'Asian Wedding', patterns: [/asian/i, /chinese/i, /japanese/i, /korean/i, /lantern/i, /dragon/i, /bamboo/i] },
+  { category: 'Indian Wedding', patterns: [/indian/i, /hindu/i, /mehndi/i, /sangeet/i, /mandala/i, /paisley/i] },
+  { category: 'Persian Wedding', patterns: [/persian/i, /iranian/i, /sofreh/i] },
+  { category: 'Floral', patterns: [/floral/i, /flower/i, /bloom/i, /rose/i, /peony/i, /cherry|sakura/i, /botanical/i] },
+  { category: 'Luxury / Gold', patterns: [/gold/i, /luxury/i, /royal/i, /baroque/i, /ornate/i] },
+  { category: 'Modern / Minimal', patterns: [/modern/i, /minimal/i, /clean/i, /simple/i, /geometric/i] },
+  { category: 'Rustic', patterns: [/rustic/i, /wood/i, /barn/i, /burlap/i, /kraft/i] },
+  { category: 'Vintage', patterns: [/vintage/i, /retro/i, /antique/i, /victorian/i] },
+  { category: 'Tropical', patterns: [/tropical/i, /palm/i, /beach/i, /hawaii/i] },
+  { category: 'Classic / Elegant', patterns: [/classic/i, /elegant/i, /traditional/i, /formal/i] },
+];
+
+const autoCategorize = (filename: string): string => {
+  for (const { category, patterns } of CATEGORY_KEYWORDS) {
+    if (patterns.some((p) => p.test(filename))) return category;
+  }
+  return DEFAULT_BULK_CATEGORY;
+};
+
+export interface SignageBulkUploaderHandle {
+  addFiles: (files: FileList | File[]) => void;
+}
 
 type RowStatus = 'queued' | 'uploading' | 'done' | 'failed';
 
@@ -41,12 +66,10 @@ interface Props {
   onAllDone?: () => void;
 }
 
-export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onAllDone }) => {
+export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(({ defaultCategory = '', onAllDone }, ref) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Row[]>([]);
-  const [defaultCat, setDefaultCat] = useState(defaultCategory);
   const [running, setRunning] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const rowsRef = useRef<Row[]>([]);
   useEffect(() => {
     rowsRef.current = rows;
@@ -73,23 +96,16 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
         file,
         previewUrl: URL.createObjectURL(file),
         name: prettifySignageFilename(file.name),
-        category: defaultCat.trim() || DEFAULT_BULK_CATEGORY,
+        category: autoCategorize(file.name),
         status: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? 'failed' : 'queued',
         error: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? `File >50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
       }));
       setRows((prev) => [...prev, ...newRows]);
     },
-    [defaultCat, toast]
+    [toast]
   );
 
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
-    },
-    [addFiles]
-  );
+  useImperativeHandle(ref, () => ({ addFiles }), [addFiles]);
 
   const updateRow = (id: string, patch: Partial<Row>) =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -106,11 +122,6 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
       prev.filter((r) => r.status === 'done').forEach((r) => URL.revokeObjectURL(r.previewUrl));
       return prev.filter((r) => r.status !== 'done');
     });
-
-  const applyDefaultCategoryToAll = () => {
-    if (!defaultCat.trim()) return;
-    setRows((prev) => prev.map((r) => (r.status === 'done' ? r : { ...r, category: defaultCat })));
-  };
 
   const uploadOne = async (row: Row) => {
     if (!row.name.trim() || !row.category.trim()) {
@@ -132,27 +143,13 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
   const startUpload = async () => {
     if (running) return;
 
-    // Auto-apply default category to any queued row that has none.
-    // Match single upload behavior: blank category safely becomes Uncategorized.
-    const trimmedDefault = defaultCat.trim();
-    const fallbackCategory = trimmedDefault || DEFAULT_BULK_CATEGORY;
-    setRows((prev) =>
-      prev.map((r) =>
-        r.status === 'queued' && !r.category.trim() ? { ...r, category: fallbackCategory } : r
-      )
-    );
-    // Sync ref immediately so the workers below see the patched rows
-    rowsRef.current = rowsRef.current.map((r) =>
-      r.status === 'queued' && !r.category.trim() ? { ...r, category: fallbackCategory } : r
-    );
-
     const queued = rowsRef.current.filter((r) => r.status === 'queued');
     if (queued.length === 0) {
       toast({ title: 'Nothing to upload', description: 'All rows are already processed.' });
       return;
     }
 
-    const missing = queued.filter((r) => !r.name.trim() || !r.category.trim());
+    const missing = queued.filter((r) => !r.name.trim());
     if (missing.length > 0) {
       toast({
         title: 'Name required',
@@ -199,54 +196,11 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-2 flex flex-col gap-2">
-      {/* Compact toolbar: default category + dropzone + apply */}
-      <div className="flex flex-col sm:flex-row gap-2 items-stretch">
-        <Input
-          placeholder="Default category (e.g. Asian Wedding)"
-          value={defaultCat}
-          onChange={(e) => setDefaultCat(e.target.value)}
-          list="signage-cat-presets"
-          disabled={running}
-          className="h-9 sm:max-w-[260px]"
-        />
-        <datalist id="signage-cat-presets">
-          {CATEGORY_PRESETS.map((c) => (
-            <option key={c} value={c} />
-          ))}
-        </datalist>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={applyDefaultCategoryToAll}
-          disabled={running || !defaultCat.trim()}
-          className="lv-premium-shade h-9"
-        >
-          Apply to all
-        </Button>
-        <div
-          onDrop={onDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-1.5 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[36px]"
-          onClick={() => inputRef.current?.click()}
-        >
-          <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-          <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤50 MB)</p>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/png,image/jpeg"
-            multiple
-            className="hidden"
-            onChange={(e) => {
-              if (e.target.files?.length) addFiles(e.target.files);
-              e.target.value = '';
-            }}
-          />
-        </div>
-      </div>
+      <datalist id="signage-cat-presets">
+        {CATEGORY_PRESETS.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
 
       {/* Stats + controls */}
       {rows.length > 0 && (
@@ -365,4 +319,6 @@ export const SignageBulkUploader: React.FC<Props> = ({ defaultCategory = '', onA
 
     </div>
   );
-};
+});
+SignageBulkUploader.displayName = 'SignageBulkUploader';
+
