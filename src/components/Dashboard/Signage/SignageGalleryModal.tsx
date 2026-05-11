@@ -230,7 +230,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
             </div>
 
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-4">
+              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
                 <TabsTrigger value="all">All</TabsTrigger>
                 {categories.map(category => (
                   <TabsTrigger key={category} value={category}>
