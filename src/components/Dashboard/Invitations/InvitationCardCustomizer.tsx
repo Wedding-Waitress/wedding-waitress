@@ -756,14 +756,19 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         </CardContent>
       </Card>
 
-      <InvitationGalleryModal
-        open={galleryModalOpen}
-        onOpenChange={setGalleryModalOpen}
-        onSelectImage={async (imageUrl) => {
-          await handleSettingChange('background_image_url', imageUrl);
-          toast({ title: "Image Selected", description: "Gallery image has been applied" });
-        }}
-      />
+      {(() => {
+        const GalleryModal = GalleryModalComponent || InvitationGalleryModal;
+        return (
+          <GalleryModal
+            open={galleryModalOpen}
+            onOpenChange={setGalleryModalOpen}
+            onSelectImage={async (imageUrl) => {
+              await handleSettingChange('background_image_url', imageUrl);
+              toast({ title: "Image Selected", description: "Gallery image has been applied" });
+            }}
+          />
+        );
+      })()}
     </>
   );
 };
