@@ -136,7 +136,7 @@ export const uploadInvitationGalleryImage = async (
 
   // Smart auto-categorization (best-effort; never blocks upload).
   try {
-    const imageId = (insertedRow as { id: string }).id;
+    const imageId = (insertedRow as unknown as { id: string }).id;
     const { data: classifyData } = await supabase.functions.invoke('classify-invitation-image', {
       body: { imageUrl: masterUrl, filename: file.name },
     });
