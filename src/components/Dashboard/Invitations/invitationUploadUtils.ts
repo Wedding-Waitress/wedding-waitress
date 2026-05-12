@@ -134,7 +134,7 @@ export const uploadInvitationGalleryImage = async (
     throw insertError ?? new Error('Insert failed');
   }
 
-  // Smart auto-categorization (best-effort; never blocks upload).
+  // Smart auto-categorization (best-effort; never blocks upload). Single category only.
   try {
     const imageId = (insertedRow as unknown as { id: string }).id;
     const { data: classifyData } = await supabase.functions.invoke('classify-invitation-image', {
@@ -143,12 +143,18 @@ export const uploadInvitationGalleryImage = async (
     const detected: string[] = Array.isArray((classifyData as any)?.categories)
       ? ((classifyData as any).categories as unknown[]).map((c) => String(c).trim()).filter(Boolean)
       : [];
-    const finalCategories = Array.from(new Set([category, ...detected].filter((c) => c && c !== 'Uncategorized')));
-    if (finalCategories.length) {
-      await assignCategoriesToImage(imageId, finalCategories);
-    }
+    // Prefer detected[0] (AI), else admin-picked category, else Uncategorized.
+    const single = detected[0] || category || 'Uncategorized';
+    await replaceImageCategories(imageId, [single]);
   } catch (classifyErr) {
     console.warn('Invitation auto-categorization skipped', classifyErr);
+    // Ensure at least the admin-picked category is set.
+    try {
+      const imageId = (insertedRow as unknown as { id: string }).id;
+      await replaceImageCategories(imageId, [category || 'Uncategorized']);
+    } catch (assignErr) {
+      console.warn('Invitation category assignment fallback failed', assignErr);
+    }
   }
 
   return {
@@ -160,37 +166,34 @@ export const uploadInvitationGalleryImage = async (
 const slugifyCategory = (name: string) =>
   name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'category';
 
+// Single-category enforcement: always wipe existing rows, then insert at most one.
 export const assignCategoriesToImage = async (imageId: string, categoryNames: string[]) => {
   const unique = Array.from(new Set(categoryNames.map((c) => c.trim()).filter(Boolean)));
   if (!unique.length) return;
+  const name = unique[0]; // single category only
 
-  // Upsert each category, then collect ids.
-  const ids: string[] = [];
-  for (const name of unique) {
-    const { data: upserted, error: upsertErr } = await supabase
+  let categoryId: string | null = null;
+  const { data: upserted, error: upsertErr } = await supabase
+    .from('invitation_categories' as any)
+    .upsert({ name, slug: slugifyCategory(name) }, { onConflict: 'name' })
+    .select('id')
+    .single();
+  if (!upsertErr && (upserted as any)?.id) {
+    categoryId = (upserted as any).id;
+  } else {
+    const { data: existing } = await supabase
       .from('invitation_categories' as any)
-      .upsert({ name, slug: slugifyCategory(name) }, { onConflict: 'name' })
       .select('id')
-      .single();
-    if (upsertErr) {
-      // fallback: try fetch existing
-      const { data: existing } = await supabase
-        .from('invitation_categories' as any)
-        .select('id')
-        .eq('name', name)
-        .maybeSingle();
-      if ((existing as any)?.id) ids.push((existing as any).id);
-      continue;
-    }
-    if ((upserted as any)?.id) ids.push((upserted as any).id);
+      .eq('name', name)
+      .maybeSingle();
+    if ((existing as any)?.id) categoryId = (existing as any).id;
   }
+  if (!categoryId) return;
 
-  if (!ids.length) return;
+  await supabase.from('invitation_image_categories' as any).delete().eq('image_id', imageId);
   await supabase
     .from('invitation_image_categories' as any)
-    .upsert(ids.map((category_id) => ({ image_id: imageId, category_id })), {
-      onConflict: 'image_id,category_id',
-    });
+    .insert({ image_id: imageId, category_id: categoryId });
 };
 
 export const replaceImageCategories = async (imageId: string, categoryNames: string[]) => {
