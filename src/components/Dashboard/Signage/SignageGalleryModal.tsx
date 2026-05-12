@@ -32,7 +32,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error, removeImageFromGallery, refetch } = useSignageGallery();
+  const { images, categoriesWithCounts, loading, error, removeImageFromGallery, refetch } = useSignageGallery();
   const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,6 +51,28 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const bulkDropRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [categorizeOpenId, setCategorizeOpenId] = useState<string | null>(null);
+  const [categorizeMode, setCategorizeMode] = useState<'list' | 'create'>('list');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [assigningCategory, setAssigningCategory] = useState(false);
+
+  const handleAssignCategory = async (image: SignageGalleryImage, categoryName: string) => {
+    const name = categoryName.trim();
+    if (!name || assigningCategory) return;
+    try {
+      setAssigningCategory(true);
+      await replaceImageCategories(image.id, [name]);
+      toast({ title: 'Category updated', description: `${image.name} → ${name}` });
+      setCategorizeOpenId(null);
+      setCategorizeMode('list');
+      setNewCategoryName('');
+      await refetch();
+    } catch (err) {
+      toast({ title: 'Update failed', description: err instanceof Error ? err.message : 'Could not assign category.', variant: 'destructive' });
+    } finally {
+      setAssigningCategory(false);
+    }
+  };
 
   const storagePathsForDelete = useMemo(() => {
     if (!deleteTarget) return [];
