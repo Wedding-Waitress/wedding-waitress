@@ -1,0 +1,1 @@
+DELETE FROM public.invitation_gallery_images;
