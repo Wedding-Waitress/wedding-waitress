@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.optimize-signage-image]
 verify_jwt = true
+
+[functions.purge-invitation-gallery]
+verify_jwt = true
