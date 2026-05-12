@@ -117,9 +117,12 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     }
   };
 
+  const showCategoryDropdown = !previewImage && images.length > 0 && categoriesWithCounts.length > 1;
+  const effectiveCategory = showCategoryDropdown ? selectedCategory : 'all';
+
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || img.category === selectedCategory;
+    const matchesCategory = effectiveCategory === 'all' || img.categories.includes(effectiveCategory);
     return matchesSearch && matchesCategory;
   });
 
