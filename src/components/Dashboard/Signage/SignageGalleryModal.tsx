@@ -7,13 +7,14 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2 } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2, Tag, Plus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
-import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
+import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
