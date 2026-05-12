@@ -391,9 +391,6 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         {deleteTarget && (
           <div
             className="absolute inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 pointer-events-auto"
-            onPointerDownCapture={(e) => e.stopPropagation()}
-            onMouseMoveCapture={(e) => e.stopPropagation()}
-            onClickCapture={(e) => e.stopPropagation()}
           >
             <div className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-lg">
             <h3 className="text-lg font-semibold text-foreground">Delete this image?</h3>
