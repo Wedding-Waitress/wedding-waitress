@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useInvitationGallery, InvitationGalleryImage } from '@/hooks/useInvitationGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +31,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error, removeImageFromGallery, refetch } = useInvitationGallery();
+  const { images, categoriesWithCounts, loading, error, removeImageFromGallery, refetch } = useInvitationGallery();
   const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,9 +94,12 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
     }
   };
 
+  const showCategoryDropdown = !previewImage && images.length > 0 && categoriesWithCounts.length > 1;
+  const effectiveCategory = showCategoryDropdown ? selectedCategory : 'all';
+
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || img.category === selectedCategory;
+    const matchesCategory = effectiveCategory === 'all' || img.categories.includes(effectiveCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -152,12 +155,31 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
     <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
+          <DialogTitle className="flex items-center gap-2 flex-wrap max-sm:gap-1">
             <div className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-primary" />
               Invitation Image Gallery
             </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
+
+            {showCategoryDropdown && (
+              <div className="order-3 sm:order-none sm:mx-auto w-full sm:w-auto sm:min-w-[200px] sm:max-w-[260px]">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-9 text-sm font-normal bg-background">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[120] max-h-[60vh]">
+                    <SelectItem value="all">All Categories ({images.length})</SelectItem>
+                    {categoriesWithCounts.map(({ name, count }) => (
+                      <SelectItem key={name} value={name}>
+                        {name} ({count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {isAdmin && !previewImage && (
               <Button
                 size="sm"
@@ -300,84 +322,71 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               </div>
             )}
 
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              {!isAdmin && (
-                <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  {categories.map(category => (
-                    <TabsTrigger key={category} value={category}>
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              )}
-
-              <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
-                {loading ? (
-                  <div className="flex items-center justify-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                ) : error ? (
-                  <div className="flex items-center justify-center h-64 text-destructive">
-                    {error}
-                  </div>
-                ) : filteredImages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-                    <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
-                    <p>No images available yet</p>
-                    <p className="text-sm">Gallery images will be added by the admin</p>
-                  </div>
-                ) : (
-                  <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
-                      {filteredImages.map(image => (
-                        <div
-                          key={image.id}
-                          className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
-                        >
-                          <img
-                            src={image.thumbnail_url || image.image_url}
-                            alt={image.name}
-                            loading="lazy"
-                            className="w-full h-full object-contain"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+            <div className="flex-1 flex flex-col min-h-0 mt-2">
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-64 text-destructive">
+                  {error}
+                </div>
+              ) : filteredImages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                  <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
+                  <p>No images available yet</p>
+                  <p className="text-sm">Gallery images will be added by the admin</p>
+                </div>
+              ) : (
+                <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
+                    {filteredImages.map(image => (
+                      <div
+                        key={image.id}
+                        className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
+                      >
+                        <img
+                          src={image.thumbnail_url || image.image_url}
+                          alt={image.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                          <button
+                            onClick={() => setPreviewImage(image)}
+                            className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleSelectImage(image)}
+                            className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            Select
+                          </button>
+                          {isAdmin && (
                             <button
-                              onClick={() => setPreviewImage(image)}
-                              className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                              onClick={() => setDeleteTarget(image)}
+                              className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
                             >
-                              <Eye className="h-3.5 w-3.5" />
-                              View
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
                             </button>
-                            <button
-                              onClick={() => handleSelectImage(image)}
-                              className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
-                            >
-                              <Check className="h-3.5 w-3.5" />
-                              Select
-                            </button>
-                            {isAdmin && (
-                              <button
-                                onClick={() => setDeleteTarget(image)}
-                                className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                            <p className="text-white text-xs font-medium truncate">
-                              {image.name}
-                            </p>
-                          </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <p className="text-white text-xs font-medium truncate">
+                            {image.name}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </TabsContent>
-            </Tabs>
+                </div>
+              )}
+            </div>
 
             <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
               <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4 lv-premium-shade" onClick={() => onOpenChange(false)}>
