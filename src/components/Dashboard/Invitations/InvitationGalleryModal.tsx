@@ -321,84 +321,71 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               </div>
             )}
 
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              {!isAdmin && (
-                <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  {categories.map(category => (
-                    <TabsTrigger key={category} value={category}>
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              )}
-
-              <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
-                {loading ? (
-                  <div className="flex items-center justify-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                ) : error ? (
-                  <div className="flex items-center justify-center h-64 text-destructive">
-                    {error}
-                  </div>
-                ) : filteredImages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-                    <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
-                    <p>No images available yet</p>
-                    <p className="text-sm">Gallery images will be added by the admin</p>
-                  </div>
-                ) : (
-                  <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
-                      {filteredImages.map(image => (
-                        <div
-                          key={image.id}
-                          className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
-                        >
-                          <img
-                            src={image.thumbnail_url || image.image_url}
-                            alt={image.name}
-                            loading="lazy"
-                            className="w-full h-full object-contain"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+            <div className="flex-1 flex flex-col min-h-0 mt-2">
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-64 text-destructive">
+                  {error}
+                </div>
+              ) : filteredImages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                  <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
+                  <p>No images available yet</p>
+                  <p className="text-sm">Gallery images will be added by the admin</p>
+                </div>
+              ) : (
+                <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
+                    {filteredImages.map(image => (
+                      <div
+                        key={image.id}
+                        className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
+                      >
+                        <img
+                          src={image.thumbnail_url || image.image_url}
+                          alt={image.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                          <button
+                            onClick={() => setPreviewImage(image)}
+                            className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleSelectImage(image)}
+                            className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            Select
+                          </button>
+                          {isAdmin && (
                             <button
-                              onClick={() => setPreviewImage(image)}
-                              className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                              onClick={() => setDeleteTarget(image)}
+                              className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
                             >
-                              <Eye className="h-3.5 w-3.5" />
-                              View
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
                             </button>
-                            <button
-                              onClick={() => handleSelectImage(image)}
-                              className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
-                            >
-                              <Check className="h-3.5 w-3.5" />
-                              Select
-                            </button>
-                            {isAdmin && (
-                              <button
-                                onClick={() => setDeleteTarget(image)}
-                                className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                            <p className="text-white text-xs font-medium truncate">
-                              {image.name}
-                            </p>
-                          </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <p className="text-white text-xs font-medium truncate">
+                            {image.name}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </TabsContent>
-            </Tabs>
+                </div>
+              )}
+            </div>
 
             <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
               <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4 lv-premium-shade" onClick={() => onOpenChange(false)}>
