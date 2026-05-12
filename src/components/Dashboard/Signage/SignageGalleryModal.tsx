@@ -7,13 +7,14 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2 } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2, Tag, Plus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
-import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
+import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
@@ -31,7 +32,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error, removeImageFromGallery, refetch } = useSignageGallery();
+  const { images, categoriesWithCounts, loading, error, removeImageFromGallery, refetch } = useSignageGallery();
   const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +51,28 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const bulkDropRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [categorizeOpenId, setCategorizeOpenId] = useState<string | null>(null);
+  const [categorizeMode, setCategorizeMode] = useState<'list' | 'create'>('list');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [assigningCategory, setAssigningCategory] = useState(false);
+
+  const handleAssignCategory = async (image: SignageGalleryImage, categoryName: string) => {
+    const name = categoryName.trim();
+    if (!name || assigningCategory) return;
+    try {
+      setAssigningCategory(true);
+      await replaceImageCategories(image.id, [name]);
+      toast({ title: 'Category updated', description: `${image.name} → ${name}` });
+      setCategorizeOpenId(null);
+      setCategorizeMode('list');
+      setNewCategoryName('');
+      await refetch();
+    } catch (err) {
+      toast({ title: 'Update failed', description: err instanceof Error ? err.message : 'Could not assign category.', variant: 'destructive' });
+    } finally {
+      setAssigningCategory(false);
+    }
+  };
 
   const storagePathsForDelete = useMemo(() => {
     if (!deleteTarget) return [];
@@ -94,9 +117,12 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     }
   };
 
+  const showCategoryDropdown = !previewImage && images.length > 0 && categoriesWithCounts.length > 1;
+  const effectiveCategory = showCategoryDropdown ? selectedCategory : 'all';
+
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || img.category === selectedCategory;
+    const matchesCategory = effectiveCategory === 'all' || img.categories.includes(effectiveCategory);
     return matchesSearch && matchesCategory;
   });
 
@@ -152,12 +178,31 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
+          <DialogTitle className="flex items-center gap-2 flex-wrap max-sm:gap-1">
             <div className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-primary" />
               Seating Chart Sign Image Gallery
             </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
+
+            {showCategoryDropdown && (
+              <div className="order-3 sm:order-none sm:mx-auto w-full sm:w-auto sm:min-w-[200px] sm:max-w-[260px]">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-9 text-sm font-normal bg-background">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[120] max-h-[60vh]">
+                    <SelectItem value="all">All Categories ({images.length})</SelectItem>
+                    {categoriesWithCounts.map(({ name, count }) => (
+                      <SelectItem key={name} value={name}>
+                        {name} ({count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {isAdmin && !previewImage && (
               <Button
                 size="sm"
@@ -300,85 +345,166 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               </div>
             )}
 
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              {!isAdmin && (
-                <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  {categories.map(category => (
-                    <TabsTrigger key={category} value={category}>
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              )}
-
-
-              <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
-                {loading ? (
-                  <div className="flex items-center justify-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                ) : error ? (
-                  <div className="flex items-center justify-center h-64 text-destructive">
-                    {error}
-                  </div>
-                ) : filteredImages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-                    <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
-                    <p>No images available yet</p>
-                    <p className="text-sm">Gallery images will be added by the admin</p>
-                  </div>
-                ) : (
-                  <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
-                      {filteredImages.map(image => (
-                        <div
-                          key={image.id}
-                          className="group relative aspect-[4/5] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
-                        >
-                          <img
-                            src={image.thumbnail_url || image.image_url}
-                            alt={image.name}
-                            loading="lazy"
-                            className="w-full h-full object-contain"
-                          />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+            <div className="flex-1 flex flex-col min-h-0 mt-2">
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-64 text-destructive">
+                  {error}
+                </div>
+              ) : filteredImages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                  <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
+                  <p>No images available yet</p>
+                  <p className="text-sm">Gallery images will be added by the admin</p>
+                </div>
+              ) : (
+                <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
+                    {filteredImages.map(image => (
+                      <div
+                        key={image.id}
+                        className="group relative aspect-[4/5] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
+                      >
+                        <img
+                          src={image.thumbnail_url || image.image_url}
+                          alt={image.name}
+                          loading="lazy"
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                          <button
+                            onClick={() => setPreviewImage(image)}
+                            className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleSelectImage(image)}
+                            className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+                          >
+                            <Check className="h-3.5 w-3.5" />
+                            Select
+                          </button>
+                          {isAdmin && (
                             <button
-                              onClick={() => setPreviewImage(image)}
-                              className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                              onClick={() => setDeleteTarget(image)}
+                              className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
                             >
-                              <Eye className="h-3.5 w-3.5" />
-                              View
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Delete
                             </button>
-                            <button
-                              onClick={() => handleSelectImage(image)}
-                              className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+                          )}
+                          {isAdmin && (
+                            <Popover
+                              open={categorizeOpenId === image.id}
+                              onOpenChange={(o) => {
+                                setCategorizeOpenId(o ? image.id : null);
+                                if (!o) { setCategorizeMode('list'); setNewCategoryName(''); }
+                              }}
                             >
-                              <Check className="h-3.5 w-3.5" />
-                              Select
-                            </button>
-                            {isAdmin && (
-                              <button
-                                onClick={() => setDeleteTarget(image)}
-                                className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
+                              <PopoverTrigger asChild>
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-1.5 bg-amber-600 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-amber-700 transition-colors"
+                                >
+                                  <Tag className="h-3.5 w-3.5" />
+                                  Categorize
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-64 p-2 z-[130]"
+                                align="center"
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                            <p className="text-white text-xs font-medium truncate">
-                              {image.name}
-                            </p>
-                          </div>
+                                {categorizeMode === 'list' ? (
+                                  <>
+                                    <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                                      Assign to category
+                                    </div>
+                                    <div className="max-h-56 overflow-y-auto">
+                                      {categoriesWithCounts.length === 0 && (
+                                        <div className="px-2 py-2 text-xs text-muted-foreground">No categories yet</div>
+                                      )}
+                                      {categoriesWithCounts.map(({ name, count }) => {
+                                        const isCurrent = image.categories.includes(name);
+                                        return (
+                                          <button
+                                            key={name}
+                                            disabled={assigningCategory || isCurrent}
+                                            onClick={() => handleAssignCategory(image, name)}
+                                            className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 text-sm rounded-md text-left hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed ${isCurrent ? 'bg-muted/60' : ''}`}
+                                          >
+                                            <span className="truncate">{name}</span>
+                                            <span className="text-xs text-muted-foreground">{count}{isCurrent ? ' ✓' : ''}</span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                    <div className="border-t border-border my-1" />
+                                    <button
+                                      onClick={() => { setCategorizeMode('create'); setNewCategoryName(''); }}
+                                      className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md text-left text-primary hover:bg-muted"
+                                    >
+                                      <Plus className="h-3.5 w-3.5" />
+                                      Create New Category
+                                    </button>
+                                  </>
+                                ) : (
+                                  <div className="flex flex-col gap-2 p-1">
+                                    <label className="text-xs font-semibold text-muted-foreground">New category name</label>
+                                    <Input
+                                      autoFocus
+                                      value={newCategoryName}
+                                      onChange={(e) => setNewCategoryName(e.target.value)}
+                                      placeholder="e.g. Welcome Sign"
+                                      className="h-9"
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && newCategoryName.trim()) {
+                                          e.preventDefault();
+                                          handleAssignCategory(image, newCategoryName);
+                                        }
+                                      }}
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="lv-premium-shade"
+                                        disabled={assigningCategory}
+                                        onClick={() => { setCategorizeMode('list'); setNewCategoryName(''); }}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
+                                        disabled={assigningCategory || !newCategoryName.trim()}
+                                        onClick={() => handleAssignCategory(image, newCategoryName)}
+                                      >
+                                        {assigningCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </PopoverContent>
+                            </Popover>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          <p className="text-white text-xs font-medium truncate">
+                            {image.name}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </TabsContent>
-            </Tabs>
+                </div>
+              )}
+            </div>
 
             <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
               <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4 lv-premium-shade" onClick={() => onOpenChange(false)}>
