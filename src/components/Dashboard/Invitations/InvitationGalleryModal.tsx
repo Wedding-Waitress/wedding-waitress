@@ -31,7 +31,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error, removeImageFromGallery, refetch } = useInvitationGallery();
+  const { images, categoriesWithCounts, loading, error, removeImageFromGallery, refetch } = useInvitationGallery();
   const { isAdmin } = useIsAdmin();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
