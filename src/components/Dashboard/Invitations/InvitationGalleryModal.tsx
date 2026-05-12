@@ -154,12 +154,31 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
     <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
+          <DialogTitle className="flex items-center gap-2 flex-wrap max-sm:gap-1">
             <div className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-primary" />
               Invitation Image Gallery
             </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
+
+            {showCategoryDropdown && (
+              <div className="order-3 sm:order-none sm:mx-auto w-full sm:w-auto sm:min-w-[200px] sm:max-w-[260px]">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-9 text-sm font-normal bg-background">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[120] max-h-[60vh]">
+                    <SelectItem value="all">All Categories ({images.length})</SelectItem>
+                    {categoriesWithCounts.map(({ name, count }) => (
+                      <SelectItem key={name} value={name}>
+                        {name} ({count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {isAdmin && !previewImage && (
               <Button
                 size="sm"
