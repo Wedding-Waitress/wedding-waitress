@@ -1632,6 +1632,27 @@ export type Database = {
           },
         ]
       }
+      invitation_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       invitation_designs: {
         Row: {
           created_at: string
@@ -1718,6 +1739,39 @@ export type Database = {
           thumbnail_url?: string | null
         }
         Relationships: []
+      }
+      invitation_image_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          image_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          image_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          image_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_image_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "invitation_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitation_image_categories_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "invitation_gallery_images"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invitation_templates: {
         Row: {
