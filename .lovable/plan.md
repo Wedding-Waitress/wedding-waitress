@@ -1,68 +1,47 @@
-# Invitation Gallery — One-Time Uncategorized Cleanup
+## Invitation Gallery — Manual Admin Categorize Control
 
-## Scope
-- Targets ONLY the 107 images currently in `Uncategorized`.
-- Already-categorized images (Floral 175, Glamour 66, Baby Shower 16, Religious 13, Islamic 12, Wedding 11, Celebrations 7, Birthday 5, Tropical 3, Cultural 3) are NOT touched.
-- Single-category-only enforcement (each image lives in exactly one category).
-- No UI changes to dropdown, counts, modal layout, thumbnails, or styling.
+Replace the AI batch reclassify flow with a per-image, admin-only manual categorize control.
 
-## Approach: Admin-triggered Edge Function (one-time)
+### 1. Remove AI Reclassify
+In `src/components/Dashboard/Invitations/InvitationGalleryModal.tsx`:
+- Delete the `Reclassify Uncategorized (N)` button block (header).
+- Remove `reclassifying` state, `handleReclassify`, `uncategorizedCount` (no longer needed for the button), and the `Sparkles` icon import.
+- Delete the edge function directory `supabase/functions/reclassify-uncategorized-invitations/` and its entry in `supabase/config.toml`.
 
-New edge function `reclassify-uncategorized-invitations` (admin-only, JWT verified):
+Single-category enforcement (one image = one category) and existing upload-time auto-classification stay untouched.
 
-1. Loads every image whose only category is `Uncategorized` (or has none).
-2. For each image, calls Lovable AI Gateway (Gemini 2.5 Flash, vision) with the master image URL + filename hint.
-3. Model returns ONE single best category from the allowlist.
-4. Per image, in order:
-   - `DELETE FROM invitation_image_categories WHERE image_id = $1` (guarantees single-category rule).
-   - Upsert chosen category into `invitation_categories` (creates new ones on demand).
-   - Insert ONE row in `invitation_image_categories`.
-5. Small concurrency (5 in flight, ~200ms gap), retry on 429.
-6. Returns `{ processed, perCategory, stillUncategorized, failed }`.
+### 2. New Per-Card "Categorize" Button (admin only)
+On each image card hover overlay, below the existing `View / Select / Delete` buttons, add a fourth button **Categorize** (visible only when `isAdmin === true`).
 
-Admin-only **"Reclassify Uncategorized (N)"** button shown next to the dropdown when N > 0; auto-hides at 0. One click runs the function with toast progress, then refreshes.
+Clicking it opens a small Popover anchored to the card containing:
 
-## Single-Category Rule (Enforcement)
+```text
+[ Search/scroll list of existing categories ]
+  Floral (175)
+  Glamour (66)
+  Wedding (11)
+  ...
+  Uncategorized (107)
+─────────────────────
++ Create New Category
+```
 
-- Classifier prompt returns `{"category": "X"}` (string, not array).
-- Server validates against allowlist; falls back to filename hint; final fallback `Uncategorized`.
-- Always wipe existing rows for the image before inserting the new one.
-- Existing upload classifier (`classify-invitation-image`) switched to single-category mode so future uploads can never appear in multiple filters.
+- Selecting an existing category → calls `replaceImageCategories(imageId, [name])` from `invitationUploadUtils.ts` (already wipes existing rows, inserts one). On success: toast, optimistic local update, `refetch()`.
+- Clicking **+ Create New Category** swaps the popover body to a small input + Save / Cancel row. On Save:
+  1. Insert into `invitation_categories` (name trimmed, unique-safe via `upsert` on name).
+  2. Call `replaceImageCategories(imageId, [newName])`.
+  3. Toast, refetch (counts + dropdown update automatically since `useInvitationGallery` recomputes from images).
 
-## Final Category Allowlist
+### 3. Behavior Rules
+- Admin-only — non-admins never see the Categorize button or popover.
+- Single-category-only — replacement always wipes prior assignments (already enforced by `replaceImageCategories`).
+- Live updates — after assignment, the gallery refetches; the header dropdown counts and the `Uncategorized` count update automatically.
+- Applies to ALL images, not just uncategorized ones.
+- Modal layout, header dropdown, thumbnail grid, styling, counts all remain exactly as-is.
 
-Existing kept: Baby Shower, Birthday, Celebrations, Cultural, Floral, Glamour, Islamic, Religious, Tropical, Wedding.
+### Files to Edit
+- `src/components/Dashboard/Invitations/InvitationGalleryModal.tsx` — remove reclassify UI/logic; add Categorize button + Popover (using existing `@/components/ui/popover`).
+- `supabase/config.toml` — remove the `reclassify-uncategorized-invitations` function entry.
+- `supabase/functions/reclassify-uncategorized-invitations/` — delete folder.
 
-New added: **Asian, Chinese, Christmas, Elegant, Luxury, Minimal, Vintage, Kids**.
-
-Removed from earlier draft (per user): ~~Neutral~~, ~~Gold~~, ~~Frame Borders~~ — folded into Elegant / Luxury / Floral / Minimal.
-
-Fallback: Uncategorized (only if AI + filename both fail).
-
-Dedup rules to avoid fragmentation:
-- Wedding-floral → Floral (visual dominance wins).
-- Gold luxury frame → Luxury.
-- Beige/blank minimalist → Minimal.
-- Quran/mosque → Islamic (not Religious).
-- Christmas tree/wreath → Christmas (not Celebrations).
-- Chinese double-happiness/lanterns → Chinese (not Asian unless pan-Asian).
-- Decorative-only border designs → Elegant or Floral based on dominant motif.
-
-## Files
-
-- New: `supabase/functions/reclassify-uncategorized-invitations/index.ts`
-- Edit: `supabase/functions/classify-invitation-image/index.ts` — return single category for future uploads.
-- Edit: `src/components/Dashboard/Invitations/InvitationGalleryModal.tsx` — admin-only "Reclassify Uncategorized (N)" button next to dropdown, hidden when N=0.
-- Edit: `src/components/Dashboard/Invitations/invitationUploadUtils.ts` — `assignCategoriesToImage` always wipes + inserts one row.
-- No new DB tables, no migration (categories created on demand).
-
-## Performance
-
-- Runs once on demand (~107 vision calls, ~2–4 minutes).
-- Saved permanently. Gallery open path unchanged.
-
-## Out of scope
-
-- Re-classifying the 391 already-categorized images.
-- Bulk admin merge/move tools.
-- Any visual/layout changes.
+No DB migration required — `invitation_categories` and `invitation_image_categories` tables already support insert/replace through existing client code.
