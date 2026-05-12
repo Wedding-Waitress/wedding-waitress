@@ -96,9 +96,11 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || img.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || img.categories.includes(selectedCategory);
     return matchesSearch && matchesCategory;
   });
+
+  const showCategoryDropdown = !previewImage && images.length > 0 && categoriesWithCounts.length > 1;
 
   const handleSelectImage = (image: InvitationGalleryImage) => {
     onSelectImage(image.image_url);
