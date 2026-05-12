@@ -117,21 +117,70 @@ export const uploadSignageGalleryImage = async (
     .maybeSingle();
 
   const sortOrder = (((maxRow as any)?.sort_order ?? -1) as number) + 1;
-  const { error: insertError } = await supabase.from('signage_gallery_images' as any).insert({
-    name,
-    category,
-    image_url: masterUrl,
-    thumbnail_url: thumbUrl,
-    sort_order: sortOrder,
-  });
+  const { data: insertedRow, error: insertError } = await supabase
+    .from('signage_gallery_images' as any)
+    .insert({
+      name,
+      category,
+      image_url: masterUrl,
+      thumbnail_url: thumbUrl,
+      sort_order: sortOrder,
+    })
+    .select('id')
+    .single();
 
-  if (insertError) {
+  if (insertError || !insertedRow) {
     if (uploadedPaths.length) await supabase.storage.from('signage-gallery').remove(uploadedPaths);
-    throw insertError;
+    throw insertError ?? new Error('Insert failed');
+  }
+
+  try {
+    const imageId = (insertedRow as unknown as { id: string }).id;
+    await replaceImageCategories(imageId, [category || 'Uncategorized']);
+  } catch (assignErr) {
+    console.warn('Signage category assignment failed', assignErr);
   }
 
   return {
     masterBytes: file.size,
     thumbBytes,
   };
+};
+
+const slugifyCategory = (name: string) =>
+  name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'category';
+
+// Single-category enforcement: always wipe existing rows, then insert at most one.
+export const assignCategoriesToImage = async (imageId: string, categoryNames: string[]) => {
+  const unique = Array.from(new Set(categoryNames.map((c) => c.trim()).filter(Boolean)));
+  if (!unique.length) return;
+  const name = unique[0];
+
+  let categoryId: string | null = null;
+  const { data: upserted, error: upsertErr } = await supabase
+    .from('signage_categories' as any)
+    .upsert({ name, slug: slugifyCategory(name) }, { onConflict: 'name' })
+    .select('id')
+    .single();
+  if (!upsertErr && (upserted as any)?.id) {
+    categoryId = (upserted as any).id;
+  } else {
+    const { data: existing } = await supabase
+      .from('signage_categories' as any)
+      .select('id')
+      .eq('name', name)
+      .maybeSingle();
+    if ((existing as any)?.id) categoryId = (existing as any).id;
+  }
+  if (!categoryId) return;
+
+  await supabase.from('signage_image_categories' as any).delete().eq('image_id', imageId);
+  await supabase
+    .from('signage_image_categories' as any)
+    .insert({ image_id: imageId, category_id: categoryId });
+};
+
+export const replaceImageCategories = async (imageId: string, categoryNames: string[]) => {
+  await supabase.from('signage_image_categories' as any).delete().eq('image_id', imageId);
+  if (categoryNames.length) await assignCategoriesToImage(imageId, categoryNames);
 };
