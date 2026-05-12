@@ -1,53 +1,27 @@
-## Goal
+I checked Supabase fresh:
 
-Make the **Invitations & Cards → Image Gallery** behave exactly like the **Seating Chart Signs → Image Gallery**: same admin-only Bulk/Single Upload tools, same admin-only delete-on-hover with "cannot be undone" confirmation modal, same scrollbar, same category tabs hidden for admin. Only you (`naderelalfy1977@gmail.com`, with `admin` role) will see the upload + delete controls.
+- `public.invitation_gallery_images` still has 410 rows.
+- The `invitation-gallery` Supabase Storage bucket currently shows 0 stored objects, so the visible gallery items are coming from database records, not remaining bucket files.
+- The previously created purge Edge Function has no logs, which means it was not successfully invoked/run from the app or dashboard.
 
-## Backend changes
+Best quickest solution:
 
-1. **Add columns to `invitation_gallery_images`**
-   - `thumbnail_url text` (nullable) — for the optimized 800px thumbnail
-   - (`sort_order` already exists)
+1. Run a single targeted database purge for only `public.invitation_gallery_images`.
+   - This removes all 410 Invitation Image Gallery entries at once.
+   - It does not touch seating chart signs, place cards, event data, guest data, invitations created by users, or any other page/section.
 
-2. **Create storage bucket `invitation-gallery`** (public read), with admin-only insert/update/delete RLS policies (mirror `signage-gallery`).
+2. Verify immediately after the purge:
+   - Confirm the table count is 0.
+   - The Invitation Image Gallery should then show “0 Total Designs” / empty gallery.
 
-3. **New edge function `optimize-invitation-image`**
-   - Exact copy of `optimize-signage-image`, but writes to `invitation-gallery` bucket and inserts into `invitation_gallery_images`.
-   - Same admin gate: requires `user_roles` row with `role='admin'`.
-   - Same flow: master JPG (q92) → `originals/`, thumbnail 800px JPG (q75) → `thumbs/`.
+3. No temporary button is needed for this immediate cleanup.
+   - The one-click admin button is only useful if you expect to bulk-clear the gallery again later.
+   - For now, the fastest and safest path is a direct targeted database delete.
 
-4. **RLS for `invitation_gallery_images`**
-   - Public SELECT (already public-readable).
-   - Admin-only INSERT/UPDATE/DELETE via `has_role(auth.uid(),'admin')`.
+Technical detail:
 
-## Frontend changes
+```sql
+DELETE FROM public.invitation_gallery_images;
+```
 
-5. **`src/hooks/useInvitationGallery.ts`**
-   - Add `thumbnail_url` to interface.
-   - Add `removeImageFromGallery(id)` and `refetch()` (mirror `useSignageGallery`).
-
-6. **New `src/components/Dashboard/Invitations/invitationUploadUtils.ts`**
-   - Mirror of `signageUploadUtils.ts` but invokes `optimize-invitation-image` and uploads to `invitation-gallery` bucket.
-
-7. **New `src/components/Dashboard/Invitations/InvitationBulkUploader.tsx`**
-   - Mirror of `SignageBulkUploader.tsx`, using the invitation upload utils.
-
-8. **`src/components/Dashboard/Invitations/InvitationGalleryModal.tsx`** — full rewrite to mirror `SignageGalleryModal.tsx`:
-   - "Admin Upload" button in header (visible only when `useIsAdmin().isAdmin === true`).
-   - Bulk Upload + Single Upload modes with drag-and-drop, same UI as Signage.
-   - Hide search bar + category tabs when admin (same as Signage).
-   - Replace `ScrollArea` with the same native `overflow-y-scroll custom-scrollbar [scrollbar-gutter:stable]` container Signage uses → restores the visible scrollbar.
-   - Add admin-only Delete button on hover with the same in-modal confirmation overlay ("Cannot be undone" → Cancel / Delete), reusing the working pattern from Signage (no problematic event-stop handlers).
-   - Use `image.thumbnail_url || image.image_url` for grid thumbnails for fast loading.
-   - Apply `lv-premium-shade` to all new buttons (per project rule).
-
-## Out of scope
-
-- No changes to the public/non-admin gallery experience beyond using thumbnails when available.
-- No changes to Signage gallery.
-- No category list changes — uses the same fixed list as Signage uploader.
-
-## Technical notes
-
-- Admin gating: frontend uses `useIsAdmin` (checks `user_roles.role='admin'`); backend edge function re-validates the same. Your account has both the email match and the admin role, so you're the only one who sees/uses these controls.
-- The edge function deploys automatically.
-- The `invitation_gallery_images` schema only adds one nullable column, so existing 416 designs continue to work (they'll fall back to `image_url` until they're re-optimized).
+This is intentionally scoped to the invitation gallery table only.
