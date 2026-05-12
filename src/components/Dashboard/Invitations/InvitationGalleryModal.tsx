@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,10 +7,18 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInvitationGallery, InvitationGalleryImage } from '@/hooks/useInvitationGallery';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft } from 'lucide-react';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
+import { useToast } from '@/hooks/use-toast';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2 } from 'lucide-react';
+import { InvitationBulkUploader, InvitationBulkUploaderHandle } from './InvitationBulkUploader';
+import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage } from './invitationUploadUtils';
+import { supabase } from '@/integrations/supabase/client';
+
+const getErrorMessage = (err: unknown, fallback: string) => (
+  err instanceof Error ? err.message : fallback
+);
 
 interface InvitationGalleryModalProps {
   open: boolean;
@@ -23,10 +31,68 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
   onOpenChange,
   onSelectImage,
 }) => {
-  const { images, categories, loading, error } = useInvitationGallery();
+  const { images, categories, loading, error, removeImageFromGallery, refetch } = useInvitationGallery();
+  const { isAdmin } = useIsAdmin();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewImage, setPreviewImage] = useState<InvitationGalleryImage | null>(null);
+
+  // Admin upload state
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('bulk');
+  const [uploadName, setUploadName] = useState('');
+  const [uploadCategory, setUploadCategory] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const bulkRef = useRef<InvitationBulkUploaderHandle>(null);
+  const bulkDropRef = useRef<HTMLInputElement>(null);
+  const [deleteTarget, setDeleteTarget] = useState<InvitationGalleryImage | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const storagePathsForDelete = useMemo(() => {
+    if (!deleteTarget) return [];
+
+    const toStoragePath = (url?: string | null) => {
+      if (!url) return null;
+      const marker = '/storage/v1/object/public/invitation-gallery/';
+      const [, path] = url.split(marker);
+      return path ? decodeURIComponent(path.split('?')[0]) : null;
+    };
+
+    return Array.from(new Set([
+      toStoragePath(deleteTarget.image_url),
+      toStoragePath(deleteTarget.thumbnail_url),
+    ].filter(Boolean) as string[]));
+  }, [deleteTarget]);
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    const target = deleteTarget;
+    try {
+      setDeleting(true);
+      const { error } = await supabase
+        .from('invitation_gallery_images' as never)
+        .delete()
+        .eq('id', target.id);
+      if (error) throw error;
+
+      if (storagePathsForDelete.length > 0) {
+        supabase.storage.from('invitation-gallery').remove(storagePathsForDelete).then(({ error: storageError }) => {
+          if (storageError) console.warn('Invitation gallery storage cleanup failed:', storageError);
+        });
+      }
+
+      removeImageFromGallery(target.id);
+      toast({ title: 'Image deleted', description: target.name });
+      setDeleteTarget(null);
+    } catch (err) {
+      toast({ title: 'Delete failed', description: getErrorMessage(err, 'Could not delete image.'), variant: 'destructive' });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const filteredImages = images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -40,8 +106,50 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
     onOpenChange(false);
   };
 
+  const handleUpload = async () => {
+    const finalName = uploadName.trim() || (uploadFile ? prettifyInvitationFilename(uploadFile.name) : '');
+    const finalCategory = uploadCategory.trim() || 'Uncategorized';
+    if (!uploadFile) {
+      toast({ title: 'Choose an image', description: 'Please select a PNG or JPG file first.', variant: 'destructive' });
+      return;
+    }
+    if (!finalName) {
+      toast({ title: 'Name required', description: 'Give the design a name.', variant: 'destructive' });
+      return;
+    }
+    if (uploadFile.size > MAX_INVITATION_UPLOAD_BYTES) {
+      toast({ title: 'File too large', description: 'Maximum 50 MB per upload.', variant: 'destructive' });
+      return;
+    }
+    try {
+      setUploading(true);
+      const result = await uploadInvitationGalleryImage(uploadFile, finalName, finalCategory);
+      const masterKB = Math.round(result.masterBytes / 1024);
+      const thumbKB = Math.round(result.thumbBytes / 1024);
+      toast({
+        title: 'Uploaded successfully',
+        description: `Original kept for print (${masterKB} KB)${thumbKB ? ` · thumbnail ${thumbKB} KB` : ''}`,
+      });
+      setUploadName('');
+      setUploadCategory('');
+      setUploadFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setShowUpload(false);
+      await refetch();
+    } catch (err) {
+      console.error('Invitation upload failed', err);
+      toast({
+        title: 'Upload failed',
+        description: getErrorMessage(err, 'Could not optimize and upload the image.'),
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(val) => { if (!val) setPreviewImage(null); onOpenChange(val); }}>
+    <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
       <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 max-sm:flex-col max-sm:items-start max-sm:gap-1">
@@ -50,13 +158,112 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               Invitation Image Gallery
             </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
+            {isAdmin && !previewImage && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto mr-12 lv-premium-shade"
+                onClick={() => setShowUpload((s) => !s)}
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                {showUpload ? 'Close Upload' : 'Admin Upload'}
+              </Button>
+            )}
           </DialogTitle>
         </DialogHeader>
+
+        {isAdmin && showUpload && !previewImage && (
+          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <Button
+                size="sm"
+                variant={uploadMode === 'bulk' ? 'default' : 'outline'}
+                onClick={() => setUploadMode('bulk')}
+                className="lv-premium-shade"
+              >
+                <Layers className="h-4 w-4 mr-1" />
+                Bulk Upload
+              </Button>
+              <Button
+                size="sm"
+                variant={uploadMode === 'single' ? 'default' : 'outline'}
+                onClick={() => setUploadMode('single')}
+                className="lv-premium-shade"
+              >
+                <Upload className="h-4 w-4 mr-1" />
+                Single Upload
+              </Button>
+
+              {uploadMode === 'bulk' ? (
+                <div
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (e.dataTransfer.files?.length) bulkRef.current?.addFiles(e.dataTransfer.files);
+                  }}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={() => bulkDropRef.current?.click()}
+                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤50 MB)</p>
+                  <input
+                    ref={bulkDropRef}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files?.length) bulkRef.current?.addFiles(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
+                >
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <p className="text-xs font-medium truncate">
+                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤50 MB)'}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {uploadMode === 'bulk' ? (
+              <InvitationBulkUploader ref={bulkRef} onAllDone={() => { refetch(); }} />
+            ) : (
+              <div className="flex flex-col gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <Button
+                  onClick={handleUpload}
+                  disabled={uploading || !uploadFile}
+                  className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade self-start"
+                >
+                  {uploading ? (
+                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
+                  ) : (
+                    <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
 
         {previewImage ? (
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-3 mb-2">
-              <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)}>
+              <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)} className="lv-premium-shade">
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Back to Gallery
               </Button>
@@ -66,12 +273,12 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               </div>
             </div>
             <div className="flex justify-center mb-4">
-              <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={() => handleSelectImage(previewImage)}>
+              <Button className="bg-green-500 hover:bg-green-600 text-white lv-premium-shade" onClick={() => handleSelectImage(previewImage)}>
                 <Check className="h-4 w-4 mr-1" />
                 Use This Image
               </Button>
             </div>
-            <div className="flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-0">
+            <div className="flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-[400px]">
               <img
                 src={previewImage.image_url}
                 alt={previewImage.name}
@@ -81,27 +288,31 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
           </div>
         ) : (
           <>
-            <div className="relative w-[75%]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search images..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            {!isAdmin && (
+              <div className="relative w-[75%]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search images..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            )}
 
             <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-4">
-                <TabsTrigger value="all">All</TabsTrigger>
-                {categories.map(category => (
-                  <TabsTrigger key={category} value={category}>
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              {!isAdmin && (
+                <TabsList className="w-full justify-start flex-wrap flex-shrink-0 h-auto py-2">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  {categories.map(category => (
+                    <TabsTrigger key={category} value={category}>
+                      {category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              )}
 
-              <TabsContent value={selectedCategory} className="flex-1 mt-4 min-h-0">
+              <TabsContent value={selectedCategory} className="flex-1 mt-2 min-h-0 data-[state=active]:flex flex-col">
                 {loading ? (
                   <div className="flex items-center justify-center h-64">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -117,16 +328,17 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                     <p className="text-sm">Gallery images will be added by the admin</p>
                   </div>
                 ) : (
-                  <ScrollArea className="h-[500px] [&>[data-radix-scroll-area-scrollbar]]:!bg-transparent [&>[data-radix-scroll-area-scrollbar]]:!border-0 [&>div]:!border-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 max-sm:pb-24">
+                  <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
                       {filteredImages.map(image => (
                         <div
                           key={image.id}
                           className="group relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
                         >
                           <img
-                            src={image.image_url}
+                            src={image.thumbnail_url || image.image_url}
                             alt={image.name}
+                            loading="lazy"
                             className="w-full h-full object-contain"
                           />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
@@ -144,6 +356,15 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                               <Check className="h-3.5 w-3.5" />
                               Select
                             </button>
+                            {isAdmin && (
+                              <button
+                                onClick={() => setDeleteTarget(image)}
+                                className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Delete
+                              </button>
+                            )}
                           </div>
                           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             <p className="text-white text-xs font-medium truncate">
@@ -153,17 +374,42 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                         </div>
                       ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                 )}
               </TabsContent>
             </Tabs>
 
             <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
-              <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4" onClick={() => onOpenChange(false)}>
+              <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4 lv-premium-shade" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
             </div>
           </>
+        )}
+
+        {deleteTarget && (
+          <div
+            className="absolute inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 pointer-events-auto"
+          >
+            <div className="w-full max-w-md rounded-lg border border-border bg-background p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-foreground">Delete this image?</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Once you delete <span className="font-semibold text-foreground">{deleteTarget.name}</span>, you can't go back. This will permanently remove the image from the gallery.
+              </p>
+              <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <Button variant="outline" disabled={deleting} onClick={() => setDeleteTarget(null)} className="lv-premium-shade">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 lv-premium-shade"
+                >
+                  {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
       </DialogContent>
     </Dialog>

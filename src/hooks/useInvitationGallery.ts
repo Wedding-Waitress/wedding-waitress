@@ -6,6 +6,7 @@ export interface InvitationGalleryImage {
   name: string;
   category: string;
   image_url: string;
+  thumbnail_url: string | null;
   sort_order: number;
   created_at: string;
 }
@@ -16,11 +17,16 @@ export const useInvitationGallery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const syncCategories = (galleryImages: InvitationGalleryImage[]) => {
+    const uniqueCategories = [...new Set(galleryImages.map(img => img.category))];
+    setCategories(uniqueCategories);
+  };
+
   const fetchGalleryImages = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data, error: fetchError } = await supabase
         .from('invitation_gallery_images' as any)
         .select('*')
@@ -31,9 +37,7 @@ export const useInvitationGallery = () => {
 
       const galleryImages = (data || []) as unknown as InvitationGalleryImage[];
       setImages(galleryImages);
-      
-      const uniqueCategories = [...new Set(galleryImages.map(img => img.category))];
-      setCategories(uniqueCategories);
+      syncCategories(galleryImages);
     } catch (err) {
       console.error('Error fetching invitation gallery images:', err);
       setError(err instanceof Error ? err.message : 'Failed to load gallery');
@@ -44,6 +48,14 @@ export const useInvitationGallery = () => {
 
   const getImagesByCategory = (category: string): InvitationGalleryImage[] => {
     return images.filter(img => img.category === category);
+  };
+
+  const removeImageFromGallery = (imageId: string) => {
+    setImages(prev => {
+      const next = prev.filter(img => img.id !== imageId);
+      syncCategories(next);
+      return next;
+    });
   };
 
   useEffect(() => {
@@ -57,5 +69,6 @@ export const useInvitationGallery = () => {
     error,
     refetch: fetchGalleryImages,
     getImagesByCategory,
+    removeImageFromGallery,
   };
 };
