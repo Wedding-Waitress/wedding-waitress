@@ -8,13 +8,10 @@ const corsHeaders = {
 };
 
 const ALLOWED_CATEGORIES = [
-  'Baby Shower', 'Baby Boy', 'Baby Girl',
-  'Wedding', 'Engagement', 'Bridal Shower', 'Birthday',
-  'Floral', 'Greenery', 'Tropical', 'Watercolor',
-  'Luxury', 'Gold', 'Black & White', 'Modern Minimal',
-  'Rustic', 'Boho', 'Vintage',
-  'Islamic', 'Christian', 'Indian', 'Arabic', 'Turkish',
-  'Kids', 'Other',
+  'Baby Shower', 'Birthday', 'Celebrations', 'Cultural', 'Floral', 'Glamour',
+  'Islamic', 'Religious', 'Tropical', 'Wedding',
+  'Asian', 'Chinese', 'Christmas', 'Elegant', 'Luxury', 'Minimal', 'Vintage', 'Kids',
+  'Uncategorized',
 ];
 
 const FILENAME_HINTS: Array<[RegExp, string[]]> = [
