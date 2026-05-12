@@ -398,6 +398,101 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                               Delete
                             </button>
                           )}
+                          {isAdmin && (
+                            <Popover
+                              open={categorizeOpenId === image.id}
+                              onOpenChange={(o) => {
+                                setCategorizeOpenId(o ? image.id : null);
+                                if (!o) { setCategorizeMode('list'); setNewCategoryName(''); }
+                              }}
+                            >
+                              <PopoverTrigger asChild>
+                                <button
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-1.5 bg-amber-600 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-amber-700 transition-colors"
+                                >
+                                  <Tag className="h-3.5 w-3.5" />
+                                  Categorize
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-64 p-2 z-[130]"
+                                align="center"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {categorizeMode === 'list' ? (
+                                  <>
+                                    <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
+                                      Assign to category
+                                    </div>
+                                    <div className="max-h-56 overflow-y-auto">
+                                      {categoriesWithCounts.length === 0 && (
+                                        <div className="px-2 py-2 text-xs text-muted-foreground">No categories yet</div>
+                                      )}
+                                      {categoriesWithCounts.map(({ name, count }) => {
+                                        const isCurrent = image.categories.includes(name);
+                                        return (
+                                          <button
+                                            key={name}
+                                            disabled={assigningCategory || isCurrent}
+                                            onClick={() => handleAssignCategory(image, name)}
+                                            className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 text-sm rounded-md text-left hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed ${isCurrent ? 'bg-muted/60' : ''}`}
+                                          >
+                                            <span className="truncate">{name}</span>
+                                            <span className="text-xs text-muted-foreground">{count}{isCurrent ? ' ✓' : ''}</span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                    <div className="border-t border-border my-1" />
+                                    <button
+                                      onClick={() => { setCategorizeMode('create'); setNewCategoryName(''); }}
+                                      className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md text-left text-primary hover:bg-muted"
+                                    >
+                                      <Plus className="h-3.5 w-3.5" />
+                                      Create New Category
+                                    </button>
+                                  </>
+                                ) : (
+                                  <div className="flex flex-col gap-2 p-1">
+                                    <label className="text-xs font-semibold text-muted-foreground">New category name</label>
+                                    <Input
+                                      autoFocus
+                                      value={newCategoryName}
+                                      onChange={(e) => setNewCategoryName(e.target.value)}
+                                      placeholder="e.g. Art Deco"
+                                      className="h-9"
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && newCategoryName.trim()) {
+                                          e.preventDefault();
+                                          handleAssignCategory(image, newCategoryName);
+                                        }
+                                      }}
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="lv-premium-shade"
+                                        disabled={assigningCategory}
+                                        onClick={() => { setCategorizeMode('list'); setNewCategoryName(''); }}
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
+                                        disabled={assigningCategory || !newCategoryName.trim()}
+                                        onClick={() => handleAssignCategory(image, newCategoryName)}
+                                      >
+                                        {assigningCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                              </PopoverContent>
+                            </Popover>
+                          )}
                         </div>
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                           <p className="text-white text-xs font-medium truncate">
