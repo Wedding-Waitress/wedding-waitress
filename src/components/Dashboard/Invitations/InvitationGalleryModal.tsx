@@ -203,25 +203,11 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
               </div>
             )}
 
-            {isAdmin && !previewImage && uncategorizedCount > 0 && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="ml-auto lv-premium-shade"
-                onClick={handleReclassify}
-                disabled={reclassifying}
-                title="One-time AI reclassification of Uncategorized images"
-              >
-                {reclassifying ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-                Reclassify Uncategorized ({uncategorizedCount})
-              </Button>
-            )}
-
             {isAdmin && !previewImage && (
               <Button
                 size="sm"
                 variant="outline"
-                className={`${uncategorizedCount > 0 ? '' : 'ml-auto'} mr-12 lv-premium-shade`}
+                className="ml-auto mr-12 lv-premium-shade"
                 onClick={() => setShowUpload((s) => !s)}
               >
                 <Upload className="h-4 w-4 mr-1" />
