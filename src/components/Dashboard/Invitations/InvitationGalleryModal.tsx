@@ -11,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useInvitationGallery, InvitationGalleryImage } from '@/hooks/useInvitationGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2, Sparkles } from 'lucide-react';
+import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2, Tag, Plus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { InvitationBulkUploader, InvitationBulkUploaderHandle } from './InvitationBulkUploader';
-import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage } from './invitationUploadUtils';
+import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage, replaceImageCategories } from './invitationUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
@@ -50,31 +51,26 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
   const bulkDropRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<InvitationGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [reclassifying, setReclassifying] = useState(false);
+  const [categorizeOpenId, setCategorizeOpenId] = useState<string | null>(null);
+  const [categorizeMode, setCategorizeMode] = useState<'list' | 'create'>('list');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [assigningCategory, setAssigningCategory] = useState(false);
 
-  const uncategorizedCount = useMemo(
-    () => categoriesWithCounts.find((c) => c.name === 'Uncategorized')?.count ?? 0,
-    [categoriesWithCounts],
-  );
-
-  const handleReclassify = async () => {
-    if (reclassifying) return;
-    if (!confirm(`Reclassify ${uncategorizedCount} Uncategorized images using AI?\n\nThis runs once and may take a few minutes.`)) return;
+  const handleAssignCategory = async (image: InvitationGalleryImage, categoryName: string) => {
+    const name = categoryName.trim();
+    if (!name || assigningCategory) return;
     try {
-      setReclassifying(true);
-      toast({ title: 'Reclassifying…', description: `Processing ${uncategorizedCount} images. Please keep this tab open.` });
-      const { data, error: fnErr } = await supabase.functions.invoke('reclassify-uncategorized-invitations', { body: {} });
-      if (fnErr) throw fnErr;
-      const summary = data as { processed?: number; failed?: number; stillUncategorized?: number } | null;
-      toast({
-        title: 'Reclassification complete',
-        description: `Processed ${summary?.processed ?? 0} · Failed ${summary?.failed ?? 0} · Still Uncategorized ${summary?.stillUncategorized ?? 0}`,
-      });
+      setAssigningCategory(true);
+      await replaceImageCategories(image.id, [name]);
+      toast({ title: 'Category updated', description: `${image.name} → ${name}` });
+      setCategorizeOpenId(null);
+      setCategorizeMode('list');
+      setNewCategoryName('');
       await refetch();
     } catch (err) {
-      toast({ title: 'Reclassify failed', description: getErrorMessage(err, 'Could not reclassify images.'), variant: 'destructive' });
+      toast({ title: 'Update failed', description: getErrorMessage(err, 'Could not assign category.'), variant: 'destructive' });
     } finally {
-      setReclassifying(false);
+      setAssigningCategory(false);
     }
   };
 
