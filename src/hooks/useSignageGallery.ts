@@ -9,17 +9,31 @@ export interface SignageGalleryImage {
   thumbnail_url: string | null;
   sort_order: number;
   created_at: string;
+  categories: string[];
+}
+
+export interface CategoryWithCount {
+  name: string;
+  count: number;
 }
 
 export const useSignageGallery = () => {
   const [images, setImages] = useState<SignageGalleryImage[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [categoriesWithCounts, setCategoriesWithCounts] = useState<CategoryWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const syncCategories = (galleryImages: SignageGalleryImage[]) => {
-    const uniqueCategories = [...new Set(galleryImages.map(img => img.category))];
-    setCategories(uniqueCategories);
+  const recompute = (galleryImages: SignageGalleryImage[]) => {
+    const counts = new Map<string, number>();
+    galleryImages.forEach((img) => {
+      img.categories.forEach((c) => counts.set(c, (counts.get(c) ?? 0) + 1));
+    });
+    const sorted = Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    setCategoriesWithCounts(sorted);
+    setCategories(sorted.map((c) => c.name));
   };
 
   const fetchGalleryImages = async () => {
@@ -29,15 +43,33 @@ export const useSignageGallery = () => {
 
       const { data, error: fetchError } = await supabase
         .from('signage_gallery_images' as any)
-        .select('*')
-        .order('category', { ascending: true })
+        .select('*, signage_image_categories(signage_categories(name))')
         .order('sort_order', { ascending: true });
 
       if (fetchError) throw fetchError;
 
-      const galleryImages = (data || []) as unknown as SignageGalleryImage[];
+      const rows = (data || []) as unknown as Array<Record<string, any>>;
+      const galleryImages: SignageGalleryImage[] = rows.map((row) => {
+        const joinRows = Array.isArray(row.signage_image_categories) ? row.signage_image_categories : [];
+        const cats = joinRows
+          .map((j: any) => j?.signage_categories?.name)
+          .filter((n: unknown): n is string => typeof n === 'string' && n.length > 0);
+        const fallback = typeof row.category === 'string' && row.category.length > 0 ? [row.category] : [];
+        const merged = Array.from(new Set([...cats, ...fallback]));
+        return {
+          id: row.id,
+          name: row.name,
+          category: row.category,
+          image_url: row.image_url,
+          thumbnail_url: row.thumbnail_url ?? null,
+          sort_order: row.sort_order ?? 0,
+          created_at: row.created_at,
+          categories: merged,
+        };
+      });
+
       setImages(galleryImages);
-      syncCategories(galleryImages);
+      recompute(galleryImages);
     } catch (err) {
       console.error('Error fetching signage gallery images:', err);
       setError(err instanceof Error ? err.message : 'Failed to load gallery');
@@ -46,21 +78,22 @@ export const useSignageGallery = () => {
     }
   };
 
-  useEffect(() => {
-    fetchGalleryImages();
-  }, []);
-
   const removeImageFromGallery = (imageId: string) => {
-    setImages(prev => {
-      const next = prev.filter(img => img.id !== imageId);
-      syncCategories(next);
+    setImages((prev) => {
+      const next = prev.filter((img) => img.id !== imageId);
+      recompute(next);
       return next;
     });
   };
 
+  useEffect(() => {
+    fetchGalleryImages();
+  }, []);
+
   return {
     images,
     categories,
+    categoriesWithCounts,
     loading,
     error,
     removeImageFromGallery,
