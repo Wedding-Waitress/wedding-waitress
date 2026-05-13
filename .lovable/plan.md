@@ -1,85 +1,65 @@
-## Lock override
+## Root cause
 
-You're explicitly authorising edits to the LOCKED PUBLIC SURFACE: `src/pages/Landing.tsx` and `index.html`. All visual design preserved — only semantic, attribute, and color-token-level changes.
+Both galleries store category two ways:
 
-## 1. Heading hierarchy (Landing.tsx footer, lines 636/644/650/659)
+1. New: `invitation_image_categories` / `signage_image_categories` join tables (1 row per image — already de-duplicated).
+2. Legacy: a `category` TEXT column directly on `invitation_gallery_images` / `signage_gallery_images`.
 
-Change four `<h4>` → `<h3>`. No styling change (classes unchanged), so visual output is identical.
+`useInvitationGallery` and `useSignageGallery` merge BOTH sources:
 
-## 2. Replace generic "Learn More" with descriptive text
-
-Single source: the alternating-features `<Button>` at line 428 uses `t('alternating.learnMore')` for all 13 features. Replace with a per-feature label so each link is unique and descriptive.
-
-Approach (no new translation keys, keeps i18n surface intact):
-
-```tsx
-{t(`alternating.${feature.key}.title`) /* e.g. "Smart Guest List" */}
+```ts
+const fallback = typeof row.category === 'string' && row.category.length > 0 ? [row.category] : [];
+const merged = Array.from(new Set([...cats, ...fallback]));
 ```
 
-Render as visible text: `Learn more about {feature title}`. To keep the existing visual exactly the same length-wise across screen sizes, do:
+When an admin reassigns an image, `replaceImageCategories` correctly rewrites the join-table row, but the legacy `category` column on the gallery image is never touched. Result: the image keeps appearing under its previous category (and never disappears from "Uncategorized" if it was uncategorised before).
 
-```tsx
-<Button …>
-  <span aria-hidden="true">{t('alternating.learnMore')}</span>
-  <span className="sr-only">
-    {t('alternating.learnMore')} {t(`alternating.${feature.key}.title`)}
-  </span>
-  <ArrowRight … />
-</Button>
+## Fix
+
+### 1. Sync the legacy `category` column on every assignment
+File: `src/components/Dashboard/Invitations/invitationUploadUtils.ts`
+
+In `assignCategoriesToImage`, after the join-table insert, also:
+
+```ts
+await supabase
+  .from('invitation_gallery_images' as any)
+  .update({ category: name })
+  .eq('id', imageId);
 ```
 
-This satisfies link-text uniqueness (screen readers + crawlers see "Learn more about Smart Guest List", "Learn more about Tables & Seating", etc.) while the visual button text remains "Learn More" with the arrow — pixel-identical design.
+In `replaceImageCategories`, when called with an empty array, also clear the legacy column to `'Uncategorized'`.
 
-## 3. Hero LCP (index.html + Landing.tsx)
+Mirror the exact same change in `src/components/Dashboard/Signage/signageUploadUtils.ts`.
 
-Current desktop hero `<img>` (line 118-130) has `loading="lazy"` — that's the LCP regression. Fix:
+### 2. Make the hooks trust the join table as the single source of truth
+Files: `src/hooks/useInvitationGallery.ts`, `src/hooks/useSignageGallery.ts`
 
-- Remove `loading="lazy"`, add `loading="eager"` and `fetchPriority="high"` on the desktop hero `<img>`.
-- `index.html` already preloads `/src/assets/hero-wedding.jpg` — keep as-is. Width/height (1920×1080) already explicit.
+Replace the `merged` logic with: if join-table category exists, use ONLY that; only fall back to `row.category` when the join table has no row for this image (legacy data). This guarantees old categories disappear instantly even if a sync ever lags.
 
-Mobile slideshow already does `loading={i === 0 ? "eager" : "lazy"}` and `fetchPriority="high"` for slide 0 — leave untouched.
+### 3. Backfill once via migration
+Run a one-time migration that:
+- Sets `invitation_gallery_images.category` = the joined `invitation_categories.name` (or `'Uncategorized'` if no join row).
+- Same for `signage_gallery_images`.
 
-## 4. font-display: swap
+### 4. Enforce single-category at DB level (idempotent)
+Add a UNIQUE constraint on `image_id` to both join tables:
 
-Google Fonts URL in `index.html` line 46 already ends with `&display=swap` — already correct. The Inter `<link rel="preload" as="font">` at line 37 is the woff2 preload; browsers honour the stylesheet's `font-display: swap`. No change required, but to be explicit and bulletproof against the Lighthouse audit, add a small `<style>` in `<head>`:
-
-```html
-<style>
-  /* Ensure FOUT not FOIT for any locally referenced @font-face */
-  @font-face { font-display: swap; }
-</style>
+```sql
+ALTER TABLE invitation_image_categories
+  ADD CONSTRAINT invitation_image_categories_image_id_unique UNIQUE (image_id);
+ALTER TABLE signage_image_categories
+  ADD CONSTRAINT signage_image_categories_image_id_unique UNIQUE (image_id);
 ```
 
-(no-op if no local @font-face; harmless safeguard.)
+This makes any future duplicate insert impossible at the database level.
 
-## 5. Low-contrast accessibility (Landing.tsx body copy)
+### 5. Verify
+- Open the admin gallery, reassign an image from "Floral" to "Wedding": image must vanish from Floral and appear in Wedding immediately (existing modal already calls `refetch()` after `replaceImageCategories`).
+- Reassign an "Uncategorized" image: must vanish from Uncategorized.
+- No design / upload / filter / admin UI changes.
 
-Audit shows the recurring offender on white sections is `text-gray-500` / `text-gray-400` paragraphs (e.g. line 423 alternating feature description). On `#FFFFFF` background `text-gray-500` is ~4.6:1 (borderline) and `text-gray-400` fails. Footer uses `text-gray-300` on dark `bg-gray-900` which passes (~9:1) — leave footer untouched.
-
-Replace on white-background sections only:
-
-- `text-gray-500` → `text-gray-600` (≥7:1 on white, AAA)
-- `text-gray-400` → `text-gray-600` (only if rendered on white/light)
-
-Scope: only the body-paragraph occurrences inside `<section>` blocks with light/white backgrounds in `Landing.tsx`. Headings (`text-gray-900`) and dark-section text untouched. No token additions to `index.css` needed — the brown/cream system stays intact.
-
-## 6. Verify, mark fixed, prompt republish
-
-After edits:
-1. Visually compare Landing in preview — confirm no layout/colour shift beyond the slightly darker body grey.
-2. Mark these SEO findings fixed via `update_findings`:
-   - `agent_content:content` (h3 + descriptive links)
-   - `lighthouse:lighthouse_performance` (hero eager + fetchpriority)
-   - `lighthouse:lighthouse_accessibility` (gray-500 → gray-600)
-3. Tell you to **Publish** so the next Lighthouse-based scan re-evaluates against the new build, then **Rescan** in the SEO tab.
-
-## Files touched
-
-- `src/pages/Landing.tsx` — footer h4→h3 (×4), Learn More aria/sr-only wrap, hero img loading/fetchpriority, body text-gray-500/400 → text-gray-600 on light sections
-- `index.html` — defensive `<style>@font-face{font-display:swap}</style>` in head
-
-## Out of scope (unchanged)
-
-- Footer grid + link styling (locked 2026-04-19) — only the heading element name changes
-- ContactForm, blog content, i18n landing.json, design tokens, brand colours
-- Sitemap/robots/llms.txt (already addressed last turn)
+## Out of scope
+- No UI redesign.
+- No changes to upload, search, or filter behaviour.
+- No changes to existing categories or image assets.
