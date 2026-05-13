@@ -62,3 +62,4 @@ verify_jwt = true
 
 [functions.classify-invitation-image]
 verify_jwt = true
+

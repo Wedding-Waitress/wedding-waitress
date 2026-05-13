@@ -1,65 +1,47 @@
-## Root cause
+## Goal
+Wipe both image galleries — Seating Chart Signs (215 images) and Invitations & Cards (415 images) — from BOTH the database tables AND the Supabase Storage buckets, leaving zero orphan files. Then confirm both galleries are 100% clean and ready for fresh uploads.
 
-Both galleries store category two ways:
+## Current state (just verified)
+- `signage_gallery_images`: **215 rows**
+- `invitation_gallery_images`: **415 rows**
+- Storage buckets in use: `signage-gallery` and `invitation-gallery`
+- An existing edge function `purge-invitation-gallery` already does a full bucket-walk + row delete for the invitation side. No equivalent exists yet for signage.
 
-1. New: `invitation_image_categories` / `signage_image_categories` join tables (1 row per image — already de-duplicated).
-2. Legacy: a `category` TEXT column directly on `invitation_gallery_images` / `signage_gallery_images`.
+## Plan
 
-`useInvitationGallery` and `useSignageGallery` merge BOTH sources:
+### 1. Add a matching purge edge function for signage
+Create `supabase/functions/purge-signage-gallery/index.ts` — clone of `purge-invitation-gallery` but pointed at:
+- bucket: `signage-gallery`
+- table: `signage_gallery_images`
+- also clears the join table `signage_image_categories` first (FK)
 
-```ts
-const fallback = typeof row.category === 'string' && row.category.length > 0 ? [row.category] : [];
-const merged = Array.from(new Set([...cats, ...fallback]));
-```
+Same admin gate (verifies caller has `admin` role via `user_roles`) so it can't be triggered by random users.
 
-When an admin reassigns an image, `replaceImageCategories` correctly rewrites the join-table row, but the legacy `category` column on the gallery image is never touched. Result: the image keeps appearing under its previous category (and never disappears from "Uncategorized" if it was uncategorised before).
+### 2. Run both purge functions
+Invoke (admin-authenticated):
+- `purge-signage-gallery` → wipes every object under `signage-gallery/` recursively, then deletes all rows.
+- `purge-invitation-gallery` → already exists, wipes `invitation-gallery/` + rows.
 
-## Fix
+Each returns `{ files_removed, rows_deleted }` so we get exact counts.
 
-### 1. Sync the legacy `category` column on every assignment
-File: `src/components/Dashboard/Invitations/invitationUploadUtils.ts`
+### 3. Verify clean state (read-only checks)
+After running, confirm:
+- `SELECT count(*) FROM signage_gallery_images` → 0
+- `SELECT count(*) FROM invitation_gallery_images` → 0
+- `SELECT count(*) FROM signage_image_categories` → 0
+- Storage list of `signage-gallery` root → empty
+- Storage list of `invitation-gallery` root → empty
 
-In `assignCategoriesToImage`, after the join-table insert, also:
+Report back the exact numbers (files removed + rows deleted per bucket) so you can see nothing was left behind in Supabase Storage billing.
 
-```ts
-await supabase
-  .from('invitation_gallery_images' as any)
-  .update({ category: name })
-  .eq('id', imageId);
-```
+### 4. Confirm "ready to upload"
+Both galleries already have the **80 MB** upload limit (set last turn). Nothing else to change. You can immediately start uploading the new Topaz Gigapixel JPGs to either gallery.
 
-In `replaceImageCategories`, when called with an empty array, also clear the legacy column to `'Uncategorized'`.
+## What this will NOT touch
+- Place Cards gallery (`placecard-gallery`) — you didn't ask, leaving as-is.
+- Any event data, guests, tables, settings.
+- Upload limits or UI — already at 80 MB on both.
 
-Mirror the exact same change in `src/components/Dashboard/Signage/signageUploadUtils.ts`.
-
-### 2. Make the hooks trust the join table as the single source of truth
-Files: `src/hooks/useInvitationGallery.ts`, `src/hooks/useSignageGallery.ts`
-
-Replace the `merged` logic with: if join-table category exists, use ONLY that; only fall back to `row.category` when the join table has no row for this image (legacy data). This guarantees old categories disappear instantly even if a sync ever lags.
-
-### 3. Backfill once via migration
-Run a one-time migration that:
-- Sets `invitation_gallery_images.category` = the joined `invitation_categories.name` (or `'Uncategorized'` if no join row).
-- Same for `signage_gallery_images`.
-
-### 4. Enforce single-category at DB level (idempotent)
-Add a UNIQUE constraint on `image_id` to both join tables:
-
-```sql
-ALTER TABLE invitation_image_categories
-  ADD CONSTRAINT invitation_image_categories_image_id_unique UNIQUE (image_id);
-ALTER TABLE signage_image_categories
-  ADD CONSTRAINT signage_image_categories_image_id_unique UNIQUE (image_id);
-```
-
-This makes any future duplicate insert impossible at the database level.
-
-### 5. Verify
-- Open the admin gallery, reassign an image from "Floral" to "Wedding": image must vanish from Floral and appear in Wedding immediately (existing modal already calls `refetch()` after `replaceImageCategories`).
-- Reassign an "Uncategorized" image: must vanish from Uncategorized.
-- No design / upload / filter / admin UI changes.
-
-## Out of scope
-- No UI redesign.
-- No changes to upload, search, or filter behaviour.
-- No changes to existing categories or image assets.
+## Notes
+- Action is **irreversible** — once approved I run it and the 215 + 415 designs are gone forever from both DB and storage.
+- The purge runs server-side as service role, so RLS won't block it and there will be no orphan files left racking up storage cost.
