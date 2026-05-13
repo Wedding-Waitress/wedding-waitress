@@ -7,16 +7,23 @@ import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
 
 const CATEGORY_PRESETS = [
-  'Asian Wedding',
-  'Indian Wedding',
-  'Persian Wedding',
-  'Classic / Elegant',
+  'Asian',
+  'Baby Shower',
+  'Birthday',
+  'Celebrations',
+  'Chinese',
+  'Christmas',
+  'Cultural',
+  'Elegant',
   'Floral',
-  'Modern / Minimal',
-  'Rustic',
-  'Luxury / Gold',
-  'Vintage',
+  'Glamour',
+  'Islamic',
+  'Kids',
+  'Minimal',
+  'Religious',
   'Tropical',
+  'Vintage',
+  'Wedding',
 ];
 
 const CONCURRENCY = 3;
@@ -24,16 +31,23 @@ const DEFAULT_BULK_CATEGORY = 'Uncategorized';
 
 // Smart auto-categorization from filename keywords.
 const CATEGORY_KEYWORDS: Array<{ category: string; patterns: RegExp[] }> = [
-  { category: 'Asian Wedding', patterns: [/asian/i, /chinese/i, /japanese/i, /korean/i, /lantern/i, /dragon/i, /bamboo/i] },
-  { category: 'Indian Wedding', patterns: [/indian/i, /hindu/i, /mehndi/i, /sangeet/i, /mandala/i, /paisley/i] },
-  { category: 'Persian Wedding', patterns: [/persian/i, /iranian/i, /sofreh/i] },
+  { category: 'Asian', patterns: [/asian/i, /japanese/i, /korean/i, /lantern/i, /dragon/i, /bamboo/i] },
+  { category: 'Chinese', patterns: [/chinese/i, /china/i] },
+  { category: 'Cultural', patterns: [/indian/i, /hindu/i, /mehndi/i, /sangeet/i, /mandala/i, /paisley/i, /persian/i, /iranian/i, /sofreh/i, /cultural/i] },
   { category: 'Floral', patterns: [/floral/i, /flower/i, /bloom/i, /rose/i, /peony/i, /cherry|sakura/i, /botanical/i] },
-  { category: 'Luxury / Gold', patterns: [/gold/i, /luxury/i, /royal/i, /baroque/i, /ornate/i] },
-  { category: 'Modern / Minimal', patterns: [/modern/i, /minimal/i, /clean/i, /simple/i, /geometric/i] },
-  { category: 'Rustic', patterns: [/rustic/i, /wood/i, /barn/i, /burlap/i, /kraft/i] },
-  { category: 'Vintage', patterns: [/vintage/i, /retro/i, /antique/i, /victorian/i] },
+  { category: 'Glamour', patterns: [/gold/i, /luxury/i, /royal/i, /baroque/i, /ornate/i, /glam/i] },
+  { category: 'Minimal', patterns: [/modern/i, /minimal/i, /clean/i, /simple/i, /geometric/i] },
+  { category: 'Vintage', patterns: [/vintage/i, /retro/i, /antique/i, /victorian/i, /rustic/i, /wood/i, /barn/i, /burlap/i, /kraft/i] },
   { category: 'Tropical', patterns: [/tropical/i, /palm/i, /beach/i, /hawaii/i] },
-  { category: 'Classic / Elegant', patterns: [/classic/i, /elegant/i, /traditional/i, /formal/i] },
+  { category: 'Elegant', patterns: [/classic/i, /elegant/i, /traditional/i, /formal/i] },
+  { category: 'Baby Shower', patterns: [/baby/i, /shower/i] },
+  { category: 'Birthday', patterns: [/birthday/i, /bday/i] },
+  { category: 'Celebrations', patterns: [/celebrat/i, /party/i, /anniversary/i] },
+  { category: 'Christmas', patterns: [/christmas/i, /xmas/i, /noel/i, /holiday/i] },
+  { category: 'Islamic', patterns: [/islamic/i, /muslim/i, /eid/i, /nikkah/i, /nikah/i] },
+  { category: 'Kids', patterns: [/kids?/i, /child/i, /cartoon/i] },
+  { category: 'Religious', patterns: [/religious/i, /church/i, /cross/i, /spiritual/i] },
+  { category: 'Wedding', patterns: [/wedding/i, /bride/i, /groom/i, /marriage/i] },
 ];
 
 const autoCategorize = (filename: string): string => {
