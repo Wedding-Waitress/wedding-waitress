@@ -1767,7 +1767,7 @@ export type Database = {
           {
             foreignKeyName: "invitation_image_categories_image_id_fkey"
             columns: ["image_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "invitation_gallery_images"
             referencedColumns: ["id"]
           },
@@ -2914,7 +2914,7 @@ export type Database = {
           {
             foreignKeyName: "signage_image_categories_image_id_fkey"
             columns: ["image_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "signage_gallery_images"
             referencedColumns: ["id"]
           },
