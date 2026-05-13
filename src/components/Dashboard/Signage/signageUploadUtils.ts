@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const MAX_SIGNAGE_UPLOAD_BYTES = 50 * 1024 * 1024;
+export const MAX_SIGNAGE_UPLOAD_BYTES = 80 * 1024 * 1024;
 
 export interface SignageUploadResult {
   masterBytes: number;
@@ -72,7 +72,7 @@ export const uploadSignageGalleryImage = async (
   category: string,
 ): Promise<SignageUploadResult> => {
   if (file.size > MAX_SIGNAGE_UPLOAD_BYTES) {
-    throw new Error(`File is larger than 50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+    throw new Error(`File is larger than 80 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
   }
 
   const slug = slugify(name);
