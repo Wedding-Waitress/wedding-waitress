@@ -633,7 +633,7 @@ export const Landing = () => {
             </div>
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 sm:gap-6 md:gap-8 lg:gap-12 md:mt-0 mt-6">
               <div className="md:mt-0 mt-0 md:first:mt-0 first:mt-0">
-                <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.explore')}</h4>
+                <h3 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.explore')}</h3>
                 <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
                   <li><Link to="/features" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</Link></li>
                   <li><Link to="/pricing" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</Link></li>
