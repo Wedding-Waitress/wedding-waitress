@@ -1,0 +1,36 @@
+# Wedding Waitress
+
+> Wedding Waitress is an event management platform for couples and vendors: guest lists, table planning, QR code seating charts, place cards, dietary requirements, running sheets, DJ/MC questionnaires, invitations, and a kiosk live view for guests at the venue.
+
+## Pages
+
+- [Home](https://weddingwaitress.com.au/): Product overview and sign up.
+- [How It Works](https://weddingwaitress.com.au/how-it-works): Step-by-step walkthrough of the platform.
+- [Features](https://weddingwaitress.com.au/features): Full feature list.
+- [Products](https://weddingwaitress.com.au/products): Individual product pages.
+- [Pricing](https://weddingwaitress.com.au/pricing): One-time couple plans and vendor monthly subscriptions.
+- [FAQ](https://weddingwaitress.com.au/faq): Common questions.
+- [Contact](https://weddingwaitress.com.au/contact): Get in touch.
+- [Blog](https://weddingwaitress.com.au/blog): Articles on QR seating charts, wedding planning, and signage.
+
+## Core features
+
+- [My Events](https://weddingwaitress.com.au/my-events): Create and manage multiple events with countdowns.
+- [Guest List](https://weddingwaitress.com.au/guest-list): Manage guests, RSVPs, dietary, and invitations.
+- [Tables](https://weddingwaitress.com.au/tables): Create tables and assign guests via drag-and-drop.
+- [QR Code Seating Chart](https://weddingwaitress.com.au/qr-code-seating-chart): Branded QR codes guests scan to find their seat.
+- [Full Seating Chart](https://weddingwaitress.com.au/full-seating-chart): Printable A4 master seating chart.
+- [Individual Table Charts](https://weddingwaitress.com.au/individual-table-charts): Per-table seating charts.
+- [Name Place Cards](https://weddingwaitress.com.au/name-place-cards): 300 DPI printable place cards.
+- [Invitations & Cards](https://weddingwaitress.com.au/invitations-cards): Designer invitation cards with delivery.
+- [Dietary Requirements](https://weddingwaitress.com.au/dietary-requirements): Kitchen-ready dietary chart.
+- [Floor Plan](https://weddingwaitress.com.au/floor-plan): Ceremony and reception floor plans.
+- [Kiosk Live View](https://weddingwaitress.com.au/kiosk-live-view): Self-service venue check-in kiosk.
+- [Running Sheet](https://weddingwaitress.com.au/running-sheet): Event run sheet for vendors.
+- [DJ/MC Questionnaire](https://weddingwaitress.com.au/dj-mc-questionnaire): DJ/MC briefing form.
+
+## Legal
+
+- [Privacy Policy](https://weddingwaitress.com.au/privacy)
+- [Terms of Service](https://weddingwaitress.com.au/terms)
+- [Cookie Policy](https://weddingwaitress.com.au/cookies)
