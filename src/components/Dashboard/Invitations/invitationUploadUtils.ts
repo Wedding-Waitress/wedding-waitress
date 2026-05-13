@@ -194,10 +194,22 @@ export const assignCategoriesToImage = async (imageId: string, categoryNames: st
   await supabase
     .from('invitation_image_categories' as any)
     .insert({ image_id: imageId, category_id: categoryId });
+  // Sync legacy text column so the image disappears from its previous category instantly
+  await supabase
+    .from('invitation_gallery_images' as any)
+    .update({ category: name })
+    .eq('id', imageId);
 };
 
 export const replaceImageCategories = async (imageId: string, categoryNames: string[]) => {
   await supabase.from('invitation_image_categories' as any).delete().eq('image_id', imageId);
-  if (categoryNames.length) await assignCategoriesToImage(imageId, categoryNames);
+  if (categoryNames.length) {
+    await assignCategoriesToImage(imageId, categoryNames);
+  } else {
+    await supabase
+      .from('invitation_gallery_images' as any)
+      .update({ category: 'Uncategorized' })
+      .eq('id', imageId);
+  }
 };
 
