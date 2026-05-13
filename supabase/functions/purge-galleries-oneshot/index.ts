@@ -1,0 +1,68 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    const purgeBucket = async (bucket: string) => {
+      let total = 0;
+      const walk = async (prefix: string) => {
+        let offset = 0;
+        while (true) {
+          const { data: items, error } = await supabase.storage.from(bucket).list(prefix, { limit: 1000, offset });
+          if (error) throw error;
+          if (!items || items.length === 0) break;
+          const files: string[] = [];
+          const folders: string[] = [];
+          for (const it of items) {
+            const path = prefix ? `${prefix}/${it.name}` : it.name;
+            if ((it as any).id === null || (it as any).id === undefined) folders.push(path);
+            else files.push(path);
+          }
+          if (files.length) {
+            const { error: rmErr } = await supabase.storage.from(bucket).remove(files);
+            if (rmErr) throw rmErr;
+            total += files.length;
+          }
+          for (const f of folders) await walk(f);
+          if (items.length < 1000) break;
+          offset += 1000;
+        }
+      };
+      await walk("");
+      return total;
+    };
+
+    // Signage: clear join table first (FK), then rows, then bucket
+    await supabase.from("signage_image_categories").delete().not("id", "is", null);
+    const { count: signageRows, error: sErr } = await supabase
+      .from("signage_gallery_images").delete({ count: "exact" }).not("id", "is", null);
+    if (sErr) throw sErr;
+    const signageFiles = await purgeBucket("signage-gallery");
+
+    // Invitations
+    const { count: invRows, error: iErr } = await supabase
+      .from("invitation_gallery_images").delete({ count: "exact" }).not("id", "is", null);
+    if (iErr) throw iErr;
+    const invFiles = await purgeBucket("invitation-gallery");
+
+    return new Response(JSON.stringify({
+      signage: { rows_deleted: signageRows, files_removed: signageFiles },
+      invitation: { rows_deleted: invRows, files_removed: invFiles },
+    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: (err as Error).message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
