@@ -62,3 +62,6 @@ verify_jwt = true
 
 [functions.classify-invitation-image]
 verify_jwt = true
+
+[functions.purge-galleries-oneshot]
+verify_jwt = false
