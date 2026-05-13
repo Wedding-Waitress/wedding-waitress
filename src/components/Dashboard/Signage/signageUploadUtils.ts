@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const MAX_SIGNAGE_UPLOAD_BYTES = 50 * 1024 * 1024;
+export const MAX_SIGNAGE_UPLOAD_BYTES = 80 * 1024 * 1024;
 
 export interface SignageUploadResult {
   masterBytes: number;
