@@ -1,0 +1,1 @@
+DELETE FROM public.invitation_categories WHERE name IN ('Kids','Tropical','Elegant','Minimal');
