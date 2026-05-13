@@ -344,7 +344,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('howItWorks.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-4xl mx-auto">
             {t('howItWorks.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -360,7 +360,7 @@ export const Landing = () => {
                 </div>
                 <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
               </div>
             ))}
           </div>
@@ -374,7 +374,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('featureCards.sectionTitle')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-2xl mx-auto">
             {t('featureCards.sectionSubtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -421,7 +421,7 @@ export const Landing = () => {
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
                 {t(`alternating.${feature.key}.title`)}
               </h2>
-              <p className="text-lg text-gray-500 leading-relaxed mb-8">
+              <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 {t(`alternating.${feature.key}.desc`)}
               </p>
               <Link to={featureRoutes[feature.key] || '/'} aria-label={`${t('alternating.learnMore')} ${t(`alternating.${feature.key}.title`)}`}>
@@ -450,7 +450,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('testimonials.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('testimonials.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -475,7 +475,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('faq.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('faq.subtitle')}
           </p>
           <div className="space-y-4">
@@ -492,7 +492,7 @@ export const Landing = () => {
                   <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-[500px] pb-6' : 'max-h-0'}`}>
-                  <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+                  <p className="px-6 text-sm text-gray-600 leading-relaxed">{item.a}</p>
                 </div>
               </div>
             ))}
@@ -583,7 +583,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('contact.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('contact.subtitle')}
           </p>
           <ContactForm />
