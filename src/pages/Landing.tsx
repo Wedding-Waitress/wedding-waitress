@@ -120,7 +120,8 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
           alt="Wedding reception with elegant table settings and seating chart"
           width={1920}
           height={1080}
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
           decoding="async"
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 hidden md:block"
           style={{
@@ -343,7 +344,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('howItWorks.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-4xl mx-auto">
             {t('howItWorks.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -359,7 +360,7 @@ export const Landing = () => {
                 </div>
                 <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{t(`howItWorks.${item.descKey}`)}</p>
               </div>
             ))}
           </div>
@@ -373,7 +374,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('featureCards.sectionTitle')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-2xl mx-auto">
             {t('featureCards.sectionSubtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -420,12 +421,13 @@ export const Landing = () => {
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
                 {t(`alternating.${feature.key}.title`)}
               </h2>
-              <p className="text-lg text-gray-500 leading-relaxed mb-8">
+              <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 {t(`alternating.${feature.key}.desc`)}
               </p>
-              <Link to={featureRoutes[feature.key] || '/'}>
+              <Link to={featureRoutes[feature.key] || '/'} aria-label={`${t('alternating.learnMore')} ${t(`alternating.${feature.key}.title`)}`}>
                 <Button variant="outline" className="btn-press rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
-                  {t('alternating.learnMore')}
+                  <span aria-hidden="true">{t('alternating.learnMore')}</span>
+                  <span className="sr-only">{t('alternating.learnMore')} {t(`alternating.${feature.key}.title`)}</span>
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
@@ -448,7 +450,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('testimonials.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('testimonials.subtitle')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -473,7 +475,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('faq.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('faq.subtitle')}
           </p>
           <div className="space-y-4">
@@ -490,7 +492,7 @@ export const Landing = () => {
                   <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-[500px] pb-6' : 'max-h-0'}`}>
-                  <p className="px-6 text-sm text-gray-500 leading-relaxed">{item.a}</p>
+                  <p className="px-6 text-sm text-gray-600 leading-relaxed">{item.a}</p>
                 </div>
               </div>
             ))}
@@ -581,7 +583,7 @@ export const Landing = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
             {t('contact.title')}
           </h2>
-          <p className="text-lg text-gray-500 text-center mb-16 max-w-xl mx-auto">
+          <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('contact.subtitle')}
           </p>
           <ContactForm />
@@ -633,7 +635,7 @@ export const Landing = () => {
             </div>
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 sm:gap-6 md:gap-8 lg:gap-12 md:mt-0 mt-6">
               <div className="md:mt-0 mt-0 md:first:mt-0 first:mt-0">
-                <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.explore')}</h4>
+                <h3 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.explore')}</h3>
                 <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
                   <li><Link to="/features" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</Link></li>
                   <li><Link to="/pricing" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</Link></li>
@@ -641,13 +643,13 @@ export const Landing = () => {
                 </ul>
               </div>
               <div className="md:mt-0 mt-0">
-                <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.support')}</h4>
+                <h3 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.support')}</h3>
                 <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
                   <li><Link to="/contact" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.contactUs')}</Link></li>
                 </ul>
               </div>
               <div className="md:mt-0 mt-0">
-                <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.legal')}</h4>
+                <h3 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.legal')}</h3>
                 <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
                   <li><Link to="/privacy" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.privacy')}</Link></li>
                   <li><Link to="/terms" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.terms')}</Link></li>
@@ -656,7 +658,7 @@ export const Landing = () => {
               </div>
             </div>
             <div className="md:pl-8 lg:pl-16 md:mt-0 mt-6 md:text-left text-center">
-              <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.followUs')}</h4>
+              <h3 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.followUs')}</h3>
               <div className="flex md:justify-start justify-center gap-4">
                 <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Instagram className="w-5 h-5" />
