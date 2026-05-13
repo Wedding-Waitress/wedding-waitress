@@ -204,7 +204,7 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
 
   const retryFailed = () => {
     setRows((prev) =>
-      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>50 MB') ? { ...r, status: 'queued', error: undefined } : r))
+      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>80 MB') ? { ...r, status: 'queued', error: undefined } : r))
     );
   };
 
