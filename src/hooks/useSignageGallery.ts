@@ -54,8 +54,10 @@ export const useSignageGallery = () => {
         const cats = joinRows
           .map((j: any) => j?.signage_categories?.name)
           .filter((n: unknown): n is string => typeof n === 'string' && n.length > 0);
-        const fallback = typeof row.category === 'string' && row.category.length > 0 ? [row.category] : [];
-        const merged = Array.from(new Set([...cats, ...fallback]));
+        // Join table is the single source of truth. Only fall back to legacy text column when no join row exists.
+        const merged = cats.length > 0
+          ? Array.from(new Set(cats))
+          : (typeof row.category === 'string' && row.category.length > 0 ? [row.category] : []);
         return {
           id: row.id,
           name: row.name,
