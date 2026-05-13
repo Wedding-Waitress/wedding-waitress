@@ -425,7 +425,16 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                                     <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
                                       Assign to category
                                     </div>
-                                    <div className="max-h-56 overflow-y-auto">
+                                    <div
+                                      className="max-h-56 overflow-y-auto overscroll-contain"
+                                      onWheel={(e) => {
+                                        const el = e.currentTarget;
+                                        if (el.scrollHeight > el.clientHeight) {
+                                          el.scrollTop += e.deltaY;
+                                          e.stopPropagation();
+                                        }
+                                      }}
+                                    >
                                       {categoriesWithCounts.length === 0 && (
                                         <div className="px-2 py-2 text-xs text-muted-foreground">No categories yet</div>
                                       )}
