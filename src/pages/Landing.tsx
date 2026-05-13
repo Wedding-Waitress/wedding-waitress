@@ -656,7 +656,7 @@ export const Landing = () => {
               </div>
             </div>
             <div className="md:pl-8 lg:pl-16 md:mt-0 mt-6 md:text-left text-center">
-              <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.followUs')}</h4>
+              <h3 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.followUs')}</h3>
               <div className="flex md:justify-start justify-center gap-4">
                 <a href="#" aria-label="Instagram" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                   <Instagram className="w-5 h-5" />
