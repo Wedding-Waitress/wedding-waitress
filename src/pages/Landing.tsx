@@ -641,7 +641,7 @@ export const Landing = () => {
                 </ul>
               </div>
               <div className="md:mt-0 mt-0">
-                <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.support')}</h4>
+                <h3 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.support')}</h3>
                 <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
                   <li><Link to="/contact" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.contactUs')}</Link></li>
                 </ul>
