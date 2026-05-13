@@ -423,9 +423,10 @@ export const Landing = () => {
               <p className="text-lg text-gray-500 leading-relaxed mb-8">
                 {t(`alternating.${feature.key}.desc`)}
               </p>
-              <Link to={featureRoutes[feature.key] || '/'}>
+              <Link to={featureRoutes[feature.key] || '/'} aria-label={`${t('alternating.learnMore')} ${t(`alternating.${feature.key}.title`)}`}>
                 <Button variant="outline" className="btn-press rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
-                  {t('alternating.learnMore')}
+                  <span aria-hidden="true">{t('alternating.learnMore')}</span>
+                  <span className="sr-only">{t('alternating.learnMore')} {t(`alternating.${feature.key}.title`)}</span>
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
