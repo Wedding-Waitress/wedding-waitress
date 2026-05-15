@@ -2048,6 +2048,27 @@ export type Database = {
         }
         Relationships: []
       }
+      place_card_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       place_card_gallery_images: {
         Row: {
           category: string
@@ -2056,6 +2077,7 @@ export type Database = {
           image_url: string
           name: string
           sort_order: number
+          thumbnail_url: string | null
         }
         Insert: {
           category?: string
@@ -2064,6 +2086,7 @@ export type Database = {
           image_url: string
           name: string
           sort_order?: number
+          thumbnail_url?: string | null
         }
         Update: {
           category?: string
@@ -2072,8 +2095,42 @@ export type Database = {
           image_url?: string
           name?: string
           sort_order?: number
+          thumbnail_url?: string | null
         }
         Relationships: []
+      }
+      place_card_image_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          image_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          image_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          image_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_card_image_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "place_card_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "place_card_image_categories_image_id_fkey"
+            columns: ["image_id"]
+            isOneToOne: false
+            referencedRelation: "place_card_gallery_images"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       place_card_settings: {
         Row: {
