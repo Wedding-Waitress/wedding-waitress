@@ -63,3 +63,6 @@ verify_jwt = true
 [functions.classify-invitation-image]
 verify_jwt = true
 
+
+[functions.purge-place-card-gallery]
+verify_jwt = true
