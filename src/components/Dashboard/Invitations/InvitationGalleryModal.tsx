@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { InvitationBulkUploader, InvitationBulkUploaderHandle } from './InvitationBulkUploader';
 import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage, replaceImageCategories } from './invitationUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
+import { GalleryUploadProgress, getReadableUploadError, isSupportedGalleryImage } from '../galleryUploadCore';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
   err instanceof Error ? err.message : fallback
@@ -46,6 +47,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
   const [uploadCategory, setUploadCategory] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<GalleryUploadProgress | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bulkRef = useRef<InvitationBulkUploaderHandle>(null);
   const bulkDropRef = useRef<HTMLInputElement>(null);
@@ -139,6 +141,10 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
       toast({ title: 'Choose an image', description: 'Please select a PNG or JPG file first.', variant: 'destructive' });
       return;
     }
+    if (!isSupportedGalleryImage(uploadFile)) {
+      toast({ title: 'Invalid file type', description: 'Please select a PNG or JPG image.', variant: 'destructive' });
+      return;
+    }
     if (!finalName) {
       toast({ title: 'Name required', description: 'Give the design a name.', variant: 'destructive' });
       return;
@@ -149,7 +155,8 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
     }
     try {
       setUploading(true);
-      const result = await uploadInvitationGalleryImage(uploadFile, finalName, finalCategory);
+      setUploadProgress({ phase: 'validating', percent: 0, message: 'Preparing image upload…' });
+      const result = await uploadInvitationGalleryImage(uploadFile, finalName, finalCategory, setUploadProgress);
       const masterKB = Math.round(result.masterBytes / 1024);
       const thumbKB = Math.round(result.thumbBytes / 1024);
       toast({
@@ -159,6 +166,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
       setUploadName('');
       setUploadCategory('');
       setUploadFile(null);
+      setUploadProgress({ phase: 'complete', percent: 100, message: 'Upload complete. Gallery refreshed.' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       setShowUpload(false);
       await refetch();
@@ -166,7 +174,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
       console.error('Invitation upload failed', err);
       toast({
         title: 'Upload failed',
-        description: getErrorMessage(err, 'Could not optimize and upload the image.'),
+        description: getReadableUploadError(err, 'Could not optimize and upload the image.'),
         variant: 'destructive',
       });
     } finally {
