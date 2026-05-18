@@ -17,6 +17,7 @@ import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUpl
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryUploadProgress, getReadableUploadError, isSupportedGalleryImage } from '../galleryUploadCore';
+import { previewUrlFor } from '@/lib/imagePipeline';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
   err instanceof Error ? err.message : fallback
@@ -131,7 +132,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const handleSelectImage = (image: SignageGalleryImage) => {
     // Editor uses the MASTER url (server-resized to ~2400px by useOptimizedPreview).
     // Never the 400px thumbnail — that produced a blurry editor preview.
-    onSelectImage(image.image_url, image.image_url);
+    onSelectImage(previewUrlFor(image.image_url) ?? image.image_url, image.image_url);
     setPreviewImage(null);
     onOpenChange(false);
   };
