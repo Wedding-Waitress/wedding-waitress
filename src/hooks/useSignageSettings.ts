@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache } from '@/lib/cacheRegistry';
 import type { TextZone, QrConfig, InvitationCardSettings } from '@/hooks/useInvitationCardSettings';
+import { previewUrlFor } from '@/lib/imagePipeline';
 
 export interface SignageSettings {
   id?: string;
