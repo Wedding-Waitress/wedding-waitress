@@ -291,7 +291,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 />
                 <Button
                   onClick={handleUpload}
-                  disabled={uploading || !uploadFile}
+                  disabled={uploading || !uploadFile || (uploadFile?.size ?? 0) > MAX_SIGNAGE_UPLOAD_BYTES}
                   className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade self-start"
                 >
                   {uploading ? (
@@ -300,6 +300,11 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
                   )}
                 </Button>
+                {uploadFile && uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES && (
+                  <p className="text-xs text-destructive">
+                    This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 200 MB — please re-export at a lower quality or smaller scale.
+                  </p>
+                )}
               </div>
             )}
           </div>
