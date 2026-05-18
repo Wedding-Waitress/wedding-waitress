@@ -27,6 +27,8 @@ interface InvitationCardPreviewProps {
   onZoneReset?: (zoneId: string) => void;
   qrDataUrl?: string | null;
   onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
+  /** Render a white plate behind the QR (matches print-ready PDF). Used by Seating Chart Signs. */
+  qrWhitePlate?: boolean;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
