@@ -16,6 +16,8 @@ interface InteractiveQROverlayProps {
   onDuplicate?: () => void;
   onRotate?: (rotation: number) => void;
   containerRef: React.RefObject<HTMLElement>;
+  /** Render a tight white plate behind the QR (matches print-ready PDF output). */
+  whitePlate?: boolean;
 }
 
 const SNAP_THRESHOLD = 4;
