@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage } from './invitationUploadUtils';
+import { getReadableUploadError } from '../galleryUploadCore';
 
 const CATEGORY_PRESETS = [
   'Baby Shower',
