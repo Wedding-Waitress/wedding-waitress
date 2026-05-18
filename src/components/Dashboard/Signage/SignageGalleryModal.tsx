@@ -129,9 +129,9 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   });
 
   const handleSelectImage = (image: SignageGalleryImage) => {
-    // Use lightweight thumbnail for live editor; pass master URL separately for print-ready PDF.
-    const preview = image.thumbnail_url || image.image_url;
-    onSelectImage(preview, image.image_url);
+    // Editor uses the MASTER url (server-resized to ~2400px by useOptimizedPreview).
+    // Never the 400px thumbnail — that produced a blurry editor preview.
+    onSelectImage(image.image_url, image.image_url);
     setPreviewImage(null);
     onOpenChange(false);
   };
