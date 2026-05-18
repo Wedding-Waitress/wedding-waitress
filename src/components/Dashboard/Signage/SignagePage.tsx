@@ -60,7 +60,7 @@ const PRINT_SIZES: ReadonlyArray<{
   recommended?: boolean;
   icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for large venue entrance signs', icon: Presentation },
+  
   { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: MonitorSmartphone },
   { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: ClipboardList },
   { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileImage },
@@ -72,7 +72,7 @@ const PRINT_SIZES: ReadonlyArray<{
 ];
 
 const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
-  a0: { widthMm: 841, heightMm: 1189 },
+  
   a1: { widthMm: 594, heightMm: 841 },
   a2: { widthMm: 420, heightMm: 594 },
   a3: { widthMm: 297, heightMm: 420 },
@@ -331,7 +331,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </ul>
               </div>
               {[
-                { icon: Building2, title: 'Main Foyer Sign', size: 'A1 or A0', desc: 'Ideal for venue entrances and easels.' },
+                { icon: Building2, title: 'Main Foyer Sign', size: 'A1', desc: 'Ideal for venue entrances and easels.' },
                 { icon: QrCode, title: 'Table Upload Cards', size: 'DL Card or A5', desc: 'Perfect for photo/video uploads and QR access.' },
                 { icon: Heart, title: 'Guest Keepsake Cards', size: 'Postcard or Business Card', desc: 'Perfect for digital guestbooks and memories.' },
               ].map(({ icon: Icon, title, size, desc }) => (
