@@ -144,7 +144,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       return;
     }
     if (uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES) {
-      toast({ title: 'File too large', description: 'Maximum 80 MB per upload. For A1 signs, upload JPG at 300 DPI.', variant: 'destructive' });
+      toast({ title: 'File too large', description: `Max 200 MB per upload. This file is ${(uploadFile.size / 1024 / 1024).toFixed(1)} MB.`, variant: 'destructive' });
       return;
     }
     try {
