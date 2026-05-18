@@ -23,8 +23,8 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const PREVIEW_WIDTH_PX = 2400;
-const PREVIEW_QUALITY = 90;
+const PREVIEW_WIDTH_PX = 1400;
+const PREVIEW_QUALITY = 70;
 const THUMB_WIDTH_PX = 400;
 const THUMB_QUALITY = 75;
 
@@ -34,7 +34,10 @@ function isSupabaseStorageUrl(url: string | null | undefined): url is string {
 }
 
 /**
- * Append `?width=…&quality=…` Supabase Image Transformation params.
+ * Append `?width=…&quality=…` Supabase Image Transformation params, and rewrite
+ * the path from `/storage/v1/object/...` to `/storage/v1/render/image/...` so
+ * the resize actually happens server-side (the /object/ endpoint ignores
+ * transform params and would serve the full master file).
  * Safe on any URL — non-storage URLs are returned unchanged.
  */
 export function transformedUrl(
@@ -45,16 +48,21 @@ export function transformedUrl(
   if (!isSupabaseStorageUrl(url)) return url;
   try {
     const u = new URL(url);
-    // Supabase rewrites /object/public/ → /render/image/public/ when transform
-    // params are present, but accepts ?width=…&quality=… on the object URL too.
-    if (opts.width) u.searchParams.set('width', String(opts.width));
-    if (opts.quality) u.searchParams.set('quality', String(opts.quality));
-    if (opts.format) u.searchParams.set('format', opts.format);
+    const hasTransform = !!(opts.width || opts.quality || opts.format);
+    if (hasTransform) {
+      u.pathname = u.pathname
+        .replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
+        .replace('/storage/v1/object/sign/', '/storage/v1/render/image/sign/');
+      if (opts.width) u.searchParams.set('width', String(opts.width));
+      if (opts.quality) u.searchParams.set('quality', String(opts.quality));
+      if (opts.format) u.searchParams.set('format', opts.format);
+    }
     return u.toString();
   } catch {
     return url;
   }
 }
+
 
 /** Build a ~2400px high-quality preview URL for the live editor. */
 export function previewUrlFor(masterUrl: string | null | undefined): string | null {
