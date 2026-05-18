@@ -493,24 +493,36 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 pt-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      disabled={!settings || exporting !== null || !printSize}
-                      onClick={handleDownloadPDF}
-                      className="lv-premium-shade inline-flex items-center gap-2 h-9 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
-                    >
-                      {exporting === 'pdf' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                      {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
-                    </button>
-                  </div>
-                  {!printSize && (
-                    <p className="text-[11px] text-muted-foreground italic">Select a print size to enable download.</p>
-                  )}
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    All exports are generated as high-resolution print-ready PDFs for professional printing.
-                  </p>
-                </div>
+                {(() => {
+                  const hasBackground = !!(settings?.background_image_print_url || settings?.background_image_url || settings?.background_color);
+                  const missing: string[] = [];
+                  if (!settings) missing.push('Sign settings are still loading');
+                  if (!printSize) missing.push('Select a print size above');
+                  if (settings && !hasBackground) missing.push('Choose a background image or color');
+                  const disabled = exporting !== null || missing.length > 0;
+                  return (
+                    <div className="flex flex-col gap-2 pt-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          disabled={disabled}
+                          onClick={handleDownloadPDF}
+                          className="lv-premium-shade inline-flex items-center gap-2 h-9 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                        >
+                          {exporting === 'pdf' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                          {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
+                        </button>
+                      </div>
+                      {missing.length > 0 && (
+                        <ul className="text-[11px] text-muted-foreground italic list-disc pl-4">
+                          {missing.map((m) => <li key={m}>{m}</li>)}
+                        </ul>
+                      )}
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        All exports are generated as high-resolution print-ready PDFs for professional printing.
+                      </p>
+                    </div>
+                  );
+                })()}
                 <div className="border-t border-primary/15 pt-4 mt-4">
                   <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
                     <Sparkles className="w-3.5 h-3.5 text-primary/70" />
