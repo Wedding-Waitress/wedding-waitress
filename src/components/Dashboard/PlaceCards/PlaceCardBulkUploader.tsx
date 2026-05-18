@@ -19,7 +19,7 @@ const CATEGORY_PRESETS = [
   'Vintage',
 ];
 
-const CONCURRENCY = 3;
+const CONCURRENCY = 2;
 const DEFAULT_BULK_CATEGORY = 'Uncategorized';
 
 const CATEGORY_KEYWORDS: Array<{ category: string; patterns: RegExp[] }> = [
