@@ -299,6 +299,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   onReset={() => onQrConfigUpdate?.({ x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0 })}
                   onRotate={(r) => onQrConfigUpdate?.({ rotation: r })}
                   containerRef={containerRef as React.RefObject<HTMLElement>}
+                  whitePlate={qrWhitePlate}
                 />
               )}
 
