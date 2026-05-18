@@ -181,13 +181,21 @@ export async function exportSignagePDF(opts: SignagePdfOptions, fileName: string
   // drop data-URL <img> tags, which is why the QR was missing from prints).
   const { qrConfig, qrDataUrl } = opts;
   if (qrConfig?.enabled && qrDataUrl) {
-    const qrSizeMm = (qrConfig.size_percent / 100) * widthMm;
-    const qrXMm = (qrConfig.x_percent / 100) * widthMm - qrSizeMm / 2;
-    const qrYMm = (qrConfig.y_percent / 100) * heightMm - qrSizeMm / 2;
-    // White plate behind transparent QR so it stays scannable on any background.
-    const pad = qrSizeMm * 0.06;
+    // Mirror preview EXACTLY: in InteractiveQROverlay the QR is rendered with
+    // width = size_percent% of container width and aspect-ratio:1 (square),
+    // positioned with left = (x_percent - size_percent/2)% of container WIDTH
+    // and top = (y_percent - size_percent/2)% of container HEIGHT.
+    // The half-size offset is expressed as a percent of each axis independently
+    // (CSS `top: %` is height-relative, `left: %` is width-relative), so we
+    // must do the same here — otherwise portrait prints push the QR far below
+    // its on-screen position.
+    const qrSizeMm = (qrConfig.size_percent / 100) * widthMm; // square: width = height
+    const qrXMm = ((qrConfig.x_percent - qrConfig.size_percent / 2) / 100) * widthMm;
+    const qrYMm = ((qrConfig.y_percent - qrConfig.size_percent / 2) / 100) * heightMm;
+    // Tight white plate (no extra padding) so it stays scannable on busy
+    // backgrounds without a visible white border bleeding past the QR edges.
     pdf.setFillColor(255, 255, 255);
-    pdf.rect(qrXMm - pad, qrYMm - pad, qrSizeMm + pad * 2, qrSizeMm + pad * 2, 'F');
+    pdf.rect(qrXMm, qrYMm, qrSizeMm, qrSizeMm, 'F');
     pdf.addImage(qrDataUrl, 'PNG', qrXMm, qrYMm, qrSizeMm, qrSizeMm, undefined, 'NONE');
   }
 
