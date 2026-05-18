@@ -143,17 +143,10 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
   const removeRow = (id: string) =>
-    setRows((prev) => {
-      const r = prev.find((x) => x.id === id);
-      if (r) URL.revokeObjectURL(r.previewUrl);
-      return prev.filter((x) => x.id !== id);
-    });
+    setRows((prev) => prev.filter((x) => x.id !== id));
 
   const clearDone = () =>
-    setRows((prev) => {
-      prev.filter((r) => r.status === 'done').forEach((r) => URL.revokeObjectURL(r.previewUrl));
-      return prev.filter((r) => r.status !== 'done');
-    });
+    setRows((prev) => prev.filter((r) => r.status !== 'done'));
 
   const uploadOne = async (row: Row) => {
     if (!row.name.trim() || !row.category.trim()) {
