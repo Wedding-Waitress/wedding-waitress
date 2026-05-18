@@ -271,7 +271,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
                   <p className="text-xs font-medium truncate">
-                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤80 MB — JPG recommended for A1)'}
+                    {uploadFile ? `${uploadFile.name} (${(uploadFile.size / 1024 / 1024).toFixed(1)} MB)` : 'Click to select a single PNG / JPG (≤200 MB — JPG recommended for A1)'}
                   </p>
                 </div>
               )}
