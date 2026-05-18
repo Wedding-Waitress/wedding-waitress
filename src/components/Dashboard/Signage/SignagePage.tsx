@@ -153,7 +153,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const lightweightBgUrl = useMemo(() => {
     const pre = (settings as any)?.background_image_preview_url;
     if (pre) return pre;
-    return transformedUrl(editorMasterUrl, { width: 1400, quality: 70 }) ?? editorMasterUrl;
+    return transformedUrl(editorMasterUrl, { width: 1400, quality: 70 }) ?? null;
   }, [editorMasterUrl, (settings as any)?.background_image_preview_url]);
 
   // Editor-facing settings: identical to asInvitationSettings but with the
