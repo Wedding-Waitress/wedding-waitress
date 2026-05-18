@@ -146,6 +146,19 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
 
+  // Downscale the master background image to a lightweight blob URL for the
+  // live editor + preview only. PDF export continues to use the master URL.
+  const { previewUrl: lightweightBgUrl } = usePreviewBackgroundUrl(
+    settings?.background_image_url ?? null,
+  );
+
+  // Editor-facing settings: identical to asInvitationSettings but with the
+  // background image swapped for the lightweight version.
+  const editorSettings = useMemo(() => {
+    if (!asInvitationSettings) return null;
+    return { ...asInvitationSettings, background_image_url: lightweightBgUrl };
+  }, [asInvitationSettings, lightweightBgUrl]);
+
   const eventData = useMemo(() => {
     if (!selectedEvent) return {} as Record<string, string>;
     const p1 = selectedEvent.partner1_name || '';
