@@ -246,8 +246,12 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
           <span className="font-medium">
             {stats.done} / {stats.total} done
           </span>
+          {running && stats.uploading > 0 && (
+            <span className="text-primary">
+              · Uploading {Math.min(stats.done + stats.failed + 1, stats.total)} of {stats.total}
+            </span>
+          )}
           {stats.failed > 0 && <span className="text-destructive">· {stats.failed} failed</span>}
-          {stats.uploading > 0 && <span className="text-primary">· {stats.uploading} uploading</span>}
           <div className="ml-auto flex gap-2">
             {stats.failed > 0 && !running && (
               <Button variant="outline" size="sm" onClick={retryFailed} className="lv-premium-shade">
