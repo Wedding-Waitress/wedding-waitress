@@ -156,12 +156,22 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
       updateRow(row.id, { status: 'failed', error: 'Missing name or category' });
       return;
     }
-    updateRow(row.id, { status: 'uploading', error: undefined });
+    updateRow(row.id, { status: 'uploading', error: undefined, progressPercent: 0, progressMessage: 'Preparing…' });
     try {
-      const result = await uploadSignageGalleryImage(row.file, row.name.trim(), row.category.trim());
+      const result = await uploadSignageGalleryImage(
+        row.file,
+        row.name.trim(),
+        row.category.trim(),
+        (progress) => {
+          updateRow(row.id, {
+            progressPercent: progress.percent,
+            progressMessage: progress.message,
+          });
+        },
+      );
       const masterKB = Math.round(result.masterBytes / 1024);
       const thumbKB = Math.round(result.thumbBytes / 1024);
-      updateRow(row.id, { status: 'done', masterKB, thumbKB });
+      updateRow(row.id, { status: 'done', masterKB, thumbKB, progressPercent: 100, progressMessage: undefined });
     } catch (err: any) {
       console.error('Bulk upload row failed', err);
       updateRow(row.id, { status: 'failed', error: getReadableUploadError(err, 'Upload failed') });
