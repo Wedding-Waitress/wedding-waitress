@@ -143,8 +143,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   // Use the shared Canva-style preview pipeline: prefers a pre-generated preview
   // variant when present, otherwise asks Supabase to resize the master server-side.
   // The PDF export continues to use the master URL for full 300 DPI quality.
+  // Editor preview: always derive from the MASTER URL (print_url when present,
+  // else background_image_url). useOptimizedPreview asks Supabase to resize it
+  // server-side to ~2400px so the editor renders sharply. The PDF export keeps
+  // using the master URL untouched for 300 DPI quality.
+  const editorMasterUrl = settings?.background_image_print_url || settings?.background_image_url || null;
   const { url: lightweightBgUrl } = useOptimizedPreview(
-    settings?.background_image_url ?? null,
+    editorMasterUrl,
     (settings as any)?.background_image_preview_url ?? null,
   );
 
