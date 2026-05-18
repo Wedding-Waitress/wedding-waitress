@@ -165,6 +165,7 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
         src={qrDataUrl}
         alt="QR Code"
         className="w-full h-full pointer-events-none select-none"
+        style={whitePlate ? { background: '#ffffff' } : undefined}
         draggable={false}
       />
 
