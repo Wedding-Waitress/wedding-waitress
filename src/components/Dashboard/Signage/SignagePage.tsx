@@ -209,7 +209,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
       const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
       await exportInvitationPDF({
-        backgroundUrl: settings.background_image_url || '',
+        backgroundUrl: settings.background_image_print_url || settings.background_image_url || '',
         orientation: 'portrait',
         widthMm,
         heightMm,
@@ -249,7 +249,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       // exportInvitationPNG names file generically; rename via blob download
       const opts = {
-        backgroundUrl: settings.background_image_url || '',
+        backgroundUrl: settings.background_image_print_url || settings.background_image_url || '',
         orientation,
         widthMm,
         heightMm,
