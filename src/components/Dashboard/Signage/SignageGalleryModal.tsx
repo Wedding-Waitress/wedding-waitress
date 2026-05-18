@@ -17,6 +17,7 @@ import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUpl
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryUploadProgress, getReadableUploadError, isSupportedGalleryImage } from '../galleryUploadCore';
+import { previewUrlFor } from '@/lib/imagePipeline';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
   err instanceof Error ? err.message : fallback
