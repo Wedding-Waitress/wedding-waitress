@@ -568,6 +568,15 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 for (const k of allowed) {
                   if (k in changes) mapped[k] = (changes as any)[k];
                 }
+                // If background_image_url is being set from a non-gallery source
+                // (Choose File / Remove), drop any stale print master URL so PDF
+                // export uses the new image directly.
+                if ('background_image_url' in mapped) {
+                  const incoming = mapped.background_image_url;
+                  if (incoming !== lastGalleryPreviewRef.current) {
+                    mapped.background_image_print_url = null;
+                  }
+                }
                 if (Object.keys(mapped).length === 0) return true;
                 return updateSettings(mapped);
               }}
