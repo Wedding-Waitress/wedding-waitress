@@ -9,6 +9,7 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
+import { usePreviewBackgroundUrl } from './usePreviewBackgroundUrl';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
@@ -144,6 +145,19 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
+
+  // Downscale the master background image to a lightweight blob URL for the
+  // live editor + preview only. PDF export continues to use the master URL.
+  const { previewUrl: lightweightBgUrl } = usePreviewBackgroundUrl(
+    settings?.background_image_url ?? null,
+  );
+
+  // Editor-facing settings: identical to asInvitationSettings but with the
+  // background image swapped for the lightweight version.
+  const editorSettings = useMemo(() => {
+    if (!asInvitationSettings) return null;
+    return { ...asInvitationSettings, background_image_url: lightweightBgUrl };
+  }, [asInvitationSettings, lightweightBgUrl]);
 
   const eventData = useMemo(() => {
     if (!selectedEvent) return {} as Record<string, string>;
@@ -538,11 +552,11 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       )}
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
-      {selectedEventId && settings && !settingsLoading && asInvitationSettings && (
+      {selectedEventId && settings && !settingsLoading && editorSettings && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
           <div className="lg:col-span-2">
             <InvitationCardCustomizer
-              settings={asInvitationSettings}
+              settings={editorSettings}
               onSettingsChange={async (changes) => {
                 // Map shared invitation-shape changes back to signage_settings columns
                 const mapped: any = {};
@@ -588,7 +602,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
                 <PinchZoomContainer naturalWidth={orientation === 'portrait' ? 794 : 1123}>
                 <InvitationCardPreview
-                  settings={asInvitationSettings}
+                  settings={editorSettings}
                   eventData={eventData}
                   selectedZoneId={selectedZoneId}
                   onSelectZone={setSelectedZoneId}
