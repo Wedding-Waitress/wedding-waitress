@@ -284,9 +284,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
       const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
-      await exportInvitationPDF({
+      await exportSignagePDF({
         backgroundUrl: exportBgUrl,
-        orientation: 'portrait',
+        backgroundColor: settings.background_color,
         widthMm,
         heightMm,
         textZones: settings.text_zones as any,
@@ -295,7 +295,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         eventData: eventData as Record<string, string>,
         qrConfig: settings.qr_config,
         qrDataUrl: qrDataUrl || undefined,
-      }, undefined, fileName);
+      }, fileName);
       toast({ title: 'PDF downloaded', description: `Your ${sizeLabel} print-ready PDF has been saved.` });
     } catch (err: any) {
       console.error('Signage PDF export error', err);
