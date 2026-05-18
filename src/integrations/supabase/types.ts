@@ -2981,6 +2981,7 @@ export type Database = {
         Row: {
           background_color: string
           background_image_opacity: number
+          background_image_print_url: string | null
           background_image_type: string
           background_image_url: string | null
           background_image_x_position: number
@@ -2998,6 +2999,7 @@ export type Database = {
         Insert: {
           background_color?: string
           background_image_opacity?: number
+          background_image_print_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
           background_image_x_position?: number
@@ -3015,6 +3017,7 @@ export type Database = {
         Update: {
           background_color?: string
           background_image_opacity?: number
+          background_image_print_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
           background_image_x_position?: number

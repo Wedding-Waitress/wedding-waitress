@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEvents } from '@/hooks/useEvents';
@@ -101,6 +101,45 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState<null | 'pdf' | 'png'>(null);
   const [printSize, setPrintSize] = useState<string | null>(null);
+
+  // Tracks the lightweight preview URL last chosen from the gallery so we can detect
+  // when the user switches to a non-gallery source (Choose File / Remove) and drop
+  // the now-stale master print URL.
+  const lastGalleryPreviewRef = useRef<string | null>(null);
+
+  // Adapter: shared InvitationCardCustomizer expects onSelectImage(url) → background_image_url.
+  // We forward the lightweight preview URL there, AND persist the master URL separately
+  // into background_image_print_url for the print-ready PDF export.
+  const SignageGalleryAdapter = useMemo(() => {
+    const Adapter: React.FC<{
+      open: boolean;
+      onOpenChange: (open: boolean) => void;
+      onSelectImage: (imageUrl: string) => void;
+    }> = (adapterProps) => (
+      <SignageGalleryModal
+        open={adapterProps.open}
+        onOpenChange={adapterProps.onOpenChange}
+        onSelectImage={(previewUrl, printUrl) => {
+          lastGalleryPreviewRef.current = previewUrl;
+          adapterProps.onSelectImage(previewUrl);
+          updateSettings({ background_image_print_url: printUrl ?? null });
+        }}
+      />
+    );
+    return Adapter;
+  }, [updateSettings]);
+
+  // If the background image was replaced via Choose File or removed, clear the stale
+  // master URL so PDF export falls back to whatever background_image_url currently is.
+  useEffect(() => {
+    if (!settings) return;
+    const currentBg = settings.background_image_url || null;
+    const printUrl = settings.background_image_print_url || null;
+    if (printUrl && currentBg !== lastGalleryPreviewRef.current) {
+      updateSettings({ background_image_print_url: null });
+    }
+  }, [settings?.background_image_url, settings?.background_image_print_url, updateSettings]);
+
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
@@ -209,7 +248,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
       const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
       await exportInvitationPDF({
-        backgroundUrl: settings.background_image_url || '',
+        backgroundUrl: settings.background_image_print_url || settings.background_image_url || '',
         orientation: 'portrait',
         widthMm,
         heightMm,
@@ -249,7 +288,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       // exportInvitationPNG names file generically; rename via blob download
       const opts = {
-        backgroundUrl: settings.background_image_url || '',
+        backgroundUrl: settings.background_image_print_url || settings.background_image_url || '',
         orientation,
         widthMm,
         heightMm,
@@ -538,7 +577,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               notesHelper="This is for your reference only and won't appear on the sign."
               imageUploadFolder="signage"
               storageBucket="invitations"
-              GalleryModalComponent={SignageGalleryModal}
+              GalleryModalComponent={SignageGalleryAdapter}
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
