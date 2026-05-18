@@ -14,7 +14,8 @@ import { useEffect, useRef, useState } from 'react';
  * reading the full-resolution file from settings.background_image_url /
  * background_image_print_url.
  */
-const MAX_EDGE = 1200;
+const MAX_EDGE = 2400;
+const JPEG_QUALITY = 0.92;
 
 export function usePreviewBackgroundUrl(masterUrl: string | null | undefined) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(masterUrl ?? null);
