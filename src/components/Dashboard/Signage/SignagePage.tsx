@@ -326,7 +326,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     // export uses the new image directly.
     if ('background_image_url' in mapped) {
       const incoming = mapped.background_image_url;
-      if (incoming !== lastGalleryPreviewRef.current) {
+      if (!incoming) {
+        mapped.background_image_print_url = null;
+        lastGalleryPreviewRef.current = null;
+      } else if (incoming !== lastGalleryPreviewRef.current) {
         mapped.background_image_print_url = null;
       }
     }
