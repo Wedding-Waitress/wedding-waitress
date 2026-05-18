@@ -1,0 +1,1 @@
+ALTER TABLE public.signage_settings ADD COLUMN IF NOT EXISTS background_image_print_url text;
