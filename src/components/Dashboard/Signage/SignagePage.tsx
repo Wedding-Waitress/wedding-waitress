@@ -109,8 +109,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const lastGalleryPreviewRef = useRef<string | null>(null);
 
   // Adapter: shared InvitationCardCustomizer expects onSelectImage(url) → background_image_url.
-  // We forward the lightweight preview URL there, AND persist the master URL separately
-  // into background_image_print_url for the print-ready PDF export.
+  // We bypass the customizer's single-field path and persist BOTH the lightweight preview URL
+  // (for editor/preview) AND the master URL (for print-ready PDF) in one atomic update,
+  // so the debounced save doesn't drop one of them. Then we close the modal.
   const SignageGalleryAdapter = useMemo(() => {
     const Adapter: React.FC<{
       open: boolean;
@@ -122,24 +123,17 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         onOpenChange={adapterProps.onOpenChange}
         onSelectImage={(previewUrl, printUrl) => {
           lastGalleryPreviewRef.current = previewUrl;
-          adapterProps.onSelectImage(previewUrl);
-          updateSettings({ background_image_print_url: printUrl ?? null });
+          updateSettings({
+            background_image_url: previewUrl,
+            background_image_print_url: printUrl ?? null,
+            background_image_type: 'full',
+          });
+          adapterProps.onOpenChange(false);
         }}
       />
     );
     return Adapter;
   }, [updateSettings]);
-
-  // If the background image was replaced via Choose File or removed, clear the stale
-  // master URL so PDF export falls back to whatever background_image_url currently is.
-  useEffect(() => {
-    if (!settings) return;
-    const currentBg = settings.background_image_url || null;
-    const printUrl = settings.background_image_print_url || null;
-    if (printUrl && currentBg !== lastGalleryPreviewRef.current) {
-      updateSettings({ background_image_print_url: null });
-    }
-  }, [settings?.background_image_url, settings?.background_image_print_url, updateSettings]);
 
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
