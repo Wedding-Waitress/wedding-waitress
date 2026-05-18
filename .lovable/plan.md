@@ -1,80 +1,60 @@
-## Goal
-
-Stop the Seating Chart Signs editor/preview from loading multi‑hundred‑MB master images. Use the existing small thumbnail for the live editor, and keep the original master strictly for the "Download Print‑Ready PDF" output. Scope: Seating Chart Signs only. Invitations and Name Place Cards are untouched.
+# Fix Seating Chart Signs editor lag
 
 ## Root cause
 
-In `SignageGalleryModal.handleSelectImage` we currently set the editor's `background_image_url` to `image.image_url` — the full master file (often 50–300 MB). The shared `InvitationCardCustomizer` + `InvitationCardPreview` then render that exact URL in the live preview, causing the laggy/"SLOW" behaviour the user reported.
+The live editor + preview on the Signage page render `settings.background_image_url` directly. When a large file is selected (especially via **Choose File**, which uploads the full-resolution master straight to storage), every keystroke / drag / re-render makes the browser keep decoding a multi-megapixel image, causing the lag visible in the screenshot.
 
-The bulk uploader already writes a small JPEG to `thumbs/...` and stores it in `signage_gallery_images.thumbnail_url`. We just aren't using it for editing.
+The earlier fix only swapped the gallery selection to use `thumbnail_url`. Choose File still feeds the master URL into the editor, and the `<InvitationCardPreview>` had no rendering optimisation, so the page stays heavy.
 
-## Changes
+## Plan (Signage page only — no changes to Invitations, Name Place Cards, upload logic, PDF quality, or layout)
 
-### 1. Database — `signage_settings`
+### 1. New helper: `usePreviewBackgroundUrl` (Signage-scoped)
 
-Add one nullable column to remember which master file to use at PDF time:
+File: `src/components/Dashboard/Signage/usePreviewBackgroundUrl.ts` (new).
 
-```text
-ALTER TABLE public.signage_settings
-ADD COLUMN background_image_print_url text;
+- Input: `masterUrl: string | null`.
+- Loads the source via `new Image()` with `crossOrigin="anonymous"`, draws to an offscreen `<canvas>` resized so the longest edge is **≤ 1200 px**, exports a JPEG blob (`quality 0.82`) and returns an `URL.createObjectURL(blob)`.
+- Memoises by `masterUrl`; revokes the previous object URL on change/unmount.
+- If the source is already small (natural longest edge ≤ 1200 px) or CORS fails, returns the original URL — never blocks rendering.
+- Returns `{ previewUrl, ready }`. While `ready === false`, fall back to `masterUrl` so the preview is never blank.
+
+### 2. Wire the lightweight URL into the editor in `SignagePage.tsx`
+
+- Call `usePreviewBackgroundUrl(settings.background_image_url)` once.
+- Build a single memoised `editorSettings = useMemo(() => ({ ...asInvitationSettings, background_image_url: previewUrl }), [asInvitationSettings, previewUrl])`.
+- Pass `editorSettings` to **both** `<InvitationCardCustomizer>` and `<InvitationCardPreview>`. The thumbnail inside the customizer and the right-side live preview will now load only the downscaled image.
+- In the customizer's `onSettingsChange` mapper, if `background_image_url` is present in the incoming change, write the value as-is (it's the real master URL from upload or gallery, never the blob URL — the customizer only sets it from upload/gallery callbacks, not from the rendered img element).
+
+### 3. Keep PDF export at full quality (no change to behaviour)
+
+`handleDownloadPDF` / `handleDownloadPNG` already use:
+
+```
+backgroundUrl: settings.background_image_print_url || settings.background_image_url
 ```
 
-Backfill is unnecessary (existing rows already point `background_image_url` at the master and will continue to render correctly).
+Both fields still hold the original master URL (DB is untouched), so print exports remain 300 DPI with the original file. No change needed here.
 
-### 2. `src/hooks/useSignageSettings.ts`
+### 4. Reduce unnecessary re-renders
 
-- Add `background_image_print_url?: string | null` to `SignageSettings`.
-- Include it in `buildDefault` (null), in the SELECT mapping, and in the update payload allow‑list so `updateSettings({ background_image_print_url })` persists.
+- Memoise `editorSettings` and `eventData` (already memoised) so identity is stable when unrelated state changes.
+- Wrap the preview block in a small memoised component `SignageLivePreview = React.memo(...)` (local to `SignagePage.tsx`) that receives `editorSettings`, `eventData`, `selectedZoneId`, `qrDataUrl`, and the stable `onZoneUpdate` / `onSelectZone` callbacks (wrap callbacks in `useCallback`). This stops the preview from re-rendering on changes that don't affect its inputs (e.g. exporter state).
+- Add `loading="lazy"` and `decoding="async"` cannot be applied to a CSS `background-image`, so instead we rely on the downscaled blob URL — once cached, repaints are cheap.
 
-### 3. `src/components/Dashboard/Signage/SignageGalleryModal.tsx`
+### 5. Cleanup
 
-- Extend the prop:
-  ```ts
-  onSelectImage: (previewUrl: string, printUrl?: string) => void;
-  ```
-- In `handleSelectImage`, call:
-  ```ts
-  const preview = image.thumbnail_url || image.image_url;
-  onSelectImage(preview, image.image_url);
-  ```
-  Existing callers that ignore the second arg keep working.
+- Revoke the previous blob URL whenever `masterUrl` changes or the component unmounts to avoid memory leaks.
+- No DB migration. No edge function change. No upload code change. `signageUploadUtils.ts`, `SignageGalleryModal.tsx`, `optimize-signage-image` are untouched.
 
-### 4. `src/components/Dashboard/Signage/SignagePage.tsx`
+## Files touched
 
-The gallery modal is wired into the shared `InvitationCardCustomizer` via `GalleryModalComponent={SignageGalleryModal}`. The shared customizer calls `onSelectImage(url)` and writes that url into `background_image_url`. To keep invitations/place‑cards untouched we don't change the shared customizer signature.
+- `src/components/Dashboard/Signage/usePreviewBackgroundUrl.ts` — **new**, downscale hook.
+- `src/components/Dashboard/Signage/SignagePage.tsx` — wire the hook, memoise editor settings + preview block.
 
-Approach: wrap `SignageGalleryModal` in a small adapter inside `SignagePage` that:
-- Receives the shared `onSelectImage(previewUrl)` from the customizer.
-- Intercepts the modal's 2‑arg call. When `printUrl` is provided, also call `updateSettings({ background_image_print_url: printUrl })`. When `printUrl` is absent (e.g. cleared / no gallery selection), call `updateSettings({ background_image_print_url: null })`.
+## Out of scope (explicitly not changed)
 
-Pass the adapter to the customizer as `GalleryModalComponent`.
-
-Also, when the user removes the image or uploads a new one via "Choose File" (handled by the shared customizer), we need to clear the stale print url so the master URL never lingers. Add a tiny `useEffect` in `SignagePage` that watches `settings.background_image_url`: whenever it changes to a value that is NOT equal to the previously set preview URL from gallery selection, set `background_image_print_url = null` so PDF export falls back to `background_image_url` (which is what a Choose File upload already is — a single freshly uploaded file).
-
-### 5. `src/components/Dashboard/Signage/SignagePage.tsx` — PDF export
-
-In `handleDownloadPDF` only, replace:
-```ts
-backgroundUrl: settings.background_image_url || '',
-```
-with:
-```ts
-backgroundUrl: settings.background_image_print_url || settings.background_image_url || '',
-```
-
-`handleDownloadPNG` follows the same change so the on‑screen PNG export is also full quality.
-
-All existing PDF dimensions, A1 max, 300 DPI logic, html2canvas pipeline, and file naming stay exactly as today.
-
-## What is NOT changed
-
-- No change to upload limits, no change to Supabase bucket settings or the `signage-gallery` bucket layout.
-- No change to `signageUploadUtils.ts` upload pipeline. The existing `thumbs/...` JPEG (≤800px longest edge, ~50–200 KB) is reused as the preview source.
-- No change to Invitations gallery, Place Cards gallery, or the shared `InvitationCardCustomizer` / `InvitationCardPreview` components.
-- No visual redesign of the page or modal.
-
-## Expected result
-
-- Selecting any image from the Seating Chart Sign Image Gallery now loads the ~100 KB `thumbs/...` JPEG into the editor — preview is instant and scrolling/editing is smooth.
-- Clicking the green "Download Print‑Ready PDF" pulls the original master file from `originals/...` and produces the same A1 / 300 DPI / print‑shop‑ready output as before.
-- Existing events that already have a master URL in `background_image_url` continue to export at full quality (fallback path).
+- Invitations page and components.
+- Name Place Cards page and components.
+- Upload flow / storage buckets / signed URLs.
+- PDF export rendering or DPI.
+- Page layout, styling, or copy.
