@@ -1,60 +1,91 @@
-# Fix Seating Chart Signs editor lag
+## Goal
+Canva-style image experience across all 3 sign studios (Seating Chart Signs, Invitations & Cards, Name Place Cards): instant load, crisp screen previews, smooth editing, high-resolution print exports.
 
-## Root cause
+## Architecture
 
-The live editor + preview on the Signage page render `settings.background_image_url` directly. When a large file is selected (especially via **Choose File**, which uploads the full-resolution master straight to storage), every keystroke / drag / re-render makes the browser keep decoding a multi-megapixel image, causing the lag visible in the screenshot.
-
-The earlier fix only swapped the gallery selection to use `thumbnail_url`. Choose File still feeds the master URL into the editor, and the `<InvitationCardPreview>` had no rendering optimisation, so the page stays heavy.
-
-## Plan (Signage page only — no changes to Invitations, Name Place Cards, upload logic, PDF quality, or layout)
-
-### 1. New helper: `usePreviewBackgroundUrl` (Signage-scoped)
-
-File: `src/components/Dashboard/Signage/usePreviewBackgroundUrl.ts` (new).
-
-- Input: `masterUrl: string | null`.
-- Loads the source via `new Image()` with `crossOrigin="anonymous"`, draws to an offscreen `<canvas>` resized so the longest edge is **≤ 1200 px**, exports a JPEG blob (`quality 0.82`) and returns an `URL.createObjectURL(blob)`.
-- Memoises by `masterUrl`; revokes the previous object URL on change/unmount.
-- If the source is already small (natural longest edge ≤ 1200 px) or CORS fails, returns the original URL — never blocks rendering.
-- Returns `{ previewUrl, ready }`. While `ready === false`, fall back to `masterUrl` so the preview is never blank.
-
-### 2. Wire the lightweight URL into the editor in `SignagePage.tsx`
-
-- Call `usePreviewBackgroundUrl(settings.background_image_url)` once.
-- Build a single memoised `editorSettings = useMemo(() => ({ ...asInvitationSettings, background_image_url: previewUrl }), [asInvitationSettings, previewUrl])`.
-- Pass `editorSettings` to **both** `<InvitationCardCustomizer>` and `<InvitationCardPreview>`. The thumbnail inside the customizer and the right-side live preview will now load only the downscaled image.
-- In the customizer's `onSettingsChange` mapper, if `background_image_url` is present in the incoming change, write the value as-is (it's the real master URL from upload or gallery, never the blob URL — the customizer only sets it from upload/gallery callbacks, not from the rendered img element).
-
-### 3. Keep PDF export at full quality (no change to behaviour)
-
-`handleDownloadPDF` / `handleDownloadPNG` already use:
-
-```
-backgroundUrl: settings.background_image_print_url || settings.background_image_url
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  UPLOAD                                                          │
+│  Client → Storage (sources/) → optimize-image edge function      │
+│                                  ↓ generates 3 variants          │
+│                                  ├─ master.jpg  (original px)    │
+│                                  ├─ preview.jpg (2400px q=0.92)  │
+│                                  └─ thumb.jpg   ( 400px q=0.75)  │
+│                                  ↓                               │
+│                                  saves to <bucket>/optimized/    │
+│                                  returns { master, preview, thumb│
+│                                          width, height }         │
+├──────────────────────────────────────────────────────────────────┤
+│  DISPLAY                                                         │
+│  Gallery cards    → thumb URL                                    │
+│  Live editor      → preview URL  (fallback: client downscale)    │
+│  PDF / PNG export → master URL   (untouched original quality)    │
+├──────────────────────────────────────────────────────────────────┤
+│  DELIVERY                                                        │
+│  All URLs go through Supabase Image Transformations              │
+│  (`?width=…&quality=…`) for on-the-fly resize where supported    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-Both fields still hold the original master URL (DB is untouched), so print exports remain 300 DPI with the original file. No change needed here.
+## Database
 
-### 4. Reduce unnecessary re-renders
+One migration:
+- Add `background_image_preview_url` and `background_image_thumb_url` to `invitation_card_settings`, `place_card_settings`, `signage_settings` (signage already has `background_image_print_url` for master).
+- Add `background_image_width_px`, `background_image_height_px` to the same 3 tables (for the auto-upscale warning).
+- No RLS changes — columns inherit existing row policies.
 
-- Memoise `editorSettings` and `eventData` (already memoised) so identity is stable when unrelated state changes.
-- Wrap the preview block in a small memoised component `SignageLivePreview = React.memo(...)` (local to `SignagePage.tsx`) that receives `editorSettings`, `eventData`, `selectedZoneId`, `qrDataUrl`, and the stable `onZoneUpdate` / `onSelectZone` callbacks (wrap callbacks in `useCallback`). This stops the preview from re-rendering on changes that don't affect its inputs (e.g. exporter state).
-- Add `loading="lazy"` and `decoding="async"` cannot be applied to a CSS `background-image`, so instead we rely on the downscaled blob URL — once cached, repaints are cheap.
+## Edge function
 
-### 5. Cleanup
+New `optimize-image` (shared, replaces signage-only `optimize-signage-image`):
+- Input: `{ sourcePath, bucket, ownerScope: 'user'|'admin' }`
+- Auth: requires JWT; user-scoped variant verifies the source path starts with the caller's user id; admin variant requires `admin` role (used by gallery curation).
+- Uses `imagescript` (Deno-native) to produce master/preview/thumb.
+- Writes to `<bucket>/optimized/<userId>/<hash>-{master,preview,thumb}.jpg`.
+- Returns all three public URLs + native pixel dimensions.
+- The existing `optimize-signage-image` is kept as a thin alias so the admin gallery keeps working.
 
-- Revoke the previous blob URL whenever `masterUrl` changes or the component unmounts to avoid memory leaks.
-- No DB migration. No edge function change. No upload code change. `signageUploadUtils.ts`, `SignageGalleryModal.tsx`, `optimize-signage-image` are untouched.
+## Frontend
 
-## Files touched
+New shared module `src/lib/imagePipeline.ts`:
+- `uploadAndOptimize(file, { bucket, folder })` — uploads source, invokes edge function, returns variants + dims.
+- `transformedUrl(url, { width, quality })` — appends Supabase transformation params with safe fallback when URL isn't a storage URL or transformations are disabled.
+- `useOptimizedPreview(masterUrl, previewUrl)` — returns the best available preview (preview > transformed master > client-downscaled master).
 
-- `src/components/Dashboard/Signage/usePreviewBackgroundUrl.ts` — **new**, downscale hook.
-- `src/components/Dashboard/Signage/SignagePage.tsx` — wire the hook, memoise editor settings + preview block.
+Hook updates:
+- `useInvitationCardSettings`, `usePlaceCardSettings`, `useSignageSettings` start persisting the new `*_preview_url` / `*_thumb_url` / `*_width_px` / `*_height_px` fields.
 
-## Out of scope (explicitly not changed)
+Customizer updates (`Invitations`, `Place Cards`, `Signage`):
+- Replace direct `supabase.storage.upload` calls in the "Choose File" path with `uploadAndOptimize`.
+- Gallery thumbnails read `thumb_url`. Editor previews read `preview_url`. Export reads `master_url`.
 
-- Invitations page and components.
-- Name Place Cards page and components.
-- Upload flow / storage buckets / signed URLs.
-- PDF export rendering or DPI.
-- Page layout, styling, or copy.
+Export updates (`invitationExporter.ts` + PDF flows in all 3 studios):
+- Always load `master_url` (no behavioural change to the rendering engine — preserves current 300 DPI quality).
+- Before triggering export, compare master pixel dimensions to the selected print size (mm × 11.811 = px @ 300 DPI). If master is < 80% of required pixels, show a non-blocking warning modal: "Your image is N×M px. For A1 at 300 DPI you need 7016×9933 px. The PDF will still export, but quality may be reduced." User can proceed or cancel.
+
+## Locked-page impact
+
+- `Invitations` page edits are limited to the upload/preview/export wiring inside the customizer. No layout/typography/UI changes.
+- `Place Cards` same scope. The 300 DPI export math in `usePlaceCardSettings` / `placeCardsPdfExporter.ts` is NOT modified — only the source URL routed in.
+- `Signage` builds on the work already shipped this session.
+- No changes to homepage, sidebar, Dashboard shell, My Events, Tables, Guest List.
+
+## Rollout
+
+1. Migration (adds columns).
+2. Edge function deploy.
+3. Shared `imagePipeline.ts` + hook updates.
+4. Wire Signage (lowest risk, already mid-flight).
+5. Wire Invitations.
+6. Wire Place Cards.
+7. Auto-upscale warning across all 3.
+
+## Out of scope (would need separate approval)
+
+- Floor Plan, Full Seating Chart, Dietary Chart background images.
+- Welcome / invite video pipelines.
+- Migrating already-uploaded historical images (a one-time backfill function can be added later if needed; new uploads get the full pipeline immediately).
+
+## Notes
+
+- Supabase Image Transformations work on public buckets (`invitations`, `signage-gallery`). For private buckets we generate signed URLs without transforms — preview/thumb files cover that case.
+- `imagescript` (Deno) is already in use by `optimize-signage-image`, so no new dependencies.
