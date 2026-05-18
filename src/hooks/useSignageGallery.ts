@@ -6,6 +6,7 @@ export interface SignageGalleryImage {
   name: string;
   category: string;
   image_url: string;
+  preview_url: string | null;
   thumbnail_url: string | null;
   sort_order: number;
   created_at: string;
