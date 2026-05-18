@@ -275,11 +275,15 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
           <div className="divide-y divide-border">
             {rows.map((row) => (
               <div key={row.id} className="flex items-center gap-3 p-2">
-                <img
-                  src={row.previewUrl}
-                  alt=""
-                  className="w-12 h-12 object-cover rounded border border-border flex-shrink-0"
-                />
+                {row.previewUrl ? (
+                  <img
+                    src={row.previewUrl}
+                    alt=""
+                    className="w-12 h-12 object-cover rounded border border-border flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded border border-border flex-shrink-0 bg-muted" />
+                )}
                 <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Input
                     value={row.name}
