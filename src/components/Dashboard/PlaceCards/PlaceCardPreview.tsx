@@ -702,8 +702,17 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           {/* Screen Preview Only */}
           <div className="print:hidden">
 
-            {/* TOP Pagination Controls */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
+            {/* TOP Pagination Controls + Master Card notice */}
+            <div className="relative flex flex-wrap items-center justify-center gap-4 mb-6">
+              {/* Master Card notice — aligned to left on same row as Previous */}
+              <div
+                className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 text-xs leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30"
+                style={{ maxWidth: '220px' }}
+              >
+                This is the &quot;Master Card&quot;.
+                <br />
+                Customise this to sync with all other cards.
+              </div>
               <Button
                 variant="outline"
                 size="sm"
@@ -734,28 +743,20 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 <div
                   className="absolute pointer-events-none hidden lg:flex flex-col"
                   style={{
-                    right: 'calc(50% + 105mm + 30px)',
+                    right: 'calc(50% + 105mm + 8px)',
                     top: 0,
                     height: '297mm',
                   }}
                 >
-                  {/* Master Card instruction box */}
-                  <div className="absolute flex items-end" style={{ top: '-8mm', right: 0 }}>
-                    <div className="text-xs leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30 overflow-visible" style={{ width: '170px' }}>
-                      This is the &quot;Master Card&quot;.
-                      <br />
-                      Customise this to sync with all other cards.
-                    </div>
-                  </div>
-                  <div className="absolute flex items-center justify-between overflow-visible" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0, width: '170px' }}>
+                  <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0 }}>
                     <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
                     <span className="text-muted-foreground text-xl font-bold">→</span>
                   </div>
-                  <div className="absolute flex items-center justify-between overflow-visible" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0, width: '170px' }}>
+                  <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0 }}>
                     <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
                     <span className="text-muted-foreground text-xl font-bold">→</span>
                   </div>
-                  <div className="absolute flex items-center justify-between overflow-visible" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0, width: '170px' }}>
+                  <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0 }}>
                     <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
                     <span className="text-muted-foreground text-xl font-bold">→</span>
                   </div>
