@@ -1,58 +1,55 @@
-## What's actually breaking
+# Fix: 500 MB uploads on Seating Chart Signs gallery only
 
-The Signage upload code is already a near-perfect clone of the working Place Cards gallery (same util shape, same modal/bulk-uploader pattern). The console proves the real failure is **server-side**, not client-side:
+## Root cause (verified)
 
+I checked all three layers you asked about:
+
+1. **`signage-gallery` bucket `file_size_limit`** — already **500 MB** (524288000 bytes). Verified via `storage.buckets`. ✅
+2. **App code limits** — `MAX_SIGNAGE_UPLOAD_BYTES = 500 * 1024 * 1024` in `signageUploadUtils.ts`, modal + bulk uploader both gate at 500 MB. No 50 MB check anywhere in the Signage path. ✅
+3. **Edge functions** — `optimize-signage-image` is **not called** by the signage upload flow (single or bulk). The flow goes browser → TUS resumable → Supabase Storage directly. ✅
+
+That leaves one layer the agent **cannot** change from code or SQL:
+
+4. **Project-level "Upload file size limit"** in Supabase Storage settings. On the Pro plan this defaults to **50 MB** and silently overrides every bucket's `file_size_limit`. This is the source of the "object exceeded the current storage limit" 413 you're seeing.
+
+Reference: Supabase Storage docs — *"The global file size limit is configurable in the dashboard under Storage → Settings. The per-bucket limit cannot exceed the global limit."*
+
+## What I will do (code)
+
+**Nothing.** The signage code path is already correct for 500 MB:
+- 500 MB bucket limit
+- 500 MB client gate
+- TUS resumable upload (`uploadLargeFileToStorage`) with 6 MB chunks
+- Image Transformations for thumbnails on files > 40 MB (no client decode)
+
+Invitations and Place Cards stay untouched.
+
+## What you need to do (one-time, ~30 seconds)
+
+Open the Supabase dashboard and raise the **global** upload size limit:
+
+```text
+Supabase Dashboard
+ └─ Project: xytxkidpourwdbzzwcdp
+     └─ Storage  →  Settings  (or "Configuration")
+         └─ "Upload file size limit"  →  change from 50 MB to 500 MB  →  Save
 ```
-StorageApiError: The object exceeded the maximum allowed size
-status 400 / statusCode 413
-```
 
-Supabase storage is rejecting the file before our code can do anything. I checked all three buckets — none of them have a `file_size_limit` set, which means they're falling back to the project-wide Storage default (~50 MB on the standard plan). Your true A0 / Topaz 6× JPGs (100–250 MB) blow past that, so:
+Direct link is included below. After saving, retry a > 50 MB file on the Seating Chart Signs gallery — Single Upload and Bulk Upload will both work immediately. No deploy, no code change, no migration.
 
-- Single upload "hangs" → it's actually rejected with 413; toast disappears too fast.
-- Bulk of 5 → all 5 hit 413 in parallel, modal shows "all failed" and the page state resets.
+## How to verify
 
-The Place Cards gallery only "works" for you because you've been uploading smaller files into it; if you drop a 150 MB file into it today it will fail the same way.
+1. Open Seating Chart Signs → Image Gallery → Single Upload
+2. Pick any PNG/JPG between 50 MB and 500 MB
+3. Progress bar should run to 100%, gallery refreshes with the new image
+4. Repeat with Bulk Upload (5 large files) — all should succeed
 
-## Fix (one coordinated change across all 3 galleries)
+If a file > 50 MB still fails with the same "exceeded the current storage limit" message after you raise the global limit, send me a screenshot of the Storage Settings page and I'll dig further — but per Supabase's documented behavior, raising that one number is the fix.
 
-### 1. Raise the bucket file size limit (DB migration)
+## Why not just raise it from code
 
-Set `file_size_limit = 524288000` (500 MB) on:
-- `signage-gallery`
-- `place-card-gallery`
-- `invitation-gallery`
+The global Storage limit lives in Supabase's internal config service, not in `storage.buckets` and not in any SQL-accessible table. There is no SQL, no migration, and no admin API exposed to the Lovable agent that can change it. It is dashboard-only (or via the Supabase Management API with a personal access token, which we don't have).
 
-500 MB safely covers a 6× Topaz A0 JPEG at 300 DPI with headroom.
-
-### 2. Mirror Place Cards behaviour exactly into Signage + Invitations
-
-Bring the three galleries to identical structure and limits (Signage is already 95% the same — only deltas listed):
-
-| File | Change |
-|---|---|
-| `placeCardUploadUtils.ts` | Raise `MAX_PLACE_CARD_UPLOAD_BYTES` 80 MB → **500 MB**. Add `createPreviewThumbnail` helper (same one Signage uses) for bulk previews. |
-| `invitationUploadUtils.ts` | Same: raise its `MAX_*` to **500 MB**, add `createPreviewThumbnail` helper. |
-| `signageUploadUtils.ts` | Raise `MAX_SIGNAGE_UPLOAD_BYTES` 200 MB → **500 MB**, update error text. |
-| `PlaceCardBulkUploader.tsx` | Mirror the Signage bulk pattern: chunked `addFiles` (3 at a time), tiny `createPreviewThumbnail` rows instead of full-image `<img>` decode, raise per-row size cap to 500 MB. |
-| `InvitationBulkUploader.tsx` | Same chunked + thumbnail pattern, 500 MB cap. |
-| `SignageBulkUploader.tsx` | Already chunked — just bump cap message to 500 MB. |
-| `PlaceCardGalleryModal.tsx` / `InvitationGalleryModal.tsx` / `SignageGalleryModal.tsx` | Update all helper text: "Max 500 MB per upload", "For A0 signs upload JPG at 300 DPI", "≤500 MB". Add inline red warning + disable Optimize & Upload button when file is oversize (already done for Signage, mirror to the other two). |
-
-### 3. Bulk-upload page-exit fix (Signage)
-
-The "image gallery page just exited after the scan" is caused by every row throwing a 413 → the parent re-renders and the modal's `open` state resets. Once the bucket limit is raised the errors stop, but I'll also harden `SignageBulkUploader.tsx` so a failed batch leaves rows in `error` state and does **not** unmount the modal (mirror exactly how the Place Card bulk uploader survives partial failures).
-
-## Out of scope
-
-- QR codes, text zones, background settings, preview canvas, event selection.
-- The "Photo & Video Sharing" module in the long instructions block — you asked only about gallery uploads.
-- The A0 vs A1 wording on the Print & Export Studio cards stays as you set it last time (A1 is still the largest *printable* size shown to end users); this change only affects the **admin image gallery** capacity behind the scenes.
-
-## Verification
-
-1. Run migration → re-query `storage.buckets` to confirm `file_size_limit = 524288000` on all three.
-2. Single upload: drop your 106 MB "Asian Wedding Bamboo Gold Elegant.jpg" into Signage gallery → expect success toast + thumbnail.
-3. Bulk upload: drop 5 large files (mix sizes incl. one 150 MB+) → expect each row to progress independently, modal stays open, completed rows show green.
-4. Repeat 2–3 in Place Cards and Invitations galleries with similarly large files.
-5. Confirm gallery page does **not** auto-exit on failure (force one oversize file >500 MB to see graceful red error row).
+<presentation-actions>
+<presentation-link url="https://supabase.com/dashboard/project/xytxkidpourwdbzzwcdp/settings/storage">Open Storage Settings</presentation-link>
+</presentation-actions>
