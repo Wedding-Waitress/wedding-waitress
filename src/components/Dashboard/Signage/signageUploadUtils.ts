@@ -62,19 +62,23 @@ const extensionForFile = (file: File) => {
   return file.type === 'image/jpeg' ? 'jpg' : 'png';
 };
 
-const createThumbnailBlob = async (file: File): Promise<Blob | null> => {
+const createResizedBlob = async (
+  file: File,
+  maxLongestEdge: number,
+  quality: number,
+): Promise<Blob | null> => {
   const objectUrl = URL.createObjectURL(file);
 
   try {
     const image = await new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error('Could not read image for thumbnail'));
+      img.onerror = () => reject(new Error('Could not read image for resize'));
       img.src = objectUrl;
     });
 
     const longest = Math.max(image.naturalWidth, image.naturalHeight);
-    const scale = longest > 800 ? 800 / longest : 1;
+    const scale = longest > maxLongestEdge ? maxLongestEdge / longest : 1;
     const width = Math.max(1, Math.round(image.naturalWidth * scale));
     const height = Math.max(1, Math.round(image.naturalHeight * scale));
     const canvas = document.createElement('canvas');
@@ -87,14 +91,17 @@ const createThumbnailBlob = async (file: File): Promise<Blob | null> => {
     ctx.fillRect(0, 0, width, height);
     ctx.drawImage(image, 0, 0, width, height);
 
-    return await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.75));
+    return await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
   } catch (error) {
-    console.warn('Signage thumbnail generation skipped', error);
+    console.warn('Signage resize skipped', error);
     return null;
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
 };
+
+const createThumbnailBlob = (file: File) => createResizedBlob(file, 800, 0.75);
+const createPreviewBlob = (file: File) => createResizedBlob(file, 1400, 0.7);
 
 export const uploadSignageGalleryImage = async (
   file: File,
