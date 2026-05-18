@@ -725,6 +725,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   onZoneDuplicate={handleZoneDuplicate}
                   qrDataUrl={qrDataUrl}
                   onQrConfigUpdate={handleQrConfigUpdate}
+                  qrWhitePlate
                 />
                 </PinchZoomContainer>
               </div>
