@@ -27,6 +27,8 @@ interface InvitationCardPreviewProps {
   onZoneReset?: (zoneId: string) => void;
   qrDataUrl?: string | null;
   onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
+  /** Render a white plate behind the QR (matches print-ready PDF). Used by Seating Chart Signs. */
+  qrWhitePlate?: boolean;
 }
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
@@ -49,6 +51,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   onZoneReset,
   qrDataUrl,
   onQrConfigUpdate,
+  qrWhitePlate = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
@@ -296,6 +299,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   onReset={() => onQrConfigUpdate?.({ x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0 })}
                   onRotate={(r) => onQrConfigUpdate?.({ rotation: r })}
                   containerRef={containerRef as React.RefObject<HTMLElement>}
+                  whitePlate={qrWhitePlate}
                 />
               )}
 

@@ -16,6 +16,8 @@ interface InteractiveQROverlayProps {
   onDuplicate?: () => void;
   onRotate?: (rotation: number) => void;
   containerRef: React.RefObject<HTMLElement>;
+  /** Render a tight white plate behind the QR (matches print-ready PDF output). */
+  whitePlate?: boolean;
 }
 
 const SNAP_THRESHOLD = 4;
@@ -35,6 +37,7 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
   onDuplicate,
   onRotate,
   containerRef,
+  whitePlate = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
@@ -162,6 +165,7 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
         src={qrDataUrl}
         alt="QR Code"
         className="w-full h-full pointer-events-none select-none"
+        style={whitePlate ? { background: '#ffffff' } : undefined}
         draggable={false}
       />
 
