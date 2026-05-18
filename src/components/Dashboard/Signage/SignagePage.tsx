@@ -101,7 +101,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState<null | 'pdf' | 'png'>(null);
-  const [printSize, setPrintSize] = useState<string | null>(null);
+  const [printSize, setPrintSize] = useState<string | null>(() => {
+    const rec = PRINT_SIZES.find(p => p.recommended) || PRINT_SIZES[0];
+    return rec ? rec.id : null;
+  });
 
   // Tracks the lightweight preview URL last chosen from the gallery so we can detect
   // when the user switches to a non-gallery source (Choose File / Remove) and drop
