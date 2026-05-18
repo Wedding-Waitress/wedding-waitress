@@ -321,10 +321,21 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
                 <div className="w-72 text-xs flex items-start gap-1.5 flex-shrink-0 pt-1.5">
                   {row.status === 'queued' && <span className="text-muted-foreground">Queued</span>}
                   {row.status === 'uploading' && (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-primary">Optimizing…</span>
-                    </>
+                    <div className="flex flex-col gap-1 w-full">
+                      <div className="flex items-center gap-1.5">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary flex-shrink-0" />
+                        <span className="text-primary truncate">
+                          {row.progressMessage || 'Uploading…'}
+                          {typeof row.progressPercent === 'number' ? ` ${row.progressPercent}%` : ''}
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all"
+                          style={{ width: `${row.progressPercent ?? 0}%` }}
+                        />
+                      </div>
+                    </div>
                   )}
                   {row.status === 'done' && (
                     <>
