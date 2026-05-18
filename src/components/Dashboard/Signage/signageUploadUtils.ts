@@ -118,10 +118,12 @@ export const uploadSignageGalleryImage = async (
   uploadedPaths.push(masterPath);
 
   const masterUrl = supabase.storage.from('signage-gallery').getPublicUrl(masterPath).data.publicUrl;
-  let thumbUrl: string | null = getTransformedPublicUrl('signage-gallery', masterPath);
+  // Never use Supabase image transforms as thumbnail — they fail silently on large source images.
+  // Default to the master public URL; replace with a real client-generated thumbnail when possible.
+  let thumbUrl: string | null = masterUrl;
   let thumbBytes = 0;
 
-  const thumbnailBlob = file.size <= 40 * 1024 * 1024 ? await createThumbnailBlob(file) : null;
+  const thumbnailBlob = await createThumbnailBlob(file);
   if (thumbnailBlob) {
     const thumbUpload = await supabase.storage.from('signage-gallery').upload(thumbPath, thumbnailBlob, {
       contentType: 'image/jpeg',

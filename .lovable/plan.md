@@ -1,55 +1,35 @@
-# Fix: 500 MB uploads on Seating Chart Signs gallery only
+# Fix: Signage Gallery Image Preview After Upload
 
-## Root cause (verified)
+## Root cause
 
-I checked all three layers you asked about:
+In `src/components/Dashboard/Signage/signageUploadUtils.ts`, when a file is larger than **40 MB**, the client-side canvas thumbnail is skipped and `thumbnail_url` is set to Supabase's **on-the-fly image transformation URL** of the 104 MB master.
 
-1. **`signage-gallery` bucket `file_size_limit`** — already **500 MB** (524288000 bytes). Verified via `storage.buckets`. ✅
-2. **App code limits** — `MAX_SIGNAGE_UPLOAD_BYTES = 500 * 1024 * 1024` in `signageUploadUtils.ts`, modal + bulk uploader both gate at 500 MB. No 50 MB check anywhere in the Signage path. ✅
-3. **Edge functions** — `optimize-signage-image` is **not called** by the signage upload flow (single or bulk). The flow goes browser → TUS resumable → Supabase Storage directly. ✅
+Supabase image transformations refuse very large source images and return a broken image. Because both the gallery card and the detail preview render `thumbnail_url || image_url` (thumbnail first), the preview appears broken even though the upload succeeded and the bucket is public.
 
-That leaves one layer the agent **cannot** change from code or SQL:
+Confirmed:
+- `signage-gallery` bucket is **public**, `file_size_limit = 500 MB` — OK.
+- Global storage limit raised to 1 GB (per your screenshot) — OK.
+- Master file uploads successfully; only the **preview URL** is broken.
 
-4. **Project-level "Upload file size limit"** in Supabase Storage settings. On the Pro plan this defaults to **50 MB** and silently overrides every bucket's `file_size_limit`. This is the source of the "object exceeded the current storage limit" 413 you're seeing.
+## Fix (Signage only — Invitations & Place Cards untouched)
 
-Reference: Supabase Storage docs — *"The global file size limit is configurable in the dashboard under Storage → Settings. The per-bucket limit cannot exceed the global limit."*
+### 1. `src/components/Dashboard/Signage/signageUploadUtils.ts`
+- Remove the 40 MB guard on `createThumbnailBlob`. The canvas downsizes the bitmap to 800px on the longest edge **before** JPEG encoding, so memory stays bounded even for 100 MB+ source files.
+- If `createThumbnailBlob` returns `null` (decode failure), fall back to the **plain public URL of the master** (no `?transform=`), so the gallery still shows the real image instead of a broken transform URL.
+- Never write a `getTransformedPublicUrl(...)` value into `thumbnail_url` for the master — transforms can fail silently on large originals.
 
-## What I will do (code)
+### 2. `src/components/Dashboard/Signage/SignageGalleryModal.tsx`
+- **Detail preview (`previewImage` view)**: render `previewImage.image_url` (full original) directly. The detail view should always show the full image, not the 800px thumbnail.
+- **Gallery card grid**: keep `thumbnail_url || image_url`, but add an `onError` handler on the `<img>` that swaps to `image_url` if the thumbnail 404s — so any pre-existing broken rows self-heal on view.
 
-**Nothing.** The signage code path is already correct for 500 MB:
-- 500 MB bucket limit
-- 500 MB client gate
-- TUS resumable upload (`uploadLargeFileToStorage`) with 6 MB chunks
-- Image Transformations for thumbnails on files > 40 MB (no client decode)
+### 3. No other changes
+- No upload-limit changes.
+- No changes to Invitations or Name Place Cards.
+- No modal redesign.
+- No changes to bucket settings or RLS.
 
-Invitations and Place Cards stay untouched.
-
-## What you need to do (one-time, ~30 seconds)
-
-Open the Supabase dashboard and raise the **global** upload size limit:
-
-```text
-Supabase Dashboard
- └─ Project: xytxkidpourwdbzzwcdp
-     └─ Storage  →  Settings  (or "Configuration")
-         └─ "Upload file size limit"  →  change from 50 MB to 500 MB  →  Save
-```
-
-Direct link is included below. After saving, retry a > 50 MB file on the Seating Chart Signs gallery — Single Upload and Bulk Upload will both work immediately. No deploy, no code change, no migration.
-
-## How to verify
-
-1. Open Seating Chart Signs → Image Gallery → Single Upload
-2. Pick any PNG/JPG between 50 MB and 500 MB
-3. Progress bar should run to 100%, gallery refreshes with the new image
-4. Repeat with Bulk Upload (5 large files) — all should succeed
-
-If a file > 50 MB still fails with the same "exceeded the current storage limit" message after you raise the global limit, send me a screenshot of the Storage Settings page and I'll dig further — but per Supabase's documented behavior, raising that one number is the fix.
-
-## Why not just raise it from code
-
-The global Storage limit lives in Supabase's internal config service, not in `storage.buckets` and not in any SQL-accessible table. There is no SQL, no migration, and no admin API exposed to the Lovable agent that can change it. It is dashboard-only (or via the Supabase Management API with a personal access token, which we don't have).
-
-<presentation-actions>
-<presentation-link url="https://supabase.com/dashboard/project/xytxkidpourwdbzzwcdp/settings/storage">Open Storage Settings</presentation-link>
-</presentation-actions>
+## Expected result
+After uploading a Seating Chart Sign image (any size up to 500 MB):
+- Gallery card shows the actual thumbnail.
+- Clicking the card opens the detail view showing the actual full image.
+- Existing broken rows recover automatically because of the `onError` fallback.

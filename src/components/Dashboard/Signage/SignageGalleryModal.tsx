@@ -355,7 +355,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
             </div>
             <div className="flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-[400px]">
               <img
-                src={previewImage.thumbnail_url || previewImage.image_url}
+                src={previewImage.image_url}
                 alt={previewImage.name}
                 className="max-w-full max-h-[60vh] object-contain"
               />
@@ -403,6 +403,12 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                           alt={image.name}
                           loading="lazy"
                           className="w-full h-full object-contain"
+                          onError={(e) => {
+                            const img = e.currentTarget;
+                            if (image.image_url && img.src !== image.image_url) {
+                              img.src = image.image_url;
+                            }
+                          }}
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                           <button
