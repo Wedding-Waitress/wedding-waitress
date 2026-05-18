@@ -103,17 +103,8 @@ function buildOverlayElement(opts: SignagePdfOptions, basePx: { w: number; h: nu
     container.appendChild(el);
   });
 
-  if (qrConfig?.enabled && qrDataUrl) {
-    const qrImg = document.createElement('img');
-    qrImg.src = qrDataUrl;
-    qrImg.style.cssText = `
-      position: absolute;
-      left: ${qrConfig.x_percent - qrConfig.size_percent / 2}%;
-      top: ${qrConfig.y_percent - qrConfig.size_percent / 2}%;
-      width: ${qrConfig.size_percent}%;
-    `;
-    container.appendChild(qrImg);
-  }
+  // NOTE: QR is added directly to the PDF via jsPDF.addImage (not html2canvas)
+  // to guarantee crisp rendering — html2canvas occasionally drops data-URL <img> tags.
 
   return container;
 }
