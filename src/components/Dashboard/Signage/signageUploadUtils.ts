@@ -123,6 +123,7 @@ export const uploadSignageGalleryImage = async (
   let thumbUrl: string | null = masterUrl;
   let thumbBytes = 0;
 
+  onProgress?.({ phase: 'saving', percent: 100, message: 'Creating lightweight preview…' });
   const thumbnailBlob = await createThumbnailBlob(file);
   if (thumbnailBlob) {
     const thumbUpload = await supabase.storage.from('signage-gallery').upload(thumbPath, thumbnailBlob, {
@@ -137,6 +138,7 @@ export const uploadSignageGalleryImage = async (
       thumbBytes = thumbnailBlob.size;
     }
   }
+  onProgress?.({ phase: 'saving', percent: 100, message: 'Saving to gallery…' });
 
   const { data: maxRow } = await supabase
     .from('signage_gallery_images' as any)
