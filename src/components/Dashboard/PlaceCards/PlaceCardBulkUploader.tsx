@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { MAX_PLACE_CARD_UPLOAD_BYTES, prettifyPlaceCardFilename, uploadPlaceCardGalleryImage } from './placeCardUploadUtils';
+import { getReadableUploadError } from '../galleryUploadCore';
 
 const CATEGORY_PRESETS = [
   'Floral',
