@@ -1,76 +1,44 @@
-## Goal
+# Fix Seating Chart Sign Gallery uploads
 
-Bring the Name Place Cards image gallery to feature parity with the Seating Chart Signs and Invitations & Cards galleries. Nothing changes anywhere else in the app. The current `PlaceCardGalleryModal.tsx` (176 lines, basic search + tab + grid) gets rebuilt to match `InvitationGalleryModal.tsx` (553 lines, full admin tooling).
+## What's actually broken
 
-## What was added to Signage + Invitations galleries (recap)
+I traced both bugs to the same root: the gallery wasn't built to handle the large 100 MB+ JPGs you're now producing for A1 prints.
 
-Listed so we can replicate the exact same set in Place Cards:
+### 1. Single Upload — "nothing happens"
+`SignageGalleryModal.handleUpload()` rejects any file larger than **80 MB** with a red toast and stops. Your "Asian Wedding Bamboo Gold Elegant.jpg" is **106 MB** (from our earlier check), so it hits that cap. The toast fires but disappears quickly and you read it as "nothing happened." There's no inline error next to the filename, so the UI looks frozen.
 
-1. **Admin-only top-right "Admin Upload" button** — gated by `useIsAdmin()`. Hidden for normal users (bride/groom/vendors). Toggles an inline upload panel.
-2. **Bulk Upload mode** with a dedicated `*BulkUploader` component:
-   - Drag & drop or click-to-select multiple PNG/JPG files
-   - Per-file progress, success/error state, retry
-   - Auto-refresh of the gallery on completion
-3. **Single Upload mode** — pick one file, optimize & upload button.
-4. **80 MB upload cap** (`MAX_*_UPLOAD_BYTES = 80 * 1024 * 1024`) shared with the signage limit, validated client-side and surfaced in the drop-zone label.
-5. **Master + thumbnail pipeline** (`uploadXxxGalleryImage`):
-   - Master kept full-resolution in storage under `originals/...`
-   - 800px-longest-edge JPEG thumbnail under `thumbs/...` (quality 0.75)
-   - Toast reports master KB + thumb KB after upload
-   - Filename auto-prettifier (`prettifyXxxFilename`)
-6. **Smart category dropdown in the header** (replacing the old tab strip), showing `Category (count)` per category and `All Categories (total)`. Hidden when there’s ≤1 category.
-7. **Per-image admin actions on hover** (in addition to View/Select):
-   - **Delete** — removes the DB row AND both storage files (master + thumb), with a confirmation dialog.
-   - **Categorize** — popover that lists existing categories with counts, lets admin assign or create a new category. Single-category enforcement.
-8. **Many-to-many category model** via `*_categories` + `*_image_categories` join tables, with the legacy `category` text column kept in sync.
-9. **(Invitations only) AI auto-categorization** through the `classify-invitation-image` edge function — best-effort, never blocks upload. *(We will NOT add this to Place Cards in this round — see "Out of scope".)*
-10. **Lazy-loaded thumbnails** (`loading="lazy"`, `image.thumbnail_url || image.image_url`) for fast grid rendering.
-11. **Mobile polish**: sticky bottom Cancel bar, wrap-friendly header, full-width category select, `lv-premium-shade` on every button.
-12. **Realtime/refetch** after upload, delete, or category change so the grid updates instantly.
+### 2. Bulk Upload — "freezes"
+`SignageBulkUploader.addFiles()` does two heavy things synchronously the moment files are dropped:
+- creates an object-URL for every file
+- renders each one as `<img src={fullSizeObjectUrl}>` (the browser then decodes 100 MB JPEGs in the main thread)
 
-## Plan for Name Place Cards gallery
+Drop 5–10 of those at once and the tab locks up before you ever see the "Start upload" button.
 
-Scope: only `place-cards` tab. No changes to Signage, Invitations, or any other module.
+## Fix
 
-### 1. Database (migration)
+**File: `src/components/Dashboard/Signage/signageUploadUtils.ts`**
+- Raise `MAX_SIGNAGE_UPLOAD_BYTES` from 80 MB → **200 MB** (covers 6× Topaz A1 output).
+- Export a new `createPreviewThumbnail(file, 96)` helper that downscales to a small JPEG blob via canvas (used by bulk uploader for previews).
 
-Mirror the invitation category model for place cards:
+**File: `src/components/Dashboard/Signage/SignageGalleryModal.tsx`**
+- Show inline red helper text under the single-upload dropzone when the chosen file exceeds the limit (so it never looks silent).
+- Update size hint text to "≤200 MB".
+- Pre-flight check on file selection (not only on click) so the user sees the problem instantly.
 
-- Add `thumbnail_url text` to `place_card_gallery_images` (if not present).
-- New table `place_card_categories` (`id`, `name unique`, `slug`, `created_at`).
-- New join table `place_card_image_categories` (`image_id`, `category_id`, PK on pair).
-- RLS: read = public (gallery is public-read like the others); write = admin only via existing `is_admin()` / `has_role` helper, mirroring `invitation_categories` policies.
-- Backfill: insert distinct existing `place_card_gallery_images.category` values into `place_card_categories` and seed the join table so nothing disappears.
+**File: `src/components/Dashboard/Signage/SignageBulkUploader.tsx`**
+- Replace the full-image preview with a tiny downscaled thumbnail generated by `createPreviewThumbnail` before the row is added. Show a placeholder while it's generating.
+- Process `addFiles` in small async chunks (3 at a time) with `await new Promise(r => setTimeout(r, 0))` between chunks so the UI thread stays responsive even with 20+ huge files.
+- Raise the per-row size error message to "≤200 MB".
 
-### 2. Storage
+## Verification
 
-- Confirm/create a `place-card-gallery` bucket (public-read), matching the `invitation-gallery` bucket setup.
-- Folders used by uploads: `originals/...` and `thumbs/...`.
+After the edit I will:
+1. Open the preview, navigate to **Seating Chart Signs → Background → Image Gallery → Admin Upload**.
+2. **Single Upload** — pick the 106 MB Asian Wedding JPG, click **Optimize & Upload**, confirm it uploads (green toast + new tile in gallery).
+3. **Bulk Upload** — drop several large JPGs, confirm the UI stays responsive, rows appear with thumbnails, **Start upload** runs them through to "done".
+4. Report results back to you before declaring it fixed.
 
-### 3. Frontend files to add
-
-- `src/components/Dashboard/PlaceCards/placeCardUploadUtils.ts` — port of `invitationUploadUtils.ts`:
-  - `MAX_PLACE_CARD_UPLOAD_BYTES = 80 MB`
-  - `prettifyPlaceCardFilename`
-  - `uploadPlaceCardGalleryImage(file, name, category)` → master + thumbnail upload, insert row, set category via join table.
-  - `assignCategoriesToImage` / `replaceImageCategories` (single-category enforcement, legacy column kept in sync).
-- `src/components/Dashboard/PlaceCards/PlaceCardBulkUploader.tsx` — port of `InvitationBulkUploader.tsx` with the place-card upload util.
-
-### 4. Frontend files to update
-
-- `src/hooks/usePlaceCardGallery.ts`: add `thumbnail_url`, `categories: string[]`, `categoriesWithCounts`, `removeImageFromGallery`, fetch with the join (`place_card_image_categories(place_card_categories(name))`), same recompute logic as `useInvitationGallery`.
-- `src/components/Dashboard/PlaceCards/PlaceCardGalleryModal.tsx`: rewrite to mirror `InvitationGalleryModal.tsx` 1:1 — header category dropdown, admin upload panel (Bulk/Single), grid with hover View/Select + admin Delete + admin Categorize popover, delete confirmation, mobile sticky Cancel, `lv-premium-shade` buttons. Keep the existing `aspect-[7/5]` tile ratio (place cards are landscape, invitations are portrait — the only intentional visual difference).
-
-### 5. Out of scope (explicitly NOT changing)
-
-- AI auto-classifier edge function — Place Cards stays manual-categorization only.
-- Any change to Signage or Invitations galleries.
-- The Place Cards customizer, exporter, preview, settings, or DPI logic (locked).
-- Public/landing pages, dashboard shell, sidebar styling.
-
-## Technical notes
-
-- Bucket name and table prefix differ (`place-card-gallery`, `place_card_*`) — everything else is a structural copy.
-- Single-category enforcement matches Invitations (assign wipes prior rows, inserts at most one, syncs the legacy text column so the image instantly disappears from its old category in the dropdown).
-- Admin gating uses the existing `useIsAdmin()` hook — same surface as the other two galleries, so the bride/groom view stays identical to today (just nicer category dropdown + lazy thumbnails when those load).
-- Runtime: existing `place_card_gallery_images` rows keep working — `thumbnail_url` is nullable and the grid falls back to `image_url` when null.
+## Out of scope (not touching)
+- Storage bucket settings, RLS, edge functions
+- QR logic, text zones, background settings, preview canvas
+- Any other dashboard page

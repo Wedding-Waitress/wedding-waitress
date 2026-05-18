@@ -1,6 +1,35 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const MAX_SIGNAGE_UPLOAD_BYTES = 80 * 1024 * 1024;
+export const MAX_SIGNAGE_UPLOAD_BYTES = 200 * 1024 * 1024;
+
+// Tiny preview thumbnail (used by the bulk uploader so we never decode a
+// 100 MB JPEG just to show a 48px row preview).
+export const createPreviewThumbnail = async (file: File, maxSize = 96): Promise<string | null> => {
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('preview decode failed'));
+      img.src = objectUrl;
+    });
+    const longest = Math.max(image.naturalWidth, image.naturalHeight);
+    const scale = longest > maxSize ? maxSize / longest : 1;
+    const w = Math.max(1, Math.round(image.naturalWidth * scale));
+    const h = Math.max(1, Math.round(image.naturalHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(image, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', 0.7);
+  } catch {
+    return null;
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+};
 
 export interface SignageUploadResult {
   masterBytes: number;
@@ -72,7 +101,7 @@ export const uploadSignageGalleryImage = async (
   category: string,
 ): Promise<SignageUploadResult> => {
   if (file.size > MAX_SIGNAGE_UPLOAD_BYTES) {
-    throw new Error(`File is larger than 80 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+    throw new Error(`File is larger than 200 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
   }
 
   const slug = slugify(name);

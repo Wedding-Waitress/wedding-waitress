@@ -144,7 +144,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       return;
     }
     if (uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES) {
-      toast({ title: 'File too large', description: 'Maximum 80 MB per upload. For A1 signs, upload JPG at 300 DPI.', variant: 'destructive' });
+      toast({ title: 'File too large', description: `Max 200 MB per upload. This file is ${(uploadFile.size / 1024 / 1024).toFixed(1)} MB.`, variant: 'destructive' });
       return;
     }
     try {
@@ -251,7 +251,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤80 MB — JPG recommended for A1 signs)</p>
+                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤200 MB — JPG recommended for A1 signs)</p>
                   <input
                     ref={bulkDropRef}
                     type="file"
@@ -271,7 +271,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
                   <p className="text-xs font-medium truncate">
-                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤80 MB — JPG recommended for A1)'}
+                    {uploadFile ? `${uploadFile.name} (${(uploadFile.size / 1024 / 1024).toFixed(1)} MB)` : 'Click to select a single PNG / JPG (≤200 MB — JPG recommended for A1)'}
                   </p>
                 </div>
               )}
@@ -291,7 +291,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 />
                 <Button
                   onClick={handleUpload}
-                  disabled={uploading || !uploadFile}
+                  disabled={uploading || !uploadFile || (uploadFile?.size ?? 0) > MAX_SIGNAGE_UPLOAD_BYTES}
                   className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade self-start"
                 >
                   {uploading ? (
@@ -300,6 +300,11 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
                   )}
                 </Button>
+                {uploadFile && uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES && (
+                  <p className="text-xs text-destructive">
+                    This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 200 MB — please re-export at a lower quality or smaller scale.
+                  </p>
+                )}
               </div>
             )}
           </div>

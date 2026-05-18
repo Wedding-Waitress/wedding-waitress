@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
-import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage } from './signageUploadUtils';
+import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, createPreviewThumbnail } from './signageUploadUtils';
 
 const CATEGORY_PRESETS = [
   'Asian',
@@ -99,22 +99,40 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
   }, [rows]);
 
   const addFiles = useCallback(
-    (files: FileList | File[]) => {
+    async (files: FileList | File[]) => {
       const arr = Array.from(files).filter((f) => /^image\/(png|jpe?g)$/i.test(f.type));
       if (arr.length === 0) {
         toast({ title: 'No valid images', description: 'PNG or JPG only.', variant: 'destructive' });
         return;
       }
-      const newRows: Row[] = arr.map((file) => ({
-        id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        name: prettifySignageFilename(file.name),
-        category: autoCategorize(file.name),
-        status: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? 'failed' : 'queued',
-        error: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? `File >80 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
-      }));
-      setRows((prev) => [...prev, ...newRows]);
+
+      // Add rows in small async chunks so the UI thread never freezes when
+      // dropping many large (100 MB+) JPGs. Previews are generated as tiny
+      // downscaled data URLs instead of decoding the full file in <img>.
+      const CHUNK = 3;
+      for (let i = 0; i < arr.length; i += CHUNK) {
+        const chunk = arr.slice(i, i + CHUNK);
+        // eslint-disable-next-line no-await-in-loop
+        const newRows: Row[] = await Promise.all(
+          chunk.map(async (file) => {
+            const oversize = file.size > MAX_SIGNAGE_UPLOAD_BYTES;
+            const previewUrl = oversize ? '' : ((await createPreviewThumbnail(file, 96)) ?? '');
+            return {
+              id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
+              file,
+              previewUrl,
+              name: prettifySignageFilename(file.name),
+              category: autoCategorize(file.name),
+              status: oversize ? 'failed' : 'queued',
+              error: oversize ? `File >200 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
+            } as Row;
+          })
+        );
+        setRows((prev) => [...prev, ...newRows]);
+        // Yield to the browser between chunks
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, 0));
+      }
     },
     [toast]
   );
@@ -125,17 +143,10 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
   const removeRow = (id: string) =>
-    setRows((prev) => {
-      const r = prev.find((x) => x.id === id);
-      if (r) URL.revokeObjectURL(r.previewUrl);
-      return prev.filter((x) => x.id !== id);
-    });
+    setRows((prev) => prev.filter((x) => x.id !== id));
 
   const clearDone = () =>
-    setRows((prev) => {
-      prev.filter((r) => r.status === 'done').forEach((r) => URL.revokeObjectURL(r.previewUrl));
-      return prev.filter((r) => r.status !== 'done');
-    });
+    setRows((prev) => prev.filter((r) => r.status !== 'done'));
 
   const uploadOne = async (row: Row) => {
     if (!row.name.trim() || !row.category.trim()) {
@@ -264,11 +275,15 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
           <div className="divide-y divide-border">
             {rows.map((row) => (
               <div key={row.id} className="flex items-center gap-3 p-2">
-                <img
-                  src={row.previewUrl}
-                  alt=""
-                  className="w-12 h-12 object-cover rounded border border-border flex-shrink-0"
-                />
+                {row.previewUrl ? (
+                  <img
+                    src={row.previewUrl}
+                    alt=""
+                    className="w-12 h-12 object-cover rounded border border-border flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded border border-border flex-shrink-0 bg-muted" />
+                )}
                 <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Input
                     value={row.name}
