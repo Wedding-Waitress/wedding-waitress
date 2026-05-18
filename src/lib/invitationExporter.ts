@@ -39,8 +39,11 @@ interface BulkGuest {
   last_name?: string | null;
 }
 
-/** Build offscreen invitation HTML and capture at 300 DPI */
-export function buildInvitationElement(opts: ExportOptions, guestName?: string): HTMLDivElement {
+/** Build offscreen invitation HTML and capture at 300 DPI.
+ *  When `includeQr` is false, the QR is omitted so it can be drawn directly
+ *  onto the PDF via jsPDF.addImage (crisper + html2canvas occasionally drops
+ *  data-URL <img> tags, which would cause the QR to disappear from prints). */
+export function buildInvitationElement(opts: ExportOptions, guestName?: string, includeQr = true): HTMLDivElement {
   const { backgroundUrl, orientation, widthMm, heightMm, textZones, customText, customStyles, eventData, qrConfig, qrDataUrl } = opts;
   const isPortrait = orientation === 'portrait';
   const wPx = (widthMm / 25.4) * 300; // 300 DPI pixels
@@ -102,20 +105,47 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string):
     container.appendChild(el);
   });
 
-  // QR Code overlay
-  if (qrConfig?.enabled && qrDataUrl) {
-    const qrImg = document.createElement('img');
-    qrImg.src = qrDataUrl;
-    qrImg.style.cssText = `
+  // QR Code overlay (only when capturing for PNG export — PDF path adds QR
+  // directly via jsPDF for crisp rendering + guaranteed inclusion).
+  if (includeQr && qrConfig?.enabled && qrDataUrl) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = `
       position: absolute;
       left: ${qrConfig.x_percent - qrConfig.size_percent / 2}%;
       top: ${qrConfig.y_percent - qrConfig.size_percent / 2}%;
       width: ${qrConfig.size_percent}%;
+      aspect-ratio: 1 / 1;
+      background: #ffffff;
     `;
-    container.appendChild(qrImg);
+    const qrImg = document.createElement('img');
+    qrImg.src = qrDataUrl;
+    qrImg.style.cssText = `width: 100%; height: 100%; display: block;`;
+    wrap.appendChild(qrImg);
+    container.appendChild(wrap);
   }
 
   return container;
+}
+
+/** Draw the QR (with tight white plate) directly into a jsPDF page,
+ *  using the exact same percent math as the on-page preview so the position
+ *  is pixel-identical. */
+function drawQrOnPdf(
+  pdf: jsPDF,
+  qrConfig: QrConfig | undefined,
+  qrDataUrl: string | undefined,
+  offsetXMm: number,
+  offsetYMm: number,
+  widthMm: number,
+  heightMm: number,
+) {
+  if (!qrConfig?.enabled || !qrDataUrl) return;
+  const qrSizeMm = (qrConfig.size_percent / 100) * widthMm;
+  const qrXMm = offsetXMm + ((qrConfig.x_percent - qrConfig.size_percent / 2) / 100) * widthMm;
+  const qrYMm = offsetYMm + ((qrConfig.y_percent - qrConfig.size_percent / 2) / 100) * heightMm;
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(qrXMm, qrYMm, qrSizeMm, qrSizeMm, 'F');
+  pdf.addImage(qrDataUrl, 'PNG', qrXMm, qrYMm, qrSizeMm, qrSizeMm, undefined, 'NONE');
 }
 
 export async function captureElement(el: HTMLDivElement): Promise<HTMLCanvasElement> {
@@ -151,7 +181,7 @@ export async function exportInvitationPNG(opts: ExportOptions, guestName?: strin
 
 /** Export single invitation as PDF */
 export async function exportInvitationPDF(opts: ExportOptions, guestName?: string, fileName?: string): Promise<void> {
-  const el = buildInvitationElement(opts, guestName);
+  const el = buildInvitationElement(opts, guestName, false);
   const canvas = await captureElement(el);
   const pdf = new jsPDF({
     orientation: opts.orientation === 'portrait' ? 'portrait' : 'landscape',
@@ -161,12 +191,13 @@ export async function exportInvitationPDF(opts: ExportOptions, guestName?: strin
   });
   const imgData = canvas.toDataURL('image/png');
   pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
+  drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, 0, 0, opts.widthMm, opts.heightMm);
   await savePdfAsync(pdf, fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
 }
 
 /** Export 2-up A4 layout (two A5 invitations per page) */
 export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
-  const el = buildInvitationElement(opts);
+  const el = buildInvitationElement(opts, undefined, false);
   const canvas = await captureElement(el);
   const imgData = canvas.toDataURL('image/png');
 
@@ -179,8 +210,10 @@ export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
 
   // Top invitation
   pdf.addImage(imgData, 'PNG', offsetX, gap, A5_W_MM, A5_H_MM);
+  drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, offsetX, gap, A5_W_MM, A5_H_MM);
   // Bottom invitation
   pdf.addImage(imgData, 'PNG', offsetX, gap * 2 + A5_H_MM, A5_W_MM, A5_H_MM);
+  drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, offsetX, gap * 2 + A5_H_MM, A5_W_MM, A5_H_MM);
 
   // Crop marks (thin grey lines)
   pdf.setDrawColor(180, 180, 180);
@@ -228,10 +261,11 @@ export async function exportBulkPDF(
       await yieldToBrowser();
     }
 
-    const el = buildInvitationElement(opts, name);
+    const el = buildInvitationElement(opts, name, false);
     const canvas = await captureElement(el);
     const imgData = canvas.toDataURL('image/png');
     pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
+    drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, 0, 0, opts.widthMm, opts.heightMm);
 
     onProgress?.(i + 1, guests.length);
   }
