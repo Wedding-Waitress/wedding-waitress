@@ -293,7 +293,16 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   ref={fileInputRef}
                   type="file"
                   accept="image/png,image/jpeg"
-                  onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    if (file && !isSupportedGalleryImage(file)) {
+                      toast({ title: 'Invalid file type', description: 'Please select a PNG or JPG image.', variant: 'destructive' });
+                      e.target.value = '';
+                      return;
+                    }
+                    setUploadProgress(null);
+                    setUploadFile(file);
+                  }}
                   disabled={uploading}
                   className="hidden"
                 />
@@ -308,6 +317,14 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
                   )}
                 </Button>
+                {uploading && uploadProgress && (
+                  <div className="w-full max-w-md space-y-1">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-green-600 transition-all" style={{ width: `${uploadProgress.percent}%` }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{uploadProgress.message}</p>
+                  </div>
+                )}
                 {uploadFile && uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES && (
                   <p className="text-xs text-destructive">
                     This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 500 MB — please re-export at a lower quality or smaller scale.
