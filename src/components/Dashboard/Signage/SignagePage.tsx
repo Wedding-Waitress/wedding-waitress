@@ -143,25 +143,6 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
 
-  // Desktop fit-to-viewport: at 100% the full sign fits the visible preview
-  // area without vertical scrolling. Pure CSS transform on the desktop wrapper —
-  // image quality is unchanged.
-  const [fitScale, setFitScale] = useState(1);
-  useEffect(() => {
-    const compute = () => {
-      if (typeof window === 'undefined') return;
-      const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-      if (!isDesktop) { setFitScale(1); return; }
-      const naturalH = orientation === 'portrait' ? 1280 : 950;
-      const availH = window.innerHeight - 220;
-      setFitScale(Math.max(0.35, Math.min(1, availH / naturalH)));
-    };
-    compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
-  }, [orientation]);
-  const fitNaturalW = orientation === 'portrait' ? 794 : 1123;
-  const fitNaturalH = orientation === 'portrait' ? 1280 : 950;
 
   // Use the shared Canva-style preview pipeline: prefers a pre-generated preview
   // variant when present, otherwise asks Supabase to resize the master server-side.
@@ -666,8 +647,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           <div className={`lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
             orientation === 'landscape' ? 'px-4 lg:px-8' : ''
           }`}>
-            <div className="max-sm:w-max md:max-lg:w-[210mm] lg:mx-auto" style={typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches ? { width: `${fitNaturalW * fitScale}px`, height: `${fitNaturalH * fitScale}px` } : undefined}>
-              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto lg:origin-top-left" style={typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches ? { transform: `scale(${fitScale})`, width: `${fitNaturalW}px`, height: `${fitNaturalH}px` } : undefined}>
+            <div className="max-sm:w-max md:max-lg:w-[210mm]">
+              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
                 <PinchZoomContainer naturalWidth={orientation === 'portrait' ? 794 : 1123}>
                 <InvitationCardPreview
                   settings={editorSettings}
