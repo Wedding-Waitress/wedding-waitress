@@ -390,7 +390,7 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
                 <Label htmlFor="paperSize">Paper Size</Label>
                 <Select 
                   value={settings.paperSize} 
-                  onValueChange={(value: 'A5' | 'A4' | 'A3' | 'A2' | 'A1' | 'A0') => handleSettingChange('paperSize', value)}
+                  onValueChange={(value: 'A5' | 'A4' | 'A3' | 'A2' | 'A1') => handleSettingChange('paperSize', value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -401,7 +401,6 @@ export const SignageCustomizer: React.FC<SignageCustomizerProps> = ({
                     <SelectItem value="A3">A3 (297 × 420 mm)</SelectItem>
                     <SelectItem value="A2">A2 (420 × 594 mm)</SelectItem>
                     <SelectItem value="A1">A1 (594 × 841 mm)</SelectItem>
-                    <SelectItem value="A0">A0 (841 × 1189 mm)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
