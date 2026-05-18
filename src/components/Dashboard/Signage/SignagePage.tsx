@@ -140,10 +140,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
 
-  // Downscale the master background image to a lightweight blob URL for the
-  // live editor + preview only. PDF export continues to use the master URL.
-  const { previewUrl: lightweightBgUrl } = usePreviewBackgroundUrl(
+  // Use the shared Canva-style preview pipeline: prefers a pre-generated preview
+  // variant when present, otherwise asks Supabase to resize the master server-side.
+  // The PDF export continues to use the master URL for full 300 DPI quality.
+  const { url: lightweightBgUrl } = useOptimizedPreview(
     settings?.background_image_url ?? null,
+    (settings as any)?.background_image_preview_url ?? null,
   );
 
   // Editor-facing settings: identical to asInvitationSettings but with the
