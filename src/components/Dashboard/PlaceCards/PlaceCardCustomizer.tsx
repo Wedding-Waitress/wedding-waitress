@@ -25,7 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from "@/hooks/usePlaceCardSettings";
 import { Guest } from "@/hooks/useGuests";
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images } from "lucide-react";
+import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images, QrCode } from "lucide-react";
 import { PlaceCardGalleryModal } from "./PlaceCardGalleryModal";
 import { PlaceCardFontPicker } from "./PlaceCardFontPicker";
 import { supabase } from "@/integrations/supabase/client";
@@ -274,10 +274,11 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="design" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-5">
               <TabsTrigger value="design">Design</TabsTrigger>
               <TabsTrigger value="position">Text Position</TabsTrigger>
               <TabsTrigger value="background">Background</TabsTrigger>
+              <TabsTrigger value="qr-code">Add QR Code</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
             </TabsList>
 
@@ -747,6 +748,21 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     Reset to Default
                   </Button>
                 </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="qr-code" className="space-y-4">
+              <div className="p-6 border-2 border-dashed border-[#967A59]/40 rounded-xl bg-[#FAF7F2] text-center space-y-3">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#967A59]/10">
+                  <QrCode className="h-6 w-6 text-[#967A59]" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground">Coming Soon</h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Photo &amp; Video Upload QR Code — guests will be able to scan the QR code on their
+                  place card to instantly upload photos and videos to your event gallery. This will
+                  work just like the QR code in the Invitations &amp; Cards page (draggable, resizable,
+                  with a white background), but linked to your shared photo &amp; video album.
+                </p>
               </div>
             </TabsContent>
 
