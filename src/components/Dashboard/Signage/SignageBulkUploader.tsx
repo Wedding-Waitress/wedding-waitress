@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, createPreviewThumbnail } from './signageUploadUtils';
+import { getReadableUploadError } from '../galleryUploadCore';
 
 const CATEGORY_PRESETS = [
   'Asian',
