@@ -177,5 +177,19 @@ export async function exportSignagePDF(opts: SignagePdfOptions, fileName: string
   const overlayDataUrl = overlayCanvas.toDataURL('image/png');
   pdf.addImage(overlayDataUrl, 'PNG', 0, 0, widthMm, heightMm, undefined, 'FAST');
 
+  // 4. Add QR code directly as a vector-quality PNG (skip html2canvas — it can
+  // drop data-URL <img> tags, which is why the QR was missing from prints).
+  const { qrConfig, qrDataUrl } = opts;
+  if (qrConfig?.enabled && qrDataUrl) {
+    const qrSizeMm = (qrConfig.size_percent / 100) * widthMm;
+    const qrXMm = (qrConfig.x_percent / 100) * widthMm - qrSizeMm / 2;
+    const qrYMm = (qrConfig.y_percent / 100) * heightMm - qrSizeMm / 2;
+    // White plate behind transparent QR so it stays scannable on any background.
+    const pad = qrSizeMm * 0.06;
+    pdf.setFillColor(255, 255, 255);
+    pdf.rect(qrXMm - pad, qrYMm - pad, qrSizeMm + pad * 2, qrSizeMm + pad * 2, 'F');
+    pdf.addImage(qrDataUrl, 'PNG', qrXMm, qrYMm, qrSizeMm, qrSizeMm, undefined, 'NONE');
+  }
+
   await savePdfAsync(pdf, fileName);
 }
