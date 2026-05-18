@@ -86,7 +86,7 @@ export function usePreviewBackgroundUrl(masterUrl: string | null | undefined) {
             setReady(true);
           },
           'image/jpeg',
-          0.82,
+          JPEG_QUALITY,
         );
       } catch {
         // Tainted canvas / CORS — fall back to master.
