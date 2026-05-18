@@ -25,7 +25,7 @@ const getErrorMessage = (err: unknown, fallback: string) => (
 interface SignageGalleryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectImage: (imageUrl: string) => void;
+  onSelectImage: (imageUrl: string, printUrl?: string) => void;
 }
 
 export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
@@ -129,7 +129,9 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   });
 
   const handleSelectImage = (image: SignageGalleryImage) => {
-    onSelectImage(image.image_url);
+    // Use lightweight thumbnail for live editor; pass master URL separately for print-ready PDF.
+    const preview = image.thumbnail_url || image.image_url;
+    onSelectImage(preview, image.image_url);
     setPreviewImage(null);
     onOpenChange(false);
   };

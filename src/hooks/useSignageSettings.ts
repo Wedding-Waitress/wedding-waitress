@@ -11,6 +11,7 @@ export interface SignageSettings {
   orientation: 'portrait' | 'landscape';
   background_color: string;
   background_image_url?: string | null;
+  background_image_print_url?: string | null;
   background_image_type: 'none' | 'full';
   background_image_x_position: number;
   background_image_y_position: number;
@@ -44,6 +45,7 @@ const buildDefault = (eventId: string, userId: string, orientation: 'portrait' |
   orientation,
   background_color: '#ffffff',
   background_image_url: null,
+  background_image_print_url: null,
   background_image_type: 'none',
   background_image_x_position: 50,
   background_image_y_position: 50,
