@@ -241,6 +241,20 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     if (!settings || !selectedEvent || !printSize) return;
     const dims = PRINT_DIMENSIONS[printSize];
     if (!dims) return;
+
+    // Auto-upscale check: warn if the master image is too small for the selected print size.
+    const fit = checkPrintFit(
+      (settings as any).background_image_width_px ?? null,
+      (settings as any).background_image_height_px ?? null,
+      { ...dims, label: PRINT_SIZES.find(p => p.id === printSize)?.label },
+    );
+    if (!fit.ok && fit.message) {
+      const proceed = typeof window !== 'undefined'
+        ? window.confirm(`${fit.message}\n\nProceed with export?`)
+        : true;
+      if (!proceed) return;
+    }
+
     setExporting('pdf');
     try {
       const { widthMm, heightMm } = dims;
