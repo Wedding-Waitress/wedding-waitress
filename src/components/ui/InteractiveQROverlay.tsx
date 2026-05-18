@@ -37,6 +37,7 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
   onDuplicate,
   onRotate,
   containerRef,
+  whitePlate = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
