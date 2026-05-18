@@ -74,6 +74,8 @@ interface Row {
   error?: string;
   masterKB?: number;
   thumbKB?: number;
+  progressPercent?: number;
+  progressMessage?: string;
 }
 
 interface Props {
