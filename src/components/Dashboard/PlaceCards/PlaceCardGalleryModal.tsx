@@ -141,7 +141,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
       return;
     }
     if (uploadFile.size > MAX_PLACE_CARD_UPLOAD_BYTES) {
-      toast({ title: 'File too large', description: 'Maximum 80 MB per upload.', variant: 'destructive' });
+      toast({ title: 'File too large', description: 'Maximum 500 MB per upload.', variant: 'destructive' });
       return;
     }
     try {
@@ -248,7 +248,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤80 MB)</p>
+                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤500 MB)</p>
                   <input
                     ref={bulkDropRef}
                     type="file"
@@ -268,7 +268,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
                   <p className="text-xs font-medium truncate">
-                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤80 MB)'}
+                    {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤500 MB)'}
                   </p>
                 </div>
               )}

@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const MAX_SIGNAGE_UPLOAD_BYTES = 200 * 1024 * 1024;
+export const MAX_SIGNAGE_UPLOAD_BYTES = 500 * 1024 * 1024;
 
 // Tiny preview thumbnail (used by the bulk uploader so we never decode a
 // 100 MB JPEG just to show a 48px row preview).
@@ -101,7 +101,7 @@ export const uploadSignageGalleryImage = async (
   category: string,
 ): Promise<SignageUploadResult> => {
   if (file.size > MAX_SIGNAGE_UPLOAD_BYTES) {
-    throw new Error(`File is larger than 200 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+    throw new Error(`File is larger than 500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
   }
 
   const slug = slugify(name);

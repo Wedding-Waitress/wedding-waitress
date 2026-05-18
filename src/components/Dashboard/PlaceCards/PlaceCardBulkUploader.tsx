@@ -95,7 +95,7 @@ export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Pro
         name: prettifyPlaceCardFilename(file.name),
         category: defaultCategory || autoCategorize(file.name),
         status: file.size > MAX_PLACE_CARD_UPLOAD_BYTES ? 'failed' : 'queued',
-        error: file.size > MAX_PLACE_CARD_UPLOAD_BYTES ? `File >80 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
+        error: file.size > MAX_PLACE_CARD_UPLOAD_BYTES ? `File >500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
       }));
       setRows((prev) => [...prev, ...newRows]);
     },
@@ -182,7 +182,7 @@ export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Pro
 
   const retryFailed = () => {
     setRows((prev) =>
-      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>80 MB') ? { ...r, status: 'queued', error: undefined } : r))
+      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>500 MB') ? { ...r, status: 'queued', error: undefined } : r))
     );
   };
 

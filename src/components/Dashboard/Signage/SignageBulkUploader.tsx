@@ -124,7 +124,7 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
               name: prettifySignageFilename(file.name),
               category: autoCategorize(file.name),
               status: oversize ? 'failed' : 'queued',
-              error: oversize ? `File >200 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
+              error: oversize ? `File >500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
             } as Row;
           })
         );
@@ -215,7 +215,7 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
 
   const retryFailed = () => {
     setRows((prev) =>
-      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>80 MB') ? { ...r, status: 'queued', error: undefined } : r))
+      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>500 MB') ? { ...r, status: 'queued', error: undefined } : r))
     );
   };
 

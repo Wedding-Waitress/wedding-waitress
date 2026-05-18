@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const MAX_PLACE_CARD_UPLOAD_BYTES = 80 * 1024 * 1024;
+export const MAX_PLACE_CARD_UPLOAD_BYTES = 500 * 1024 * 1024;
 
 export interface PlaceCardUploadResult {
   masterBytes: number;
@@ -71,7 +71,7 @@ export const uploadPlaceCardGalleryImage = async (
   category: string,
 ): Promise<PlaceCardUploadResult> => {
   if (file.size > MAX_PLACE_CARD_UPLOAD_BYTES) {
-    throw new Error(`File is larger than 80 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+    throw new Error(`File is larger than 500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
   }
 
   const slug = slugify(name);
