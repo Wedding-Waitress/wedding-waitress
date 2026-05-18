@@ -134,7 +134,7 @@ export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Pro
       updateRow(row.id, { status: 'done', masterKB, thumbKB });
     } catch (err: any) {
       console.error('Bulk upload row failed', err);
-      updateRow(row.id, { status: 'failed', error: err?.message ?? 'Upload failed' });
+      updateRow(row.id, { status: 'failed', error: getReadableUploadError(err, 'Upload failed') });
     }
   };
 
