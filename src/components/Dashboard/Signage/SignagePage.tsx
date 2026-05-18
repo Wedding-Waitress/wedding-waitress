@@ -552,11 +552,11 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       )}
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
-      {selectedEventId && settings && !settingsLoading && asInvitationSettings && (
+      {selectedEventId && settings && !settingsLoading && editorSettings && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
           <div className="lg:col-span-2">
             <InvitationCardCustomizer
-              settings={asInvitationSettings}
+              settings={editorSettings}
               onSettingsChange={async (changes) => {
                 // Map shared invitation-shape changes back to signage_settings columns
                 const mapped: any = {};
