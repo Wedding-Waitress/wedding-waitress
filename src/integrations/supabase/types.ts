@@ -1561,9 +1561,13 @@ export type Database = {
       invitation_card_settings: {
         Row: {
           background_color: string
+          background_image_height_px: number | null
           background_image_opacity: number | null
+          background_image_preview_url: string | null
+          background_image_thumb_url: string | null
           background_image_type: string
           background_image_url: string | null
+          background_image_width_px: number | null
           background_image_x_position: number | null
           background_image_y_position: number | null
           canva_template_url: string | null
@@ -1582,9 +1586,13 @@ export type Database = {
         }
         Insert: {
           background_color?: string
+          background_image_height_px?: number | null
           background_image_opacity?: number | null
+          background_image_preview_url?: string | null
+          background_image_thumb_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_width_px?: number | null
           background_image_x_position?: number | null
           background_image_y_position?: number | null
           canva_template_url?: string | null
@@ -1603,9 +1611,13 @@ export type Database = {
         }
         Update: {
           background_color?: string
+          background_image_height_px?: number | null
           background_image_opacity?: number | null
+          background_image_preview_url?: string | null
+          background_image_thumb_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_width_px?: number | null
           background_image_x_position?: number | null
           background_image_y_position?: number | null
           canva_template_url?: string | null
@@ -2138,10 +2150,14 @@ export type Database = {
           background_behind_names: boolean | null
           background_behind_table_seats: boolean | null
           background_color: string
+          background_image_height_px: number | null
           background_image_opacity: number | null
+          background_image_preview_url: string | null
           background_image_scale: number | null
+          background_image_thumb_url: string | null
           background_image_type: string
           background_image_url: string | null
+          background_image_width_px: number | null
           background_image_x_position: number | null
           background_image_y_position: number | null
           created_at: string
@@ -2186,10 +2202,14 @@ export type Database = {
           background_behind_names?: boolean | null
           background_behind_table_seats?: boolean | null
           background_color?: string
+          background_image_height_px?: number | null
           background_image_opacity?: number | null
+          background_image_preview_url?: string | null
           background_image_scale?: number | null
+          background_image_thumb_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_width_px?: number | null
           background_image_x_position?: number | null
           background_image_y_position?: number | null
           created_at?: string
@@ -2234,10 +2254,14 @@ export type Database = {
           background_behind_names?: boolean | null
           background_behind_table_seats?: boolean | null
           background_color?: string
+          background_image_height_px?: number | null
           background_image_opacity?: number | null
+          background_image_preview_url?: string | null
           background_image_scale?: number | null
+          background_image_thumb_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_width_px?: number | null
           background_image_x_position?: number | null
           background_image_y_position?: number | null
           created_at?: string
@@ -2980,10 +3004,14 @@ export type Database = {
       signage_settings: {
         Row: {
           background_color: string
+          background_image_height_px: number | null
           background_image_opacity: number
+          background_image_preview_url: string | null
           background_image_print_url: string | null
+          background_image_thumb_url: string | null
           background_image_type: string
           background_image_url: string | null
+          background_image_width_px: number | null
           background_image_x_position: number
           background_image_y_position: number
           created_at: string
@@ -2998,10 +3026,14 @@ export type Database = {
         }
         Insert: {
           background_color?: string
+          background_image_height_px?: number | null
           background_image_opacity?: number
+          background_image_preview_url?: string | null
           background_image_print_url?: string | null
+          background_image_thumb_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_width_px?: number | null
           background_image_x_position?: number
           background_image_y_position?: number
           created_at?: string
@@ -3016,10 +3048,14 @@ export type Database = {
         }
         Update: {
           background_color?: string
+          background_image_height_px?: number | null
           background_image_opacity?: number
+          background_image_preview_url?: string | null
           background_image_print_url?: string | null
+          background_image_thumb_url?: string | null
           background_image_type?: string
           background_image_url?: string | null
+          background_image_width_px?: number | null
           background_image_x_position?: number
           background_image_y_position?: number
           created_at?: string

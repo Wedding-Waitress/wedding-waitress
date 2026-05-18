@@ -9,7 +9,7 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
-import { usePreviewBackgroundUrl } from './usePreviewBackgroundUrl';
+import { useOptimizedPreview, checkPrintFit } from '@/lib/imagePipeline';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
@@ -140,10 +140,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
 
-  // Downscale the master background image to a lightweight blob URL for the
-  // live editor + preview only. PDF export continues to use the master URL.
-  const { previewUrl: lightweightBgUrl } = usePreviewBackgroundUrl(
+  // Use the shared Canva-style preview pipeline: prefers a pre-generated preview
+  // variant when present, otherwise asks Supabase to resize the master server-side.
+  // The PDF export continues to use the master URL for full 300 DPI quality.
+  const { url: lightweightBgUrl } = useOptimizedPreview(
     settings?.background_image_url ?? null,
+    (settings as any)?.background_image_preview_url ?? null,
   );
 
   // Editor-facing settings: identical to asInvitationSettings but with the
@@ -239,6 +241,20 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     if (!settings || !selectedEvent || !printSize) return;
     const dims = PRINT_DIMENSIONS[printSize];
     if (!dims) return;
+
+    // Auto-upscale check: warn if the master image is too small for the selected print size.
+    const fit = checkPrintFit(
+      (settings as any).background_image_width_px ?? null,
+      (settings as any).background_image_height_px ?? null,
+      { ...dims, label: PRINT_SIZES.find(p => p.id === printSize)?.label },
+    );
+    if (!fit.ok && fit.message) {
+      const proceed = typeof window !== 'undefined'
+        ? window.confirm(`${fit.message}\n\nProceed with export?`)
+        : true;
+      if (!proceed) return;
+    }
+
     setExporting('pdf');
     try {
       const { widthMm, heightMm } = dims;
