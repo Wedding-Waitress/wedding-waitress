@@ -99,22 +99,40 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
   }, [rows]);
 
   const addFiles = useCallback(
-    (files: FileList | File[]) => {
+    async (files: FileList | File[]) => {
       const arr = Array.from(files).filter((f) => /^image\/(png|jpe?g)$/i.test(f.type));
       if (arr.length === 0) {
         toast({ title: 'No valid images', description: 'PNG or JPG only.', variant: 'destructive' });
         return;
       }
-      const newRows: Row[] = arr.map((file) => ({
-        id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        name: prettifySignageFilename(file.name),
-        category: autoCategorize(file.name),
-        status: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? 'failed' : 'queued',
-        error: file.size > MAX_SIGNAGE_UPLOAD_BYTES ? `File >80 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
-      }));
-      setRows((prev) => [...prev, ...newRows]);
+
+      // Add rows in small async chunks so the UI thread never freezes when
+      // dropping many large (100 MB+) JPGs. Previews are generated as tiny
+      // downscaled data URLs instead of decoding the full file in <img>.
+      const CHUNK = 3;
+      for (let i = 0; i < arr.length; i += CHUNK) {
+        const chunk = arr.slice(i, i + CHUNK);
+        // eslint-disable-next-line no-await-in-loop
+        const newRows: Row[] = await Promise.all(
+          chunk.map(async (file) => {
+            const oversize = file.size > MAX_SIGNAGE_UPLOAD_BYTES;
+            const previewUrl = oversize ? '' : ((await createPreviewThumbnail(file, 96)) ?? '');
+            return {
+              id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
+              file,
+              previewUrl,
+              name: prettifySignageFilename(file.name),
+              category: autoCategorize(file.name),
+              status: oversize ? 'failed' : 'queued',
+              error: oversize ? `File >200 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
+            } as Row;
+          })
+        );
+        setRows((prev) => [...prev, ...newRows]);
+        // Yield to the browser between chunks
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, 0));
+      }
     },
     [toast]
   );
