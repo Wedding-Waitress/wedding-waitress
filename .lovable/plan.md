@@ -1,91 +1,40 @@
-## Goal
-Canva-style image experience across all 3 sign studios (Seating Chart Signs, Invitations & Cards, Name Place Cards): instant load, crisp screen previews, smooth editing, high-resolution print exports.
+# Fix: Seating Chart Signs preview quality + Download Print-Ready PDF
 
-## Architecture
+Scope: `src/components/Dashboard/Signage/SignagePage.tsx` + `src/components/Dashboard/Signage/SignageGalleryModal.tsx` only. No backend, no upload-logic, no Invitations / Place Cards changes.
 
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│  UPLOAD                                                          │
-│  Client → Storage (sources/) → optimize-image edge function      │
-│                                  ↓ generates 3 variants          │
-│                                  ├─ master.jpg  (original px)    │
-│                                  ├─ preview.jpg (2400px q=0.92)  │
-│                                  └─ thumb.jpg   ( 400px q=0.75)  │
-│                                  ↓                               │
-│                                  saves to <bucket>/optimized/    │
-│                                  returns { master, preview, thumb│
-│                                          width, height }         │
-├──────────────────────────────────────────────────────────────────┤
-│  DISPLAY                                                         │
-│  Gallery cards    → thumb URL                                    │
-│  Live editor      → preview URL  (fallback: client downscale)    │
-│  PDF / PNG export → master URL   (untouched original quality)    │
-├──────────────────────────────────────────────────────────────────┤
-│  DELIVERY                                                        │
-│  All URLs go through Supabase Image Transformations              │
-│  (`?width=…&quality=…`) for on-the-fly resize where supported    │
-└──────────────────────────────────────────────────────────────────┘
-```
+## Root causes
 
-## Database
+1. **Blurry preview**: `SignageGalleryModal.onSelectImage` passes `image.thumbnail_url` (≈400 px) as the "preview" arg. The Signage adapter stores that as `background_image_url`, so the editor preview source is a 400 px JPEG. `useOptimizedPreview` then asks Supabase to transform a 400 px image up to 2400 px — Supabase image transforms do not upscale, so the editor renders a stretched 400 px thumb. Pixelated.
+2. **PDF button "does nothing"**: when the user adds an image via Choose File (not the gallery), `background_image_print_url` is force-nulled (SignagePage line 604–606). `handleDownloadPDF` then falls back to `background_image_url`, which can be a thumb. The export sometimes succeeds (blurry) and sometimes throws; the catch block shows a generic "Could not generate the PDF" toast that hides the real reason, so it reads as "nothing happens".
 
-One migration:
-- Add `background_image_preview_url` and `background_image_thumb_url` to `invitation_card_settings`, `place_card_settings`, `signage_settings` (signage already has `background_image_print_url` for master).
-- Add `background_image_width_px`, `background_image_height_px` to the same 3 tables (for the auto-upscale warning).
-- No RLS changes — columns inherit existing row policies.
+## Changes
 
-## Edge function
+### 1. `SignageGalleryModal.tsx` — stop sending the thumb as the editor source
+- Change the click handler that fires `onSelectImage` so it passes the **master `image.image_url`** as the first argument (editor source) and the master `image.image_url` as the second argument (print URL).
+- Comment updated: editor now uses the server-resized master (≈2400 px), gallery cards still render `thumbnail_url` for their own grid (unchanged).
 
-New `optimize-image` (shared, replaces signage-only `optimize-signage-image`):
-- Input: `{ sourcePath, bucket, ownerScope: 'user'|'admin' }`
-- Auth: requires JWT; user-scoped variant verifies the source path starts with the caller's user id; admin variant requires `admin` role (used by gallery curation).
-- Uses `imagescript` (Deno-native) to produce master/preview/thumb.
-- Writes to `<bucket>/optimized/<userId>/<hash>-{master,preview,thumb}.jpg`.
-- Returns all three public URLs + native pixel dimensions.
-- The existing `optimize-signage-image` is kept as a thin alias so the admin gallery keeps working.
+### 2. `SignagePage.tsx` — guarantee the editor never sees a thumb, even for legacy rows
+- In the `useOptimizedPreview` call, pass `settings?.background_image_print_url ?? settings?.background_image_url` as the master URL. This way, any existing row whose `background_image_url` is still a 400 px thumb is upgraded back to the master for the editor.
+- Keep `background_image_preview_url` as the preferred input when present (pre-generated 2400 px variant from the edge function).
+- Leaves `transformedUrl(..., { width: 2400, quality: 90 })` to do server-side downscale of the master → crisp editor preview.
 
-## Frontend
+### 3. `SignagePage.tsx` — make the PDF export reliable and self-diagnosing
+- `handleDownloadPDF`:
+  - Resolve the export background as `background_image_print_url ?? background_image_url` (already correct, kept).
+  - Guard: if both URLs are missing AND no `background_color`, abort with a clear toast ("Add a background image or color before exporting").
+  - In the `catch`, surface the real error: `err?.message || String(err)` shown inside the destructive toast description, plus full `console.error`. No more silent generic failure.
+- The button's disabled condition already requires `settings`, `printSize`, and a background — that logic stays. Removing the silent catch is what makes the button feel "working" again when something does go wrong (e.g. CORS on a master image).
 
-New shared module `src/lib/imagePipeline.ts`:
-- `uploadAndOptimize(file, { bucket, folder })` — uploads source, invokes edge function, returns variants + dims.
-- `transformedUrl(url, { width, quality })` — appends Supabase transformation params with safe fallback when URL isn't a storage URL or transformations are disabled.
-- `useOptimizedPreview(masterUrl, previewUrl)` — returns the best available preview (preview > transformed master > client-downscaled master).
+### 4. Preview rendering CSS sanity check
+- Confirm `InvitationCardPreview` renders the background via a CSS `background-image` on a fixed A4 frame (`794 × 1123` portrait) inside `PinchZoomContainer`. No code change needed — once the source URL is a 2400 px master (item 2), the existing `background-size: cover` paints sharply.
 
-Hook updates:
-- `useInvitationCardSettings`, `usePlaceCardSettings`, `useSignageSettings` start persisting the new `*_preview_url` / `*_thumb_url` / `*_width_px` / `*_height_px` fields.
+## Out of scope (explicitly NOT touched)
+- Upload pipeline (`uploadAndOptimize`, `optimize-image` edge function, signage bucket policy).
+- Invitations and Place Cards customizers, hooks, exporters.
+- Database schema and RLS.
+- Locked stable pages and global UI tokens.
 
-Customizer updates (`Invitations`, `Place Cards`, `Signage`):
-- Replace direct `supabase.storage.upload` calls in the "Choose File" path with `uploadAndOptimize`.
-- Gallery thumbnails read `thumb_url`. Editor previews read `preview_url`. Export reads `master_url`.
-
-Export updates (`invitationExporter.ts` + PDF flows in all 3 studios):
-- Always load `master_url` (no behavioural change to the rendering engine — preserves current 300 DPI quality).
-- Before triggering export, compare master pixel dimensions to the selected print size (mm × 11.811 = px @ 300 DPI). If master is < 80% of required pixels, show a non-blocking warning modal: "Your image is N×M px. For A1 at 300 DPI you need 7016×9933 px. The PDF will still export, but quality may be reduced." User can proceed or cancel.
-
-## Locked-page impact
-
-- `Invitations` page edits are limited to the upload/preview/export wiring inside the customizer. No layout/typography/UI changes.
-- `Place Cards` same scope. The 300 DPI export math in `usePlaceCardSettings` / `placeCardsPdfExporter.ts` is NOT modified — only the source URL routed in.
-- `Signage` builds on the work already shipped this session.
-- No changes to homepage, sidebar, Dashboard shell, My Events, Tables, Guest List.
-
-## Rollout
-
-1. Migration (adds columns).
-2. Edge function deploy.
-3. Shared `imagePipeline.ts` + hook updates.
-4. Wire Signage (lowest risk, already mid-flight).
-5. Wire Invitations.
-6. Wire Place Cards.
-7. Auto-upscale warning across all 3.
-
-## Out of scope (would need separate approval)
-
-- Floor Plan, Full Seating Chart, Dietary Chart background images.
-- Welcome / invite video pipelines.
-- Migrating already-uploaded historical images (a one-time backfill function can be added later if needed; new uploads get the full pipeline immediately).
-
-## Notes
-
-- Supabase Image Transformations work on public buckets (`invitations`, `signage-gallery`). For private buckets we generate signed URLs without transforms — preview/thumb files cover that case.
-- `imagescript` (Deno) is already in use by `optimize-signage-image`, so no new dependencies.
+## Verification
+1. Open Signs page → pick an event with an existing background → editor preview is sharp (network tab: image request URL includes `?width=2400&quality=90` and returns a 2400 px JPEG, not the 400 px thumb).
+2. Pick a print size (e.g. A1) → "Download Print-Ready PDF" becomes enabled → click → PDF downloads using the master URL.
+3. Force an export error (e.g. temporarily break the URL) → toast shows the real error message instead of failing silently.
