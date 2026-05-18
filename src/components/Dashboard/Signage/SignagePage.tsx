@@ -245,6 +245,56 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     updateSettings({ qr_config: next });
   }, [settings, orientation, updateSettings]);
 
+  const handleZoneUpdate = useCallback((zoneId: string, updates: Partial<TextZone>) => {
+    const newZones = (settings?.text_zones || []).map(z =>
+      z.id === zoneId ? { ...z, ...updates } : z
+    );
+    updateSettings({ text_zones: newZones });
+  }, [settings, updateSettings]);
+
+  const handleZoneDelete = useCallback((zoneId: string) => {
+    const newZones = (settings?.text_zones || []).filter(z => z.id !== zoneId);
+    updateSettings({ text_zones: newZones });
+    setSelectedZoneId(null);
+  }, [settings, updateSettings]);
+
+  const handleZoneReset = useCallback((zoneId: string) => {
+    const zones = settings?.text_zones || [];
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return;
+    const preset = SIGNAGE_PRESET_ZONES.find(p => p.field === zone.preset_field);
+    const style = zone.preset_field ? SIGNAGE_PRESET_STYLES[zone.preset_field] : undefined;
+    const defaultY = zone.preset_field ? SIGNAGE_PRESET_Y_POSITIONS[zone.preset_field] : 50;
+    const defaultText = preset?.getText ? preset.getText(eventData) : (zone.preset_field ? eventData[zone.preset_field] || preset?.defaultText || '' : '');
+    const newZones = zones.map(z =>
+      z.id === zoneId ? {
+        ...z,
+        text: defaultText,
+        font_family: style?.font_family || 'ET Emilia Grace Demo',
+        font_size: style?.font_size || 22,
+        font_color: '#000000',
+        font_weight: 'normal' as const,
+        font_style: 'normal' as const,
+        text_align: 'center' as const,
+        text_case: 'default',
+        x_percent: 50,
+        y_percent: defaultY ?? 50,
+        width_percent: 80,
+        rotation: 0,
+      } : z
+    );
+    updateSettings({ text_zones: newZones });
+  }, [settings, updateSettings, eventData]);
+
+  const handleZoneDuplicate = useCallback((zoneId: string) => {
+    const zones = settings?.text_zones || [];
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return;
+    const newZone: TextZone = { ...zone, id: crypto.randomUUID(), x_percent: Math.min(100, zone.x_percent + 3), y_percent: Math.min(100, zone.y_percent + 3) };
+    updateSettings({ text_zones: [...zones, newZone] });
+    setSelectedZoneId(newZone.id);
+  }, [settings, updateSettings]);
+
   const handleDownloadPDF = useCallback(async () => {
     if (!settings || !selectedEvent || !printSize) return;
     const dims = PRINT_DIMENSIONS[printSize];
@@ -654,52 +704,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   eventData={eventData}
                   selectedZoneId={selectedZoneId}
                   onSelectZone={setSelectedZoneId}
-                  onZoneUpdate={(zoneId, updates) => {
-                    const newZones = (settings.text_zones || []).map(z =>
-                      z.id === zoneId ? { ...z, ...updates } : z
-                    );
-                    updateSettings({ text_zones: newZones });
-                  }}
-                  onZoneDelete={(zoneId) => {
-                    const newZones = (settings.text_zones || []).filter(z => z.id !== zoneId);
-                    updateSettings({ text_zones: newZones });
-                    setSelectedZoneId(null);
-                  }}
-                  onZoneReset={(zoneId) => {
-                    const zones = settings.text_zones || [];
-                    const zone = zones.find(z => z.id === zoneId);
-                    if (!zone) return;
-                    const preset = SIGNAGE_PRESET_ZONES.find(p => p.field === zone.preset_field);
-                    const style = zone.preset_field ? SIGNAGE_PRESET_STYLES[zone.preset_field] : undefined;
-                    const defaultY = zone.preset_field ? SIGNAGE_PRESET_Y_POSITIONS[zone.preset_field] : 50;
-                    const defaultText = preset?.getText ? preset.getText(eventData) : (zone.preset_field ? eventData[zone.preset_field] || preset?.defaultText || '' : '');
-                    const newZones = zones.map(z =>
-                      z.id === zoneId ? {
-                        ...z,
-                        text: defaultText,
-                        font_family: style?.font_family || 'ET Emilia Grace Demo',
-                        font_size: style?.font_size || 22,
-                        font_color: '#000000',
-                        font_weight: 'normal' as const,
-                        font_style: 'normal' as const,
-                        text_align: 'center' as const,
-                        text_case: 'default',
-                        x_percent: 50,
-                        y_percent: defaultY ?? 50,
-                        width_percent: 80,
-                        rotation: 0,
-                      } : z
-                    );
-                    updateSettings({ text_zones: newZones });
-                  }}
-                  onZoneDuplicate={(zoneId) => {
-                    const zones = settings.text_zones || [];
-                    const zone = zones.find(z => z.id === zoneId);
-                    if (!zone) return;
-                    const newZone: TextZone = { ...zone, id: crypto.randomUUID(), x_percent: Math.min(100, zone.x_percent + 3), y_percent: Math.min(100, zone.y_percent + 3) };
-                    updateSettings({ text_zones: [...zones, newZone] });
-                    setSelectedZoneId(newZone.id);
-                  }}
+                  onZoneUpdate={handleZoneUpdate}
+                  onZoneDelete={handleZoneDelete}
+                  onZoneReset={handleZoneReset}
+                  onZoneDuplicate={handleZoneDuplicate}
                   qrDataUrl={qrDataUrl}
                   onQrConfigUpdate={handleQrConfigUpdate}
                 />
