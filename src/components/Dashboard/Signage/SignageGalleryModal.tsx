@@ -132,7 +132,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const handleSelectImage = (image: SignageGalleryImage) => {
     // Editor uses the MASTER url (server-resized to ~2400px by useOptimizedPreview).
     // Never the 400px thumbnail — that produced a blurry editor preview.
-    onSelectImage(image.image_url, image.image_url);
+    onSelectImage(previewUrlFor(image.image_url) ?? image.image_url, image.image_url);
     setPreviewImage(null);
     onOpenChange(false);
   };
