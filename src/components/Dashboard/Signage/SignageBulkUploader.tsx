@@ -124,7 +124,7 @@ export const SignageBulkUploader = forwardRef<SignageBulkUploaderHandle, Props>(
               name: prettifySignageFilename(file.name),
               category: autoCategorize(file.name),
               status: oversize ? 'failed' : 'queued',
-              error: oversize ? `File >200 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
+              error: oversize ? `File >500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
             } as Row;
           })
         );
