@@ -9,7 +9,8 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
-import { useOptimizedPreview, checkPrintFit } from '@/lib/imagePipeline';
+import { checkPrintFit, transformedUrl } from '@/lib/imagePipeline';
+import { exportSignagePDF } from '@/lib/signagePdfExporter';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
