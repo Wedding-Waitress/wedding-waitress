@@ -118,6 +118,7 @@ export const uploadSignageGalleryImage = async (
   const token = randomToken();
   const masterPath = `originals/${slug}-${stamp}-${token}.${extensionForFile(file)}`;
   const thumbPath = `thumbs/${slug}-${stamp}-${token}.jpg`;
+  const previewPath = `originals/${slug}-${stamp}-${token}-preview.jpg`;
   const uploadedPaths: string[] = [];
 
   onProgress?.({ phase: 'validating', percent: 0, message: 'Preparing image upload…' });
@@ -129,6 +130,7 @@ export const uploadSignageGalleryImage = async (
   // Default to the master public URL; replace with a real client-generated thumbnail when possible.
   let thumbUrl: string | null = masterUrl;
   let thumbBytes = 0;
+  let previewUrl: string | null = null;
 
   onProgress?.({ phase: 'saving', percent: 100, message: 'Creating lightweight preview…' });
   const thumbnailBlob = await createThumbnailBlob(file);
@@ -145,6 +147,21 @@ export const uploadSignageGalleryImage = async (
       thumbBytes = thumbnailBlob.size;
     }
   }
+
+  const previewBlob = await createPreviewBlob(file);
+  if (previewBlob) {
+    const previewUpload = await supabase.storage.from('signage-gallery').upload(previewPath, previewBlob, {
+      contentType: 'image/jpeg',
+      upsert: false,
+    });
+    if (previewUpload.error) {
+      console.warn('Signage preview upload skipped', previewUpload.error);
+    } else {
+      uploadedPaths.push(previewPath);
+      previewUrl = supabase.storage.from('signage-gallery').getPublicUrl(previewPath).data.publicUrl;
+    }
+  }
+
   onProgress?.({ phase: 'saving', percent: 100, message: 'Saving to gallery…' });
 
   const { data: maxRow } = await supabase
@@ -163,6 +180,7 @@ export const uploadSignageGalleryImage = async (
       category,
       image_url: masterUrl,
       thumbnail_url: thumbUrl,
+      preview_url: previewUrl,
       sort_order: sortOrder,
     })
     .select('id')
