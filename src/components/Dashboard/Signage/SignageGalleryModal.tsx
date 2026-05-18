@@ -259,7 +259,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-                  <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤500 MB — JPG recommended for A0/A1 signs at 300 DPI)</p>
+                  <p className="text-xs font-medium">Drag &amp; drop or click to select PNG / JPG (≤500 MB — High-resolution JPG recommended for A1 signs at 300 DPI)</p>
                   <input
                     ref={bulkDropRef}
                     type="file"
@@ -279,7 +279,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 >
                   <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
                   <p className="text-xs font-medium truncate">
-                    {uploadFile ? `${uploadFile.name} (${(uploadFile.size / 1024 / 1024).toFixed(1)} MB)` : 'Click to select a single PNG / JPG (≤500 MB — JPG recommended for A0/A1 at 300 DPI)'}
+                    {uploadFile ? `${uploadFile.name} (${(uploadFile.size / 1024 / 1024).toFixed(1)} MB)` : 'Click to select a single PNG / JPG (≤500 MB — High-resolution JPG recommended for A1 at 300 DPI)'}
                   </p>
                 </div>
               )}

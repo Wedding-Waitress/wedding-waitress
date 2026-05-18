@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage } from './invitationUploadUtils';
+import { getReadableUploadError } from '../galleryUploadCore';
 
 const CATEGORY_PRESETS = [
   'Baby Shower',
@@ -19,7 +20,7 @@ const CATEGORY_PRESETS = [
   'Wedding',
 ];
 
-const CONCURRENCY = 3;
+const CONCURRENCY = 2;
 const DEFAULT_BULK_CATEGORY = 'Uncategorized';
 
 const CATEGORY_KEYWORDS: Array<{ category: string; patterns: RegExp[] }> = [
@@ -135,7 +136,7 @@ export const InvitationBulkUploader = forwardRef<InvitationBulkUploaderHandle, P
       updateRow(row.id, { status: 'done', masterKB, thumbKB });
     } catch (err: any) {
       console.error('Bulk upload row failed', err);
-      updateRow(row.id, { status: 'failed', error: err?.message ?? 'Upload failed' });
+      updateRow(row.id, { status: 'failed', error: getReadableUploadError(err, 'Upload failed') });
     }
   };
 
@@ -243,43 +244,43 @@ export const InvitationBulkUploader = forwardRef<InvitationBulkUploaderHandle, P
       )}
 
       {rows.length > 0 && (
-        <ScrollArea className="h-[160px] rounded-lg border border-border bg-background">
+        <ScrollArea className="h-[340px] rounded-lg border border-border bg-background">
           <div className="divide-y divide-border">
             {rows.map((row) => (
-              <div key={row.id} className="flex items-center gap-3 p-2">
+              <div key={row.id} className="flex items-start gap-3 p-2">
                 <img
                   src={row.previewUrl}
                   alt=""
-                  className="w-12 h-12 object-cover rounded border border-border flex-shrink-0"
+                  className="w-12 h-12 object-cover rounded border border-border flex-shrink-0 mt-0.5"
                 />
-                <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start gap-2">
                   <Input
                     value={row.name}
                     onChange={(e) => updateRow(row.id, { name: e.target.value })}
                     disabled={running || row.status === 'uploading' || row.status === 'done'}
-                    className="h-8 text-sm"
+                    className="h-8 text-sm flex-1 min-w-0"
                     placeholder="Name"
                   />
                   <Input
                     value={row.category}
                     onChange={(e) => updateRow(row.id, { category: e.target.value })}
                     disabled={running || row.status === 'uploading' || row.status === 'done'}
-                    className="h-8 text-sm"
+                    className="h-8 text-sm w-full sm:w-32 flex-shrink-0"
                     placeholder="Category"
                     list="invitation-cat-presets"
                   />
                 </div>
-                <div className="w-40 text-xs flex items-center gap-1.5 flex-shrink-0">
+                <div className="w-72 text-xs flex items-start gap-1.5 flex-shrink-0 pt-1.5">
                   {row.status === 'queued' && <span className="text-muted-foreground">Queued</span>}
                   {row.status === 'uploading' && (
                     <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary flex-shrink-0 mt-0.5" />
                       <span className="text-primary">Optimizing…</span>
                     </>
                   )}
                   {row.status === 'done' && (
                     <>
-                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
                       <span className="text-green-700">
                         {row.masterKB}KB / {row.thumbKB}KB
                       </span>
@@ -287,8 +288,8 @@ export const InvitationBulkUploader = forwardRef<InvitationBulkUploaderHandle, P
                   )}
                   {row.status === 'failed' && (
                     <>
-                      <XCircle className="h-3.5 w-3.5 text-destructive" />
-                      <span className="text-destructive truncate" title={row.error}>
+                      <XCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0 mt-0.5" />
+                      <span className="text-destructive break-words whitespace-normal leading-snug" title={row.error}>
                         {row.error || 'Failed'}
                       </span>
                     </>
@@ -297,7 +298,7 @@ export const InvitationBulkUploader = forwardRef<InvitationBulkUploaderHandle, P
                 <button
                   onClick={() => removeRow(row.id)}
                   disabled={row.status === 'uploading'}
-                  className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-30"
+                  className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-30 flex-shrink-0 mt-1.5"
                   aria-label="Remove"
                 >
                   <Trash2 className="h-4 w-4" />
