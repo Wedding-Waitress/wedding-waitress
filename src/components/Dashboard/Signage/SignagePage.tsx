@@ -646,35 +646,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           <div className="lg:col-span-2">
             <InvitationCardCustomizer
               settings={editorSettings}
-              onSettingsChange={async (changes) => {
-                // Map shared invitation-shape changes back to signage_settings columns
-                const mapped: any = {};
-                const allowed = [
-                  'background_color',
-                  'background_image_url',
-                  'background_image_type',
-                  'background_image_x_position',
-                  'background_image_y_position',
-                  'background_image_opacity',
-                  'text_zones',
-                  'qr_config',
-                  'orientation',
-                ];
-                for (const k of allowed) {
-                  if (k in changes) mapped[k] = (changes as any)[k];
-                }
-                // If background_image_url is being set from a non-gallery source
-                // (Choose File / Remove), drop any stale print master URL so PDF
-                // export uses the new image directly.
-                if ('background_image_url' in mapped) {
-                  const incoming = mapped.background_image_url;
-                  if (incoming !== lastGalleryPreviewRef.current) {
-                    mapped.background_image_print_url = null;
-                  }
-                }
-                if (Object.keys(mapped).length === 0) return true;
-                return updateSettings(mapped);
-              }}
+              onSettingsChange={handleSettingsChange}
               eventData={eventData}
               events={events}
               qrDataUrl={qrDataUrl}
