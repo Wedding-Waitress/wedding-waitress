@@ -97,11 +97,19 @@ export const useSignageSettings = (eventId: string | null) => {
           text_zones: (data.text_zones || []) as TextZone[],
           qr_config: (data.qr_config || DEFAULT_PORTRAIT_QR) as QrConfig,
         };
+        if (parsed.background_image_url && !parsed.background_image_print_url) {
+          parsed.background_image_print_url = parsed.background_image_url;
+          parsed.background_image_url = previewUrlFor(parsed.background_image_url) ?? parsed.background_image_url;
+        }
         setSettings(parsed);
         cache.set(eventId, parsed);
       } else {
         // Auto-create default record
         const def = buildDefault(eventId, user.id, 'portrait');
+        if (def.background_image_url && !def.background_image_print_url) {
+          def.background_image_print_url = def.background_image_url;
+          def.background_image_url = previewUrlFor(def.background_image_url) ?? def.background_image_url;
+        }
         const { data: inserted, error: insErr } = await (supabase as any)
           .from('signage_settings')
           .insert(def)
