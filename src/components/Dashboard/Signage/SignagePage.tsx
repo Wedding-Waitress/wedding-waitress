@@ -264,6 +264,11 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     try {
       const { widthMm, heightMm } = dims;
 
+      const exportBgUrl = settings.background_image_print_url || settings.background_image_url || '';
+      if (!exportBgUrl && !settings.background_color) {
+        throw new Error('Add a background image or color before exporting.');
+      }
+
       const customText: Record<string, string> = {};
       const customStyles: Record<string, any> = {};
       (settings.text_zones || []).forEach((z: any) => {
@@ -277,7 +282,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
       const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
       await exportInvitationPDF({
-        backgroundUrl: settings.background_image_print_url || settings.background_image_url || '',
+        backgroundUrl: exportBgUrl,
         orientation: 'portrait',
         widthMm,
         heightMm,
@@ -289,9 +294,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         qrDataUrl: qrDataUrl || undefined,
       }, undefined, fileName);
       toast({ title: 'PDF downloaded', description: `Your ${sizeLabel} print-ready PDF has been saved.` });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Signage PDF export error', err);
-      toast({ title: 'Export failed', description: 'Could not generate the PDF.', variant: 'destructive' });
+      toast({
+        title: 'Export failed',
+        description: err?.message || String(err) || 'Could not generate the PDF.',
+        variant: 'destructive',
+      });
     } finally {
       setExporting(null);
     }
