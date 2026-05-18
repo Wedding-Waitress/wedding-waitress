@@ -302,7 +302,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                 </Button>
                 {uploadFile && uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES && (
                   <p className="text-xs text-destructive">
-                    This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 200 MB — please re-export at a lower quality or smaller scale.
+                    This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 500 MB — please re-export at a lower quality or smaller scale.
                   </p>
                 )}
               </div>
