@@ -150,11 +150,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   // Target ~1400px JPEG q=70 — visually crisp inside the A4 preview frame
   // but small enough to decode/paint instantly with zero scroll lag.
   const editorMasterUrl = settings?.background_image_print_url || settings?.background_image_url || null;
-  const lightweightBgUrl = useMemo(() => {
-    const pre = (settings as any)?.background_image_preview_url;
-    if (pre) return pre;
-    return transformedUrl(editorMasterUrl, { width: 1400, quality: 70 }) ?? null;
-  }, [editorMasterUrl, (settings as any)?.background_image_preview_url]);
+  const { url: lightweightBgUrl } = useOptimizedPreview(
+    editorMasterUrl,
+    (settings as any)?.background_image_preview_url ?? null,
+  );
 
   // Editor-facing settings: identical to asInvitationSettings but with the
   // background image swapped for the lightweight version.
