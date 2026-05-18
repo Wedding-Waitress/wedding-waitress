@@ -62,19 +62,23 @@ const extensionForFile = (file: File) => {
   return file.type === 'image/jpeg' ? 'jpg' : 'png';
 };
 
-const createThumbnailBlob = async (file: File): Promise<Blob | null> => {
+const createResizedBlob = async (
+  file: File,
+  maxLongestEdge: number,
+  quality: number,
+): Promise<Blob | null> => {
   const objectUrl = URL.createObjectURL(file);
 
   try {
     const image = await new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error('Could not read image for thumbnail'));
+      img.onerror = () => reject(new Error('Could not read image for resize'));
       img.src = objectUrl;
     });
 
     const longest = Math.max(image.naturalWidth, image.naturalHeight);
-    const scale = longest > 800 ? 800 / longest : 1;
+    const scale = longest > maxLongestEdge ? maxLongestEdge / longest : 1;
     const width = Math.max(1, Math.round(image.naturalWidth * scale));
     const height = Math.max(1, Math.round(image.naturalHeight * scale));
     const canvas = document.createElement('canvas');
@@ -87,14 +91,17 @@ const createThumbnailBlob = async (file: File): Promise<Blob | null> => {
     ctx.fillRect(0, 0, width, height);
     ctx.drawImage(image, 0, 0, width, height);
 
-    return await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.75));
+    return await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
   } catch (error) {
-    console.warn('Signage thumbnail generation skipped', error);
+    console.warn('Signage resize skipped', error);
     return null;
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
 };
+
+const createThumbnailBlob = (file: File) => createResizedBlob(file, 800, 0.75);
+const createPreviewBlob = (file: File) => createResizedBlob(file, 1400, 0.7);
 
 export const uploadSignageGalleryImage = async (
   file: File,
@@ -111,6 +118,7 @@ export const uploadSignageGalleryImage = async (
   const token = randomToken();
   const masterPath = `originals/${slug}-${stamp}-${token}.${extensionForFile(file)}`;
   const thumbPath = `thumbs/${slug}-${stamp}-${token}.jpg`;
+  const previewPath = `originals/${slug}-${stamp}-${token}-preview.jpg`;
   const uploadedPaths: string[] = [];
 
   onProgress?.({ phase: 'validating', percent: 0, message: 'Preparing image upload…' });
@@ -122,6 +130,7 @@ export const uploadSignageGalleryImage = async (
   // Default to the master public URL; replace with a real client-generated thumbnail when possible.
   let thumbUrl: string | null = masterUrl;
   let thumbBytes = 0;
+  let previewUrl: string | null = null;
 
   onProgress?.({ phase: 'saving', percent: 100, message: 'Creating lightweight preview…' });
   const thumbnailBlob = await createThumbnailBlob(file);
@@ -138,6 +147,21 @@ export const uploadSignageGalleryImage = async (
       thumbBytes = thumbnailBlob.size;
     }
   }
+
+  const previewBlob = await createPreviewBlob(file);
+  if (previewBlob) {
+    const previewUpload = await supabase.storage.from('signage-gallery').upload(previewPath, previewBlob, {
+      contentType: 'image/jpeg',
+      upsert: false,
+    });
+    if (previewUpload.error) {
+      console.warn('Signage preview upload skipped', previewUpload.error);
+    } else {
+      uploadedPaths.push(previewPath);
+      previewUrl = supabase.storage.from('signage-gallery').getPublicUrl(previewPath).data.publicUrl;
+    }
+  }
+
   onProgress?.({ phase: 'saving', percent: 100, message: 'Saving to gallery…' });
 
   const { data: maxRow } = await supabase
@@ -156,6 +180,7 @@ export const uploadSignageGalleryImage = async (
       category,
       image_url: masterUrl,
       thumbnail_url: thumbUrl,
+      preview_url: previewUrl,
       sort_order: sortOrder,
     })
     .select('id')

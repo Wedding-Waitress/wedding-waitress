@@ -6,6 +6,7 @@ export interface SignageGalleryImage {
   name: string;
   category: string;
   image_url: string;
+  preview_url: string | null;
   thumbnail_url: string | null;
   sort_order: number;
   created_at: string;
@@ -63,6 +64,7 @@ export const useSignageGallery = () => {
           name: row.name,
           category: row.category,
           image_url: row.image_url,
+          preview_url: row.preview_url ?? null,
           thumbnail_url: row.thumbnail_url ?? null,
           sort_order: row.sort_order ?? 0,
           created_at: row.created_at,

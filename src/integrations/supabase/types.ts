@@ -2945,6 +2945,7 @@ export type Database = {
           id: string
           image_url: string
           name: string
+          preview_url: string | null
           sort_order: number
           thumbnail_url: string | null
         }
@@ -2954,6 +2955,7 @@ export type Database = {
           id?: string
           image_url: string
           name: string
+          preview_url?: string | null
           sort_order?: number
           thumbnail_url?: string | null
         }
@@ -2963,6 +2965,7 @@ export type Database = {
           id?: string
           image_url?: string
           name?: string
+          preview_url?: string | null
           sort_order?: number
           thumbnail_url?: string | null
         }
