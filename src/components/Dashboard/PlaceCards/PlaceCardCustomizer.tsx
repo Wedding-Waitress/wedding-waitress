@@ -274,10 +274,11 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="design" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-5">
               <TabsTrigger value="design">Design</TabsTrigger>
               <TabsTrigger value="position">Text Position</TabsTrigger>
               <TabsTrigger value="background">Background</TabsTrigger>
+              <TabsTrigger value="qr-code">Add QR Code</TabsTrigger>
               <TabsTrigger value="messages">Messages</TabsTrigger>
             </TabsList>
 
