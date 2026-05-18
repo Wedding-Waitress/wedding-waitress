@@ -143,25 +143,6 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
 
-  // Desktop fit-to-viewport: at 100% the full sign fits the visible preview
-  // area without vertical scrolling. Pure CSS transform on the desktop wrapper —
-  // image quality is unchanged.
-  const [fitScale, setFitScale] = useState(1);
-  useEffect(() => {
-    const compute = () => {
-      if (typeof window === 'undefined') return;
-      const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-      if (!isDesktop) { setFitScale(1); return; }
-      const naturalH = orientation === 'portrait' ? 1280 : 950;
-      const availH = window.innerHeight - 220;
-      setFitScale(Math.max(0.35, Math.min(1, availH / naturalH)));
-    };
-    compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
-  }, [orientation]);
-  const fitNaturalW = orientation === 'portrait' ? 794 : 1123;
-  const fitNaturalH = orientation === 'portrait' ? 1280 : 950;
 
   // Use the shared Canva-style preview pipeline: prefers a pre-generated preview
   // variant when present, otherwise asks Supabase to resize the master server-side.
