@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { GalleryUploadProgressHandler, getTransformedPublicUrl, uploadLargeFileToStorage } from '../galleryUploadCore';
 
 export const MAX_SIGNAGE_UPLOAD_BYTES = 500 * 1024 * 1024;
 
@@ -99,6 +100,7 @@ export const uploadSignageGalleryImage = async (
   file: File,
   name: string,
   category: string,
+  onProgress?: GalleryUploadProgressHandler,
 ): Promise<SignageUploadResult> => {
   if (file.size > MAX_SIGNAGE_UPLOAD_BYTES) {
     throw new Error(`File is larger than 500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB).`);
@@ -111,18 +113,15 @@ export const uploadSignageGalleryImage = async (
   const thumbPath = `thumbs/${slug}-${stamp}-${token}.jpg`;
   const uploadedPaths: string[] = [];
 
-  const masterUpload = await supabase.storage.from('signage-gallery').upload(masterPath, file, {
-    contentType: file.type || 'application/octet-stream',
-    upsert: false,
-  });
-  if (masterUpload.error) throw masterUpload.error;
+  onProgress?.({ phase: 'validating', percent: 0, message: 'Preparing image upload…' });
+  await uploadLargeFileToStorage('signage-gallery', masterPath, file, onProgress);
   uploadedPaths.push(masterPath);
 
   const masterUrl = supabase.storage.from('signage-gallery').getPublicUrl(masterPath).data.publicUrl;
-  let thumbUrl: string | null = null;
+  let thumbUrl: string | null = getTransformedPublicUrl('signage-gallery', masterPath);
   let thumbBytes = 0;
 
-  const thumbnailBlob = await createThumbnailBlob(file);
+  const thumbnailBlob = file.size <= 40 * 1024 * 1024 ? await createThumbnailBlob(file) : null;
   if (thumbnailBlob) {
     const thumbUpload = await supabase.storage.from('signage-gallery').upload(thumbPath, thumbnailBlob, {
       contentType: 'image/jpeg',

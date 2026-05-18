@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
 import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
+import { GalleryUploadProgress, getReadableUploadError, isSupportedGalleryImage } from '../galleryUploadCore';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
   err instanceof Error ? err.message : fallback
@@ -46,6 +47,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [uploadCategory, setUploadCategory] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<GalleryUploadProgress | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bulkRef = useRef<SignageBulkUploaderHandle>(null);
   const bulkDropRef = useRef<HTMLInputElement>(null);
@@ -139,6 +141,10 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       toast({ title: 'Choose an image', description: 'Please select a PNG or JPG file first.', variant: 'destructive' });
       return;
     }
+    if (!isSupportedGalleryImage(uploadFile)) {
+      toast({ title: 'Invalid file type', description: 'Please select a PNG or JPG image.', variant: 'destructive' });
+      return;
+    }
     if (!finalName) {
       toast({ title: 'Name required', description: 'Give the design a name.', variant: 'destructive' });
       return;
@@ -149,7 +155,8 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     }
     try {
       setUploading(true);
-      const result = await uploadSignageGalleryImage(uploadFile, finalName, finalCategory);
+      setUploadProgress({ phase: 'validating', percent: 0, message: 'Preparing image upload…' });
+      const result = await uploadSignageGalleryImage(uploadFile, finalName, finalCategory, setUploadProgress);
       const masterKB = Math.round(result.masterBytes / 1024);
       const thumbKB = Math.round(result.thumbBytes / 1024);
       toast({
@@ -159,6 +166,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       setUploadName('');
       setUploadCategory('');
       setUploadFile(null);
+      setUploadProgress({ phase: 'complete', percent: 100, message: 'Upload complete. Gallery refreshed.' });
       if (fileInputRef.current) fileInputRef.current.value = '';
       setShowUpload(false);
       await refetch();
@@ -166,7 +174,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
       console.error('Signage upload failed', err);
       toast({
         title: 'Upload failed',
-        description: getErrorMessage(err, 'Could not optimize and upload the image.'),
+        description: getReadableUploadError(err, 'Could not optimize and upload the image.'),
         variant: 'destructive',
       });
     } finally {
@@ -285,7 +293,16 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   ref={fileInputRef}
                   type="file"
                   accept="image/png,image/jpeg"
-                  onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    if (file && !isSupportedGalleryImage(file)) {
+                      toast({ title: 'Invalid file type', description: 'Please select a PNG or JPG image.', variant: 'destructive' });
+                      e.target.value = '';
+                      return;
+                    }
+                    setUploadProgress(null);
+                    setUploadFile(file);
+                  }}
                   disabled={uploading}
                   className="hidden"
                 />
@@ -300,6 +317,14 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                     <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
                   )}
                 </Button>
+                {uploading && uploadProgress && (
+                  <div className="w-full max-w-md space-y-1">
+                    <div className="h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-green-600 transition-all" style={{ width: `${uploadProgress.percent}%` }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">{uploadProgress.message}</p>
+                  </div>
+                )}
                 {uploadFile && uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES && (
                   <p className="text-xs text-destructive">
                     This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 500 MB — please re-export at a lower quality or smaller scale.
