@@ -181,7 +181,7 @@ export async function exportInvitationPNG(opts: ExportOptions, guestName?: strin
 
 /** Export single invitation as PDF */
 export async function exportInvitationPDF(opts: ExportOptions, guestName?: string, fileName?: string): Promise<void> {
-  const el = buildInvitationElement(opts, guestName);
+  const el = buildInvitationElement(opts, guestName, false);
   const canvas = await captureElement(el);
   const pdf = new jsPDF({
     orientation: opts.orientation === 'portrait' ? 'portrait' : 'landscape',
@@ -191,12 +191,13 @@ export async function exportInvitationPDF(opts: ExportOptions, guestName?: strin
   });
   const imgData = canvas.toDataURL('image/png');
   pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
+  drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, 0, 0, opts.widthMm, opts.heightMm);
   await savePdfAsync(pdf, fileName || `invitation${guestName ? `-${guestName.replace(/\s+/g, '-')}` : ''}.pdf`);
 }
 
 /** Export 2-up A4 layout (two A5 invitations per page) */
 export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
-  const el = buildInvitationElement(opts);
+  const el = buildInvitationElement(opts, undefined, false);
   const canvas = await captureElement(el);
   const imgData = canvas.toDataURL('image/png');
 
@@ -209,8 +210,10 @@ export async function exportInvitation2Up(opts: ExportOptions): Promise<void> {
 
   // Top invitation
   pdf.addImage(imgData, 'PNG', offsetX, gap, A5_W_MM, A5_H_MM);
+  drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, offsetX, gap, A5_W_MM, A5_H_MM);
   // Bottom invitation
   pdf.addImage(imgData, 'PNG', offsetX, gap * 2 + A5_H_MM, A5_W_MM, A5_H_MM);
+  drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, offsetX, gap * 2 + A5_H_MM, A5_W_MM, A5_H_MM);
 
   // Crop marks (thin grey lines)
   pdf.setDrawColor(180, 180, 180);
@@ -258,10 +261,11 @@ export async function exportBulkPDF(
       await yieldToBrowser();
     }
 
-    const el = buildInvitationElement(opts, name);
+    const el = buildInvitationElement(opts, name, false);
     const canvas = await captureElement(el);
     const imgData = canvas.toDataURL('image/png');
     pdf.addImage(imgData, 'PNG', 0, 0, opts.widthMm, opts.heightMm);
+    drawQrOnPdf(pdf, opts.qrConfig, opts.qrDataUrl, 0, 0, opts.widthMm, opts.heightMm);
 
     onProgress?.(i + 1, guests.length);
   }
