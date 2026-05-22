@@ -480,7 +480,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           <div className="text-left">
             <h1 className="text-2xl font-bold text-foreground">Wedding Waitress Signs Studio</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
+              ​
             </p>
             <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mt-1">
               ​
