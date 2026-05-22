@@ -12,7 +12,7 @@ import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit, useOptimizedPreview } from '@/lib/imagePipeline';
 import { exportSignagePDF } from '@/lib/signagePdfExporter';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
+import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, AlarmClock, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
