@@ -525,7 +525,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               </div>
 
               <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] gap-6">
                   <div>
                     <p className="font-semibold text-primary">
                       Professional Wedding Print Guidelines
@@ -551,7 +551,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           key={size.id}
                           type="button"
                           onClick={() => setPrintSize(size.id)}
-                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
+                          className={`lv-premium-shade text-left rounded-xl border p-3 aspect-square flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
                             active
                               ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
                               : 'border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md'
