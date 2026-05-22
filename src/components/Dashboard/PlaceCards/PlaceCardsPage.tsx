@@ -429,6 +429,18 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         </Card>
       )}
 
+      {/* Premium info bar — mirrors Seating Chart Signs */}
+      {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+        <div className="rounded-xl border border-[hsl(var(--primary)/0.18)] bg-gradient-to-br from-[hsl(var(--primary)/0.05)] to-[hsl(var(--primary)/0.02)] shadow-soft px-5 py-4 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+          <p className="text-sm text-foreground/85 font-medium">
+            Portrait print layouts optimised for professional wedding signage.
+          </p>
+          <p className="text-xs text-muted-foreground tracking-wide">
+            300 DPI • Australian standard print sizes • Print-shop ready PDFs
+          </p>
+        </div>
+      )}
+
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
