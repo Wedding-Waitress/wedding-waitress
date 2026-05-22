@@ -1,0 +1,2 @@
+DELETE FROM public.place_card_image_categories;
+DELETE FROM public.place_card_gallery_images;
