@@ -503,20 +503,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   <li>• Portrait layouts optimised for modern wedding signage</li>
                 </ul>
               </div>
-              {[
-                { icon: Building2, title: 'Main Foyer Sign', size: 'A1', desc: 'Ideal for venue entrances and easels.' },
-                { icon: QrCode, title: 'Table Upload Cards', size: 'DL Card or A5', desc: 'Perfect for photo/video uploads and QR access.' },
-                { icon: Heart, title: 'Guest Keepsake Cards', size: 'Postcard or Business Card', desc: 'Perfect for digital guestbooks and memories.' },
-              ].map(({ icon: Icon, title, size, desc }) => (
-                <div key={title} className="h-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-semibold text-primary">{title}</span>
-                  </div>
-                  <span className="text-[11px] uppercase tracking-wider text-primary font-medium">Best size: {size}</span>
-                  <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
-                </div>
-              ))}
+
+
             </div>
           )}
 
