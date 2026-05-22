@@ -12,7 +12,7 @@ import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit, useOptimizedPreview } from '@/lib/imagePipeline';
 import { exportSignagePDF } from '@/lib/signagePdfExporter';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
+import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, AlarmClock, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
@@ -480,7 +480,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           <div className="text-left">
             <h1 className="text-2xl font-bold text-foreground">Wedding Waitress Signs Studio</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
+              ​
             </p>
             <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mt-1">
               ​
@@ -530,13 +530,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </div>
 
                 <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
-                  <p className="font-semibold text-primary">
-                    Professional Wedding Print Guidelines
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
-                  </p>
-                  <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
+                    <p className="font-semibold text-primary">
+                      Professional Wedding Print Guidelines
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ​
+                    </p>
+                    <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
                     <li>• All exports are generated at professional 300 DPI quality</li>
                     <li>• PDFs match the live preview exactly</li>
                     <li>• QR codes remain venue-scannable at all print sizes</li>
@@ -641,8 +641,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 })()}
                 <div className="border-t border-primary/15 pt-4 mt-4">
                   <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
-                    <Sparkles className="w-3.5 h-3.5 text-primary/70" />
-                    <span><span className="font-medium text-primary/80">Coming Soon:</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
+                    <AlarmClock className="w-3.5 h-3.5 text-primary/70 rounded-xl" />
+                    <span><span className="font-medium text-primary/80">​</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
                   </p>
                 </div>
               </div>
