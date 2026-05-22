@@ -530,84 +530,68 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </div>
 
                 <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
-                    <p className="font-semibold text-primary">
-                      Professional Wedding Print Guidelines
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      ​
-                    </p>
-                    <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
-                    <li>• All exports are generated at professional 300 DPI quality</li>
-                    <li>• PDFs match the live preview exactly</li>
-                    <li>• QR codes remain venue-scannable at all print sizes</li>
-                    <li>• Australian standard print sizes supported</li>
-                    <li>• Best results recommended via professional print shops</li>
-                    <li>• Portrait layouts optimised for modern wedding signage</li>
-                  </ul>
-                </div>
-
-
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="flex flex-col gap-1">
-                      <h4 className="text-base font-semibold text-primary leading-tight">
-                        Professional Wedding Print Sizes
-                      </h4>
-                      <p className="text-sm text-muted-foreground">
-                        Choose the perfect format for your foyer signs, table QR cards, upload stations, and wedding keepsakes.
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <p className="font-semibold text-primary">
+                        Professional Wedding Print Guidelines
                       </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        ​
+                      </p>
+                      <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
+                        <li>• All exports are generated at professional 300 DPI quality</li>
+                        <li>• PDFs match the live preview exactly</li>
+                        <li>• QR codes remain venue-scannable at all print sizes</li>
+                        <li>• Australian standard print sizes supported</li>
+                        <li>• Best results recommended via professional print shops</li>
+                        <li>• Portrait layouts optimised for modern wedding signage</li>
+                      </ul>
                     </div>
-                    <span className="hidden lg:inline-flex self-start rounded-full border border-primary/20 bg-[hsl(var(--primary)/0.06)] px-3 py-1 text-[11px] tracking-wide text-primary whitespace-nowrap">
-                      300 DPI • Print-Shop Ready
-                    </span>
-                  </div>
-                  <div className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                    Choose Print Size
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                    {PRINT_SIZES.map((size) => {
-                      const active = printSize === size.id;
-                      const Icon = size.icon;
-                      return (
-                        <button
-                          key={size.id}
-                          type="button"
-                          onClick={() => setPrintSize(size.id)}
-                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
-                            active
-                              ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
-                              : 'border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md'
-                          }`}
-                          aria-pressed={active}
-                        >
-                          <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <div className="flex items-center gap-1.5">
-                              <Icon className={`h-4 w-4 transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
-                              <span className={`text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
-                                {size.label}
-                              </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 content-start">
+                      {PRINT_SIZES.map((size) => {
+                        const active = printSize === size.id;
+                        const Icon = size.icon;
+                        return (
+                          <button
+                            key={size.id}
+                            type="button"
+                            onClick={() => setPrintSize(size.id)}
+                            className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
+                              active
+                                ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
+                                : 'border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md'
+                            }`}
+                            aria-pressed={active}
+                          >
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-1.5">
+                                <Icon className={`h-4 w-4 transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
+                                <span className={`text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
+                                  {size.label}
+                                </span>
+                              </div>
+                              {size.recommended && (
+                                <span className={`mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
+                                  active
+                                    ? 'bg-green-100 border-green-300 text-green-700'
+                                    : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
+                                }`}>
+                                  ⭐ Most Popular
+                                </span>
+                              )}
                             </div>
-                            {size.recommended && (
-                              <span className={`mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
-                                active
-                                  ? 'bg-green-100 border-green-300 text-green-700'
-                                  : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
-                              }`}>
-                                ⭐ Most Popular
-                              </span>
+                            <span className={`text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
+                            <span className={`text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
+                            {active && (
+                              <span className="text-[10px] font-medium text-green-700 mt-2">✓ Selected for export</span>
                             )}
-                          </div>
-                          <span className={`text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
-                          <span className={`text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
-                          {active && (
-                            <span className="text-[10px] font-medium text-green-700 mt-2">✓ Selected for export</span>
-                          )}
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
+
 
                 {(() => {
                   const hasBackground = !!(settings?.background_image_print_url || settings?.background_image_url || settings?.background_color);
