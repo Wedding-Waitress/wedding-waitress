@@ -530,13 +530,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </div>
 
                 <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
-                  <p className="font-semibold text-primary">
-                    Professional Wedding Print Guidelines
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
-                  </p>
-                  <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
+                    <p className="font-semibold text-primary">
+                      Professional Wedding Print Guidelines
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ​
+                    </p>
+                    <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
                     <li>• All exports are generated at professional 300 DPI quality</li>
                     <li>• PDFs match the live preview exactly</li>
                     <li>• QR codes remain venue-scannable at all print sizes</li>
