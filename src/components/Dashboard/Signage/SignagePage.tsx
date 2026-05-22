@@ -641,8 +641,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 })()}
                 <div className="border-t border-primary/15 pt-4 mt-4">
                   <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
-                    <Sparkles className="w-3.5 h-3.5 text-primary/70" />
-                    <span><span className="font-medium text-primary/80">Coming Soon:</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
+                    <AlarmClock className="w-3.5 h-3.5 text-primary/70 rounded-xl" />
+                    <span><span className="font-medium text-primary/80">​</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
                   </p>
                 </div>
               </div>
