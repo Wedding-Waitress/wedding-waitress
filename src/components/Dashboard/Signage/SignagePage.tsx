@@ -486,6 +486,29 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
           <div className="border-b border-border" />
 
+          {!selectedEvent && (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-1">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                Choose Event:
+              </label>
+              <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
+                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                  <SelectValue placeholder="Choose Event" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border z-50">
+                  {events.map(event => (
+                    <SelectItem key={event.id} value={event.id}>
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>{event.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {selectedEvent && (
             <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-6 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
               <div className="flex flex-col gap-1">
