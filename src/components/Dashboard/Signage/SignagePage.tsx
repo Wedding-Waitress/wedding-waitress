@@ -563,6 +563,56 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </div>
               </div>
 
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                    Choose Event:
+                  </label>
+                  <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
+                    <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                      <SelectValue placeholder="Choose Event" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border z-50">
+                      {events.map(event => (
+                        <SelectItem key={event.id} value={event.id}>
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{event.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(() => {
+                  const hasBackground = !!(settings?.background_image_print_url || settings?.background_image_url || settings?.background_color);
+                  const missing: string[] = [];
+                  if (!settings) missing.push('Sign settings are still loading');
+                  if (!printSize) missing.push('Select a print size below');
+                  if (settings && !hasBackground) missing.push('Choose a background image or color');
+                  const disabled = exporting !== null || missing.length > 0;
+                  return (
+                    <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
+                      <div className="text-sm">
+                        <span className="font-medium">Export Controls</span>
+                        <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          disabled={disabled}
+                          onClick={handleDownloadPDF}
+                          className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                        >
+                          {exporting === 'pdf' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                          {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
               {(() => {
                 const hasBackground = !!(settings?.background_image_print_url || settings?.background_image_url || settings?.background_color);
                 const missing: string[] = [];
@@ -593,64 +643,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   </div>
                 );
               })()}
-              <div className="border-t border-primary/15 pt-4 mt-4">
-                <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
-                  <AlarmClock className="w-3.5 h-3.5 text-primary/70 rounded-xl" />
-                  <span><span className="font-medium text-primary/80">​</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
-                </p>
-              </div>
             </div>
           )}
-
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
-              </label>
-              <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
-                  <SelectValue placeholder="Choose Event" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
-                  {events.map(event => (
-                    <SelectItem key={event.id} value={event.id}>
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>{event.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {selectedEvent && (() => {
-              const hasBackground = !!(settings?.background_image_print_url || settings?.background_image_url || settings?.background_color);
-              const missing: string[] = [];
-              if (!settings) missing.push('Sign settings are still loading');
-              if (!printSize) missing.push('Select a print size below');
-              if (settings && !hasBackground) missing.push('Choose a background image or color');
-              const disabled = exporting !== null || missing.length > 0;
-              return (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
-                  <div className="text-sm">
-                    <span className="font-medium">Export Controls</span>
-                    <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      disabled={disabled}
-                      onClick={handleDownloadPDF}
-                      className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
-                    >
-                      {exporting === 'pdf' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-                      {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
         </CardContent>
       </Card>
 
