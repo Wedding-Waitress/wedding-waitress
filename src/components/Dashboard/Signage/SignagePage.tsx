@@ -483,7 +483,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
             </p>
             <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground mt-1">
-              Wedding Waitress Signs • Print Studio • QR Experience
+              ​
+
             </p>
           </div>
 
