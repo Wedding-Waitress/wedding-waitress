@@ -486,6 +486,122 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
           <div className="border-b border-border" />
 
+          {selectedEvent && (
+            <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-6 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
+              <div className="flex flex-col gap-1">
+                <h3 className="text-lg lg:text-xl font-semibold text-primary leading-tight">
+                  Print &amp; Export Studio
+                </h3>
+                <p className="text-[11px] lg:text-xs uppercase tracking-[0.14em] text-muted-foreground/80">
+                  ​
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Download your sign as a print-ready PDF.
+                </p>
+              </div>
+
+              <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <p className="font-semibold text-primary">
+                      Professional Wedding Print Guidelines
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ​
+                    </p>
+                    <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
+                      <li>• All exports are generated at professional 300 DPI quality</li>
+                      <li>• PDFs match the live preview exactly</li>
+                      <li>• QR codes remain venue-scannable at all print sizes</li>
+                      <li>• Australian standard print sizes supported</li>
+                      <li>• Best results recommended via professional print shops</li>
+                      <li>• Portrait layouts optimised for modern wedding signage</li>
+                    </ul>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 content-start">
+                    {PRINT_SIZES.map((size) => {
+                      const active = printSize === size.id;
+                      const Icon = size.icon;
+                      return (
+                        <button
+                          key={size.id}
+                          type="button"
+                          onClick={() => setPrintSize(size.id)}
+                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[92px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
+                            active
+                              ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
+                              : 'border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md'
+                          }`}
+                          aria-pressed={active}
+                        >
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <div className="flex items-center gap-1.5">
+                              <Icon className={`h-4 w-4 transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
+                              <span className={`text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
+                                {size.label}
+                              </span>
+                            </div>
+                            {size.recommended && (
+                              <span className={`mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
+                                active
+                                  ? 'bg-green-100 border-green-300 text-green-700'
+                                  : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
+                              }`}>
+                                ⭐ Most Popular
+                              </span>
+                            )}
+                          </div>
+                          <span className={`text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
+                          <span className={`text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
+                          {active && (
+                            <span className="text-[10px] font-medium text-green-700 mt-2">✓ Selected for export</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {(() => {
+                const hasBackground = !!(settings?.background_image_print_url || settings?.background_image_url || settings?.background_color);
+                const missing: string[] = [];
+                if (!settings) missing.push('Sign settings are still loading');
+                if (!printSize) missing.push('Select a print size above');
+                if (settings && !hasBackground) missing.push('Choose a background image or color');
+                const disabled = exporting !== null || missing.length > 0;
+                return (
+                  <div className="flex flex-col gap-2 pt-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        disabled={disabled}
+                        onClick={handleDownloadPDF}
+                        className="lv-premium-shade inline-flex items-center gap-2 h-9 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                      >
+                        {exporting === 'pdf' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                        {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
+                      </button>
+                    </div>
+                    {missing.length > 0 && (
+                      <ul className="text-[11px] text-muted-foreground italic list-disc pl-4">
+                        {missing.map((m) => <li key={m}>{m}</li>)}
+                      </ul>
+                    )}
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      All exports are generated as high-resolution print-ready PDFs for professional printing.
+                    </p>
+                  </div>
+                );
+              })()}
+              <div className="border-t border-primary/15 pt-4 mt-4">
+                <p className="text-xs text-center text-muted-foreground/90 tracking-wide flex items-center justify-center gap-2 flex-wrap">
+                  <AlarmClock className="w-3.5 h-3.5 text-primary/70 rounded-xl" />
+                  <span><span className="font-medium text-primary/80">​</span> Wedding upload cards • Digital guestbooks • Voice message QR cards • AI print templates</span>
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap">
