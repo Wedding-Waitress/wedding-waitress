@@ -527,7 +527,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] gap-6">
                   <div>
-                    <p className="font-semibold text-primary">
+                    <p className="font-semibold text-primary text-base">
                       Professional Wedding Print Guidelines
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
