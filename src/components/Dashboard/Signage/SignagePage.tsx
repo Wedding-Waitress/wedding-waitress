@@ -520,6 +520,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
                   Download your sign as a print-ready PDF.
+                  <span className="ml-2">All exports are generated as high-resolution print-ready PDFs for professional printing.</span>
                 </p>
               </div>
 
