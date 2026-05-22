@@ -488,25 +488,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             </p>
           </div>
 
-          {selectedEvent && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="h-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
-                <p className="font-semibold text-primary">
-                  Professional Wedding Print Guidelines
-                </p>
-                <ul className="text-muted-foreground space-y-2 mt-3 leading-relaxed">
-                  <li>• All exports are generated at professional 300 DPI quality</li>
-                  <li>• PDFs match the live preview exactly</li>
-                  <li>• QR codes remain venue-scannable at all print sizes</li>
-                  <li>• Australian standard print sizes supported</li>
-                  <li>• Best results recommended via professional print shops</li>
-                  <li>• Portrait layouts optimised for modern wedding signage</li>
-                </ul>
-              </div>
 
 
-            </div>
-          )}
 
           <div className="border-b border-border" />
 
