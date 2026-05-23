@@ -531,7 +531,7 @@ const SelectionToolbar = ({ rotation, locked, onRotate, onToggleLock, onRemove }
   <div
     style={{
       position: 'absolute',
-      top: -36,
+      top: -44,
       left: '50%',
       transform: `translateX(-50%) rotate(${-rotation}deg)`,
     }}
@@ -539,24 +539,25 @@ const SelectionToolbar = ({ rotation, locked, onRotate, onToggleLock, onRemove }
   >
     <button
       onClick={onRotate}
-      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground"
+      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
       title="Rotate 15°"
     >
-      <RotateCw className="w-3.5 h-3.5" />
+      <RotateCw className="w-4 h-4" />
     </button>
     <button
       onClick={onToggleLock}
-      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground"
+      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
       title={locked ? 'Unlock' : 'Lock'}
     >
-      {locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+      {locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
     </button>
     <button
       onClick={onRemove}
-      className="lv-premium-shade p-1 rounded hover:bg-destructive/10 text-destructive"
+      className="lv-premium-shade p-1 rounded hover:bg-destructive/10 text-destructive min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
       title="Remove"
     >
-      <Trash2 className="w-3.5 h-3.5" />
+      <Trash2 className="w-4 h-4" />
     </button>
   </div>
 );
+
