@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Search, MapPin, Users, Ruler, Sparkles, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -25,17 +26,34 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
   const { templates, loading } = useApprovedVenueTemplates();
   const { toast } = useToast();
   const [query, setQuery] = useState('');
+  const [country, setCountry] = useState('all');
+  const [capacityBand, setCapacityBand] = useState('all');
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
 
+  const countries = useMemo(() => {
+    const s = new Set<string>();
+    templates.forEach((t) => { if (t.country) s.add(t.country); });
+    return Array.from(s).sort();
+  }, [templates]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return templates;
     return templates.filter((t) => {
+      if (featuredOnly && !t.featured) return false;
+      if (country !== 'all' && (t.country ?? '') !== country) return false;
+      if (capacityBand !== 'all') {
+        const c = t.capacity;
+        if (capacityBand === 's' && !(c > 0 && c <= 80)) return false;
+        if (capacityBand === 'm' && !(c > 80 && c <= 200)) return false;
+        if (capacityBand === 'l' && !(c > 200)) return false;
+      }
+      if (!q) return true;
       const hay = `${t.venue_name} ${t.room_name} ${t.city ?? ''} ${t.country ?? ''} ${t.capacity}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [templates, query]);
+  }, [templates, query, country, capacityBand, featuredOnly]);
 
   const selected = useMemo(
     () => filtered.find((t) => t.id === selectedId) || templates.find((t) => t.id === selectedId) || null,
