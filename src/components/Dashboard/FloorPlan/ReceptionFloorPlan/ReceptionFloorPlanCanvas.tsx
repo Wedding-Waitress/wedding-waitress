@@ -37,6 +37,8 @@ export const ReceptionFloorPlanCanvas = ({
 }: Props) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [guides, setGuides] = useState<SnapTarget[]>([]);
+  const altDownRef = useRef(false);
   const dragState = useRef<
     | { kind: SelectedKind; id: string; offsetX: number; offsetY: number }
     | null
@@ -51,6 +53,22 @@ export const ReceptionFloorPlanCanvas = ({
       }
     | null
   >(null);
+
+  // Track Alt key globally so snapping can be disabled mid-drag.
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 'Alt') altDownRef.current = true;
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.key === 'Alt') altDownRef.current = false;
+    };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+    };
+  }, []);
 
   const placedIds = useMemo(
     () => new Set(plan.table_positions.map((p) => p.table_id)),
