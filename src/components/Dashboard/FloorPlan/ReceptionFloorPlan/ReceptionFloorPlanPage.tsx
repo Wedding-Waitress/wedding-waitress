@@ -1,9 +1,16 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
@@ -11,6 +18,11 @@ import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
 import { ResetLayoutDialog } from './ResetLayoutDialog';
+import {
+  generateReceptionFloorPlanPDF,
+  type ReceptionPdfPageSize,
+  type ReceptionPdfEvent,
+} from '@/lib/receptionFloorPlanPdfExporter';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
@@ -26,6 +38,7 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
+  const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
 
   const loading = tablesLoading || planLoading || !plan;
 
@@ -44,6 +57,39 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
           ? 'All fixtures were removed.'
           : 'The reception floor plan was fully cleared.',
     });
+  };
+
+  const handleExport = async (size: ReceptionPdfPageSize) => {
+    if (!plan) return;
+    setExporting(size);
+    try {
+      const { data: ev, error } = await supabase
+        .from('events')
+        .select('name, date, venue, partner1_name, partner2_name, start_time, finish_time')
+        .eq('id', selectedEventId)
+        .maybeSingle();
+      if (error || !ev) throw error || new Error('Event not found');
+      await generateReceptionFloorPlanPDF(
+        plan,
+        tables,
+        ev as ReceptionPdfEvent,
+        attendingCount,
+        size
+      );
+      toast({
+        title: 'Floor plan exported',
+        description: `${size.toUpperCase()} PDF downloaded successfully.`,
+      });
+    } catch (err) {
+      console.error('reception pdf export', err);
+      toast({
+        title: 'Export failed',
+        description: 'Could not generate the PDF. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setExporting(null);
+    }
   };
 
   return (
@@ -78,6 +124,34 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                 <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
                 Reset layout
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="lv-premium-shade h-9 bg-[#967A59] hover:bg-[#7a6347] text-white"
+                    disabled={!!exporting}
+                  >
+                    {exporting ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <FileDown className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    {exporting ? `Exporting ${exporting.toUpperCase()}…` : 'Export PDF'}
+                    <ChevronDown className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('a4')}>
+                    A4 (210 × 297mm)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('a3')}>
+                    A3 (297 × 420mm)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('a2')}>
+                    A2 (420 × 594mm)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
         </div>
