@@ -2547,6 +2547,92 @@ export type Database = {
           },
         ]
       }
+      reception_floor_plans: {
+        Row: {
+          background_height: number | null
+          background_image_url: string | null
+          background_locked: boolean
+          background_opacity: number
+          background_rotation: number
+          background_width: number | null
+          background_x: number
+          background_y: number
+          created_at: string
+          event_id: string
+          fixtures: Json
+          grid_size_cm: number
+          id: string
+          last_saved_at: string
+          pan_x: number
+          pan_y: number
+          room_length_m: number
+          room_shape: string
+          room_width_m: number
+          table_positions: Json
+          updated_at: string
+          user_id: string
+          zoom: number
+        }
+        Insert: {
+          background_height?: number | null
+          background_image_url?: string | null
+          background_locked?: boolean
+          background_opacity?: number
+          background_rotation?: number
+          background_width?: number | null
+          background_x?: number
+          background_y?: number
+          created_at?: string
+          event_id: string
+          fixtures?: Json
+          grid_size_cm?: number
+          id?: string
+          last_saved_at?: string
+          pan_x?: number
+          pan_y?: number
+          room_length_m?: number
+          room_shape?: string
+          room_width_m?: number
+          table_positions?: Json
+          updated_at?: string
+          user_id: string
+          zoom?: number
+        }
+        Update: {
+          background_height?: number | null
+          background_image_url?: string | null
+          background_locked?: boolean
+          background_opacity?: number
+          background_rotation?: number
+          background_width?: number | null
+          background_x?: number
+          background_y?: number
+          created_at?: string
+          event_id?: string
+          fixtures?: Json
+          grid_size_cm?: number
+          id?: string
+          last_saved_at?: string
+          pan_x?: number
+          pan_y?: number
+          room_length_m?: number
+          room_shape?: string
+          room_width_m?: number
+          table_positions?: Json
+          updated_at?: string
+          user_id?: string
+          zoom?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reception_floor_plans_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_codes: {
         Row: {
           code: string
