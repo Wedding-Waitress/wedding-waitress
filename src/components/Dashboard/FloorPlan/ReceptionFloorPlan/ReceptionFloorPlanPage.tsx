@@ -338,6 +338,24 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             onApply={update}
           />
         )}
+
+        {plan && (
+          <ChooseVenueDialog
+            open={chooseVenueOpen}
+            onOpenChange={setChooseVenueOpen}
+            plan={plan}
+            onApply={update}
+          />
+        )}
+
+        {plan && (
+          <SubmitTemplateDialog
+            open={submitTemplateOpen}
+            onOpenChange={setSubmitTemplateOpen}
+            plan={plan}
+            backgroundUrl={backgroundUrl}
+          />
+        )}
       </CardContent>
     </Card>
   );
