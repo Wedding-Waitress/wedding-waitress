@@ -198,33 +198,49 @@ export const ReceptionFloorPlanCanvas = ({
     const x = (e.clientX - rect.left - d.offsetX) / PX_PER_M;
     const y = (e.clientY - rect.top - d.offsetY) / PX_PER_M;
     if (d.kind === 'table') {
+      const snap = computeSnap(
+        x,
+        y,
+        plan,
+        { excludeTableId: d.id },
+        altDownRef.current
+      );
+      setGuides(snap.guides);
       onChange((p) => ({
         ...p,
         table_positions: p.table_positions.map((tp) =>
           tp.table_id === d.id
             ? {
                 ...tp,
-                x: clamp(x, 0.5, p.room_width_m - 0.5),
-                y: clamp(y, 0.5, p.room_length_m - 0.5),
+                x: clamp(snap.x, 0.5, p.room_width_m - 0.5),
+                y: clamp(snap.y, 0.5, p.room_length_m - 0.5),
               }
             : tp
         ),
       }));
     } else if (d.kind === 'fixture') {
+      const snap = computeSnap(
+        x,
+        y,
+        plan,
+        { excludeFixtureId: d.id },
+        altDownRef.current
+      );
+      setGuides(snap.guides);
       onChange((p) => ({
         ...p,
         fixtures: p.fixtures.map((fx) =>
           fx.id === d.id
             ? {
                 ...fx,
-                x: clamp(x, fx.width_m / 2, p.room_width_m - fx.width_m / 2),
-                y: clamp(y, fx.height_m / 2, p.room_length_m - fx.height_m / 2),
+                x: clamp(snap.x, fx.width_m / 2, p.room_width_m - fx.width_m / 2),
+                y: clamp(snap.y, fx.height_m / 2, p.room_length_m - fx.height_m / 2),
               }
             : fx
         ),
       }));
     } else {
-      // background — top-left positioning with generous bounds
+      // background — top-left positioning with generous bounds (no snapping)
       onChange((p) => ({
         ...p,
         background: {
@@ -238,6 +254,43 @@ export const ReceptionFloorPlanCanvas = ({
   const handlePointerUp = () => {
     dragState.current = null;
     resizeState.current = null;
+    setGuides([]);
+  };
+
+  // Build snap candidates from plan; returns x/y snapped + visible guides.
+  const computeSnap = (
+    rawX: number,
+    rawY: number,
+    p: ReceptionFloorPlan,
+    opts: { excludeTableId?: string; excludeFixtureId?: string },
+    disabled: boolean
+  ) => {
+    if (disabled) return { x: rawX, y: rawY, guides: [] as SnapTarget[] };
+    const threshold = 0.15; // 15cm
+    const extraX: number[] = [];
+    const extraY: number[] = [];
+    p.table_positions.forEach((tp) => {
+      if (tp.table_id === opts.excludeTableId) return;
+      extraX.push(tp.x);
+      extraY.push(tp.y);
+    });
+    p.fixtures.forEach((fx) => {
+      if (fx.id === opts.excludeFixtureId) return;
+      extraX.push(fx.x);
+      extraY.push(fx.y);
+    });
+    const { targetsX, targetsY } = buildRoomSnapTargets(
+      {
+        width: p.room_width_m,
+        height: p.room_length_m,
+        gridSizeM: p.grid_size_cm / 100,
+        extraTargetsX: extraX,
+        extraTargetsY: extraY,
+      },
+      { x: rawX, y: rawY },
+      threshold
+    );
+    return snapPoint({ x: rawX, y: rawY, targetsX, targetsY, threshold });
   };
 
   // ---- table actions
