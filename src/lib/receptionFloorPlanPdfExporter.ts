@@ -44,13 +44,28 @@ const HEADER_HEIGHT = 34;
 const FOOTER_HEIGHT = 10;
 const LEGEND_WIDTH = 56; // right-hand sidebar
 
-const hexToRgb = (hex: string): [number, number, number] => {
-  const m = hex.replace('#', '');
-  return [
-    parseInt(m.slice(0, 2), 16),
-    parseInt(m.slice(2, 4), 16),
-    parseInt(m.slice(4, 6), 16),
-  ];
+const NAMED_COLORS: Record<string, [number, number, number]> = {
+  white: [255, 255, 255],
+  black: [0, 0, 0],
+  red: [255, 0, 0],
+  green: [0, 128, 0],
+  blue: [0, 0, 255],
+};
+
+const hexToRgb = (input: string): [number, number, number] => {
+  if (!input) return [0, 0, 0];
+  const named = NAMED_COLORS[input.toLowerCase()];
+  if (named) return named;
+  let m = input.replace('#', '').trim();
+  if (m.length === 3) {
+    m = m.split('').map((c) => c + c).join('');
+  }
+  if (m.length !== 6) return [0, 0, 0];
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return [0, 0, 0];
+  return [r, g, b];
 };
 
 const formatDateLong = (date: string | null): string => {
