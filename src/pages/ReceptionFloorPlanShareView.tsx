@@ -4,7 +4,8 @@
  */
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Loader2, FileDown, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Loader2, FileDown, ChevronDown, LayoutGrid, StickyNote, ClipboardList } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
