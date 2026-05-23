@@ -2567,8 +2567,11 @@ export type Database = {
           pan_x: number
           pan_y: number
           room_length_m: number
+          room_polygon: Json | null
           room_shape: string
           room_width_m: number
+          share_enabled: boolean
+          share_token: string | null
           table_positions: Json
           updated_at: string
           user_id: string
@@ -2593,8 +2596,11 @@ export type Database = {
           pan_x?: number
           pan_y?: number
           room_length_m?: number
+          room_polygon?: Json | null
           room_shape?: string
           room_width_m?: number
+          share_enabled?: boolean
+          share_token?: string | null
           table_positions?: Json
           updated_at?: string
           user_id: string
@@ -2619,8 +2625,11 @@ export type Database = {
           pan_x?: number
           pan_y?: number
           room_length_m?: number
+          room_polygon?: Json | null
           room_shape?: string
           room_width_m?: number
+          share_enabled?: boolean
+          share_token?: string | null
           table_positions?: Json
           updated_at?: string
           user_id?: string
@@ -3951,6 +3960,14 @@ export type Database = {
           table_no: number
           table_notes: string
         }[]
+      }
+      get_reception_floor_plan_by_share_token: {
+        Args: { _token: string }
+        Returns: Json
+      }
+      get_reception_share_background_signed_url: {
+        Args: { _token: string }
+        Returns: string
       }
       get_running_sheet_by_token: {
         Args: { share_token: string }
