@@ -294,6 +294,15 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             fixtureCount={plan.fixtures.length}
           />
         )}
+
+        {plan && calibrating && backgroundUrl && (
+          <BackgroundCalibrationOverlay
+            plan={plan}
+            backgroundUrl={backgroundUrl}
+            onClose={() => setCalibrating(false)}
+            onApply={update}
+          />
+        )}
       </CardContent>
     </Card>
   );
