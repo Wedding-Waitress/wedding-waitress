@@ -28,6 +28,8 @@ interface Props {
   tables: ReceptionTable[];
   backgroundUrl: string | null;
   onChange: (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => void;
+  /** Notifies parent when the selected table changes (for Table Note panel). */
+  onSelectedTableChange?: (id: string | null) => void;
 }
 
 export const ReceptionFloorPlanCanvas = ({
@@ -35,7 +37,9 @@ export const ReceptionFloorPlanCanvas = ({
   tables,
   backgroundUrl,
   onChange,
+  onSelectedTableChange,
 }: Props) => {
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [guides, setGuides] = useState<SnapTarget[]>([]);
