@@ -1,52 +1,38 @@
-## Fix: Route preview URLs through Supabase Image Transformations
+## Root cause
 
-**Problem:** `transformedUrl()` in `src/lib/imagePipeline.ts` appends `?width=…&quality=…` to the `/storage/v1/object/public/…` URL. Supabase Storage **ignores** transform params on the `/object/` endpoint — it only resizes when the path is `/storage/v1/render/image/public/…`. Result: the editor preview was downloading the full 102 MB master.
+The discrepancy between Lovable preview (Reception works) and your published mobile site (Reception (Coming Soon)) is **not** a code, route, conditional, cache, or build bug.
 
-### Change
+Verified in the current codebase:
+- `src/components/Dashboard/FloorPlan/FloorPlanPage.tsx` (lines 194–215) renders one shared `Select` for both desktop and mobile with two items only: `Ceremony` and `Reception`. There is no "Coming Soon" label, no `lg:` / `max-lg:` gate, no `isMobile` branch.
+- Searched the entire `src/` tree for "Coming Soon" — the only Floor‑Plan‑related hit is `QRCodeMainCard.tsx` (an unrelated QR module). No Floor Plan file contains that string.
+- `ReceptionFloorPlanPage` is imported and rendered unconditionally when `floorPlanType === 'reception'` (line 302–304). Same component on every viewport.
+- There is no separate mobile route, no legacy `FloorPlanPageMobile`, no feature flag, no cached dropdown source — the options are hardcoded JSX.
 
-In `src/lib/imagePipeline.ts`, update `transformedUrl()` so that whenever transform params are applied to a Supabase storage URL, the path is rewritten from `/storage/v1/object/public/` (or `/object/sign/`) to `/storage/v1/render/image/public/` (or `/render/image/sign/`).
+Your screenshot ("Reception (Coming Soon)") matches the **pre‑Step‑1 build** that is still live on `wedding-waitress.lovable.app`. Lovable preview shows the latest code instantly; the published `.lovable.app` URL only updates when you click **Publish → Update**. Since Steps 1–9 were code/UI changes (frontend only — no edge function or DB migration), they will not appear on the published site until you republish.
 
-Also lower preview defaults from 2400/q90 → **1400 / q70** so the editor loads a few hundred KB instead of multiple MB.
+## Fix
 
-```ts
-const PREVIEW_WIDTH_PX = 1400;
-const PREVIEW_QUALITY = 70;
+1. Open the **Publish** dialog (top‑right in the editor, or bottom‑right on mobile preview).
+2. Click **Update** to deploy the current frontend (Steps 1–9 incl. Reception, PDF export A4/A3/A2, mobile PinchZoom, fixtures, autosave) to `wedding-waitress.lovable.app`.
+3. After ~30 s, hard‑reload the published site on your phone (pull‑to‑refresh, or Safari → close tab → reopen). Mobile Safari aggressively caches the SPA shell, so a hard reload is required the first time after a publish.
+4. Verify on published mobile, tablet, and desktop:
+   - Dashboard → Floor Plan → dropdown shows **Ceremony** and **Reception** (no "Coming Soon").
+   - Selecting Reception loads the new editor with palette, canvas, fixtures, export PDF (A4/A3/A2), reset layout, autosave indicator.
+   - Ceremony view still loads exactly as before.
 
-export function transformedUrl(url, opts = {}) {
-  if (!url) return null;
-  if (!isSupabaseStorageUrl(url)) return url;
-  try {
-    const u = new URL(url);
-    const hasTransform = opts.width || opts.quality || opts.format;
-    if (hasTransform) {
-      u.pathname = u.pathname
-        .replace('/storage/v1/object/public/', '/storage/v1/render/image/public/')
-        .replace('/storage/v1/object/sign/',   '/storage/v1/render/image/sign/');
-      if (opts.width)   u.searchParams.set('width',   String(opts.width));
-      if (opts.quality) u.searchParams.set('quality', String(opts.quality));
-      if (opts.format)  u.searchParams.set('format',  opts.format);
-    }
-    return u.toString();
-  } catch {
-    return url;
-  }
-}
-```
+## What I will NOT do
 
-### Why it's safe
+- No code changes. The current code is correct; modifying it would not change what is on production.
+- No edits to Ceremony, Tables, Guest List, Landing, or any other page.
+- No Phase 1B work until you confirm Reception is live on the published site across all three viewports.
 
-- `previewUrlFor()` / `thumbnailUrlFor()` go through `transformedUrl()` → both automatically use the render endpoint.
-- `useOptimizedPreview` already HEAD-probes the candidate; if Image Transformations are disabled on the project, it falls back to the master.
-- Thumbnails (Signage gallery, place-card gallery, etc.) keep working — only the URL path changes; query params stay the same.
-- Master/print URLs are untouched (no transform opts passed).
-- The Print export still uses `editorMasterUrl` (the unaltered original), so 300 DPI print quality is unaffected.
+## If Reception is still missing after Publish → Update + hard reload
 
-### Verification
+That would indicate a genuine deploy issue (rare). In that case I will:
+1. Check Lovable's published bundle to confirm the new `ReceptionFloorPlanPage` chunk is present.
+2. Inspect the live `index.html` for a stale asset hash.
+3. Report findings before touching code.
 
-After the change, the HEAD response for the editor preview URL on the Signage page should return a small `content-length` (a few hundred KB) instead of ~102 MB, and the existing `Editor preview image size: …` console log will confirm it.
+## Action required from you
 
-### Files touched
-
-- `src/lib/imagePipeline.ts` (only)
-
-No DB or edge-function changes needed.
+Click **Publish → Update**, then hard‑reload the published site on your phone and confirm. Reply once verified and I'll mark Phase 1A signed off.
