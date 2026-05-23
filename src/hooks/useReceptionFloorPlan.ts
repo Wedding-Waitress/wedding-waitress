@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import type { FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
+import { pdfFirstPageToPng } from '@/lib/pdfFirstPageToPng';
 
 export interface TablePosition {
   table_id: string;
@@ -25,6 +26,25 @@ export interface Fixture {
 
 type Row = Database['public']['Tables']['reception_floor_plans']['Row'];
 
+export interface ReceptionBackground {
+  /** Storage path inside the `reception-floor-plan-backgrounds` bucket, or null when no image. */
+  path: string | null;
+  /** Top-left x in meters relative to the room. */
+  x: number;
+  /** Top-left y in meters relative to the room. */
+  y: number;
+  /** Width in meters (null = no image). */
+  width: number | null;
+  /** Height in meters (null = no image). */
+  height: number | null;
+  /** Rotation in degrees. */
+  rotation: number;
+  /** Opacity 0.1 – 1.0. */
+  opacity: number;
+  locked: boolean;
+  visible: boolean;
+}
+
 export interface ReceptionFloorPlan {
   id: string;
   event_id: string;
@@ -34,6 +54,7 @@ export interface ReceptionFloorPlan {
   grid_size_cm: number;
   table_positions: TablePosition[];
   fixtures: Fixture[];
+  background: ReceptionBackground;
   last_saved_at: string;
 }
 
@@ -48,13 +69,30 @@ const fromRow = (row: Row): ReceptionFloorPlan => ({
     ? (row.table_positions as unknown as TablePosition[])
     : [],
   fixtures: Array.isArray(row.fixtures) ? (row.fixtures as unknown as Fixture[]) : [],
+  background: {
+    path: row.background_image_url ?? null,
+    x: Number(row.background_x ?? 0),
+    y: Number(row.background_y ?? 0),
+    width: row.background_width != null ? Number(row.background_width) : null,
+    height: row.background_height != null ? Number(row.background_height) : null,
+    rotation: Number(row.background_rotation ?? 0),
+    opacity: Number(row.background_opacity ?? 0.6),
+    locked: !!row.background_locked,
+    visible: row.background_visible ?? true,
+  },
   last_saved_at: row.last_saved_at,
 });
+
+const BUCKET = 'reception-floor-plan-backgrounds';
+const ACCEPTED = ['image/png', 'image/jpeg', 'application/pdf'];
+const MAX_BYTES = 25 * 1024 * 1024; // 25MB
 
 export const useReceptionFloorPlan = (eventId: string | null) => {
   const [plan, setPlan] = useState<ReceptionFloorPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingBackground, setUploadingBackground] = useState(false);
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
   const saveTimer = useRef<number | null>(null);
 
   // Load (and create if missing)
@@ -101,26 +139,60 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
     };
   }, [eventId]);
 
-  const persist = useCallback(
-    async (next: ReceptionFloorPlan) => {
-      setSaving(true);
-      const { error } = await supabase
-        .from('reception_floor_plans')
-        .update({
-          room_shape: next.room_shape,
-          room_width_m: next.room_width_m,
-          room_length_m: next.room_length_m,
-          grid_size_cm: next.grid_size_cm,
-          table_positions: next.table_positions as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['table_positions'],
-          fixtures: next.fixtures as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['fixtures'],
-          last_saved_at: new Date().toISOString(),
-        })
-        .eq('id', next.id);
-      if (error) console.error('save reception plan', error);
-      setSaving(false);
-    },
-    []
-  );
+  // Re-sign background URL whenever the path changes; refresh every 50 min.
+  useEffect(() => {
+    const path = plan?.background.path ?? null;
+    if (!path) {
+      setBackgroundUrl(null);
+      return;
+    }
+    let cancelled = false;
+    const sign = async () => {
+      const { data, error } = await supabase.storage
+        .from(BUCKET)
+        .createSignedUrl(path, 60 * 60);
+      if (cancelled) return;
+      if (error || !data) {
+        console.error('sign bg url', error);
+        setBackgroundUrl(null);
+      } else {
+        setBackgroundUrl(data.signedUrl);
+      }
+    };
+    sign();
+    const id = window.setInterval(sign, 50 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [plan?.background.path]);
+
+  const persist = useCallback(async (next: ReceptionFloorPlan) => {
+    setSaving(true);
+    const { error } = await supabase
+      .from('reception_floor_plans')
+      .update({
+        room_shape: next.room_shape,
+        room_width_m: next.room_width_m,
+        room_length_m: next.room_length_m,
+        grid_size_cm: next.grid_size_cm,
+        table_positions: next.table_positions as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['table_positions'],
+        fixtures: next.fixtures as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['fixtures'],
+        background_image_url: next.background.path,
+        background_x: next.background.x,
+        background_y: next.background.y,
+        background_width: next.background.width,
+        background_height: next.background.height,
+        background_rotation: next.background.rotation,
+        background_opacity: next.background.opacity,
+        background_locked: next.background.locked,
+        background_visible: next.background.visible,
+        last_saved_at: new Date().toISOString(),
+      })
+      .eq('id', next.id);
+    if (error) console.error('save reception plan', error);
+    setSaving(false);
+  }, []);
 
   const update = useCallback(
     (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => {
@@ -135,5 +207,122 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
     [persist]
   );
 
-  return { plan, loading, saving, update };
+  /** Flush any pending debounced save immediately. */
+  const flush = useCallback(async () => {
+    if (saveTimer.current) {
+      window.clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    if (plan) await persist(plan);
+  }, [persist, plan]);
+
+  const uploadBackground = useCallback(
+    async (file: File): Promise<{ ok: true } | { ok: false; error: string }> => {
+      if (!plan) return { ok: false, error: 'Floor plan not loaded yet.' };
+      if (!ACCEPTED.includes(file.type)) {
+        return { ok: false, error: 'Only PNG, JPG, or PDF files are supported.' };
+      }
+      if (file.size > MAX_BYTES) {
+        return { ok: false, error: 'File is larger than 25 MB.' };
+      }
+      const { data: userRes } = await supabase.auth.getUser();
+      const user = userRes.user;
+      if (!user) return { ok: false, error: 'Not signed in.' };
+
+      setUploadingBackground(true);
+      try {
+        let uploadBlob: Blob = file;
+        let ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+        let contentType = file.type;
+        if (file.type === 'application/pdf') {
+          uploadBlob = await pdfFirstPageToPng(file, 2);
+          ext = 'png';
+          contentType = 'image/png';
+        } else if (file.type === 'image/jpeg') {
+          ext = 'jpg';
+        } else if (file.type === 'image/png') {
+          ext = 'png';
+        }
+
+        const path = `${user.id}/${plan.event_id}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from(BUCKET)
+          .upload(path, uploadBlob, { contentType, upsert: false });
+        if (upErr) {
+          console.error('upload bg', upErr);
+          return { ok: false, error: upErr.message };
+        }
+
+        // Remove the previous file (best effort)
+        const prevPath = plan.background.path;
+        if (prevPath && prevPath !== path) {
+          supabase.storage.from(BUCKET).remove([prevPath]).catch(() => undefined);
+        }
+
+        // Default geometry: cover the room
+        const next: ReceptionFloorPlan = {
+          ...plan,
+          background: {
+            path,
+            x: 0,
+            y: 0,
+            width: plan.room_width_m,
+            height: plan.room_length_m,
+            rotation: 0,
+            opacity: 0.6,
+            locked: false,
+            visible: true,
+          },
+        };
+        setPlan(next);
+        await persist(next);
+        return { ok: true };
+      } catch (e) {
+        console.error('uploadBackground', e);
+        return {
+          ok: false,
+          error: e instanceof Error ? e.message : 'Upload failed.',
+        };
+      } finally {
+        setUploadingBackground(false);
+      }
+    },
+    [persist, plan]
+  );
+
+  const removeBackground = useCallback(async () => {
+    if (!plan) return;
+    const prevPath = plan.background.path;
+    const next: ReceptionFloorPlan = {
+      ...plan,
+      background: {
+        path: null,
+        x: 0,
+        y: 0,
+        width: null,
+        height: null,
+        rotation: 0,
+        opacity: 0.6,
+        locked: false,
+        visible: true,
+      },
+    };
+    setPlan(next);
+    await persist(next);
+    if (prevPath) {
+      supabase.storage.from(BUCKET).remove([prevPath]).catch(() => undefined);
+    }
+  }, [persist, plan]);
+
+  return {
+    plan,
+    loading,
+    saving,
+    update,
+    flush,
+    backgroundUrl,
+    uploadBackground,
+    removeBackground,
+    uploadingBackground,
+  };
 };
