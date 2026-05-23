@@ -184,6 +184,37 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
           </div>
         ) : (
           <>
+            {/* Venue template directory actions */}
+            <div className="flex flex-wrap items-center gap-2 max-lg:flex-col max-lg:items-stretch rounded-lg border border-border bg-muted/10 p-3 max-lg:p-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Building2 className="w-4 h-4 text-primary" />
+                Venue templates
+              </div>
+              <p className="text-xs text-muted-foreground flex-1 max-lg:text-center">
+                Start from an approved venue layout, or share yours with the directory.
+              </p>
+              <div className="flex items-center gap-2 max-lg:w-full">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
+                  onClick={() => setChooseVenueOpen(true)}
+                >
+                  <Building2 className="w-3.5 h-3.5 mr-1.5" />
+                  Choose venue
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
+                  onClick={() => setSubmitTemplateOpen(true)}
+                >
+                  <UploadCloud className="w-3.5 h-3.5 mr-1.5" />
+                  Submit as template
+                </Button>
+              </div>
+            </div>
+
             {/* Room dimensions */}
             <div className="flex flex-wrap items-end gap-4 max-lg:gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
               <div className="space-y-1 max-lg:w-full">
