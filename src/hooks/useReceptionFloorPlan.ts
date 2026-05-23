@@ -218,6 +218,12 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         background_opacity: next.background.opacity,
         background_locked: next.background.locked,
         background_visible: next.background.visible,
+        // Phase 2: room polygon + share token (typed loosely; columns added via migration)
+        ...({
+          room_polygon: next.room_polygon as unknown,
+          share_enabled: next.share_enabled,
+          share_token: next.share_token,
+        } as Record<string, unknown>),
         last_saved_at: new Date().toISOString(),
       })
       .eq('id', next.id);
