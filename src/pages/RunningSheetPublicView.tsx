@@ -519,6 +519,8 @@ export function RunningSheetPublicView() {
             <img
               src="/wedding-waitress-logo-brown.png"
               alt="Wedding Waitress"
+              width={160}
+              height={40}
               className="h-10 w-auto"
             />
             <p className="text-xs text-muted-foreground">
