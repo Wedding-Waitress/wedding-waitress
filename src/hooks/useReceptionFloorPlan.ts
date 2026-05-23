@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import type { FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
 
 export interface TablePosition {
   table_id: string;
@@ -8,6 +9,18 @@ export interface TablePosition {
   y: number;
   rotation: number; // degrees
   locked: boolean;
+}
+
+export interface Fixture {
+  id: string;
+  type: FixtureType;
+  x: number; // meters (center)
+  y: number;
+  width_m: number;
+  height_m: number;
+  rotation: number;
+  locked: boolean;
+  label?: string;
 }
 
 type Row = Database['public']['Tables']['reception_floor_plans']['Row'];
@@ -20,6 +33,7 @@ export interface ReceptionFloorPlan {
   room_length_m: number;
   grid_size_cm: number;
   table_positions: TablePosition[];
+  fixtures: Fixture[];
   last_saved_at: string;
 }
 
@@ -33,6 +47,7 @@ const fromRow = (row: Row): ReceptionFloorPlan => ({
   table_positions: Array.isArray(row.table_positions)
     ? (row.table_positions as unknown as TablePosition[])
     : [],
+  fixtures: Array.isArray(row.fixtures) ? (row.fixtures as unknown as Fixture[]) : [],
   last_saved_at: row.last_saved_at,
 });
 
@@ -97,6 +112,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
           room_length_m: next.room_length_m,
           grid_size_cm: next.grid_size_cm,
           table_positions: next.table_positions as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['table_positions'],
+          fixtures: next.fixtures as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['fixtures'],
           last_saved_at: new Date().toISOString(),
         })
         .eq('id', next.id);
