@@ -18,6 +18,7 @@ import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
 import { ResetLayoutDialog } from './ResetLayoutDialog';
+import { VenueBackgroundPanel } from './VenueBackgroundPanel';
 import {
   generateReceptionFloorPlanPDF,
   type ReceptionPdfPageSize,
@@ -34,7 +35,16 @@ interface ReceptionFloorPlanPageProps {
  */
 export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPageProps) => {
   const { tables, loading: tablesLoading } = useReceptionTables(selectedEventId);
-  const { plan, loading: planLoading, saving, update } = useReceptionFloorPlan(selectedEventId);
+  const {
+    plan,
+    loading: planLoading,
+    saving,
+    update,
+    backgroundUrl,
+    uploadBackground,
+    removeBackground,
+    uploadingBackground,
+  } = useReceptionFloorPlan(selectedEventId);
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
@@ -239,7 +249,20 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               attendingCount={attendingCount}
             />
 
-            <ReceptionFloorPlanCanvas plan={plan} tables={tables} onChange={update} />
+            <VenueBackgroundPanel
+              plan={plan}
+              uploading={uploadingBackground}
+              onUpload={uploadBackground}
+              onRemove={removeBackground}
+              onChange={update}
+            />
+
+            <ReceptionFloorPlanCanvas
+              plan={plan}
+              tables={tables}
+              backgroundUrl={backgroundUrl}
+              onChange={update}
+            />
           </>
         )}
 

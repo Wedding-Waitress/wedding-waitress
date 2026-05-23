@@ -2554,6 +2554,7 @@ export type Database = {
           background_locked: boolean
           background_opacity: number
           background_rotation: number
+          background_visible: boolean
           background_width: number | null
           background_x: number
           background_y: number
@@ -2579,6 +2580,7 @@ export type Database = {
           background_locked?: boolean
           background_opacity?: number
           background_rotation?: number
+          background_visible?: boolean
           background_width?: number | null
           background_x?: number
           background_y?: number
@@ -2604,6 +2606,7 @@ export type Database = {
           background_locked?: boolean
           background_opacity?: number
           background_rotation?: number
+          background_visible?: boolean
           background_width?: number | null
           background_x?: number
           background_y?: number

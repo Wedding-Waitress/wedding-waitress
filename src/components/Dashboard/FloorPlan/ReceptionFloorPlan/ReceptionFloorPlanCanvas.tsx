@@ -6,13 +6,14 @@ import type {
   ReceptionFloorPlan,
   TablePosition,
   Fixture,
+  ReceptionBackground,
 } from '@/hooks/useReceptionFloorPlan';
 import { FIXTURE_CATALOG, FIXTURE_BY_TYPE, type FixtureType } from './fixtures';
 
 
 const PX_PER_M = 50; // visual scale
 
-type SelectedKind = 'table' | 'fixture';
+type SelectedKind = 'table' | 'fixture' | 'background';
 interface Selection {
   kind: SelectedKind;
   id: string;
@@ -21,14 +22,30 @@ interface Selection {
 interface Props {
   plan: ReceptionFloorPlan;
   tables: ReceptionTable[];
+  backgroundUrl: string | null;
   onChange: (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => void;
 }
 
-export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
+export const ReceptionFloorPlanCanvas = ({
+  plan,
+  tables,
+  backgroundUrl,
+  onChange,
+}: Props) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const dragState = useRef<
     | { kind: SelectedKind; id: string; offsetX: number; offsetY: number }
+    | null
+  >(null);
+  const resizeState = useRef<
+    | {
+        startClientX: number;
+        startClientY: number;
+        startW: number;
+        startH: number;
+        aspect: number;
+      }
     | null
   >(null);
 
@@ -114,13 +131,13 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
     }
   };
 
-  // ---- pointer drag (tables + fixtures)
+  // ---- pointer drag (tables + fixtures + background)
   const handlePointerDown = (
     e: React.PointerEvent,
     kind: SelectedKind,
     id: string,
-    cx: number,
-    cy: number,
+    refX: number,
+    refY: number,
     locked: boolean
   ) => {
     setSelection({ kind, id });
@@ -130,12 +147,29 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
     dragState.current = {
       kind,
       id,
-      offsetX: e.clientX - (rect.left + cx * PX_PER_M),
-      offsetY: e.clientY - (rect.top + cy * PX_PER_M),
+      offsetX: e.clientX - (rect.left + refX * PX_PER_M),
+      offsetY: e.clientY - (rect.top + refY * PX_PER_M),
     };
     (e.target as Element).setPointerCapture(e.pointerId);
   };
   const handlePointerMove = (e: React.PointerEvent) => {
+    // Resize background?
+    if (resizeState.current) {
+      const r = resizeState.current;
+      const dxPx = e.clientX - r.startClientX;
+      // Drive by horizontal delta, derive height from aspect ratio
+      const newWPx = Math.max(40, r.startW + dxPx);
+      const newHPx = newWPx / r.aspect;
+      onChange((p) => ({
+        ...p,
+        background: {
+          ...p.background,
+          width: newWPx / PX_PER_M,
+          height: newHPx / PX_PER_M,
+        },
+      }));
+      return;
+    }
     const d = dragState.current;
     if (!d) return;
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -155,7 +189,7 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
             : tp
         ),
       }));
-    } else {
+    } else if (d.kind === 'fixture') {
       onChange((p) => ({
         ...p,
         fixtures: p.fixtures.map((fx) =>
@@ -168,10 +202,21 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
             : fx
         ),
       }));
+    } else {
+      // background — top-left positioning with generous bounds
+      onChange((p) => ({
+        ...p,
+        background: {
+          ...p.background,
+          x: clamp(x, -p.room_width_m, p.room_width_m * 2),
+          y: clamp(y, -p.room_length_m, p.room_length_m * 2),
+        },
+      }));
     }
   };
   const handlePointerUp = () => {
     dragState.current = null;
+    resizeState.current = null;
   };
 
   // ---- table actions
@@ -233,6 +278,44 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
       })),
     [onChange]
   );
+
+  // ---- background actions
+  const rotateBackground = useCallback(
+    () =>
+      onChange((p) => ({
+        ...p,
+        background: { ...p.background, rotation: (p.background.rotation + 15) % 360 },
+      })),
+    [onChange]
+  );
+  const toggleLockBackground = useCallback(
+    () =>
+      onChange((p) => ({
+        ...p,
+        background: { ...p.background, locked: !p.background.locked },
+      })),
+    [onChange]
+  );
+
+  const startBackgroundResize = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    if (plan.background.locked || !plan.background.width || !plan.background.height) return;
+    const wPx = plan.background.width * PX_PER_M;
+    const hPx = plan.background.height * PX_PER_M;
+    resizeState.current = {
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      startW: wPx,
+      startH: hPx,
+      aspect: wPx / hPx,
+    };
+    (e.target as Element).setPointerCapture(e.pointerId);
+  };
+
+  const bg = plan.background;
+  const showBackground =
+    !!backgroundUrl && bg.visible && bg.width != null && bg.height != null;
+  const bgSelected = selection?.kind === 'background';
 
   return (
     <div className="flex flex-col lg:flex-row gap-4">
@@ -315,7 +398,24 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
                 backgroundSize: `${gridPx}px ${gridPx}px`,
               }}
             >
-              {/* Fixtures first so tables sit above */}
+              {/* Background image (rendered first, sits under everything) */}
+              {showBackground && (
+                <PlacedBackground
+                  bg={bg}
+                  url={backgroundUrl!}
+                  selected={bgSelected}
+                  onPointerDown={(e) =>
+                    handlePointerDown(e, 'background', 'bg', bg.x, bg.y, bg.locked)
+                  }
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onResizePointerDown={startBackgroundResize}
+                  onRotate={rotateBackground}
+                  onToggleLock={toggleLockBackground}
+                />
+              )}
+
+              {/* Fixtures so tables sit above */}
               {plan.fixtures.map((fx) => (
                 <PlacedFixture
                   key={fx.id}
@@ -368,6 +468,128 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
 const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
 
+// ---------- PlacedBackground ----------
+interface PlacedBackgroundProps {
+  bg: ReceptionBackground;
+  url: string;
+  selected: boolean;
+  onPointerDown: (e: React.PointerEvent) => void;
+  onPointerMove: (e: React.PointerEvent) => void;
+  onPointerUp: (e: React.PointerEvent) => void;
+  onResizePointerDown: (e: React.PointerEvent) => void;
+  onRotate: () => void;
+  onToggleLock: () => void;
+}
+
+const PlacedBackground = ({
+  bg,
+  url,
+  selected,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onResizePointerDown,
+  onRotate,
+  onToggleLock,
+}: PlacedBackgroundProps) => {
+  const w = (bg.width ?? 0) * PX_PER_M;
+  const h = (bg.height ?? 0) * PX_PER_M;
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: bg.x * PX_PER_M,
+        top: bg.y * PX_PER_M,
+        width: w,
+        height: h,
+        transform: `rotate(${bg.rotation}deg)`,
+        transformOrigin: 'center center',
+        opacity: bg.opacity,
+        touchAction: 'none',
+        zIndex: 0,
+      }}
+    >
+      <img
+        src={url}
+        alt="Venue floor plan background"
+        draggable={false}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        className={`block w-full h-full object-contain pointer-events-auto select-none ${
+          bg.locked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
+        } ${selected ? 'outline outline-2 outline-primary outline-offset-2' : ''}`}
+      />
+      {selected && (
+        <>
+          <BackgroundToolbar
+            rotation={bg.rotation}
+            locked={bg.locked}
+            onRotate={onRotate}
+            onToggleLock={onToggleLock}
+          />
+          {!bg.locked && (
+            <div
+              onPointerDown={onResizePointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              title="Drag to resize (keeps aspect ratio)"
+              style={{
+                position: 'absolute',
+                right: -8,
+                bottom: -8,
+                width: 18,
+                height: 18,
+                touchAction: 'none',
+              }}
+              className="bg-primary border-2 border-white rounded-sm shadow cursor-se-resize"
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+const BackgroundToolbar = ({
+  rotation,
+  locked,
+  onRotate,
+  onToggleLock,
+}: {
+  rotation: number;
+  locked: boolean;
+  onRotate: () => void;
+  onToggleLock: () => void;
+}) => (
+  <div
+    style={{
+      position: 'absolute',
+      top: -44,
+      left: '50%',
+      transform: `translateX(-50%) rotate(${-rotation}deg)`,
+    }}
+    className="flex items-center gap-1 bg-card border border-border rounded-md shadow-md px-1 py-1"
+  >
+    <button
+      type="button"
+      onClick={onRotate}
+      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
+      title="Rotate 15°"
+    >
+      <RotateCw className="w-4 h-4" />
+    </button>
+    <button
+      type="button"
+      onClick={onToggleLock}
+      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
+      title={locked ? 'Unlock' : 'Lock'}
+    >
+      {locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+    </button>
+  </div>
+);
+
 // ---------- PlacedTable ----------
 interface PlacedTableProps {
   pos: TablePosition;
@@ -407,6 +629,7 @@ const PlacedTable = ({
         width: diameterPx,
         height: diameterPx,
         touchAction: 'none',
+        zIndex: 2,
       }}
       className="group"
     >
@@ -488,6 +711,7 @@ const PlacedFixture = ({
         width: w,
         height: h,
         touchAction: 'none',
+        zIndex: 1,
       }}
     >
       <div
@@ -560,4 +784,3 @@ const SelectionToolbar = ({ rotation, locked, onRotate, onToggleLock, onRemove }
     </button>
   </div>
 );
-
