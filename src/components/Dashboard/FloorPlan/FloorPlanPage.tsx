@@ -298,6 +298,11 @@ export const FloorPlanPage = ({
 
         </div>
       )}
+
+      {/* Reception Floor Plan (Phase 1A — Step 2 scaffold) */}
+      {selectedEventId && floorPlanType === 'reception' && (
+        <ReceptionFloorPlanPage selectedEventId={selectedEventId} />
+      )}
     </div>
   );
 };
