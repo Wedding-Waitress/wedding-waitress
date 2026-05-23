@@ -59,7 +59,7 @@ export function RunningSheetPublicView() {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<RunningSheetData | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
-  const [sectionLabel, setSectionLabel] = useState('Running Sheet');
+  const [sectionLabel, setSectionLabel] = useState('Run Sheet');
   const [sectionNotes, setSectionNotes] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
@@ -356,7 +356,7 @@ export function RunningSheetPublicView() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading running sheet...</p>
+          <p className="text-muted-foreground">Loading run sheet...</p>
         </div>
       </div>
     );
@@ -395,7 +395,7 @@ export function RunningSheetPublicView() {
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the running sheet of</p>
+                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the run sheet of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
               </div>
             </div>

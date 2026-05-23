@@ -51,7 +51,7 @@ export function useRunningSheet(eventId: string | null) {
   const [sheet, setSheet] = useState<RunningSheetData | null>(cached?.sheet ?? null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [sectionLabel, setSectionLabel] = useState(cached?.sectionLabel ?? 'Running Sheet');
+  const [sectionLabel, setSectionLabel] = useState(cached?.sectionLabel ?? 'Run Sheet');
   const [sectionNotes, setSectionNotes] = useState<string | null>(cached?.sectionNotes ?? null);
   const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>(cached?.shareTokens ?? []);
   const { toast } = useToast();
@@ -126,7 +126,7 @@ export function useRunningSheet(eventId: string | null) {
         .single();
 
       setSheet({ id: sheetId, event_id: eventId, user_id: sheetData?.user_id || '', items: items || [] });
-      if (sheetData?.section_label != null) setSectionLabel(sheetData.section_label || 'Running Sheet');
+      if (sheetData?.section_label != null) setSectionLabel(sheetData.section_label || 'Run Sheet');
       if (sheetData?.section_notes !== undefined) setSectionNotes(sheetData.section_notes);
 
       // Fetch share tokens
@@ -328,7 +328,7 @@ export function useRunningSheet(eventId: string | null) {
       const { data: newItems, error } = await supabase.from('running_sheet_items').insert(rowsToInsert).select();
       if (error) throw error;
       setSheet(prev => prev ? { ...prev, items: newItems as RunningSheetItem[] } : prev);
-      setSectionLabel('Running Sheet');
+      setSectionLabel('Run Sheet');
       setSectionNotes(null);
       toast({ title: 'Reset Complete', description: 'Section has been reset to defaults' });
     } catch (error) {
