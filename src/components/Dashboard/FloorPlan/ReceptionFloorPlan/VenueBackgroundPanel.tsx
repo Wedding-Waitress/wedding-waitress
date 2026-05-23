@@ -24,6 +24,7 @@ interface Props {
   ) => Promise<{ ok: true } | { ok: false; error: string }>;
   onRemove: () => void;
   onChange: (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => void;
+  onCalibrate?: () => void;
 }
 
 export const VenueBackgroundPanel = ({
