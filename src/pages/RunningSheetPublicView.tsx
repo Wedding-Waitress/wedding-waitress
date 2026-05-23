@@ -141,7 +141,7 @@ export function RunningSheetPublicView() {
       }, () => {
         // Skip self-triggered refetches to prevent feedback loop
         if (Date.now() - lastSaveRef.current < 2000) return;
-        fetchData();
+        fetchData({ silent: true });
       })
       .subscribe();
 
@@ -159,7 +159,7 @@ export function RunningSheetPublicView() {
         table: 'running_sheet_share_tokens',
         filter: `sheet_id=eq.${data.sheet_id}`,
       }, () => {
-        fetchData();
+        fetchData({ silent: true });
       })
       .subscribe();
 
@@ -178,7 +178,7 @@ export function RunningSheetPublicView() {
         filter: `id=eq.${data.sheet_id}`,
       }, () => {
         if (Date.now() - lastSaveRef.current < 2000) return;
-        fetchData();
+        fetchData({ silent: true });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
