@@ -14,6 +14,7 @@ import { AdminLogs } from '@/components/Admin/AdminLogs';
 import { AdminNotificationSettings } from '@/components/Admin/AdminNotificationSettings';
 import { AdminSubscriptions } from '@/components/Admin/AdminSubscriptions';
 import { AdminInvitationTemplates } from '@/components/Admin/AdminInvitationTemplates';
+import { AdminVenueTemplates } from '@/components/Admin/AdminVenueTemplates';
 
 export const Admin = () => {
   const { isOwnerAdmin, loading: adminLoading } = useIsOwnerAdmin();
