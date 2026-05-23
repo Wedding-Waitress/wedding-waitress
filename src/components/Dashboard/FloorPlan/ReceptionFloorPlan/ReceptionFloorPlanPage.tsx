@@ -1,9 +1,16 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
@@ -11,6 +18,11 @@ import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
 import { ResetLayoutDialog } from './ResetLayoutDialog';
+import {
+  generateReceptionFloorPlanPDF,
+  type ReceptionPdfPageSize,
+  type ReceptionPdfEvent,
+} from '@/lib/receptionFloorPlanPdfExporter';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
