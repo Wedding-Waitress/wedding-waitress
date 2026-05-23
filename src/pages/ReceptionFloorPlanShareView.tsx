@@ -72,7 +72,6 @@ export const ReceptionFloorPlanShareView = () => {
   const bg = plan.background;
   const showBg = !!backgroundUrl && bg.visible && bg.width != null && bg.height != null;
   const polygon = plan.room_polygon;
-  const clipId = `room-clip-${plan.id}`;
   const polygonPath = polygon ? polygonToSvgPath(polygon, PX_PER_M) : '';
 
   const couple = [event.partner1_name, event.partner2_name].filter(Boolean).join(' & ');
