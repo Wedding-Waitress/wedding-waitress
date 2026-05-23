@@ -18,6 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StandardEventSelector } from '../StandardEventSelector';
 import { DJMCQuestionnaireSection } from './DJMCQuestionnaireSection';
 import { DJMCShareModal } from './DJMCShareModal';
+import { GuestSongRequestsSection } from './GuestSongRequestsSection';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import { useEvents } from '@/hooks/useEvents';
 interface DJMCQuestionnairePageProps {
@@ -282,6 +283,13 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
               onDownloadSectionPDF={() => handleDownloadSectionPDF(section)}
             />
           ))}
+
+          {/* Guest Song Requests (synthetic appended section) */}
+          <GuestSongRequestsSection
+            eventId={selectedEvent?.id ?? null}
+            eventName={selectedEvent?.name ?? null}
+            eventDate={selectedEvent?.date ?? null}
+          />
         </div>
       ) : null}
 

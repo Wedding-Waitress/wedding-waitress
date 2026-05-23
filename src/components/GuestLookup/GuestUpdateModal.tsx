@@ -60,6 +60,15 @@ interface GuestUpdateModalProps {
   showMessageField?: boolean;
   isEditable?: boolean;
   allGuests?: any[];
+  songRequestsEnabled?: boolean;
+  songRequestsMax?: number;
+}
+
+interface SongRequestEntry {
+  song_title: string;
+  artist_name: string;
+  music_link: string;
+  note: string;
 }
 
 const dietaryOptions = [
@@ -85,7 +94,9 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   allowNameEdit = false,
   showMessageField = true,
   isEditable = true,
-  allGuests = []
+  allGuests = [],
+  songRequestsEnabled = false,
+  songRequestsMax = 0,
 }) => {
   const isMobile = useIsMobile();
   const [saving, setSaving] = useState(false);
@@ -104,6 +115,46 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     mailing_postcode: ''
   });
   const { toast } = useToast();
+
+  const buildEmptySongs = (n: number): SongRequestEntry[] =>
+    Array.from({ length: Math.max(0, n) }, () => ({ song_title: '', artist_name: '', music_link: '', note: '' }));
+
+  const [songRequests, setSongRequests] = useState<SongRequestEntry[]>(buildEmptySongs(songRequestsMax));
+
+  useEffect(() => {
+    setSongRequests((prev) => {
+      const next = buildEmptySongs(songRequestsMax);
+      for (let i = 0; i < Math.min(prev.length, next.length); i++) next[i] = prev[i];
+      return next;
+    });
+  }, [songRequestsMax]);
+
+  // Prefill existing song requests when modal opens
+  useEffect(() => {
+    const loadExistingRequests = async () => {
+      if (!open || !guest?.id || !guest?.event_id || !songRequestsEnabled || songRequestsMax <= 0) return;
+      const { data, error } = await (supabase as any).rpc('get_guest_song_requests_for_guest', {
+        _event_id: guest.event_id || event?.id,
+        _guest_id: guest.id,
+      });
+      if (error) return;
+      const next = buildEmptySongs(songRequestsMax);
+      (data || []).forEach((r: any) => {
+        if (typeof r.slot_index === 'number' && r.slot_index >= 0 && r.slot_index < next.length) {
+          next[r.slot_index] = {
+            song_title: r.song_title || '',
+            artist_name: r.artist_name || '',
+            music_link: r.music_link || '',
+            note: r.note || '',
+          };
+        }
+      });
+      setSongRequests(next);
+    };
+    loadExistingRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, guest?.id, songRequestsEnabled, songRequestsMax]);
+
 
   useEffect(() => {
     if (guest) {
@@ -195,7 +246,24 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       }
 
       console.log('✅ [Guest Update] Successfully updated guest data');
-      console.log('📤 [Guest Update] Triggering realtime sync...');
+
+      // Submit song requests if feature enabled
+      if (songRequestsEnabled && songRequestsMax > 0 && guest) {
+        const payload = songRequests.map((r, idx) => ({
+          slot_index: idx,
+          song_title: r.song_title?.trim() || '',
+          artist_name: r.artist_name?.trim() || '',
+          music_link: r.music_link?.trim() || '',
+          note: r.note?.trim() || '',
+        }));
+        const { error: songErr } = await (supabase as any).rpc('submit_guest_song_requests', {
+          _event_id: guest.event_id || event?.id,
+          _guest_id: guest.id,
+          _requests: payload,
+        });
+        if (songErr) console.error('❌ [Song Requests] RPC error:', songErr);
+      }
+
 
       toast({
         title: 'Saved and sent to organiser',
@@ -308,6 +376,49 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             placeholder="Any special requests, allergies, or additional information..."
             rows={3} disabled={!isEditable} className="border-primary w-full" />
+        </div>
+      )}
+      {songRequestsEnabled && songRequestsMax > 0 && (
+        <div className="space-y-3 rounded-xl border border-primary bg-primary/5 p-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Song Requests</p>
+            <p className="text-xs text-muted-foreground">
+              Request up to {songRequestsMax} song{songRequestsMax === 1 ? '' : 's'} for the DJ. Leave blank to skip.
+            </p>
+          </div>
+          {songRequests.map((entry, idx) => (
+            <div key={idx} className="space-y-2 rounded-lg border border-border bg-background p-3">
+              <p className="text-xs font-semibold text-primary">Song {idx + 1}</p>
+              <div className="space-y-2">
+                <Label htmlFor={`song-title-${idx}`} className="text-xs">Song Title</Label>
+                <Input id={`song-title-${idx}`} value={entry.song_title} disabled={!isEditable}
+                  onChange={(e) => setSongRequests((arr) => arr.map((r, i) => i === idx ? { ...r, song_title: e.target.value } : r))}
+                  placeholder="e.g. Sweet Caroline" maxLength={150}
+                  className="border-primary w-full" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`song-artist-${idx}`} className="text-xs">Artist</Label>
+                <Input id={`song-artist-${idx}`} value={entry.artist_name} disabled={!isEditable}
+                  onChange={(e) => setSongRequests((arr) => arr.map((r, i) => i === idx ? { ...r, artist_name: e.target.value } : r))}
+                  placeholder="e.g. Neil Diamond" maxLength={150}
+                  className="border-primary w-full" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`song-link-${idx}`} className="text-xs">Music Link (optional)</Label>
+                <Input id={`song-link-${idx}`} type="url" value={entry.music_link} disabled={!isEditable}
+                  onChange={(e) => setSongRequests((arr) => arr.map((r, i) => i === idx ? { ...r, music_link: e.target.value } : r))}
+                  placeholder="Spotify, YouTube or Apple Music link" maxLength={500}
+                  className="border-primary w-full" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`song-note-${idx}`} className="text-xs">Note (optional)</Label>
+                <Textarea id={`song-note-${idx}`} value={entry.note} disabled={!isEditable}
+                  onChange={(e) => setSongRequests((arr) => arr.map((r, i) => i === idx ? { ...r, note: e.target.value } : r))}
+                  placeholder="Anything the DJ should know"
+                  rows={2} maxLength={500} className="border-primary w-full" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
       {allowNameEdit && (

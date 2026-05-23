@@ -1389,6 +1389,101 @@ export type Database = {
           },
         ]
       }
+      guest_song_request_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          event_id: string
+          id: string
+          max_requests_per_guest: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          event_id: string
+          id?: string
+          max_requests_per_guest?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          event_id?: string
+          id?: string
+          max_requests_per_guest?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_song_request_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guest_song_requests: {
+        Row: {
+          artist_name: string
+          created_at: string
+          event_id: string
+          guest_id: string
+          guest_name: string
+          id: string
+          music_link: string | null
+          note: string | null
+          slot_index: number
+          song_title: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          artist_name?: string
+          created_at?: string
+          event_id: string
+          guest_id: string
+          guest_name?: string
+          id?: string
+          music_link?: string | null
+          note?: string | null
+          slot_index?: number
+          song_title?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          artist_name?: string
+          created_at?: string
+          event_id?: string
+          guest_id?: string
+          guest_name?: string
+          id?: string
+          music_link?: string | null
+          note?: string | null
+          slot_index?: number
+          song_title?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_song_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_song_requests_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_update_logs: {
         Row: {
           changed_by: string
@@ -3926,6 +4021,25 @@ export type Database = {
           table_no: number
         }[]
       }
+      get_guest_song_request_settings_public: {
+        Args: { _event_id: string }
+        Returns: {
+          enabled: boolean
+          max_requests_per_guest: number
+        }[]
+      }
+      get_guest_song_requests_for_guest: {
+        Args: { _event_id: string; _guest_id: string }
+        Returns: {
+          artist_name: string
+          id: string
+          music_link: string
+          note: string
+          slot_index: number
+          song_title: string
+          status: string
+        }[]
+      }
       get_my_credit_transactions: {
         Args: { p_limit?: number }
         Returns: {
@@ -4189,6 +4303,10 @@ export type Database = {
           event_slug: string
           qr_code_id: string
         }[]
+      }
+      submit_guest_song_requests: {
+        Args: { _event_id: string; _guest_id: string; _requests: Json }
+        Returns: boolean
       }
       sync_relation_display_for_event: {
         Args: { p_event_id: string }

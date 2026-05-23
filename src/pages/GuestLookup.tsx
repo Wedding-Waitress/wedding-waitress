@@ -141,6 +141,7 @@ export const GuestLookup: React.FC = () => {
   }, []);
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
+  const [songRequestSettings, setSongRequestSettings] = useState<{ enabled: boolean; max_requests_per_guest: number } | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [showRsvpInviteModal, setShowRsvpInviteModal] = useState(false);
   const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
@@ -303,6 +304,23 @@ export const GuestLookup: React.FC = () => {
               collect_guest_addresses: !!(firstRow as any).event_collect_guest_addresses,
             };
         setEvent(eventData);
+
+        // Fetch song request settings (silently ignore errors)
+        try {
+          const { data: srData } = await (supabase as any).rpc('get_guest_song_request_settings_public', {
+            _event_id: firstRow.event_id,
+          });
+          if (Array.isArray(srData) && srData.length > 0) {
+            setSongRequestSettings({
+              enabled: !!srData[0].enabled,
+              max_requests_per_guest: Number(srData[0].max_requests_per_guest) || 2,
+            });
+          } else {
+            setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
+          }
+        } catch {
+          setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
+        }
 
         // Transform guest data
         const transformedGuests = publicData
@@ -1077,6 +1095,8 @@ export const GuestLookup: React.FC = () => {
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable && showUpdateDetails}
         allGuests={guests}
+        songRequestsEnabled={!!songRequestSettings?.enabled}
+        songRequestsMax={songRequestSettings?.enabled ? (songRequestSettings.max_requests_per_guest || 0) : 0}
       />
 
       {/* Public Add Guest Modal */}

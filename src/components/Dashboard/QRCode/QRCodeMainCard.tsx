@@ -12,6 +12,9 @@
  * Last locked: 2026-02-19
  */
 import React, { useState, useEffect, useCallback } from 'react';
+import { Music } from 'lucide-react';
+import { useGuestSongRequestSettings } from '@/hooks/useGuestSongRequestSettings';
+import { Select as SongReqSelect, SelectContent as SongReqSelectContent, SelectItem as SongReqSelectItem, SelectTrigger as SongReqSelectTrigger, SelectValue as SongReqSelectValue } from '@/components/ui/select';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -92,6 +95,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
   const selectedEvent = events.find(event => event.id === eventId);
   const currentEvent = events.find(event => event.id === eventId);
+  const { settings: songRequestSettings, updateSettings: updateSongRequestSettings } = useGuestSongRequestSettings(eventId);
   const { dynamicUrl } = useEventDynamicQR(eventId);
   const eventUrl = dynamicUrl || (selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : '');
 
@@ -1863,6 +1867,54 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+              </div>
+
+              {/* Guest Song Requests Module */}
+              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                  <div className="flex items-center gap-3">
+                    <Music className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
+                    <div>
+                      <h4 className="text-sm font-semibold flex items-center gap-3">
+                        <Music className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
+                        <span>Guest Song Requests</span>
+                      </h4>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests request songs from the Live View app</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 max-lg:justify-between">
+                    <span className={`text-xs whitespace-nowrap ${songRequestSettings?.enabled ? "text-green-600" : "text-red-500"}`}>
+                      {songRequestSettings?.enabled ? "Displayed on app" : "Not displayed on app"}
+                    </span>
+                    <Switch
+                      checked={!!songRequestSettings?.enabled}
+                      onCheckedChange={(checked) => updateSongRequestSettings({ enabled: checked })}
+                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
+                    />
+                  </div>
+                </div>
+
+                {songRequestSettings?.enabled && (
+                  <div className="pt-2 space-y-2">
+                    <Label className="text-xs font-semibold">Maximum song requests per guest</Label>
+                    <SongReqSelect
+                      value={String(songRequestSettings?.max_requests_per_guest ?? 2)}
+                      onValueChange={(v) => updateSongRequestSettings({ max_requests_per_guest: parseInt(v, 10) })}
+                    >
+                      <SongReqSelectTrigger className="w-full lv-premium-shade border-primary">
+                        <SongReqSelectValue />
+                      </SongReqSelectTrigger>
+                      <SongReqSelectContent>
+                        {[1, 2, 3, 4, 5, 10].map((n) => (
+                          <SongReqSelectItem key={n} value={String(n)}>{n}</SongReqSelectItem>
+                        ))}
+                      </SongReqSelectContent>
+                    </SongReqSelect>
+                    <p className="text-xs text-muted-foreground">
+                      Submitted requests appear at the bottom of the DJ &amp; MC Questionnaire.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
