@@ -305,22 +305,9 @@ export const GuestLookup: React.FC = () => {
             };
         setEvent(eventData);
 
-        // Fetch song request settings (silently ignore errors)
-        try {
-          const { data: srData } = await (supabase as any).rpc('get_guest_song_request_settings_public', {
-            _event_id: firstRow.event_id,
-          });
-          if (Array.isArray(srData) && srData.length > 0) {
-            setSongRequestSettings({
-              enabled: !!srData[0].enabled,
-              max_requests_per_guest: Number(srData[0].max_requests_per_guest) || 2,
-            });
-          } else {
-            setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
-          }
-        } catch {
-          setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
-        }
+        // Song request settings are fetched by a dedicated effect keyed on event.id
+
+
 
         // Transform guest data
         const transformedGuests = publicData
@@ -420,6 +407,38 @@ export const GuestLookup: React.FC = () => {
       return fullName === input;
     });
   }, [guests, searchTerm, isOpenSearchMode]);
+
+  // Dedicated fetch for Guest Song Request settings, keyed on event.id so the
+  // public Live View always loads it reliably (decoupled from the main event RPC).
+  useEffect(() => {
+    if (!event?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await (supabase as any).rpc(
+          'get_guest_song_request_settings_public',
+          { _event_id: event.id }
+        );
+        if (cancelled) return;
+        if (error) {
+          setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
+          return;
+        }
+        if (Array.isArray(data) && data.length > 0) {
+          setSongRequestSettings({
+            enabled: !!data[0].enabled,
+            max_requests_per_guest: Number(data[0].max_requests_per_guest) || 2,
+          });
+        } else {
+          setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
+        }
+      } catch {
+        if (!cancelled) setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [event?.id]);
+
 
   // Smooth-scroll to search results when a match appears
   useEffect(() => {

@@ -1,43 +1,45 @@
-# Run Sheet Public Share — Fix Label + Jitter
+## Plan
 
-## Root causes
+1. **Confirm the exact modal path used on the public guest page**
+   - Keep the fix limited to `src/pages/GuestLookup.tsx` and `src/components/GuestLookup/GuestUpdateModal.tsx` if needed.
+   - Do not touch QR Code settings, DJ & MC Questionnaire, database/RPCs, or unrelated pages.
 
-### 1. "Running Sheet" still showing in the section header
-The client-side coercion (`section_label === 'running sheet' → 'Run Sheet'`) is in place, but the underlying DB value (`running_sheets.section_label`) is still `"Running Sheet"`. The locked `RunningSheetSection` component renders `label` directly — coercion works when the share view loads it, but if for any reason the value re-flows back through code paths that don't coerce, it shows the raw value. The real fix is to **normalize the stored value once** so no further coercion is needed.
+2. **Fix the likely connection failure in `GuestLookup.tsx`**
+   - The settings RPC currently runs only during the initial event fetch.
+   - Update the public Live View page so `get_guest_song_request_settings_public` is fetched by a dedicated `event?.id` effect as soon as the event id is known.
+   - Also refresh the song request settings inside `refreshGuestData()` so published/live pages recover if settings load late or change after the first fetch.
+   - Preserve the current props into `GuestUpdateModal`:
+     - `songRequestsEnabled={!!songRequestSettings?.enabled}`
+     - `songRequestsMax={songRequestSettings?.enabled ? ... : 0}`
 
-The invite text at line 399 (`"...the run sheet of"`) is already lowercase. No change needed there.
+3. **Temporarily instrument the public flow, then remove logs**
+   - Add short console logging only while debugging to confirm:
+     - event slug and event id
+     - RPC return value
+     - values passed into `GuestUpdateModal`
+     - modal guard values (`songRequestsEnabled`, `songRequestsMax`, `isEditable`)
+   - Remove all temporary logs before finishing.
+   - Keep unrelated existing logs unchanged unless they are part of this temporary instrumentation.
 
-### 2. Page shakes / hard to scroll on the public share page
-There is a **realtime feedback loop**:
-- `RunningSheetPublicView` subscribes to `running_sheet_share_tokens` UPDATE (lines 152–167) with **no debounce guard**.
-- Calling the RPC `get_running_sheet_by_token` bumps `last_accessed_at` on that token row.
-- That UPDATE fires the realtime listener → calls `fetchData` again → bumps `last_accessed_at` again → loop.
-- Each loop replaces the `data` state object, re-mounting every row, dropdown, textarea, and the sticky header — causing visible jitter and stealing scroll focus.
+4. **Verify the modal rendering logic**
+   - Confirm `GuestUpdateModal` renders Song Requests between:
+     - `Dietary Requirements`
+     - `Special Requests or Notes`
+   - Confirm the render guard is not failing incorrectly.
+   - If needed, adjust only the guard/placement so ON settings with `max_requests_per_guest > 0` display the correct number of slots.
 
-The items channel (line 132) has a `lastSaveRef < 2000ms` guard, but `lastSaveRef` is only updated in user-save paths, never in `fetchData`. So that guard doesn't protect against the fetch-triggered loop either.
+5. **Test the published-equivalent public route in preview**
+   - Use the known saved event from the database:
+     - slug: `jason-lindas-wedidng`
+     - settings: `enabled=true`, `max_requests_per_guest=2`
+   - Open `/s/jason-lindas-wedidng`, search/select a guest, open `Update Your Information`, and verify:
+     - Song Requests appears
+     - it is below Dietary Requirements and above Special Requests or Notes
+     - it shows 2 song slots
+     - saving still calls the existing save flow
+   - If browser automation cannot complete the whole interaction, verify by code path and database RPC result, and clearly state that limitation.
 
-## Fix plan
-
-### File: `supabase/migrations/<new>.sql` (new)
-One-line normalize:
-```sql
-update public.running_sheets
-   set section_label = 'Run Sheet'
- where lower(trim(section_label)) = 'running sheet';
-```
-
-### File: `src/pages/RunningSheetPublicView.tsx`
-1. Bump `lastSaveRef.current = Date.now()` at the start AND end of `fetchData` so any realtime echo within 2s is suppressed across all three channels.
-2. Add the same `if (Date.now() - lastSaveRef.current < 2000) return;` guard inside the `running_sheet_share_tokens` UPDATE listener (currently missing).
-3. Additionally, in that tokens listener, compare the new `permission` field to current state — only refetch if it actually changed (defense in depth, since `last_accessed_at` updates fire UPDATE events constantly).
-4. Make the sticky header non-sticky on the public share page (`sticky top-0 z-10` → plain `border-b`) — when the realtime loop was running, the sticky header amplified the visual shake; removing sticky also prevents iOS scroll snap quirks on the share page. Leaves dashboard untouched.
-5. No changes to the locked `RunningSheetSection`, hooks, routes, table names, or share URLs.
-
-## Out of scope
-- Locked public marketing/SEO pages.
-- Locked `RunningSheetSection.tsx`, `RunningSheetPage.tsx`, `useRunningSheet.ts` business logic.
-- Dashboard run sheet view (already correct).
-
-## Verification
-- Open a shared run sheet link → header reads "Run Sheet", page loads once, no shaking, normal vertical scroll on desktop + mobile.
-- Run a quick `select section_label from running_sheets` after migration to confirm no rows still say "Running Sheet".
+6. **Final report**
+   - List exactly what changed.
+   - List what was tested.
+   - Confirm no QR Code settings, DJ & MC Questionnaire, database, RPCs, or unrelated pages were changed.
