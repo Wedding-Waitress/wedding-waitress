@@ -27,6 +27,8 @@ import {
 import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
 import { RoomShapePanel } from './RoomShapePanel';
 import { ShareLinkPanel } from './ShareLinkPanel';
+import { ChooseVenueDialog } from './ChooseVenueDialog';
+import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
