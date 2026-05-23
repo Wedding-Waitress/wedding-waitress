@@ -208,6 +208,8 @@ const App = () => (
           <Route path="/running-sheet/:token" element={<RunningSheetPublicView />} />
           {/* Seating chart public view */}
           <Route path="/seating-chart/:token" element={<SeatingChartPublicView />} />
+          {/* Reception floor plan read-only share view */}
+          <Route path="/share/reception/:token" element={<ReceptionFloorPlanShareView />} />
           {/* Dynamic QR code redirect */}
           <Route path="/qr/:code" element={<QRRedirect />} />
            {/* Payment success */}
