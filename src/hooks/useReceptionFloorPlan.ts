@@ -120,6 +120,8 @@ const fromRow = (row: Row): ReceptionFloorPlan => {
     room_polygon: polygon,
     share_enabled: !!(row as unknown as { share_enabled?: boolean }).share_enabled,
     share_token: (row as unknown as { share_token?: string | null }).share_token ?? null,
+    approval_status: (((row as unknown as { approval_status?: string }).approval_status as ApprovalStatus) ?? 'draft') as ApprovalStatus,
+    vendor_notes: (row as unknown as { vendor_notes?: string | null }).vendor_notes ?? '',
     last_saved_at: row.last_saved_at,
   };
 };
