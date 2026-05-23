@@ -569,6 +569,36 @@ const drawLegend = (
   pdf.text(`Guest tables · ${positions.length} placed · ${placedSeats} seats`, x + 7, cursorY + 2);
   cursorY += 7;
 
+  // Table notes (if any)
+  const tableNotes = positions
+    .map((p) => {
+      const t = tables.find((tt) => tt.id === p.table_id);
+      const label = t?.name || (t ? `T${t.table_no}` : 'Table');
+      const note = (p.note ?? '').trim();
+      return note ? { label, note } : null;
+    })
+    .filter((x): x is { label: string; note: string } => !!x);
+
+  if (tableNotes.length > 0) {
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(8);
+    setRgb(pdf, 'text', TEXT_DARK);
+    pdf.text('Table notes', x, cursorY);
+    cursorY += 3.5;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7);
+    setRgb(pdf, 'text', TEXT_DARK);
+    for (const tn of tableNotes) {
+      if (cursorY + 3 > contentBottom) break;
+      const line = `• ${tn.label}: ${tn.note}`;
+      const wrapped = pdf.splitTextToSize(line, LEGEND_WIDTH);
+      pdf.text(wrapped, x, cursorY);
+      cursorY += wrapped.length * 3 + 0.4;
+    }
+    cursorY += 3;
+  }
+
+
   // Fixtures heading
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(8);
