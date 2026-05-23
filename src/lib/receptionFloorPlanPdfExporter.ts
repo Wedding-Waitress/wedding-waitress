@@ -10,10 +10,47 @@
  */
 
 import jsPDF from 'jspdf';
-import type { ReceptionFloorPlan, TablePosition, Fixture } from '@/hooks/useReceptionFloorPlan';
+import type { ReceptionFloorPlan, TablePosition, Fixture, ReceptionBackground } from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import { FIXTURE_BY_TYPE, type FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
+import { supabase } from '@/integrations/supabase/client';
+
+const BG_BUCKET = 'reception-floor-plan-backgrounds';
+
+interface LoadedBackground {
+  element: HTMLImageElement;
+  format: 'PNG' | 'JPEG';
+}
+
+const loadBackgroundImage = async (path: string): Promise<LoadedBackground | null> => {
+  try {
+    const { data, error } = await supabase.storage
+      .from(BG_BUCKET)
+      .createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) return null;
+    const resp = await fetch(data.signedUrl);
+    if (!resp.ok) return null;
+    const blob = await resp.blob();
+    const format: 'PNG' | 'JPEG' =
+      blob.type.includes('jpeg') || blob.type.includes('jpg') ? 'JPEG' : 'PNG';
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(blob);
+    });
+    const element = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error('image decode failed'));
+      i.src = dataUrl;
+    });
+    return { element, format };
+  } catch {
+    return null;
+  }
+};
 
 export type ReceptionPdfPageSize = 'a4' | 'a3' | 'a2';
 
