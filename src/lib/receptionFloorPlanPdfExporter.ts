@@ -246,15 +246,14 @@ const drawFooter = (pdf: jsPDF, pageW: number, pageH: number) => {
 };
 
 // -------------------- Room + grid --------------------
-const drawRoom = (ctx: RenderContext, gridSizeCm: number) => {
-  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
-  // Background
+const drawRoomFill = (ctx: RenderContext) => {
+  const { pdf, roomX, roomY, roomW, roomH } = ctx;
   pdf.setFillColor(255, 255, 255);
-  setRgb(pdf, 'draw', TEXT_DARK);
-  pdf.setLineWidth(0.6);
-  pdf.rect(roomX, roomY, roomW, roomH, 'FD');
+  pdf.rect(roomX, roomY, roomW, roomH, 'F');
+};
 
-  // Grid lines
+const drawRoomGrid = (ctx: RenderContext, gridSizeCm: number) => {
+  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
   setRgb(pdf, 'draw', GRID);
   pdf.setLineWidth(0.1);
   const stepMm = (gridSizeCm / 100) * mmPerM;
@@ -265,6 +264,87 @@ const drawRoom = (ctx: RenderContext, gridSizeCm: number) => {
     for (let y = stepMm; y < roomH; y += stepMm) {
       pdf.line(roomX, roomY + y, roomX + roomW, roomY + y);
     }
+  }
+};
+
+const drawRoomBorder = (ctx: RenderContext) => {
+  const { pdf, roomX, roomY, roomW, roomH } = ctx;
+  setRgb(pdf, 'draw', TEXT_DARK);
+  pdf.setLineWidth(0.6);
+  pdf.rect(roomX, roomY, roomW, roomH, 'S');
+};
+
+// -------------------- Background image --------------------
+const drawBackground = (
+  ctx: RenderContext,
+  bg: ReceptionBackground,
+  img: LoadedBackground
+) => {
+  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
+  if (!bg.width || !bg.height) return;
+
+  const wMm = bg.width * mmPerM;
+  const hMm = bg.height * mmPerM;
+  const xMm = roomX + bg.x * mmPerM;
+  const yMm = roomY + bg.y * mmPerM;
+  const cxMm = xMm + wMm / 2;
+  const cyMm = yMm + hMm / 2;
+  const rotation = ((bg.rotation || 0) % 360 + 360) % 360;
+
+  let imageData: string | HTMLImageElement = img.element;
+  let format: 'PNG' | 'JPEG' = img.format;
+  let renderX = xMm;
+  let renderY = yMm;
+  let renderW = wMm;
+  let renderH = hMm;
+
+  if (rotation !== 0) {
+    // Bake rotation onto an offscreen canvas so we can addImage without
+    // jsPDF's tricky rotation pivot. Produces a bounding-box PNG.
+    const rad = (rotation * Math.PI) / 180;
+    const cos = Math.abs(Math.cos(rad));
+    const sin = Math.abs(Math.sin(rad));
+    const bboxWmm = wMm * cos + hMm * sin;
+    const bboxHmm = wMm * sin + hMm * cos;
+    const pxPerMm = 150 / 25.4; // ~150 DPI
+    const cw = Math.max(1, Math.round(bboxWmm * pxPerMm));
+    const ch = Math.max(1, Math.round(bboxHmm * pxPerMm));
+    const cnv = document.createElement('canvas');
+    cnv.width = cw;
+    cnv.height = ch;
+    const c = cnv.getContext('2d');
+    if (!c) return;
+    c.translate(cw / 2, ch / 2);
+    c.rotate((rotation * Math.PI) / 180);
+    const imgWpx = wMm * pxPerMm;
+    const imgHpx = hMm * pxPerMm;
+    c.drawImage(img.element, -imgWpx / 2, -imgHpx / 2, imgWpx, imgHpx);
+    imageData = cnv.toDataURL('image/png');
+    format = 'PNG';
+    renderX = cxMm - bboxWmm / 2;
+    renderY = cyMm - bboxHmm / 2;
+    renderW = bboxWmm;
+    renderH = bboxHmm;
+  }
+
+  const opacity = Math.max(0.05, Math.min(1, bg.opacity ?? 1));
+
+  pdf.saveGraphicsState();
+  try {
+    const GStateCtor = (pdf as unknown as { GState: new (o: { opacity: number }) => unknown }).GState;
+    if (GStateCtor) {
+      const gs = new GStateCtor({ opacity });
+      (pdf as unknown as { setGState: (gs: unknown) => void }).setGState(gs);
+    }
+    // Clip to the room rectangle so any overflow is hidden.
+    pdf.rect(roomX, roomY, roomW, roomH);
+    (pdf as unknown as { clip: () => void; discardPath: () => void }).clip();
+    (pdf as unknown as { discardPath: () => void }).discardPath();
+    pdf.addImage(imageData as string, format, renderX, renderY, renderW, renderH, undefined, 'FAST');
+  } catch (err) {
+    console.warn('[receptionFloorPlanPdfExporter] background draw failed', err);
+  } finally {
+    pdf.restoreGraphicsState();
   }
 };
 
