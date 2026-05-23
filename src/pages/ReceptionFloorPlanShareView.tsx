@@ -267,12 +267,54 @@ export const ReceptionFloorPlanShareView = () => {
             </div>
           </PinchZoomContainer>
         </div>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
+        {(() => {
+          const tableNotes = plan.table_positions
+            .map((pos) => {
+              const t = tables.find((tt) => tt.id === pos.table_id);
+              const label = t?.name || (t ? `Table ${t.table_no}` : 'Table');
+              const note = (pos.note ?? '').trim();
+              return note ? { label, note } : null;
+            })
+            .filter((x): x is { label: string; note: string } => !!x);
+          const vendorNotes = (plan.vendor_notes ?? '').trim();
+          if (!tableNotes.length && !vendorNotes) return null;
+          return (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {tableNotes.length > 0 && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-2">
+                    <StickyNote className="w-4 h-4 text-[#967A59]" /> Table notes
+                  </div>
+                  <ul className="space-y-1.5 text-sm">
+                    {tableNotes.map((tn) => (
+                      <li key={tn.label} className="text-foreground">
+                        <span className="font-medium text-[#7a6347]">{tn.label}:</span>{' '}
+                        <span className="text-muted-foreground">{tn.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {vendorNotes && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-2">
+                    <ClipboardList className="w-4 h-4 text-[#967A59]" /> Vendor setup notes
+                  </div>
+                  <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                    {vendorNotes}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           Shared read-only view · Wedding Waitress
         </p>
       </main>
     </div>
   );
 };
+
 
 export default ReceptionFloorPlanShareView;
