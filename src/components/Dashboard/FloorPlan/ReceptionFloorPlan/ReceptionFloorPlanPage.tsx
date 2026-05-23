@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown } from 'lucide-react';
+import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown, Building2, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
