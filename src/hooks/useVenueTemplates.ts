@@ -295,9 +295,26 @@ export const applyVenueTemplateToPlan = async (
     }
   }
 
-  // Remove previous private bg (best effort) if we replaced it
-  if (newBgPath && currentPlan.background.path && currentPlan.background.path !== newBgPath) {
-    supabase.storage.from(USER_BUCKET).remove([currentPlan.background.path]).catch(() => undefined);
+  // Decide background to apply:
+  // - Template has a background AND copy succeeded → use the copied template bg (and clean up old).
+  // - Template has a background but copy failed   → keep user's existing bg untouched.
+  // - Template has no background                   → keep user's existing bg untouched.
+  let nextBackground = currentPlan.background;
+  if (template.background_image_path && newBgPath) {
+    if (currentPlan.background.path && currentPlan.background.path !== newBgPath) {
+      supabase.storage.from(USER_BUCKET).remove([currentPlan.background.path]).catch(() => undefined);
+    }
+    nextBackground = {
+      path: newBgPath,
+      x: template.background_x,
+      y: template.background_y,
+      width: template.background_width ?? template.room_width_m,
+      height: template.background_height ?? template.room_length_m,
+      rotation: template.background_rotation,
+      opacity: template.background_opacity,
+      locked: false,
+      visible: true,
+    };
   }
 
   // Regenerate fixture ids so they don't collide.
@@ -316,28 +333,6 @@ export const applyVenueTemplateToPlan = async (
     room_polygon: template.room_polygon,
     fixtures,
     table_positions: [], // user re-places their own tables
-    background: newBgPath
-      ? {
-          path: newBgPath,
-          x: template.background_x,
-          y: template.background_y,
-          width: template.background_width ?? template.room_width_m,
-          height: template.background_height ?? template.room_length_m,
-          rotation: template.background_rotation,
-          opacity: template.background_opacity,
-          locked: false,
-          visible: true,
-        }
-      : {
-          path: null,
-          x: 0,
-          y: 0,
-          width: null,
-          height: null,
-          rotation: 0,
-          opacity: 0.6,
-          locked: false,
-          visible: true,
-        },
+    background: nextBackground,
   };
 };
