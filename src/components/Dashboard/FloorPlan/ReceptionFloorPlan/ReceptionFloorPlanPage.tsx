@@ -121,6 +121,12 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               </p>
             </div>
 
+            <ReceptionCapacityBanner
+              plan={plan}
+              tables={tables}
+              attendingCount={attendingCount}
+            />
+
             <ReceptionFloorPlanCanvas plan={plan} tables={tables} onChange={update} />
           </>
         )}
