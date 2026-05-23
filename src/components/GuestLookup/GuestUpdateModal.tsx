@@ -246,7 +246,24 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       }
 
       console.log('✅ [Guest Update] Successfully updated guest data');
-      console.log('📤 [Guest Update] Triggering realtime sync...');
+
+      // Submit song requests if feature enabled
+      if (songRequestsEnabled && songRequestsMax > 0 && guest) {
+        const payload = songRequests.map((r, idx) => ({
+          slot_index: idx,
+          song_title: r.song_title?.trim() || '',
+          artist_name: r.artist_name?.trim() || '',
+          music_link: r.music_link?.trim() || '',
+          note: r.note?.trim() || '',
+        }));
+        const { error: songErr } = await (supabase as any).rpc('submit_guest_song_requests', {
+          _event_id: guest.event_id || event?.id,
+          _guest_id: guest.id,
+          _requests: payload,
+        });
+        if (songErr) console.error('❌ [Song Requests] RPC error:', songErr);
+      }
+
 
       toast({
         title: 'Saved and sent to organiser',
