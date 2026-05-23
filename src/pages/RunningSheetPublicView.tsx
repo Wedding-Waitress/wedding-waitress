@@ -66,7 +66,7 @@ export function RunningSheetPublicView() {
   const lastSaveRef = useRef<number>(0);
   const saveStatusTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (opts?: { silent?: boolean }) => {
     if (!token) {
       setError('Invalid share link');
       setData(null);
@@ -75,7 +75,7 @@ export function RunningSheetPublicView() {
     }
     // Reset stale state when token changes so previous event data never flashes.
     setError(null);
-    setLoading(true);
+    if (!opts?.silent) setLoading(true);
     try {
       const { data: result, error: fetchError } = await supabase.rpc(
         'get_running_sheet_by_token',
