@@ -141,6 +141,7 @@ export const GuestLookup: React.FC = () => {
   }, []);
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
+  const [songRequestSettings, setSongRequestSettings] = useState<{ enabled: boolean; max_requests_per_guest: number } | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [showRsvpInviteModal, setShowRsvpInviteModal] = useState(false);
   const [showWelcomeVideoModal, setShowWelcomeVideoModal] = useState(false);
