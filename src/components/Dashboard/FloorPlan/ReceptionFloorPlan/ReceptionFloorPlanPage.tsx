@@ -311,6 +311,8 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             </div>
 
 
+            <ApprovalStatusPanel plan={plan} onChange={update} />
+
             <ReceptionCapacityBanner
               plan={plan}
               tables={tables}
@@ -346,12 +348,24 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               onRevoke={revokeShareToken}
             />
 
+            <TableNotePanel
+              plan={plan}
+              tables={tables}
+              selectedTableId={selectedTableId}
+              onClose={() => setSelectedTableId(null)}
+              onChange={update}
+            />
+
             <ReceptionFloorPlanCanvas
               plan={plan}
               tables={tables}
               backgroundUrl={backgroundUrl}
               onChange={update}
+              onSelectedTableChange={setSelectedTableId}
             />
+
+            <VendorNotesPanel plan={plan} onChange={update} />
+
           </>
         )}
 
