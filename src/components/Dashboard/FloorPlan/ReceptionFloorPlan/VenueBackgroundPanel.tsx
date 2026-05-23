@@ -40,7 +40,7 @@ export const VenueBackgroundPanel = ({
   const handleFile = async (file?: File | null) => {
     if (!file) return;
     const res = await onUpload(file);
-    if (!res.ok) {
+    if (res.ok === false) {
       toast({ title: 'Upload failed', description: res.error, variant: 'destructive' });
     } else {
       toast({
