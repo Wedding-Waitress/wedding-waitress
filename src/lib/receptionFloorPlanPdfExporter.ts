@@ -10,7 +10,13 @@
  */
 
 import jsPDF from 'jspdf';
-import type { ReceptionFloorPlan, TablePosition, Fixture, ReceptionBackground } from '@/hooks/useReceptionFloorPlan';
+import type {
+  ReceptionFloorPlan,
+  TablePosition,
+  Fixture,
+  ReceptionBackground,
+  RoomPolygon,
+} from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import { FIXTURE_BY_TYPE, type FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
