@@ -24,6 +24,8 @@ const DJMCPublicView = lazy(() => import("./pages/DJMCPublicView").then(m => ({ 
 const RunningSheetPublicView = lazy(() => import("./pages/RunningSheetPublicView").then(m => ({ default: m.RunningSheetPublicView })));
 const SeatingChartPublicView = lazy(() => import("./pages/SeatingChartPublicView").then(m => ({ default: m.SeatingChartPublicView })));
 const ReceptionFloorPlanShareView = lazy(() => import("./pages/ReceptionFloorPlanShareView").then(m => ({ default: m.ReceptionFloorPlanShareView })));
+const VenueDirectory = lazy(() => import("./pages/VenueDirectory").then(m => ({ default: m.VenueDirectory })));
+const VenueDetail = lazy(() => import("./pages/VenueDetail").then(m => ({ default: m.VenueDetail })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const UpgradePricing = lazy(() => import("./pages/UpgradePricing").then(m => ({ default: m.UpgradePricing })));
 const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
@@ -210,6 +212,9 @@ const App = () => (
           <Route path="/seating-chart/:token" element={<SeatingChartPublicView />} />
           {/* Reception floor plan read-only share view */}
           <Route path="/share/reception/:token" element={<ReceptionFloorPlanShareView />} />
+          {/* Public venue floor plan directory */}
+          <Route path="/venues" element={<VenueDirectory />} />
+          <Route path="/venues/:id" element={<VenueDetail />} />
           {/* Dynamic QR code redirect */}
           <Route path="/qr/:code" element={<QRRedirect />} />
            {/* Payment success */}
