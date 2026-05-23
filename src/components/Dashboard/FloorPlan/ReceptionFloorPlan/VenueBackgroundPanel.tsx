@@ -11,6 +11,7 @@ import {
   Unlock,
   Loader2,
   Maximize2,
+  Ruler,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
