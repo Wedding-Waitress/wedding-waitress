@@ -1,8 +1,8 @@
 // Renders the first page of a PDF file to a PNG Blob using pdfjs-dist.
 // Used for the Reception Floor Plan venue background upload.
 import * as pdfjsLib from 'pdfjs-dist';
-// Vite worker import
-// @ts-expect-error - ?url import is handled by Vite
+// Vite ?url import — resolved at build time
+// @ts-ignore - no type declaration for ?url query
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
