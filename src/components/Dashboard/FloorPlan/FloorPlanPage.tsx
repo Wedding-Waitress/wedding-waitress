@@ -205,10 +205,10 @@ export const FloorPlanPage = ({
                       <span>Ceremony</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="reception" disabled>
+                  <SelectItem value="reception">
                     <div className="flex items-center space-x-2">
                       <LayoutGrid className="w-4 h-4" />
-                      <span>Reception (Coming Soon)</span>
+                      <span>Reception</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
