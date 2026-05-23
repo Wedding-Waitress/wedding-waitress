@@ -24,8 +24,27 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const { tables, loading: tablesLoading } = useReceptionTables(selectedEventId);
   const { plan, loading: planLoading, saving, update } = useReceptionFloorPlan(selectedEventId);
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
+  const { toast } = useToast();
+  const [resetOpen, setResetOpen] = useState(false);
 
   const loading = tablesLoading || planLoading || !plan;
+
+  const handleReset = (scope: 'tables' | 'fixtures' | 'all') => {
+    update((p) => ({
+      ...p,
+      table_positions: scope === 'fixtures' ? p.table_positions : [],
+      fixtures: scope === 'tables' ? p.fixtures : [],
+    }));
+    toast({
+      title: 'Layout reset',
+      description:
+        scope === 'tables'
+          ? 'All placed tables were returned to the unplaced tray.'
+          : scope === 'fixtures'
+          ? 'All fixtures were removed.'
+          : 'The reception floor plan was fully cleared.',
+    });
+  };
 
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
