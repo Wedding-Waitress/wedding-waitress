@@ -112,6 +112,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
           room_length_m: next.room_length_m,
           grid_size_cm: next.grid_size_cm,
           table_positions: next.table_positions as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['table_positions'],
+          fixtures: next.fixtures as unknown as Database['public']['Tables']['reception_floor_plans']['Update']['fixtures'],
           last_saved_at: new Date().toISOString(),
         })
         .eq('id', next.id);
