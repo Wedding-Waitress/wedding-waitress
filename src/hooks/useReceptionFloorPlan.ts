@@ -45,6 +45,13 @@ export interface ReceptionBackground {
   visible: boolean;
 }
 
+export type RoomShapeKind = 'rect' | 'L' | 'T' | 'custom';
+export interface RoomPolygon {
+  kind: RoomShapeKind;
+  /** Polygon vertices in meters, top-left origin of the room bounding box. */
+  points: Array<{ x: number; y: number }>;
+}
+
 export interface ReceptionFloorPlan {
   id: string;
   event_id: string;
@@ -55,33 +62,57 @@ export interface ReceptionFloorPlan {
   table_positions: TablePosition[];
   fixtures: Fixture[];
   background: ReceptionBackground;
+  /** Optional non-rectangular room polygon. Null = use rect from width/length. */
+  room_polygon: RoomPolygon | null;
+  share_enabled: boolean;
+  share_token: string | null;
   last_saved_at: string;
 }
 
-const fromRow = (row: Row): ReceptionFloorPlan => ({
-  id: row.id,
-  event_id: row.event_id,
-  room_shape: row.room_shape,
-  room_width_m: Number(row.room_width_m),
-  room_length_m: Number(row.room_length_m),
-  grid_size_cm: row.grid_size_cm,
-  table_positions: Array.isArray(row.table_positions)
-    ? (row.table_positions as unknown as TablePosition[])
-    : [],
-  fixtures: Array.isArray(row.fixtures) ? (row.fixtures as unknown as Fixture[]) : [],
-  background: {
-    path: row.background_image_url ?? null,
-    x: Number(row.background_x ?? 0),
-    y: Number(row.background_y ?? 0),
-    width: row.background_width != null ? Number(row.background_width) : null,
-    height: row.background_height != null ? Number(row.background_height) : null,
-    rotation: Number(row.background_rotation ?? 0),
-    opacity: Number(row.background_opacity ?? 0.6),
-    locked: !!row.background_locked,
-    visible: row.background_visible ?? true,
-  },
-  last_saved_at: row.last_saved_at,
-});
+const fromRow = (row: Row): ReceptionFloorPlan => {
+  const rawPoly = (row as unknown as { room_polygon?: unknown }).room_polygon;
+  let polygon: RoomPolygon | null = null;
+  if (rawPoly && typeof rawPoly === 'object') {
+    const p = rawPoly as { kind?: string; points?: Array<{ x: number; y: number }> };
+    if (
+      p.kind &&
+      Array.isArray(p.points) &&
+      p.points.every((pt) => typeof pt?.x === 'number' && typeof pt?.y === 'number')
+    ) {
+      polygon = {
+        kind: (['rect', 'L', 'T', 'custom'].includes(p.kind) ? p.kind : 'custom') as RoomShapeKind,
+        points: p.points,
+      };
+    }
+  }
+  return {
+    id: row.id,
+    event_id: row.event_id,
+    room_shape: row.room_shape,
+    room_width_m: Number(row.room_width_m),
+    room_length_m: Number(row.room_length_m),
+    grid_size_cm: row.grid_size_cm,
+    table_positions: Array.isArray(row.table_positions)
+      ? (row.table_positions as unknown as TablePosition[])
+      : [],
+    fixtures: Array.isArray(row.fixtures) ? (row.fixtures as unknown as Fixture[]) : [],
+    background: {
+      path: row.background_image_url ?? null,
+      x: Number(row.background_x ?? 0),
+      y: Number(row.background_y ?? 0),
+      width: row.background_width != null ? Number(row.background_width) : null,
+      height: row.background_height != null ? Number(row.background_height) : null,
+      rotation: Number(row.background_rotation ?? 0),
+      opacity: Number(row.background_opacity ?? 0.6),
+      locked: !!row.background_locked,
+      visible: row.background_visible ?? true,
+    },
+    room_polygon: polygon,
+    share_enabled: !!(row as unknown as { share_enabled?: boolean }).share_enabled,
+    share_token: (row as unknown as { share_token?: string | null }).share_token ?? null,
+    last_saved_at: row.last_saved_at,
+  };
+};
 
 const BUCKET = 'reception-floor-plan-backgrounds';
 const ACCEPTED = ['image/png', 'image/jpeg', 'application/pdf'];
