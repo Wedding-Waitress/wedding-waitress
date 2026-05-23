@@ -60,6 +60,15 @@ interface GuestUpdateModalProps {
   showMessageField?: boolean;
   isEditable?: boolean;
   allGuests?: any[];
+  songRequestsEnabled?: boolean;
+  songRequestsMax?: number;
+}
+
+interface SongRequestEntry {
+  song_title: string;
+  artist_name: string;
+  music_link: string;
+  note: string;
 }
 
 const dietaryOptions = [
@@ -85,7 +94,9 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   allowNameEdit = false,
   showMessageField = true,
   isEditable = true,
-  allGuests = []
+  allGuests = [],
+  songRequestsEnabled = false,
+  songRequestsMax = 0,
 }) => {
   const isMobile = useIsMobile();
   const [saving, setSaving] = useState(false);
