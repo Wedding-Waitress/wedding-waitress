@@ -3518,6 +3518,99 @@ export type Database = {
           },
         ]
       }
+      venue_floor_plan_templates: {
+        Row: {
+          approved: boolean
+          approved_at: string | null
+          approved_by: string | null
+          background_height: number | null
+          background_image_path: string | null
+          background_opacity: number
+          background_rotation: number
+          background_width: number | null
+          background_x: number
+          background_y: number
+          capacity: number
+          city: string | null
+          country: string | null
+          created_at: string
+          featured: boolean
+          fixtures: Json
+          grid_size_cm: number
+          id: string
+          notes: string | null
+          room_length_m: number
+          room_name: string
+          room_polygon: Json | null
+          room_shape: string
+          room_width_m: number
+          submitted_by: string
+          table_positions: Json
+          updated_at: string
+          venue_name: string
+        }
+        Insert: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          background_height?: number | null
+          background_image_path?: string | null
+          background_opacity?: number
+          background_rotation?: number
+          background_width?: number | null
+          background_x?: number
+          background_y?: number
+          capacity?: number
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          featured?: boolean
+          fixtures?: Json
+          grid_size_cm?: number
+          id?: string
+          notes?: string | null
+          room_length_m?: number
+          room_name: string
+          room_polygon?: Json | null
+          room_shape?: string
+          room_width_m?: number
+          submitted_by: string
+          table_positions?: Json
+          updated_at?: string
+          venue_name: string
+        }
+        Update: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          background_height?: number | null
+          background_image_path?: string | null
+          background_opacity?: number
+          background_rotation?: number
+          background_width?: number | null
+          background_x?: number
+          background_y?: number
+          capacity?: number
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          featured?: boolean
+          fixtures?: Json
+          grid_size_cm?: number
+          id?: string
+          notes?: string | null
+          room_length_m?: number
+          room_name?: string
+          room_polygon?: Json | null
+          room_shape?: string
+          room_width_m?: number
+          submitted_by?: string
+          table_positions?: Json
+          updated_at?: string
+          venue_name?: string
+        }
+        Relationships: []
+      }
       venue_invitations: {
         Row: {
           created_at: string
