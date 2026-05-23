@@ -55,6 +55,8 @@ export interface RoomPolygon {
   points: Array<{ x: number; y: number }>;
 }
 
+export type ApprovalStatus = 'draft' | 'sent_to_venue' | 'approved' | 'final';
+
 export interface ReceptionFloorPlan {
   id: string;
   event_id: string;
@@ -69,8 +71,13 @@ export interface ReceptionFloorPlan {
   room_polygon: RoomPolygon | null;
   share_enabled: boolean;
   share_token: string | null;
+  /** Approval workflow status for the venue. */
+  approval_status: ApprovalStatus;
+  /** Free-text vendor / setup notes. */
+  vendor_notes: string;
   last_saved_at: string;
 }
+
 
 const fromRow = (row: Row): ReceptionFloorPlan => {
   const rawPoly = (row as unknown as { room_polygon?: unknown }).room_polygon;
