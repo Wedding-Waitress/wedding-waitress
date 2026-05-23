@@ -715,6 +715,23 @@ export const generateReceptionFloorPlanPDF = async (
   drawLegend(pdf, pageW, contentTop, contentBottom, plan.fixtures, tables, plan.table_positions);
   drawFooter(pdf, pageW, pageH);
 
+  // Vendor setup notes — append on a second page if present.
+  const vendorNotes = (plan.vendor_notes ?? '').trim();
+  if (vendorNotes) {
+    pdf.addPage(pageSize, 'portrait');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    setRgb(pdf, 'text', BRAND_BROWN);
+    pdf.text('Vendor Setup Notes', MARGIN, MARGIN + 4);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    setRgb(pdf, 'text', TEXT_DARK);
+    const wrapped = pdf.splitTextToSize(vendorNotes, pageW - MARGIN * 2);
+    pdf.text(wrapped, MARGIN, MARGIN + 12);
+    drawFooter(pdf, pageW, pageH);
+  }
+
+
   const filename = `${sanitizeFilename(event.name)}-Reception-FloorPlan-${formatDateForFilename(
     event.date
   )}.pdf`;
