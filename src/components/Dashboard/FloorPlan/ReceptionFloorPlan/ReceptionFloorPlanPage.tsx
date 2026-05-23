@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LayoutGrid, Loader2, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { LayoutGrid, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
 import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
+import { ResetLayoutDialog } from './ResetLayoutDialog';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
