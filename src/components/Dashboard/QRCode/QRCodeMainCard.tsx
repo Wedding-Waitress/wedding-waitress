@@ -12,6 +12,9 @@
  * Last locked: 2026-02-19
  */
 import React, { useState, useEffect, useCallback } from 'react';
+import { Music } from 'lucide-react';
+import { useGuestSongRequestSettings } from '@/hooks/useGuestSongRequestSettings';
+import { Select as SongReqSelect, SelectContent as SongReqSelectContent, SelectItem as SongReqSelectItem, SelectTrigger as SongReqSelectTrigger, SelectValue as SongReqSelectValue } from '@/components/ui/select';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
