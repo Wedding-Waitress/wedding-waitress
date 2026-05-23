@@ -55,17 +55,29 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             <h2 className="text-xl font-bold text-foreground">Reception Floor Plan</h2>
           </div>
           {plan && (
-            <div className="text-xs text-muted-foreground flex items-center gap-1">
-              {saving ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Saved{' '}
-                  {new Date(plan.last_saved_at).toLocaleTimeString()}
-                </>
-              )}
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                {saving ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Saved{' '}
+                    {new Date(plan.last_saved_at).toLocaleTimeString()}
+                  </>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="lv-premium-shade h-9"
+                onClick={() => setResetOpen(true)}
+                disabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                Reset layout
+              </Button>
             </div>
           )}
         </div>
