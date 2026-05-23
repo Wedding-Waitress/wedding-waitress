@@ -33,6 +33,7 @@ export interface ReceptionFloorPlan {
   room_length_m: number;
   grid_size_cm: number;
   table_positions: TablePosition[];
+  fixtures: Fixture[];
   last_saved_at: string;
 }
 
@@ -46,6 +47,7 @@ const fromRow = (row: Row): ReceptionFloorPlan => ({
   table_positions: Array.isArray(row.table_positions)
     ? (row.table_positions as unknown as TablePosition[])
     : [],
+  fixtures: Array.isArray(row.fixtures) ? (row.fixtures as unknown as Fixture[]) : [],
   last_saved_at: row.last_saved_at,
 });
 
