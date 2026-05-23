@@ -124,6 +124,34 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                 <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
                 Reset layout
               </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="lv-premium-shade h-9 bg-[#967A59] hover:bg-[#7a6347] text-white"
+                    disabled={!!exporting}
+                  >
+                    {exporting ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <FileDown className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    {exporting ? `Exporting ${exporting.toUpperCase()}…` : 'Export PDF'}
+                    <ChevronDown className="w-3.5 h-3.5 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleExport('a4')}>
+                    A4 (210 × 297mm)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('a3')}>
+                    A3 (297 × 420mm)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('a2')}>
+                    A2 (420 × 594mm)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
         </div>
