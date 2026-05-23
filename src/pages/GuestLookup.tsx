@@ -1095,6 +1095,8 @@ export const GuestLookup: React.FC = () => {
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable && showUpdateDetails}
         allGuests={guests}
+        songRequestsEnabled={!!songRequestSettings?.enabled}
+        songRequestsMax={songRequestSettings?.enabled ? (songRequestSettings.max_requests_per_guest || 0) : 0}
       />
 
       {/* Public Add Guest Modal */}
