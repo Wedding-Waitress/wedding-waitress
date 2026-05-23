@@ -261,6 +261,19 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               onUpload={uploadBackground}
               onRemove={removeBackground}
               onChange={update}
+              onCalibrate={
+                plan.background.path && backgroundUrl
+                  ? () => setCalibrating(true)
+                  : undefined
+              }
+            />
+
+            <RoomShapePanel plan={plan} onChange={update} />
+
+            <ShareLinkPanel
+              plan={plan}
+              onGenerate={generateShareToken}
+              onRevoke={revokeShareToken}
             />
 
             <ReceptionFloorPlanCanvas
