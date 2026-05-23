@@ -38,6 +38,7 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
+  const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
 
   const loading = tablesLoading || planLoading || !plan;
 
@@ -56,6 +57,39 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
           ? 'All fixtures were removed.'
           : 'The reception floor plan was fully cleared.',
     });
+  };
+
+  const handleExport = async (size: ReceptionPdfPageSize) => {
+    if (!plan) return;
+    setExporting(size);
+    try {
+      const { data: ev, error } = await supabase
+        .from('events')
+        .select('name, date, venue, partner1_name, partner2_name, start_time, finish_time')
+        .eq('id', selectedEventId)
+        .maybeSingle();
+      if (error || !ev) throw error || new Error('Event not found');
+      await generateReceptionFloorPlanPDF(
+        plan,
+        tables,
+        ev as ReceptionPdfEvent,
+        attendingCount,
+        size
+      );
+      toast({
+        title: 'Floor plan exported',
+        description: `${size.toUpperCase()} PDF downloaded successfully.`,
+      });
+    } catch (err) {
+      console.error('reception pdf export', err);
+      toast({
+        title: 'Export failed',
+        description: 'Could not generate the PDF. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setExporting(null);
+    }
   };
 
   return (
