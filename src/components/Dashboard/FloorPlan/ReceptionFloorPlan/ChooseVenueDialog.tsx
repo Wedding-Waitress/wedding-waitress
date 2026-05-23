@@ -98,7 +98,7 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
           </p>
         </DialogHeader>
 
-        <div className="px-6 max-lg:px-4 pt-3 pb-2">
+        <div className="px-6 max-lg:px-4 pt-3 pb-2 space-y-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -107,6 +107,33 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
               placeholder="Search by venue, room, or city…"
               className="pl-9 h-10 max-lg:h-11 max-lg:text-base"
             />
+          </div>
+          <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2">
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Country" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All countries</SelectItem>
+                {countries.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={capacityBand} onValueChange={setCapacityBand}>
+              <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Capacity" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any capacity</SelectItem>
+                <SelectItem value="s">Up to 80</SelectItem>
+                <SelectItem value="m">81–200</SelectItem>
+                <SelectItem value="l">200+</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant={featuredOnly ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFeaturedOnly((v) => !v)}
+              className="lv-premium-shade h-9 max-lg:h-11 max-lg:text-base"
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Featured only
+            </Button>
           </div>
         </div>
 
