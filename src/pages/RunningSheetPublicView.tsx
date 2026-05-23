@@ -73,6 +73,9 @@ export function RunningSheetPublicView() {
       setLoading(false);
       return;
     }
+    // Mark this fetch so realtime echoes (e.g. last_accessed_at bumps) are
+    // suppressed by the < 2s guards below and don't trigger an infinite loop.
+    lastSaveRef.current = Date.now();
     // Reset stale state when token changes so previous event data never flashes.
     setError(null);
     if (!opts?.silent) setLoading(true);
@@ -120,9 +123,12 @@ export function RunningSheetPublicView() {
       console.error('Error:', err);
       setError('Failed to load run sheet');
     } finally {
+      // Bump again so the post-fetch realtime echo window stays clear.
+      lastSaveRef.current = Date.now();
       setLoading(false);
     }
   }, [token]);
+
 
   useEffect(() => {
     fetchData();
