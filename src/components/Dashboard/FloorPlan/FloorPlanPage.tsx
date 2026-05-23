@@ -18,6 +18,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
+import { ReceptionFloorPlanPage } from './ReceptionFloorPlan/ReceptionFloorPlanPage';
 import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
 import { toast } from 'sonner';
 
@@ -204,10 +205,10 @@ export const FloorPlanPage = ({
                       <span>Ceremony</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="reception" disabled>
+                  <SelectItem value="reception">
                     <div className="flex items-center space-x-2">
                       <LayoutGrid className="w-4 h-4" />
-                      <span>Reception (Coming Soon)</span>
+                      <span>Reception</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -296,6 +297,11 @@ export const FloorPlanPage = ({
           </div>
 
         </div>
+      )}
+
+      {/* Reception Floor Plan (Phase 1A — Step 2 scaffold) */}
+      {selectedEventId && floorPlanType === 'reception' && (
+        <ReceptionFloorPlanPage selectedEventId={selectedEventId} />
       )}
     </div>
   );
