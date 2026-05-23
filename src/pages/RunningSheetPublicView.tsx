@@ -154,9 +154,12 @@ export function RunningSheetPublicView() {
     return () => { supabase.removeChannel(channel); };
   }, [data?.sheet_id, fetchData]);
 
-  // Realtime subscription for permission changes on share tokens
+  // Realtime subscription for permission changes on share tokens.
+  // Guard against self-triggered echoes: opening this page bumps
+  // last_accessed_at on the token row, which would otherwise loop forever.
   useEffect(() => {
     if (!data?.sheet_id) return;
+    const currentPermission = data.permission;
     const channel = supabase
       .channel(`public-rs-tokens:${data.sheet_id}`)
       .on('postgres_changes', {
@@ -164,13 +167,20 @@ export function RunningSheetPublicView() {
         schema: 'public',
         table: 'running_sheet_share_tokens',
         filter: `sheet_id=eq.${data.sheet_id}`,
-      }, () => {
-        fetchData({ silent: true });
+      }, (payload: any) => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
+        // Only refetch if the permission actually changed; ignore
+        // last_accessed_at / metadata-only updates.
+        const newPermission = payload?.new?.permission;
+        if (newPermission && newPermission !== currentPermission) {
+          fetchData({ silent: true });
+        }
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [data?.sheet_id, fetchData]);
+  }, [data?.sheet_id, data?.permission, fetchData]);
+
 
   // Realtime subscription for running_sheets meta changes (notes, label)
   useEffect(() => {
