@@ -52,7 +52,7 @@ export function useRunningSheet(eventId: string | null) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sectionLabel, setSectionLabel] = useState(
-    (cached?.sectionLabel === 'Running Sheet' ? 'Run Sheet' : cached?.sectionLabel) ?? 'Run Sheet'
+    (cached?.sectionLabel?.trim().toLowerCase() === 'running sheet' ? 'Run Sheet' : cached?.sectionLabel) ?? 'Run Sheet'
   );
   const [sectionNotes, setSectionNotes] = useState<string | null>(cached?.sectionNotes ?? null);
   const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>(cached?.shareTokens ?? []);
