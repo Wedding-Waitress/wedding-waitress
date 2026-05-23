@@ -84,6 +84,7 @@ export const ReceptionFloorPlanCanvas = ({
   const roomW = plan.room_width_m * PX_PER_M;
   const roomH = plan.room_length_m * PX_PER_M;
   const gridPx = (plan.grid_size_cm / 100) * PX_PER_M;
+  const polygonPath = plan.room_polygon ? polygonToSvgPath(plan.room_polygon, PX_PER_M) : '';
 
   // ---- palette → canvas drop (tables + fixtures)
   const handleTableDragStart = (e: React.DragEvent, tableId: string) => {
