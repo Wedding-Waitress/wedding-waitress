@@ -765,6 +765,23 @@ const PlacedTable = ({
         </span>
       </div>
 
+      {pos.note && pos.note.trim().length > 0 && (
+        <div
+          title={pos.note}
+          style={{
+            position: 'absolute',
+            top: -6,
+            right: -6,
+            transform: `rotate(${-pos.rotation}deg)`,
+            transformOrigin: 'center center',
+            zIndex: 3,
+          }}
+          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-400 text-amber-900 border-2 border-white shadow pointer-events-none"
+        >
+          <StickyNote className="w-3 h-3" />
+        </div>
+      )}
+
       {selected && (
         <SelectionToolbar
           rotation={pos.rotation}
@@ -777,6 +794,7 @@ const PlacedTable = ({
     </div>
   );
 };
+
 
 // ---------- PlacedFixture ----------
 interface PlacedFixtureProps {
