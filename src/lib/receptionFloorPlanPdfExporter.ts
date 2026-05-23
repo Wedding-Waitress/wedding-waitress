@@ -643,11 +643,11 @@ export const generateReceptionFloorPlanPDF = async (
   }
 
   drawRoomFill(ctx);
-  if (bgImage) drawBackground(ctx, plan.background, bgImage);
+  if (bgImage) drawBackground(ctx, plan.background, bgImage, plan.room_polygon);
   drawRoomGrid(ctx, plan.grid_size_cm);
   drawFixtures(ctx, plan.fixtures);
   drawTables(ctx, plan.table_positions, tables);
-  drawRoomBorder(ctx);
+  drawRoomBorder(ctx, plan.room_polygon);
 
   // Room caption under the room
   pdf.setFont('helvetica', 'italic');
