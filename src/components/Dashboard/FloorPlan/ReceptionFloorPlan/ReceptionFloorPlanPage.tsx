@@ -65,8 +65,10 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const [calibrating, setCalibrating] = useState(false);
   const [chooseVenueOpen, setChooseVenueOpen] = useState(false);
   const [submitTemplateOpen, setSubmitTemplateOpen] = useState(false);
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
   const loading = tablesLoading || planLoading || !plan;
+
 
   const handleReset = (scope: 'tables' | 'fixtures' | 'all') => {
     update((p) => ({
