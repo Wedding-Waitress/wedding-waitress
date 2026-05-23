@@ -273,11 +273,51 @@ const drawRoomGrid = (ctx: RenderContext, gridSizeCm: number) => {
   }
 };
 
-const drawRoomBorder = (ctx: RenderContext) => {
-  const { pdf, roomX, roomY, roomW, roomH } = ctx;
+const drawRoomBorder = (ctx: RenderContext, polygon?: RoomPolygon | null) => {
+  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
   setRgb(pdf, 'draw', TEXT_DARK);
   pdf.setLineWidth(0.6);
-  pdf.rect(roomX, roomY, roomW, roomH, 'S');
+  if (polygon && polygon.points.length >= 3) {
+    drawPolygonPath(pdf, polygon, roomX, roomY, mmPerM);
+    pdf.stroke();
+  } else {
+    pdf.rect(roomX, roomY, roomW, roomH, 'S');
+  }
+};
+
+// Build a polygon path on the PDF (no fill/stroke action). Caller decides.
+const drawPolygonPath = (
+  pdf: jsPDF,
+  polygon: RoomPolygon,
+  roomX: number,
+  roomY: number,
+  mmPerM: number
+) => {
+  const pts = polygon.points;
+  const p0 = pts[0];
+  // jsPDF lacks a high-level moveTo/lineTo, use pdf.lines with relative deltas
+  const lines: [number, number][] = [];
+  for (let i = 1; i < pts.length; i++) {
+    lines.push([(pts[i].x - pts[i - 1].x) * mmPerM, (pts[i].y - pts[i - 1].y) * mmPerM]);
+  }
+  // close
+  lines.push([(pts[0].x - pts[pts.length - 1].x) * mmPerM, (pts[0].y - pts[pts.length - 1].y) * mmPerM]);
+  pdf.lines(lines, roomX + p0.x * mmPerM, roomY + p0.y * mmPerM, [1, 1], null, true);
+};
+
+// Clip subsequent drawing to the room polygon (or rectangle when no polygon).
+const clipToRoom = (
+  pdf: jsPDF,
+  ctx: RenderContext,
+  polygon: RoomPolygon | null
+) => {
+  if (polygon && polygon.points.length >= 3) {
+    drawPolygonPath(pdf, polygon, ctx.roomX, ctx.roomY, ctx.mmPerM);
+  } else {
+    pdf.rect(ctx.roomX, ctx.roomY, ctx.roomW, ctx.roomH);
+  }
+  (pdf as unknown as { clip: () => void; discardPath: () => void }).clip();
+  (pdf as unknown as { discardPath: () => void }).discardPath();
 };
 
 // -------------------- Background image --------------------
