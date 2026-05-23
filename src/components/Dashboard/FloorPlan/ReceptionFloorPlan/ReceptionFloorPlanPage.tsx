@@ -94,15 +94,15 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
 
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-      <CardContent className="pt-6 space-y-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+      <CardContent className="pt-6 space-y-4 max-lg:px-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap max-lg:flex-col max-lg:items-stretch">
           <div className="flex items-center gap-3">
             <LayoutGrid className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-bold text-foreground">Reception Floor Plan</h2>
           </div>
           {plan && (
-            <div className="flex items-center gap-3">
-              <div className="text-xs text-muted-foreground flex items-center gap-1">
+            <div className="flex items-center gap-3 max-lg:flex-col max-lg:items-stretch max-lg:gap-2 max-lg:w-full">
+              <div className="text-xs text-muted-foreground flex items-center gap-1 max-lg:justify-center">
                 {saving ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
@@ -114,44 +114,46 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                   </>
                 )}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="lv-premium-shade h-9"
-                onClick={() => setResetOpen(true)}
-                disabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
-              >
-                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                Reset layout
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size="sm"
-                    className="lv-premium-shade h-9 bg-[#967A59] hover:bg-[#7a6347] text-white"
-                    disabled={!!exporting}
-                  >
-                    {exporting ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    ) : (
-                      <FileDown className="w-3.5 h-3.5 mr-1.5" />
-                    )}
-                    {exporting ? `Exporting ${exporting.toUpperCase()}…` : 'Export PDF'}
-                    <ChevronDown className="w-3.5 h-3.5 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleExport('a4')}>
-                    A4 (210 × 297mm)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('a3')}>
-                    A3 (297 × 420mm)
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('a2')}>
-                    A2 (420 × 594mm)
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2 max-lg:w-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
+                  onClick={() => setResetOpen(true)}
+                  disabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
+                >
+                  <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                  Reset layout
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white"
+                      disabled={!!exporting}
+                    >
+                      {exporting ? (
+                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      ) : (
+                        <FileDown className="w-3.5 h-3.5 mr-1.5" />
+                      )}
+                      {exporting ? `Exporting ${exporting.toUpperCase()}…` : 'Export PDF'}
+                      <ChevronDown className="w-3.5 h-3.5 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleExport('a4')}>
+                      A4 (210 × 297mm)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('a3')}>
+                      A3 (297 × 420mm)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('a2')}>
+                      A2 (420 × 594mm)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           )}
         </div>
@@ -163,8 +165,8 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
         ) : (
           <>
             {/* Room dimensions */}
-            <div className="flex flex-wrap items-end gap-4 rounded-lg border border-border bg-muted/20 p-3">
-              <div className="space-y-1">
+            <div className="flex flex-wrap items-end gap-4 max-lg:gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
+              <div className="space-y-1 max-lg:w-full">
                 <Label htmlFor="room-width" className="text-xs">
                   Room width (m)
                 </Label>
@@ -181,10 +183,10 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                       room_width_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_width_m)),
                     }))
                   }
-                  className="h-9 w-28"
+                  className="h-9 w-28 max-lg:h-11 max-lg:w-full max-lg:text-base"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 max-lg:w-full">
                 <Label htmlFor="room-length" className="text-xs">
                   Room length (m)
                 </Label>
@@ -201,10 +203,10 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                       room_length_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_length_m)),
                     }))
                   }
-                  className="h-9 w-28"
+                  className="h-9 w-28 max-lg:h-11 max-lg:w-full max-lg:text-base"
                 />
               </div>
-              <div className="space-y-1">
+              <div className="space-y-1 max-lg:w-full">
                 <Label htmlFor="grid-size" className="text-xs">
                   Grid (cm)
                 </Label>
@@ -221,14 +223,15 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                       grid_size_cm: Math.max(25, Math.min(200, Number(e.target.value) || p.grid_size_cm)),
                     }))
                   }
-                  className="h-9 w-24"
+                  className="h-9 w-24 max-lg:h-11 max-lg:w-full max-lg:text-base"
                 />
               </div>
-              <p className="text-xs text-muted-foreground ml-auto max-w-xs">
+              <p className="text-xs text-muted-foreground ml-auto max-w-xs max-lg:ml-0 max-lg:max-w-full">
                 Drag tables from the left into the room. Click a table to rotate, lock, or remove it.
                 Chairs render automatically from each table's seat count.
               </p>
             </div>
+
 
             <ReceptionCapacityBanner
               plan={plan}

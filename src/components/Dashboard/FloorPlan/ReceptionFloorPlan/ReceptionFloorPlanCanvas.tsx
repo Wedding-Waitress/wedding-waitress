@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Lock, Unlock, RotateCw, Trash2 } from 'lucide-react';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type {
   ReceptionFloorPlan,
@@ -7,6 +8,7 @@ import type {
   Fixture,
 } from '@/hooks/useReceptionFloorPlan';
 import { FIXTURE_CATALOG, FIXTURE_BY_TYPE, type FixtureType } from './fixtures';
+
 
 const PX_PER_M = 50; // visual scale
 
@@ -237,20 +239,20 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
       {/* Left palettes */}
       <aside className="lg:w-64 shrink-0 space-y-4">
         {/* Tables palette */}
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-lg border border-border bg-card p-3 max-lg:p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">
             Tables to place ({unplacedTables.length})
           </h3>
           {unplacedTables.length === 0 ? (
             <p className="text-xs text-muted-foreground">All synced tables placed.</p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-2 max-lg:grid max-lg:grid-cols-2 max-lg:gap-2 max-lg:space-y-0">
               {unplacedTables.map((t) => (
                 <li
                   key={t.id}
                   draggable
                   onDragStart={(e) => handleTableDragStart(e, t.id)}
-                  className="cursor-grab active:cursor-grabbing rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground hover:border-primary transition-colors select-none"
+                  className="cursor-grab active:cursor-grabbing rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground hover:border-primary transition-colors select-none min-h-[44px]"
                 >
                   <div className="font-medium truncate">
                     {t.name || `Table ${t.table_no}`}
@@ -263,12 +265,12 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
         </div>
 
         {/* Fixtures palette */}
-        <div className="rounded-lg border border-border bg-card p-3">
+        <div className="rounded-lg border border-border bg-card p-3 max-lg:p-4">
           <h3 className="text-sm font-semibold text-foreground mb-2">Fixtures</h3>
           <p className="text-xs text-muted-foreground mb-2">
             Drag onto the room. Click a fixture to rotate, lock, or remove.
           </p>
-          <ul className="grid grid-cols-2 gap-2">
+          <ul className="grid grid-cols-2 max-lg:grid-cols-3 gap-2">
             {FIXTURE_CATALOG.map((spec) => {
               const Icon = spec.icon;
               return (
@@ -277,7 +279,7 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
                   draggable
                   onDragStart={(e) => handleFixtureDragStart(e, spec.type)}
                   title={`${spec.label} · ${spec.width_m}×${spec.height_m}m`}
-                  className="cursor-grab active:cursor-grabbing rounded-md border border-border bg-background px-2 py-2 text-xs text-foreground hover:border-primary transition-colors select-none flex flex-col items-center gap-1 text-center"
+                  className="cursor-grab active:cursor-grabbing rounded-md border border-border bg-background px-2 py-2 text-xs text-foreground hover:border-primary transition-colors select-none flex flex-col items-center gap-1 text-center min-h-[44px]"
                 >
                   <span
                     className="inline-flex items-center justify-center w-7 h-7 rounded"
@@ -294,61 +296,65 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
       </aside>
 
       {/* Canvas */}
-      <div className="flex-1 overflow-auto rounded-lg border border-border bg-muted/20 p-4">
-        <div
-          ref={canvasRef}
-          onDragOver={handleCanvasDragOver}
-          onDrop={handleCanvasDrop}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setSelection(null);
-          }}
-          className="relative bg-white border-2 border-foreground/70 shadow-inner"
-          style={{
-            width: roomW,
-            height: roomH,
-            backgroundImage:
-              'linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px)',
-            backgroundSize: `${gridPx}px ${gridPx}px`,
-          }}
-        >
-          {/* Fixtures first so tables sit above */}
-          {plan.fixtures.map((fx) => (
-            <PlacedFixture
-              key={fx.id}
-              fx={fx}
-              selected={selection?.kind === 'fixture' && selection.id === fx.id}
-              onPointerDown={(e) =>
-                handlePointerDown(e, 'fixture', fx.id, fx.x, fx.y, fx.locked)
-              }
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onRotate={() => rotateFixture(fx.id)}
-              onToggleLock={() => toggleLockFixture(fx.id)}
-              onRemove={() => removeFixture(fx.id)}
-            />
-          ))}
+      <div className="flex-1 min-w-0 overflow-hidden rounded-lg border border-border bg-muted/20 p-4 max-lg:p-2">
+        <PinchZoomContainer naturalWidth={roomW} className="w-full">
+          <div className="overflow-auto">
+            <div
+              ref={canvasRef}
+              onDragOver={handleCanvasDragOver}
+              onDrop={handleCanvasDrop}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setSelection(null);
+              }}
+              className="relative bg-white border-2 border-foreground/70 shadow-inner mx-auto"
+              style={{
+                width: roomW,
+                height: roomH,
+                backgroundImage:
+                  'linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px)',
+                backgroundSize: `${gridPx}px ${gridPx}px`,
+              }}
+            >
+              {/* Fixtures first so tables sit above */}
+              {plan.fixtures.map((fx) => (
+                <PlacedFixture
+                  key={fx.id}
+                  fx={fx}
+                  selected={selection?.kind === 'fixture' && selection.id === fx.id}
+                  onPointerDown={(e) =>
+                    handlePointerDown(e, 'fixture', fx.id, fx.x, fx.y, fx.locked)
+                  }
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onRotate={() => rotateFixture(fx.id)}
+                  onToggleLock={() => toggleLockFixture(fx.id)}
+                  onRemove={() => removeFixture(fx.id)}
+                />
+              ))}
 
-          {plan.table_positions.map((pos) => {
-            const t = tableById.get(pos.table_id);
-            if (!t) return null;
-            return (
-              <PlacedTable
-                key={pos.table_id}
-                pos={pos}
-                table={t}
-                selected={selection?.kind === 'table' && selection.id === pos.table_id}
-                onPointerDown={(e) =>
-                  handlePointerDown(e, 'table', pos.table_id, pos.x, pos.y, pos.locked)
-                }
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onRotate={() => rotateTable(pos.table_id)}
-                onToggleLock={() => toggleLockTable(pos.table_id)}
-                onRemove={() => removeTable(pos.table_id)}
-              />
-            );
-          })}
-        </div>
+              {plan.table_positions.map((pos) => {
+                const t = tableById.get(pos.table_id);
+                if (!t) return null;
+                return (
+                  <PlacedTable
+                    key={pos.table_id}
+                    pos={pos}
+                    table={t}
+                    selected={selection?.kind === 'table' && selection.id === pos.table_id}
+                    onPointerDown={(e) =>
+                      handlePointerDown(e, 'table', pos.table_id, pos.x, pos.y, pos.locked)
+                    }
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onRotate={() => rotateTable(pos.table_id)}
+                    onToggleLock={() => toggleLockTable(pos.table_id)}
+                    onRemove={() => removeTable(pos.table_id)}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </PinchZoomContainer>
         <p className="mt-2 text-xs text-muted-foreground">
           Room: {plan.room_width_m}m × {plan.room_length_m}m · grid {plan.grid_size_cm}cm · scale{' '}
           {PX_PER_M}px/m
@@ -357,6 +363,7 @@ export const ReceptionFloorPlanCanvas = ({ plan, tables, onChange }: Props) => {
     </div>
   );
 };
+
 
 const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
@@ -524,7 +531,7 @@ const SelectionToolbar = ({ rotation, locked, onRotate, onToggleLock, onRemove }
   <div
     style={{
       position: 'absolute',
-      top: -36,
+      top: -44,
       left: '50%',
       transform: `translateX(-50%) rotate(${-rotation}deg)`,
     }}
@@ -532,24 +539,25 @@ const SelectionToolbar = ({ rotation, locked, onRotate, onToggleLock, onRemove }
   >
     <button
       onClick={onRotate}
-      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground"
+      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
       title="Rotate 15°"
     >
-      <RotateCw className="w-3.5 h-3.5" />
+      <RotateCw className="w-4 h-4" />
     </button>
     <button
       onClick={onToggleLock}
-      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground"
+      className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
       title={locked ? 'Unlock' : 'Lock'}
     >
-      {locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+      {locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
     </button>
     <button
       onClick={onRemove}
-      className="lv-premium-shade p-1 rounded hover:bg-destructive/10 text-destructive"
+      className="lv-premium-shade p-1 rounded hover:bg-destructive/10 text-destructive min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
       title="Remove"
     >
-      <Trash2 className="w-3.5 h-3.5" />
+      <Trash2 className="w-4 h-4" />
     </button>
   </div>
 );
+
