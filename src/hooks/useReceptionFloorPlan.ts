@@ -351,6 +351,35 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
     }
   }, [persist, plan]);
 
+  const generateShareToken = useCallback(async (): Promise<string | null> => {
+    if (!plan) return null;
+    const bytes = new Uint8Array(24);
+    crypto.getRandomValues(bytes);
+    const token = btoa(String.fromCharCode(...bytes))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+    const next: ReceptionFloorPlan = {
+      ...plan,
+      share_enabled: true,
+      share_token: token,
+    };
+    setPlan(next);
+    await persist(next);
+    return token;
+  }, [persist, plan]);
+
+  const revokeShareToken = useCallback(async () => {
+    if (!plan) return;
+    const next: ReceptionFloorPlan = {
+      ...plan,
+      share_enabled: false,
+      share_token: null,
+    };
+    setPlan(next);
+    await persist(next);
+  }, [persist, plan]);
+
   return {
     plan,
     loading,
@@ -361,5 +390,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
     uploadBackground,
     removeBackground,
     uploadingBackground,
+    generateShareToken,
+    revokeShareToken,
   };
 };
