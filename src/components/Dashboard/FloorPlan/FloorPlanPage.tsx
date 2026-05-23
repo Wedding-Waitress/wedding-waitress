@@ -18,6 +18,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
+import { ReceptionFloorPlanPage } from './ReceptionFloorPlan/ReceptionFloorPlanPage';
 import { generateCeremonyFloorPlanPDF } from '@/lib/ceremonyFloorPlanPdfExporter';
 import { toast } from 'sonner';
 
