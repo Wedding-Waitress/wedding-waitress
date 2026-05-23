@@ -31,7 +31,7 @@ import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 import { SmartIntelligencePanel } from './SmartIntelligencePanel';
 import { AutoLayoutPanel } from './AutoLayoutPanel';
-import { ApprovalStatusPanel, labelForApproval } from './ApprovalStatusPanel';
+import { ApprovalStatusPanel } from './ApprovalStatusPanel';
 import { VendorNotesPanel } from './VendorNotesPanel';
 import { TableNotePanel } from './TableNotePanel';
 
