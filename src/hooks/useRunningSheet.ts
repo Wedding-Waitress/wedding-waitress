@@ -52,7 +52,7 @@ export function useRunningSheet(eventId: string | null) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sectionLabel, setSectionLabel] = useState(
-    (cached?.sectionLabel === 'Running Sheet' ? 'Run Sheet' : cached?.sectionLabel) ?? 'Run Sheet'
+    (cached?.sectionLabel?.trim().toLowerCase() === 'running sheet' ? 'Run Sheet' : cached?.sectionLabel) ?? 'Run Sheet'
   );
   const [sectionNotes, setSectionNotes] = useState<string | null>(cached?.sectionNotes ?? null);
   const [shareTokens, setShareTokens] = useState<RunningSheetShareToken[]>(cached?.shareTokens ?? []);
@@ -130,7 +130,7 @@ export function useRunningSheet(eventId: string | null) {
       setSheet({ id: sheetId, event_id: eventId, user_id: sheetData?.user_id || '', items: items || [] });
       if (sheetData?.section_label != null) {
         const lbl = sheetData.section_label || 'Run Sheet';
-        setSectionLabel(lbl === 'Running Sheet' ? 'Run Sheet' : lbl);
+        setSectionLabel(lbl.trim().toLowerCase() === 'running sheet' ? 'Run Sheet' : lbl);
       }
       if (sheetData?.section_notes !== undefined) setSectionNotes(sheetData.section_notes);
 
