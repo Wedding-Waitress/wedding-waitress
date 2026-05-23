@@ -24,6 +24,9 @@ import {
   type ReceptionPdfPageSize,
   type ReceptionPdfEvent,
 } from '@/lib/receptionFloorPlanPdfExporter';
+import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
+import { RoomShapePanel } from './RoomShapePanel';
+import { ShareLinkPanel } from './ShareLinkPanel';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
