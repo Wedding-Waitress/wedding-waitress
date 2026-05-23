@@ -383,10 +383,8 @@ const drawBackground = (
       const gs = new GStateCtor({ opacity });
       (pdf as unknown as { setGState: (gs: unknown) => void }).setGState(gs);
     }
-    // Clip to the room rectangle so any overflow is hidden.
-    pdf.rect(roomX, roomY, roomW, roomH);
-    (pdf as unknown as { clip: () => void; discardPath: () => void }).clip();
-    (pdf as unknown as { discardPath: () => void }).discardPath();
+    // Clip to the room polygon (or rectangle) so any overflow is hidden.
+    clipToRoom(pdf, ctx, polygon);
     pdf.addImage(imageData as string, format, renderX, renderY, renderW, renderH, undefined, 'FAST');
   } catch (err) {
     console.warn('[receptionFloorPlanPdfExporter] background draw failed', err);
