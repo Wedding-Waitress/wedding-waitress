@@ -13,12 +13,13 @@ interface ReceptionFloorPlanPageProps {
 }
 
 /**
- * Phase 1A — Step 3
- * Room canvas + drag/drop synced tables + rotate / lock / auto chairs.
+ * Phase 1A — Step 5
+ * Room canvas + synced tables + fixtures + capacity banner.
  */
 export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPageProps) => {
   const { tables, loading: tablesLoading } = useReceptionTables(selectedEventId);
   const { plan, loading: planLoading, saving, update } = useReceptionFloorPlan(selectedEventId);
+  const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
 
   const loading = tablesLoading || planLoading || !plan;
 
