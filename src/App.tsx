@@ -23,6 +23,7 @@ const CookiePolicy = lazy(() => import("./pages/CookiePolicy").then(m => ({ defa
 const DJMCPublicView = lazy(() => import("./pages/DJMCPublicView").then(m => ({ default: m.DJMCPublicView })));
 const RunningSheetPublicView = lazy(() => import("./pages/RunningSheetPublicView").then(m => ({ default: m.RunningSheetPublicView })));
 const SeatingChartPublicView = lazy(() => import("./pages/SeatingChartPublicView").then(m => ({ default: m.SeatingChartPublicView })));
+const ReceptionFloorPlanShareView = lazy(() => import("./pages/ReceptionFloorPlanShareView").then(m => ({ default: m.ReceptionFloorPlanShareView })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const UpgradePricing = lazy(() => import("./pages/UpgradePricing").then(m => ({ default: m.UpgradePricing })));
 const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
