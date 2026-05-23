@@ -172,6 +172,13 @@ const setRgb = (pdf: jsPDF, fn: 'fill' | 'draw' | 'text', rgb: [number, number, 
 };
 
 // -------------------- Header --------------------
+const APPROVAL_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  sent_to_venue: 'Sent to Venue',
+  approved: 'Approved by Venue',
+  final: 'Final',
+};
+
 const drawHeader = (
   pdf: jsPDF,
   pageW: number,
@@ -227,12 +234,28 @@ const drawHeader = (
   pdf.text(counts, pageW / 2, y + 2, { align: 'center' });
   y += 4;
 
+  // Approval status badge (right-aligned, small)
+  const status = APPROVAL_LABELS[plan.approval_status] || 'Draft';
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(8);
+  const badgeText = `Status: ${status}`;
+  const badgeW = pdf.getTextWidth(badgeText) + 6;
+  const badgeX = pageW - MARGIN - badgeW;
+  const badgeY = y + 1;
+  setRgb(pdf, 'fill', [245, 240, 232]);
+  setRgb(pdf, 'draw', BRAND_BROWN);
+  pdf.setLineWidth(0.3);
+  pdf.roundedRect(badgeX, badgeY - 3.5, badgeW, 5, 1, 1, 'FD');
+  setRgb(pdf, 'text', BRAND_BROWN);
+  pdf.text(badgeText, badgeX + badgeW / 2, badgeY + 0.2, { align: 'center' });
+
   // Divider
   setRgb(pdf, 'draw', BRAND_BROWN);
   pdf.setLineWidth(0.4);
-  pdf.line(MARGIN, y + 2, pageW - MARGIN, y + 2);
-  return y + 2;
+  pdf.line(MARGIN, y + 4, pageW - MARGIN, y + 4);
+  return y + 4;
 };
+
 
 // -------------------- Footer --------------------
 const drawFooter = (pdf: jsPDF, pageW: number, pageH: number) => {
