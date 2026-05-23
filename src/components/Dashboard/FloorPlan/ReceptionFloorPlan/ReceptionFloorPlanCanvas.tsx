@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Lock, Unlock, RotateCw, Trash2 } from 'lucide-react';
+import { Lock, Unlock, RotateCw, Trash2, StickyNote } from 'lucide-react';
+
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type {
@@ -27,6 +28,8 @@ interface Props {
   tables: ReceptionTable[];
   backgroundUrl: string | null;
   onChange: (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => void;
+  /** Notifies parent when the selected table changes (for Table Note panel). */
+  onSelectedTableChange?: (id: string | null) => void;
 }
 
 export const ReceptionFloorPlanCanvas = ({
@@ -34,7 +37,9 @@ export const ReceptionFloorPlanCanvas = ({
   tables,
   backgroundUrl,
   onChange,
+  onSelectedTableChange,
 }: Props) => {
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [guides, setGuides] = useState<SnapTarget[]>([]);
@@ -69,6 +74,14 @@ export const ReceptionFloorPlanCanvas = ({
       window.removeEventListener('keyup', up);
     };
   }, []);
+  // Notify parent of selected table changes (for the Table Note panel).
+  useEffect(() => {
+    if (!onSelectedTableChange) return;
+    onSelectedTableChange(
+      selection?.kind === 'table' ? selection.id : null
+    );
+  }, [selection, onSelectedTableChange]);
+
 
   const placedIds = useMemo(
     () => new Set(plan.table_positions.map((p) => p.table_id)),
@@ -752,6 +765,23 @@ const PlacedTable = ({
         </span>
       </div>
 
+      {pos.note && pos.note.trim().length > 0 && (
+        <div
+          title={pos.note}
+          style={{
+            position: 'absolute',
+            top: -6,
+            right: -6,
+            transform: `rotate(${-pos.rotation}deg)`,
+            transformOrigin: 'center center',
+            zIndex: 3,
+          }}
+          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-400 text-amber-900 border-2 border-white shadow pointer-events-none"
+        >
+          <StickyNote className="w-3 h-3" />
+        </div>
+      )}
+
       {selected && (
         <SelectionToolbar
           rotation={pos.rotation}
@@ -764,6 +794,7 @@ const PlacedTable = ({
     </div>
   );
 };
+
 
 // ---------- PlacedFixture ----------
 interface PlacedFixtureProps {

@@ -103,6 +103,8 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
         room_polygon: parsePolygon(r.room_polygon),
         share_enabled: true,
         share_token: token,
+        approval_status: ((r.approval_status as string | null) ?? 'draft') as ReceptionFloorPlan['approval_status'],
+        vendor_notes: (r.vendor_notes as string | null) ?? '',
         last_saved_at: String(r.last_saved_at ?? new Date().toISOString()),
       };
       const e = raw.event;

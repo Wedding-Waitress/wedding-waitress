@@ -10,7 +10,10 @@ export interface TablePosition {
   y: number;
   rotation: number; // degrees
   locked: boolean;
+  /** Optional short note attached to this placed table (e.g. "Elderly guests"). */
+  note?: string;
 }
+
 
 export interface Fixture {
   id: string;
@@ -52,6 +55,8 @@ export interface RoomPolygon {
   points: Array<{ x: number; y: number }>;
 }
 
+export type ApprovalStatus = 'draft' | 'sent_to_venue' | 'approved' | 'final';
+
 export interface ReceptionFloorPlan {
   id: string;
   event_id: string;
@@ -66,8 +71,13 @@ export interface ReceptionFloorPlan {
   room_polygon: RoomPolygon | null;
   share_enabled: boolean;
   share_token: string | null;
+  /** Approval workflow status for the venue. */
+  approval_status: ApprovalStatus;
+  /** Free-text vendor / setup notes. */
+  vendor_notes: string;
   last_saved_at: string;
 }
+
 
 const fromRow = (row: Row): ReceptionFloorPlan => {
   const rawPoly = (row as unknown as { room_polygon?: unknown }).room_polygon;
@@ -110,6 +120,8 @@ const fromRow = (row: Row): ReceptionFloorPlan => {
     room_polygon: polygon,
     share_enabled: !!(row as unknown as { share_enabled?: boolean }).share_enabled,
     share_token: (row as unknown as { share_token?: string | null }).share_token ?? null,
+    approval_status: (((row as unknown as { approval_status?: string }).approval_status as ApprovalStatus) ?? 'draft') as ApprovalStatus,
+    vendor_notes: (row as unknown as { vendor_notes?: string | null }).vendor_notes ?? '',
     last_saved_at: row.last_saved_at,
   };
 };
@@ -218,11 +230,13 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         background_opacity: next.background.opacity,
         background_locked: next.background.locked,
         background_visible: next.background.visible,
-        // Phase 2: room polygon + share token (typed loosely; columns added via migration)
+        // Phase 2/5: room polygon, share token, approval + vendor notes (typed loosely; columns added via migration)
         ...({
           room_polygon: next.room_polygon as unknown,
           share_enabled: next.share_enabled,
           share_token: next.share_token,
+          approval_status: next.approval_status,
+          vendor_notes: next.vendor_notes ?? '',
         } as Record<string, unknown>),
         last_saved_at: new Date().toISOString(),
       })

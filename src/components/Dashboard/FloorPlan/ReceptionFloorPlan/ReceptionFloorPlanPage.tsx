@@ -31,6 +31,10 @@ import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 import { SmartIntelligencePanel } from './SmartIntelligencePanel';
 import { AutoLayoutPanel } from './AutoLayoutPanel';
+import { ApprovalStatusPanel } from './ApprovalStatusPanel';
+import { VendorNotesPanel } from './VendorNotesPanel';
+import { TableNotePanel } from './TableNotePanel';
+
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
@@ -61,8 +65,10 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const [calibrating, setCalibrating] = useState(false);
   const [chooseVenueOpen, setChooseVenueOpen] = useState(false);
   const [submitTemplateOpen, setSubmitTemplateOpen] = useState(false);
+  const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
 
   const loading = tablesLoading || planLoading || !plan;
+
 
   const handleReset = (scope: 'tables' | 'fixtures' | 'all') => {
     update((p) => ({
@@ -305,6 +311,8 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             </div>
 
 
+            <ApprovalStatusPanel plan={plan} onChange={update} />
+
             <ReceptionCapacityBanner
               plan={plan}
               tables={tables}
@@ -340,12 +348,24 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               onRevoke={revokeShareToken}
             />
 
+            <TableNotePanel
+              plan={plan}
+              tables={tables}
+              selectedTableId={selectedTableId}
+              onClose={() => setSelectedTableId(null)}
+              onChange={update}
+            />
+
             <ReceptionFloorPlanCanvas
               plan={plan}
               tables={tables}
               backgroundUrl={backgroundUrl}
               onChange={update}
+              onSelectedTableChange={setSelectedTableId}
             />
+
+            <VendorNotesPanel plan={plan} onChange={update} />
+
           </>
         )}
 

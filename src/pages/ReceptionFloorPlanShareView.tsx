@@ -4,7 +4,8 @@
  */
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Loader2, FileDown, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Loader2, FileDown, ChevronDown, LayoutGrid, StickyNote, ClipboardList } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -89,7 +90,11 @@ export const ReceptionFloorPlanShareView = () => {
               <p className="text-xs text-muted-foreground truncate">
                 {[couple, event.venue, event.date].filter(Boolean).join(' · ')}
               </p>
+              <span className="inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#967A59]/40 bg-[#967A59]/10 text-[#7a6347]">
+                {({ draft: 'Draft', sent_to_venue: 'Sent to Venue', approved: 'Approved by Venue', final: 'Final' } as Record<string, string>)[plan.approval_status] || 'Draft'}
+              </span>
             </div>
+
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -229,9 +234,25 @@ export const ReceptionFloorPlanShareView = () => {
                           {t.name || `T${t.table_no}`}
                         </span>
                       </div>
+                      {pos.note && pos.note.trim().length > 0 && (
+                        <div
+                          title={pos.note}
+                          style={{
+                            position: 'absolute',
+                            top: -6,
+                            right: -6,
+                            transform: `rotate(${-pos.rotation}deg)`,
+                            zIndex: 3,
+                          }}
+                          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-400 text-amber-900 border-2 border-white shadow"
+                        >
+                          <StickyNote className="w-3 h-3" />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
+
                 {polygon && (
                   <svg
                     className="pointer-events-none absolute inset-0"
@@ -246,12 +267,54 @@ export const ReceptionFloorPlanShareView = () => {
             </div>
           </PinchZoomContainer>
         </div>
-        <p className="mt-3 text-center text-xs text-muted-foreground">
+        {(() => {
+          const tableNotes = plan.table_positions
+            .map((pos) => {
+              const t = tables.find((tt) => tt.id === pos.table_id);
+              const label = t?.name || (t ? `Table ${t.table_no}` : 'Table');
+              const note = (pos.note ?? '').trim();
+              return note ? { label, note } : null;
+            })
+            .filter((x): x is { label: string; note: string } => !!x);
+          const vendorNotes = (plan.vendor_notes ?? '').trim();
+          if (!tableNotes.length && !vendorNotes) return null;
+          return (
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {tableNotes.length > 0 && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-2">
+                    <StickyNote className="w-4 h-4 text-[#967A59]" /> Table notes
+                  </div>
+                  <ul className="space-y-1.5 text-sm">
+                    {tableNotes.map((tn) => (
+                      <li key={tn.label} className="text-foreground">
+                        <span className="font-medium text-[#7a6347]">{tn.label}:</span>{' '}
+                        <span className="text-muted-foreground">{tn.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {vendorNotes && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-2">
+                    <ClipboardList className="w-4 h-4 text-[#967A59]" /> Vendor setup notes
+                  </div>
+                  <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                    {vendorNotes}
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           Shared read-only view · Wedding Waitress
         </p>
       </main>
     </div>
   );
 };
+
 
 export default ReceptionFloorPlanShareView;

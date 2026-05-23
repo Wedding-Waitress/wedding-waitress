@@ -172,6 +172,13 @@ const setRgb = (pdf: jsPDF, fn: 'fill' | 'draw' | 'text', rgb: [number, number, 
 };
 
 // -------------------- Header --------------------
+const APPROVAL_LABELS: Record<string, string> = {
+  draft: 'Draft',
+  sent_to_venue: 'Sent to Venue',
+  approved: 'Approved by Venue',
+  final: 'Final',
+};
+
 const drawHeader = (
   pdf: jsPDF,
   pageW: number,
@@ -227,12 +234,28 @@ const drawHeader = (
   pdf.text(counts, pageW / 2, y + 2, { align: 'center' });
   y += 4;
 
+  // Approval status badge (right-aligned, small)
+  const status = APPROVAL_LABELS[plan.approval_status] || 'Draft';
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(8);
+  const badgeText = `Status: ${status}`;
+  const badgeW = pdf.getTextWidth(badgeText) + 6;
+  const badgeX = pageW - MARGIN - badgeW;
+  const badgeY = y + 1;
+  setRgb(pdf, 'fill', [245, 240, 232]);
+  setRgb(pdf, 'draw', BRAND_BROWN);
+  pdf.setLineWidth(0.3);
+  pdf.roundedRect(badgeX, badgeY - 3.5, badgeW, 5, 1, 1, 'FD');
+  setRgb(pdf, 'text', BRAND_BROWN);
+  pdf.text(badgeText, badgeX + badgeW / 2, badgeY + 0.2, { align: 'center' });
+
   // Divider
   setRgb(pdf, 'draw', BRAND_BROWN);
   pdf.setLineWidth(0.4);
-  pdf.line(MARGIN, y + 2, pageW - MARGIN, y + 2);
-  return y + 2;
+  pdf.line(MARGIN, y + 4, pageW - MARGIN, y + 4);
+  return y + 4;
 };
+
 
 // -------------------- Footer --------------------
 const drawFooter = (pdf: jsPDF, pageW: number, pageH: number) => {
@@ -546,6 +569,36 @@ const drawLegend = (
   pdf.text(`Guest tables · ${positions.length} placed · ${placedSeats} seats`, x + 7, cursorY + 2);
   cursorY += 7;
 
+  // Table notes (if any)
+  const tableNotes = positions
+    .map((p) => {
+      const t = tables.find((tt) => tt.id === p.table_id);
+      const label = t?.name || (t ? `T${t.table_no}` : 'Table');
+      const note = (p.note ?? '').trim();
+      return note ? { label, note } : null;
+    })
+    .filter((x): x is { label: string; note: string } => !!x);
+
+  if (tableNotes.length > 0) {
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(8);
+    setRgb(pdf, 'text', TEXT_DARK);
+    pdf.text('Table notes', x, cursorY);
+    cursorY += 3.5;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7);
+    setRgb(pdf, 'text', TEXT_DARK);
+    for (const tn of tableNotes) {
+      if (cursorY + 3 > contentBottom) break;
+      const line = `• ${tn.label}: ${tn.note}`;
+      const wrapped = pdf.splitTextToSize(line, LEGEND_WIDTH);
+      pdf.text(wrapped, x, cursorY);
+      cursorY += wrapped.length * 3 + 0.4;
+    }
+    cursorY += 3;
+  }
+
+
   // Fixtures heading
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(8);
@@ -661,6 +714,23 @@ export const generateReceptionFloorPlanPDF = async (
 
   drawLegend(pdf, pageW, contentTop, contentBottom, plan.fixtures, tables, plan.table_positions);
   drawFooter(pdf, pageW, pageH);
+
+  // Vendor setup notes — append on a second page if present.
+  const vendorNotes = (plan.vendor_notes ?? '').trim();
+  if (vendorNotes) {
+    pdf.addPage(pageSize, 'portrait');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    setRgb(pdf, 'text', BRAND_BROWN);
+    pdf.text('Vendor Setup Notes', MARGIN, MARGIN + 4);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    setRgb(pdf, 'text', TEXT_DARK);
+    const wrapped = pdf.splitTextToSize(vendorNotes, pageW - MARGIN * 2);
+    pdf.text(wrapped, MARGIN, MARGIN + 12);
+    drawFooter(pdf, pageW, pageH);
+  }
+
 
   const filename = `${sanitizeFilename(event.name)}-Reception-FloorPlan-${formatDateForFilename(
     event.date
