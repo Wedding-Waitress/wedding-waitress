@@ -58,7 +58,7 @@ export const SubmitTemplateDialog = ({ open, onOpenChange, plan, backgroundUrl }
       },
     });
     setSubmitting(false);
-    if (res.ok) {
+    if (res.ok === true) {
       toast({
         title: 'Submitted for review',
         description:
