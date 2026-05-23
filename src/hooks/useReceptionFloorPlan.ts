@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import type { FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
 
 export interface TablePosition {
   table_id: string;
@@ -8,6 +9,18 @@ export interface TablePosition {
   y: number;
   rotation: number; // degrees
   locked: boolean;
+}
+
+export interface Fixture {
+  id: string;
+  type: FixtureType;
+  x: number; // meters (center)
+  y: number;
+  width_m: number;
+  height_m: number;
+  rotation: number;
+  locked: boolean;
+  label?: string;
 }
 
 type Row = Database['public']['Tables']['reception_floor_plans']['Row'];
