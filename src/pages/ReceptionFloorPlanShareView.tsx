@@ -90,7 +90,11 @@ export const ReceptionFloorPlanShareView = () => {
               <p className="text-xs text-muted-foreground truncate">
                 {[couple, event.venue, event.date].filter(Boolean).join(' · ')}
               </p>
+              <span className="inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#967A59]/40 bg-[#967A59]/10 text-[#7a6347]">
+                {({ draft: 'Draft', sent_to_venue: 'Sent to Venue', approved: 'Approved by Venue', final: 'Final' } as Record<string, string>)[plan.approval_status] || 'Draft'}
+              </span>
             </div>
+
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
