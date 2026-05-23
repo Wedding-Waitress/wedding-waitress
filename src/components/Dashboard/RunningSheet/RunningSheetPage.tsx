@@ -115,7 +115,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
     setDownloadingPDF(true);
     try {
       await exportRunningSheetPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes);
-      toast({ title: 'PDF Downloaded', description: 'Your Running Sheet has been downloaded.' });
+      toast({ title: 'PDF Downloaded', description: 'Your Run Sheet has been downloaded.' });
     } catch (error) {
       console.error('Failed to download PDF:', error);
       toast({ title: 'Download Failed', description: 'There was an error generating the PDF.', variant: 'destructive' });
@@ -144,7 +144,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
             <ClipboardList className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Running Sheet</h1>
+            <h1 className="text-2xl font-bold">Run Sheet</h1>
             <p className="text-sm text-muted-foreground">
               Organise the perfect schedule for your wedding or event
             </p>
@@ -170,7 +170,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full">
                 <div className="text-sm">
                   <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your running sheet and share it with your DJ-MC or any of your vendors.</span>
+                  <span className="text-muted-foreground ml-2">Download your run sheet and share it with your DJ-MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-sm:flex-col max-sm:items-stretch">
                   <button
@@ -200,14 +200,14 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
             <ClipboardList className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Select an event to start planning your running sheet</p>
+            <p>Select an event to start planning your run sheet</p>
           </CardContent>
         </Card>
       ) : loading ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary" />
-            <p className="mt-4 text-muted-foreground">Loading running sheet...</p>
+            <p className="mt-4 text-muted-foreground">Loading run sheet...</p>
           </CardContent>
         </Card>
       ) : sheet ? (

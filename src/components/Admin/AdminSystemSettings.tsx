@@ -88,9 +88,9 @@ export const AdminSystemSettings = () => {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="runningSheet">Running Sheet</Label>
+              <Label htmlFor="runningSheet">Run Sheet</Label>
               <p className="text-sm text-muted-foreground">
-                Enable running sheet feature for all users
+                Enable run sheet feature for all users
               </p>
             </div>
             <Switch
@@ -100,7 +100,7 @@ export const AdminSystemSettings = () => {
                 setFeatureFlags(prev => ({ ...prev, runningSheet: !prev.runningSheet }));
                 toast({
                   title: 'Feature Updated',
-                  description: `Running Sheet is now ${!featureFlags.runningSheet ? 'enabled' : 'disabled'}. Update featureFlags.ts to persist.`,
+                  description: `Run Sheet is now ${!featureFlags.runningSheet ? 'enabled' : 'disabled'}. Update featureFlags.ts to persist.`,
                 });
               }}
             />

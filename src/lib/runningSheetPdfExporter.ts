@@ -56,7 +56,7 @@ const formatPdfFileDate = (dateString: string | null | undefined): string => {
 };
 
 const getRunningSheetPdfFileName = (event: Event): string => {
-  return `${event.name}-Running Sheet-${formatPdfFileDate(event.date)}.pdf`;
+  return `${event.name}-Run Sheet-${formatPdfFileDate(event.date)}.pdf`;
 };
 
 const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
@@ -164,7 +164,7 @@ const generateRunningSheetHTML = (
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
         <div style="font-size:22px;font-weight:bold;color:#967A59;">${escapeHtml(event.name)}</div>
-        <div style="font-size:16px;color:#222;margin-top:4px;">Running Sheet</div>
+        <div style="font-size:16px;color:#222;margin-top:4px;">Run Sheet</div>
       </div>
       <!-- Event details -->
       <div style="text-align:center;margin-bottom:6px;">
@@ -254,7 +254,7 @@ const drawTopMarginOverlay = (pdf: jsPDF) => {
 export const exportRunningSheetPDF = async (
   items: RunningSheetItem[],
   event: Event,
-  sectionLabel: string = 'Running Sheet',
+  sectionLabel: string = 'Run Sheet',
   sectionNotes: string | null = null
 ): Promise<void> => {
   void sectionLabel;

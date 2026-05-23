@@ -107,10 +107,10 @@ export function RunningSheetShareModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
-            Share Running Sheet
+            Share Run Sheet
           </DialogTitle>
           <DialogDescription>
-            Share this running sheet with your DJ, MC, venue, or wedding party.
+            Share this run sheet with your DJ, MC, venue, or wedding party.
           </DialogDescription>
         </DialogHeader>
 
