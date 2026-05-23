@@ -586,9 +586,23 @@ export const generateReceptionFloorPlanPDF = async (
 
   const ctx: RenderContext = { pdf, pageW, pageH, roomX, roomY, roomW, roomH, mmPerM };
 
-  drawRoom(ctx, plan.grid_size_cm);
+  // Pre-load venue background image (silent fallback if anything fails).
+  let bgImage: LoadedBackground | null = null;
+  if (
+    plan.background?.path &&
+    plan.background.visible &&
+    plan.background.width &&
+    plan.background.height
+  ) {
+    bgImage = await loadBackgroundImage(plan.background.path);
+  }
+
+  drawRoomFill(ctx);
+  if (bgImage) drawBackground(ctx, plan.background, bgImage);
+  drawRoomGrid(ctx, plan.grid_size_cm);
   drawFixtures(ctx, plan.fixtures);
   drawTables(ctx, plan.table_positions, tables);
+  drawRoomBorder(ctx);
 
   // Room caption under the room
   pdf.setFont('helvetica', 'italic');
