@@ -305,22 +305,9 @@ export const GuestLookup: React.FC = () => {
             };
         setEvent(eventData);
 
-        // Fetch song request settings (silently ignore errors)
-        try {
-          const { data: srData } = await (supabase as any).rpc('get_guest_song_request_settings_public', {
-            _event_id: firstRow.event_id,
-          });
-          if (Array.isArray(srData) && srData.length > 0) {
-            setSongRequestSettings({
-              enabled: !!srData[0].enabled,
-              max_requests_per_guest: Number(srData[0].max_requests_per_guest) || 2,
-            });
-          } else {
-            setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
-          }
-        } catch {
-          setSongRequestSettings({ enabled: false, max_requests_per_guest: 0 });
-        }
+        // Song request settings are fetched by a dedicated effect keyed on event.id
+
+
 
         // Transform guest data
         const transformedGuests = publicData
