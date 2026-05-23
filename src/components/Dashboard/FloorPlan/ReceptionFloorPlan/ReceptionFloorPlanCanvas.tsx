@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Lock, Unlock, RotateCw, Trash2 } from 'lucide-react';
+import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type {
   ReceptionFloorPlan,
@@ -7,6 +8,7 @@ import type {
   Fixture,
 } from '@/hooks/useReceptionFloorPlan';
 import { FIXTURE_CATALOG, FIXTURE_BY_TYPE, type FixtureType } from './fixtures';
+
 
 const PX_PER_M = 50; // visual scale
 
