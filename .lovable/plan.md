@@ -1,107 +1,60 @@
-## Phase 1B — Reception Floor Plan background upload
+## Phase 1C — Plan only: Background in PDF export
 
-Scope: **Reception Floor Plan only.** Zero changes to Ceremony, Tables, Guest List, Landing, dashboard shell, or any other page.
+Goal: Render the uploaded venue background inside the existing Reception Floor Plan PDF export (A4 / A3 / A2) so the printed plan matches what's on screen. No other behaviour changes. Phase 1B stays untouched.
 
-## What gets built
+### Scope
+- File touched: `src/lib/receptionFloorPlanPdfExporter.ts` only.
+- Page touched: Reception Floor Plan only. Ceremony, exporters of other pages, and all other modules are untouched.
+- No DB, storage, RLS, hook, or UI changes.
 
-### 1. Database (migration)
+### Behaviour
+- If `plan.background.path` is set AND `plan.background.visible` is true AND `width`/`height` are present → draw the image as the bottom layer of the room (under grid lines? → **above** the white room fill and **below** the grid + fixtures + tables, matching the on-screen stacking which keeps tables/fixtures above the image).
+- Honour `opacity`, `rotation`, and `x / y / width / height` (meters → mm using existing `mmPerM`).
+- If no background, or `visible = false`, the PDF renders exactly as today (zero visual diff).
+- Locked / unlocked state has no effect on the export (locking is editor-only).
 
-Extend the existing `reception_floor_plans` row with optional background fields (no new table, no breaking change):
+### Technical steps (in `receptionFloorPlanPdfExporter.ts`)
+1. Add a small helper `fetchBackgroundDataUrl(path)`:
+   - Resolve a fresh **signed URL** from the private bucket `reception-floor-plan-backgrounds` (1 h TTL, generated at export time — never embed long-lived URLs).
+   - `fetch` it, read as Blob, convert to data URL via `FileReader`.
+   - Detect format from blob `type` ('image/png' → 'PNG', 'image/jpeg' → 'JPEG'). PDFs were already converted to PNG on upload, so only PNG/JPEG appear here.
+   - Return `{ dataUrl, format, naturalW, naturalH }` (natural size via an offscreen `Image` for rotation bounds — optional).
+2. Extend `generateReceptionFloorPlanPDF(...)`:
+   - Before calling the existing draw sequence, `await fetchBackgroundDataUrl(plan.background.path)` if eligible.
+   - Pass the result into a new `drawBackground(ctx, bg, image)` step, invoked **after** `drawRoom` (white fill) and **before** `drawFixtures` / `drawTables`.
+3. New `drawBackground(ctx, bg, image)`:
+   - Compute `xMm = roomX + bg.x * mmPerM`, `yMm = roomY + bg.y * mmPerM`, `wMm = bg.width * mmPerM`, `hMm = bg.height * mmPerM`.
+   - Apply opacity using jsPDF `GState`:
+     ```ts
+     const gs = pdf.GState({ opacity: bg.opacity });
+     pdf.setGState(gs);
+     ```
+     and reset to `opacity: 1` immediately after the image draw.
+   - Apply rotation using `pdf.addImage(dataUrl, format, xMm, yMm, wMm, hMm, undefined, 'FAST', bg.rotation)` (jsPDF rotates around the image's top-left; matches on-screen `transform-origin: center`? → confirm in QA. If mismatch, pre-translate by half-size, rotate, draw, restore, using `pdf.saveGraphicsState()` / `pdf.restoreGraphicsState()` with a rotation matrix).
+   - Clip drawing to the room rectangle so any portion of the background outside the room (allowed by the editor) does not bleed onto the page margins:
+     ```ts
+     pdf.saveGraphicsState();
+     pdf.rect(roomX, roomY, roomW, roomH).clip();
+     // draw image
+     pdf.restoreGraphicsState();
+     ```
+4. Error handling:
+   - If signing or fetch fails, log a console warning, skip the background, and continue exporting (never break the export).
+   - Show no toast — silent fallback keeps parity with today's behaviour.
 
-- `background_path` text — storage path inside the private bucket (null = no background)
-- `background_mime` text — `'image/png' | 'image/jpeg'` (PDFs are rasterised to PNG on upload, so the stored asset is always an image)
-- `background_x_m` numeric default 0 — centre X in metres
-- `background_y_m` numeric default 0 — centre Y in metres
-- `background_width_m` numeric — rendered width in metres
-- `background_height_m` numeric — rendered height in metres
-- `background_rotation` numeric default 0 — degrees
-- `background_opacity` numeric default 0.6 — 0.1 to 1
-- `background_locked` boolean default false
-- `background_visible` boolean default true
+### QA checklist (post-implementation, not now)
+- A4 export with: no background → identical to current output (byte-level diff acceptable only in metadata).
+- A4 / A3 / A2 each with PNG, JPEG, and PDF-derived PNG backgrounds.
+- Opacity 0.1, 0.6, 1.0 all visibly correct.
+- Rotation 0°, 15°, 90°, 180° render in the expected position with correct centre.
+- Background extending outside the room is clipped at the room border in the PDF.
+- `visible = false` produces the same PDF as "no background".
+- Tables and fixtures always sit above the background in the rendered PDF.
 
-No RLS changes — existing event‑owner policies cover the new columns automatically.
+### Estimate
+~80–120 lines added to one file. No other code paths affected.
 
-### 2. Storage (migration)
-
-Create a **private** bucket `reception-floor-plan-backgrounds`. Files stored under `{auth.uid()}/{event_id}/{uuid}.png|jpg`. RLS on `storage.objects`:
-
-- Only the owner (folder name === `auth.uid()`) can `select`, `insert`, `update`, `delete`.
-- No public reads. The client fetches a short‑lived signed URL on demand.
-
-### 3. Hook updates — `src/hooks/useReceptionFloorPlan.ts`
-
-- Extend `ReceptionFloorPlan` type with the new background fields.
-- `fromRow` reads them; `persist` writes them.
-- Add `uploadBackground(file: File)` helper:
-  - Accept `image/png`, `image/jpeg`, `application/pdf`.
-  - For PDF: load `pdfjs-dist`, render **page 1 only** to an offscreen canvas at 2× scale, export PNG blob.
-  - For PNG/JPG: use as‑is.
-  - Upload to `reception-floor-plan-backgrounds/{uid}/{eventId}/{uuid}.{ext}` via `supabase.storage`.
-  - On success, save `background_path` + `background_mime`; default geometry to centre of room at half room width preserving aspect ratio; reset opacity to 0.6, visible true, locked false.
-  - Delete previous file when replacing.
-- Add `removeBackground()` → delete from storage + null out fields.
-- Add `signedBackgroundUrl` state (re‑signed every 50 min while page is open).
-
-### 4. UI — `ReceptionFloorPlanPage.tsx`
-
-New "Venue background" panel (collapsible card under Room dimensions, above the canvas), visible only on the Reception tab:
-
-- Upload button (`lv-premium-shade`, h-11 on mobile) → hidden `<input type="file" accept=".png,.jpg,.jpeg,.pdf">`.
-- "Replace" / "Remove" buttons when a background is loaded.
-- Opacity slider (0.1 → 1.0).
-- Visible toggle (pill style, gray/green, per mobile rules).
-- Lock/Unlock toggle.
-- Reset size to room toggle button.
-- Loading spinner during upload / PDF rasterisation.
-- All controls touch‑target ≥ 44px, full‑width single column on mobile.
-
-### 5. Canvas — `ReceptionFloorPlanCanvas.tsx`
-
-- Render the background as the **first absolutely‑positioned child** of the room div (so grid lines from the parent `backgroundImage` sit *under* it, and fixtures/tables sit *above* it — z‑index unchanged).
-- Geometry uses `position:absolute; left/top` in metres × `PX_PER_M`, `transform: translate(-50%,-50%) rotate(Xdeg)`, `opacity`, `pointer-events: auto` only when selected and unlocked.
-- New selection kind `'background'`:
-  - Click on background image (when unlocked + not in a table/fixture hit) selects it.
-  - Pointer drag moves it (clamped so its centre stays inside the room ± 2 m).
-  - Corner resize handle (bottom‑right) — scales width/height preserving aspect ratio.
-  - Same `SelectionToolbar` style: Rotate +15°, Lock/Unlock, Reset to room‑fit. (No Remove here — Remove lives in the Venue background panel to avoid accidents.)
-- Tables and fixtures continue to render after the background → always on top.
-
-### 6. PDF page 1 rasterisation
-
-- Add `pdfjs-dist` dependency. Use the worker via `?url` import (`import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'` and `GlobalWorkerOptions.workerSrc = workerUrl`).
-- Render only `getPage(1)` at viewport scale 2.0 → PNG blob via `canvas.toBlob`.
-- Hard fail with a toast if PDF is encrypted/empty.
-
-### 7. Mobile / tablet
-
-- Background panel matches mobile rules: full‑width inputs, ≥44 px controls, pill toggles green/gray, sticky upload button at the bottom of the panel.
-- Drag/resize works with `pointer-events` (already used for tables) — same touch behaviour.
-- `PinchZoomContainer` already wraps the canvas; background is inside it so it pinches with the room.
-
-### 8. PDF export parity
-
-`receptionFloorPlanPdfExporter.ts` is **not** modified in this phase. The exported PDF will continue to show only the white room + grid + fixtures + tables. Including the background in PDF export is **out of scope** for Phase 1B (per the request: "appear as a background layer behind the reception canvas").
-
-## Files touched (Reception scope only)
-
-- `supabase/migrations/<ts>_reception_floor_plan_background.sql` (new)
-- `src/integrations/supabase/types.ts` (regenerated by migration approval — not hand‑edited)
-- `src/hooks/useReceptionFloorPlan.ts` (extend)
-- `src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanPage.tsx` (add panel)
-- `src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanCanvas.tsx` (render + select + drag/resize background layer)
-- `src/components/Dashboard/FloorPlan/ReceptionFloorPlan/VenueBackgroundPanel.tsx` (new)
-- `src/lib/pdfFirstPageToPng.ts` (new helper)
-- `package.json` (add `pdfjs-dist`)
-
-## Verification before stopping
-
-1. Upload PNG → renders behind tables, opacity slider, drag, rotate, lock all work.
-2. Upload JPG → same.
-3. Upload PDF (multi‑page) → only page 1 rasterised, uploaded as PNG, renders.
-4. Refresh page → background persists with same geometry/opacity.
-5. Lock → drag/resize disabled; tables still draggable.
-6. Remove → file deleted from storage, row cleared.
-7. Tablet + mobile preview: controls full‑width, pinch‑zoom still works.
-8. Ceremony tab opens unchanged (sanity check).
-
-After verification I stop and report. No Phase 1C.
+### Out of scope (future, if requested)
+- Multi-page PDF backgrounds (only page 1 already supported via Phase 1B upload).
+- Vector PDF embedding (we rasterise to PNG at upload time — fine for print at 2× scale).
+- Background in the on-screen Ceremony tab.
