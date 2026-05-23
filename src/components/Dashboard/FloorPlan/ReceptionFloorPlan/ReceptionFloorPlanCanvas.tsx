@@ -533,6 +533,17 @@ export const ReceptionFloorPlanCanvas = ({
                   />
                 );
               })}
+              <AlignmentGuides guides={guides} roomW={roomW} roomH={roomH} pxPerM={PX_PER_M} />
+              {polygonPath && (
+                <svg
+                  className="pointer-events-none absolute inset-0"
+                  width={roomW}
+                  height={roomH}
+                  style={{ zIndex: 4 }}
+                >
+                  <path d={polygonPath} fill="none" stroke="#1D1D1F" strokeWidth={2} />
+                </svg>
+              )}
             </div>
           </div>
         </PinchZoomContainer>
