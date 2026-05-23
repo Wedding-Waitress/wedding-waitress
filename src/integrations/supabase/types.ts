@@ -2549,6 +2549,7 @@ export type Database = {
       }
       reception_floor_plans: {
         Row: {
+          approval_status: string
           background_height: number | null
           background_image_url: string | null
           background_locked: boolean
@@ -2575,9 +2576,11 @@ export type Database = {
           table_positions: Json
           updated_at: string
           user_id: string
+          vendor_notes: string | null
           zoom: number
         }
         Insert: {
+          approval_status?: string
           background_height?: number | null
           background_image_url?: string | null
           background_locked?: boolean
@@ -2604,9 +2607,11 @@ export type Database = {
           table_positions?: Json
           updated_at?: string
           user_id: string
+          vendor_notes?: string | null
           zoom?: number
         }
         Update: {
+          approval_status?: string
           background_height?: number | null
           background_image_url?: string | null
           background_locked?: boolean
@@ -2633,6 +2638,7 @@ export type Database = {
           table_positions?: Json
           updated_at?: string
           user_id?: string
+          vendor_notes?: string | null
           zoom?: number
         }
         Relationships: [

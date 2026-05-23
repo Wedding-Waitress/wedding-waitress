@@ -10,7 +10,10 @@ export interface TablePosition {
   y: number;
   rotation: number; // degrees
   locked: boolean;
+  /** Optional short note attached to this placed table (e.g. "Elderly guests"). */
+  note?: string;
 }
+
 
 export interface Fixture {
   id: string;
