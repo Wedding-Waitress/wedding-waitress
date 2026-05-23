@@ -165,6 +165,16 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             <ReceptionFloorPlanCanvas plan={plan} tables={tables} onChange={update} />
           </>
         )}
+
+        {plan && (
+          <ResetLayoutDialog
+            open={resetOpen}
+            onOpenChange={setResetOpen}
+            onConfirm={handleReset}
+            tableCount={plan.table_positions.length}
+            fixtureCount={plan.fixtures.length}
+          />
+        )}
       </CardContent>
     </Card>
   );
