@@ -29,6 +29,7 @@ import { RoomShapePanel } from './RoomShapePanel';
 import { ShareLinkPanel } from './ShareLinkPanel';
 import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
+import { SmartIntelligencePanel } from './SmartIntelligencePanel';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
