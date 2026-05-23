@@ -31,6 +31,10 @@ import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 import { SmartIntelligencePanel } from './SmartIntelligencePanel';
 import { AutoLayoutPanel } from './AutoLayoutPanel';
+import { ApprovalStatusPanel, labelForApproval } from './ApprovalStatusPanel';
+import { VendorNotesPanel } from './VendorNotesPanel';
+import { TableNotePanel } from './TableNotePanel';
+
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
