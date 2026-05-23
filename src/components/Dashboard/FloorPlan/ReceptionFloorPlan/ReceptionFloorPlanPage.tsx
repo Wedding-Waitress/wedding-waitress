@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LayoutGrid, Loader2, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { LayoutGrid, Loader2, CheckCircle2, RotateCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
 import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
+import { ResetLayoutDialog } from './ResetLayoutDialog';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
@@ -20,8 +24,27 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const { tables, loading: tablesLoading } = useReceptionTables(selectedEventId);
   const { plan, loading: planLoading, saving, update } = useReceptionFloorPlan(selectedEventId);
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
+  const { toast } = useToast();
+  const [resetOpen, setResetOpen] = useState(false);
 
   const loading = tablesLoading || planLoading || !plan;
+
+  const handleReset = (scope: 'tables' | 'fixtures' | 'all') => {
+    update((p) => ({
+      ...p,
+      table_positions: scope === 'fixtures' ? p.table_positions : [],
+      fixtures: scope === 'tables' ? p.fixtures : [],
+    }));
+    toast({
+      title: 'Layout reset',
+      description:
+        scope === 'tables'
+          ? 'All placed tables were returned to the unplaced tray.'
+          : scope === 'fixtures'
+          ? 'All fixtures were removed.'
+          : 'The reception floor plan was fully cleared.',
+    });
+  };
 
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
@@ -32,17 +55,29 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             <h2 className="text-xl font-bold text-foreground">Reception Floor Plan</h2>
           </div>
           {plan && (
-            <div className="text-xs text-muted-foreground flex items-center gap-1">
-              {saving ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Saved{' '}
-                  {new Date(plan.last_saved_at).toLocaleTimeString()}
-                </>
-              )}
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                {saving ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Saved{' '}
+                    {new Date(plan.last_saved_at).toLocaleTimeString()}
+                  </>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="lv-premium-shade h-9"
+                onClick={() => setResetOpen(true)}
+                disabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                Reset layout
+              </Button>
             </div>
           )}
         </div>
@@ -129,6 +164,16 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
 
             <ReceptionFloorPlanCanvas plan={plan} tables={tables} onChange={update} />
           </>
+        )}
+
+        {plan && (
+          <ResetLayoutDialog
+            open={resetOpen}
+            onOpenChange={setResetOpen}
+            onConfirm={handleReset}
+            tableCount={plan.table_positions.length}
+            fixtureCount={plan.fixtures.length}
+          />
         )}
       </CardContent>
     </Card>
