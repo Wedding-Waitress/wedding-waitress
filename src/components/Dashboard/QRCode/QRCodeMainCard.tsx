@@ -1867,6 +1867,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+              </div>
 
               {/* Guest Song Requests Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
