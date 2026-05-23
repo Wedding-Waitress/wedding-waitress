@@ -175,7 +175,7 @@ export function RunningSheetShareModal({
                 {shareTokens.map((token) => (
                   <div key={token.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{token.recipient_name || 'Unnamed'}</div>
+                      <div className="font-medium text-sm truncate">{(token.recipient_name === 'Running Sheet' ? 'Run Sheet' : token.recipient_name) || 'Unnamed'}</div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className={`px-1.5 py-0.5 rounded ${
                           token.permission === 'can_edit'

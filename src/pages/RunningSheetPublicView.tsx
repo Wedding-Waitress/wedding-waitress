@@ -66,7 +66,7 @@ export function RunningSheetPublicView() {
   const lastSaveRef = useRef<number>(0);
   const saveStatusTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (opts?: { silent?: boolean }) => {
     if (!token) {
       setError('Invalid share link');
       setData(null);
@@ -75,7 +75,7 @@ export function RunningSheetPublicView() {
     }
     // Reset stale state when token changes so previous event data never flashes.
     setError(null);
-    setLoading(true);
+    if (!opts?.silent) setLoading(true);
     try {
       const { data: result, error: fetchError } = await supabase.rpc(
         'get_running_sheet_by_token',
@@ -113,7 +113,8 @@ export function RunningSheetPublicView() {
         permission: row.permission,
         items: parsedItems,
       });
-      setSectionLabel(row.section_label || 'Run Sheet');
+      const rawLabel = row.section_label || 'Run Sheet';
+      setSectionLabel(rawLabel === 'Running Sheet' ? 'Run Sheet' : rawLabel);
       setSectionNotes(row.section_notes || null);
     } catch (err) {
       console.error('Error:', err);
@@ -140,7 +141,7 @@ export function RunningSheetPublicView() {
       }, () => {
         // Skip self-triggered refetches to prevent feedback loop
         if (Date.now() - lastSaveRef.current < 2000) return;
-        fetchData();
+        fetchData({ silent: true });
       })
       .subscribe();
 
@@ -158,7 +159,7 @@ export function RunningSheetPublicView() {
         table: 'running_sheet_share_tokens',
         filter: `sheet_id=eq.${data.sheet_id}`,
       }, () => {
-        fetchData();
+        fetchData({ silent: true });
       })
       .subscribe();
 
@@ -177,7 +178,7 @@ export function RunningSheetPublicView() {
         filter: `id=eq.${data.sheet_id}`,
       }, () => {
         if (Date.now() - lastSaveRef.current < 2000) return;
-        fetchData();
+        fetchData({ silent: true });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -518,6 +519,8 @@ export function RunningSheetPublicView() {
             <img
               src="/wedding-waitress-logo-brown.png"
               alt="Wedding Waitress"
+              width={160}
+              height={40}
               className="h-10 w-auto"
             />
             <p className="text-xs text-muted-foreground">
