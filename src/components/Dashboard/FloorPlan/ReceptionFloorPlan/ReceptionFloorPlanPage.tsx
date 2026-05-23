@@ -4,19 +4,22 @@ import { Label } from '@/components/ui/label';
 import { LayoutGrid, Loader2, CheckCircle2 } from 'lucide-react';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
+import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
+import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
 }
 
 /**
- * Phase 1A — Step 3
- * Room canvas + drag/drop synced tables + rotate / lock / auto chairs.
+ * Phase 1A — Step 5
+ * Room canvas + synced tables + fixtures + capacity banner.
  */
 export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPageProps) => {
   const { tables, loading: tablesLoading } = useReceptionTables(selectedEventId);
   const { plan, loading: planLoading, saving, update } = useReceptionFloorPlan(selectedEventId);
+  const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
 
   const loading = tablesLoading || planLoading || !plan;
 
@@ -117,6 +120,12 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                 Chairs render automatically from each table's seat count.
               </p>
             </div>
+
+            <ReceptionCapacityBanner
+              plan={plan}
+              tables={tables}
+              attendingCount={attendingCount}
+            />
 
             <ReceptionFloorPlanCanvas plan={plan} tables={tables} onChange={update} />
           </>
