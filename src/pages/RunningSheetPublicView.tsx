@@ -73,6 +73,9 @@ export function RunningSheetPublicView() {
       setLoading(false);
       return;
     }
+    // Mark this fetch so realtime echoes (e.g. last_accessed_at bumps) are
+    // suppressed by the < 2s guards below and don't trigger an infinite loop.
+    lastSaveRef.current = Date.now();
     // Reset stale state when token changes so previous event data never flashes.
     setError(null);
     if (!opts?.silent) setLoading(true);
@@ -120,9 +123,12 @@ export function RunningSheetPublicView() {
       console.error('Error:', err);
       setError('Failed to load run sheet');
     } finally {
+      // Bump again so the post-fetch realtime echo window stays clear.
+      lastSaveRef.current = Date.now();
       setLoading(false);
     }
   }, [token]);
+
 
   useEffect(() => {
     fetchData();
@@ -148,9 +154,12 @@ export function RunningSheetPublicView() {
     return () => { supabase.removeChannel(channel); };
   }, [data?.sheet_id, fetchData]);
 
-  // Realtime subscription for permission changes on share tokens
+  // Realtime subscription for permission changes on share tokens.
+  // Guard against self-triggered echoes: opening this page bumps
+  // last_accessed_at on the token row, which would otherwise loop forever.
   useEffect(() => {
     if (!data?.sheet_id) return;
+    const currentPermission = data.permission;
     const channel = supabase
       .channel(`public-rs-tokens:${data.sheet_id}`)
       .on('postgres_changes', {
@@ -158,13 +167,20 @@ export function RunningSheetPublicView() {
         schema: 'public',
         table: 'running_sheet_share_tokens',
         filter: `sheet_id=eq.${data.sheet_id}`,
-      }, () => {
-        fetchData({ silent: true });
+      }, (payload: any) => {
+        if (Date.now() - lastSaveRef.current < 2000) return;
+        // Only refetch if the permission actually changed; ignore
+        // last_accessed_at / metadata-only updates.
+        const newPermission = payload?.new?.permission;
+        if (newPermission && newPermission !== currentPermission) {
+          fetchData({ silent: true });
+        }
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [data?.sheet_id, fetchData]);
+  }, [data?.sheet_id, data?.permission, fetchData]);
+
 
   // Realtime subscription for running_sheets meta changes (notes, label)
   useEffect(() => {
@@ -388,7 +404,7 @@ export function RunningSheetPublicView() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-10 print:static">
+      <header className="bg-card border-b border-border print:static">
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
