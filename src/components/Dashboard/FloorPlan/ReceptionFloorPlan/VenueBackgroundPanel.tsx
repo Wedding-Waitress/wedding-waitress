@@ -109,6 +109,17 @@ export const VenueBackgroundPanel = ({
               variant="outline"
               size="sm"
               className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
+              onClick={onCalibrate}
+              disabled={!onCalibrate || bg.locked}
+            >
+              <Ruler className="w-3.5 h-3.5 mr-1.5" />
+              Calibrate scale
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
               onClick={resetToRoom}
               disabled={bg.locked}
             >
