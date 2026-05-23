@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown } from 'lucide-react';
+import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown, Building2, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
@@ -27,6 +27,8 @@ import {
 import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
 import { RoomShapePanel } from './RoomShapePanel';
 import { ShareLinkPanel } from './ShareLinkPanel';
+import { ChooseVenueDialog } from './ChooseVenueDialog';
+import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
@@ -55,6 +57,8 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const [resetOpen, setResetOpen] = useState(false);
   const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
   const [calibrating, setCalibrating] = useState(false);
+  const [chooseVenueOpen, setChooseVenueOpen] = useState(false);
+  const [submitTemplateOpen, setSubmitTemplateOpen] = useState(false);
 
   const loading = tablesLoading || planLoading || !plan;
 
@@ -180,6 +184,37 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
           </div>
         ) : (
           <>
+            {/* Venue template directory actions */}
+            <div className="flex flex-wrap items-center gap-2 max-lg:flex-col max-lg:items-stretch rounded-lg border border-border bg-muted/10 p-3 max-lg:p-4">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <Building2 className="w-4 h-4 text-primary" />
+                Venue templates
+              </div>
+              <p className="text-xs text-muted-foreground flex-1 max-lg:text-center">
+                Start from an approved venue layout, or share yours with the directory.
+              </p>
+              <div className="flex items-center gap-2 max-lg:w-full">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
+                  onClick={() => setChooseVenueOpen(true)}
+                >
+                  <Building2 className="w-3.5 h-3.5 mr-1.5" />
+                  Choose venue
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
+                  onClick={() => setSubmitTemplateOpen(true)}
+                >
+                  <UploadCloud className="w-3.5 h-3.5 mr-1.5" />
+                  Submit as template
+                </Button>
+              </div>
+            </div>
+
             {/* Room dimensions */}
             <div className="flex flex-wrap items-end gap-4 max-lg:gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
               <div className="space-y-1 max-lg:w-full">
@@ -301,6 +336,24 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             backgroundUrl={backgroundUrl}
             onClose={() => setCalibrating(false)}
             onApply={update}
+          />
+        )}
+
+        {plan && (
+          <ChooseVenueDialog
+            open={chooseVenueOpen}
+            onOpenChange={setChooseVenueOpen}
+            plan={plan}
+            onApply={update}
+          />
+        )}
+
+        {plan && (
+          <SubmitTemplateDialog
+            open={submitTemplateOpen}
+            onOpenChange={setSubmitTemplateOpen}
+            plan={plan}
+            backgroundUrl={backgroundUrl}
           />
         )}
       </CardContent>
