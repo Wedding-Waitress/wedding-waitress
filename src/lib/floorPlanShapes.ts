@@ -86,3 +86,35 @@ export const ROOM_SHAPE_OPTIONS: { value: RoomShapeKind; label: string }[] = [
   { value: 'T', label: 'T-shape' },
   { value: 'custom', label: 'Custom polygon' },
 ];
+
+/** Ray-cast point-in-polygon. Polygon must be a simple closed polygon. */
+export const pointInPolygon = (pt: Pt, poly: RoomPolygon): boolean => {
+  const pts = poly.points;
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i].x, yi = pts[i].y;
+    const xj = pts[j].x, yj = pts[j].y;
+    const intersect =
+      yi > pt.y !== yj > pt.y &&
+      pt.x < ((xj - xi) * (pt.y - yi)) / (yj - yi + 1e-9) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+};
+
+/** Quick check: a centered AABB (width/height in meters) fits inside the polygon. */
+export const aabbInsidePolygon = (
+  cx: number,
+  cy: number,
+  w: number,
+  h: number,
+  poly: RoomPolygon
+): boolean => {
+  const corners: Pt[] = [
+    { x: cx - w / 2, y: cy - h / 2 },
+    { x: cx + w / 2, y: cy - h / 2 },
+    { x: cx + w / 2, y: cy + h / 2 },
+    { x: cx - w / 2, y: cy + h / 2 },
+  ];
+  return corners.every((c) => pointInPolygon(c, poly));
+};

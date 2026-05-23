@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Search, MapPin, Users, Ruler, Sparkles, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -25,17 +26,34 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
   const { templates, loading } = useApprovedVenueTemplates();
   const { toast } = useToast();
   const [query, setQuery] = useState('');
+  const [country, setCountry] = useState('all');
+  const [capacityBand, setCapacityBand] = useState('all');
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
 
+  const countries = useMemo(() => {
+    const s = new Set<string>();
+    templates.forEach((t) => { if (t.country) s.add(t.country); });
+    return Array.from(s).sort();
+  }, [templates]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return templates;
     return templates.filter((t) => {
+      if (featuredOnly && !t.featured) return false;
+      if (country !== 'all' && (t.country ?? '') !== country) return false;
+      if (capacityBand !== 'all') {
+        const c = t.capacity;
+        if (capacityBand === 's' && !(c > 0 && c <= 80)) return false;
+        if (capacityBand === 'm' && !(c > 80 && c <= 200)) return false;
+        if (capacityBand === 'l' && !(c > 200)) return false;
+      }
+      if (!q) return true;
       const hay = `${t.venue_name} ${t.room_name} ${t.city ?? ''} ${t.country ?? ''} ${t.capacity}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [templates, query]);
+  }, [templates, query, country, capacityBand, featuredOnly]);
 
   const selected = useMemo(
     () => filtered.find((t) => t.id === selectedId) || templates.find((t) => t.id === selectedId) || null,
@@ -80,7 +98,7 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
           </p>
         </DialogHeader>
 
-        <div className="px-6 max-lg:px-4 pt-3 pb-2">
+        <div className="px-6 max-lg:px-4 pt-3 pb-2 space-y-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -89,6 +107,33 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
               placeholder="Search by venue, room, or city…"
               className="pl-9 h-10 max-lg:h-11 max-lg:text-base"
             />
+          </div>
+          <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2">
+            <Select value={country} onValueChange={setCountry}>
+              <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Country" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All countries</SelectItem>
+                {countries.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={capacityBand} onValueChange={setCapacityBand}>
+              <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Capacity" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any capacity</SelectItem>
+                <SelectItem value="s">Up to 80</SelectItem>
+                <SelectItem value="m">81–200</SelectItem>
+                <SelectItem value="l">200+</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant={featuredOnly ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFeaturedOnly((v) => !v)}
+              className="lv-premium-shade h-9 max-lg:h-11 max-lg:text-base"
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Featured only
+            </Button>
           </div>
         </div>
 

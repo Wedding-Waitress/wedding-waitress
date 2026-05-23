@@ -30,6 +30,7 @@ import { ShareLinkPanel } from './ShareLinkPanel';
 import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 import { SmartIntelligencePanel } from './SmartIntelligencePanel';
+import { AutoLayoutPanel } from './AutoLayoutPanel';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
@@ -192,14 +193,15 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                 Venue templates
               </div>
               <p className="text-xs text-muted-foreground flex-1 max-lg:text-center">
-                Start from an approved venue layout, or share yours with the directory.
+                Start from an approved venue, share your own, or browse the public directory.
               </p>
-              <div className="flex items-center gap-2 max-lg:w-full">
+              <div className="flex items-center gap-2 max-lg:w-full max-lg:flex-wrap">
                 <Button
                   size="sm"
                   variant="outline"
                   className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
                   onClick={() => setChooseVenueOpen(true)}
+                  title="Load an approved venue layout into this floor plan"
                 >
                   <Building2 className="w-3.5 h-3.5 mr-1.5" />
                   Choose venue
@@ -209,12 +211,30 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                   variant="outline"
                   className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
                   onClick={() => setSubmitTemplateOpen(true)}
+                  title="Submit your current layout to the public venue directory"
                 >
                   <UploadCloud className="w-3.5 h-3.5 mr-1.5" />
                   Submit as template
                 </Button>
+                <a
+                  href="/venues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs underline text-primary hover:text-primary/80 max-lg:w-full max-lg:text-center"
+                >
+                  Browse public directory →
+                </a>
               </div>
             </div>
+
+            {/* Empty-state hint when no tables exist yet */}
+            {tables.length === 0 && (
+              <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-foreground/80">
+                <strong className="text-primary">No tables yet.</strong> Add tables in the
+                <span className="italic"> Tables</span> tab first — they'll appear here automatically
+                so you can drag them into the room.
+              </div>
+            )}
 
             {/* Room dimensions */}
             <div className="flex flex-wrap items-end gap-4 max-lg:gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
@@ -309,6 +329,8 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
                   : undefined
               }
             />
+
+            <AutoLayoutPanel plan={plan} tables={tables} onApply={update} />
 
             <RoomShapePanel plan={plan} onChange={update} />
 
