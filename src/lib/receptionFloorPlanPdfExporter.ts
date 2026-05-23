@@ -10,7 +10,13 @@
  */
 
 import jsPDF from 'jspdf';
-import type { ReceptionFloorPlan, TablePosition, Fixture, ReceptionBackground } from '@/hooks/useReceptionFloorPlan';
+import type {
+  ReceptionFloorPlan,
+  TablePosition,
+  Fixture,
+  ReceptionBackground,
+  RoomPolygon,
+} from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import { FIXTURE_BY_TYPE, type FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
@@ -267,20 +273,61 @@ const drawRoomGrid = (ctx: RenderContext, gridSizeCm: number) => {
   }
 };
 
-const drawRoomBorder = (ctx: RenderContext) => {
-  const { pdf, roomX, roomY, roomW, roomH } = ctx;
+const drawRoomBorder = (ctx: RenderContext, polygon?: RoomPolygon | null) => {
+  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
   setRgb(pdf, 'draw', TEXT_DARK);
   pdf.setLineWidth(0.6);
-  pdf.rect(roomX, roomY, roomW, roomH, 'S');
+  if (polygon && polygon.points.length >= 3) {
+    drawPolygonPath(pdf, polygon, roomX, roomY, mmPerM);
+    pdf.stroke();
+  } else {
+    pdf.rect(roomX, roomY, roomW, roomH, 'S');
+  }
+};
+
+// Build a polygon path on the PDF (no fill/stroke action). Caller decides.
+const drawPolygonPath = (
+  pdf: jsPDF,
+  polygon: RoomPolygon,
+  roomX: number,
+  roomY: number,
+  mmPerM: number
+) => {
+  const pts = polygon.points;
+  const p0 = pts[0];
+  // jsPDF lacks a high-level moveTo/lineTo, use pdf.lines with relative deltas
+  const lines: [number, number][] = [];
+  for (let i = 1; i < pts.length; i++) {
+    lines.push([(pts[i].x - pts[i - 1].x) * mmPerM, (pts[i].y - pts[i - 1].y) * mmPerM]);
+  }
+  // close
+  lines.push([(pts[0].x - pts[pts.length - 1].x) * mmPerM, (pts[0].y - pts[pts.length - 1].y) * mmPerM]);
+  pdf.lines(lines, roomX + p0.x * mmPerM, roomY + p0.y * mmPerM, [1, 1], null, true);
+};
+
+// Clip subsequent drawing to the room polygon (or rectangle when no polygon).
+const clipToRoom = (
+  pdf: jsPDF,
+  ctx: RenderContext,
+  polygon: RoomPolygon | null
+) => {
+  if (polygon && polygon.points.length >= 3) {
+    drawPolygonPath(pdf, polygon, ctx.roomX, ctx.roomY, ctx.mmPerM);
+  } else {
+    pdf.rect(ctx.roomX, ctx.roomY, ctx.roomW, ctx.roomH);
+  }
+  (pdf as unknown as { clip: () => void; discardPath: () => void }).clip();
+  (pdf as unknown as { discardPath: () => void }).discardPath();
 };
 
 // -------------------- Background image --------------------
 const drawBackground = (
   ctx: RenderContext,
   bg: ReceptionBackground,
-  img: LoadedBackground
+  img: LoadedBackground,
+  polygon: RoomPolygon | null
 ) => {
-  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
+  const { pdf, roomX, roomY, mmPerM } = ctx;
   if (!bg.width || !bg.height) return;
 
   const wMm = bg.width * mmPerM;
@@ -336,10 +383,8 @@ const drawBackground = (
       const gs = new GStateCtor({ opacity });
       (pdf as unknown as { setGState: (gs: unknown) => void }).setGState(gs);
     }
-    // Clip to the room rectangle so any overflow is hidden.
-    pdf.rect(roomX, roomY, roomW, roomH);
-    (pdf as unknown as { clip: () => void; discardPath: () => void }).clip();
-    (pdf as unknown as { discardPath: () => void }).discardPath();
+    // Clip to the room polygon (or rectangle) so any overflow is hidden.
+    clipToRoom(pdf, ctx, polygon);
     pdf.addImage(imageData as string, format, renderX, renderY, renderW, renderH, undefined, 'FAST');
   } catch (err) {
     console.warn('[receptionFloorPlanPdfExporter] background draw failed', err);
@@ -598,11 +643,11 @@ export const generateReceptionFloorPlanPDF = async (
   }
 
   drawRoomFill(ctx);
-  if (bgImage) drawBackground(ctx, plan.background, bgImage);
+  if (bgImage) drawBackground(ctx, plan.background, bgImage, plan.room_polygon);
   drawRoomGrid(ctx, plan.grid_size_cm);
   drawFixtures(ctx, plan.fixtures);
   drawTables(ctx, plan.table_positions, tables);
-  drawRoomBorder(ctx);
+  drawRoomBorder(ctx, plan.room_polygon);
 
   // Room caption under the room
   pdf.setFont('helvetica', 'italic');

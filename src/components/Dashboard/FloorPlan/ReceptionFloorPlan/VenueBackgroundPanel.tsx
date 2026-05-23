@@ -11,6 +11,7 @@ import {
   Unlock,
   Loader2,
   Maximize2,
+  Ruler,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
@@ -23,6 +24,7 @@ interface Props {
   ) => Promise<{ ok: true } | { ok: false; error: string }>;
   onRemove: () => void;
   onChange: (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => void;
+  onCalibrate?: () => void;
 }
 
 export const VenueBackgroundPanel = ({
@@ -31,6 +33,7 @@ export const VenueBackgroundPanel = ({
   onUpload,
   onRemove,
   onChange,
+  onCalibrate,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -101,6 +104,17 @@ export const VenueBackgroundPanel = ({
 
         {hasBackground && (
           <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
+              onClick={onCalibrate}
+              disabled={!onCalibrate || bg.locked}
+            >
+              <Ruler className="w-3.5 h-3.5 mr-1.5" />
+              Calibrate scale
+            </Button>
             <Button
               type="button"
               variant="outline"

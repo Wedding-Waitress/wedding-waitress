@@ -24,6 +24,9 @@ import {
   type ReceptionPdfPageSize,
   type ReceptionPdfEvent,
 } from '@/lib/receptionFloorPlanPdfExporter';
+import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
+import { RoomShapePanel } from './RoomShapePanel';
+import { ShareLinkPanel } from './ShareLinkPanel';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
@@ -44,11 +47,14 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
     uploadBackground,
     removeBackground,
     uploadingBackground,
+    generateShareToken,
+    revokeShareToken,
   } = useReceptionFloorPlan(selectedEventId);
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
   const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
+  const [calibrating, setCalibrating] = useState(false);
 
   const loading = tablesLoading || planLoading || !plan;
 
@@ -255,6 +261,19 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               onUpload={uploadBackground}
               onRemove={removeBackground}
               onChange={update}
+              onCalibrate={
+                plan.background.path && backgroundUrl
+                  ? () => setCalibrating(true)
+                  : undefined
+              }
+            />
+
+            <RoomShapePanel plan={plan} onChange={update} />
+
+            <ShareLinkPanel
+              plan={plan}
+              onGenerate={generateShareToken}
+              onRevoke={revokeShareToken}
             />
 
             <ReceptionFloorPlanCanvas
@@ -273,6 +292,15 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             onConfirm={handleReset}
             tableCount={plan.table_positions.length}
             fixtureCount={plan.fixtures.length}
+          />
+        )}
+
+        {plan && calibrating && backgroundUrl && (
+          <BackgroundCalibrationOverlay
+            plan={plan}
+            backgroundUrl={backgroundUrl}
+            onClose={() => setCalibrating(false)}
+            onApply={update}
           />
         )}
       </CardContent>
