@@ -113,11 +113,11 @@ export function RunningSheetPublicView() {
         permission: row.permission,
         items: parsedItems,
       });
-      setSectionLabel(row.section_label || 'Running Sheet');
+      setSectionLabel(row.section_label || 'Run Sheet');
       setSectionNotes(row.section_notes || null);
     } catch (err) {
       console.error('Error:', err);
-      setError('Failed to load running sheet');
+      setError('Failed to load run sheet');
     } finally {
       setLoading(false);
     }
