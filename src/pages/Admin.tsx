@@ -139,6 +139,10 @@ export const Admin = () => {
             <AdminInvitationTemplates />
           </TabsContent>
 
+          <TabsContent value="venues">
+            <AdminVenueTemplates />
+          </TabsContent>
+
           <TabsContent value="settings">
             <AdminSystemSettings />
           </TabsContent>
