@@ -470,6 +470,12 @@ export const ReceptionFloorPlanCanvas = ({
                 backgroundImage:
                   'linear-gradient(to right, rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px)',
                 backgroundSize: `${gridPx}px ${gridPx}px`,
+                ...(polygonPath
+                  ? ({
+                      clipPath: `path('${polygonPath}')`,
+                      WebkitClipPath: `path('${polygonPath}')`,
+                    } as React.CSSProperties)
+                  : {}),
               }}
             >
               {/* Background image (rendered first, sits under everything) */}
