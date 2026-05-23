@@ -324,9 +324,10 @@ const clipToRoom = (
 const drawBackground = (
   ctx: RenderContext,
   bg: ReceptionBackground,
-  img: LoadedBackground
+  img: LoadedBackground,
+  polygon: RoomPolygon | null
 ) => {
-  const { pdf, roomX, roomY, roomW, roomH, mmPerM } = ctx;
+  const { pdf, roomX, roomY, mmPerM } = ctx;
   if (!bg.width || !bg.height) return;
 
   const wMm = bg.width * mmPerM;
