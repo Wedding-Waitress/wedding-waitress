@@ -33,6 +33,7 @@ export const VenueBackgroundPanel = ({
   onUpload,
   onRemove,
   onChange,
+  onCalibrate,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
