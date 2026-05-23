@@ -74,6 +74,14 @@ export const ReceptionFloorPlanCanvas = ({
       window.removeEventListener('keyup', up);
     };
   }, []);
+  // Notify parent of selected table changes (for the Table Note panel).
+  useEffect(() => {
+    if (!onSelectedTableChange) return;
+    onSelectedTableChange(
+      selection?.kind === 'table' ? selection.id : null
+    );
+  }, [selection, onSelectedTableChange]);
+
 
   const placedIds = useMemo(
     () => new Set(plan.table_positions.map((p) => p.table_id)),
