@@ -113,7 +113,8 @@ export function RunningSheetPublicView() {
         permission: row.permission,
         items: parsedItems,
       });
-      setSectionLabel(row.section_label || 'Run Sheet');
+      const rawLabel = row.section_label || 'Run Sheet';
+      setSectionLabel(rawLabel === 'Running Sheet' ? 'Run Sheet' : rawLabel);
       setSectionNotes(row.section_notes || null);
     } catch (err) {
       console.error('Error:', err);
