@@ -116,6 +116,46 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   });
   const { toast } = useToast();
 
+  const buildEmptySongs = (n: number): SongRequestEntry[] =>
+    Array.from({ length: Math.max(0, n) }, () => ({ song_title: '', artist_name: '', music_link: '', note: '' }));
+
+  const [songRequests, setSongRequests] = useState<SongRequestEntry[]>(buildEmptySongs(songRequestsMax));
+
+  useEffect(() => {
+    setSongRequests((prev) => {
+      const next = buildEmptySongs(songRequestsMax);
+      for (let i = 0; i < Math.min(prev.length, next.length); i++) next[i] = prev[i];
+      return next;
+    });
+  }, [songRequestsMax]);
+
+  // Prefill existing song requests when modal opens
+  useEffect(() => {
+    const loadExistingRequests = async () => {
+      if (!open || !guest?.id || !guest?.event_id || !songRequestsEnabled || songRequestsMax <= 0) return;
+      const { data, error } = await (supabase as any).rpc('get_guest_song_requests_for_guest', {
+        _event_id: guest.event_id || event?.id,
+        _guest_id: guest.id,
+      });
+      if (error) return;
+      const next = buildEmptySongs(songRequestsMax);
+      (data || []).forEach((r: any) => {
+        if (typeof r.slot_index === 'number' && r.slot_index >= 0 && r.slot_index < next.length) {
+          next[r.slot_index] = {
+            song_title: r.song_title || '',
+            artist_name: r.artist_name || '',
+            music_link: r.music_link || '',
+            note: r.note || '',
+          };
+        }
+      });
+      setSongRequests(next);
+    };
+    loadExistingRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, guest?.id, songRequestsEnabled, songRequestsMax]);
+
+
   useEffect(() => {
     if (guest) {
       const currentRsvp = guest.rsvp || 'Pending';
