@@ -291,6 +291,12 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
               attendingCount={attendingCount}
             />
 
+            <SmartIntelligencePanel
+              plan={plan}
+              tables={tables}
+              attendingCount={attendingCount}
+            />
+
             <VenueBackgroundPanel
               plan={plan}
               uploading={uploadingBackground}
