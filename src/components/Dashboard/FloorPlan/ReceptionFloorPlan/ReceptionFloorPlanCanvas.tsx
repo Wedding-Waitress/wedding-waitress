@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Lock, Unlock, RotateCw, Trash2 } from 'lucide-react';
+import { Lock, Unlock, RotateCw, Trash2, StickyNote } from 'lucide-react';
+
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type {
