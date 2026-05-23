@@ -47,11 +47,14 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
     uploadBackground,
     removeBackground,
     uploadingBackground,
+    generateShareToken,
+    revokeShareToken,
   } = useReceptionFloorPlan(selectedEventId);
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
   const { toast } = useToast();
   const [resetOpen, setResetOpen] = useState(false);
   const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
+  const [calibrating, setCalibrating] = useState(false);
 
   const loading = tablesLoading || planLoading || !plan;
 
