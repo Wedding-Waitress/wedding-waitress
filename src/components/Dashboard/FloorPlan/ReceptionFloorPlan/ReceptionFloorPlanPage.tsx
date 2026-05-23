@@ -4,7 +4,9 @@ import { Label } from '@/components/ui/label';
 import { LayoutGrid, Loader2, CheckCircle2 } from 'lucide-react';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
+import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
+import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
