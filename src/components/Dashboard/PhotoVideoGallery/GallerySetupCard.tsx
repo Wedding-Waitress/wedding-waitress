@@ -60,15 +60,22 @@ export const GallerySetupCard: React.FC<{
           )}
         </div>
         <div className="space-y-3">
-          <div>
-            <Label className="text-sm">Public upload link</Label>
-            <div className="flex gap-2 mt-1.5">
-              <Input value={guestUrl} readOnly className="h-11 text-sm" />
-              <Button variant="outline" className="lv-premium-shade h-11" onClick={copy}>
-                <Copy className="h-4 w-4 mr-1" /> Copy
-              </Button>
+          {!meta.primary_token ? (
+            <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
+              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+              <p className="text-sm text-destructive">Upload link not ready — please retry.</p>
             </div>
-          </div>
+          ) : (
+            <div>
+              <Label className="text-sm">Public upload link</Label>
+              <div className="flex gap-2 mt-1.5">
+                <Input value={guestUrl} readOnly className="h-11 text-sm" />
+                <Button variant="outline" className="lv-premium-shade h-11" onClick={copy}>
+                  <Copy className="h-4 w-4 mr-1" /> Copy
+                </Button>
+              </div>
+            </div>
+          )}
           <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
             <Download className="h-4 w-4 mr-1" /> Download QR code
           </Button>
