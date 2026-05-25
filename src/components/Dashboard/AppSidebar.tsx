@@ -20,7 +20,8 @@ import {
   Sparkles,
   LifeBuoy,
   Gift,
-  Printer
+  Printer,
+  Camera
 } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useUserPlan } from '@/hooks/useUserPlan';
