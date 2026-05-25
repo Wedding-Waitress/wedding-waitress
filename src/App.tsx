@@ -130,6 +130,7 @@ const App = () => (
           <GlobalPaymentOverlay />
           <Suspense fallback={<RouteFallback />}>
           <Routes>
+          <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
@@ -141,7 +142,6 @@ const App = () => (
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cookies" element={<CookiePolicy />} />
-          <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           {/* Guest seating lookup */}
           {/* SEO landing pages */}
           <Route path="/how-it-works" element={<HowItWorks />} />
