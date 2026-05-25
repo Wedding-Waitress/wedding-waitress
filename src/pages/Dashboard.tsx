@@ -653,6 +653,8 @@ export const Dashboard = () => {
         return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'invitations':
         return <InvitationsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+      case 'photo-video-gallery':
+        return <PhotoVideoGalleryPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
       case 'account':
         return <Account />;
       default:
