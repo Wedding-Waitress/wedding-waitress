@@ -4,8 +4,13 @@ import * as tus from 'tus-js-client';
 import { supabase } from '@/integrations/supabase/client';
 import { validateFile, ValidatedFile, MediaLimits } from '@/lib/mediaValidation';
 
-const SUPABASE_URL = 'https://xytxkidpourwdbzzwcdp.supabase.co';
-const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5dHhraWRwb3Vyd2Rienp3Y2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMTMzNTMsImV4cCI6MjA3Mjg4OTM1M30.37m5PSVqAjo51n8CYfDAu0gZr9lGCaAy3NU3PPYxMmI';
+// Derive the Storage endpoint + anon key from the shared Supabase client config.
+// Vite injects VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY at build time
+// from the connected Lovable Cloud / Supabase project.
+const SUPABASE_URL =
+  (import.meta as any).env?.VITE_SUPABASE_URL ?? 'https://xytxkidpourwdbzzwcdp.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY =
+  (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY ?? '';
 
 export interface UploadProgress {
   fileName: string;
@@ -47,13 +52,19 @@ async function uploadOne(
     item_id: string; storage_path: string; upload_token: string;
   };
 
-  // 2) Resumable upload via Supabase tus endpoint
+  // 2) Resumable upload via Supabase tus endpoint.
+  //    Prefer the signed-in user's session token if present, otherwise fall back
+  //    to the project's publishable (anon) key — guest uploads are unauthenticated.
+  const { data: sessionData } = await supabase.auth.getSession();
+  const bearer = sessionData?.session?.access_token ?? SUPABASE_PUBLISHABLE_KEY;
+
   await new Promise<void>((resolve, reject) => {
     const upload = new tus.Upload(vf.file, {
       endpoint: `${SUPABASE_URL}/storage/v1/upload/resumable`,
       retryDelays: [0, 1000, 3000, 5000],
       headers: {
-        authorization: `Bearer ${ANON_KEY}`,
+        authorization: `Bearer ${bearer}`,
+        apikey: SUPABASE_PUBLISHABLE_KEY,
         'x-upsert': 'false',
       },
       uploadDataDuringCreation: true,

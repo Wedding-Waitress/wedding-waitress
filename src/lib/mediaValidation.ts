@@ -1,5 +1,5 @@
 // Photo & Video Gallery — Phase 1 client-side validation
-export const PHOTO_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+export const PHOTO_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 export const VIDEO_MIMES = ['video/mp4', 'video/quicktime'];
 
 export type MediaKind = 'photo' | 'video';
@@ -52,7 +52,7 @@ export async function validateFile(file: File, limits: MediaLimits): Promise<Val
 
   if (kind === 'photo') {
     if (!limits.allowed_photo_mimes.includes(file.type)) {
-      throw new Error(`${file.name}: Photo format not allowed (use JPG, PNG, WEBP, HEIC)`);
+      throw new Error(`${file.name}: Photo format not allowed (use JPG, PNG, or WebP)`);
     }
     if (file.size > limits.max_photo_bytes) {
       throw new Error(`${file.name}: Photo larger than ${(limits.max_photo_bytes / 1024 / 1024).toFixed(0)} MB`);

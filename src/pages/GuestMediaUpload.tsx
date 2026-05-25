@@ -144,7 +144,7 @@ export const GuestMediaUpload: React.FC = () => {
           <div>
             <Label className="text-base">Photos & videos</Label>
             <p className="text-xs text-muted-foreground mt-1 mb-2">
-              Photos up to {formatBytes(gallery.max_photo_bytes)} • Videos MP4/MOV up to {formatBytes(gallery.max_video_bytes)} and {gallery.max_video_duration_sec}s
+              Photos JPG/PNG/WebP up to {formatBytes(gallery.max_photo_bytes)} • Videos MP4/MOV up to {formatBytes(gallery.max_video_bytes)} and {gallery.max_video_duration_sec}s
             </p>
             <input
               ref={fileInput}
