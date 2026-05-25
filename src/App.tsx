@@ -10,6 +10,8 @@ import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
 // Eager: highest-priority entry points (Landing is the marketing root)
 import { Landing } from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+// Eager-load public guest upload page so /gallery/:token always ships in the main bundle
+import { GuestMediaUpload } from "./pages/GuestMediaUpload";
 // Lazy: split everything else into separate chunks for instant initial load
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
@@ -30,7 +32,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ 
 const UpgradePricing = lazy(() => import("./pages/UpgradePricing").then(m => ({ default: m.UpgradePricing })));
 const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
 const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default: m.QRRedirect })));
-const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
+
 const ProductMyEvents = lazy(() => import("./pages/products/ProductMyEvents").then(m => ({ default: m.ProductMyEvents })));
 const ProductTables = lazy(() => import("./pages/products/ProductTables").then(m => ({ default: m.ProductTables })));
 const ProductGuestList = lazy(() => import("./pages/products/ProductGuestList").then(m => ({ default: m.ProductGuestList })));
