@@ -28,6 +28,10 @@ export interface GalleryItem {
   signed_url?: string;
 }
 
+// Module-level cache: event IDs known to have a gallery row in this session.
+// Lets us skip the ensure_event_media_gallery probe on warm re-selects.
+const ensuredGalleries = new Set<string>();
+
 export function useEventMediaGallery(eventId: string | null) {
   const [meta, setMeta] = useState<GalleryMeta | null>(null);
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -37,15 +41,21 @@ export function useEventMediaGallery(eventId: string | null) {
   const ensureGallery = useCallback(async (eid: string) => {
     const { error: err } = await (supabase as any).rpc('ensure_event_media_gallery', { _event_id: eid });
     if (err) throw new Error(err.message || 'Failed to initialise gallery');
+    ensuredGalleries.add(eid);
   }, []);
 
-  const loadMeta = useCallback(async (eid: string) => {
+  const fetchMeta = useCallback(async (eid: string): Promise<GalleryMeta | null> => {
     const { data, error: err } = await (supabase as any).rpc('get_event_media_gallery_host', { _event_id: eid });
     if (err) throw new Error(err.message || 'Failed to load gallery');
     const row = Array.isArray(data) ? data[0] : data;
-    if (!row) throw new Error('Gallery not found for this event');
-    setMeta(row as GalleryMeta);
+    return (row as GalleryMeta) || null;
   }, []);
+
+  const loadMeta = useCallback(async (eid: string) => {
+    const row = await fetchMeta(eid);
+    if (!row) throw new Error('Gallery not found for this event');
+    setMeta(row);
+  }, [fetchMeta]);
 
   const loadItems = useCallback(async (eid: string) => {
     const { data, error: err } = await (supabase as any).rpc('get_event_media_items_host', { _event_id: eid });
@@ -79,15 +89,46 @@ export function useEventMediaGallery(eventId: string | null) {
     setLoading(true);
     setError(null);
     try {
-      await ensureGallery(eventId);
-      await loadMeta(eventId);
-      await loadItems(eventId);
+      if (ensuredGalleries.has(eventId)) {
+        // Warm path: gallery known to exist — fetch meta + items in parallel.
+        const [metaRow] = await Promise.all([
+          fetchMeta(eventId),
+          loadItems(eventId),
+        ]);
+        if (!metaRow) {
+          // Row disappeared (unlikely) — fall through to ensure + retry.
+          ensuredGalleries.delete(eventId);
+          await ensureGallery(eventId);
+          const retry = await fetchMeta(eventId);
+          if (!retry) throw new Error('Gallery not found for this event');
+          setMeta(retry);
+        } else {
+          setMeta(metaRow);
+        }
+      } else {
+        // Cold path: probe meta first; only call ensure if no row exists.
+        // Run the probe + items in parallel to hide latency when the row is already present.
+        const [metaRow] = await Promise.all([
+          fetchMeta(eventId),
+          loadItems(eventId),
+        ]);
+        if (metaRow) {
+          setMeta(metaRow);
+          ensuredGalleries.add(eventId);
+        } else {
+          await ensureGallery(eventId);
+          const created = await fetchMeta(eventId);
+          if (!created) throw new Error('Gallery not found for this event');
+          setMeta(created);
+          // items were already loaded (empty) in the parallel call above
+        }
+      }
     } catch (e: any) {
       setError(e?.message || 'Failed to load gallery');
     } finally {
       setLoading(false);
     }
-  }, [eventId, ensureGallery, loadMeta, loadItems]);
+  }, [eventId, ensureGallery, fetchMeta, loadItems]);
 
   useEffect(() => {
     if (!eventId) { setMeta(null); setItems([]); setError(null); return; }
