@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GallerySetupCard: React.FC<{
@@ -15,7 +16,7 @@ export const GallerySetupCard: React.FC<{
 }> = ({ meta, onToggleOpen }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
-  const guestUrl = meta.primary_token ? `${window.location.origin}/gallery/${meta.primary_token}` : '';
+  const guestUrl = meta.primary_token ? buildGalleryUploadUrl(meta.primary_token) : '';
 
   useEffect(() => {
     if (!guestUrl) return;
