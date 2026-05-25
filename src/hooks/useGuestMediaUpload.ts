@@ -28,7 +28,7 @@ async function uploadOne(
   onProgress: (p: number) => void,
 ): Promise<void> {
   // 1) Register pending row
-  const { data, error } = await supabase.rpc('register_event_media_upload', {
+  const { data, error } = await (supabase as any).rpc('register_event_media_upload', {
     _token: opts.token,
     _kind: vf.kind,
     _mime_type: vf.mime,
@@ -76,12 +76,12 @@ async function uploadOne(
   });
 
   // 3) Finalize
-  const { data: okData, error: finErr } = await supabase.rpc('finalize_event_media_upload', {
+  const { data: okData, error: finErr } = await (supabase as any).rpc('finalize_event_media_upload', {
     _item_id: item_id,
     _upload_token: upload_token,
   });
   if (finErr || !okData) {
-    await supabase.rpc('fail_event_media_upload', { _item_id: item_id, _upload_token: upload_token });
+    await (supabase as any).rpc('fail_event_media_upload', { _item_id: item_id, _upload_token: upload_token });
     throw new Error('Could not finalize upload');
   }
 }

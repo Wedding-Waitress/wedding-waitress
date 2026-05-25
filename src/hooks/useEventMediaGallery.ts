@@ -34,22 +34,22 @@ export function useEventMediaGallery(eventId: string | null) {
   const [loading, setLoading] = useState(false);
 
   const ensureGallery = useCallback(async (eid: string) => {
-    await supabase.rpc('ensure_event_media_gallery', { _event_id: eid });
+    await (supabase as any).rpc('ensure_event_media_gallery', { _event_id: eid });
   }, []);
 
   const loadMeta = useCallback(async (eid: string) => {
-    const { data, error } = await supabase.rpc('get_event_media_gallery_host', { _event_id: eid });
+    const { data, error } = await (supabase as any).rpc('get_event_media_gallery_host', { _event_id: eid });
     if (error) return;
     const row = Array.isArray(data) ? data[0] : data;
     if (row) setMeta(row as GalleryMeta);
   }, []);
 
   const loadItems = useCallback(async (eid: string) => {
-    const { data } = await supabase.rpc('get_event_media_items_host', { _event_id: eid });
+    const { data } = await (supabase as any).rpc('get_event_media_items_host', { _event_id: eid });
     const rows = (data || []) as GalleryItem[];
     if (rows.length === 0) { setItems([]); return; }
     const ids = rows.map(r => r.id);
-    const { data: urls } = await supabase.rpc('get_event_media_signed_urls', {
+    const { data: urls } = await (supabase as any).rpc('get_event_media_signed_urls', {
       _event_id: eid, _item_ids: ids, _expires_in: 3600,
     });
     const map = new Map<string, string>();
@@ -85,18 +85,18 @@ export function useEventMediaGallery(eventId: string | null) {
 
   const setOpen = useCallback(async (open: boolean) => {
     if (!eventId) return;
-    await supabase.rpc('set_event_media_gallery_open', { _event_id: eventId, _is_open: open });
+    await (supabase as any).rpc('set_event_media_gallery_open', { _event_id: eventId, _is_open: open });
     setMeta(m => m ? { ...m, is_open: open } : m);
   }, [eventId]);
 
   const deleteItem = useCallback(async (id: string) => {
-    await supabase.rpc('delete_event_media_item', { _item_id: id });
+    await (supabase as any).rpc('delete_event_media_item', { _item_id: id });
     setItems(prev => prev.filter(i => i.id !== id));
   }, []);
 
   const updateLimits = useCallback(async (l: Partial<GalleryMeta>) => {
     if (!eventId) return;
-    await supabase.rpc('update_event_media_limits', {
+    await (supabase as any).rpc('update_event_media_limits', {
       _event_id: eventId,
       _max_photos: l.max_photos ?? null,
       _max_videos: l.max_videos ?? null,
