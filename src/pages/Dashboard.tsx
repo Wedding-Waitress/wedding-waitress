@@ -41,6 +41,7 @@ const FloorPlanPage = lazy(() => import('@/components/Dashboard/FloorPlan').then
 const RunningSheetPage = lazy(() => import('@/components/Dashboard/RunningSheet').then(m => ({ default: m.RunningSheetPage })));
 const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQuestionnaire').then(m => ({ default: m.DJMCQuestionnairePage })));
 const InvitationsPage = lazy(() => import('@/components/Dashboard/Invitations/InvitationsPage').then(m => ({ default: m.InvitationsPage })));
+const PhotoVideoGalleryPage = lazy(() => import('@/components/Dashboard/PhotoVideoGallery').then(m => ({ default: m.PhotoVideoGalleryPage })));
 const Account = lazy(() => import('@/pages/Account').then(m => ({ default: m.Account })));
 
 // Unified global page loader — used as Suspense fallback for every dashboard tab.
