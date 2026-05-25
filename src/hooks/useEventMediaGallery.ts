@@ -32,29 +32,39 @@ export function useEventMediaGallery(eventId: string | null) {
   const [meta, setMeta] = useState<GalleryMeta | null>(null);
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const ensureGallery = useCallback(async (eid: string) => {
-    await (supabase as any).rpc('ensure_event_media_gallery', { _event_id: eid });
+    const { error: err } = await (supabase as any).rpc('ensure_event_media_gallery', { _event_id: eid });
+    if (err) throw new Error(err.message || 'Failed to initialise gallery');
   }, []);
 
   const loadMeta = useCallback(async (eid: string) => {
-    const { data, error } = await (supabase as any).rpc('get_event_media_gallery_host', { _event_id: eid });
-    if (error) return;
+    const { data, error: err } = await (supabase as any).rpc('get_event_media_gallery_host', { _event_id: eid });
+    if (err) throw new Error(err.message || 'Failed to load gallery');
     const row = Array.isArray(data) ? data[0] : data;
-    if (row) setMeta(row as GalleryMeta);
+    if (!row) throw new Error('Gallery not found for this event');
+    setMeta(row as GalleryMeta);
   }, []);
 
   const loadItems = useCallback(async (eid: string) => {
-    const { data } = await (supabase as any).rpc('get_event_media_items_host', { _event_id: eid });
+    const { data, error: err } = await (supabase as any).rpc('get_event_media_items_host', { _event_id: eid });
+    if (err) throw new Error(err.message || 'Failed to load gallery items');
     const rows = (data || []) as GalleryItem[];
     if (rows.length === 0) { setItems([]); return; }
-    const ids = rows.map(r => r.id);
-    const { data: urls } = await (supabase as any).rpc('get_event_media_signed_urls', {
-      _event_id: eid, _item_ids: ids, _expires_in: 3600,
-    });
+
+    // Option A: sign URLs client-side using the authenticated Storage API.
+    // Try batch first, fall back to per-item createSignedUrl.
+    const paths = rows.map(r => r.storage_path);
     const map = new Map<string, string>();
-    (urls || []).forEach((u: any) => { if (u.signed_url) map.set(u.item_id, u.signed_url); });
-    // Fallback to client signing if RPC didn't produce signed URLs
+    try {
+      const { data: signed } = await supabase.storage.from('event-media').createSignedUrls(paths, 3600);
+      (signed || []).forEach((s: any, i: number) => {
+        if (s?.signedUrl) map.set(rows[i].id, s.signedUrl);
+      });
+    } catch {
+      // ignore — per-item fallback below
+    }
     for (const r of rows) {
       if (!map.get(r.id)) {
         const { data: s } = await supabase.storage.from('event-media').createSignedUrl(r.storage_path, 3600);
@@ -67,18 +77,25 @@ export function useEventMediaGallery(eventId: string | null) {
   const refresh = useCallback(async () => {
     if (!eventId) return;
     setLoading(true);
-    await ensureGallery(eventId);
-    await Promise.all([loadMeta(eventId), loadItems(eventId)]);
-    setLoading(false);
+    setError(null);
+    try {
+      await ensureGallery(eventId);
+      await loadMeta(eventId);
+      await loadItems(eventId);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load gallery');
+    } finally {
+      setLoading(false);
+    }
   }, [eventId, ensureGallery, loadMeta, loadItems]);
 
   useEffect(() => {
-    if (!eventId) { setMeta(null); setItems([]); return; }
+    if (!eventId) { setMeta(null); setItems([]); setError(null); return; }
     refresh();
     const channel = supabase
       .channel(`event-media:${eventId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'event_media_items', filter: `event_id=eq.${eventId}` },
-        () => loadItems(eventId))
+        () => { loadItems(eventId).catch(() => {}); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [eventId, refresh, loadItems]);
@@ -105,8 +122,8 @@ export function useEventMediaGallery(eventId: string | null) {
       _max_video_duration_sec: l.max_video_duration_sec ?? null,
       _max_photo_bytes: l.max_photo_bytes ?? null,
     });
-    await loadMeta(eventId);
+    await loadMeta(eventId).catch((e: any) => setError(e?.message || 'Failed to reload limits'));
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, refresh, setOpen, deleteItem, updateLimits };
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits };
 }
