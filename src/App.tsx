@@ -30,6 +30,7 @@ const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ 
 const UpgradePricing = lazy(() => import("./pages/UpgradePricing").then(m => ({ default: m.UpgradePricing })));
 const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
 const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default: m.QRRedirect })));
+const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
 const ProductMyEvents = lazy(() => import("./pages/products/ProductMyEvents").then(m => ({ default: m.ProductMyEvents })));
 const ProductTables = lazy(() => import("./pages/products/ProductTables").then(m => ({ default: m.ProductTables })));
 const ProductGuestList = lazy(() => import("./pages/products/ProductGuestList").then(m => ({ default: m.ProductGuestList })));
@@ -138,6 +139,7 @@ const App = () => (
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           {/* Guest seating lookup */}
           {/* SEO landing pages */}
           <Route path="/how-it-works" element={<HowItWorks />} />

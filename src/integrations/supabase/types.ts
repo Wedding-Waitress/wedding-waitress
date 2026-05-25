@@ -724,6 +724,227 @@ export type Database = {
           },
         ]
       }
+      event_media_galleries: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          is_open: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          is_open?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_open?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_galleries_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_items: {
+        Row: {
+          byte_size: number
+          caption: string | null
+          created_at: string
+          duration_sec: number | null
+          event_id: string
+          gallery_id: string
+          guestbook_message: string | null
+          id: string
+          kind: Database["public"]["Enums"]["event_media_kind"]
+          mime_type: string
+          storage_path: string
+          upload_status: Database["public"]["Enums"]["event_media_upload_status"]
+          upload_token_expires_at: string | null
+          upload_token_hash: string | null
+          upload_token_id: string | null
+          upload_token_used_at: string | null
+          uploaded_at: string | null
+          uploader_name: string | null
+        }
+        Insert: {
+          byte_size: number
+          caption?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          event_id: string
+          gallery_id: string
+          guestbook_message?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["event_media_kind"]
+          mime_type: string
+          storage_path: string
+          upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
+          upload_token_expires_at?: string | null
+          upload_token_hash?: string | null
+          upload_token_id?: string | null
+          upload_token_used_at?: string | null
+          uploaded_at?: string | null
+          uploader_name?: string | null
+        }
+        Update: {
+          byte_size?: number
+          caption?: string | null
+          created_at?: string
+          duration_sec?: number | null
+          event_id?: string
+          gallery_id?: string
+          guestbook_message?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["event_media_kind"]
+          mime_type?: string
+          storage_path?: string
+          upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
+          upload_token_expires_at?: string | null
+          upload_token_hash?: string | null
+          upload_token_id?: string | null
+          upload_token_used_at?: string | null
+          uploaded_at?: string | null
+          uploader_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_items_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "event_media_galleries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_items_upload_token_id_fkey"
+            columns: ["upload_token_id"]
+            isOneToOne: false
+            referencedRelation: "event_media_upload_tokens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_limits: {
+        Row: {
+          allowed_photo_mimes: string[]
+          allowed_video_mimes: string[]
+          created_at: string
+          event_id: string
+          id: string
+          max_photo_bytes: number
+          max_photos: number
+          max_total_bytes: number
+          max_video_bytes: number
+          max_video_duration_sec: number
+          max_videos: number
+          updated_at: string
+        }
+        Insert: {
+          allowed_photo_mimes?: string[]
+          allowed_video_mimes?: string[]
+          created_at?: string
+          event_id: string
+          id?: string
+          max_photo_bytes?: number
+          max_photos?: number
+          max_total_bytes?: number
+          max_video_bytes?: number
+          max_video_duration_sec?: number
+          max_videos?: number
+          updated_at?: string
+        }
+        Update: {
+          allowed_photo_mimes?: string[]
+          allowed_video_mimes?: string[]
+          created_at?: string
+          event_id?: string
+          id?: string
+          max_photo_bytes?: number
+          max_photos?: number
+          max_total_bytes?: number
+          max_video_bytes?: number
+          max_video_duration_sec?: number
+          max_videos?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_limits_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_upload_tokens: {
+        Row: {
+          created_at: string
+          event_id: string
+          expires_at: string | null
+          gallery_id: string
+          id: string
+          max_uploads: number | null
+          token: string
+          uploads_used: number
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          expires_at?: string | null
+          gallery_id: string
+          id?: string
+          max_uploads?: number | null
+          token: string
+          uploads_used?: number
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          expires_at?: string | null
+          gallery_id?: string
+          id?: string
+          max_uploads?: number | null
+          token?: string
+          uploads_used?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_upload_tokens_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_media_upload_tokens_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "event_media_galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_purchases: {
         Row: {
           amount_paid: number
@@ -3811,6 +4032,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _hash_upload_token: { Args: { _raw: string }; Returns: string }
       _random_id8: { Args: never; Returns: string }
       account_event_access: {
         Args: { _event_id: string; _user_id: string }
@@ -3897,6 +4119,7 @@ export type Database = {
         Args: { p_section_id: string; share_token: string }
         Returns: boolean
       }
+      delete_event_media_item: { Args: { _item_id: string }; Returns: boolean }
       delete_running_sheet_item_by_token: {
         Args: { item_id: string; share_token: string }
         Returns: boolean
@@ -3912,6 +4135,18 @@ export type Database = {
       duplicate_running_sheet_item_by_token: {
         Args: { item_id: string; share_token: string }
         Returns: Json
+      }
+      ensure_event_media_gallery: {
+        Args: { _event_id: string }
+        Returns: string
+      }
+      fail_event_media_upload: {
+        Args: { _item_id: string; _upload_token: string }
+        Returns: boolean
+      }
+      finalize_event_media_upload: {
+        Args: { _item_id: string; _upload_token: string }
+        Returns: boolean
       }
       generate_account_id: { Args: { _country: string }; Returns: string }
       generate_dj_mc_share_token: {
@@ -3973,6 +4208,54 @@ export type Database = {
           questionnaire_id: string
           sections: Json
           start_time: string
+        }[]
+      }
+      get_event_media_gallery_host: {
+        Args: { _event_id: string }
+        Returns: {
+          gallery_id: string
+          is_open: boolean
+          max_photo_bytes: number
+          max_photos: number
+          max_total_bytes: number
+          max_video_bytes: number
+          max_video_duration_sec: number
+          max_videos: number
+          primary_token: string
+        }[]
+      }
+      get_event_media_gallery_public: {
+        Args: { _token: string }
+        Returns: {
+          allowed_photo_mimes: string[]
+          allowed_video_mimes: string[]
+          event_date: string
+          event_id: string
+          event_name: string
+          gallery_id: string
+          is_open: boolean
+          max_photo_bytes: number
+          max_photos: number
+          max_video_bytes: number
+          max_video_duration_sec: number
+          max_videos: number
+          partner1_name: string
+          partner2_name: string
+        }[]
+      }
+      get_event_media_items_host: {
+        Args: { _event_id: string }
+        Returns: {
+          byte_size: number
+          caption: string
+          duration_sec: number
+          guestbook_message: string
+          id: string
+          kind: Database["public"]["Enums"]["event_media_kind"]
+          mime_type: string
+          storage_path: string
+          uploaded_at: string
+          uploader_name: string
         }[]
       }
       get_event_messaging_analytics: {
@@ -4278,6 +4561,24 @@ export type Database = {
         Returns: undefined
       }
       record_referral_signup: { Args: { p_code: string }; Returns: undefined }
+      register_event_media_upload: {
+        Args: {
+          _byte_size: number
+          _caption: string
+          _duration_sec: number
+          _filename: string
+          _guestbook_message: string
+          _kind: Database["public"]["Enums"]["event_media_kind"]
+          _mime_type: string
+          _token: string
+          _uploader_name: string
+        }
+        Returns: {
+          item_id: string
+          storage_path: string
+          upload_token: string
+        }[]
+      }
       reorder_dj_mc_items_by_token: {
         Args: { item_ids: string[]; p_section_id: string; share_token: string }
         Returns: boolean
@@ -4303,6 +4604,10 @@ export type Database = {
           event_slug: string
           qr_code_id: string
         }[]
+      }
+      set_event_media_gallery_open: {
+        Args: { _event_id: string; _is_open: boolean }
+        Returns: boolean
       }
       submit_guest_song_requests: {
         Args: { _event_id: string; _guest_id: string; _requests: Json }
@@ -4351,6 +4656,18 @@ export type Database = {
           new_section_label?: string
           p_section_id: string
           share_token: string
+        }
+        Returns: boolean
+      }
+      update_event_media_limits: {
+        Args: {
+          _event_id: string
+          _max_photo_bytes: number
+          _max_photos: number
+          _max_total_bytes: number
+          _max_video_bytes: number
+          _max_video_duration_sec: number
+          _max_videos: number
         }
         Returns: boolean
       }
@@ -4457,6 +4774,8 @@ export type Database = {
         | "owner"
         | "account_master"
         | "account_standard"
+      event_media_kind: "photo" | "video"
+      event_media_upload_status: "pending" | "uploaded" | "failed"
       guest_activity_channel: "email" | "sms" | "whatsapp" | "system" | "web"
       guest_activity_status: "success" | "failure" | "pending" | "info"
       guest_activity_type:
@@ -4615,6 +4934,8 @@ export const Constants = {
         "account_master",
         "account_standard",
       ],
+      event_media_kind: ["photo", "video"],
+      event_media_upload_status: ["pending", "uploaded", "failed"],
       guest_activity_channel: ["email", "sms", "whatsapp", "system", "web"],
       guest_activity_status: ["success", "failure", "pending", "info"],
       guest_activity_type: [
