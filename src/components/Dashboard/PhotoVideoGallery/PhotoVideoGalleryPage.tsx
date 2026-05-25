@@ -10,7 +10,7 @@ import { GallerySetupCard } from './GallerySetupCard';
 import { GalleryLimitsCard } from './GalleryLimitsCard';
 import { GalleryGrid } from './GalleryGrid';
 import { GuestbookList } from './GuestbookList';
-import { Camera, Loader2 } from 'lucide-react';
+import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
   selectedEventId: string | null;
@@ -19,7 +19,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, setOpen, deleteItem, updateLimits } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -53,17 +53,48 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
           <p className="text-muted-foreground">Choose an event to set up its photo &amp; video gallery.</p>
         </Card>
       ) : loading && !meta ? (
-        <Card className="p-12 flex items-center justify-center"><Loader2 className="animate-spin h-6 w-6 text-[#967A59]" /></Card>
+        <Card className="p-12 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+          <p className="text-sm text-muted-foreground">Loading gallery…</p>
+        </Card>
+      ) : error && !meta ? (
+        <Card className="p-8 flex flex-col items-center text-center gap-3">
+          <AlertTriangle className="h-8 w-8 text-destructive" />
+          <div>
+            <p className="font-medium text-foreground">Could not load gallery</p>
+            <p className="text-sm text-muted-foreground mt-1 break-words">{error}</p>
+          </div>
+          <Button variant="outline" className="lv-premium-shade" onClick={() => refresh()} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Retry
+          </Button>
+        </Card>
       ) : meta ? (
         <PinchZoomContainer naturalWidth={1000}>
           <div className="space-y-6">
+            {error && (
+              <Card className="p-3 flex items-center gap-2 border-destructive/40">
+                <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+                <p className="text-sm text-destructive flex-1 break-words">{error}</p>
+                <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => refresh()}>
+                  <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+                </Button>
+              </Card>
+            )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} />
             <GuestbookList items={items} />
           </div>
         </PinchZoomContainer>
-      ) : null}
+      ) : (
+        <Card className="p-8 flex flex-col items-center text-center gap-3">
+          <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Gallery is unavailable for this event.</p>
+          <Button variant="outline" className="lv-premium-shade" onClick={() => refresh()}>
+            <RefreshCw className="h-4 w-4 mr-1" /> Retry
+          </Button>
+        </Card>
+      )}
     </div>
   );
 };
