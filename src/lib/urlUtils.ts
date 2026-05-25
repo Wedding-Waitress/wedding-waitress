@@ -72,3 +72,11 @@ export function buildDynamicQRUrl(code: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/qr/${encodeURIComponent(code)}`;
 }
+
+/**
+ * Builds a Photo & Video Gallery guest upload URL for the given token
+ */
+export function buildGalleryUploadUrl(token: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/gallery/${encodeURIComponent(token)}`;
+}
