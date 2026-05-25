@@ -10,6 +10,8 @@ import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
 // Eager: highest-priority entry points (Landing is the marketing root)
 import { Landing } from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+// Eager-load public guest upload page so /gallery/:token always ships in the main bundle
+import { GuestMediaUpload } from "./pages/GuestMediaUpload";
 // Lazy: split everything else into separate chunks for instant initial load
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
