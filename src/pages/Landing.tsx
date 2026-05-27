@@ -74,9 +74,6 @@ import featureKiosk from "@/assets/feature-kiosk.jpg";
 import featureDjmc from "@/assets/feature-djmc.jpg";
 import featureFloorplan from "@/assets/feature-floorplan.jpg";
 
-const HERO_ROTATION_DURATION_MS = 13500;
-const HERO_FADE_DURATION_MS = 1000;
-const HERO_VIDEO_PLAYBACK_RATE = 1 / 3;
 
 const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonElement> }) => {
   const { t } = useTranslation('landing');
@@ -102,7 +99,6 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
 
   useEffect(() => {
     if (videoReady && videoRef.current) {
-      videoRef.current.playbackRate = HERO_VIDEO_PLAYBACK_RATE;
       videoRef.current.play().catch(() => {});
       setShowVideo(true);
     }
@@ -112,7 +108,7 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % heroSlides.length);
-    }, HERO_ROTATION_DURATION_MS);
+    }, 4500);
     return () => clearInterval(interval);
   }, [heroSlides.length]);
 
@@ -159,8 +155,8 @@ const HeroSection = ({ signUpRef }: { signUpRef: React.RefObject<HTMLButtonEleme
                 opacity: currentSlide === i ? 1 : 0,
                 transform: currentSlide === i ? 'scale(1.08)' : 'scale(1)',
                 transition: currentSlide === i
-                  ? `opacity ${HERO_FADE_DURATION_MS}ms ease-in-out, transform ${HERO_ROTATION_DURATION_MS}ms ease-in-out`
-                  : `opacity ${HERO_FADE_DURATION_MS}ms ease-in-out, transform 0s`,
+                  ? 'opacity 1000ms ease-in-out, transform 4500ms ease-in-out'
+                  : 'opacity 1000ms ease-in-out, transform 0s',
               }}
               loading={i === 0 ? "eager" : "lazy"}
               fetchPriority={i === 0 ? "high" : undefined}
