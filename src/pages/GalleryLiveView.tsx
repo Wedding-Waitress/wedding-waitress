@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Maximize, Minimize, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface LiveMeta {
