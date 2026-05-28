@@ -99,7 +99,14 @@ export interface ValidationResult {
 // Backwards-compatible alias used by some callers.
 export type ValidatedFile = ValidationResult;
 
-export async function validateFile(file: File, limits: MediaLimits): Promise<ValidationResult> {
+export type ValidationStage = 'preparing' | 'checking' | 'ready';
+
+export async function validateFile(
+  file: File,
+  limits: MediaLimits,
+  onStage?: (stage: ValidationStage) => void,
+): Promise<ValidationResult> {
+  onStage?.('preparing');
   const { mime, inferred } = effectiveMime(file);
   const kind = detectKind(mime, file.name);
   const base = {
@@ -129,6 +136,7 @@ export async function validateFile(file: File, limits: MediaLimits): Promise<Val
     if (file.size > limits.max_photo_bytes) {
       return { ...base, kind, ok: false, reason: 'photo_too_large', reasonText: `Photo over ${(limits.max_photo_bytes / 1024 / 1024).toFixed(0)} MB` };
     }
+    onStage?.('ready');
     return { ...base, kind, ok: true };
   }
 
@@ -139,6 +147,7 @@ export async function validateFile(file: File, limits: MediaLimits): Promise<Val
   if (file.size > limits.max_video_bytes) {
     return { ...base, kind, ok: false, reason: 'video_too_large', reasonText: `Video over ${(limits.max_video_bytes / 1024 / 1024).toFixed(0)} MB` };
   }
+  onStage?.('checking');
   let duration: number | null = null;
   try {
     duration = await getVideoDurationSec(file);
@@ -148,6 +157,7 @@ export async function validateFile(file: File, limits: MediaLimits): Promise<Val
   if (duration != null && duration > limits.max_video_duration_sec) {
     return { ...base, kind, duration, ok: false, reason: 'video_too_long', reasonText: `Video over ${limits.max_video_duration_sec} s` };
   }
+  onStage?.('ready');
   // Duration unknown = still allow upload (server accepts null), but flag it for the UI.
   return {
     ...base,

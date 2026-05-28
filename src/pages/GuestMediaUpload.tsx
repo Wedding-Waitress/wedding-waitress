@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart } from 'lucide-react';
-import { formatBytes, validateFile, ValidationResult } from '@/lib/mediaValidation';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info } from 'lucide-react';
+import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 
 interface GalleryPublic {
@@ -35,12 +35,16 @@ export const GuestMediaUpload: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<ValidationResult[]>([]);
+  const [stages, setStages] = useState<Record<number, ValidationStage>>({});
   const [validating, setValidating] = useState(false);
+  const [awaitingPicker, setAwaitingPicker] = useState(false);
+  const [pickerHint, setPickerHint] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [caption, setCaption] = useState('');
   const [guestbook, setGuestbook] = useState('');
   const [showThanks, setShowThanks] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
 
   useEffect(() => {
@@ -54,30 +58,69 @@ export const GuestMediaUpload: React.FC = () => {
     })();
   }, [token]);
 
+  const openPicker = useCallback(() => {
+    setPickerHint(null);
+    setAwaitingPicker(true);
+    if (pickerTimer.current) window.clearTimeout(pickerTimer.current);
+    // If no onChange fires within 30s after picker open, hint that iPhone may still be preparing.
+    pickerTimer.current = window.setTimeout(() => {
+      setPickerHint('Your iPhone may still be preparing the video. Please wait, or choose a smaller/local video.');
+      setAwaitingPicker(false);
+    }, 30000);
+    fileInput.current?.click();
+  }, []);
+
   const onFiles = useCallback(async (picked: FileList | null) => {
-    if (!picked || !gallery) return;
+    if (pickerTimer.current) { window.clearTimeout(pickerTimer.current); pickerTimer.current = null; }
+    setAwaitingPicker(false);
+    if (!gallery) return;
+    if (!picked || picked.length === 0) {
+      setPickerHint('Your iPhone may still be preparing the video. Please wait, or choose a smaller/local video.');
+      return;
+    }
+    setPickerHint(null);
     setValidating(true);
     const arr = Array.from(picked);
-    const results: ValidationResult[] = [];
-    for (const f of arr) {
+    const startIndex = items.length;
+    // Insert placeholders immediately so the user sees activity.
+    const placeholders: ValidationResult[] = arr.map(f => ({
+      file: f, fileName: f.name, kind: null, mime: f.type || '',
+      mimeInferred: !f.type, size: f.size, duration: null,
+      durationUnknown: false, ok: true,
+    }));
+    setItems(prev => [...prev, ...placeholders]);
+    setStages(prev => {
+      const next = { ...prev };
+      arr.forEach((_, i) => { next[startIndex + i] = 'preparing'; });
+      return next;
+    });
+
+    for (let i = 0; i < arr.length; i++) {
+      const idx = startIndex + i;
+      let result: ValidationResult;
       try {
-        results.push(await validateFile(f, gallery));
+        result = await validateFile(arr[i], gallery, (s) => {
+          setStages(prev => ({ ...prev, [idx]: s }));
+        });
       } catch {
-        // Defensive — validateFile shouldn't throw, but never silently drop.
-        results.push({
-          file: f, fileName: f.name, kind: null, mime: f.type || '',
-          mimeInferred: !f.type, size: f.size, duration: null,
+        result = {
+          file: arr[i], fileName: arr[i].name, kind: null, mime: arr[i].type || '',
+          mimeInferred: !arr[i].type, size: arr[i].size, duration: null,
           durationUnknown: false, ok: false,
           reason: 'file_unreadable', reasonText: 'File could not be loaded from device/iCloud',
-        });
+        };
       }
+      setItems(prev => prev.map((it, j) => j === idx ? result : it));
+      setStages(prev => ({ ...prev, [idx]: 'ready' }));
     }
-    setItems(prev => [...prev, ...results]);
     setValidating(false);
     if (fileInput.current) fileInput.current.value = '';
-  }, [gallery]);
+  }, [gallery, items.length]);
 
-  const removeItem = (i: number) => setItems(prev => prev.filter((_, idx) => idx !== i));
+  const removeItem = (i: number) => {
+    setItems(prev => prev.filter((_, idx) => idx !== i));
+    setStages(prev => { const n = { ...prev }; delete n[i]; return n; });
+  };
 
   const onSubmit = async () => {
     if (!gallery || !token || items.length === 0) return;
@@ -176,16 +219,37 @@ export const GuestMediaUpload: React.FC = () => {
               className="hidden"
               onChange={e => onFiles(e.target.files)}
             />
-            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={() => fileInput.current?.click()} disabled={uploading || validating}>
-              {validating ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Checking files…</> : <><Upload className="h-4 w-4 mr-2" /> Choose files</>}
+            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={openPicker} disabled={uploading || validating || awaitingPicker}>
+              {awaitingPicker
+                ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Waiting for picker…</>
+                : validating
+                  ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Preparing selected files…</>
+                  : <><Upload className="h-4 w-4 mr-2" /> Choose files</>}
             </Button>
+
+            {(awaitingPicker || validating) && (
+              <div className="mt-2 text-xs text-[#6E6E73] flex items-center gap-1.5">
+                <Loader2 className="animate-spin h-3 w-3" />
+                {awaitingPicker ? 'Waiting for your selection…' : 'Preparing selected files…'}
+              </div>
+            )}
+
+            {pickerHint && (
+              <div className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 flex items-start gap-1.5">
+                <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                <span>{pickerHint}</span>
+              </div>
+            )}
 
             {items.length > 0 && (
               <ul className="mt-3 space-y-2">
                 {items.map((it, i) => {
                   const p = progress[i];
                   const status = p?.status;
+                  const stage = stages[i];
                   const errMsg = p?.error || it.reasonText;
+                  const isVideo = it.kind === 'video' || /\.(mov|mp4|m4v|qt)$/i.test(it.fileName);
+                  const stillValidating = stage && stage !== 'ready';
                   const durationText =
                     it.kind === 'video'
                       ? (it.durationUnknown ? 'duration unknown' : `${it.duration ?? '?'}s`)
@@ -200,7 +264,7 @@ export const GuestMediaUpload: React.FC = () => {
                             {durationText ? ` • ${durationText}` : ''}
                           </div>
                         </div>
-                        {!uploading && status !== 'done' && (
+                        {!uploading && status !== 'done' && !stillValidating && (
                           <button
                             type="button"
                             aria-label="Remove"
@@ -214,7 +278,14 @@ export const GuestMediaUpload: React.FC = () => {
 
                       {/* Validation / progress badge */}
                       <div className="mt-1.5">
-                        {!it.ok ? (
+                        {stillValidating ? (
+                          <span className="text-xs text-[#967A59] flex items-center gap-1">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            {isVideo
+                              ? (stage === 'preparing' ? 'Preparing file…' : 'Checking video…')
+                              : 'Preparing file…'}
+                          </span>
+                        ) : !it.ok ? (
                           <span className="text-xs text-red-600 flex items-center gap-1">
                             <AlertCircle className="h-3 w-3" /> {it.reasonText}
                           </span>
@@ -227,8 +298,11 @@ export const GuestMediaUpload: React.FC = () => {
                             <CheckCircle2 className="h-3 w-3" /> Uploaded
                           </span>
                         ) : status === 'uploading' ? (
-                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-[#967A59] transition-all" style={{ width: `${p?.percent ?? 0}%` }} />
+                          <div>
+                            <div className="text-[11px] text-[#6E6E73] mb-1">Uploading {p?.percent ?? 0}%</div>
+                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div className="h-full bg-[#967A59] transition-all" style={{ width: `${p?.percent ?? 0}%` }} />
+                            </div>
                           </div>
                         ) : it.durationUnknown ? (
                           <span className="text-xs text-amber-600 flex items-center gap-1">
@@ -236,7 +310,7 @@ export const GuestMediaUpload: React.FC = () => {
                           </span>
                         ) : (
                           <span className="text-xs text-green-600 flex items-center gap-1">
-                            <CheckCircle2 className="h-3 w-3" /> Ready
+                            <CheckCircle2 className="h-3 w-3" /> Ready to upload
                           </span>
                         )}
                       </div>
