@@ -138,7 +138,7 @@ const GalleryLiveView: React.FC = () => {
       window.clearTimeout(photoTimerRef.current);
       photoTimerRef.current = null;
     }
-    if (items.length === 0) return;
+    if (items.length === 0 || isPaused) return;
     const current = items[index % items.length];
     if (!current) return;
     if (current.kind === 'photo') {
@@ -150,7 +150,7 @@ const GalleryLiveView: React.FC = () => {
         photoTimerRef.current = null;
       }
     };
-  }, [index, items, advance]);
+  }, [index, items, advance, isPaused]);
 
   const current = items.length > 0 ? items[index % items.length] : null;
 
