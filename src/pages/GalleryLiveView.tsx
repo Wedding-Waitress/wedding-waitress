@@ -224,21 +224,41 @@ const GalleryLiveView: React.FC = () => {
         )}
       </div>
 
-      {/* Caption / uploader */}
-      {current && (current.caption || current.uploader_name) && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 px-6 py-5 bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
-          {current.caption && (
-            <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
-              {current.caption}
-            </div>
-          )}
-          {current.uploader_name && (
-            <div className="text-white/70 text-sm md:text-base mt-1">
-              — {current.uploader_name}
+      {/* Caption / uploader / controls */}
+      {(current && (current.caption || current.uploader_name)) || items.length > 0 ? (
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-6 py-5 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between gap-4">
+          <div className="pointer-events-none min-w-0">
+            {current?.caption && (
+              <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
+                {current.caption}
+              </div>
+            )}
+            {current?.uploader_name && (
+              <div className="text-white/70 text-sm md:text-base mt-1">
+                — {current.uploader_name}
+              </div>
+            )}
+          </div>
+          {items.length > 0 && (
+            <div className="flex items-center gap-2 shrink-0 pointer-events-auto">
+              <button
+                onClick={togglePause}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+                title={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+              >
+                {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={toggleFullscreen}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              </button>
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
