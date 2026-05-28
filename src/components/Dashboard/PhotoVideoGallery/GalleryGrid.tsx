@@ -86,6 +86,30 @@ const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item,
   );
 };
 
+async function downloadSignedUrl(url: string, filenameHint: string) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objUrl;
+    a.download = filenameHint || 'download';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objUrl), 1000);
+  } catch {
+    // Fallback: open in new tab
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+}
+
+function filenameFor(item: GalleryItem): string {
+  const ext = (item.storage_path.split('.').pop() || (item.kind === 'video' ? 'mp4' : 'jpg')).split('?')[0];
+  const who = (item.uploader_name || 'guest').replace(/[^a-z0-9-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'guest';
+  return `${who}-${item.id.slice(0, 8)}.${ext}`;
+}
+
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
   onDelete: (id: string) => void;
@@ -106,28 +130,43 @@ export const GalleryGrid: React.FC<{
       <h2 className="text-lg font-semibold text-[#1D1D1F] mb-4">Guest uploads ({items.length})</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {items.map(it => (
-          <div key={it.id} className="relative group rounded-lg overflow-hidden border border-border bg-muted aspect-square flex flex-col">
-            <div className="flex-1 min-h-0 relative">
+          <div key={it.id} className="relative group rounded-lg overflow-hidden border border-border bg-muted flex flex-col">
+            <div className="aspect-square relative">
               <MediaThumb item={it} onOpen={() => it.signed_url && setLightbox(it)} />
+              <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                {it.signed_url && (
+                  <button
+                    onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
+                    className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                {it.signed_url && (
+                  <button
+                    onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it))}
+                    className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                    title="Download"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                <button
+                  onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
+                  className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600"
+                  title="Delete"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
-            <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
-              {it.signed_url && (
-                <a href={it.signed_url} target="_blank" rel="noopener noreferrer" className="bg-white/90 rounded-md p-1.5 hover:bg-white" title="Open">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
+            <div className="px-2 py-1.5 bg-white border-t border-border text-xs">
+              <div className="font-medium text-[#1D1D1F] truncate">{it.uploader_name || 'Anonymous guest'}</div>
+              {it.caption && (
+                <div className="text-muted-foreground line-clamp-2 mt-0.5" title={it.caption}>{it.caption}</div>
               )}
-              {it.signed_url && (
-                <a href={it.signed_url} download className="bg-white/90 rounded-md p-1.5 hover:bg-white" title="Download">
-                  <Download className="h-3.5 w-3.5" />
-                </a>
-              )}
-              <button onClick={() => { if (confirm('Delete this upload?')) onDelete(it.id); }} className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600" title="Delete">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
             </div>
-            {it.uploader_name && (
-              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-2 py-1 truncate">{it.uploader_name}</div>
-            )}
           </div>
         ))}
       </div>
@@ -136,7 +175,7 @@ export const GalleryGrid: React.FC<{
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
           <div className="max-w-5xl max-h-full" onClick={e => e.stopPropagation()}>
             {lightbox.kind === 'photo' ? (
-              <img src={lightbox.signed_url} alt="" className="max-h-[85vh] max-w-full" />
+              <img src={lightbox.signed_url} alt={lightbox.caption || ''} className="max-h-[85vh] max-w-full" />
             ) : (
               <video src={lightbox.signed_url} controls autoPlay className="max-h-[85vh] max-w-full" />
             )}
@@ -148,9 +187,13 @@ export const GalleryGrid: React.FC<{
             )}
             <div className="flex justify-center gap-3 mt-4">
               {lightbox.signed_url && (
-                <a href={lightbox.signed_url} download>
-                  <Button className="lv-premium-shade" variant="outline"><Download className="h-4 w-4 mr-1" /> Download</Button>
-                </a>
+                <Button
+                  className="lv-premium-shade"
+                  variant="outline"
+                  onClick={() => downloadSignedUrl(lightbox.signed_url!, filenameFor(lightbox))}
+                >
+                  <Download className="h-4 w-4 mr-1" /> Download
+                </Button>
               )}
               <Button className="lv-premium-shade" variant="outline" onClick={() => setLightbox(null)}>Close</Button>
             </div>
@@ -160,3 +203,4 @@ export const GalleryGrid: React.FC<{
     </Card>
   );
 };
+
