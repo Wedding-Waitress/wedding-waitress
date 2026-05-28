@@ -11,6 +11,7 @@ import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
 import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { formatDisplayDate } from '@/lib/utils';
 
 interface GalleryPublic {
   gallery_id: string;
