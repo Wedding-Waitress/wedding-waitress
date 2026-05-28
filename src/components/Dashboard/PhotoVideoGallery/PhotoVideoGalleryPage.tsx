@@ -82,6 +82,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               </Card>
             )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
+            <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} />
             <GuestbookList items={items} />
