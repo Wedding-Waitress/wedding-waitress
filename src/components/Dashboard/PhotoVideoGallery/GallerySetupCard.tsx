@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGalleryUploadUrl } from '@/lib/urlUtils';
+import { buildGalleryUploadUrl, buildGalleryLiveUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GallerySetupCard: React.FC<{
@@ -76,11 +76,23 @@ export const GallerySetupCard: React.FC<{
               </div>
             </div>
           )}
-          <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
-            <Download className="h-4 w-4 mr-1" /> Download QR code
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
+              <Download className="h-4 w-4 mr-1" /> Download QR code
+            </Button>
+            <Button
+              variant="outline"
+              className="lv-premium-shade"
+              onClick={() => meta.primary_token && window.open(buildGalleryLiveUrl(meta.primary_token), '_blank', 'noopener,noreferrer')}
+              disabled={!meta.primary_token}
+              title="Open the public slideshow in a new tab — ideal for a TV or projector"
+            >
+              <Play className="h-4 w-4 mr-1" /> Open Live View
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground">
             This link does not expire. Switch <strong>Gallery open</strong> off to stop new uploads.
+            Live View shows only approved uploads — hidden items never appear.
           </p>
         </div>
       </div>

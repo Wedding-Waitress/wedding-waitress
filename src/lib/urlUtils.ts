@@ -80,3 +80,11 @@ export function buildGalleryUploadUrl(token: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/gallery/${encodeURIComponent(token)}`;
 }
+
+/**
+ * Builds a Photo & Video Gallery public Live View / Slideshow URL.
+ */
+export function buildGalleryLiveUrl(token: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/gallery-live/${encodeURIComponent(token)}`;
+}
