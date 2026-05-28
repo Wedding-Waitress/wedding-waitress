@@ -16,6 +16,8 @@ export interface GalleryMeta {
   welcome_message: string | null;
   show_event_date: boolean;
   slideshow_photo_duration_sec: number;
+  password_enabled: boolean;
+  has_password: boolean;
 }
 
 export interface GalleryDisplaySettings {
@@ -209,5 +211,16 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings };
+  const setPassword = useCallback(async ({ enabled, password }: { enabled: boolean; password: string | null }) => {
+    if (!eventId) return;
+    const { error: err } = await (supabase as any).rpc('set_event_media_password', {
+      _event_id: eventId,
+      _enabled: enabled,
+      _password: password,
+    });
+    if (err) throw new Error(err.message || 'Failed to save password');
+    await loadMeta(eventId).catch(() => {});
+  }, [eventId, loadMeta]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword };
 }

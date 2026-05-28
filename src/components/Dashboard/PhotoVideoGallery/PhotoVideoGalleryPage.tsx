@@ -8,6 +8,7 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GallerySetupCard } from './GallerySetupCard';
 import { GalleryDisplaySettingsCard } from './GalleryDisplaySettingsCard';
+import { GalleryPasswordCard } from './GalleryPasswordCard';
 import { GalleryLimitsCard } from './GalleryLimitsCard';
 import { GalleryGrid } from './GalleryGrid';
 import { GuestbookList } from './GuestbookList';
@@ -20,7 +21,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -83,6 +84,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
+            <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} />
             <GuestbookList items={items} />
