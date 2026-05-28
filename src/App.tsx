@@ -132,6 +132,7 @@ const App = () => (
           <Suspense fallback={<RouteFallback />}>
           <Routes>
           <Route path="/gallery/:token" element={<GuestMediaUpload />} />
+          <Route path="/gallery-live/:token" element={<GalleryLiveView />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
