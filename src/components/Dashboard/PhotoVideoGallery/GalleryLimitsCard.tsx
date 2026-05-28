@@ -26,7 +26,7 @@ export const GalleryLimitsCard: React.FC<{
         max_photos: photos,
         max_videos: videos,
         max_total_bytes: Math.round(totalGb * 1024 * 1024 * 1024),
-        max_video_bytes: Math.min(videoMb, 500) * 1024 * 1024,
+        max_video_bytes: Math.min(videoMb, 600) * 1024 * 1024,
         max_video_duration_sec: Math.min(videoSec, 180),
         max_photo_bytes: photoMb * 1024 * 1024,
       });
@@ -42,11 +42,11 @@ export const GalleryLimitsCard: React.FC<{
         <div><Label>Max videos</Label><Input type="number" min={0} value={videos} onChange={e => setVideos(+e.target.value || 0)} className="h-11" /></div>
         <div><Label>Total storage (GB)</Label><Input type="number" min={1} step={0.5} value={totalGb} onChange={e => setTotalGb(+e.target.value || 0)} className="h-11" /></div>
         <div><Label>Max photo (MB)</Label><Input type="number" min={1} max={100} value={photoMb} onChange={e => setPhotoMb(+e.target.value || 0)} className="h-11" /></div>
-        <div><Label>Max video (MB, ≤500)</Label><Input type="number" min={1} max={500} value={videoMb} onChange={e => setVideoMb(+e.target.value || 0)} className="h-11" /></div>
+        <div><Label>Max video (MB, ≤600)</Label><Input type="number" min={1} max={600} value={videoMb} onChange={e => setVideoMb(+e.target.value || 0)} className="h-11" /></div>
         <div><Label>Max video duration (s, ≤180)</Label><Input type="number" min={1} max={180} value={videoSec} onChange={e => setVideoSec(+e.target.value || 0)} className="h-11" /></div>
       </div>
       <div className="mt-4"><Button className="lv-premium-shade" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save limits'}</Button></div>
-      <p className="text-xs text-muted-foreground mt-3">Videos MP4/MOV up to 500&nbsp;MB and 180&nbsp;s.</p>
+      <p className="text-xs text-muted-foreground mt-3">Videos MP4/MOV up to 600&nbsp;MB and 180&nbsp;s.</p>
     </Card>
   );
 };
