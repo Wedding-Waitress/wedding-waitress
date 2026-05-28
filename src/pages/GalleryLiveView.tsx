@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 
 interface LiveMeta {
   gallery_id: string;
@@ -11,6 +12,7 @@ interface LiveMeta {
   partner2_name: string | null;
   gallery_title: string | null;
   slideshow_photo_duration_sec: number;
+  password_required: boolean;
 }
 
 interface LiveItem {
@@ -38,6 +40,8 @@ const GalleryLiveView: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const passwordRef = useRef<string>('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
   const indexRef = useRef(0);
@@ -45,6 +49,15 @@ const GalleryLiveView: React.FC = () => {
   const pendingAdvanceRef = useRef(false);
   useEffect(() => { indexRef.current = index; }, [index]);
   useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
+
+  // Restore previously verified password for this token (session-scoped).
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const saved = sessionStorage.getItem(galleryPasswordKey(token));
+      if (saved) { passwordRef.current = saved; setUnlocked(true); }
+    } catch {}
+  }, [token]);
 
   const headerTitle = useMemo(() => {
     if (!meta) return '';
@@ -69,9 +82,9 @@ const GalleryLiveView: React.FC = () => {
   }, []);
 
   const loadItems = useCallback(async (t: string) => {
-    const { data, error: err } = await supabase.functions.invoke('gallery-live-feed', {
-      body: { token: t },
-    });
+    const body: Record<string, string> = { token: t };
+    if (passwordRef.current) body.password = passwordRef.current;
+    const { data, error: err } = await supabase.functions.invoke('gallery-live-feed', { body });
     if (err) throw new Error(err.message);
     if ((data as any)?.error) throw new Error((data as any).error);
     const rows = (((data as any)?.items || []) as LiveItem[]);
@@ -98,6 +111,7 @@ const GalleryLiveView: React.FC = () => {
         const row = Array.isArray(data) ? data[0] : data;
         if (!row) throw new Error('Gallery not found');
         if (!active) return;
+        const passwordRequired = row.password_required === true;
         setMeta({
           gallery_id: row.gallery_id,
           event_id: row.event_id,
@@ -106,8 +120,12 @@ const GalleryLiveView: React.FC = () => {
           partner2_name: row.partner2_name,
           gallery_title: row.gallery_title ?? null,
           slideshow_photo_duration_sec: row.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC,
+          password_required: passwordRequired,
         });
-        await loadItems(token);
+        // Only fetch items if no password gate, or already unlocked from sessionStorage.
+        if (!passwordRequired || passwordRef.current) {
+          await loadItems(token);
+        }
       } catch (e: any) {
         if (active) setError(e?.message || 'Unable to load gallery');
       } finally {
@@ -116,6 +134,13 @@ const GalleryLiveView: React.FC = () => {
     })();
     return () => { active = false; };
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // After unlock, load items.
+  useEffect(() => {
+    if (unlocked && token && meta?.password_required) {
+      loadItems(token).catch((e: any) => setError(e?.message || 'Unable to load gallery'));
+    }
+  }, [unlocked, token, meta?.password_required, loadItems]);
 
   // Realtime subscription on event_media_items for this event
   useEffect(() => {
@@ -180,6 +205,17 @@ const GalleryLiveView: React.FC = () => {
   };
 
   const current = items.length > 0 ? items[index % items.length] : null;
+
+  if (meta?.password_required && !unlocked && token) {
+    return (
+      <GalleryPasswordGate
+        token={token}
+        variant="dark"
+        title={`${headerTitle || 'Gallery'} — password required`}
+        onVerified={(pw) => { passwordRef.current = pw; setUnlocked(true); }}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">

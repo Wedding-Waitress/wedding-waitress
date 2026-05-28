@@ -12,6 +12,7 @@ import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, H
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
+import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -31,6 +32,7 @@ interface GalleryPublic {
   gallery_title: string | null;
   welcome_message: string | null;
   show_event_date: boolean;
+  password_required: boolean;
 }
 
 export const GuestMediaUpload: React.FC = () => {
@@ -38,6 +40,7 @@ export const GuestMediaUpload: React.FC = () => {
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [unlocked, setUnlocked] = useState(false);
   const [items, setItems] = useState<ValidationResult[]>([]);
   const [stages, setStages] = useState<Record<number, ValidationStage>>({});
   const [validating, setValidating] = useState(false);
@@ -50,6 +53,14 @@ export const GuestMediaUpload: React.FC = () => {
   const fileInput = useRef<HTMLInputElement>(null);
   const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
+
+  useEffect(() => {
+    if (!token) return;
+    // Restore previously verified password for this token (session-scoped).
+    try {
+      if (sessionStorage.getItem(galleryPasswordKey(token))) setUnlocked(true);
+    } catch {}
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -156,6 +167,15 @@ export const GuestMediaUpload: React.FC = () => {
           <p className="text-sm text-muted-foreground">This upload link is invalid or has been closed by the host.</p>
         </Card>
       </div>
+    );
+  }
+  if (gallery.password_required && !unlocked && token) {
+    return (
+      <GalleryPasswordGate
+        token={token}
+        title={`${gallery.event_name} — password required`}
+        onVerified={() => setUnlocked(true)}
+      />
     );
   }
   if (!gallery.is_open) {
