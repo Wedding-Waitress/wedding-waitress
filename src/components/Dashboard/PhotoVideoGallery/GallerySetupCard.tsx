@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGalleryUploadUrl } from '@/lib/urlUtils';
+import { buildGalleryUploadUrl, buildGalleryLiveUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GallerySetupCard: React.FC<{
