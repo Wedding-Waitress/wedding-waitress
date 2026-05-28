@@ -206,6 +206,17 @@ const GalleryLiveView: React.FC = () => {
 
   const current = items.length > 0 ? items[index % items.length] : null;
 
+  if (meta?.password_required && !unlocked && token) {
+    return (
+      <GalleryPasswordGate
+        token={token}
+        variant="dark"
+        title={`${headerTitle || 'Gallery'} — password required`}
+        onVerified={(pw) => { passwordRef.current = pw; setUnlocked(true); }}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
       {/* Header */}
