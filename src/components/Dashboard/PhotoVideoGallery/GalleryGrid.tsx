@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
-import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink, EyeOff, Eye } from 'lucide-react';
+import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 
 const PREVIEW_TIMEOUT_MS = 10000;
@@ -16,7 +24,6 @@ const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item,
     setStatus('loading');
     if (timerRef.current) clearTimeout(timerRef.current);
     if (!item.signed_url) {
-      // No URL yet — wait the timeout window, then fail
       timerRef.current = setTimeout(() => setStatus('error'), PREVIEW_TIMEOUT_MS);
       return () => { if (timerRef.current) clearTimeout(timerRef.current); };
     }
@@ -101,7 +108,6 @@ async function downloadSignedUrl(url: string, filenameHint: string) {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(objUrl), 1000);
   } catch {
-    // Fallback: open in new tab
     window.open(url, '_blank', 'noopener,noreferrer');
   }
 }
@@ -121,6 +127,10 @@ export const GalleryGrid: React.FC<{
 }> = ({ items, onDelete, onSetModeration }) => {
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
 
   const counts = useMemo(() => {
@@ -134,6 +144,41 @@ export const GalleryGrid: React.FC<{
     return items.filter(i => i.moderation_status === filter);
   }, [items, filter]);
 
+  // Clean up selection when items change (deleted items)
+  useEffect(() => {
+    setSelected(prev => {
+      const valid = new Set(items.map(i => i.id));
+      const next = new Set<string>();
+      prev.forEach(id => { if (valid.has(id)) next.add(id); });
+      return next.size === prev.size ? prev : next;
+    });
+  }, [items]);
+
+  const exitSelectMode = () => { setSelectMode(false); setSelected(new Set()); };
+
+  const toggleOne = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const visibleIds = useMemo(() => filtered.map(i => i.id), [filtered]);
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id));
+
+  const selectAllVisible = () => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        visibleIds.forEach(id => next.delete(id));
+      } else {
+        visibleIds.forEach(id => next.add(id));
+      }
+      return next;
+    });
+  };
+
   const toggleModeration = async (it: GalleryItem) => {
     const next = it.moderation_status === 'approved' ? 'hidden' : 'approved';
     try {
@@ -142,6 +187,59 @@ export const GalleryGrid: React.FC<{
     } catch (e: any) {
       toast({ title: 'Could not update', description: e?.message, variant: 'destructive' });
     }
+  };
+
+  const selectedItems = useMemo(
+    () => items.filter(i => selected.has(i.id)),
+    [items, selected]
+  );
+
+  const bulkSetModeration = async (status: 'approved' | 'hidden') => {
+    if (selectedItems.length === 0) return;
+    setBulkBusy(true);
+    let ok = 0, fail = 0;
+    for (const it of selectedItems) {
+      if (it.moderation_status === status) { ok++; continue; }
+      try { await onSetModeration(it.id, status); ok++; } catch { fail++; }
+    }
+    setBulkBusy(false);
+    toast({
+      title: status === 'approved' ? `Approved ${ok} item${ok === 1 ? '' : 's'}` : `Hid ${ok} item${ok === 1 ? '' : 's'}`,
+      description: fail > 0 ? `${fail} failed` : undefined,
+      variant: fail > 0 ? 'destructive' : undefined,
+    });
+  };
+
+  const bulkDelete = async () => {
+    setConfirmDelete(false);
+    if (selectedItems.length === 0) return;
+    setBulkBusy(true);
+    const ids = selectedItems.map(i => i.id);
+    for (const id of ids) {
+      try { await onDelete(id); } catch { /* hook may throw; continue */ }
+    }
+    setBulkBusy(false);
+    toast({ title: `Deleted ${ids.length} item${ids.length === 1 ? '' : 's'}` });
+    exitSelectMode();
+  };
+
+  const bulkDownload = async () => {
+    const withUrl = selectedItems.filter(i => i.signed_url);
+    if (withUrl.length === 0) {
+      toast({ title: 'Nothing to download', description: 'Selected items have no preview URLs yet.', variant: 'destructive' });
+      return;
+    }
+    setBulkBusy(true);
+    toast({ title: `Downloading ${withUrl.length} file${withUrl.length === 1 ? '' : 's'}…` });
+    for (let i = 0; i < withUrl.length; i++) {
+      const it = withUrl[i];
+      // sequential, one-by-one, small gap so browser doesn't drop downloads
+      // eslint-disable-next-line no-await-in-loop
+      await downloadSignedUrl(it.signed_url!, filenameFor(it));
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise(r => setTimeout(r, 350));
+    }
+    setBulkBusy(false);
   };
 
   if (items.length === 0) {
@@ -171,12 +269,86 @@ export const GalleryGrid: React.FC<{
     <Card className="p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({counts.all})</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {!selectMode ? (
+            <Button
+              className="lv-premium-shade"
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectMode(true)}
+            >
+              <CheckCircle2 className="h-4 w-4 mr-1" /> Select
+            </Button>
+          ) : (
+            <Button
+              className="lv-premium-shade"
+              variant="outline"
+              size="sm"
+              onClick={exitSelectMode}
+            >
+              <X className="h-4 w-4 mr-1" /> Cancel
+            </Button>
+          )}
           <FilterBtn value="all" label="All" count={counts.all} />
           <FilterBtn value="approved" label="Approved" count={counts.approved} />
           <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
         </div>
       </div>
+
+      {selectMode && (
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={selectAllVisible}
+              className="lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white text-[#1D1D1F] border-border hover:bg-muted"
+            >
+              {allVisibleSelected ? 'Clear visible' : `Select all visible (${visibleIds.length})`}
+            </button>
+            <span className="text-sm text-muted-foreground">
+              {selected.size} selected
+            </span>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              className="lv-premium-shade"
+              variant="outline"
+              size="sm"
+              disabled={bulkBusy || selected.size === 0}
+              onClick={() => bulkSetModeration('approved')}
+            >
+              <Eye className="h-4 w-4 mr-1 text-green-600" /> Approve
+            </Button>
+            <Button
+              className="lv-premium-shade"
+              variant="outline"
+              size="sm"
+              disabled={bulkBusy || selected.size === 0}
+              onClick={() => bulkSetModeration('hidden')}
+            >
+              <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
+            </Button>
+            <Button
+              className="lv-premium-shade"
+              variant="outline"
+              size="sm"
+              disabled={bulkBusy || selected.size === 0}
+              onClick={bulkDownload}
+            >
+              <Download className="h-4 w-4 mr-1" /> Download
+            </Button>
+            <Button
+              className="lv-premium-shade"
+              variant="destructive"
+              size="sm"
+              disabled={bulkBusy || selected.size === 0}
+              onClick={() => setConfirmDelete(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-1" /> Delete
+            </Button>
+          </div>
+        </div>
+      )}
 
       {filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground py-8 text-center">No items in this view.</p>
@@ -184,52 +356,75 @@ export const GalleryGrid: React.FC<{
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {filtered.map(it => {
             const isHidden = it.moderation_status === 'hidden';
+            const isSelected = selected.has(it.id);
             return (
               <div
                 key={it.id}
-                className={`relative group rounded-lg overflow-hidden border border-border bg-muted flex flex-col ${isHidden ? 'opacity-60' : ''}`}
+                className={`relative group rounded-lg overflow-hidden border bg-muted flex flex-col ${
+                  isSelected ? 'border-[#967A59] ring-2 ring-[#967A59]' : 'border-border'
+                } ${isHidden ? 'opacity-60' : ''}`}
               >
                 <div className="aspect-square relative">
-                  <MediaThumb item={it} onOpen={() => it.signed_url && setLightbox(it)} />
+                  <MediaThumb
+                    item={it}
+                    onOpen={() => {
+                      if (selectMode) { toggleOne(it.id); return; }
+                      if (it.signed_url) setLightbox(it);
+                    }}
+                  />
+                  {selectMode && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleOne(it.id); }}
+                      className="absolute inset-0 z-20 flex items-start justify-start p-2 bg-black/0 hover:bg-black/10 transition-colors"
+                      aria-label={isSelected ? 'Deselect' : 'Select'}
+                    >
+                      <span className={`rounded-full p-0.5 ${isSelected ? 'bg-[#967A59] text-white' : 'bg-white/90 text-[#1D1D1F]'}`}>
+                        {isSelected ? <CheckCircle2 className="h-6 w-6" /> : <Circle className="h-6 w-6" />}
+                      </span>
+                    </button>
+                  )}
                   {isHidden && (
                     <div className="absolute top-1 left-1 z-10 bg-black/70 text-white text-[10px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide">
                       Hidden
                     </div>
                   )}
-                  <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
-                    {it.signed_url && (
+                  {!selectMode && (
+                    <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                      {it.signed_url && (
+                        <button
+                          onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
+                          className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                          title="Open in new tab"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      {it.signed_url && (
+                        <button
+                          onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it))}
+                          className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                          title="Download"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                       <button
-                        onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
+                        onClick={() => toggleModeration(it)}
                         className="bg-white/90 rounded-md p-1.5 hover:bg-white"
-                        title="Open in new tab"
+                        title={isHidden ? 'Approve / show again' : 'Hide from guests'}
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
-                    )}
-                    {it.signed_url && (
                       <button
-                        onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it))}
-                        className="bg-white/90 rounded-md p-1.5 hover:bg-white"
-                        title="Download"
+                        onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
+                        className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600"
+                        title="Delete"
                       >
-                        <Download className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
-                    )}
-                    <button
-                      onClick={() => toggleModeration(it)}
-                      className="bg-white/90 rounded-md p-1.5 hover:bg-white"
-                      title={isHidden ? 'Approve / show again' : 'Hide from guests'}
-                    >
-                      {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
-                    </button>
-                    <button
-                      onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
-                      className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                    </div>
+                  )}
                 </div>
                 <div className="px-2 py-1.5 bg-white border-t border-border text-xs">
                   <div className="flex items-center justify-between gap-2">
@@ -279,8 +474,28 @@ export const GalleryGrid: React.FC<{
           </div>
         </div>
       )}
+
+      <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-[#1D1D1F]">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Delete {selected.size} item{selected.size === 1 ? '' : 's'}?
+            </DialogTitle>
+            <DialogDescription>
+              This permanently removes the selected uploads and their files from storage. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <Button variant="outline" size="sm" onClick={() => setConfirmDelete(false)} disabled={bulkBusy}>
+              Cancel
+            </Button>
+            <Button variant="destructive" size="sm" onClick={bulkDelete} disabled={bulkBusy}>
+              {bulkBusy ? 'Deleting…' : `Delete ${selected.size}`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
-
-
