@@ -189,9 +189,34 @@ export const GuestMediaUpload: React.FC = () => {
   useEffect(() => {
     if (!uploading && progress.length > 0 && progress.every(p => p.status === 'done' || p.status === 'error' || p.status === 'skipped')) {
       const anySuccess = progress.some(p => p.status === 'done');
-      if (anySuccess) setShowThanks(true);
+      if (anySuccess) {
+        const success = progress.filter(p => p.status === 'done').length;
+        const failures = progress
+          .filter(p => p.status === 'error' || p.status === 'skipped')
+          .map(p => ({ name: p.fileName, reason: p.error || 'Could not be uploaded' }));
+        setThanksSummary({ success, failures });
+        setShowThanks(true);
+      }
     }
   }, [uploading, progress]);
+
+  const handleShareMore = () => {
+    setShowThanks(false);
+    setThanksSummary(null);
+    setItems([]);
+    setStages({});
+    setCaption('');
+    setGuestbook('');
+    reset();
+  };
+
+  const handleBackToStart = () => {
+    handleShareMore();
+    setName('');
+    try { if (nameStorageKey) sessionStorage.removeItem(nameStorageKey); } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-[#967A59]" /></div>;
