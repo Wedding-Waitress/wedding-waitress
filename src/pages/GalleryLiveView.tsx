@@ -122,8 +122,13 @@ const GalleryLiveView: React.FC = () => {
     return () => { supabase.removeChannel(channel); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
-  // Advance helper
+  // Advance helper (respects pause)
   const advance = useCallback(() => {
+    if (isPausedRef.current) {
+      pendingAdvanceRef.current = true;
+      return;
+    }
+    pendingAdvanceRef.current = false;
     setIndex(i => (items.length === 0 ? 0 : (i + 1) % items.length));
   }, [items.length]);
 
