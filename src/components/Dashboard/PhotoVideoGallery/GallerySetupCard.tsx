@@ -76,11 +76,23 @@ export const GallerySetupCard: React.FC<{
               </div>
             </div>
           )}
-          <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
-            <Download className="h-4 w-4 mr-1" /> Download QR code
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
+              <Download className="h-4 w-4 mr-1" /> Download QR code
+            </Button>
+            <Button
+              variant="outline"
+              className="lv-premium-shade"
+              onClick={() => meta.primary_token && window.open(buildGalleryLiveUrl(meta.primary_token), '_blank', 'noopener,noreferrer')}
+              disabled={!meta.primary_token}
+              title="Open the public slideshow in a new tab — ideal for a TV or projector"
+            >
+              <Play className="h-4 w-4 mr-1" /> Open Live View
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground">
             This link does not expire. Switch <strong>Gallery open</strong> off to stop new uploads.
+            Live View shows only approved uploads — hidden items never appear.
           </p>
         </div>
       </div>
