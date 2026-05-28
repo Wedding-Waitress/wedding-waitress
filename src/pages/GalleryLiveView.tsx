@@ -152,6 +152,23 @@ const GalleryLiveView: React.FC = () => {
     };
   }, [index, items, advance, isPaused]);
 
+  // If unpaused while a pending advance exists, advance immediately
+  useEffect(() => {
+    if (!isPaused && pendingAdvanceRef.current) {
+      pendingAdvanceRef.current = false;
+      advance();
+    }
+  }, [isPaused, advance]);
+
+  const togglePause = () => setIsPaused(p => !p);
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
   const current = items.length > 0 ? items[index % items.length] : null;
 
   return (
