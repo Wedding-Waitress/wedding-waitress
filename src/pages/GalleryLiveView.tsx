@@ -106,7 +106,8 @@ const GalleryLiveView: React.FC = () => {
         () => { loadItems(token).catch(() => {}); }
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const refresh = window.setInterval(() => { loadItems(token).catch(() => {}); }, REFRESH_URLS_MS);
+    return () => { supabase.removeChannel(channel); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
   // Advance helper
