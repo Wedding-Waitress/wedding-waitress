@@ -4275,6 +4275,17 @@ export type Database = {
           welcome_message: string
         }[]
       }
+      get_event_media_gallery_usage_public: {
+        Args: { _token: string }
+        Returns: {
+          bytes_used: number
+          max_photos: number
+          max_total_bytes: number
+          max_videos: number
+          photos_used: number
+          videos_used: number
+        }[]
+      }
       get_event_media_items_host: {
         Args: { _event_id: string }
         Returns: {
