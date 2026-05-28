@@ -19,15 +19,12 @@ interface LiveItem {
   uploader_name: string | null;
   caption: string | null;
   uploaded_at: string | null;
-  public_url: string;
+  signed_url: string;
 }
 
 const PHOTO_INTERVAL_MS = 8000;
-
-function publicUrlFor(path: string): string {
-  const { data } = supabase.storage.from('event-media').getPublicUrl(path);
-  return data.publicUrl;
-}
+// Re-fetch signed URLs before they expire (edge function TTL = 600s).
+const REFRESH_URLS_MS = 8 * 60 * 1000;
 
 const GalleryLiveView: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -38,6 +35,8 @@ const GalleryLiveView: React.FC = () => {
   const [index, setIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
+  const indexRef = useRef(0);
+  useEffect(() => { indexRef.current = index; }, [index]);
 
   const headerTitle = useMemo(() => {
     if (!meta) return '';
@@ -50,16 +49,15 @@ const GalleryLiveView: React.FC = () => {
   }, [headerTitle]);
 
   const loadItems = useCallback(async (t: string) => {
-    const { data, error: err } = await (supabase as any).rpc('get_event_media_items_public', { _token: t });
+    const { data, error: err } = await supabase.functions.invoke('gallery-live-feed', {
+      body: { token: t },
+    });
     if (err) throw new Error(err.message);
-    const rows = ((data || []) as Omit<LiveItem, 'public_url'>[]).map(r => ({
-      ...r,
-      public_url: publicUrlFor(r.storage_path),
-    }));
+    if ((data as any)?.error) throw new Error((data as any).error);
+    const rows = (((data as any)?.items || []) as LiveItem[]);
     setItems(prev => {
-      // Keep current item visible if still present, else reset index
       if (prev.length && rows.length) {
-        const currentId = prev[index]?.id;
+        const currentId = prev[indexRef.current]?.id;
         const nextIdx = rows.findIndex(r => r.id === currentId);
         if (nextIdx < 0) setIndex(0);
       } else {
@@ -67,7 +65,7 @@ const GalleryLiveView: React.FC = () => {
       }
       return rows;
     });
-  }, [index]);
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -108,7 +106,8 @@ const GalleryLiveView: React.FC = () => {
         () => { loadItems(token).catch(() => {}); }
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const refresh = window.setInterval(() => { loadItems(token).catch(() => {}); }, REFRESH_URLS_MS);
+    return () => { supabase.removeChannel(channel); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
   // Advance helper
@@ -166,7 +165,7 @@ const GalleryLiveView: React.FC = () => {
           current.kind === 'photo' ? (
             <img
               key={current.id}
-              src={current.public_url}
+              src={current.signed_url}
               alt={current.caption || 'Guest photo'}
               className="max-w-full max-h-full object-contain animate-in fade-in duration-700"
             />
@@ -174,7 +173,7 @@ const GalleryLiveView: React.FC = () => {
             <video
               key={current.id}
               ref={videoRef}
-              src={current.public_url}
+              src={current.signed_url}
               autoPlay
               playsInline
               muted
