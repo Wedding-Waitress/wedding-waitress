@@ -4526,6 +4526,7 @@ export type Database = {
         Returns: boolean
       }
       is_account_master: { Args: { _user_id: string }; Returns: boolean }
+      is_pending_event_media_path: { Args: { _path: string }; Returns: boolean }
       log_guest_activity: {
         Args: {
           _activity_type: Database["public"]["Enums"]["guest_activity_type"]
