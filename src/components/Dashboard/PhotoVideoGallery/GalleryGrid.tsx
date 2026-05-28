@@ -121,6 +121,8 @@ function filenameFor(item: GalleryItem): string {
 }
 
 type Filter = 'all' | 'approved' | 'hidden';
+type MediaTypeFilter = 'all' | 'photos' | 'videos';
+type SortMode = 'newest' | 'oldest';
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
@@ -129,22 +131,44 @@ export const GalleryGrid: React.FC<{
 }> = ({ items, onDelete, onSetModeration }) => {
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [mediaType, setMediaType] = useState<MediaTypeFilter>('all');
+  const [sortMode, setSortMode] = useState<SortMode>('newest');
+  const [search, setSearch] = useState('');
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
 
+  // Apply search + media type first; moderation counts reflect this subset.
+  const searchedTyped = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter(i => {
+      if (mediaType === 'photos' && i.kind !== 'photo') return false;
+      if (mediaType === 'videos' && i.kind !== 'video') return false;
+      if (q) {
+        const hay = `${i.uploader_name || ''} ${i.caption || ''} ${i.guestbook_message || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [items, mediaType, search]);
+
   const counts = useMemo(() => {
-    const approved = items.filter(i => i.moderation_status === 'approved').length;
-    const hidden = items.filter(i => i.moderation_status === 'hidden').length;
-    return { all: items.length, approved, hidden };
-  }, [items]);
+    const approved = searchedTyped.filter(i => i.moderation_status === 'approved').length;
+    const hidden = searchedTyped.filter(i => i.moderation_status === 'hidden').length;
+    return { all: searchedTyped.length, approved, hidden };
+  }, [searchedTyped]);
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return items;
-    return items.filter(i => i.moderation_status === filter);
-  }, [items, filter]);
+    const base = filter === 'all' ? searchedTyped : searchedTyped.filter(i => i.moderation_status === filter);
+    const sorted = [...base].sort((a, b) => {
+      const ta = a.uploaded_at ? Date.parse(a.uploaded_at) : 0;
+      const tb = b.uploaded_at ? Date.parse(b.uploaded_at) : 0;
+      return sortMode === 'newest' ? tb - ta : ta - tb;
+    });
+    return sorted;
+  }, [searchedTyped, filter, sortMode]);
 
   // Clean up selection when items change (deleted items)
   useEffect(() => {
@@ -167,6 +191,7 @@ export const GalleryGrid: React.FC<{
   };
 
   const visibleIds = useMemo(() => filtered.map(i => i.id), [filtered]);
+  const visibleIdSet = useMemo(() => new Set(visibleIds), [visibleIds]);
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id));
 
   const selectAllVisible = () => {
@@ -191,10 +216,12 @@ export const GalleryGrid: React.FC<{
     }
   };
 
+  // Bulk actions only act on items that are BOTH selected AND currently visible.
   const selectedItems = useMemo(
-    () => items.filter(i => selected.has(i.id)),
-    [items, selected]
+    () => filtered.filter(i => selected.has(i.id)),
+    [filtered, selected]
   );
+  const visibleSelectedCount = selectedItems.length;
 
   const bulkSetModeration = async (status: 'approved' | 'hidden') => {
     if (selectedItems.length === 0) return;
