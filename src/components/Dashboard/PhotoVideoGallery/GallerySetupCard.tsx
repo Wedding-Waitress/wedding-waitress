@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle, Play } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle, Play, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryUploadUrl, buildGalleryLiveUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
@@ -88,6 +88,20 @@ export const GallerySetupCard: React.FC<{
               title="Open the public slideshow in a new tab — ideal for a TV or projector"
             >
               <Play className="h-4 w-4 mr-1" /> Open Live View
+            </Button>
+            <Button
+              variant="outline"
+              className="lv-premium-shade"
+              onClick={async () => {
+                if (!meta.primary_token) return;
+                const url = buildGalleryLiveUrl(meta.primary_token);
+                await navigator.clipboard.writeText(url);
+                toast({ title: 'Live View link copied' });
+              }}
+              disabled={!meta.primary_token}
+              title="Copy the public Live View URL to your clipboard"
+            >
+              <Link2 className="h-4 w-4 mr-1" /> Copy Live View link
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">

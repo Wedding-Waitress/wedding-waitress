@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Maximize, Minimize, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface LiveMeta {
@@ -33,10 +34,15 @@ const GalleryLiveView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
   const indexRef = useRef(0);
+  const isPausedRef = useRef(isPaused);
+  const pendingAdvanceRef = useRef(false);
   useEffect(() => { indexRef.current = index; }, [index]);
+  useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
 
   const headerTitle = useMemo(() => {
     if (!meta) return '';
@@ -47,6 +53,12 @@ const GalleryLiveView: React.FC = () => {
   useEffect(() => {
     document.title = headerTitle ? `${headerTitle} — Live Gallery` : 'Live Gallery';
   }, [headerTitle]);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   const loadItems = useCallback(async (t: string) => {
     const { data, error: err } = await supabase.functions.invoke('gallery-live-feed', {
@@ -110,8 +122,13 @@ const GalleryLiveView: React.FC = () => {
     return () => { supabase.removeChannel(channel); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
-  // Advance helper
+  // Advance helper (respects pause)
   const advance = useCallback(() => {
+    if (isPausedRef.current) {
+      pendingAdvanceRef.current = true;
+      return;
+    }
+    pendingAdvanceRef.current = false;
     setIndex(i => (items.length === 0 ? 0 : (i + 1) % items.length));
   }, [items.length]);
 
@@ -121,7 +138,7 @@ const GalleryLiveView: React.FC = () => {
       window.clearTimeout(photoTimerRef.current);
       photoTimerRef.current = null;
     }
-    if (items.length === 0) return;
+    if (items.length === 0 || isPaused) return;
     const current = items[index % items.length];
     if (!current) return;
     if (current.kind === 'photo') {
@@ -133,7 +150,24 @@ const GalleryLiveView: React.FC = () => {
         photoTimerRef.current = null;
       }
     };
-  }, [index, items, advance]);
+  }, [index, items, advance, isPaused]);
+
+  // If unpaused while a pending advance exists, advance immediately
+  useEffect(() => {
+    if (!isPaused && pendingAdvanceRef.current) {
+      pendingAdvanceRef.current = false;
+      advance();
+    }
+  }, [isPaused, advance]);
+
+  const togglePause = () => setIsPaused(p => !p);
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
 
   const current = items.length > 0 ? items[index % items.length] : null;
 
@@ -141,10 +175,15 @@ const GalleryLiveView: React.FC = () => {
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
       {/* Header */}
       {headerTitle && (
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between">
           <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg">
             {headerTitle}
           </h1>
+          {items.length > 0 && (
+            <span className="text-white/60 text-sm font-medium drop-shadow mt-1.5 shrink-0">
+              {index + 1} / {items.length}
+            </span>
+          )}
         </div>
       )}
 
@@ -185,21 +224,41 @@ const GalleryLiveView: React.FC = () => {
         )}
       </div>
 
-      {/* Caption / uploader */}
-      {current && (current.caption || current.uploader_name) && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 px-6 py-5 bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
-          {current.caption && (
-            <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
-              {current.caption}
-            </div>
-          )}
-          {current.uploader_name && (
-            <div className="text-white/70 text-sm md:text-base mt-1">
-              — {current.uploader_name}
+      {/* Caption / uploader / controls */}
+      {(current && (current.caption || current.uploader_name)) || items.length > 0 ? (
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-6 py-5 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between gap-4">
+          <div className="pointer-events-none min-w-0">
+            {current?.caption && (
+              <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
+                {current.caption}
+              </div>
+            )}
+            {current?.uploader_name && (
+              <div className="text-white/70 text-sm md:text-base mt-1">
+                — {current.uploader_name}
+              </div>
+            )}
+          </div>
+          {items.length > 0 && (
+            <div className="flex items-center gap-2 shrink-0 pointer-events-auto">
+              <button
+                onClick={togglePause}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+                title={isPaused ? 'Play slideshow' : 'Pause slideshow'}
+              >
+                {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={toggleFullscreen}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              </button>
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
