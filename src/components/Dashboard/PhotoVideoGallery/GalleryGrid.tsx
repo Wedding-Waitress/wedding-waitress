@@ -191,7 +191,6 @@ export const GalleryGrid: React.FC<{
   };
 
   const visibleIds = useMemo(() => filtered.map(i => i.id), [filtered]);
-  const visibleIdSet = useMemo(() => new Set(visibleIds), [visibleIds]);
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.has(id));
 
   const selectAllVisible = () => {
