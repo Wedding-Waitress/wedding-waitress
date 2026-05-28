@@ -60,6 +60,7 @@ export const GuestMediaUpload: React.FC = () => {
   const [caption, setCaption] = useState('');
   const [guestbook, setGuestbook] = useState('');
   const [showThanks, setShowThanks] = useState(false);
+  const [thanksSummary, setThanksSummary] = useState<{ success: number; failures: { name: string; reason: string }[] } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
