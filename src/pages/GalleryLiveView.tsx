@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 
 interface LiveMeta {
   gallery_id: string;
@@ -11,6 +12,7 @@ interface LiveMeta {
   partner2_name: string | null;
   gallery_title: string | null;
   slideshow_photo_duration_sec: number;
+  password_required: boolean;
 }
 
 interface LiveItem {
@@ -38,6 +40,8 @@ const GalleryLiveView: React.FC = () => {
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const passwordRef = useRef<string>('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
   const indexRef = useRef(0);
@@ -45,6 +49,15 @@ const GalleryLiveView: React.FC = () => {
   const pendingAdvanceRef = useRef(false);
   useEffect(() => { indexRef.current = index; }, [index]);
   useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
+
+  // Restore previously verified password for this token (session-scoped).
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const saved = sessionStorage.getItem(galleryPasswordKey(token));
+      if (saved) { passwordRef.current = saved; setUnlocked(true); }
+    } catch {}
+  }, [token]);
 
   const headerTitle = useMemo(() => {
     if (!meta) return '';
