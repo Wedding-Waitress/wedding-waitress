@@ -28,6 +28,9 @@ interface GalleryPublic {
   max_photo_bytes: number;
   allowed_photo_mimes: string[];
   allowed_video_mimes: string[];
+  gallery_title: string | null;
+  welcome_message: string | null;
+  show_event_date: boolean;
 }
 
 export const GuestMediaUpload: React.FC = () => {
