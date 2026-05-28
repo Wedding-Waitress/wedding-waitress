@@ -154,6 +154,18 @@ export function useEventMediaGallery(eventId: string | null) {
     setItems(prev => prev.filter(i => i.id !== id));
   }, []);
 
+  const setModeration = useCallback(async (id: string, status: 'approved' | 'hidden') => {
+    // Optimistic update
+    setItems(prev => prev.map(i => (i.id === id ? { ...i, moderation_status: status } : i)));
+    const { error: err } = await (supabase as any).rpc('set_event_media_moderation', { _item_id: id, _status: status });
+    if (err) {
+      // Revert
+      setItems(prev => prev.map(i => (i.id === id ? { ...i, moderation_status: status === 'approved' ? 'hidden' : 'approved' } : i)));
+      throw new Error(err.message || 'Failed to update moderation');
+    }
+  }, []);
+
+
   const updateLimits = useCallback(async (l: Partial<GalleryMeta>) => {
     if (!eventId) return;
     await (supabase as any).rpc('update_event_media_limits', {
