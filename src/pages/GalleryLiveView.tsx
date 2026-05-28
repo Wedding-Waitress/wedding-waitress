@@ -34,10 +34,15 @@ const GalleryLiveView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
   const indexRef = useRef(0);
+  const isPausedRef = useRef(isPaused);
+  const pendingAdvanceRef = useRef(false);
   useEffect(() => { indexRef.current = index; }, [index]);
+  useEffect(() => { isPausedRef.current = isPaused; }, [isPaused]);
 
   const headerTitle = useMemo(() => {
     if (!meta) return '';
