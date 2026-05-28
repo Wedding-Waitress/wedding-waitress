@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -60,17 +60,28 @@ export const GuestMediaUpload: React.FC = () => {
   const [caption, setCaption] = useState('');
   const [guestbook, setGuestbook] = useState('');
   const [showThanks, setShowThanks] = useState(false);
+  const [thanksSummary, setThanksSummary] = useState<{ success: number; failures: { name: string; reason: string }[] } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
 
+  const nameStorageKey = token ? `gallery-uploader-name:${token}` : '';
+
   useEffect(() => {
     if (!token) return;
-    // Restore previously verified password for this token (session-scoped).
     try {
       if (sessionStorage.getItem(galleryPasswordKey(token))) setUnlocked(true);
+      const savedName = sessionStorage.getItem(nameStorageKey);
+      if (savedName) setName(savedName);
     } catch {}
-  }, [token]);
+  }, [token, nameStorageKey]);
+
+  useEffect(() => {
+    if (!nameStorageKey) return;
+    try {
+      if (name.trim()) sessionStorage.setItem(nameStorageKey, name.trim());
+    } catch {}
+  }, [name, nameStorageKey]);
 
   const loadUsage = useCallback(async () => {
     if (!token) return;
@@ -178,9 +189,34 @@ export const GuestMediaUpload: React.FC = () => {
   useEffect(() => {
     if (!uploading && progress.length > 0 && progress.every(p => p.status === 'done' || p.status === 'error' || p.status === 'skipped')) {
       const anySuccess = progress.some(p => p.status === 'done');
-      if (anySuccess) setShowThanks(true);
+      if (anySuccess) {
+        const success = progress.filter(p => p.status === 'done').length;
+        const failures = progress
+          .filter(p => p.status === 'error' || p.status === 'skipped')
+          .map(p => ({ name: p.fileName, reason: p.error || 'Could not be uploaded' }));
+        setThanksSummary({ success, failures });
+        setShowThanks(true);
+      }
     }
   }, [uploading, progress]);
+
+  const handleShareMore = () => {
+    setShowThanks(false);
+    setThanksSummary(null);
+    setItems([]);
+    setStages({});
+    setCaption('');
+    setGuestbook('');
+    reset();
+  };
+
+  const handleBackToStart = () => {
+    handleShareMore();
+    setName('');
+    try { if (nameStorageKey) sessionStorage.removeItem(nameStorageKey); } catch {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-[#967A59]" /></div>;
@@ -223,24 +259,81 @@ export const GuestMediaUpload: React.FC = () => {
   const showDate = gallery.show_event_date !== false && !!gallery.event_date;
 
   if (showThanks) {
+    const summary = thanksSummary ?? { success: 0, failures: [] };
+    const { success, failures } = summary;
+    const firstName = name.trim().split(/\s+/)[0];
+    const greeting = firstName ? `Thank you, ${firstName}!` : 'Thank you!';
+    const fileWord = (n: number) => (n === 1 ? 'file' : 'files');
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-[#F8F5F0]">
-        <Card className="p-8 max-w-md text-center">
-          <Heart className="h-12 w-12 mx-auto mb-4 text-[#967A59]" fill="#967A59" />
-          <h1 className="text-2xl font-semibold mb-2">Thank you!</h1>
-          <p className="text-sm text-muted-foreground mb-6">
-            Your memories have been shared with {couple || 'the hosts'}.
+      <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-b from-[#F8F5F0] via-[#F4EEE4] to-[#EFE6D6] overflow-x-hidden">
+        <SeoHead title={`${gallery.event_name} — Thank you for sharing`} description="Your memories have been shared with the couple." />
+        <Card className="p-7 sm:p-8 max-w-md w-full text-center border-[#E8E1D6] shadow-[0_8px_30px_-12px_rgba(150,122,89,0.25)] bg-white/90 backdrop-blur-sm">
+          <div className="relative inline-flex items-center justify-center mb-5">
+            <div className="absolute inset-0 -m-3 rounded-full bg-[#967A59]/10 blur-xl" aria-hidden="true" />
+            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#F4EEE4] to-[#E8D9BF] flex items-center justify-center border border-[#E8E1D6]">
+              <Heart className="h-10 w-10 text-[#967A59]" fill="#967A59" />
+              <Sparkles className="absolute -top-1 -right-1 h-5 w-5 text-[#C9A861]" />
+            </div>
+          </div>
+
+          <h1 className="text-3xl font-semibold text-[#1D1D1F] tracking-tight">{greeting}</h1>
+          <p className="text-base text-[#6E6E73] mt-3 leading-relaxed">
+            {success > 0
+              ? <>You just shared <span className="font-medium text-[#1D1D1F]">{success} {fileWord(success)}</span> with {couple || 'the couple'}. These memories mean the world. 💛</>
+              : <>Your message has been received by {couple || 'the couple'}.</>}
           </p>
-          <Button
-            className="lv-premium-shade w-full"
-            onClick={() => { setShowThanks(false); setItems([]); setCaption(''); setGuestbook(''); reset(); }}
-          >
-            Share more photos & videos
-          </Button>
+
+          {success > 0 && (
+            <div className="mt-5 rounded-xl border border-[#E0D3B8] bg-[#FBF7EE] p-3.5 flex items-center justify-center gap-2 text-sm text-[#7A5E3A]">
+              <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
+              <span><span className="font-semibold">{success}</span> {fileWord(success)} uploaded successfully</span>
+            </div>
+          )}
+
+          {failures.length > 0 && (
+            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-left">
+              <div className="flex items-center gap-2 text-sm font-medium text-amber-900">
+                <AlertTriangle className="h-4 w-4" />
+                {failures.length} {fileWord(failures.length)} couldn't be shared
+              </div>
+              <ul className="mt-2 space-y-1.5 max-h-40 overflow-y-auto">
+                {failures.map((f, i) => (
+                  <li key={i} className="text-xs text-amber-900/90">
+                    <div className="font-medium truncate">{f.name}</div>
+                    <div className="text-amber-800/80">{f.reason}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="mt-6 space-y-2.5">
+            <Button
+              className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white text-base"
+              onClick={handleShareMore}
+            >
+              <Camera className="h-4 w-4 mr-2" />
+              Share more photos &amp; videos
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="lv-premium-shade w-full h-12 text-base"
+              onClick={handleBackToStart}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to start
+            </Button>
+          </div>
+
+          <p className="mt-5 text-xs text-[#8a8a8e] italic">
+            With love from {couple || gallery.event_name} 🤍
+          </p>
         </Card>
       </div>
     );
   }
+
 
   const validCount = items.filter(i => i.ok).length;
 
