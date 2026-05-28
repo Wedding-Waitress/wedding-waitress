@@ -89,6 +89,20 @@ export const GallerySetupCard: React.FC<{
             >
               <Play className="h-4 w-4 mr-1" /> Open Live View
             </Button>
+            <Button
+              variant="outline"
+              className="lv-premium-shade"
+              onClick={async () => {
+                if (!meta.primary_token) return;
+                const url = buildGalleryLiveUrl(meta.primary_token);
+                await navigator.clipboard.writeText(url);
+                toast({ title: 'Live View link copied' });
+              }}
+              disabled={!meta.primary_token}
+              title="Copy the public Live View URL to your clipboard"
+            >
+              <Link2 className="h-4 w-4 mr-1" /> Copy Live View link
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground">
             This link does not expire. Switch <strong>Gallery open</strong> off to stop new uploads.
