@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
-import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink } from 'lucide-react';
+import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink, EyeOff, Eye } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import { useToast } from '@/hooks/use-toast';
+
 
 const PREVIEW_TIMEOUT_MS = 10000;
 
