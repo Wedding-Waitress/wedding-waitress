@@ -84,6 +84,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               </Card>
             )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
+            <GalleryUsageCard meta={meta} items={items} />
             <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
