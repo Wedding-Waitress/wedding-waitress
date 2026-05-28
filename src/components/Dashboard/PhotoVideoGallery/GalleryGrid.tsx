@@ -297,7 +297,7 @@ export const GalleryGrid: React.FC<{
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-        <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({counts.all})</h2>
+        <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({items.length})</h2>
         <div className="flex gap-2 flex-wrap">
           {!selectMode ? (
             <Button
@@ -318,10 +318,52 @@ export const GalleryGrid: React.FC<{
               <X className="h-4 w-4 mr-1" /> Cancel
             </Button>
           )}
-          <FilterBtn value="all" label="All" count={counts.all} />
-          <FilterBtn value="approved" label="Approved" count={counts.approved} />
-          <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
         </div>
+      </div>
+
+      {/* Search + type + sort */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-2 mb-3">
+        <div className="relative">
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search uploader, caption or message…"
+            className="h-9 pl-9"
+          />
+          {search && (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={() => setSearch('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+        <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
+          <SelectTrigger className="h-9 md:w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All media</SelectItem>
+            <SelectItem value="photos">Photos</SelectItem>
+            <SelectItem value="videos">Videos</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+          <SelectTrigger className="h-9 md:w-[150px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest first</SelectItem>
+            <SelectItem value="oldest">Oldest first</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Moderation pills */}
+      <div className="flex gap-2 flex-wrap mb-4">
+        <FilterBtn value="all" label="All" count={counts.all} />
+        <FilterBtn value="approved" label="Approved" count={counts.approved} />
+        <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
       </div>
 
       {selectMode && (
@@ -335,7 +377,7 @@ export const GalleryGrid: React.FC<{
               {allVisibleSelected ? 'Clear visible' : `Select all visible (${visibleIds.length})`}
             </button>
             <span className="text-sm text-muted-foreground">
-              {selected.size} selected
+              {visibleSelectedCount} selected{selected.size > visibleSelectedCount ? ` (${selected.size - visibleSelectedCount} hidden by filters)` : ''}
             </span>
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -343,7 +385,7 @@ export const GalleryGrid: React.FC<{
               className="lv-premium-shade"
               variant="outline"
               size="sm"
-              disabled={bulkBusy || selected.size === 0}
+              disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={() => bulkSetModeration('approved')}
             >
               <Eye className="h-4 w-4 mr-1 text-green-600" /> Approve
@@ -352,7 +394,7 @@ export const GalleryGrid: React.FC<{
               className="lv-premium-shade"
               variant="outline"
               size="sm"
-              disabled={bulkBusy || selected.size === 0}
+              disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={() => bulkSetModeration('hidden')}
             >
               <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
@@ -361,7 +403,7 @@ export const GalleryGrid: React.FC<{
               className="lv-premium-shade"
               variant="outline"
               size="sm"
-              disabled={bulkBusy || selected.size === 0}
+              disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={bulkDownload}
             >
               <Download className="h-4 w-4 mr-1" /> Download
@@ -370,7 +412,7 @@ export const GalleryGrid: React.FC<{
               className="lv-premium-shade"
               variant="destructive"
               size="sm"
-              disabled={bulkBusy || selected.size === 0}
+              disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={() => setConfirmDelete(true)}
             >
               <Trash2 className="h-4 w-4 mr-1" /> Delete
