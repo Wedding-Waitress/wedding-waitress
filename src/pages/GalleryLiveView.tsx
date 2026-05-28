@@ -152,7 +152,7 @@ const GalleryLiveView: React.FC = () => {
     const current = items[index % items.length];
     if (!current) return;
     if (current.kind === 'photo') {
-      photoTimerRef.current = window.setTimeout(advance, PHOTO_INTERVAL_MS);
+      photoTimerRef.current = window.setTimeout(advance, photoIntervalMs);
     }
     return () => {
       if (photoTimerRef.current) {
@@ -160,7 +160,7 @@ const GalleryLiveView: React.FC = () => {
         photoTimerRef.current = null;
       }
     };
-  }, [index, items, advance, isPaused]);
+  }, [index, items, advance, isPaused, photoIntervalMs]);
 
   // If unpaused while a pending advance exists, advance immediately
   useEffect(() => {
