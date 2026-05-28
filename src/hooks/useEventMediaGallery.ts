@@ -180,5 +180,5 @@ export function useEventMediaGallery(eventId: string | null) {
     await loadMeta(eventId).catch((e: any) => setError(e?.message || 'Failed to reload limits'));
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits };
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration };
 }
