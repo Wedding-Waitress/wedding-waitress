@@ -4262,6 +4262,19 @@ export type Database = {
           uploader_name: string
         }[]
       }
+      get_event_media_items_public: {
+        Args: { _token: string }
+        Returns: {
+          caption: string
+          duration_sec: number
+          id: string
+          kind: Database["public"]["Enums"]["event_media_kind"]
+          mime_type: string
+          storage_path: string
+          uploaded_at: string
+          uploader_name: string
+        }[]
+      }
       get_event_messaging_analytics: {
         Args: { _event_id: string }
         Returns: Json
