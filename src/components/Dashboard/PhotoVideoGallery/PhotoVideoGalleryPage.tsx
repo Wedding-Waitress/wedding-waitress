@@ -19,7 +19,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -82,7 +82,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
-            <GalleryGrid items={items} onDelete={deleteItem} />
+            <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} />
             <GuestbookList items={items} />
           </div>
         </PinchZoomContainer>

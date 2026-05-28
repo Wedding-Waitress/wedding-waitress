@@ -25,8 +25,10 @@ export interface GalleryItem {
   caption: string | null;
   guestbook_message: string | null;
   uploaded_at: string | null;
+  moderation_status: 'approved' | 'hidden';
   signed_url?: string;
 }
+
 
 // Module-level cache: event IDs known to have a gallery row in this session.
 // Lets us skip the ensure_event_media_gallery probe on warm re-selects.
@@ -152,6 +154,18 @@ export function useEventMediaGallery(eventId: string | null) {
     setItems(prev => prev.filter(i => i.id !== id));
   }, []);
 
+  const setModeration = useCallback(async (id: string, status: 'approved' | 'hidden') => {
+    // Optimistic update
+    setItems(prev => prev.map(i => (i.id === id ? { ...i, moderation_status: status } : i)));
+    const { error: err } = await (supabase as any).rpc('set_event_media_moderation', { _item_id: id, _status: status });
+    if (err) {
+      // Revert
+      setItems(prev => prev.map(i => (i.id === id ? { ...i, moderation_status: status === 'approved' ? 'hidden' : 'approved' } : i)));
+      throw new Error(err.message || 'Failed to update moderation');
+    }
+  }, []);
+
+
   const updateLimits = useCallback(async (l: Partial<GalleryMeta>) => {
     if (!eventId) return;
     await (supabase as any).rpc('update_event_media_limits', {
@@ -166,5 +180,5 @@ export function useEventMediaGallery(eventId: string | null) {
     await loadMeta(eventId).catch((e: any) => setError(e?.message || 'Failed to reload limits'));
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits };
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration };
 }
