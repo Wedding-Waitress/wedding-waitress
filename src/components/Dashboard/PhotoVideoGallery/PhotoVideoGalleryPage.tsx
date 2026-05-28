@@ -82,7 +82,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
-            <GalleryGrid items={items} onDelete={deleteItem} />
+            <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} />
             <GuestbookList items={items} />
           </div>
         </PinchZoomContainer>
