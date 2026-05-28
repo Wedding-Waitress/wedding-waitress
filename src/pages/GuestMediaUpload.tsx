@@ -35,12 +35,16 @@ export const GuestMediaUpload: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<ValidationResult[]>([]);
+  const [stages, setStages] = useState<Record<number, ValidationStage>>({});
   const [validating, setValidating] = useState(false);
+  const [awaitingPicker, setAwaitingPicker] = useState(false);
+  const [pickerHint, setPickerHint] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [caption, setCaption] = useState('');
   const [guestbook, setGuestbook] = useState('');
   const [showThanks, setShowThanks] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
 
   useEffect(() => {
@@ -54,30 +58,69 @@ export const GuestMediaUpload: React.FC = () => {
     })();
   }, [token]);
 
+  const openPicker = useCallback(() => {
+    setPickerHint(null);
+    setAwaitingPicker(true);
+    if (pickerTimer.current) window.clearTimeout(pickerTimer.current);
+    // If no onChange fires within 30s after picker open, hint that iPhone may still be preparing.
+    pickerTimer.current = window.setTimeout(() => {
+      setPickerHint('Your iPhone may still be preparing the video. Please wait, or choose a smaller/local video.');
+      setAwaitingPicker(false);
+    }, 30000);
+    fileInput.current?.click();
+  }, []);
+
   const onFiles = useCallback(async (picked: FileList | null) => {
-    if (!picked || !gallery) return;
+    if (pickerTimer.current) { window.clearTimeout(pickerTimer.current); pickerTimer.current = null; }
+    setAwaitingPicker(false);
+    if (!gallery) return;
+    if (!picked || picked.length === 0) {
+      setPickerHint('Your iPhone may still be preparing the video. Please wait, or choose a smaller/local video.');
+      return;
+    }
+    setPickerHint(null);
     setValidating(true);
     const arr = Array.from(picked);
-    const results: ValidationResult[] = [];
-    for (const f of arr) {
+    const startIndex = items.length;
+    // Insert placeholders immediately so the user sees activity.
+    const placeholders: ValidationResult[] = arr.map(f => ({
+      file: f, fileName: f.name, kind: null, mime: f.type || '',
+      mimeInferred: !f.type, size: f.size, duration: null,
+      durationUnknown: false, ok: true,
+    }));
+    setItems(prev => [...prev, ...placeholders]);
+    setStages(prev => {
+      const next = { ...prev };
+      arr.forEach((_, i) => { next[startIndex + i] = 'preparing'; });
+      return next;
+    });
+
+    for (let i = 0; i < arr.length; i++) {
+      const idx = startIndex + i;
+      let result: ValidationResult;
       try {
-        results.push(await validateFile(f, gallery));
+        result = await validateFile(arr[i], gallery, (s) => {
+          setStages(prev => ({ ...prev, [idx]: s }));
+        });
       } catch {
-        // Defensive — validateFile shouldn't throw, but never silently drop.
-        results.push({
-          file: f, fileName: f.name, kind: null, mime: f.type || '',
-          mimeInferred: !f.type, size: f.size, duration: null,
+        result = {
+          file: arr[i], fileName: arr[i].name, kind: null, mime: arr[i].type || '',
+          mimeInferred: !arr[i].type, size: arr[i].size, duration: null,
           durationUnknown: false, ok: false,
           reason: 'file_unreadable', reasonText: 'File could not be loaded from device/iCloud',
-        });
+        };
       }
+      setItems(prev => prev.map((it, j) => j === idx ? result : it));
+      setStages(prev => ({ ...prev, [idx]: 'ready' }));
     }
-    setItems(prev => [...prev, ...results]);
     setValidating(false);
     if (fileInput.current) fileInput.current.value = '';
-  }, [gallery]);
+  }, [gallery, items.length]);
 
-  const removeItem = (i: number) => setItems(prev => prev.filter((_, idx) => idx !== i));
+  const removeItem = (i: number) => {
+    setItems(prev => prev.filter((_, idx) => idx !== i));
+    setStages(prev => { const n = { ...prev }; delete n[i]; return n; });
+  };
 
   const onSubmit = async () => {
     if (!gallery || !token || items.length === 0) return;
