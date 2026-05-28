@@ -164,7 +164,7 @@ const GalleryLiveView: React.FC = () => {
           current.kind === 'photo' ? (
             <img
               key={current.id}
-              src={current.public_url}
+              src={current.signed_url}
               alt={current.caption || 'Guest photo'}
               className="max-w-full max-h-full object-contain animate-in fade-in duration-700"
             />
@@ -172,7 +172,7 @@ const GalleryLiveView: React.FC = () => {
             <video
               key={current.id}
               ref={videoRef}
-              src={current.public_url}
+              src={current.signed_url}
               autoPlay
               playsInline
               muted
