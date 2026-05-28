@@ -422,6 +422,8 @@ export const GuestMediaUpload: React.FC = () => {
               </ul>
             )}
           </div>
+            );
+          })()}
 
           <div>
             <Label htmlFor="g-cap" className="text-base">Caption (optional)</Label>
