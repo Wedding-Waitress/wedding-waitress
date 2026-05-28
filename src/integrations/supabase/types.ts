@@ -771,6 +771,7 @@ export type Database = {
           id: string
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
+          moderation_status: string
           storage_path: string
           upload_status: Database["public"]["Enums"]["event_media_upload_status"]
           upload_token_expires_at: string | null
@@ -791,6 +792,7 @@ export type Database = {
           id?: string
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
+          moderation_status?: string
           storage_path: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
           upload_token_expires_at?: string | null
@@ -811,6 +813,7 @@ export type Database = {
           id?: string
           kind?: Database["public"]["Enums"]["event_media_kind"]
           mime_type?: string
+          moderation_status?: string
           storage_path?: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
           upload_token_expires_at?: string | null
@@ -4253,6 +4256,7 @@ export type Database = {
           id: string
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
+          moderation_status: string
           storage_path: string
           uploaded_at: string
           uploader_name: string
@@ -4609,6 +4613,10 @@ export type Database = {
       set_event_media_gallery_open: {
         Args: { _event_id: string; _is_open: boolean }
         Returns: boolean
+      }
+      set_event_media_moderation: {
+        Args: { _item_id: string; _status: string }
+        Returns: undefined
       }
       submit_guest_song_requests: {
         Args: { _event_id: string; _guest_id: string; _requests: Json }

@@ -25,8 +25,10 @@ export interface GalleryItem {
   caption: string | null;
   guestbook_message: string | null;
   uploaded_at: string | null;
+  moderation_status: 'approved' | 'hidden';
   signed_url?: string;
 }
+
 
 // Module-level cache: event IDs known to have a gallery row in this session.
 // Lets us skip the ensure_event_media_gallery probe on warm re-selects.
