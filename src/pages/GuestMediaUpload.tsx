@@ -64,13 +64,23 @@ export const GuestMediaUpload: React.FC = () => {
   const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
 
+  const nameStorageKey = token ? `gallery-uploader-name:${token}` : '';
+
   useEffect(() => {
     if (!token) return;
-    // Restore previously verified password for this token (session-scoped).
     try {
       if (sessionStorage.getItem(galleryPasswordKey(token))) setUnlocked(true);
+      const savedName = sessionStorage.getItem(nameStorageKey);
+      if (savedName) setName(savedName);
     } catch {}
-  }, [token]);
+  }, [token, nameStorageKey]);
+
+  useEffect(() => {
+    if (!nameStorageKey) return;
+    try {
+      if (name.trim()) sessionStorage.setItem(nameStorageKey, name.trim());
+    } catch {}
+  }, [name, nameStorageKey]);
 
   const loadUsage = useCallback(async () => {
     if (!token) return;
