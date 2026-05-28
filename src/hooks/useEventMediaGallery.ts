@@ -191,5 +191,23 @@ export function useEventMediaGallery(eventId: string | null) {
     await loadMeta(eventId).catch((e: any) => setError(e?.message || 'Failed to reload limits'));
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration };
+  const updateDisplaySettings = useCallback(async (s: GalleryDisplaySettings) => {
+    if (!eventId) return;
+    // Optimistic
+    setMeta(m => m ? { ...m, ...s } : m);
+    const { error: err } = await (supabase as any).rpc('update_event_media_display_settings', {
+      _event_id: eventId,
+      _gallery_title: s.gallery_title,
+      _welcome_message: s.welcome_message,
+      _show_event_date: s.show_event_date,
+      _slideshow_photo_duration_sec: s.slideshow_photo_duration_sec,
+    });
+    if (err) {
+      // Revert by reloading meta
+      await loadMeta(eventId).catch(() => {});
+      throw new Error(err.message || 'Failed to save display settings');
+    }
+  }, [eventId, loadMeta]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings };
 }
