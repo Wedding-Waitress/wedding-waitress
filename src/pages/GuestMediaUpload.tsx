@@ -171,6 +171,9 @@ export const GuestMediaUpload: React.FC = () => {
   }
 
   const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
+  const displayTitle = gallery.gallery_title?.trim() || couple || gallery.event_name;
+  const displayWelcome = gallery.welcome_message?.trim() || 'Share your favourite photos and videos from today.';
+  const showDate = gallery.show_event_date !== false && !!gallery.event_date;
 
   if (showThanks) {
     return (
