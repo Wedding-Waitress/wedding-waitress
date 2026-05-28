@@ -731,6 +731,8 @@ export type Database = {
           gallery_title: string | null
           id: string
           is_open: boolean
+          password_enabled: boolean
+          password_hash: string | null
           show_event_date: boolean
           slideshow_photo_duration_sec: number
           updated_at: string
@@ -743,6 +745,8 @@ export type Database = {
           gallery_title?: string | null
           id?: string
           is_open?: boolean
+          password_enabled?: boolean
+          password_hash?: string | null
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
           updated_at?: string
@@ -755,6 +759,8 @@ export type Database = {
           gallery_title?: string | null
           id?: string
           is_open?: boolean
+          password_enabled?: boolean
+          password_hash?: string | null
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
           updated_at?: string
@@ -4230,6 +4236,7 @@ export type Database = {
         Returns: {
           gallery_id: string
           gallery_title: string
+          has_password: boolean
           is_open: boolean
           max_photo_bytes: number
           max_photos: number
@@ -4237,6 +4244,7 @@ export type Database = {
           max_video_bytes: number
           max_video_duration_sec: number
           max_videos: number
+          password_enabled: boolean
           primary_token: string
           show_event_date: boolean
           slideshow_photo_duration_sec: number
@@ -4261,6 +4269,7 @@ export type Database = {
           max_videos: number
           partner1_name: string
           partner2_name: string
+          password_required: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
           welcome_message: string
@@ -4651,6 +4660,10 @@ export type Database = {
         Args: { _item_id: string; _status: string }
         Returns: undefined
       }
+      set_event_media_password: {
+        Args: { _enabled: boolean; _event_id: string; _password: string }
+        Returns: boolean
+      }
       submit_guest_song_requests: {
         Args: { _event_id: string; _guest_id: string; _requests: Json }
         Returns: boolean
@@ -4816,6 +4829,10 @@ export type Database = {
       }
       validate_guest_access: {
         Args: { _access_token: string; _guest_id: string }
+        Returns: boolean
+      }
+      verify_event_media_password: {
+        Args: { _password: string; _token: string }
         Returns: boolean
       }
     }
