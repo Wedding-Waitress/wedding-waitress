@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, Heart } from 'lucide-react';
-import { formatBytes } from '@/lib/mediaValidation';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart } from 'lucide-react';
+import { formatBytes, validateFile, ValidationResult } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 
 interface GalleryPublic {
@@ -34,7 +34,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [files, setFiles] = useState<File[]>([]);
+  const [items, setItems] = useState<ValidationResult[]>([]);
+  const [validating, setValidating] = useState(false);
   const [name, setName] = useState('');
   const [caption, setCaption] = useState('');
   const [guestbook, setGuestbook] = useState('');
@@ -53,14 +54,34 @@ export const GuestMediaUpload: React.FC = () => {
     })();
   }, [token]);
 
-  const onFiles = useCallback((picked: FileList | null) => {
-    if (!picked) return;
-    setFiles(prev => [...prev, ...Array.from(picked)]);
-  }, []);
+  const onFiles = useCallback(async (picked: FileList | null) => {
+    if (!picked || !gallery) return;
+    setValidating(true);
+    const arr = Array.from(picked);
+    const results: ValidationResult[] = [];
+    for (const f of arr) {
+      try {
+        results.push(await validateFile(f, gallery));
+      } catch {
+        // Defensive — validateFile shouldn't throw, but never silently drop.
+        results.push({
+          file: f, fileName: f.name, kind: null, mime: f.type || '',
+          mimeInferred: !f.type, size: f.size, duration: null,
+          durationUnknown: false, ok: false,
+          reason: 'file_unreadable', reasonText: 'File could not be loaded from device/iCloud',
+        });
+      }
+    }
+    setItems(prev => [...prev, ...results]);
+    setValidating(false);
+    if (fileInput.current) fileInput.current.value = '';
+  }, [gallery]);
+
+  const removeItem = (i: number) => setItems(prev => prev.filter((_, idx) => idx !== i));
 
   const onSubmit = async () => {
-    if (!gallery || !token || files.length === 0) return;
-    await uploadFiles(files, {
+    if (!gallery || !token || items.length === 0) return;
+    await uploadFiles(items, {
       token,
       uploaderName: name.trim(),
       caption: caption.trim(),
@@ -69,9 +90,8 @@ export const GuestMediaUpload: React.FC = () => {
     });
   };
 
-  // After all done, show thanks screen
   useEffect(() => {
-    if (!uploading && progress.length > 0 && progress.every(p => p.status === 'done' || p.status === 'error')) {
+    if (!uploading && progress.length > 0 && progress.every(p => p.status === 'done' || p.status === 'error' || p.status === 'skipped')) {
       const anySuccess = progress.some(p => p.status === 'done');
       if (anySuccess) setShowThanks(true);
     }
@@ -116,7 +136,7 @@ export const GuestMediaUpload: React.FC = () => {
           </p>
           <Button
             className="lv-premium-shade w-full"
-            onClick={() => { setShowThanks(false); setFiles([]); setCaption(''); setGuestbook(''); reset(); }}
+            onClick={() => { setShowThanks(false); setItems([]); setCaption(''); setGuestbook(''); reset(); }}
           >
             Share more photos & videos
           </Button>
@@ -124,6 +144,8 @@ export const GuestMediaUpload: React.FC = () => {
       </div>
     );
   }
+
+  const validCount = items.filter(i => i.ok).length;
 
   return (
     <div className="min-h-screen bg-[#F8F5F0] px-4 py-6 pt-8 overflow-x-hidden">
@@ -150,36 +172,74 @@ export const GuestMediaUpload: React.FC = () => {
               ref={fileInput}
               type="file"
               multiple
-              accept={[...gallery.allowed_photo_mimes, ...gallery.allowed_video_mimes].join(',')}
+              accept={[...gallery.allowed_photo_mimes, ...gallery.allowed_video_mimes, '.mov', '.mp4', '.m4v'].join(',')}
               className="hidden"
               onChange={e => onFiles(e.target.files)}
             />
-            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={() => fileInput.current?.click()} disabled={uploading}>
-              <Upload className="h-4 w-4 mr-2" /> Choose files
+            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={() => fileInput.current?.click()} disabled={uploading || validating}>
+              {validating ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Checking files…</> : <><Upload className="h-4 w-4 mr-2" /> Choose files</>}
             </Button>
-            {files.length > 0 && (
+
+            {items.length > 0 && (
               <ul className="mt-3 space-y-2">
-                {files.map((f, i) => {
+                {items.map((it, i) => {
                   const p = progress[i];
+                  const status = p?.status;
+                  const errMsg = p?.error || it.reasonText;
+                  const durationText =
+                    it.kind === 'video'
+                      ? (it.durationUnknown ? 'duration unknown' : `${it.duration ?? '?'}s`)
+                      : null;
                   return (
                     <li key={i} className="text-sm border border-border rounded-lg p-2.5 bg-white">
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="truncate flex-1">{f.name}</span>
-                        <span className="text-xs text-muted-foreground">{formatBytes(f.size)}</span>
-                      </div>
-                      {p && p.status !== 'pending' && (
-                        <div className="mt-1.5">
-                          {p.status === 'error' ? (
-                            <span className="text-xs text-red-600">{p.error}</span>
-                          ) : p.status === 'done' ? (
-                            <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Uploaded</span>
-                          ) : (
-                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div className="h-full bg-[#967A59] transition-all" style={{ width: `${p.percent}%` }} />
-                            </div>
-                          )}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{it.fileName}</div>
+                          <div className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                            {it.mime || 'unknown type'}{it.mimeInferred && it.mime ? ' (inferred)' : ''} • {formatBytes(it.size)}
+                            {durationText ? ` • ${durationText}` : ''}
+                          </div>
                         </div>
-                      )}
+                        {!uploading && status !== 'done' && (
+                          <button
+                            type="button"
+                            aria-label="Remove"
+                            onClick={() => removeItem(i)}
+                            className="text-muted-foreground hover:text-foreground p-1 -m-1"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Validation / progress badge */}
+                      <div className="mt-1.5">
+                        {!it.ok ? (
+                          <span className="text-xs text-red-600 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> {it.reasonText}
+                          </span>
+                        ) : status === 'error' ? (
+                          <span className="text-xs text-red-600 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> {errMsg}
+                          </span>
+                        ) : status === 'done' ? (
+                          <span className="text-xs text-green-600 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" /> Uploaded
+                          </span>
+                        ) : status === 'uploading' ? (
+                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-[#967A59] transition-all" style={{ width: `${p?.percent ?? 0}%` }} />
+                          </div>
+                        ) : it.durationUnknown ? (
+                          <span className="text-xs text-amber-600 flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3" /> Duration unknown — will still upload
+                          </span>
+                        ) : (
+                          <span className="text-xs text-green-600 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" /> Ready
+                          </span>
+                        )}
+                      </div>
                     </li>
                   );
                 })}
@@ -199,10 +259,12 @@ export const GuestMediaUpload: React.FC = () => {
 
           <Button
             className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white"
-            disabled={uploading || files.length === 0 || !name.trim()}
+            disabled={uploading || validating || validCount === 0 || !name.trim()}
             onClick={onSubmit}
           >
-            {uploading ? (<><Loader2 className="animate-spin h-4 w-4 mr-2" /> Uploading…</>) : `Share ${files.length || ''} file${files.length === 1 ? '' : 's'}`}
+            {uploading
+              ? (<><Loader2 className="animate-spin h-4 w-4 mr-2" /> Uploading…</>)
+              : `Share ${validCount || ''} file${validCount === 1 ? '' : 's'}`}
           </Button>
         </Card>
       </div>
