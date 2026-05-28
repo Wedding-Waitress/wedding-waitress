@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { formatDisplayDate } from '@/lib/utils';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -194,23 +195,46 @@ export const GuestMediaUpload: React.FC = () => {
     <div className="min-h-screen bg-[#F8F5F0] px-4 py-6 pt-8 overflow-x-hidden">
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
       <div className="max-w-md mx-auto">
-        <div className="text-center mb-6">
-          <Camera className="h-10 w-10 mx-auto mb-3 text-[#967A59]" />
-          <h1 className="text-2xl font-semibold text-[#1D1D1F]">{couple || gallery.event_name}</h1>
-          <p className="text-sm text-[#6E6E73] mt-1">Share your favourite photos and short videos</p>
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#967A59]/10 mb-4">
+            <Camera className="h-8 w-8 text-[#967A59]" />
+          </div>
+          <h1 className="text-3xl font-semibold text-[#1D1D1F] leading-tight">
+            {couple || gallery.event_name}
+          </h1>
+          {gallery.event_date && (
+            <p className="text-sm text-[#6E6E73] mt-2">
+              {formatDisplayDate(gallery.event_date)}
+            </p>
+          )}
+          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed">
+            Share your favourite photos and videos from today.
+          </p>
         </div>
 
         <Card className="p-5 space-y-5">
           <div>
-            <Label htmlFor="g-name" className="text-base">Your first name</Label>
-            <Input id="g-name" className="h-11 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="So the couple knows who shared" />
+            <Label htmlFor="g-name" className="text-base font-medium">
+              Your first name <span className="text-red-500" aria-hidden="true">*</span>
+            </Label>
+            <p className="text-xs text-[#6E6E73] mt-1">So the couple knows who shared these memories</p>
+            <Input id="g-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah" />
           </div>
 
           <div>
-            <Label className="text-base">Photos & videos</Label>
-            <p className="text-xs text-muted-foreground mt-1 mb-2">
-              Photos JPG/PNG/WebP up to {formatBytes(gallery.max_photo_bytes)} • Videos MP4/MOV up to {formatBytes(gallery.max_video_bytes)} and {gallery.max_video_duration_sec}s
-            </p>
+            <Label className="text-base font-medium">Photos & videos</Label>
+
+            <div className="mt-2 mb-3 bg-white/70 rounded-xl p-3.5 border border-[#E8E1D6] space-y-2">
+              <p className="text-xs font-medium text-[#1D1D1F]">Upload limits</p>
+              <div className="flex items-start gap-2 text-xs text-[#6E6E73]">
+                <ImageIcon className="h-4 w-4 text-[#967A59] mt-0.5 shrink-0" />
+                <span>Photos: JPG, PNG, WebP up to {formatBytes(gallery.max_photo_bytes)}</span>
+              </div>
+              <div className="flex items-start gap-2 text-xs text-[#6E6E73]">
+                <Video className="h-4 w-4 text-[#967A59] mt-0.5 shrink-0" />
+                <span>Videos: MP4, MOV up to {formatBytes(gallery.max_video_bytes)} and {Math.floor(gallery.max_video_duration_sec / 60)} minutes</span>
+              </div>
+            </div>
             <input
               ref={fileInput}
               type="file"
@@ -331,15 +355,29 @@ export const GuestMediaUpload: React.FC = () => {
             <Textarea id="g-msg" className="mt-2 text-base" rows={3} value={guestbook} onChange={e => setGuestbook(e.target.value)} placeholder="Leave a guestbook message" />
           </div>
 
-          <Button
-            className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white"
-            disabled={uploading || validating || validCount === 0 || !name.trim()}
-            onClick={onSubmit}
-          >
-            {uploading
-              ? (<><Loader2 className="animate-spin h-4 w-4 mr-2" /> Uploading…</>)
-              : `Share ${validCount || ''} file${validCount === 1 ? '' : 's'}`}
-          </Button>
+          <div>
+            <Button
+              className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white"
+              disabled={uploading || validating || validCount === 0 || !name.trim()}
+              onClick={onSubmit}
+            >
+              {uploading
+                ? (<><Loader2 className="animate-spin h-4 w-4 mr-2" /> Uploading…</>)
+                : `Share ${validCount || ''} file${validCount === 1 ? '' : 's'}`}
+            </Button>
+
+            {!uploading && !validating && (
+              <div className="mt-2 text-xs text-center text-[#6E6E73] min-h-[1.25rem]">
+                {!name.trim() && items.length > 0
+                  ? 'Enter your first name above to share these memories'
+                  : name.trim() && validCount === 0 && items.length > 0
+                    ? 'Remove invalid files or choose new ones to share'
+                    : name.trim() && items.length === 0
+                      ? 'Choose at least one photo or video to share'
+                      : ''}
+              </div>
+            )}
+          </div>
         </Card>
       </div>
     </div>
