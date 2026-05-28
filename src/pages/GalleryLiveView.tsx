@@ -9,6 +9,8 @@ interface LiveMeta {
   event_name: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  gallery_title: string | null;
+  slideshow_photo_duration_sec: number;
 }
 
 interface LiveItem {
@@ -23,7 +25,7 @@ interface LiveItem {
   signed_url: string;
 }
 
-const PHOTO_INTERVAL_MS = 8000;
+const DEFAULT_PHOTO_INTERVAL_SEC = 8;
 // Re-fetch signed URLs before they expire (edge function TTL = 600s).
 const REFRESH_URLS_MS = 8 * 60 * 1000;
 
@@ -46,9 +48,15 @@ const GalleryLiveView: React.FC = () => {
 
   const headerTitle = useMemo(() => {
     if (!meta) return '';
+    if (meta.gallery_title?.trim()) return meta.gallery_title.trim();
     const couple = [meta.partner1_name, meta.partner2_name].filter(Boolean).join(' & ');
     return couple || meta.event_name || '';
   }, [meta]);
+
+  const photoIntervalMs = useMemo(() => {
+    const s = meta?.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;
+    return Math.max(3, Math.min(60, s)) * 1000;
+  }, [meta?.slideshow_photo_duration_sec]);
 
   useEffect(() => {
     document.title = headerTitle ? `${headerTitle} — Live Gallery` : 'Live Gallery';
@@ -96,6 +104,8 @@ const GalleryLiveView: React.FC = () => {
           event_name: row.event_name,
           partner1_name: row.partner1_name,
           partner2_name: row.partner2_name,
+          gallery_title: row.gallery_title ?? null,
+          slideshow_photo_duration_sec: row.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC,
         });
         await loadItems(token);
       } catch (e: any) {
@@ -142,7 +152,7 @@ const GalleryLiveView: React.FC = () => {
     const current = items[index % items.length];
     if (!current) return;
     if (current.kind === 'photo') {
-      photoTimerRef.current = window.setTimeout(advance, PHOTO_INTERVAL_MS);
+      photoTimerRef.current = window.setTimeout(advance, photoIntervalMs);
     }
     return () => {
       if (photoTimerRef.current) {
@@ -150,7 +160,7 @@ const GalleryLiveView: React.FC = () => {
         photoTimerRef.current = null;
       }
     };
-  }, [index, items, advance, isPaused]);
+  }, [index, items, advance, isPaused, photoIntervalMs]);
 
   // If unpaused while a pending advance exists, advance immediately
   useEffect(() => {

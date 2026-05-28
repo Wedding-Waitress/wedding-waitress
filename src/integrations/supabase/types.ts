@@ -728,26 +728,38 @@ export type Database = {
         Row: {
           created_at: string
           event_id: string
+          gallery_title: string | null
           id: string
           is_open: boolean
+          show_event_date: boolean
+          slideshow_photo_duration_sec: number
           updated_at: string
           user_id: string
+          welcome_message: string | null
         }
         Insert: {
           created_at?: string
           event_id: string
+          gallery_title?: string | null
           id?: string
           is_open?: boolean
+          show_event_date?: boolean
+          slideshow_photo_duration_sec?: number
           updated_at?: string
           user_id: string
+          welcome_message?: string | null
         }
         Update: {
           created_at?: string
           event_id?: string
+          gallery_title?: string | null
           id?: string
           is_open?: boolean
+          show_event_date?: boolean
+          slideshow_photo_duration_sec?: number
           updated_at?: string
           user_id?: string
+          welcome_message?: string | null
         }
         Relationships: [
           {
@@ -4217,6 +4229,7 @@ export type Database = {
         Args: { _event_id: string }
         Returns: {
           gallery_id: string
+          gallery_title: string
           is_open: boolean
           max_photo_bytes: number
           max_photos: number
@@ -4225,6 +4238,9 @@ export type Database = {
           max_video_duration_sec: number
           max_videos: number
           primary_token: string
+          show_event_date: boolean
+          slideshow_photo_duration_sec: number
+          welcome_message: string
         }[]
       }
       get_event_media_gallery_public: {
@@ -4236,6 +4252,7 @@ export type Database = {
           event_id: string
           event_name: string
           gallery_id: string
+          gallery_title: string
           is_open: boolean
           max_photo_bytes: number
           max_photos: number
@@ -4244,6 +4261,9 @@ export type Database = {
           max_videos: number
           partner1_name: string
           partner2_name: string
+          show_event_date: boolean
+          slideshow_photo_duration_sec: number
+          welcome_message: string
         }[]
       }
       get_event_media_items_host: {
@@ -4678,6 +4698,16 @@ export type Database = {
           new_section_label?: string
           p_section_id: string
           share_token: string
+        }
+        Returns: boolean
+      }
+      update_event_media_display_settings: {
+        Args: {
+          _event_id: string
+          _gallery_title: string
+          _show_event_date: boolean
+          _slideshow_photo_duration_sec: number
+          _welcome_message: string
         }
         Returns: boolean
       }

@@ -28,6 +28,9 @@ interface GalleryPublic {
   max_photo_bytes: number;
   allowed_photo_mimes: string[];
   allowed_video_mimes: string[];
+  gallery_title: string | null;
+  welcome_message: string | null;
+  show_event_date: boolean;
 }
 
 export const GuestMediaUpload: React.FC = () => {
@@ -168,6 +171,9 @@ export const GuestMediaUpload: React.FC = () => {
   }
 
   const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
+  const displayTitle = gallery.gallery_title?.trim() || couple || gallery.event_name;
+  const displayWelcome = gallery.welcome_message?.trim() || 'Share your favourite photos and videos from today.';
+  const showDate = gallery.show_event_date !== false && !!gallery.event_date;
 
   if (showThanks) {
     return (
@@ -200,15 +206,15 @@ export const GuestMediaUpload: React.FC = () => {
             <Camera className="h-8 w-8 text-[#967A59]" />
           </div>
           <h1 className="text-3xl font-semibold text-[#1D1D1F] leading-tight">
-            {couple || gallery.event_name}
+            {displayTitle}
           </h1>
-          {gallery.event_date && (
+          {showDate && (
             <p className="text-sm text-[#6E6E73] mt-2">
               {formatDisplayDate(gallery.event_date)}
             </p>
           )}
-          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed">
-            Share your favourite photos and videos from today.
+          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line">
+            {displayWelcome}
           </p>
         </div>
 
