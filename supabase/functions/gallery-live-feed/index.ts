@@ -17,6 +17,7 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const token = typeof body?.token === 'string' ? body.token.trim() : '';
+    const password = typeof body?.password === 'string' ? body.password : '';
     if (!token) {
       return new Response(JSON.stringify({ error: 'token required' }), {
         status: 400,
@@ -28,6 +29,24 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
+
+    // If the gallery is password-protected, require a correct password.
+    const { data: pwOk, error: pwErr } = await supabase.rpc('verify_event_media_password', {
+      _token: token,
+      _password: password,
+    });
+    if (pwErr) {
+      return new Response(JSON.stringify({ error: pwErr.message }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    if (pwOk !== true) {
+      return new Response(JSON.stringify({ error: 'password required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // SECURITY DEFINER RPC enforces: valid token, not expired, gallery is_open=true,
     // upload_status='uploaded', moderation_status='approved'. Hidden items never returned.
