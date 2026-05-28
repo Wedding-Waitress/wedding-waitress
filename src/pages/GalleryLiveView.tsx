@@ -54,6 +54,12 @@ const GalleryLiveView: React.FC = () => {
     document.title = headerTitle ? `${headerTitle} — Live Gallery` : 'Live Gallery';
   }, [headerTitle]);
 
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
   const loadItems = useCallback(async (t: string) => {
     const { data, error: err } = await supabase.functions.invoke('gallery-live-feed', {
       body: { token: t },
