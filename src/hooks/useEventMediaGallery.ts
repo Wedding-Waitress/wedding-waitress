@@ -12,6 +12,17 @@ export interface GalleryMeta {
   max_video_bytes: number;
   max_video_duration_sec: number;
   max_photo_bytes: number;
+  gallery_title: string | null;
+  welcome_message: string | null;
+  show_event_date: boolean;
+  slideshow_photo_duration_sec: number;
+}
+
+export interface GalleryDisplaySettings {
+  gallery_title: string | null;
+  welcome_message: string | null;
+  show_event_date: boolean;
+  slideshow_photo_duration_sec: number;
 }
 
 export interface GalleryItem {
