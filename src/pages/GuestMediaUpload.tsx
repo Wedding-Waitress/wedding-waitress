@@ -35,9 +35,19 @@ interface GalleryPublic {
   password_required: boolean;
 }
 
+interface GalleryUsage {
+  photos_used: number;
+  videos_used: number;
+  bytes_used: number;
+  max_photos: number;
+  max_videos: number;
+  max_total_bytes: number;
+}
+
 export const GuestMediaUpload: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
+  const [usage, setUsage] = useState<GalleryUsage | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
@@ -62,16 +72,33 @@ export const GuestMediaUpload: React.FC = () => {
     } catch {}
   }, [token]);
 
+  const loadUsage = useCallback(async () => {
+    if (!token) return;
+    const { data } = await (supabase as any).rpc('get_event_media_gallery_usage_public', { _token: token });
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) setUsage(row as GalleryUsage);
+  }, [token]);
+
   useEffect(() => {
     if (!token) return;
     (async () => {
-      const { data } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
+      const [{ data }] = await Promise.all([
+        (supabase as any).rpc('get_event_media_gallery_public', { _token: token }),
+        loadUsage(),
+      ]);
       const row = Array.isArray(data) ? data[0] : data;
       if (!row) setNotFound(true);
       else setGallery(row as GalleryPublic);
       setLoading(false);
     })();
-  }, [token]);
+  }, [token, loadUsage]);
+
+  // Refresh usage after uploads finish so the gate reflects newly added files.
+  useEffect(() => {
+    if (!uploading && progress.length > 0 && progress.some(p => p.status === 'done')) {
+      loadUsage();
+    }
+  }, [uploading, progress, loadUsage]);
 
   const openPicker = useCallback(() => {
     setPickerHint(null);
@@ -247,6 +274,16 @@ export const GuestMediaUpload: React.FC = () => {
             <Input id="g-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah" />
           </div>
 
+          {(() => {
+            const photosFull = !!usage && usage.photos_used >= usage.max_photos;
+            const videosFull = !!usage && usage.videos_used >= usage.max_videos;
+            const storageFull = !!usage && usage.bytes_used >= usage.max_total_bytes;
+            const anyFull = photosFull || videosFull || storageFull;
+            const fullParts: string[] = [];
+            if (photosFull) fullParts.push('photos');
+            if (videosFull) fullParts.push('videos');
+            if (storageFull) fullParts.push('storage');
+            return (
           <div>
             <Label className="text-base font-medium">Photos & videos</Label>
 
@@ -261,6 +298,19 @@ export const GuestMediaUpload: React.FC = () => {
                 <span>Videos: MP4, MOV up to {formatBytes(gallery.max_video_bytes)} and {Math.floor(gallery.max_video_duration_sec / 60)} minutes</span>
               </div>
             </div>
+
+            {anyFull && (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-3.5 text-sm text-red-800">
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                <div>
+                  <div className="font-medium">The gallery is full</div>
+                  <div className="text-xs mt-0.5">
+                    The {fullParts.join(' and ')} limit has been reached. Please check back later — the hosts may make more room soon. Thanks for wanting to share!
+                  </div>
+                </div>
+              </div>
+            )}
+
             <input
               ref={fileInput}
               type="file"
@@ -269,12 +319,14 @@ export const GuestMediaUpload: React.FC = () => {
               className="hidden"
               onChange={e => onFiles(e.target.files)}
             />
-            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={openPicker} disabled={uploading || validating || awaitingPicker}>
+            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={openPicker} disabled={uploading || validating || awaitingPicker || anyFull}>
               {awaitingPicker
                 ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Waiting for picker…</>
                 : validating
                   ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Preparing selected files…</>
-                  : <><Upload className="h-4 w-4 mr-2" /> Choose files</>}
+                  : anyFull
+                    ? <><AlertCircle className="h-4 w-4 mr-2" /> Gallery full</>
+                    : <><Upload className="h-4 w-4 mr-2" /> Choose files</>}
             </Button>
 
             {(awaitingPicker || validating) && (
@@ -370,6 +422,8 @@ export const GuestMediaUpload: React.FC = () => {
               </ul>
             )}
           </div>
+            );
+          })()}
 
           <div>
             <Label htmlFor="g-cap" className="text-base">Caption (optional)</Label>

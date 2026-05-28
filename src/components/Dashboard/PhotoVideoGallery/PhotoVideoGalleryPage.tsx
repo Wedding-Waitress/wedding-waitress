@@ -8,6 +8,7 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GallerySetupCard } from './GallerySetupCard';
 import { GalleryDisplaySettingsCard } from './GalleryDisplaySettingsCard';
+import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 import { GalleryLimitsCard } from './GalleryLimitsCard';
 import { GalleryGrid } from './GalleryGrid';
@@ -83,6 +84,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               </Card>
             )}
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
+            <GalleryUsageCard meta={meta} items={items} />
             <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
