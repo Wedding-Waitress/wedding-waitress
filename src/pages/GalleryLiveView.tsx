@@ -104,6 +104,8 @@ const GalleryLiveView: React.FC = () => {
           event_name: row.event_name,
           partner1_name: row.partner1_name,
           partner2_name: row.partner2_name,
+          gallery_title: row.gallery_title ?? null,
+          slideshow_photo_duration_sec: row.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC,
         });
         await loadItems(token);
       } catch (e: any) {
