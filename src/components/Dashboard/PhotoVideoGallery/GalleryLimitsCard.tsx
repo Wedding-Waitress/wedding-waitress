@@ -26,7 +26,7 @@ export const GalleryLimitsCard: React.FC<{
         max_photos: photos,
         max_videos: videos,
         max_total_bytes: Math.round(totalGb * 1024 * 1024 * 1024),
-        max_video_bytes: Math.min(videoMb, 100) * 1024 * 1024,
+        max_video_bytes: Math.min(videoMb, 250) * 1024 * 1024,
         max_video_duration_sec: Math.min(videoSec, 180),
         max_photo_bytes: photoMb * 1024 * 1024,
       });
