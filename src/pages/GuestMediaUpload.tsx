@@ -35,9 +35,19 @@ interface GalleryPublic {
   password_required: boolean;
 }
 
+interface GalleryUsage {
+  photos_used: number;
+  videos_used: number;
+  bytes_used: number;
+  max_photos: number;
+  max_videos: number;
+  max_total_bytes: number;
+}
+
 export const GuestMediaUpload: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
+  const [usage, setUsage] = useState<GalleryUsage | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
@@ -62,16 +72,33 @@ export const GuestMediaUpload: React.FC = () => {
     } catch {}
   }, [token]);
 
+  const loadUsage = useCallback(async () => {
+    if (!token) return;
+    const { data } = await (supabase as any).rpc('get_event_media_gallery_usage_public', { _token: token });
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) setUsage(row as GalleryUsage);
+  }, [token]);
+
   useEffect(() => {
     if (!token) return;
     (async () => {
-      const { data } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
+      const [{ data }] = await Promise.all([
+        (supabase as any).rpc('get_event_media_gallery_public', { _token: token }),
+        loadUsage(),
+      ]);
       const row = Array.isArray(data) ? data[0] : data;
       if (!row) setNotFound(true);
       else setGallery(row as GalleryPublic);
       setLoading(false);
     })();
-  }, [token]);
+  }, [token, loadUsage]);
+
+  // Refresh usage after uploads finish so the gate reflects newly added files.
+  useEffect(() => {
+    if (!uploading && progress.length > 0 && progress.some(p => p.status === 'done')) {
+      loadUsage();
+    }
+  }, [uploading, progress, loadUsage]);
 
   const openPicker = useCallback(() => {
     setPickerHint(null);
