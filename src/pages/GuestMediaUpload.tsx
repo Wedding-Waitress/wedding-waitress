@@ -169,6 +169,15 @@ export const GuestMediaUpload: React.FC = () => {
       </div>
     );
   }
+  if (gallery.password_required && !unlocked && token) {
+    return (
+      <GalleryPasswordGate
+        token={token}
+        title={`${gallery.event_name} — password required`}
+        onVerified={() => setUnlocked(true)}
+      />
+    );
+  }
   if (!gallery.is_open) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-[#F8F5F0]">
