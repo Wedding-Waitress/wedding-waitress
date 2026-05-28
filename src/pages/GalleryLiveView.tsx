@@ -175,10 +175,15 @@ const GalleryLiveView: React.FC = () => {
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
       {/* Header */}
       {headerTitle && (
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between">
           <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg">
             {headerTitle}
           </h1>
+          {items.length > 0 && (
+            <span className="text-white/60 text-sm font-medium drop-shadow mt-1.5 shrink-0">
+              {index + 1} / {items.length}
+            </span>
+          )}
         </div>
       )}
 
