@@ -1,8 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
-import { Download, Trash2, Play, Camera } from 'lucide-react';
+import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+
+const PREVIEW_TIMEOUT_MS = 10000;
+
+const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item, onOpen }) => {
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setStatus('loading');
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (!item.signed_url) {
+      // No URL yet — wait the timeout window, then fail
+      timerRef.current = setTimeout(() => setStatus('error'), PREVIEW_TIMEOUT_MS);
+      return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    }
+    timerRef.current = setTimeout(() => {
+      setStatus(prev => (prev === 'loading' ? 'error' : prev));
+    }, PREVIEW_TIMEOUT_MS);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [item.signed_url, item.id]);
+
+  const onLoaded = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setStatus('ready');
+  };
+  const onErr = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setStatus('error');
+  };
+
+  if (status === 'error' || !item.signed_url) {
+    const Icon = item.kind === 'video' ? FileVideo : FileImage;
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-center p-2 bg-muted">
+        <Icon className="h-8 w-8 text-muted-foreground mb-1" />
+        <div className="text-[11px] font-medium uppercase text-muted-foreground">{item.kind}</div>
+        {item.uploader_name && (
+          <div className="text-[11px] text-muted-foreground truncate max-w-full">by {item.uploader_name}</div>
+        )}
+        <div className="flex items-center gap-1 mt-1 text-amber-600">
+          <AlertTriangle className="h-3 w-3" />
+          <span className="text-[10px]">Preview unavailable</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.kind === 'photo') {
+    return (
+      <img
+        src={item.signed_url}
+        alt={item.caption || ''}
+        loading="lazy"
+        className="w-full h-full object-cover cursor-zoom-in"
+        onClick={onOpen}
+        onLoad={onLoaded}
+        onError={onErr}
+      />
+    );
+  }
+  return (
+    <div className="w-full h-full relative cursor-pointer" onClick={onOpen}>
+      <video
+        src={item.signed_url}
+        className="w-full h-full object-cover"
+        preload="metadata"
+        muted
+        onLoadedMetadata={onLoaded}
+        onLoadedData={onLoaded}
+        onError={onErr}
+      />
+      <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+        <Play className="h-10 w-10 text-white" fill="white" />
+      </div>
+      {status === 'loading' && (
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-white/80 bg-black/40">
+          Loading…
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
@@ -24,26 +106,22 @@ export const GalleryGrid: React.FC<{
       <h2 className="text-lg font-semibold text-[#1D1D1F] mb-4">Guest uploads ({items.length})</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {items.map(it => (
-          <div key={it.id} className="relative group rounded-lg overflow-hidden border border-border bg-muted aspect-square">
-            {it.kind === 'photo' && it.signed_url ? (
-              <img src={it.signed_url} alt={it.caption || ''} loading="lazy" className="w-full h-full object-cover cursor-zoom-in" onClick={() => setLightbox(it)} />
-            ) : it.kind === 'video' && it.signed_url ? (
-              <div className="w-full h-full relative cursor-pointer" onClick={() => setLightbox(it)}>
-                <video src={it.signed_url} className="w-full h-full object-cover" preload="metadata" muted />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                  <Play className="h-10 w-10 text-white" fill="white" />
-                </div>
-              </div>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">Loading…</div>
-            )}
-            <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div key={it.id} className="relative group rounded-lg overflow-hidden border border-border bg-muted aspect-square flex flex-col">
+            <div className="flex-1 min-h-0 relative">
+              <MediaThumb item={it} onOpen={() => it.signed_url && setLightbox(it)} />
+            </div>
+            <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
               {it.signed_url && (
-                <a href={it.signed_url} download className="bg-white/90 rounded-md p-1.5 hover:bg-white">
+                <a href={it.signed_url} target="_blank" rel="noopener noreferrer" className="bg-white/90 rounded-md p-1.5 hover:bg-white" title="Open">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+              {it.signed_url && (
+                <a href={it.signed_url} download className="bg-white/90 rounded-md p-1.5 hover:bg-white" title="Download">
                   <Download className="h-3.5 w-3.5" />
                 </a>
               )}
-              <button onClick={() => { if (confirm('Delete this upload?')) onDelete(it.id); }} className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600">
+              <button onClick={() => { if (confirm('Delete this upload?')) onDelete(it.id); }} className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600" title="Delete">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
