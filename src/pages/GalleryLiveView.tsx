@@ -9,6 +9,8 @@ interface LiveMeta {
   event_name: string | null;
   partner1_name: string | null;
   partner2_name: string | null;
+  gallery_title: string | null;
+  slideshow_photo_duration_sec: number;
 }
 
 interface LiveItem {
@@ -23,7 +25,7 @@ interface LiveItem {
   signed_url: string;
 }
 
-const PHOTO_INTERVAL_MS = 8000;
+const DEFAULT_PHOTO_INTERVAL_SEC = 8;
 // Re-fetch signed URLs before they expire (edge function TTL = 600s).
 const REFRESH_URLS_MS = 8 * 60 * 1000;
 
