@@ -206,15 +206,15 @@ export const GuestMediaUpload: React.FC = () => {
             <Camera className="h-8 w-8 text-[#967A59]" />
           </div>
           <h1 className="text-3xl font-semibold text-[#1D1D1F] leading-tight">
-            {couple || gallery.event_name}
+            {displayTitle}
           </h1>
-          {gallery.event_date && (
+          {showDate && (
             <p className="text-sm text-[#6E6E73] mt-2">
               {formatDisplayDate(gallery.event_date)}
             </p>
           )}
-          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed">
-            Share your favourite photos and videos from today.
+          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line">
+            {displayWelcome}
           </p>
         </div>
 
