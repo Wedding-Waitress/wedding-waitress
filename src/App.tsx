@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 // Eager-load public guest upload page so /gallery/:token always ships in the main bundle
 import { GuestMediaUpload } from "./pages/GuestMediaUpload";
 const GalleryLiveView = lazy(() => import("./pages/GalleryLiveView"));
+const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 // Lazy: split everything else into separate chunks for instant initial load
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
@@ -133,6 +134,7 @@ const App = () => (
           <Routes>
           <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           <Route path="/gallery-live/:token" element={<GalleryLiveView />} />
+          <Route path="/gallery-guestbook/:token" element={<GuestVideoGuestbook />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />

@@ -88,3 +88,11 @@ export function buildGalleryLiveUrl(token: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/gallery-live/${encodeURIComponent(token)}`;
 }
+
+/**
+ * Builds a Photo & Video Gallery Video Guestbook URL for the given token.
+ */
+export function buildGalleryGuestbookUrl(token: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/gallery-guestbook/${encodeURIComponent(token)}`;
+}

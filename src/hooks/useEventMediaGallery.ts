@@ -23,6 +23,7 @@ export interface GalleryMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  video_guestbook_enabled: boolean;
 }
 
 export interface GalleryDisplaySettings {
@@ -53,7 +54,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
 
 export interface GalleryItem {
   id: string;
-  kind: 'photo' | 'video';
+  kind: 'photo' | 'video' | 'audio';
   mime_type: string;
   byte_size: number;
   duration_sec: number | null;
@@ -64,6 +65,7 @@ export interface GalleryItem {
   uploaded_at: string | null;
   moderation_status: 'approved' | 'hidden';
   album: GalleryAlbum | null;
+  is_guestbook: boolean;
   signed_url?: string;
 }
 
@@ -286,5 +288,15 @@ export function useEventMediaGallery(eventId: string | null) {
     return (data as number) ?? ids.length;
   }, [items]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum };
+  const setVideoGuestbookEnabled = useCallback(async (enabled: boolean) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, video_guestbook_enabled: enabled } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_video_guestbook', { _event_id: eventId, _enabled: enabled });
+    if (err) {
+      setMeta(m => m ? { ...m, video_guestbook_enabled: !enabled } : m);
+      throw new Error(err.message || 'Failed to update Video Guestbook');
+    }
+  }, [eventId]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled };
 }
