@@ -40,6 +40,17 @@ export interface GalleryBrandingSettings {
   show_branding: boolean;
 }
 
+export type GalleryAlbum = 'Ceremony' | 'Reception' | 'Dance Floor' | 'Speeches' | 'Bridal Party' | 'Other';
+
+export const GALLERY_ALBUMS: GalleryAlbum[] = [
+  'Ceremony',
+  'Reception',
+  'Dance Floor',
+  'Speeches',
+  'Bridal Party',
+  'Other',
+];
+
 export interface GalleryItem {
   id: string;
   kind: 'photo' | 'video';
@@ -52,6 +63,7 @@ export interface GalleryItem {
   guestbook_message: string | null;
   uploaded_at: string | null;
   moderation_status: 'approved' | 'hidden';
+  album: GalleryAlbum | null;
   signed_url?: string;
 }
 
@@ -252,5 +264,27 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding };
+  const setAlbum = useCallback(async (id: string, album: GalleryAlbum | null) => {
+    const prev = items.find(i => i.id === id)?.album ?? null;
+    setItems(curr => curr.map(i => (i.id === id ? { ...i, album } : i)));
+    const { error: err } = await (supabase as any).rpc('set_event_media_album', { _item_id: id, _album: album });
+    if (err) {
+      setItems(curr => curr.map(i => (i.id === id ? { ...i, album: prev } : i)));
+      throw new Error(err.message || 'Failed to update album');
+    }
+  }, [items]);
+
+  const bulkSetAlbum = useCallback(async (ids: string[], album: GalleryAlbum | null) => {
+    if (ids.length === 0) return 0;
+    const prevMap = new Map(items.filter(i => ids.includes(i.id)).map(i => [i.id, i.album]));
+    setItems(curr => curr.map(i => (ids.includes(i.id) ? { ...i, album } : i)));
+    const { data, error: err } = await (supabase as any).rpc('set_event_media_albums', { _item_ids: ids, _album: album });
+    if (err) {
+      setItems(curr => curr.map(i => (prevMap.has(i.id) ? { ...i, album: prevMap.get(i.id) ?? null } : i)));
+      throw new Error(err.message || 'Failed to update albums');
+    }
+    return (data as number) ?? ids.length;
+  }, [items]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum };
 }

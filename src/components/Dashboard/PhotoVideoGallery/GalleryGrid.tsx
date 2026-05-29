@@ -3,8 +3,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search } from 'lucide-react';
-import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen } from 'lucide-react';
+import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
+import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -123,14 +124,23 @@ function filenameFor(item: GalleryItem): string {
 type Filter = 'all' | 'approved' | 'hidden';
 type MediaTypeFilter = 'all' | 'photos' | 'videos';
 type SortMode = 'newest' | 'oldest';
+type AlbumFilter = 'all' | GalleryAlbum;
+
+const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
+  { value: 'all', label: 'All Uploads' },
+  ...GALLERY_ALBUMS.map(a => ({ value: a as AlbumFilter, label: a })),
+];
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
   onDelete: (id: string) => void;
   onSetModeration: (id: string, status: 'approved' | 'hidden') => Promise<void>;
-}> = ({ items, onDelete, onSetModeration }) => {
+  onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
+  onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
+}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum }) => {
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
   const [mediaType, setMediaType] = useState<MediaTypeFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>('newest');
   const [search, setSearch] = useState('');
@@ -140,19 +150,26 @@ export const GalleryGrid: React.FC<{
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
 
-  // Apply search + media type first; moderation counts reflect this subset.
+  // Apply search + media type + album first; moderation counts reflect this subset.
   const searchedTyped = useMemo(() => {
     const q = search.trim().toLowerCase();
     return items.filter(i => {
       if (mediaType === 'photos' && i.kind !== 'photo') return false;
       if (mediaType === 'videos' && i.kind !== 'video') return false;
+      if (albumFilter !== 'all') {
+        if (albumFilter === 'Other') {
+          if (i.album !== null && i.album !== 'Other') return false;
+        } else if (i.album !== albumFilter) {
+          return false;
+        }
+      }
       if (q) {
         const hay = `${i.uploader_name || ''} ${i.caption || ''} ${i.guestbook_message || ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [items, mediaType, search]);
+  }, [items, mediaType, search, albumFilter]);
 
   const counts = useMemo(() => {
     const approved = searchedTyped.filter(i => i.moderation_status === 'approved').length;
@@ -270,6 +287,28 @@ export const GalleryGrid: React.FC<{
     setBulkBusy(false);
   };
 
+  const bulkMoveToAlbum = async (album: GalleryAlbum | null) => {
+    if (selectedItems.length === 0) return;
+    setBulkBusy(true);
+    try {
+      const n = await onBulkSetAlbum(selectedItems.map(i => i.id), album);
+      toast({ title: album ? `Moved ${n} to ${album}` : `Removed album from ${n} item${n === 1 ? '' : 's'}` });
+    } catch (e: any) {
+      toast({ title: 'Could not move items', description: e?.message, variant: 'destructive' });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const moveSingleToAlbum = async (id: string, album: GalleryAlbum | null) => {
+    try {
+      await onSetAlbum(id, album);
+      toast({ title: album ? `Moved to ${album}` : 'Removed from album' });
+    } catch (e: any) {
+      toast({ title: 'Could not move item', description: e?.message, variant: 'destructive' });
+    }
+  };
+
   if (items.length === 0) {
     return (
       <Card className="p-12 text-center">
@@ -358,12 +397,34 @@ export const GalleryGrid: React.FC<{
         </Select>
       </div>
 
+      {/* Album filter pills */}
+      <div className="flex gap-2 flex-wrap mb-3 items-center">
+        <FolderOpen className="h-4 w-4 text-[#6E6E73]" />
+        <span className="text-xs text-[#6E6E73] mr-1">Album:</span>
+        {ALBUM_FILTERS.map(a => {
+          const active = albumFilter === a.value;
+          return (
+            <button
+              key={a.value}
+              type="button"
+              onClick={() => setAlbumFilter(a.value)}
+              className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
+                active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+              }`}
+            >
+              {a.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Moderation pills */}
       <div className="flex gap-2 flex-wrap mb-4">
         <FilterBtn value="all" label="All" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
       </div>
+
 
       {selectMode && (
         <div className="flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40">
@@ -398,6 +459,24 @@ export const GalleryGrid: React.FC<{
             >
               <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
             </Button>
+            <Select
+              disabled={bulkBusy || visibleSelectedCount === 0}
+              value=""
+              onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
+            >
+              <SelectTrigger className="lv-premium-shade h-9 w-[170px] bg-white">
+                <span className="flex items-center text-sm">
+                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59]" /> Move to album…
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                {GALLERY_ALBUMS.map(a => (
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                ))}
+                <SelectItem value="__none__">No album</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Button
               className="lv-premium-shade"
               variant="outline"
@@ -508,6 +587,25 @@ export const GalleryGrid: React.FC<{
                   {it.caption && (
                     <div className="text-muted-foreground line-clamp-2 mt-0.5" title={it.caption}>{it.caption}</div>
                   )}
+                  <div className="mt-1.5">
+                    <Select
+                      value={it.album ?? '__none__'}
+                      onValueChange={(v) => moveSingleToAlbum(it.id, v === '__none__' ? null : (v as GalleryAlbum))}
+                    >
+                      <SelectTrigger className="h-7 text-[11px] px-2 bg-white" onClick={(e) => e.stopPropagation()}>
+                        <span className="flex items-center gap-1 truncate">
+                          <FolderOpen className="h-3 w-3 text-[#967A59] shrink-0" />
+                          <span className="truncate">{it.album ?? 'No album'}</span>
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">No album</SelectItem>
+                        {GALLERY_ALBUMS.map(a => (
+                          <SelectItem key={a} value={a}>{a}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             );

@@ -794,6 +794,7 @@ export type Database = {
       }
       event_media_items: {
         Row: {
+          album: string | null
           byte_size: number
           caption: string | null
           created_at: string
@@ -815,6 +816,7 @@ export type Database = {
           uploader_name: string | null
         }
         Insert: {
+          album?: string | null
           byte_size: number
           caption?: string | null
           created_at?: string
@@ -836,6 +838,7 @@ export type Database = {
           uploader_name?: string | null
         }
         Update: {
+          album?: string | null
           byte_size?: number
           caption?: string | null
           created_at?: string
@@ -4314,6 +4317,7 @@ export type Database = {
       get_event_media_items_host: {
         Args: { _event_id: string }
         Returns: {
+          album: string
           byte_size: number
           caption: string
           duration_sec: number
@@ -4687,6 +4691,14 @@ export type Database = {
           event_slug: string
           qr_code_id: string
         }[]
+      }
+      set_event_media_album: {
+        Args: { _album: string; _item_id: string }
+        Returns: undefined
+      }
+      set_event_media_albums: {
+        Args: { _album: string; _item_ids: string[] }
+        Returns: number
       }
       set_event_media_gallery_open: {
         Args: { _event_id: string; _is_open: boolean }
