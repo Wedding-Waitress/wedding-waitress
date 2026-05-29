@@ -397,12 +397,34 @@ export const GalleryGrid: React.FC<{
         </Select>
       </div>
 
+      {/* Album filter pills */}
+      <div className="flex gap-2 flex-wrap mb-3 items-center">
+        <FolderOpen className="h-4 w-4 text-[#6E6E73]" />
+        <span className="text-xs text-[#6E6E73] mr-1">Album:</span>
+        {ALBUM_FILTERS.map(a => {
+          const active = albumFilter === a.value;
+          return (
+            <button
+              key={a.value}
+              type="button"
+              onClick={() => setAlbumFilter(a.value)}
+              className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
+                active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+              }`}
+            >
+              {a.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Moderation pills */}
       <div className="flex gap-2 flex-wrap mb-4">
         <FilterBtn value="all" label="All" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
       </div>
+
 
       {selectMode && (
         <div className="flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40">
