@@ -44,6 +44,7 @@ export const GuestPhotoBooth: React.FC = () => {
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [streamReady, setStreamReady] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
