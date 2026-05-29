@@ -692,7 +692,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 <img
                   src={capturedUrl}
                   alt={mode === 'strip' ? 'Photo strip preview' : 'Captured photo'}
-                  className={mode === 'strip' ? 'max-h-[70vh] w-auto object-contain' : 'w-full h-auto object-cover'}
+                  className="max-h-[70vh] w-auto mx-auto object-contain"
                 />
               </div>
             ) : (
