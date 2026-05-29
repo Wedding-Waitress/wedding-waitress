@@ -12,6 +12,7 @@ import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 import { GalleryLimitsCard } from './GalleryLimitsCard';
 import { GalleryGrid } from './GalleryGrid';
+import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GuestbookList } from './GuestbookList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -89,6 +90,11 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} />
+            <GalleryDownloadsCard
+              items={items}
+              eventName={events.find(e => e.id === selectedEventId)?.name}
+              galleryTitle={meta.gallery_title}
+            />
             <GuestbookList items={items} />
           </div>
         </PinchZoomContainer>
