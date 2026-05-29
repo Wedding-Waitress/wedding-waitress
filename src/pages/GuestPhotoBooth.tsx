@@ -44,6 +44,7 @@ export const GuestPhotoBooth: React.FC = () => {
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [streamReady, setStreamReady] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -140,10 +141,30 @@ export const GuestPhotoBooth: React.FC = () => {
     stopStream();
   };
 
+  const startCountdown = () => {
+    if (!streamReady || countdown !== null) return;
+    if (!name.trim()) { setErrorMsg('Please add your first name first.'); return; }
+    setErrorMsg(null);
+    setCountdown(3);
+  };
+
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown === 0) {
+      setCountdown(null);
+      capture();
+      return;
+    }
+    const t = setTimeout(() => setCountdown(c => (c === null ? null : c - 1)), 1000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
+
   const retake = () => {
     if (capturedUrl) URL.revokeObjectURL(capturedUrl);
     setCapturedUrl(null);
     setCapturedBlob(null);
+    setCountdown(null);
     setPhase('preview');
   };
 
@@ -285,9 +306,20 @@ export const GuestPhotoBooth: React.FC = () => {
                   playsInline muted autoPlay
                 />
               )}
-              {phase === 'preview' && !streamReady && isCameraSupported && (
+              {phase === 'preview' && !streamReady && isCameraSupported && countdown === null && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-sm">
                   <Loader2 className="animate-spin h-6 w-6 mr-2" /> Starting camera…
+                </div>
+              )}
+              {countdown !== null && countdown > 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none">
+                  <span
+                    key={countdown}
+                    className="text-white font-bold drop-shadow-lg animate-scale-in"
+                    style={{ fontSize: 'clamp(96px, 40vw, 200px)', lineHeight: 1 }}
+                  >
+                    {countdown}
+                  </span>
                 </div>
               )}
             </div>
@@ -298,10 +330,11 @@ export const GuestPhotoBooth: React.FC = () => {
                   type="button"
                   className="lv-premium-shade w-full h-12 text-white text-base"
                   style={{ backgroundColor: accent }}
-                  disabled={!isCameraSupported || !streamReady}
-                  onClick={capture}
+                  disabled={!isCameraSupported || !streamReady || countdown !== null}
+                  onClick={startCountdown}
                 >
-                  <Camera className="h-5 w-5 mr-2" /> Take Photo
+                  <Camera className="h-5 w-5 mr-2" />
+                  {countdown !== null ? `Get ready… ${countdown || ''}` : 'Start Photo Booth'}
                 </Button>
                 <div className="flex gap-2">
                   <Button
@@ -309,7 +342,7 @@ export const GuestPhotoBooth: React.FC = () => {
                     variant="outline"
                     className="lv-premium-shade flex-1 h-11 text-base"
                     onClick={flipCamera}
-                    disabled={!isCameraSupported}
+                    disabled={!isCameraSupported || countdown !== null}
                   >
                     <RefreshCw className="h-4 w-4 mr-2" /> Flip
                   </Button>
@@ -317,9 +350,9 @@ export const GuestPhotoBooth: React.FC = () => {
                     type="button"
                     variant="ghost"
                     className="flex-1 h-11 text-base"
-                    onClick={cancel}
+                    onClick={() => { if (countdown !== null) { setCountdown(null); return; } cancel(); }}
                   >
-                    <X className="h-4 w-4 mr-2" /> Cancel
+                    <X className="h-4 w-4 mr-2" /> {countdown !== null ? 'Stop' : 'Cancel'}
                   </Button>
                 </div>
               </div>
