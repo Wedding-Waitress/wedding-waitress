@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
+import { resolveGalleryTheme } from '@/lib/galleryTheme';
 
 interface LiveMeta {
   gallery_id: string;
@@ -13,6 +14,11 @@ interface LiveMeta {
   gallery_title: string | null;
   slideshow_photo_duration_sec: number;
   password_required: boolean;
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream' | null;
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 interface LiveItem {
