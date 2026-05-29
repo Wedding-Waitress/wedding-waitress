@@ -459,6 +459,24 @@ export const GalleryGrid: React.FC<{
             >
               <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
             </Button>
+            <Select
+              disabled={bulkBusy || visibleSelectedCount === 0}
+              value=""
+              onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
+            >
+              <SelectTrigger className="lv-premium-shade h-9 w-[170px] bg-white">
+                <span className="flex items-center text-sm">
+                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59]" /> Move to album…
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                {GALLERY_ALBUMS.map(a => (
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                ))}
+                <SelectItem value="__none__">No album</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Button
               className="lv-premium-shade"
               variant="outline"
