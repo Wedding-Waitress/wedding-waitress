@@ -306,9 +306,20 @@ export const GuestPhotoBooth: React.FC = () => {
                   playsInline muted autoPlay
                 />
               )}
-              {phase === 'preview' && !streamReady && isCameraSupported && (
+              {phase === 'preview' && !streamReady && isCameraSupported && countdown === null && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-sm">
                   <Loader2 className="animate-spin h-6 w-6 mr-2" /> Starting camera…
+                </div>
+              )}
+              {countdown !== null && countdown > 0 && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none">
+                  <span
+                    key={countdown}
+                    className="text-white font-bold drop-shadow-lg animate-scale-in"
+                    style={{ fontSize: 'clamp(96px, 40vw, 200px)', lineHeight: 1 }}
+                  >
+                    {countdown}
+                  </span>
                 </div>
               )}
             </div>
