@@ -300,5 +300,15 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled };
+  const setPhotoBoothEnabled = useCallback(async (enabled: boolean) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, photo_booth_enabled: enabled } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_photo_booth', { _event_id: eventId, _enabled: enabled });
+    if (err) {
+      setMeta(m => m ? { ...m, photo_booth_enabled: !enabled } : m);
+      throw new Error(err.message || 'Failed to update Photo Booth');
+    }
+  }, [eventId]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled };
 }
