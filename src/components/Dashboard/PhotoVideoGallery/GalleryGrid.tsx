@@ -150,19 +150,26 @@ export const GalleryGrid: React.FC<{
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
 
-  // Apply search + media type first; moderation counts reflect this subset.
+  // Apply search + media type + album first; moderation counts reflect this subset.
   const searchedTyped = useMemo(() => {
     const q = search.trim().toLowerCase();
     return items.filter(i => {
       if (mediaType === 'photos' && i.kind !== 'photo') return false;
       if (mediaType === 'videos' && i.kind !== 'video') return false;
+      if (albumFilter !== 'all') {
+        if (albumFilter === 'Other') {
+          if (i.album !== null && i.album !== 'Other') return false;
+        } else if (i.album !== albumFilter) {
+          return false;
+        }
+      }
       if (q) {
         const hay = `${i.uploader_name || ''} ${i.caption || ''} ${i.guestbook_message || ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [items, mediaType, search]);
+  }, [items, mediaType, search, albumFilter]);
 
   const counts = useMemo(() => {
     const approved = searchedTyped.filter(i => i.moderation_status === 'approved').length;
