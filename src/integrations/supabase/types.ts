@@ -737,6 +737,7 @@ export type Database = {
           password_enabled: boolean
           password_hash: string | null
           photo_booth_enabled: boolean
+          photo_booth_mode: string
           show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
@@ -758,6 +759,7 @@ export type Database = {
           password_enabled?: boolean
           password_hash?: string | null
           photo_booth_enabled?: boolean
+          photo_booth_mode?: string
           show_branding?: boolean
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
@@ -779,6 +781,7 @@ export type Database = {
           password_enabled?: boolean
           password_hash?: string | null
           photo_booth_enabled?: boolean
+          photo_booth_mode?: string
           show_branding?: boolean
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
@@ -811,6 +814,7 @@ export type Database = {
           id: string
           is_guestbook: boolean
           is_photo_booth: boolean
+          is_photo_booth_strip: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
           moderation_status: string
@@ -835,6 +839,7 @@ export type Database = {
           id?: string
           is_guestbook?: boolean
           is_photo_booth?: boolean
+          is_photo_booth_strip?: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
           moderation_status?: string
@@ -859,6 +864,7 @@ export type Database = {
           id?: string
           is_guestbook?: boolean
           is_photo_booth?: boolean
+          is_photo_booth_strip?: boolean
           kind?: Database["public"]["Enums"]["event_media_kind"]
           mime_type?: string
           moderation_status?: string
@@ -4279,6 +4285,7 @@ export type Database = {
           max_videos: number
           password_enabled: boolean
           photo_booth_enabled: boolean
+          photo_booth_mode: string
           primary_token: string
           show_branding: boolean
           show_event_date: boolean
@@ -4311,6 +4318,7 @@ export type Database = {
           partner2_name: string
           password_required: boolean
           photo_booth_enabled: boolean
+          photo_booth_mode: string
           show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
@@ -4341,6 +4349,7 @@ export type Database = {
           id: string
           is_guestbook: boolean
           is_photo_booth: boolean
+          is_photo_booth_strip: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
           moderation_status: string
@@ -4705,6 +4714,7 @@ export type Database = {
         Args: {
           _byte_size: number
           _filename: string
+          _is_strip?: boolean
           _mime_type: string
           _token: string
           _uploader_name: string
@@ -4763,6 +4773,10 @@ export type Database = {
       }
       set_event_media_photo_booth: {
         Args: { _enabled: boolean; _event_id: string }
+        Returns: undefined
+      }
+      set_event_media_photo_booth_mode: {
+        Args: { _event_id: string; _mode: string }
         Returns: undefined
       }
       set_event_media_video_guestbook: {

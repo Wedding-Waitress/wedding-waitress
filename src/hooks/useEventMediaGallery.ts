@@ -25,6 +25,7 @@ export interface GalleryMeta {
   show_branding: boolean;
   video_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
+  photo_booth_mode: 'single' | 'strip';
 }
 
 export interface GalleryDisplaySettings {
@@ -68,6 +69,7 @@ export interface GalleryItem {
   album: GalleryAlbum | null;
   is_guestbook: boolean;
   is_photo_booth: boolean;
+  is_photo_booth_strip: boolean;
   signed_url?: string;
 }
 
@@ -310,5 +312,16 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled };
+  const setPhotoBoothMode = useCallback(async (mode: 'single' | 'strip') => {
+    if (!eventId) return;
+    const prev = meta?.photo_booth_mode ?? 'single';
+    setMeta(m => m ? { ...m, photo_booth_mode: mode } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_photo_booth_mode', { _event_id: eventId, _mode: mode });
+    if (err) {
+      setMeta(m => m ? { ...m, photo_booth_mode: prev } : m);
+      throw new Error(err.message || 'Failed to update Photo Booth mode');
+    }
+  }, [eventId, meta?.photo_booth_mode]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode };
 }

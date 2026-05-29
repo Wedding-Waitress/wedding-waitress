@@ -595,8 +595,11 @@ export const GalleryGrid: React.FC<{
                       {it.is_guestbook && (
                         <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Guestbook</span>
                       )}
-                      {it.is_photo_booth && (
+                      {it.is_photo_booth && !it.is_photo_booth_strip && (
                         <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Photo Booth</span>
+                      )}
+                      {it.is_photo_booth_strip && (
+                        <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Photo Booth Strip</span>
                       )}
                       <span className="truncate">{it.uploader_name || 'Anonymous guest'}</span>
                     </div>

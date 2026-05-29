@@ -7,6 +7,7 @@ export interface PhotoBoothUploadOptions {
   mime: string; // image/jpeg | image/png | image/webp
   uploaderName: string;
   filename: string;
+  isStrip?: boolean;
 }
 
 export function usePhotoBoothUpload() {
@@ -25,6 +26,7 @@ export function usePhotoBoothUpload() {
         _byte_size: blob.size,
         _uploader_name: opts.uploaderName || null,
         _filename: opts.filename,
+        _is_strip: !!opts.isStrip,
       });
       if (regErr) throw new Error(regErr.message || 'Could not register photo');
       const row = Array.isArray(data) ? data[0] : data;
