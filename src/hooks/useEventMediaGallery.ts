@@ -40,6 +40,17 @@ export interface GalleryBrandingSettings {
   show_branding: boolean;
 }
 
+export type GalleryAlbum = 'Ceremony' | 'Reception' | 'Dance Floor' | 'Speeches' | 'Bridal Party' | 'Other';
+
+export const GALLERY_ALBUMS: GalleryAlbum[] = [
+  'Ceremony',
+  'Reception',
+  'Dance Floor',
+  'Speeches',
+  'Bridal Party',
+  'Other',
+];
+
 export interface GalleryItem {
   id: string;
   kind: 'photo' | 'video';
@@ -52,6 +63,7 @@ export interface GalleryItem {
   guestbook_message: string | null;
   uploaded_at: string | null;
   moderation_status: 'approved' | 'hidden';
+  album: GalleryAlbum | null;
   signed_url?: string;
 }
 
