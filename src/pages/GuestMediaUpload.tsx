@@ -224,16 +224,21 @@ export const GuestMediaUpload: React.FC = () => {
   };
 
 
+  const theme = resolveGalleryTheme(gallery);
+  const accent = theme.themeColor;
+  const accentHover = theme.themeColorHover;
+  const accentSoftBg = `${accent}1A`;
+
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-[#967A59]" /></div>;
+    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-[#F8F5F0]">
-        <Card className="p-8 max-w-md text-center">
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h1 className="text-xl font-semibold mb-2">Gallery link not found</h1>
-          <p className="text-sm text-muted-foreground">This upload link is invalid or has been closed by the host.</p>
+          <p className={`text-sm ${theme.mutedClass}`}>This upload link is invalid or has been closed by the host.</p>
         </Card>
       </div>
     );
@@ -244,16 +249,17 @@ export const GuestMediaUpload: React.FC = () => {
         token={token}
         title={`${gallery.event_name} — password required`}
         onVerified={() => setUnlocked(true)}
+        theme={theme}
       />
     );
   }
   if (!gallery.is_open) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-[#F8F5F0]">
-        <Card className="p-8 max-w-md text-center">
-          <Camera className="h-12 w-12 mx-auto mb-4 text-[#967A59]" />
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
+          <Camera className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
-          <p className="text-sm text-muted-foreground">The host has closed uploads for this gallery.</p>
+          <p className={`text-sm ${theme.mutedClass}`}>The host has closed uploads for this gallery.</p>
         </Card>
       </div>
     );
