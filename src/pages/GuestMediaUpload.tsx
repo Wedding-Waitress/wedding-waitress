@@ -361,22 +361,31 @@ export const GuestMediaUpload: React.FC = () => {
   const validCount = items.filter(i => i.ok).length;
 
   return (
-    <div className="min-h-screen bg-[#F8F5F0] px-4 py-6 pt-8 overflow-x-hidden">
+    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
       <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#967A59]/10 mb-4">
-            <Camera className="h-8 w-8 text-[#967A59]" />
+        {theme.coverImageUrl && (
+          <div className="mb-6 -mt-2 rounded-2xl overflow-hidden border border-black/5 shadow-sm">
+            <img src={theme.coverImageUrl} alt="" className="w-full h-40 sm:h-48 object-cover" />
           </div>
-          <h1 className="text-3xl font-semibold text-[#1D1D1F] leading-tight">
+        )}
+        <div className="text-center mb-8">
+          {theme.logoImageUrl ? (
+            <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-16 mb-4 object-contain" />
+          ) : (
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ backgroundColor: accentSoftBg }}>
+              <Camera className="h-8 w-8" style={{ color: accent }} />
+            </div>
+          )}
+          <h1 className={`text-3xl font-semibold leading-tight ${theme.textClass}`}>
             {displayTitle}
           </h1>
           {showDate && (
-            <p className="text-sm text-[#6E6E73] mt-2">
+            <p className={`text-sm mt-2 ${theme.mutedClass}`}>
               {formatDisplayDate(gallery.event_date)}
             </p>
           )}
-          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line">
+          <p className={`text-base mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line ${theme.mutedClass}`}>
             {displayWelcome}
           </p>
         </div>
