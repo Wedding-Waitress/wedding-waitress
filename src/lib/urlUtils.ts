@@ -96,3 +96,11 @@ export function buildGalleryGuestbookUrl(token: string): string {
   const baseUrl = getPublicBaseUrl();
   return `${baseUrl}/gallery-guestbook/${encodeURIComponent(token)}`;
 }
+
+/**
+ * Builds a Photo & Video Gallery Photo Booth URL for the given token.
+ */
+export function buildGalleryPhotoBoothUrl(token: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/gallery-photobooth/${encodeURIComponent(token)}`;
+}
