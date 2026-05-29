@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
+import { resolveGalleryTheme } from '@/lib/galleryTheme';
 
 interface LiveMeta {
   gallery_id: string;
@@ -13,6 +14,11 @@ interface LiveMeta {
   gallery_title: string | null;
   slideshow_photo_duration_sec: number;
   password_required: boolean;
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream' | null;
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 interface LiveItem {
@@ -121,6 +127,11 @@ const GalleryLiveView: React.FC = () => {
           gallery_title: row.gallery_title ?? null,
           slideshow_photo_duration_sec: row.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC,
           password_required: passwordRequired,
+          theme_color: row.theme_color ?? null,
+          background_style: row.background_style ?? null,
+          cover_image_url: row.cover_image_url ?? null,
+          logo_image_url: row.logo_image_url ?? null,
+          show_branding: row.show_branding !== false,
         });
         // Only fetch items if no password gate, or already unlocked from sessionStorage.
         if (!passwordRequired || passwordRef.current) {
@@ -206,11 +217,14 @@ const GalleryLiveView: React.FC = () => {
 
   const current = items.length > 0 ? items[index % items.length] : null;
 
+  const theme = resolveGalleryTheme(meta);
+
   if (meta?.password_required && !unlocked && token) {
     return (
       <GalleryPasswordGate
         token={token}
         variant="dark"
+        theme={{ ...theme, isDark: true, bgClass: 'bg-black', surfaceClass: 'bg-white/5 border-white/10', textClass: 'text-white', mutedClass: 'text-white/70', borderClass: 'border-white/10' }}
         title={`${headerTitle || 'Gallery'} — password required`}
         onVerified={(pw) => { passwordRef.current = pw; setUnlocked(true); }}
       />
@@ -220,11 +234,18 @@ const GalleryLiveView: React.FC = () => {
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
       {/* Header */}
-      {headerTitle && (
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between">
-          <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg">
-            {headerTitle}
-          </h1>
+      {(headerTitle || theme.logoImageUrl) && (
+        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {theme.logoImageUrl && (
+              <img src={theme.logoImageUrl} alt="" className="h-10 md:h-12 object-contain drop-shadow-lg" />
+            )}
+            {headerTitle && (
+              <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg truncate">
+                {headerTitle}
+              </h1>
+            )}
+          </div>
           {items.length > 0 && (
             <span className="text-white/60 text-sm font-medium drop-shadow mt-1.5 shrink-0">
               {index + 1} / {items.length}
@@ -305,6 +326,11 @@ const GalleryLiveView: React.FC = () => {
           )}
         </div>
       ) : null}
+      {theme.showBranding && (
+        <div className="absolute top-2 right-2 z-10 text-[10px] uppercase tracking-wider text-white/40 pointer-events-none">
+          Powered by Wedding Waitress
+        </div>
+      )}
     </div>
   );
 };

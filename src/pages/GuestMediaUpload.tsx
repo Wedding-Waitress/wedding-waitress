@@ -13,6 +13,7 @@ import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
+import { resolveGalleryTheme } from '@/lib/galleryTheme';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -33,6 +34,11 @@ interface GalleryPublic {
   welcome_message: string | null;
   show_event_date: boolean;
   password_required: boolean;
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream' | null;
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 interface GalleryUsage {
@@ -218,16 +224,21 @@ export const GuestMediaUpload: React.FC = () => {
   };
 
 
+  const theme = resolveGalleryTheme(gallery);
+  const accent = theme.themeColor;
+  const accentHover = theme.themeColorHover;
+  const accentSoftBg = `${accent}1A`;
+
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-[#967A59]" /></div>;
+    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-[#F8F5F0]">
-        <Card className="p-8 max-w-md text-center">
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h1 className="text-xl font-semibold mb-2">Gallery link not found</h1>
-          <p className="text-sm text-muted-foreground">This upload link is invalid or has been closed by the host.</p>
+          <p className={`text-sm ${theme.mutedClass}`}>This upload link is invalid or has been closed by the host.</p>
         </Card>
       </div>
     );
@@ -238,16 +249,17 @@ export const GuestMediaUpload: React.FC = () => {
         token={token}
         title={`${gallery.event_name} — password required`}
         onVerified={() => setUnlocked(true)}
+        theme={theme}
       />
     );
   }
   if (!gallery.is_open) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-[#F8F5F0]">
-        <Card className="p-8 max-w-md text-center">
-          <Camera className="h-12 w-12 mx-auto mb-4 text-[#967A59]" />
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
+          <Camera className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
-          <p className="text-sm text-muted-foreground">The host has closed uploads for this gallery.</p>
+          <p className={`text-sm ${theme.mutedClass}`}>The host has closed uploads for this gallery.</p>
         </Card>
       </div>
     );
@@ -265,26 +277,29 @@ export const GuestMediaUpload: React.FC = () => {
     const greeting = firstName ? `Thank you, ${firstName}!` : 'Thank you!';
     const fileWord = (n: number) => (n === 1 ? 'file' : 'files');
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-b from-[#F8F5F0] via-[#F4EEE4] to-[#EFE6D6] overflow-x-hidden">
+      <div className={`min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden ${theme.bgStyle === 'cream' ? 'bg-gradient-to-b from-[#F8F5F0] via-[#F4EEE4] to-[#EFE6D6]' : theme.bgClass} ${theme.textClass}`}>
         <SeoHead title={`${gallery.event_name} — Thank you for sharing`} description="Your memories have been shared with the couple." />
-        <Card className="p-7 sm:p-8 max-w-md w-full text-center border-[#E8E1D6] shadow-[0_8px_30px_-12px_rgba(150,122,89,0.25)] bg-white/90 backdrop-blur-sm">
+        <Card className={`p-7 sm:p-8 max-w-md w-full text-center backdrop-blur-sm ${theme.isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-[#E8E1D6]'} ${theme.textClass}`}>
+          {theme.logoImageUrl && (
+            <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-12 mb-4 object-contain" />
+          )}
           <div className="relative inline-flex items-center justify-center mb-5">
-            <div className="absolute inset-0 -m-3 rounded-full bg-[#967A59]/10 blur-xl" aria-hidden="true" />
-            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#F4EEE4] to-[#E8D9BF] flex items-center justify-center border border-[#E8E1D6]">
-              <Heart className="h-10 w-10 text-[#967A59]" fill="#967A59" />
-              <Sparkles className="absolute -top-1 -right-1 h-5 w-5 text-[#C9A861]" />
+            <div className="absolute inset-0 -m-3 rounded-full blur-xl" aria-hidden="true" style={{ backgroundColor: accentSoftBg }} />
+            <div className={`relative w-20 h-20 rounded-full flex items-center justify-center border ${theme.isDark ? 'bg-white/10 border-white/20' : 'bg-gradient-to-br from-[#F4EEE4] to-[#E8D9BF] border-[#E8E1D6]'}`}>
+              <Heart className="h-10 w-10" style={{ color: accent }} fill={accent} />
+              <Sparkles className="absolute -top-1 -right-1 h-5 w-5" style={{ color: accent }} />
             </div>
           </div>
 
-          <h1 className="text-3xl font-semibold text-[#1D1D1F] tracking-tight">{greeting}</h1>
-          <p className="text-base text-[#6E6E73] mt-3 leading-relaxed">
+          <h1 className="text-3xl font-semibold tracking-tight">{greeting}</h1>
+          <p className={`text-base mt-3 leading-relaxed ${theme.mutedClass}`}>
             {success > 0
-              ? <>You just shared <span className="font-medium text-[#1D1D1F]">{success} {fileWord(success)}</span> with {couple || 'the couple'}. These memories mean the world. 💛</>
+              ? <>You just shared <span className={`font-medium ${theme.textClass}`}>{success} {fileWord(success)}</span> with {couple || 'the couple'}. These memories mean the world. 💛</>
               : <>Your message has been received by {couple || 'the couple'}.</>}
           </p>
 
           {success > 0 && (
-            <div className="mt-5 rounded-xl border border-[#E0D3B8] bg-[#FBF7EE] p-3.5 flex items-center justify-center gap-2 text-sm text-[#7A5E3A]">
+            <div className={`mt-5 rounded-xl border p-3.5 flex items-center justify-center gap-2 text-sm ${theme.isDark ? 'border-white/15 bg-white/5 text-white/80' : 'border-[#E0D3B8] bg-[#FBF7EE] text-[#7A5E3A]'}`}>
               <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
               <span><span className="font-semibold">{success}</span> {fileWord(success)} uploaded successfully</span>
             </div>
@@ -309,7 +324,10 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="mt-6 space-y-2.5">
             <Button
-              className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white text-base"
+              className="lv-premium-shade w-full h-12 text-white text-base"
+              style={{ backgroundColor: accent }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
               onClick={handleShareMore}
             >
               <Camera className="h-4 w-4 mr-2" />
@@ -326,9 +344,14 @@ export const GuestMediaUpload: React.FC = () => {
             </Button>
           </div>
 
-          <p className="mt-5 text-xs text-[#8a8a8e] italic">
+          <p className={`mt-5 text-xs italic ${theme.mutedClass}`}>
             With love from {couple || gallery.event_name} 🤍
           </p>
+          {theme.showBranding && (
+            <p className={`mt-3 text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
+              Powered by Wedding Waitress
+            </p>
+          )}
         </Card>
       </div>
     );
@@ -338,22 +361,31 @@ export const GuestMediaUpload: React.FC = () => {
   const validCount = items.filter(i => i.ok).length;
 
   return (
-    <div className="min-h-screen bg-[#F8F5F0] px-4 py-6 pt-8 overflow-x-hidden">
+    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
       <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#967A59]/10 mb-4">
-            <Camera className="h-8 w-8 text-[#967A59]" />
+        {theme.coverImageUrl && (
+          <div className="mb-6 -mt-2 rounded-2xl overflow-hidden border border-black/5 shadow-sm">
+            <img src={theme.coverImageUrl} alt="" className="w-full h-40 sm:h-48 object-cover" />
           </div>
-          <h1 className="text-3xl font-semibold text-[#1D1D1F] leading-tight">
+        )}
+        <div className="text-center mb-8">
+          {theme.logoImageUrl ? (
+            <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-16 mb-4 object-contain" />
+          ) : (
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ backgroundColor: accentSoftBg }}>
+              <Camera className="h-8 w-8" style={{ color: accent }} />
+            </div>
+          )}
+          <h1 className={`text-3xl font-semibold leading-tight ${theme.textClass}`}>
             {displayTitle}
           </h1>
           {showDate && (
-            <p className="text-sm text-[#6E6E73] mt-2">
+            <p className={`text-sm mt-2 ${theme.mutedClass}`}>
               {formatDisplayDate(gallery.event_date)}
             </p>
           )}
-          <p className="text-base text-[#6E6E73] mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line">
+          <p className={`text-base mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line ${theme.mutedClass}`}>
             {displayWelcome}
           </p>
         </div>
@@ -530,7 +562,10 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div>
             <Button
-              className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white"
+              className="lv-premium-shade w-full h-12 text-white"
+              style={{ backgroundColor: accent }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
               disabled={uploading || validating || validCount === 0 || !name.trim()}
               onClick={onSubmit}
             >
@@ -540,7 +575,7 @@ export const GuestMediaUpload: React.FC = () => {
             </Button>
 
             {!uploading && !validating && (
-              <div className="mt-2 text-xs text-center text-[#6E6E73] min-h-[1.25rem]">
+              <div className={`mt-2 text-xs text-center min-h-[1.25rem] ${theme.mutedClass}`}>
                 {!name.trim() && items.length > 0
                   ? 'Enter your first name above to share these memories'
                   : name.trim() && validCount === 0 && items.length > 0
@@ -552,6 +587,11 @@ export const GuestMediaUpload: React.FC = () => {
             )}
           </div>
         </Card>
+        {theme.showBranding && (
+          <p className={`mt-6 text-center text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
+            Powered by Wedding Waitress
+          </p>
+        )}
       </div>
     </div>
   );

@@ -18,6 +18,11 @@ export interface GalleryMeta {
   slideshow_photo_duration_sec: number;
   password_enabled: boolean;
   has_password: boolean;
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream';
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 export interface GalleryDisplaySettings {
@@ -25,6 +30,14 @@ export interface GalleryDisplaySettings {
   welcome_message: string | null;
   show_event_date: boolean;
   slideshow_photo_duration_sec: number;
+}
+
+export interface GalleryBrandingSettings {
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream';
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 export interface GalleryItem {
@@ -222,5 +235,22 @@ export function useEventMediaGallery(eventId: string | null) {
     await loadMeta(eventId).catch(() => {});
   }, [eventId, loadMeta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword };
+  const updateBranding = useCallback(async (b: GalleryBrandingSettings) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, ...b } : m);
+    const { error: err } = await (supabase as any).rpc('update_event_media_branding', {
+      _event_id: eventId,
+      _theme_color: b.theme_color,
+      _background_style: b.background_style,
+      _cover_image_url: b.cover_image_url,
+      _logo_image_url: b.logo_image_url,
+      _show_branding: b.show_branding,
+    });
+    if (err) {
+      await loadMeta(eventId).catch(() => {});
+      throw new Error(err.message || 'Failed to save branding');
+    }
+  }, [eventId, loadMeta]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding };
 }
