@@ -742,6 +742,7 @@ export type Database = {
           theme_color: string | null
           updated_at: string
           user_id: string
+          video_guestbook_enabled: boolean
           welcome_message: string | null
         }
         Insert: {
@@ -761,6 +762,7 @@ export type Database = {
           theme_color?: string | null
           updated_at?: string
           user_id: string
+          video_guestbook_enabled?: boolean
           welcome_message?: string | null
         }
         Update: {
@@ -780,6 +782,7 @@ export type Database = {
           theme_color?: string | null
           updated_at?: string
           user_id?: string
+          video_guestbook_enabled?: boolean
           welcome_message?: string | null
         }
         Relationships: [
@@ -803,6 +806,7 @@ export type Database = {
           gallery_id: string
           guestbook_message: string | null
           id: string
+          is_guestbook: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
           moderation_status: string
@@ -825,6 +829,7 @@ export type Database = {
           gallery_id: string
           guestbook_message?: string | null
           id?: string
+          is_guestbook?: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
           moderation_status?: string
@@ -847,6 +852,7 @@ export type Database = {
           gallery_id?: string
           guestbook_message?: string | null
           id?: string
+          is_guestbook?: boolean
           kind?: Database["public"]["Enums"]["event_media_kind"]
           mime_type?: string
           moderation_status?: string
@@ -4271,6 +4277,7 @@ export type Database = {
           show_event_date: boolean
           slideshow_photo_duration_sec: number
           theme_color: string
+          video_guestbook_enabled: boolean
           welcome_message: string
         }[]
       }
@@ -4300,6 +4307,7 @@ export type Database = {
           show_event_date: boolean
           slideshow_photo_duration_sec: number
           theme_color: string
+          video_guestbook_enabled: boolean
           welcome_message: string
         }[]
       }
@@ -4323,6 +4331,7 @@ export type Database = {
           duration_sec: number
           guestbook_message: string
           id: string
+          is_guestbook: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           mime_type: string
           moderation_status: string
@@ -4712,6 +4721,10 @@ export type Database = {
         Args: { _enabled: boolean; _event_id: string; _password: string }
         Returns: boolean
       }
+      set_event_media_video_guestbook: {
+        Args: { _enabled: boolean; _event_id: string }
+        Returns: undefined
+      }
       submit_guest_song_requests: {
         Args: { _event_id: string; _guest_id: string; _requests: Json }
         Returns: boolean
@@ -4902,7 +4915,7 @@ export type Database = {
         | "owner"
         | "account_master"
         | "account_standard"
-      event_media_kind: "photo" | "video"
+      event_media_kind: "photo" | "video" | "audio"
       event_media_upload_status: "pending" | "uploaded" | "failed"
       guest_activity_channel: "email" | "sms" | "whatsapp" | "system" | "web"
       guest_activity_status: "success" | "failure" | "pending" | "info"
@@ -5062,7 +5075,7 @@ export const Constants = {
         "account_master",
         "account_standard",
       ],
-      event_media_kind: ["photo", "video"],
+      event_media_kind: ["photo", "video", "audio"],
       event_media_upload_status: ["pending", "uploaded", "failed"],
       guest_activity_channel: ["email", "sms", "whatsapp", "system", "web"],
       guest_activity_status: ["success", "failure", "pending", "info"],
