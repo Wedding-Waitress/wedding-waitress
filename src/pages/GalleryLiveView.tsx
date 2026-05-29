@@ -326,6 +326,11 @@ const GalleryLiveView: React.FC = () => {
           )}
         </div>
       ) : null}
+      {theme.showBranding && (
+        <div className="absolute top-2 right-2 z-10 text-[10px] uppercase tracking-wider text-white/40 pointer-events-none">
+          Powered by Wedding Waitress
+        </div>
+      )}
     </div>
   );
 };
