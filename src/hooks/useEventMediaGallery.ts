@@ -26,6 +26,18 @@ export interface GalleryMeta {
   video_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
   photo_booth_mode: 'single' | 'strip';
+  photo_booth_single_bottom_text: string | null;
+  photo_booth_single_logo_url: string | null;
+  photo_booth_single_template_url: string | null;
+  photo_booth_strip_bottom_text: string | null;
+  photo_booth_strip_logo_url: string | null;
+  photo_booth_strip_template_url: string | null;
+}
+
+export interface PhotoBoothTemplateSettings {
+  bottom_text: string | null;
+  logo_url: string | null;
+  template_url: string | null;
 }
 
 export interface GalleryDisplaySettings {
