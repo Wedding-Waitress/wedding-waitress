@@ -91,7 +91,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
-            <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} />
+            <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
             <GalleryDownloadsCard
               items={items}
               eventName={events.find(e => e.id === selectedEventId)?.name}
