@@ -141,10 +141,30 @@ export const GuestPhotoBooth: React.FC = () => {
     stopStream();
   };
 
+  const startCountdown = () => {
+    if (!streamReady || countdown !== null) return;
+    if (!name.trim()) { setErrorMsg('Please add your first name first.'); return; }
+    setErrorMsg(null);
+    setCountdown(3);
+  };
+
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown === 0) {
+      setCountdown(null);
+      capture();
+      return;
+    }
+    const t = setTimeout(() => setCountdown(c => (c === null ? null : c - 1)), 1000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countdown]);
+
   const retake = () => {
     if (capturedUrl) URL.revokeObjectURL(capturedUrl);
     setCapturedUrl(null);
     setCapturedBlob(null);
+    setCountdown(null);
     setPhase('preview');
   };
 
