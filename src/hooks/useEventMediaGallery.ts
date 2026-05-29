@@ -18,6 +18,11 @@ export interface GalleryMeta {
   slideshow_photo_duration_sec: number;
   password_enabled: boolean;
   has_password: boolean;
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream';
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 export interface GalleryDisplaySettings {
@@ -25,6 +30,14 @@ export interface GalleryDisplaySettings {
   welcome_message: string | null;
   show_event_date: boolean;
   slideshow_photo_duration_sec: number;
+}
+
+export interface GalleryBrandingSettings {
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream';
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 export interface GalleryItem {
