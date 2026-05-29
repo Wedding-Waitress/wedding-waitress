@@ -124,14 +124,23 @@ function filenameFor(item: GalleryItem): string {
 type Filter = 'all' | 'approved' | 'hidden';
 type MediaTypeFilter = 'all' | 'photos' | 'videos';
 type SortMode = 'newest' | 'oldest';
+type AlbumFilter = 'all' | GalleryAlbum;
+
+const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
+  { value: 'all', label: 'All Uploads' },
+  ...GALLERY_ALBUMS.map(a => ({ value: a as AlbumFilter, label: a })),
+];
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
   onDelete: (id: string) => void;
   onSetModeration: (id: string, status: 'approved' | 'hidden') => Promise<void>;
-}> = ({ items, onDelete, onSetModeration }) => {
+  onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
+  onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
+}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum }) => {
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
   const [mediaType, setMediaType] = useState<MediaTypeFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>('newest');
   const [search, setSearch] = useState('');
