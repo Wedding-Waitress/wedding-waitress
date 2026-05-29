@@ -288,5 +288,15 @@ export function useEventMediaGallery(eventId: string | null) {
     return (data as number) ?? ids.length;
   }, [items]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum };
+  const setVideoGuestbookEnabled = useCallback(async (enabled: boolean) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, video_guestbook_enabled: enabled } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_video_guestbook', { _event_id: eventId, _enabled: enabled });
+    if (err) {
+      setMeta(m => m ? { ...m, video_guestbook_enabled: !enabled } : m);
+      throw new Error(err.message || 'Failed to update Video Guestbook');
+    }
+  }, [eventId]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled };
 }
