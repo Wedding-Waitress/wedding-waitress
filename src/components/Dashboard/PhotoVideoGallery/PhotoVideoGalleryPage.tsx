@@ -95,6 +95,9 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
             <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
+            {meta.photo_booth_enabled && (
+              <GalleryPhotoBoothTemplatesCard eventId={selectedEventId} meta={meta} onSave={updatePhotoBoothTemplate} />
+            )}
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
             <GalleryDownloadsCard
