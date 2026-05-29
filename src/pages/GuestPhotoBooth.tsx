@@ -30,6 +30,12 @@ interface GalleryPublic {
   photo_booth_enabled: boolean;
   photo_booth_mode: 'single' | 'strip' | null;
   gallery_title: string | null;
+  photo_booth_single_bottom_text: string | null;
+  photo_booth_single_logo_url: string | null;
+  photo_booth_single_template_url: string | null;
+  photo_booth_strip_bottom_text: string | null;
+  photo_booth_strip_logo_url: string | null;
+  photo_booth_strip_template_url: string | null;
 }
 
 type Phase = 'preview' | 'captured' | 'saving' | 'saved';
@@ -45,126 +51,287 @@ const formatEventDate = (iso: string | null) => {
   } catch { return ''; }
 };
 
-// Compose a vertical photo strip from 3 image blobs.
-// Returns a JPEG blob suitable for storage upload.
-async function composeStrip(opts: {
-  photos: Blob[];
+const loadImageEl = (src: string, crossOrigin = true) => new Promise<HTMLImageElement>((res, rej) => {
+  const img = new Image();
+  if (crossOrigin) img.crossOrigin = 'anonymous';
+  img.onload = () => res(img);
+  img.onerror = (e) => rej(e);
+  img.src = src;
+});
+
+const drawCover = (ctx: CanvasRenderingContext2D, img: HTMLImageElement | HTMLCanvasElement, dx: number, dy: number, dw: number, dh: number) => {
+  const iw = (img as any).naturalWidth || (img as any).width;
+  const ih = (img as any).naturalHeight || (img as any).height;
+  const ir = iw / ih;
+  const tr = dw / dh;
+  let sx = 0, sy = 0, sw = iw, sh = ih;
+  if (ir > tr) { sw = ih * tr; sx = (iw - sw) / 2; }
+  else { sh = iw / tr; sy = (ih - sh) / 2; }
+  ctx.drawImage(img as any, sx, sy, sw, sh, dx, dy, dw, dh);
+};
+
+const wrapText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
+  const words = text.split(/\s+/);
+  let line = '';
+  const lines: string[] = [];
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line); line = w;
+    } else { line = test; }
+  }
+  if (line) lines.push(line);
+  lines.forEach((ln, i) => ctx.fillText(ln, x, y + i * lineHeight));
+  return lines.length * lineHeight;
+};
+
+// Shared footer renderer: draws optional logo (if provided), bottom text, branding line.
+async function drawFooter(ctx: CanvasRenderingContext2D, opts: {
+  x: number; y: number; width: number; height: number;
+  bottomText: string | null;
+  logoUrl: string | null;
+  fallbackTitle: string;
+  dateText: string;
+  hashtag?: string;
+  showBranding: boolean;
+  hasTemplate: boolean;
+  scale: number;
+}) {
+  const { x, y, width, height, bottomText, logoUrl, fallbackTitle, dateText, hashtag, showBranding, hasTemplate, scale } = opts;
+
+  // Soft cream backdrop only when no template
+  if (!hasTemplate) {
+    ctx.fillStyle = '#FBF7F0';
+    ctx.fillRect(x, y, width, height);
+  }
+
+  let cursorY = y + 24 * scale;
+  const cx = x + width / 2;
+
+  // Optional logo
+  if (logoUrl) {
+    try {
+      const logoImg = await loadImageEl(logoUrl);
+      const maxLogoH = 80 * scale;
+      const ratio = logoImg.width / logoImg.height;
+      const lh = Math.min(maxLogoH, logoImg.height * scale);
+      const lw = lh * ratio;
+      ctx.drawImage(logoImg, cx - lw / 2, cursorY, lw, lh);
+      cursorY += lh + 12 * scale;
+    } catch {/* ignore */}
+  }
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+
+  if (bottomText) {
+    ctx.fillStyle = '#1D1D1F';
+    ctx.font = `600 ${Math.round(30 * scale)}px "Inter", system-ui, sans-serif`;
+    const used = wrapText(ctx, bottomText, cx, cursorY, width - 40 * scale, Math.round(36 * scale));
+    cursorY += used + 6 * scale;
+  } else {
+    // Default branding: title + date + optional hashtag
+    ctx.fillStyle = '#1D1D1F';
+    ctx.font = `600 ${Math.round(30 * scale)}px "Inter", system-ui, sans-serif`;
+    ctx.fillText(fallbackTitle || '', cx, cursorY);
+    cursorY += 38 * scale;
+    if (dateText) {
+      ctx.fillStyle = '#6E6E73';
+      ctx.font = `400 ${Math.round(20 * scale)}px "Inter", system-ui, sans-serif`;
+      ctx.fillText(dateText, cx, cursorY);
+      cursorY += 28 * scale;
+    }
+    if (hashtag) {
+      ctx.fillStyle = '#967A59';
+      ctx.font = `500 ${Math.round(18 * scale)}px "Inter", system-ui, sans-serif`;
+      ctx.fillText(hashtag.startsWith('#') ? hashtag : `#${hashtag}`, cx, cursorY);
+      cursorY += 26 * scale;
+    }
+  }
+
+  if (showBranding) {
+    ctx.fillStyle = '#A89D8A';
+    ctx.font = `400 ${Math.round(12 * scale)}px "Inter", system-ui, sans-serif`;
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('Wedding Waitress · Photo Booth', cx, y + height - 10 * scale);
+  }
+}
+
+interface ComposeOpts {
   title: string;
   dateText: string;
   hashtag?: string;
-  logoUrl?: string | null;
+  bottomText: string | null;
+  logoUrl: string | null;
+  templateUrl: string | null;
   showBranding: boolean;
-}): Promise<Blob> {
-  const W = 720;
-  const padding = 40;
-  const photoW = W - padding * 2; // 640
-  const photoH = Math.round(photoW * 0.75); // 480 — 4:3
-  const gap = 20;
-  const footerH = 260;
-  const H = padding + photoH * STRIP_COUNT + gap * (STRIP_COUNT - 1) + footerH + padding;
+}
 
-  const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas not available');
-
-  // Cream/white wedding background
-  ctx.fillStyle = '#FBF7F0';
-  ctx.fillRect(0, 0, W, H);
-
-  // Subtle outer frame
-  ctx.strokeStyle = '#E8E1D6';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(10, 10, W - 20, H - 20);
-
-  // Draw each photo (centered crop, cover)
-  const loadImage = (blob: Blob) => new Promise<HTMLImageElement>((res, rej) => {
+// Single photo composer — keeps captured orientation (portrait or landscape).
+async function composeSingle(photo: Blob, opts: ComposeOpts): Promise<Blob> {
+  const photoImg = await new Promise<HTMLImageElement>((res, rej) => {
     const img = new Image();
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(photo);
     img.onload = () => { URL.revokeObjectURL(url); res(img); };
     img.onerror = (e) => { URL.revokeObjectURL(url); rej(e); };
     img.src = url;
   });
 
-  for (let i = 0; i < STRIP_COUNT; i++) {
-    const img = await loadImage(opts.photos[i]);
-    const x = padding;
-    const y = padding + i * (photoH + gap);
-    // Cover-fit crop
-    const ir = img.width / img.height;
-    const tr = photoW / photoH;
-    let sx = 0, sy = 0, sw = img.width, sh = img.height;
-    if (ir > tr) {
-      sw = img.height * tr; sx = (img.width - sw) / 2;
-    } else {
-      sh = img.width / tr; sy = (img.height - sh) / 2;
-    }
-    // Thin photo border
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(x - 4, y - 4, photoW + 8, photoH + 8);
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, photoW, photoH);
-    ctx.strokeStyle = '#D9CFBE';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, photoW, photoH);
+  const portrait = photoImg.height >= photoImg.width;
+  // Target sizes (px) — matches dashboard guidance: 1080×1800 portrait, 1800×1080 landscape.
+  const W = portrait ? 1080 : 1800;
+  const H = portrait ? 1800 : 1080;
+  const footerH = portrait ? 360 : 240;
+  const photoAreaH = H - footerH;
+  const pad = 24;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas not available');
+
+  // Background
+  let templateImg: HTMLImageElement | null = null;
+  if (opts.templateUrl) {
+    try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
+  }
+  if (templateImg) {
+    drawCover(ctx, templateImg, 0, 0, W, H);
+  } else {
+    ctx.fillStyle = '#FBF7F0';
+    ctx.fillRect(0, 0, W, H);
   }
 
-  // Footer
-  const footerY = padding + photoH * STRIP_COUNT + gap * (STRIP_COUNT - 1) + 24;
-  let cursorY = footerY;
+  // Photo slot
+  const slotX = pad, slotY = pad, slotW = W - pad * 2, slotH = photoAreaH - pad;
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(slotX - 4, slotY - 4, slotW + 8, slotH + 8);
+  drawCover(ctx, photoImg, slotX, slotY, slotW, slotH);
+  ctx.strokeStyle = '#D9CFBE';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(slotX, slotY, slotW, slotH);
 
-  // Optional logo
-  if (opts.logoUrl) {
-    try {
-      const logoImg = await new Promise<HTMLImageElement>((res, rej) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => res(img);
-        img.onerror = (e) => rej(e);
-        img.src = opts.logoUrl as string;
-      });
-      const maxLogoH = 70;
-      const ratio = logoImg.width / logoImg.height;
-      const lh = Math.min(maxLogoH, logoImg.height);
-      const lw = lh * ratio;
-      ctx.drawImage(logoImg, (W - lw) / 2, cursorY, lw, lh);
-      cursorY += lh + 14;
-    } catch {
-      // ignore logo failure (CORS etc.)
-    }
-  }
-
-  // Title (couple/event)
-  ctx.fillStyle = '#1D1D1F';
-  ctx.textAlign = 'center';
-  ctx.font = '600 32px "Inter", system-ui, -apple-system, sans-serif';
-  ctx.fillText(opts.title || '', W / 2, cursorY + 28);
-  cursorY += 44;
-
-  // Date
-  if (opts.dateText) {
-    ctx.fillStyle = '#6E6E73';
-    ctx.font = '400 20px "Inter", system-ui, sans-serif';
-    ctx.fillText(opts.dateText, W / 2, cursorY + 20);
-    cursorY += 30;
-  }
-
-  // Optional hashtag
-  if (opts.hashtag) {
-    ctx.fillStyle = '#967A59';
-    ctx.font = '500 18px "Inter", system-ui, sans-serif';
-    ctx.fillText(opts.hashtag.startsWith('#') ? opts.hashtag : `#${opts.hashtag}`, W / 2, cursorY + 22);
-    cursorY += 30;
-  }
-
-  // Branding line (optional)
-  if (opts.showBranding) {
-    ctx.fillStyle = '#A89D8A';
-    ctx.font = '400 12px "Inter", system-ui, sans-serif';
-    ctx.fillText('Wedding Waitress · Photo Booth', W / 2, H - padding - 4);
-  }
+  await drawFooter(ctx, {
+    x: 0, y: photoAreaH, width: W, height: footerH,
+    bottomText: opts.bottomText,
+    logoUrl: opts.logoUrl,
+    fallbackTitle: opts.title,
+    dateText: opts.dateText,
+    hashtag: opts.hashtag,
+    showBranding: opts.showBranding,
+    hasTemplate: !!templateImg,
+    scale: portrait ? 1.4 : 1,
+  });
 
   const blob: Blob | null = await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.92));
+  if (!blob) throw new Error('Could not compose photo');
+  return blob;
+}
+
+// Photo strip composer — builds ONE vertical strip onto an offscreen canvas,
+// then renders it TWICE side-by-side on a landscape print canvas (1440×2000).
+async function composeStrip(photos: Blob[], opts: ComposeOpts): Promise<Blob> {
+  // Single strip dimensions (one half of the print)
+  const STRIP_W = 720;
+  const STRIP_H = 2000;
+  const padding = 36;
+  const photoW = STRIP_W - padding * 2; // 648
+  const photoH = Math.round(photoW * 0.75); // 486 — 4:3
+  const gap = 16;
+  const footerH = STRIP_H - (padding + photoH * STRIP_COUNT + gap * (STRIP_COUNT - 1));
+
+  const stripCanvas = document.createElement('canvas');
+  stripCanvas.width = STRIP_W; stripCanvas.height = STRIP_H;
+  const sctx = stripCanvas.getContext('2d');
+  if (!sctx) throw new Error('Canvas not available');
+
+  // Background per strip
+  let templateImg: HTMLImageElement | null = null;
+  if (opts.templateUrl) {
+    try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
+  }
+  if (templateImg) {
+    // The strip pulls the LEFT half of the template artwork (the print artwork is landscape).
+    const iw = templateImg.width;
+    const ih = templateImg.height;
+    // Source = left half, cover into strip
+    drawCover(sctx, templateImg, 0, 0, STRIP_W, STRIP_H);
+    // overwrite by cropping left half cleanly
+    sctx.clearRect(0, 0, STRIP_W, STRIP_H);
+    const halfW = iw / 2;
+    // cover-fit left half into strip
+    const ir = halfW / ih;
+    const tr = STRIP_W / STRIP_H;
+    let sx = 0, sy = 0, sw = halfW, sh = ih;
+    if (ir > tr) { sw = ih * tr; sx = (halfW - sw) / 2; }
+    else { sh = halfW / tr; sy = (ih - sh) / 2; }
+    sctx.drawImage(templateImg, sx, sy, sw, sh, 0, 0, STRIP_W, STRIP_H);
+  } else {
+    sctx.fillStyle = '#FBF7F0';
+    sctx.fillRect(0, 0, STRIP_W, STRIP_H);
+    sctx.strokeStyle = '#E8E1D6';
+    sctx.lineWidth = 2;
+    sctx.strokeRect(8, 8, STRIP_W - 16, STRIP_H - 16);
+  }
+
+  // Photos
+  for (let i = 0; i < STRIP_COUNT; i++) {
+    const img = await new Promise<HTMLImageElement>((res, rej) => {
+      const im = new Image();
+      const url = URL.createObjectURL(photos[i]);
+      im.onload = () => { URL.revokeObjectURL(url); res(im); };
+      im.onerror = (e) => { URL.revokeObjectURL(url); rej(e); };
+      im.src = url;
+    });
+    const x = padding;
+    const y = padding + i * (photoH + gap);
+    sctx.fillStyle = '#FFFFFF';
+    sctx.fillRect(x - 4, y - 4, photoW + 8, photoH + 8);
+    drawCover(sctx, img, x, y, photoW, photoH);
+    sctx.strokeStyle = '#D9CFBE';
+    sctx.lineWidth = 1;
+    sctx.strokeRect(x, y, photoW, photoH);
+  }
+
+  // Footer on the strip
+  await drawFooter(sctx, {
+    x: 0,
+    y: padding + photoH * STRIP_COUNT + gap * (STRIP_COUNT - 1),
+    width: STRIP_W,
+    height: footerH,
+    bottomText: opts.bottomText,
+    logoUrl: opts.logoUrl,
+    fallbackTitle: opts.title,
+    dateText: opts.dateText,
+    hashtag: opts.hashtag,
+    showBranding: opts.showBranding,
+    hasTemplate: !!templateImg,
+    scale: 1,
+  });
+
+  // Compose final landscape print: 1440×2000 — two strips side-by-side
+  const PRINT_W = STRIP_W * 2; // 1440
+  const PRINT_H = STRIP_H;     // 2000
+  const out = document.createElement('canvas');
+  out.width = PRINT_W; out.height = PRINT_H;
+  const octx = out.getContext('2d');
+  if (!octx) throw new Error('Canvas not available');
+  octx.fillStyle = '#FFFFFF';
+  octx.fillRect(0, 0, PRINT_W, PRINT_H);
+  octx.drawImage(stripCanvas, 0, 0);
+  octx.drawImage(stripCanvas, STRIP_W, 0);
+  // Cut-line in the middle (light dashed) for real photo-booth feel
+  octx.save();
+  octx.strokeStyle = '#D9CFBE';
+  octx.setLineDash([8, 8]);
+  octx.lineWidth = 1;
+  octx.beginPath();
+  octx.moveTo(STRIP_W, 0);
+  octx.lineTo(STRIP_W, PRINT_H);
+  octx.stroke();
+  octx.restore();
+
+  const blob: Blob | null = await new Promise(res => out.toBlob(b => res(b), 'image/jpeg', 0.92));
   if (!blob) throw new Error('Could not compose strip');
   return blob;
 }
@@ -282,14 +449,37 @@ export const GuestPhotoBooth: React.FC = () => {
     return await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.9));
   };
 
+  const buildComposeOpts = (): ComposeOpts => {
+    const couple = [gallery?.partner1_name, gallery?.partner2_name].filter(Boolean).join(' & ');
+    const title = couple || gallery?.event_name || '';
+    const dateText = formatEventDate(gallery?.event_date || null);
+    const titleRaw = gallery?.gallery_title || '';
+    const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
+    const isStrip = (gallery?.photo_booth_mode === 'strip');
+    return {
+      title,
+      dateText,
+      hashtag,
+      bottomText: (isStrip ? gallery?.photo_booth_strip_bottom_text : gallery?.photo_booth_single_bottom_text) || null,
+      logoUrl: (isStrip ? gallery?.photo_booth_strip_logo_url : gallery?.photo_booth_single_logo_url) || null,
+      templateUrl: (isStrip ? gallery?.photo_booth_strip_template_url : gallery?.photo_booth_single_template_url) || null,
+      showBranding: !!gallery?.show_branding,
+    };
+  };
+
   const captureSingle = async () => {
     const blob = await grabFrameBlob();
     if (!blob) { setErrorMsg('Could not capture photo'); return; }
-    setCapturedBlob(blob);
-    if (capturedUrl) URL.revokeObjectURL(capturedUrl);
-    setCapturedUrl(URL.createObjectURL(blob));
-    setPhase('captured');
-    stopStream();
+    try {
+      const finalBlob = await composeSingle(blob, buildComposeOpts());
+      setCapturedBlob(finalBlob);
+      if (capturedUrl) URL.revokeObjectURL(capturedUrl);
+      setCapturedUrl(URL.createObjectURL(finalBlob));
+      setPhase('captured');
+      stopStream();
+    } catch (e: any) {
+      setErrorMsg(e?.message || 'Could not compose photo');
+    }
   };
 
   const captureStripFrame = async () => {
@@ -300,25 +490,11 @@ export const GuestPhotoBooth: React.FC = () => {
     const nextPhotos = [...stripPhotos, blob];
     setStripPhotos(nextPhotos);
     if (nextPhotos.length < STRIP_COUNT) {
-      // Brief pause, then next countdown
       setTimeout(() => setCountdown(3), 700);
     } else {
-      // All 3 captured — compose strip
       setStripActive(false);
       try {
-        const couple = [gallery?.partner1_name, gallery?.partner2_name].filter(Boolean).join(' & ');
-        const title = couple || gallery?.event_name || '';
-        const dateText = formatEventDate(gallery?.event_date || null);
-        const titleRaw = gallery?.gallery_title || '';
-        const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
-        const stripBlob = await composeStrip({
-          photos: nextPhotos,
-          title,
-          dateText,
-          hashtag,
-          logoUrl: gallery?.logo_image_url || null,
-          showBranding: !!gallery?.show_branding,
-        });
+        const stripBlob = await composeStrip(nextPhotos, buildComposeOpts());
         setCapturedBlob(stripBlob);
         if (capturedUrl) URL.revokeObjectURL(capturedUrl);
         setCapturedUrl(URL.createObjectURL(stripBlob));
@@ -330,6 +506,8 @@ export const GuestPhotoBooth: React.FC = () => {
       }
     }
   };
+
+
 
   const startCountdown = () => {
     if (!streamReady || countdown !== null) return;
@@ -514,7 +692,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 <img
                   src={capturedUrl}
                   alt={mode === 'strip' ? 'Photo strip preview' : 'Captured photo'}
-                  className={mode === 'strip' ? 'max-h-[70vh] w-auto object-contain' : 'w-full h-auto object-cover'}
+                  className="max-h-[70vh] w-auto mx-auto object-contain"
                 />
               </div>
             ) : (

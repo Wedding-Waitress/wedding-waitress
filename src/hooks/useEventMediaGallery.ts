@@ -26,6 +26,18 @@ export interface GalleryMeta {
   video_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
   photo_booth_mode: 'single' | 'strip';
+  photo_booth_single_bottom_text: string | null;
+  photo_booth_single_logo_url: string | null;
+  photo_booth_single_template_url: string | null;
+  photo_booth_strip_bottom_text: string | null;
+  photo_booth_strip_logo_url: string | null;
+  photo_booth_strip_template_url: string | null;
+}
+
+export interface PhotoBoothTemplateSettings {
+  bottom_text: string | null;
+  logo_url: string | null;
+  template_url: string | null;
 }
 
 export interface GalleryDisplaySettings {
@@ -323,5 +335,32 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId, meta?.photo_booth_mode]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode };
+  const updatePhotoBoothTemplate = useCallback(async (kind: 'single' | 'strip', s: PhotoBoothTemplateSettings) => {
+    if (!eventId) return;
+    const { error: err } = await (supabase as any).rpc('update_event_media_photo_booth_template', {
+      _event_id: eventId,
+      _kind: kind,
+      _bottom_text: s.bottom_text,
+      _logo_url: s.logo_url,
+      _template_url: s.template_url,
+    });
+    if (err) throw new Error(err.message || 'Failed to save Photo Booth template');
+    setMeta(m => {
+      if (!m) return m;
+      if (kind === 'single') return {
+        ...m,
+        photo_booth_single_bottom_text: s.bottom_text,
+        photo_booth_single_logo_url: s.logo_url,
+        photo_booth_single_template_url: s.template_url,
+      };
+      return {
+        ...m,
+        photo_booth_strip_bottom_text: s.bottom_text,
+        photo_booth_strip_logo_url: s.logo_url,
+        photo_booth_strip_template_url: s.template_url,
+      };
+    });
+  }, [eventId]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate };
 }

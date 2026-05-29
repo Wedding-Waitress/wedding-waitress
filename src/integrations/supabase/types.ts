@@ -738,6 +738,12 @@ export type Database = {
           password_hash: string | null
           photo_booth_enabled: boolean
           photo_booth_mode: string
+          photo_booth_single_bottom_text: string | null
+          photo_booth_single_logo_url: string | null
+          photo_booth_single_template_url: string | null
+          photo_booth_strip_bottom_text: string | null
+          photo_booth_strip_logo_url: string | null
+          photo_booth_strip_template_url: string | null
           show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
@@ -760,6 +766,12 @@ export type Database = {
           password_hash?: string | null
           photo_booth_enabled?: boolean
           photo_booth_mode?: string
+          photo_booth_single_bottom_text?: string | null
+          photo_booth_single_logo_url?: string | null
+          photo_booth_single_template_url?: string | null
+          photo_booth_strip_bottom_text?: string | null
+          photo_booth_strip_logo_url?: string | null
+          photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
@@ -782,6 +794,12 @@ export type Database = {
           password_hash?: string | null
           photo_booth_enabled?: boolean
           photo_booth_mode?: string
+          photo_booth_single_bottom_text?: string | null
+          photo_booth_single_logo_url?: string | null
+          photo_booth_single_template_url?: string | null
+          photo_booth_strip_bottom_text?: string | null
+          photo_booth_strip_logo_url?: string | null
+          photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
@@ -4286,6 +4304,12 @@ export type Database = {
           password_enabled: boolean
           photo_booth_enabled: boolean
           photo_booth_mode: string
+          photo_booth_single_bottom_text: string
+          photo_booth_single_logo_url: string
+          photo_booth_single_template_url: string
+          photo_booth_strip_bottom_text: string
+          photo_booth_strip_logo_url: string
+          photo_booth_strip_template_url: string
           primary_token: string
           show_branding: boolean
           show_event_date: boolean
@@ -4319,6 +4343,12 @@ export type Database = {
           password_required: boolean
           photo_booth_enabled: boolean
           photo_booth_mode: string
+          photo_booth_single_bottom_text: string
+          photo_booth_single_logo_url: string
+          photo_booth_single_template_url: string
+          photo_booth_strip_bottom_text: string
+          photo_booth_strip_logo_url: string
+          photo_booth_strip_template_url: string
           show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
@@ -4865,6 +4895,16 @@ export type Database = {
           _max_videos: number
         }
         Returns: boolean
+      }
+      update_event_media_photo_booth_template: {
+        Args: {
+          _bottom_text: string
+          _event_id: string
+          _kind: string
+          _logo_url: string
+          _template_url: string
+        }
+        Returns: undefined
       }
       update_guest_rsvp_public: {
         Args: {
