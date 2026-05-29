@@ -54,7 +54,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
 
 export interface GalleryItem {
   id: string;
-  kind: 'photo' | 'video';
+  kind: 'photo' | 'video' | 'audio';
   mime_type: string;
   byte_size: number;
   duration_sec: number | null;
@@ -65,6 +65,7 @@ export interface GalleryItem {
   uploaded_at: string | null;
   moderation_status: 'approved' | 'hidden';
   album: GalleryAlbum | null;
+  is_guestbook: boolean;
   signed_url?: string;
 }
 
