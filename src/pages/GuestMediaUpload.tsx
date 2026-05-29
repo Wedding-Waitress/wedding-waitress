@@ -13,6 +13,7 @@ import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
+import { resolveGalleryTheme } from '@/lib/galleryTheme';
 
 interface GalleryPublic {
   gallery_id: string;
