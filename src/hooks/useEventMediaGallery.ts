@@ -69,6 +69,7 @@ export interface GalleryItem {
   album: GalleryAlbum | null;
   is_guestbook: boolean;
   is_photo_booth: boolean;
+  is_photo_booth_strip: boolean;
   signed_url?: string;
 }
 
