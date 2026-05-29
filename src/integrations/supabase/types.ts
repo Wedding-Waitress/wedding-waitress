@@ -4657,6 +4657,23 @@ export type Database = {
         Returns: undefined
       }
       record_referral_signup: { Args: { p_code: string }; Returns: undefined }
+      register_event_guestbook_upload: {
+        Args: {
+          _byte_size: number
+          _duration_sec: number
+          _filename: string
+          _kind: Database["public"]["Enums"]["event_media_kind"]
+          _message: string
+          _mime_type: string
+          _token: string
+          _uploader_name: string
+        }
+        Returns: {
+          item_id: string
+          storage_path: string
+          upload_token: string
+        }[]
+      }
       register_event_media_upload: {
         Args: {
           _byte_size: number

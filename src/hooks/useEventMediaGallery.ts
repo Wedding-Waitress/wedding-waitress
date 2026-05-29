@@ -23,6 +23,7 @@ export interface GalleryMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  video_guestbook_enabled: boolean;
 }
 
 export interface GalleryDisplaySettings {
