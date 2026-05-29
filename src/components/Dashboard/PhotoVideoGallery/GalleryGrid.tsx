@@ -595,6 +595,9 @@ export const GalleryGrid: React.FC<{
                       {it.is_guestbook && (
                         <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Guestbook</span>
                       )}
+                      {it.is_photo_booth && (
+                        <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Photo Booth</span>
+                      )}
                       <span className="truncate">{it.uploader_name || 'Anonymous guest'}</span>
                     </div>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide ${
