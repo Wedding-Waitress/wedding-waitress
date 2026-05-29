@@ -16,6 +16,7 @@ import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GalleryBrandingCard } from './GalleryBrandingCard';
 import { GalleryVideoGuestbookCard } from './GalleryVideoGuestbookCard';
 import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
+import { GalleryPhotoBoothTemplatesCard } from './GalleryPhotoBoothTemplatesCard';
 import { GuestbookList } from './GuestbookList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
