@@ -25,6 +25,7 @@ export interface GalleryMeta {
   show_branding: boolean;
   video_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
+  photo_booth_mode: 'single' | 'strip';
 }
 
 export interface GalleryDisplaySettings {
