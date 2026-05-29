@@ -632,6 +632,10 @@ export const GalleryGrid: React.FC<{
           <div className="max-w-5xl max-h-full" onClick={e => e.stopPropagation()}>
             {lightbox.kind === 'photo' ? (
               <img src={lightbox.signed_url} alt={lightbox.caption || ''} className="max-h-[85vh] max-w-full" />
+            ) : lightbox.kind === 'audio' ? (
+              <div className="bg-white rounded-lg p-6 min-w-[320px]">
+                <audio src={lightbox.signed_url} controls autoPlay className="w-full" />
+              </div>
             ) : (
               <video src={lightbox.signed_url} controls autoPlay className="max-h-[85vh] max-w-full" />
             )}
