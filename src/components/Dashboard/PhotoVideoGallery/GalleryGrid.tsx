@@ -587,6 +587,25 @@ export const GalleryGrid: React.FC<{
                   {it.caption && (
                     <div className="text-muted-foreground line-clamp-2 mt-0.5" title={it.caption}>{it.caption}</div>
                   )}
+                  <div className="mt-1.5">
+                    <Select
+                      value={it.album ?? '__none__'}
+                      onValueChange={(v) => moveSingleToAlbum(it.id, v === '__none__' ? null : (v as GalleryAlbum))}
+                    >
+                      <SelectTrigger className="h-7 text-[11px] px-2 bg-white" onClick={(e) => e.stopPropagation()}>
+                        <span className="flex items-center gap-1 truncate">
+                          <FolderOpen className="h-3 w-3 text-[#967A59] shrink-0" />
+                          <span className="truncate">{it.album ?? 'No album'}</span>
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">No album</SelectItem>
+                        {GALLERY_ALBUMS.map(a => (
+                          <SelectItem key={a} value={a}>{a}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             );
