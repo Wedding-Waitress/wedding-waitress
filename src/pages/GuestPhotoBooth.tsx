@@ -30,6 +30,12 @@ interface GalleryPublic {
   photo_booth_enabled: boolean;
   photo_booth_mode: 'single' | 'strip' | null;
   gallery_title: string | null;
+  photo_booth_single_bottom_text: string | null;
+  photo_booth_single_logo_url: string | null;
+  photo_booth_single_template_url: string | null;
+  photo_booth_strip_bottom_text: string | null;
+  photo_booth_strip_logo_url: string | null;
+  photo_booth_strip_template_url: string | null;
 }
 
 type Phase = 'preview' | 'captured' | 'saving' | 'saved';
@@ -43,6 +49,40 @@ const formatEventDate = (iso: string | null) => {
     if (isNaN(d.getTime())) return '';
     return d.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
   } catch { return ''; }
+};
+
+const loadImageEl = (src: string, crossOrigin = true) => new Promise<HTMLImageElement>((res, rej) => {
+  const img = new Image();
+  if (crossOrigin) img.crossOrigin = 'anonymous';
+  img.onload = () => res(img);
+  img.onerror = (e) => rej(e);
+  img.src = src;
+});
+
+const drawCover = (ctx: CanvasRenderingContext2D, img: HTMLImageElement | HTMLCanvasElement, dx: number, dy: number, dw: number, dh: number) => {
+  const iw = (img as any).naturalWidth || (img as any).width;
+  const ih = (img as any).naturalHeight || (img as any).height;
+  const ir = iw / ih;
+  const tr = dw / dh;
+  let sx = 0, sy = 0, sw = iw, sh = ih;
+  if (ir > tr) { sw = ih * tr; sx = (iw - sw) / 2; }
+  else { sh = iw / tr; sy = (ih - sh) / 2; }
+  ctx.drawImage(img as any, sx, sy, sw, sh, dx, dy, dw, dh);
+};
+
+const wrapText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
+  const words = text.split(/\s+/);
+  let line = '';
+  const lines: string[] = [];
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line); line = w;
+    } else { line = test; }
+  }
+  if (line) lines.push(line);
+  lines.forEach((ln, i) => ctx.fillText(ln, x, y + i * lineHeight));
+  return lines.length * lineHeight;
 };
 
 // Compose a vertical photo strip from 3 image blobs.
