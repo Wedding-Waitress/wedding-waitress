@@ -562,7 +562,10 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div>
             <Button
-              className="lv-premium-shade w-full h-12 bg-[#967A59] hover:bg-[#7d6448] text-white"
+              className="lv-premium-shade w-full h-12 text-white"
+              style={{ backgroundColor: accent }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
               disabled={uploading || validating || validCount === 0 || !name.trim()}
               onClick={onSubmit}
             >
@@ -572,7 +575,7 @@ export const GuestMediaUpload: React.FC = () => {
             </Button>
 
             {!uploading && !validating && (
-              <div className="mt-2 text-xs text-center text-[#6E6E73] min-h-[1.25rem]">
+              <div className={`mt-2 text-xs text-center min-h-[1.25rem] ${theme.mutedClass}`}>
                 {!name.trim() && items.length > 0
                   ? 'Enter your first name above to share these memories'
                   : name.trim() && validCount === 0 && items.length > 0
@@ -584,6 +587,11 @@ export const GuestMediaUpload: React.FC = () => {
             )}
           </div>
         </Card>
+        {theme.showBranding && (
+          <p className={`mt-6 text-center text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
+            Powered by Wedding Waitress
+          </p>
+        )}
       </div>
     </div>
   );
