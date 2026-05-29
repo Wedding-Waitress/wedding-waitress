@@ -591,7 +591,12 @@ export const GalleryGrid: React.FC<{
                 </div>
                 <div className="px-2 py-1.5 bg-white border-t border-border text-xs">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-medium text-[#1D1D1F] truncate">{it.uploader_name || 'Anonymous guest'}</div>
+                    <div className="font-medium text-[#1D1D1F] truncate flex items-center gap-1">
+                      {it.is_guestbook && (
+                        <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Guestbook</span>
+                      )}
+                      <span className="truncate">{it.uploader_name || 'Anonymous guest'}</span>
+                    </div>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide ${
                       isHidden ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
                     }`}>
