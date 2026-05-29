@@ -449,14 +449,37 @@ export const GuestPhotoBooth: React.FC = () => {
     return await new Promise<Blob | null>(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.9));
   };
 
+  const buildComposeOpts = (): ComposeOpts => {
+    const couple = [gallery?.partner1_name, gallery?.partner2_name].filter(Boolean).join(' & ');
+    const title = couple || gallery?.event_name || '';
+    const dateText = formatEventDate(gallery?.event_date || null);
+    const titleRaw = gallery?.gallery_title || '';
+    const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
+    const isStrip = (gallery?.photo_booth_mode === 'strip');
+    return {
+      title,
+      dateText,
+      hashtag,
+      bottomText: (isStrip ? gallery?.photo_booth_strip_bottom_text : gallery?.photo_booth_single_bottom_text) || null,
+      logoUrl: (isStrip ? gallery?.photo_booth_strip_logo_url : gallery?.photo_booth_single_logo_url) || null,
+      templateUrl: (isStrip ? gallery?.photo_booth_strip_template_url : gallery?.photo_booth_single_template_url) || null,
+      showBranding: !!gallery?.show_branding,
+    };
+  };
+
   const captureSingle = async () => {
     const blob = await grabFrameBlob();
     if (!blob) { setErrorMsg('Could not capture photo'); return; }
-    setCapturedBlob(blob);
-    if (capturedUrl) URL.revokeObjectURL(capturedUrl);
-    setCapturedUrl(URL.createObjectURL(blob));
-    setPhase('captured');
-    stopStream();
+    try {
+      const finalBlob = await composeSingle(blob, buildComposeOpts());
+      setCapturedBlob(finalBlob);
+      if (capturedUrl) URL.revokeObjectURL(capturedUrl);
+      setCapturedUrl(URL.createObjectURL(finalBlob));
+      setPhase('captured');
+      stopStream();
+    } catch (e: any) {
+      setErrorMsg(e?.message || 'Could not compose photo');
+    }
   };
 
   const captureStripFrame = async () => {
@@ -467,25 +490,11 @@ export const GuestPhotoBooth: React.FC = () => {
     const nextPhotos = [...stripPhotos, blob];
     setStripPhotos(nextPhotos);
     if (nextPhotos.length < STRIP_COUNT) {
-      // Brief pause, then next countdown
       setTimeout(() => setCountdown(3), 700);
     } else {
-      // All 3 captured — compose strip
       setStripActive(false);
       try {
-        const couple = [gallery?.partner1_name, gallery?.partner2_name].filter(Boolean).join(' & ');
-        const title = couple || gallery?.event_name || '';
-        const dateText = formatEventDate(gallery?.event_date || null);
-        const titleRaw = gallery?.gallery_title || '';
-        const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
-        const stripBlob = await composeStrip({
-          photos: nextPhotos,
-          title,
-          dateText,
-          hashtag,
-          logoUrl: gallery?.logo_image_url || null,
-          showBranding: !!gallery?.show_branding,
-        });
+        const stripBlob = await composeStrip(nextPhotos, buildComposeOpts());
         setCapturedBlob(stripBlob);
         if (capturedUrl) URL.revokeObjectURL(capturedUrl);
         setCapturedUrl(URL.createObjectURL(stripBlob));
@@ -497,6 +506,8 @@ export const GuestPhotoBooth: React.FC = () => {
       }
     }
   };
+
+
 
   const startCountdown = () => {
     if (!streamReady || countdown !== null) return;
