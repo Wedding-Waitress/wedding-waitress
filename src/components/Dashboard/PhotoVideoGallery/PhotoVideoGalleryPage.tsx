@@ -15,6 +15,7 @@ import { GalleryGrid } from './GalleryGrid';
 import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GalleryBrandingCard } from './GalleryBrandingCard';
 import { GalleryVideoGuestbookCard } from './GalleryVideoGuestbookCard';
+import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
 import { GuestbookList } from './GuestbookList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -25,7 +26,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -91,7 +92,8 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-            <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} /> 
+            <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
+            <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
             <GalleryDownloadsCard
