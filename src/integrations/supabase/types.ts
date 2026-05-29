@@ -726,43 +726,58 @@ export type Database = {
       }
       event_media_galleries: {
         Row: {
+          background_style: string
+          cover_image_url: string | null
           created_at: string
           event_id: string
           gallery_title: string | null
           id: string
           is_open: boolean
+          logo_image_url: string | null
           password_enabled: boolean
           password_hash: string | null
+          show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
+          theme_color: string | null
           updated_at: string
           user_id: string
           welcome_message: string | null
         }
         Insert: {
+          background_style?: string
+          cover_image_url?: string | null
           created_at?: string
           event_id: string
           gallery_title?: string | null
           id?: string
           is_open?: boolean
+          logo_image_url?: string | null
           password_enabled?: boolean
           password_hash?: string | null
+          show_branding?: boolean
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
+          theme_color?: string | null
           updated_at?: string
           user_id: string
           welcome_message?: string | null
         }
         Update: {
+          background_style?: string
+          cover_image_url?: string | null
           created_at?: string
           event_id?: string
           gallery_title?: string | null
           id?: string
           is_open?: boolean
+          logo_image_url?: string | null
           password_enabled?: boolean
           password_hash?: string | null
+          show_branding?: boolean
           show_event_date?: boolean
           slideshow_photo_duration_sec?: number
+          theme_color?: string | null
           updated_at?: string
           user_id?: string
           welcome_message?: string | null
@@ -4234,10 +4249,13 @@ export type Database = {
       get_event_media_gallery_host: {
         Args: { _event_id: string }
         Returns: {
+          background_style: string
+          cover_image_url: string
           gallery_id: string
           gallery_title: string
           has_password: boolean
           is_open: boolean
+          logo_image_url: string
           max_photo_bytes: number
           max_photos: number
           max_total_bytes: number
@@ -4246,8 +4264,10 @@ export type Database = {
           max_videos: number
           password_enabled: boolean
           primary_token: string
+          show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
+          theme_color: string
           welcome_message: string
         }[]
       }
@@ -4256,12 +4276,15 @@ export type Database = {
         Returns: {
           allowed_photo_mimes: string[]
           allowed_video_mimes: string[]
+          background_style: string
+          cover_image_url: string
           event_date: string
           event_id: string
           event_name: string
           gallery_id: string
           gallery_title: string
           is_open: boolean
+          logo_image_url: string
           max_photo_bytes: number
           max_photos: number
           max_video_bytes: number
@@ -4270,8 +4293,10 @@ export type Database = {
           partner1_name: string
           partner2_name: string
           password_required: boolean
+          show_branding: boolean
           show_event_date: boolean
           slideshow_photo_duration_sec: number
+          theme_color: string
           welcome_message: string
         }[]
       }
@@ -4724,6 +4749,17 @@ export type Database = {
           share_token: string
         }
         Returns: boolean
+      }
+      update_event_media_branding: {
+        Args: {
+          _background_style: string
+          _cover_image_url: string
+          _event_id: string
+          _logo_image_url: string
+          _show_branding: boolean
+          _theme_color: string
+        }
+        Returns: undefined
       }
       update_event_media_display_settings: {
         Args: {
