@@ -34,6 +34,11 @@ interface GalleryPublic {
   welcome_message: string | null;
   show_event_date: boolean;
   password_required: boolean;
+  theme_color: string | null;
+  background_style: 'light' | 'dark' | 'cream' | null;
+  cover_image_url: string | null;
+  logo_image_url: string | null;
+  show_branding: boolean;
 }
 
 interface GalleryUsage {
