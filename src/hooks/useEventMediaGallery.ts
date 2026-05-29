@@ -24,6 +24,7 @@ export interface GalleryMeta {
   logo_image_url: string | null;
   show_branding: boolean;
   video_guestbook_enabled: boolean;
+  photo_booth_enabled: boolean;
 }
 
 export interface GalleryDisplaySettings {
