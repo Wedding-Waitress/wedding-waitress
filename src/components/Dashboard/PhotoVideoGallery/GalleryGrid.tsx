@@ -46,7 +46,7 @@ const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item,
   };
 
   if (status === 'error' || !item.signed_url) {
-    const Icon = item.kind === 'video' ? FileVideo : FileImage;
+    const Icon = item.kind === 'video' ? FileVideo : item.kind === 'audio' ? FileImage : FileImage;
     return (
       <div className="w-full h-full flex flex-col items-center justify-center text-center p-2 bg-muted">
         <Icon className="h-8 w-8 text-muted-foreground mb-1" />
@@ -61,6 +61,20 @@ const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item,
       </div>
     );
   }
+
+  if (item.kind === 'audio') {
+    return (
+      <div className="w-full h-full relative cursor-pointer bg-gradient-to-br from-[#967A59]/10 to-[#967A59]/25 flex flex-col items-center justify-center" onClick={onOpen}>
+        <div className="w-14 h-14 rounded-full bg-[#967A59] flex items-center justify-center mb-2">
+          <Play className="h-7 w-7 text-white" fill="white" />
+        </div>
+        <div className="text-[11px] font-medium uppercase text-[#967A59]">Voice</div>
+        {item.duration_sec ? <div className="text-[10px] text-[#6E6E73] mt-0.5">{item.duration_sec}s</div> : null}
+        <audio src={item.signed_url} preload="metadata" onLoadedMetadata={onLoaded} onError={onErr} className="hidden" />
+      </div>
+    );
+  }
+
 
   if (item.kind === 'photo') {
     return (
