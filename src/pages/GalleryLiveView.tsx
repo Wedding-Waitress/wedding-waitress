@@ -127,6 +127,11 @@ const GalleryLiveView: React.FC = () => {
           gallery_title: row.gallery_title ?? null,
           slideshow_photo_duration_sec: row.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC,
           password_required: passwordRequired,
+          theme_color: row.theme_color ?? null,
+          background_style: row.background_style ?? null,
+          cover_image_url: row.cover_image_url ?? null,
+          logo_image_url: row.logo_image_url ?? null,
+          show_branding: row.show_branding !== false,
         });
         // Only fetch items if no password gate, or already unlocked from sessionStorage.
         if (!passwordRequired || passwordRef.current) {
