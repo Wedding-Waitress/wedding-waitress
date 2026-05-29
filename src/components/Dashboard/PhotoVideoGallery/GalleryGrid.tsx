@@ -287,6 +287,28 @@ export const GalleryGrid: React.FC<{
     setBulkBusy(false);
   };
 
+  const bulkMoveToAlbum = async (album: GalleryAlbum | null) => {
+    if (selectedItems.length === 0) return;
+    setBulkBusy(true);
+    try {
+      const n = await onBulkSetAlbum(selectedItems.map(i => i.id), album);
+      toast({ title: album ? `Moved ${n} to ${album}` : `Removed album from ${n} item${n === 1 ? '' : 's'}` });
+    } catch (e: any) {
+      toast({ title: 'Could not move items', description: e?.message, variant: 'destructive' });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const moveSingleToAlbum = async (id: string, album: GalleryAlbum | null) => {
+    try {
+      await onSetAlbum(id, album);
+      toast({ title: album ? `Moved to ${album}` : 'Removed from album' });
+    } catch (e: any) {
+      toast({ title: 'Could not move item', description: e?.message, variant: 'destructive' });
+    }
+  };
+
   if (items.length === 0) {
     return (
       <Card className="p-12 text-center">
