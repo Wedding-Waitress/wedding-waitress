@@ -330,10 +330,11 @@ export const GuestPhotoBooth: React.FC = () => {
                   type="button"
                   className="lv-premium-shade w-full h-12 text-white text-base"
                   style={{ backgroundColor: accent }}
-                  disabled={!isCameraSupported || !streamReady}
-                  onClick={capture}
+                  disabled={!isCameraSupported || !streamReady || countdown !== null}
+                  onClick={startCountdown}
                 >
-                  <Camera className="h-5 w-5 mr-2" /> Take Photo
+                  <Camera className="h-5 w-5 mr-2" />
+                  {countdown !== null ? `Get ready… ${countdown || ''}` : 'Start Photo Booth'}
                 </Button>
                 <div className="flex gap-2">
                   <Button
@@ -341,7 +342,7 @@ export const GuestPhotoBooth: React.FC = () => {
                     variant="outline"
                     className="lv-premium-shade flex-1 h-11 text-base"
                     onClick={flipCamera}
-                    disabled={!isCameraSupported}
+                    disabled={!isCameraSupported || countdown !== null}
                   >
                     <RefreshCw className="h-4 w-4 mr-2" /> Flip
                   </Button>
@@ -349,9 +350,9 @@ export const GuestPhotoBooth: React.FC = () => {
                     type="button"
                     variant="ghost"
                     className="flex-1 h-11 text-base"
-                    onClick={cancel}
+                    onClick={() => { if (countdown !== null) { setCountdown(null); return; } cancel(); }}
                   >
-                    <X className="h-4 w-4 mr-2" /> Cancel
+                    <X className="h-4 w-4 mr-2" /> {countdown !== null ? 'Stop' : 'Cancel'}
                   </Button>
                 </div>
               </div>
