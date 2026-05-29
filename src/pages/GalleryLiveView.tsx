@@ -217,11 +217,14 @@ const GalleryLiveView: React.FC = () => {
 
   const current = items.length > 0 ? items[index % items.length] : null;
 
+  const theme = resolveGalleryTheme(meta);
+
   if (meta?.password_required && !unlocked && token) {
     return (
       <GalleryPasswordGate
         token={token}
         variant="dark"
+        theme={{ ...theme, isDark: true, bgClass: 'bg-black', surfaceClass: 'bg-white/5 border-white/10', textClass: 'text-white', mutedClass: 'text-white/70', borderClass: 'border-white/10' }}
         title={`${headerTitle || 'Gallery'} — password required`}
         onVerified={(pw) => { passwordRef.current = pw; setUnlocked(true); }}
       />
@@ -231,11 +234,18 @@ const GalleryLiveView: React.FC = () => {
   return (
     <div className="fixed inset-0 bg-black text-white overflow-hidden">
       {/* Header */}
-      {headerTitle && (
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between">
-          <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg">
-            {headerTitle}
-          </h1>
+      {(headerTitle || theme.logoImageUrl) && (
+        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {theme.logoImageUrl && (
+              <img src={theme.logoImageUrl} alt="" className="h-10 md:h-12 object-contain drop-shadow-lg" />
+            )}
+            {headerTitle && (
+              <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg truncate">
+                {headerTitle}
+              </h1>
+            )}
+          </div>
           {items.length > 0 && (
             <span className="text-white/60 text-sm font-medium drop-shadow mt-1.5 shrink-0">
               {index + 1} / {items.length}
