@@ -12,6 +12,7 @@ import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 import { GalleryLimitsCard } from './GalleryLimitsCard';
 import { GalleryGrid } from './GalleryGrid';
+import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GuestbookList } from './GuestbookList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
