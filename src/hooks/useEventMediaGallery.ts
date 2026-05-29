@@ -67,6 +67,7 @@ export interface GalleryItem {
   moderation_status: 'approved' | 'hidden';
   album: GalleryAlbum | null;
   is_guestbook: boolean;
+  is_photo_booth: boolean;
   signed_url?: string;
 }
 
