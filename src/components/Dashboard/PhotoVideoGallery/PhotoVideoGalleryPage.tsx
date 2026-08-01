@@ -143,4 +143,14 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
   );
 };
 
+const Section: React.FC<{ title: string; subtitle?: string; children: React.ReactNode }> = ({ title, subtitle, children }) => (
+  <section className="space-y-3">
+    <div className="px-0.5">
+      <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-[#967A59]">{title}</h2>
+      {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+    </div>
+    <div className="space-y-4">{children}</div>
+  </section>
+);
+
 export default PhotoVideoGalleryPage;
