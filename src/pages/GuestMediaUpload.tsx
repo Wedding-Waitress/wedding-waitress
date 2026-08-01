@@ -260,7 +260,7 @@ export const GuestMediaUpload: React.FC = () => {
   const accentHover = theme.themeColorHover;
   const accentSoftBg = `${accent}1A`;
   // Lower page section always sits on the dark leather texture -> force light text.
-  const lowerTheme = { ...theme, isDark: true, textClass: 'text-white', mutedClass: 'text-white/75', borderClass: 'border-white/15' };
+  const lowerTheme = { ...theme, isDark: true, textClass: 'text-white', mutedClass: 'text-white', borderClass: 'border-white/15' };
 
 
   if (loading) {
@@ -475,9 +475,9 @@ export const GuestMediaUpload: React.FC = () => {
       </header>
 
       {/* ---------- TABS + CONTENT ---------- */}
-      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={LEATHER_STYLE}>
+      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={{ backgroundColor: '#000000' }}>
       <div className={`${activeTab === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
-        <div className="mb-6 grid grid-cols-3 gap-1 rounded-full p-1 bg-black/35 border border-white/15 backdrop-blur-sm">
+        <div className="mb-6 grid grid-cols-3 gap-1 rounded-full p-1 bg-black border border-white/25">
           {(['upload', 'gallery', 'guestbook'] as const).map(tab => {
             const active = activeTab === tab;
             return (
@@ -494,7 +494,7 @@ export const GuestMediaUpload: React.FC = () => {
         </div>
 
         {activeTab === 'upload' && (
-          <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white/85">
+          <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white">
             {displayWelcome}
           </p>
         )}
@@ -711,7 +711,7 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {theme.showBranding && (
-          <p className="mt-6 text-center text-[10px] uppercase tracking-wider text-white/70">
+          <p className="mt-6 text-center text-[10px] uppercase tracking-wider text-white">
             Powered by Wedding Waitress
           </p>
         )}
