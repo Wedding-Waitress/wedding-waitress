@@ -78,7 +78,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   );
 
   const openAt = (i: number) => setOpenIndex(i);
-  const close = useCallback(() => setOpenIndex(null), []);
+  const close = useCallback(() => { setOpenIndex(null); setSlideshow(false); }, []);
   const step = useCallback((dir: 1 | -1) => {
     setOpenIndex(prev => {
       if (prev === null || items.length === 0) return prev;
