@@ -379,25 +379,25 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
             <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-5">
               <div className="w-full max-w-sm rounded-2xl bg-white p-5 text-center">
                 <p className="text-[#1D1D1F] text-base font-medium">
-                  Once deleted, this photo is gone and cannot be retrieved. Are you sure?
+                  Are you sure you want to delete this photo? This cannot be undone.
                 </p>
                 {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
                 <div className="mt-5 flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={deleteCurrent}
+                    onClick={() => setConfirmDelete(false)}
                     disabled={deleting}
                     className="lv-premium-shade flex-1 h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium disabled:opacity-60"
                   >
-                    {deleting ? 'Deleting…' : 'Yes, Delete'}
+                    NO
                   </button>
                   <button
                     type="button"
-                    onClick={() => setConfirmDelete(false)}
+                    onClick={deleteCurrent}
                     disabled={deleting}
-                    className="lv-premium-shade flex-1 h-11 rounded-xl border border-[#E8E1D6] bg-white text-[#1D1D1F] font-medium disabled:opacity-60"
+                    className="lv-premium-shade flex-1 h-11 rounded-xl bg-green-600 hover:bg-green-700 text-white font-medium disabled:opacity-60"
                   >
-                    Cancel
+                    {deleting ? '…' : 'YES'}
                   </button>
                 </div>
               </div>
