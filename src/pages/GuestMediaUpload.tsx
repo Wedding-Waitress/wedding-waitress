@@ -14,6 +14,7 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
+import { resolveGalleryTitle } from '@/lib/galleryTitle';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -266,7 +267,7 @@ export const GuestMediaUpload: React.FC = () => {
   }
 
   const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
-  const displayTitle = gallery.gallery_title?.trim() || couple || gallery.event_name;
+  const displayTitle = resolveGalleryTitle(gallery);
   const displayWelcome = gallery.welcome_message?.trim() || 'Share your favourite photos and videos from today.';
   const showDate = gallery.show_event_date !== false && !!gallery.event_date;
 
@@ -345,7 +346,7 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
 
           <p className={`mt-5 text-xs italic ${theme.mutedClass}`}>
-            With love from {couple || gallery.event_name} 🤍
+            With love from {couple || displayTitle} 🤍
           </p>
           {theme.showBranding && (
             <p className={`mt-3 text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>

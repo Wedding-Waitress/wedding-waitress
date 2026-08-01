@@ -11,6 +11,7 @@ import { Video, Mic, Square, Loader2, AlertCircle, CheckCircle2, RotateCcw, Tras
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
+import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
 
 interface GalleryPublic {
@@ -287,7 +288,7 @@ export const GuestVideoGuestbook: React.FC = () => {
   }
 
   const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
-  const title = couple || gallery.event_name;
+  const title = resolveGalleryTitle(gallery);
   const isMediaRecorderSupported = typeof window !== 'undefined' && !!(window as any).MediaRecorder && !!navigator?.mediaDevices?.getUserMedia;
 
   return (
