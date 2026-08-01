@@ -144,6 +144,33 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     downloadSignedUrl(current.signed_url, `memory-${current.id.slice(0, 8)}.${ext}`);
   };
 
+  const deleteCurrent = async () => {
+    if (!current) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const { error: err } = await (supabase as any).rpc('delete_event_media_item', { _item_id: current.id });
+      if (err) throw new Error(err.message);
+      const removedId = current.id;
+      setItems(prev => {
+        const next = prev.filter(i => i.id !== removedId);
+        setOpenIndex(oi => {
+          if (oi === null) return oi;
+          if (next.length === 0) return null;
+          return Math.min(oi, next.length - 1);
+        });
+        return next;
+      });
+      setConfirmDelete(false);
+    } catch (e) {
+      setDeleteError((e as Error).message || 'Could not delete this item.');
+    } finally {
+      if (mounted.current) setDeleting(false);
+    }
+  };
+
+
+
 
   if (loading) {
     return (
