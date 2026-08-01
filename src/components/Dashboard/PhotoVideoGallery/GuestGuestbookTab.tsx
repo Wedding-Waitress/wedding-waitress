@@ -248,12 +248,13 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
           </div>
           <Textarea
             id="gb-text"
-            className="min-h-[110px] text-base"
+            className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
             value={message}
             onChange={e => setMessage(e.target.value)}
             maxLength={2000}
             placeholder="Write your message for the couple…"
           />
+
           <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
         </div>
 
