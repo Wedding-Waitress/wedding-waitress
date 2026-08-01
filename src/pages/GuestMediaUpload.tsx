@@ -597,7 +597,7 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="space-y-3">
             <Label htmlFor="g-cap" className="text-lg font-bold text-[#1D1D1F] block">Caption (optional)</Label>
-            <Input id="g-cap" className="h-13 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={caption} onChange={e => setCaption(e.target.value)} placeholder="A short note about these memories" />
+            <Input id="g-cap" className="h-14 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={caption} onChange={e => setCaption(e.target.value)} placeholder="A short note about these memories" />
           </div>
 
           <div className="space-y-3">
