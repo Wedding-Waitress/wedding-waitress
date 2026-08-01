@@ -58,6 +58,9 @@ export const GuestMediaUpload: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
+  const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
+  const [galleryRefresh, setGalleryRefresh] = useState(0);
+
   const [items, setItems] = useState<ValidationResult[]>([]);
   const [stages, setStages] = useState<Record<number, ValidationStage>>({});
   const [validating, setValidating] = useState(false);
