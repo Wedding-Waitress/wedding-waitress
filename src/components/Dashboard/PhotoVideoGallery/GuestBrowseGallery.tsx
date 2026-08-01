@@ -328,7 +328,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 label: 'Delete',
                 icon: <Trash2 className="h-6 w-6" />,
                 onClick: () => { setDeleteError(null); setConfirmDelete(true); },
-                show: true,
+                show: isAuthed,
               },
             ].filter(b => b.show).map(b => (
               <div key={b.key} className="relative group flex items-center">
