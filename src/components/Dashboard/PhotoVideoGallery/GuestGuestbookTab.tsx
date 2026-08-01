@@ -40,10 +40,7 @@ function extFor(mime: string): string {
   }
 }
 
-export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refreshKey = 0, voiceEnabled = true }) => {
-  const [rows, setRows] = useState<GuestbookRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refreshKey: _refreshKey = 0, voiceEnabled = true }) => {
   const mounted = useRef(true);
 
   // shared
@@ -84,24 +81,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
     if (!nameKey) return;
     try { if (name.trim()) sessionStorage.setItem(nameKey, name.trim()); } catch { /* noop */ }
   }, [name, nameKey]);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data, error: err } = await (supabase as any)
-        .rpc('get_event_media_guestbook_public', { _token: token });
-      if (err) throw new Error(err.message);
-      if (!mounted.current) return;
-      setRows((data || []) as GuestbookRow[]);
-      setError(null);
-    } catch (e: any) {
-      if (mounted.current) setError(e?.message || 'Could not load the guestbook');
-    } finally {
-      if (mounted.current) setLoading(false);
-    }
-  }, [token]);
-
-  useEffect(() => { load(); }, [load, refreshKey]);
 
   /* ---------------- voice recorder ---------------- */
   const stopStream = useCallback(() => {
