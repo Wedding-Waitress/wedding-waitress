@@ -94,9 +94,15 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             </Section>
 
-            <Section title="Branding & theme" subtitle="How the gallery looks to your guests.">
-              <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-            </Section>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Section title="Branding & theme" subtitle="How the gallery looks to your guests.">
+                <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
+              </Section>
+
+              <Section title="Display settings" subtitle="Display settings for the gallery and slideshow.">
+                <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
+              </Section>
+            </div>
 
             <Section title="Password protection" subtitle="Control who can upload or view the gallery.">
               <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
@@ -107,12 +113,8 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             </Section>
 
-            <Section title="Appearance" subtitle="Display settings for the gallery and slideshow.">
-              <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
-            </Section>
-
-
             <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
+
               <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
               <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
               {meta.photo_booth_enabled && (
