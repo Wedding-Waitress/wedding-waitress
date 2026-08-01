@@ -42,6 +42,7 @@ interface GalleryPublic {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  video_guestbook_enabled?: boolean;
 }
 
 interface GalleryUsage {
@@ -509,7 +510,7 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {activeTab === 'guestbook' && token && (
-          <GuestGuestbookTab token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
+          <GuestGuestbookTab token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={!!gallery?.video_guestbook_enabled} />
         )}
 
 

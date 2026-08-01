@@ -23,7 +23,8 @@ export interface GalleryMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
-  video_guestbook_enabled: boolean;
+  /** Voice Guestbook (recordings) — stored in DB as video_guestbook_enabled. */
+  voice_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
   photo_booth_mode: 'single' | 'strip';
   photo_booth_single_bottom_text: string | null;
@@ -107,8 +108,10 @@ export function useEventMediaGallery(eventId: string | null) {
   const fetchMeta = useCallback(async (eid: string): Promise<GalleryMeta | null> => {
     const { data, error: err } = await (supabase as any).rpc('get_event_media_gallery_host', { _event_id: eid });
     if (err) throw new Error(err.message || 'Failed to load gallery');
-    const row = Array.isArray(data) ? data[0] : data;
-    return (row as GalleryMeta) || null;
+    const row: any = Array.isArray(data) ? data[0] : data;
+    if (!row) return null;
+    // DB column is still named video_guestbook_enabled; surfaced as Voice Guestbook in the UI.
+    return { ...row, voice_guestbook_enabled: !!row.video_guestbook_enabled } as GalleryMeta;
   }, []);
 
   const loadMeta = useCallback(async (eid: string) => {
@@ -306,13 +309,13 @@ export function useEventMediaGallery(eventId: string | null) {
     return (data as number) ?? ids.length;
   }, [items]);
 
-  const setVideoGuestbookEnabled = useCallback(async (enabled: boolean) => {
+  const setVoiceGuestbookEnabled = useCallback(async (enabled: boolean) => {
     if (!eventId) return;
-    setMeta(m => m ? { ...m, video_guestbook_enabled: enabled } : m);
+    setMeta(m => m ? { ...m, voice_guestbook_enabled: enabled } : m);
     const { error: err } = await (supabase as any).rpc('set_event_media_video_guestbook', { _event_id: eventId, _enabled: enabled });
     if (err) {
-      setMeta(m => m ? { ...m, video_guestbook_enabled: !enabled } : m);
-      throw new Error(err.message || 'Failed to update Video Guestbook');
+      setMeta(m => m ? { ...m, voice_guestbook_enabled: !enabled } : m);
+      throw new Error(err.message || 'Failed to update Voice Guestbook');
     }
   }, [eventId]);
 
@@ -374,5 +377,5 @@ export function useEventMediaGallery(eventId: string | null) {
     });
   }, [eventId]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled };
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled };
 }
