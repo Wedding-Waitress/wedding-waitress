@@ -59,7 +59,7 @@ export const GuestMediaUpload: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'gallery' | 'guestbook'>('upload');
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
@@ -84,8 +84,13 @@ export const GuestMediaUpload: React.FC = () => {
       if (sessionStorage.getItem(galleryPasswordKey(token))) setUnlocked(true);
       const savedName = sessionStorage.getItem(nameStorageKey);
       if (savedName) setName(savedName);
-      // First visit defaults to Upload; returning guests who already shared land on Gallery.
-      if (sessionStorage.getItem(`gallery-has-uploaded:${token}`)) setActiveTab('gallery');
+      // ?tab=gallery / ?tab=guestbook always wins; otherwise default to Upload.
+      const urlTab = new URLSearchParams(window.location.search).get('tab');
+      if (urlTab === 'gallery' || urlTab === 'guestbook' || urlTab === 'upload') {
+        setActiveTab(urlTab);
+      } else if (sessionStorage.getItem(`gallery-has-uploaded:${token}`)) {
+        setActiveTab('gallery');
+      }
     } catch {}
   }, [token, nameStorageKey]);
 
