@@ -37,9 +37,24 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const [error, setError] = useState<string | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [slideshow, setSlideshow] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const mounted = useRef(true);
 
   useEffect(() => () => { mounted.current = false; }, []);
+
+  // Only an authenticated organiser sees the delete control (the RPC also enforces ownership).
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (mounted.current) setIsAuthed(!!data.user);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setIsAuthed(!!session?.user);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   const load = useCallback(async (showSpinner: boolean) => {
     if (showSpinner) setLoading(true);
