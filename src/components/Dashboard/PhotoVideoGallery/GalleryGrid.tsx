@@ -507,7 +507,16 @@ export const GalleryGrid: React.FC<{
                       </button>
                     </div>
                   )}
+
+                  {/* Guest reactions (read-only for host) */}
+                  {(it.like_count ?? 0) > 0 && (
+                    <div className="absolute bottom-1 left-1 z-10 pointer-events-none flex items-center gap-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                      <span aria-hidden>❤️</span>
+                      <span>{it.like_count}</span>
+                    </div>
+                  )}
                 </div>
+
 
                 {/* Meta strip */}
                 <div className="px-1.5 py-1.5 border-t border-border text-[11px]">
