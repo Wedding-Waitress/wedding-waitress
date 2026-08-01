@@ -292,7 +292,15 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[420px] p-6">
+      <DialogContent
+        className="sm:max-w-[420px] p-6"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onFocusOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => {
+          if (loading) e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
             {step === 'form' ? 'Sign in' : 'Enter the 6-digit code'}
