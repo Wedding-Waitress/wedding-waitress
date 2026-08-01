@@ -242,94 +242,134 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       )}
 
       {current && createPortal(
-        <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col" role="dialog" aria-modal="true">
-          <div className="flex items-center justify-between gap-3 px-4 py-3 text-white">
-            <span className="text-lg sm:text-xl font-semibold tracking-wide tabular-nums">
-              {(openIndex ?? 0) + 1} / {items.length}
-            </span>
-            <div className="flex items-center gap-2">
+        <div className="fixed inset-0 z-[100] bg-black" role="dialog" aria-modal="true">
+          {/* Full-bleed media */}
+          {current.kind === 'video' ? (
+            <video
+              key={current.id}
+              src={current.signed_url}
+              className="absolute inset-0 w-full h-full object-contain"
+              controls
+              autoPlay
+              playsInline
+            />
+          ) : (
+            <img
+              key={current.id}
+              src={current.signed_url}
+              alt={current.caption || `Shared by ${fullNameOf(current.uploader_name)}`}
+              className="absolute inset-0 w-full h-full object-contain"
+            />
+          )}
+
+          {/* Counter */}
+          <span className="absolute top-3 left-4 z-20 text-white text-lg sm:text-xl font-semibold tracking-wide tabular-nums drop-shadow">
+            {(openIndex ?? 0) + 1} / {items.length}
+          </span>
+
+          {/* Close */}
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={close}
+            className="absolute top-3 right-3 z-20 h-14 w-14 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+          >
+            <X className="h-8 w-8" />
+          </button>
+
+          {/* Left vertical action stack */}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+            <button
+              type="button"
+              aria-label={slideshow ? 'Pause slideshow' : 'Play slideshow'}
+              onClick={() => setSlideshow(v => !v)}
+              className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+            >
+              {slideshow ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+            </button>
+            <button
+              type="button"
+              aria-label="Share"
+              onClick={shareCurrent}
+              className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+            >
+              <Share2 className="h-6 w-6" />
+            </button>
+            <button
+              type="button"
+              aria-label="Download"
+              onClick={downloadCurrent}
+              className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+            >
+              <Download className="h-6 w-6" />
+            </button>
+            {isAuthed && (
               <button
                 type="button"
-                aria-label={slideshow ? 'Pause slideshow' : 'Play slideshow'}
-                onClick={() => setSlideshow(v => !v)}
-                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+                aria-label="Delete"
+                onClick={() => { setDeleteError(null); setConfirmDelete(true); }}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
-                {slideshow ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+                <Trash2 className="h-6 w-6" />
               </button>
-              <button
-                type="button"
-                aria-label="Share"
-                onClick={shareCurrent}
-                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
-              >
-                <Share2 className="h-6 w-6" />
-              </button>
-              <button
-                type="button"
-                aria-label="Download"
-                onClick={downloadCurrent}
-                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
-              >
-                <Download className="h-6 w-6" />
-              </button>
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={close}
-                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
-              >
-                <X className="h-7 w-7" />
-              </button>
-            </div>
+            )}
           </div>
 
-
-          <div className="flex-1 relative flex items-center justify-center px-2 min-h-0">
-            {items.length > 1 && (
+          {items.length > 1 && (
+            <>
               <button
                 type="button"
                 aria-label="Previous"
                 onClick={() => step(-1)}
-                className="absolute left-2 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                className="absolute right-16 bottom-4 sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-auto sm:bottom-6 sm:-translate-x-[calc(50%+32px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
-            )}
-
-            {current.kind === 'video' ? (
-              <video
-                key={current.id}
-                src={current.signed_url}
-                className="max-h-full max-w-full object-contain"
-                controls
-                autoPlay
-                playsInline
-              />
-            ) : (
-              <img
-                key={current.id}
-                src={current.signed_url}
-                alt={current.caption || `Shared by ${fullNameOf(current.uploader_name)}`}
-                className="max-h-full max-w-full object-contain"
-              />
-            )}
-
-            {items.length > 1 && (
               <button
                 type="button"
                 aria-label="Next"
                 onClick={() => step(1)}
-                className="absolute right-2 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                className="absolute right-3 bottom-4 sm:right-auto sm:left-1/2 sm:bottom-6 sm:translate-x-[calc(-50%+32px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
-            )}
-          </div>
+            </>
+          )}
 
-          <div className="px-5 py-5 text-center text-white">
+          {/* Caption overlay */}
+          <div className="absolute bottom-0 inset-x-0 z-10 px-5 pb-20 sm:pb-24 pt-10 text-center text-white bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
             {current.caption && <p className="text-sm mb-1.5 text-white/90">{current.caption}</p>}
             <p className="text-sm">Shared by {fullNameOf(current.uploader_name)}</p>
           </div>
+
+          {confirmDelete && (
+            <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-5">
+              <div className="w-full max-w-sm rounded-2xl bg-white p-5 text-center">
+                <p className="text-[#1D1D1F] text-base font-medium">
+                  Once deleted, this photo is gone and cannot be retrieved. Are you sure?
+                </p>
+                {deleteError && <p className="mt-3 text-sm text-red-600">{deleteError}</p>}
+                <div className="mt-5 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={deleteCurrent}
+                    disabled={deleting}
+                    className="lv-premium-shade flex-1 h-11 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium disabled:opacity-60"
+                  >
+                    {deleting ? 'Deleting…' : 'Yes, Delete'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={deleting}
+                    className="lv-premium-shade flex-1 h-11 rounded-xl border border-[#E8E1D6] bg-white text-[#1D1D1F] font-medium disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>,
         document.body,
       )}
