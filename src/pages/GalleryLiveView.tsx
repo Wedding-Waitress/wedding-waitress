@@ -307,9 +307,13 @@ const GalleryLiveView: React.FC = () => {
                 {current.caption}
               </div>
             )}
-            {current?.uploader_name && (
+            {(current?.uploader_name || current?.uploaded_at) && (
               <div className="text-white/70 text-sm md:text-base mt-1">
-                — {current.uploader_name}
+                {current?.uploader_name ? `— ${current.uploader_name.trim().split(/\s+/)[0]}` : ''}
+                {current?.uploader_name && current?.uploaded_at ? ' · ' : ''}
+                {current?.uploaded_at
+                  ? new Date(current.uploaded_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+                  : ''}
               </div>
             )}
           </div>
