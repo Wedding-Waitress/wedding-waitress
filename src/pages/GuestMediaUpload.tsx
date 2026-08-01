@@ -711,7 +711,7 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {theme.showBranding && (
-          <p className="mt-6 text-center text-[10px] uppercase tracking-wider text-white/70">
+          <p className="mt-6 text-center text-[10px] uppercase tracking-wider text-white">
             Powered by Wedding Waitress
           </p>
         )}
