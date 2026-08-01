@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
+import { formatDisplayDate } from '@/lib/utils';
 
 interface LiveMeta {
   gallery_id: string;
   event_id: string;
   event_name: string | null;
+  event_date: string | null;
+  show_event_date: boolean;
   partner1_name: string | null;
   partner2_name: string | null;
   gallery_title: string | null;
@@ -36,7 +39,7 @@ interface LiveItem {
   like_count?: number;
 }
 
-const DEFAULT_PHOTO_INTERVAL_SEC = 4;
+const DEFAULT_PHOTO_INTERVAL_SEC = 5;
 // Videos play inline (muted) for at most 15 seconds before advancing.
 const MAX_VIDEO_MS = 15 * 1000;
 // Poll for newly approved uploads (in addition to realtime) every 15s.
@@ -46,6 +49,9 @@ const REFRESH_URLS_MS = 8 * 60 * 1000;
 
 const GalleryLiveView: React.FC = () => {
   const { token } = useParams<{ token: string }>();
+  const location = useLocation();
+  // Projector/TV slideshow route: clean fullscreen, no controls.
+  const isSlideshow = location.pathname.endsWith('/slideshow');
   const [meta, setMeta] = useState<LiveMeta | null>(null);
   const [items, setItems] = useState<LiveItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -129,6 +135,8 @@ const GalleryLiveView: React.FC = () => {
           gallery_id: row.gallery_id,
           event_id: row.event_id,
           event_name: row.event_name,
+          event_date: row.event_date ?? null,
+          show_event_date: row.show_event_date !== false,
           partner1_name: row.partner1_name,
           partner2_name: row.partner2_name,
           gallery_title: row.gallery_title ?? null,
@@ -226,6 +234,23 @@ const GalleryLiveView: React.FC = () => {
   };
 
   const current = items.length > 0 ? items[index % items.length] : null;
+  const prevItemRef = useRef<LiveItem | null>(null);
+  const [prevItem, setPrevItem] = useState<LiveItem | null>(null);
+  useEffect(() => {
+    if (current && prevItemRef.current && prevItemRef.current.id !== current.id) {
+      const outgoing = prevItemRef.current;
+      setPrevItem(outgoing);
+      const t = window.setTimeout(() => setPrevItem(p => (p?.id === outgoing.id ? null : p)), 1000);
+      prevItemRef.current = current;
+      return () => window.clearTimeout(t);
+    }
+    prevItemRef.current = current;
+  }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const eventDateLabel = meta?.show_event_date && meta?.event_date ? formatDisplayDate(meta.event_date) : '';
+  const uploaderLabel = current?.uploader_name
+    ? `Shared by ${current.uploader_name.trim().split(/\s+/)[0]}`
+    : '';
 
   const handleLike = async () => {
     if (!token || !current || likeBusy) return;
