@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Heart, X, ChevronLeft, ChevronRight, Play, ImageIcon, AlertCircle } from 'lucide-react';
 import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
-import type { ResolvedGalleryTheme } from '@/lib/galleryTheme';
+import type { GalleryTheme } from '@/lib/galleryTheme';
 
 export interface BrowseItem {
   id: string;
