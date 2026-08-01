@@ -37,6 +37,10 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   const { toast } = useToast();
   const navigate = useNavigate();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // State updates are asynchronous, so `loading` can still be false if Radix
+  // emits onOpenChange(false) during the same click that starts the OTP request.
+  // This synchronous ref closes that race without preventing normal dismissal.
+  const otpRequestInFlightRef = useRef(false);
 
   // Cooldown timer effect
   useEffect(() => {
@@ -88,6 +92,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   // Handle email submission for OTP
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    otpRequestInFlightRef.current = true;
     setError('');
     
     // Check rate limiting
@@ -96,6 +102,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       setCooldownTimer(remainingTime);
       setError(`Please wait ${remainingTime} seconds before trying again.`);
       logSecurityEvent.authFailure('Rate limit exceeded', email);
+      otpRequestInFlightRef.current = false;
       return;
     }
     
@@ -106,6 +113,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     if (!validation.success) {
       setError(validation.error.errors[0].message);
       logSecurityEvent.validationFailure('email', email, email);
+      otpRequestInFlightRef.current = false;
       return;
     }
 
@@ -161,8 +169,15 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
     } finally {
+      otpRequestInFlightRef.current = false;
       setLoading(false);
     }
+  };
+
+  const handleOtpRequestClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    void handleEmailSubmit(e);
   };
 
   // Handle code verification
@@ -277,9 +292,10 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
   // Reset modal state when closed
   const handleOpenChange = (newOpen: boolean) => {
-    // Never allow the modal to close while a request is in flight
-    // (prevents the premature close after "Email me the code")
-    if (!newOpen && loading) return;
+    // Never allow the modal to close while an OTP request is in flight. The
+    // ref is intentionally checked before state because it updates during the
+    // originating click, eliminating the first-click close race.
+    if (!newOpen && (otpRequestInFlightRef.current || loading)) return;
     onOpenChange(newOpen);
     if (!newOpen) {
       setStep('form');
@@ -340,7 +356,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
               )}
 
               <Button 
-                type="submit" 
+                type="button"
+                onClick={handleOtpRequestClick}
                 className="w-full" 
                 disabled={loading || !email || cooldownTimer > 0}
               >
