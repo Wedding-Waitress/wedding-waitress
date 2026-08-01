@@ -436,7 +436,12 @@ export const GuestMediaUpload: React.FC = () => {
             <span
               className="mt-6 inline-block rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.22em] text-white/85 backdrop-blur-sm"
             >
-              {formatDisplayDate(gallery.event_date)}
+              {(() => {
+                const d = new Date(gallery.event_date);
+                return isNaN(d.getTime())
+                  ? formatDisplayDate(gallery.event_date)
+                  : `${d.getDate()} ${d.toLocaleString('en-GB', { month: 'long' })} ${d.getFullYear()}`;
+              })()}
             </span>
           )}
 
