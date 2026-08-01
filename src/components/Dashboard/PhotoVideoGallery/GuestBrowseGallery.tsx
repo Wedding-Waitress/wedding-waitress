@@ -201,14 +201,46 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
 
       {current && createPortal(
         <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col" role="dialog" aria-modal="true">
-          <div className="flex items-center justify-between px-4 py-3 text-white/90">
-            <span className="text-xs tracking-wide">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 text-white">
+            <span className="text-lg sm:text-xl font-semibold tracking-wide tabular-nums">
               {(openIndex ?? 0) + 1} / {items.length}
             </span>
-            <button type="button" aria-label="Close" onClick={close} className="p-2 -m-2 text-white/80 hover:text-white">
-              <X className="h-6 w-6" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label={slideshow ? 'Pause slideshow' : 'Play slideshow'}
+                onClick={() => setSlideshow(v => !v)}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                {slideshow ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+              </button>
+              <button
+                type="button"
+                aria-label="Share"
+                onClick={shareCurrent}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                <Share2 className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                aria-label="Download"
+                onClick={downloadCurrent}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                <Download className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={close}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                <X className="h-7 w-7" />
+              </button>
+            </div>
           </div>
+
 
           <div className="flex-1 relative flex items-center justify-center px-2 min-h-0">
             {items.length > 1 && (
