@@ -395,6 +395,7 @@ export const GuestMediaUpload: React.FC = () => {
   const validCount = items.filter(i => i.ok).length;
 
   const heroBg = theme.coverImageUrl;
+  const heroBackdrop = heroBg || DEFAULT_HERO_BG;
   const scrollToExplore = () => {
     document.getElementById('gallery-explore')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -405,18 +406,12 @@ export const GuestMediaUpload: React.FC = () => {
 
       {/* ---------- HERO ---------- */}
       <header className="relative min-h-[100svh] flex flex-col items-center justify-center px-5 py-16 text-center overflow-hidden">
-        {heroBg ? (
-          <>
-            <div
-              className="absolute inset-0 bg-center bg-cover scale-110 blur-[18px]"
-              style={{ backgroundImage: `url(${heroBg})` }}
-              aria-hidden="true"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
-          </>
-        ) : (
-          <div className="absolute inset-0" aria-hidden="true" style={LEATHER_STYLE} />
-        )}
+        <div
+          className={`absolute inset-0 bg-center bg-cover ${heroBg ? 'scale-110 blur-[18px]' : ''}`}
+          style={{ backgroundImage: `url(${heroBackdrop})` }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
 
 
         <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
@@ -430,7 +425,7 @@ export const GuestMediaUpload: React.FC = () => {
             ) : theme.logoImageUrl ? (
               <img src={theme.logoImageUrl} alt="" className="w-full h-full object-contain p-3" />
             ) : (
-              <Camera className="h-12 w-12" style={{ color: accent }} />
+              <img src={DEFAULT_HERO_BG} alt="" className="w-full h-full object-cover" />
             )}
           </div>
 
