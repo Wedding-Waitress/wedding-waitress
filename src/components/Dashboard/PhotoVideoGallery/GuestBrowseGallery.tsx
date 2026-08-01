@@ -20,7 +20,7 @@ export interface BrowseItem {
 
 const POLL_MS = 20 * 1000;
 
-const firstNameOf = (n?: string | null) => (n?.trim().split(/\s+/)[0] || 'A guest');
+const fullNameOf = (n?: string | null) => (n?.trim() || 'A guest');
 
 interface Props {
   token: string;
@@ -207,7 +207,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
               <img
                 key={current.id}
                 src={current.signed_url}
-                alt={current.caption || `Shared by ${firstNameOf(current.uploader_name)}`}
+                alt={current.caption || `Shared by ${fullNameOf(current.uploader_name)}`}
                 className="max-h-full max-w-full object-contain"
               />
             )}
@@ -226,7 +226,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
 
           <div className="px-5 py-5 text-center text-white">
             {current.caption && <p className="text-sm mb-1.5 text-white/90">{current.caption}</p>}
-            <p className="text-sm">Shared by {firstNameOf(current.uploader_name)}</p>
+            <p className="text-sm">Shared by {fullNameOf(current.uploader_name)}</p>
           </div>
         </div>,
         document.body,
