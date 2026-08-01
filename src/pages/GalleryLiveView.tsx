@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
+import { formatDisplayDate } from '@/lib/utils';
 
 interface LiveMeta {
   gallery_id: string;
   event_id: string;
   event_name: string | null;
+  event_date: string | null;
+  show_event_date: boolean;
   partner1_name: string | null;
   partner2_name: string | null;
   gallery_title: string | null;
@@ -36,7 +39,7 @@ interface LiveItem {
   like_count?: number;
 }
 
-const DEFAULT_PHOTO_INTERVAL_SEC = 4;
+const DEFAULT_PHOTO_INTERVAL_SEC = 5;
 // Videos play inline (muted) for at most 15 seconds before advancing.
 const MAX_VIDEO_MS = 15 * 1000;
 // Poll for newly approved uploads (in addition to realtime) every 15s.
@@ -46,6 +49,9 @@ const REFRESH_URLS_MS = 8 * 60 * 1000;
 
 const GalleryLiveView: React.FC = () => {
   const { token } = useParams<{ token: string }>();
+  const location = useLocation();
+  // Projector/TV slideshow route: clean fullscreen, no controls.
+  const isSlideshow = location.pathname.endsWith('/slideshow');
   const [meta, setMeta] = useState<LiveMeta | null>(null);
   const [items, setItems] = useState<LiveItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -129,6 +135,8 @@ const GalleryLiveView: React.FC = () => {
           gallery_id: row.gallery_id,
           event_id: row.event_id,
           event_name: row.event_name,
+          event_date: row.event_date ?? null,
+          show_event_date: row.show_event_date !== false,
           partner1_name: row.partner1_name,
           partner2_name: row.partner2_name,
           gallery_title: row.gallery_title ?? null,
@@ -226,6 +234,23 @@ const GalleryLiveView: React.FC = () => {
   };
 
   const current = items.length > 0 ? items[index % items.length] : null;
+  const prevItemRef = useRef<LiveItem | null>(null);
+  const [prevItem, setPrevItem] = useState<LiveItem | null>(null);
+  useEffect(() => {
+    if (current && prevItemRef.current && prevItemRef.current.id !== current.id) {
+      const outgoing = prevItemRef.current;
+      setPrevItem(outgoing);
+      const t = window.setTimeout(() => setPrevItem(p => (p?.id === outgoing.id ? null : p)), 1000);
+      prevItemRef.current = current;
+      return () => window.clearTimeout(t);
+    }
+    prevItemRef.current = current;
+  }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const eventDateLabel = meta?.show_event_date && meta?.event_date ? formatDisplayDate(meta.event_date) : '';
+  const uploaderLabel = current?.uploader_name
+    ? `Shared by ${current.uploader_name.trim().split(/\s+/)[0]}`
+    : '';
 
   const handleLike = async () => {
     if (!token || !current || likeBusy) return;
@@ -257,30 +282,38 @@ const GalleryLiveView: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black text-white overflow-hidden">
-      {/* Header */}
-      {(headerTitle || theme.logoImageUrl) && (
-        <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 bg-gradient-to-b from-black/70 to-transparent pointer-events-none flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            {theme.logoImageUrl && (
-              <img src={theme.logoImageUrl} alt="" className="h-10 md:h-12 object-contain drop-shadow-lg" />
-            )}
+    <div className="fixed inset-0 overflow-hidden bg-[#0A0A0B] text-white">
+      {/* Soft elegant vignette */}
+      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_65%)]" />
+
+      {/* Persistent header: event name + date */}
+      <div className="absolute top-0 left-0 right-0 z-20 px-8 pt-7 pb-14 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none flex items-start justify-between gap-6">
+        <div className="flex items-center gap-4 min-w-0">
+          {theme.logoImageUrl && (
+            <img src={theme.logoImageUrl} alt="" className="h-12 md:h-16 object-contain drop-shadow-lg" />
+          )}
+          <div className="min-w-0">
             {headerTitle && (
-              <h1 className="text-white text-2xl md:text-3xl font-light tracking-wide drop-shadow-lg truncate">
+              <h1 className="text-white text-3xl md:text-5xl font-light tracking-[0.02em] drop-shadow-lg truncate">
                 {headerTitle}
               </h1>
             )}
+            {eventDateLabel && (
+              <div className="mt-1.5 text-white/70 text-sm md:text-lg font-light tracking-[0.28em] uppercase">
+                {eventDateLabel}
+              </div>
+            )}
           </div>
-          {items.length > 0 && (
-            <span className="text-white/60 text-sm font-medium drop-shadow mt-1.5 shrink-0">
-              {index + 1} / {items.length}
-            </span>
-          )}
         </div>
-      )}
+        {!isSlideshow && items.length > 0 && (
+          <span className="text-white/60 text-sm font-medium drop-shadow mt-1.5 shrink-0">
+            {index + 1} / {items.length}
+          </span>
+        )}
+      </div>
 
       {/* Stage */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
         {loading && (
           <div className="text-white/70 text-lg">Loading…</div>
         )}
@@ -292,13 +325,23 @@ const GalleryLiveView: React.FC = () => {
             Waiting for guest memories…
           </div>
         )}
+        {/* Outgoing layer (crossfade) */}
+        {!loading && !error && prevItem && prevItem.kind === 'photo' && (
+          <img
+            key={`prev-${prevItem.id}`}
+            src={prevItem.signed_url}
+            alt=""
+            aria-hidden
+            className="absolute max-w-full max-h-full object-contain opacity-0 transition-opacity duration-1000"
+          />
+        )}
         {!loading && !error && current && (
           current.kind === 'photo' ? (
             <img
               key={current.id}
               src={current.signed_url}
               alt={current.caption || 'Guest photo'}
-              className="max-w-full max-h-full object-contain animate-in fade-in duration-1000"
+              className="absolute max-w-full max-h-full object-contain animate-in fade-in duration-1000"
             />
           ) : (
             <video
@@ -310,7 +353,7 @@ const GalleryLiveView: React.FC = () => {
               muted
               onEnded={advance}
               onError={advance}
-              className="max-w-full max-h-full object-contain"
+              className="absolute max-w-full max-h-full object-contain animate-in fade-in duration-700"
             />
           )
         )}
@@ -318,24 +361,24 @@ const GalleryLiveView: React.FC = () => {
 
       {/* Caption / uploader / controls */}
       {(current && (current.caption || current.uploader_name)) || items.length > 0 ? (
-        <div className="absolute bottom-0 left-0 right-0 z-20 px-6 py-5 bg-gradient-to-t from-black/70 to-transparent flex items-end justify-between gap-4">
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-8 pt-16 pb-7 bg-gradient-to-t from-black/80 via-black/35 to-transparent flex items-end justify-between gap-4">
           <div className="pointer-events-none min-w-0">
             {current?.caption && (
               <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
                 {current.caption}
               </div>
             )}
-            {(current?.uploader_name || current?.uploaded_at) && (
-              <div className="text-white/70 text-sm md:text-base mt-1">
-                {current?.uploader_name ? `— ${current.uploader_name.trim().split(/\s+/)[0]}` : ''}
-                {current?.uploader_name && current?.uploaded_at ? ' · ' : ''}
+            {(uploaderLabel || current?.uploaded_at) && (
+              <div className="text-white/75 text-sm md:text-lg mt-1 font-light tracking-wide">
+                {uploaderLabel}
+                {uploaderLabel && current?.uploaded_at ? ' · ' : ''}
                 {current?.uploaded_at
                   ? new Date(current.uploaded_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
                   : ''}
               </div>
             )}
           </div>
-          {items.length > 0 && (
+          {!isSlideshow && items.length > 0 && (
             <div className="flex items-center gap-2 shrink-0 pointer-events-auto">
               {current && (
                 <button
@@ -372,12 +415,13 @@ const GalleryLiveView: React.FC = () => {
         </div>
       ) : null}
       {theme.showBranding && (
-        <div className="absolute top-2 right-2 z-10 text-[10px] uppercase tracking-wider text-white/40 pointer-events-none">
-          Powered by Wedding Waitress
+        <div className="absolute bottom-4 right-6 z-20 text-[10px] md:text-xs uppercase tracking-[0.25em] text-white/35 pointer-events-none">
+          Wedding Waitress
         </div>
       )}
     </div>
   );
+
 };
 
 export default GalleryLiveView;
