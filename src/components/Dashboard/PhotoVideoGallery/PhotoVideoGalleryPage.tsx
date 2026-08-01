@@ -27,7 +27,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
