@@ -15,6 +15,7 @@ import { formatDisplayDate } from '@/lib/utils';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
+import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 
 interface GalleryPublic {
   gallery_id: string;
