@@ -97,10 +97,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <Section title="Branding & theme" subtitle="How the gallery looks to your guests.">
                 <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
               </Section>
-
-              <Section title="Display settings" subtitle="Display settings for the gallery and slideshow.">
-                <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
-              </Section>
             </div>
 
             <Section title="Password protection" subtitle="Control who can upload or view the gallery.">
