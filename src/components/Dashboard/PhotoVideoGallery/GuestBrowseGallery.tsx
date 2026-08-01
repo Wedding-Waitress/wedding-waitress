@@ -321,7 +321,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 type="button"
                 aria-label="Previous"
                 onClick={() => step(-1)}
-                className="absolute right-16 bottom-4 sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-auto sm:bottom-6 sm:-translate-x-[calc(50%+32px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+                className="absolute left-1/2 bottom-6 -translate-x-[calc(50%+34px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -329,7 +329,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 type="button"
                 aria-label="Next"
                 onClick={() => step(1)}
-                className="absolute right-3 bottom-4 sm:right-auto sm:left-1/2 sm:bottom-6 sm:translate-x-[calc(-50%+32px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+                className="absolute left-1/2 bottom-6 translate-x-[calc(-50%+34px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
