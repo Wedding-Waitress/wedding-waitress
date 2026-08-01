@@ -7,7 +7,6 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GallerySetupCard } from './GallerySetupCard';
-import { GalleryDisplaySettingsCard } from './GalleryDisplaySettingsCard';
 import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 import { GalleryLimitsCard } from './GalleryLimitsCard';
@@ -28,7 +27,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -97,10 +96,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Section title="Branding & theme" subtitle="How the gallery looks to your guests.">
                 <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-              </Section>
-
-              <Section title="Display settings" subtitle="Display settings for the gallery and slideshow.">
-                <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
               </Section>
             </div>
 
