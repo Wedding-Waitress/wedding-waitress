@@ -475,7 +475,7 @@ export const GuestMediaUpload: React.FC = () => {
       </header>
 
       {/* ---------- TABS + CONTENT ---------- */}
-      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={LEATHER_STYLE}>
+      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={{ backgroundColor: '#000000' }}>
       <div className={`${activeTab === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
         <div className="mb-6 grid grid-cols-3 gap-1 rounded-full p-1 bg-black/35 border border-white/15 backdrop-blur-sm">
           {(['upload', 'gallery', 'guestbook'] as const).map(tab => {
