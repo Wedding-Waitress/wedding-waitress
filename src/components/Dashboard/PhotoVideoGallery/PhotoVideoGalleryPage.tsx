@@ -92,7 +92,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             <GalleryUsageCard meta={meta} items={items} />
             <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
-            <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
+            
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
@@ -107,6 +107,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               />
 
             )}
+            <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
             <GalleryDownloadsCard
