@@ -123,7 +123,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     <div>
       <div className="text-center mb-5">
         <p className={`text-sm font-medium tracking-wide ${theme.textClass}`}>{countLabel}</p>
-        <p className={`text-xs mt-1 ${theme.mutedClass}`}>Tap a photo to view it full screen</p>
+        <p className={`text-sm mt-1 ${theme.mutedClass}`}>Tap a photo to view it full screen</p>
       </div>
 
       {count === 0 ? (
