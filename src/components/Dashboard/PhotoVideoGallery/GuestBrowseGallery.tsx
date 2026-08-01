@@ -42,6 +42,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const mounted = useRef(true);
+  const lightboxRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => () => { mounted.current = false; }, []);
 
@@ -117,14 +118,33 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     };
   }, [openIndex, close, step]);
 
+  const current = openIndex !== null ? items[openIndex] : null;
+
   // Auto-advancing slideshow while the lightbox is open.
+  // Photos: exactly 6s. Videos: advance only when playback finishes (see onEnded).
   useEffect(() => {
     if (!slideshow || openIndex === null || items.length < 2) return;
-    const id = window.setInterval(() => step(1), 4000);
-    return () => window.clearInterval(id);
-  }, [slideshow, openIndex, items.length, step]);
+    if (current?.kind === 'video') return;
+    const id = window.setTimeout(() => step(1), 6000);
+    return () => window.clearTimeout(id);
+  }, [slideshow, openIndex, items.length, step, current?.kind]);
 
-  const current = openIndex !== null ? items[openIndex] : null;
+  // True fullscreen while the slideshow is running.
+  useEffect(() => {
+    const el = lightboxRef.current;
+    if (!el) return;
+    if (slideshow && !document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => { /* ignore */ });
+    } else if (!slideshow && document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => { /* ignore */ });
+    }
+  }, [slideshow]);
+
+  useEffect(() => {
+    const onFsChange = () => { if (!document.fullscreenElement) setSlideshow(false); };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
 
   const shareCurrent = async () => {
     if (!current) return;
@@ -242,16 +262,18 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       )}
 
       {current && createPortal(
-        <div className="fixed inset-0 z-[100] bg-black" role="dialog" aria-modal="true">
+        <div ref={lightboxRef} className="fixed inset-0 z-[100] bg-black" role="dialog" aria-modal="true">
           {/* Full-bleed media */}
           {current.kind === 'video' ? (
             <video
               key={current.id}
               src={current.signed_url}
               className="absolute inset-0 w-full h-full object-contain"
-              controls
+              controls={!slideshow}
               autoPlay
               playsInline
+              muted={slideshow}
+              onEnded={() => { if (slideshow) step(1); }}
             />
           ) : (
             <img
@@ -278,42 +300,53 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
           </button>
 
           {/* Left vertical action stack */}
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
-            <button
-              type="button"
-              aria-label={slideshow ? 'Pause slideshow' : 'Play slideshow'}
-              onClick={() => setSlideshow(v => !v)}
-              className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
-            >
-              {slideshow ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-            </button>
-            <button
-              type="button"
-              aria-label="Share"
-              onClick={shareCurrent}
-              className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
-            >
-              <Share2 className="h-6 w-6" />
-            </button>
-            <button
-              type="button"
-              aria-label="Download"
-              onClick={downloadCurrent}
-              className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
-            >
-              <Download className="h-6 w-6" />
-            </button>
-            {isAuthed && (
-              <button
-                type="button"
-                aria-label="Delete"
-                onClick={() => { setDeleteError(null); setConfirmDelete(true); }}
-                className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
-              >
-                <Trash2 className="h-6 w-6" />
-              </button>
-            )}
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col items-start gap-3">
+            {[
+              {
+                key: 'slideshow',
+                label: slideshow ? 'Pause Slideshow' : 'Play Slideshow',
+                icon: slideshow ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />,
+                onClick: () => setSlideshow(v => !v),
+                show: true,
+              },
+              {
+                key: 'share',
+                label: 'Share',
+                icon: <Share2 className="h-6 w-6" />,
+                onClick: shareCurrent,
+                show: true,
+              },
+              {
+                key: 'download',
+                label: 'Download',
+                icon: <Download className="h-6 w-6" />,
+                onClick: downloadCurrent,
+                show: true,
+              },
+              {
+                key: 'delete',
+                label: 'Delete',
+                icon: <Trash2 className="h-6 w-6" />,
+                onClick: () => { setDeleteError(null); setConfirmDelete(true); },
+                show: isAuthed,
+              },
+            ].filter(b => b.show).map(b => (
+              <div key={b.key} className="relative group flex items-center">
+                <button
+                  type="button"
+                  aria-label={b.label}
+                  onClick={b.onClick}
+                  className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+                >
+                  {b.icon}
+                </button>
+                <span className="pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-md border border-white/70 bg-transparent px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                  {b.label}
+                </span>
+              </div>
+            ))}
           </div>
+
 
           {items.length > 1 && (
             <>
