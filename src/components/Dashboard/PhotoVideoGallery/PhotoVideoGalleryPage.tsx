@@ -89,33 +89,45 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
                 </Button>
               </Card>
             )}
-            <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
-            <GalleryUsageCard meta={meta} items={items} />
-            <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
-            
-            <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
-            <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-            <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
-            <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
-            {meta.photo_booth_enabled && (
-              <GalleryPhotoBoothTemplatesCard
-                eventId={selectedEventId}
-                meta={meta}
-                eventName={events.find(e => e.id === selectedEventId)?.name}
-                eventDate={(events.find(e => e.id === selectedEventId) as any)?.date}
-                onSave={updatePhotoBoothTemplate}
-              />
+            <Section title="Guest access" subtitle="The QR code and link your guests use.">
+              <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
+              <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
+            </Section>
 
-            )}
-            <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
-            <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
-            <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
-            <GalleryDownloadsCard
-              items={items}
-              eventName={events.find(e => e.id === selectedEventId)?.name}
-              galleryTitle={meta.gallery_title}
-            />
-            <GuestbookList items={items} />
+            <Section title="Overview" subtitle="Usage and limits for this event's gallery.">
+              <GalleryUsageCard meta={meta} items={items} />
+              <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
+            </Section>
+
+            <Section title="Appearance" subtitle="How the gallery looks to your guests.">
+              <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
+              <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
+            </Section>
+
+            <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
+              <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
+              <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
+              {meta.photo_booth_enabled && (
+                <GalleryPhotoBoothTemplatesCard
+                  eventId={selectedEventId}
+                  meta={meta}
+                  eventName={events.find(e => e.id === selectedEventId)?.name}
+                  eventDate={(events.find(e => e.id === selectedEventId) as any)?.date}
+                  onSave={updatePhotoBoothTemplate}
+                />
+              )}
+              <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
+            </Section>
+
+            <Section title="Media library" subtitle="Moderate, organise, download and read guest messages.">
+              <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
+              <GalleryDownloadsCard
+                items={items}
+                eventName={events.find(e => e.id === selectedEventId)?.name}
+                galleryTitle={meta.gallery_title}
+              />
+              <GuestbookList items={items} />
+            </Section>
           </div>
         </PinchZoomContainer>
       ) : (
