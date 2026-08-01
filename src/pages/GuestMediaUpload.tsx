@@ -494,7 +494,7 @@ export const GuestMediaUpload: React.FC = () => {
         </div>
 
         {activeTab === 'upload' && (
-          <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white/85">
+          <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white">
             {displayWelcome}
           </p>
         )}
