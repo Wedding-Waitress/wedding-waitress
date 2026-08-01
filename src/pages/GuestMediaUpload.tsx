@@ -17,6 +17,21 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 
+/** Dark walnut / aged-leather texture used for the hero fallback and the lower page section. */
+const LEATHER_STYLE: React.CSSProperties = {
+  backgroundColor: '#1C1410',
+  backgroundImage: [
+    'radial-gradient(80% 60% at 50% 35%, rgba(104, 79, 55, 0.55) 0%, rgba(60, 43, 30, 0) 65%)',
+    `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+    'repeating-linear-gradient(100deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0) 3px, rgba(255,255,255,0.05) 5px, rgba(0,0,0,0) 8px)',
+    'radial-gradient(120% 110% at 50% 50%, rgba(0,0,0,0) 35%, rgba(10, 6, 3, 0.75) 80%, rgba(0,0,0,0.92) 100%)',
+    'linear-gradient(180deg, rgba(74, 54, 36, 0.35) 0%, rgba(22, 15, 10, 0.55) 60%, rgba(8, 5, 3, 0.85) 100%)',
+  ].join(', '),
+  backgroundBlendMode: 'normal, overlay, soft-light, normal, normal',
+  backgroundSize: 'cover',
+  backgroundAttachment: 'fixed',
+};
+
 interface GalleryPublic {
   gallery_id: string;
   event_id: string;
