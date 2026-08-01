@@ -168,8 +168,9 @@ const GalleryLiveView: React.FC = () => {
         () => { loadItems(token).catch(() => {}); }
       )
       .subscribe();
+    const poll = window.setInterval(() => { loadItems(token).catch(() => {}); }, POLL_ITEMS_MS);
     const refresh = window.setInterval(() => { loadItems(token).catch(() => {}); }, REFRESH_URLS_MS);
-    return () => { supabase.removeChannel(channel); window.clearInterval(refresh); };
+    return () => { supabase.removeChannel(channel); window.clearInterval(poll); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
   // Advance helper (respects pause)
@@ -182,7 +183,7 @@ const GalleryLiveView: React.FC = () => {
     setIndex(i => (items.length === 0 ? 0 : (i + 1) % items.length));
   }, [items.length]);
 
-  // Photo auto-advance timer; videos advance on `ended`
+  // Photo auto-advance timer; videos advance on `ended` or after 15s max
   useEffect(() => {
     if (photoTimerRef.current) {
       window.clearTimeout(photoTimerRef.current);
@@ -193,6 +194,8 @@ const GalleryLiveView: React.FC = () => {
     if (!current) return;
     if (current.kind === 'photo') {
       photoTimerRef.current = window.setTimeout(advance, photoIntervalMs);
+    } else {
+      photoTimerRef.current = window.setTimeout(advance, MAX_VIDEO_MS);
     }
     return () => {
       if (photoTimerRef.current) {
