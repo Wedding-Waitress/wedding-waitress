@@ -94,6 +94,12 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
           warn={storageWarn}
           sub={`${formatBytes(remainingBytes)} remaining`}
         />
+        <div className="flex items-center justify-between pt-1 border-t border-border text-sm">
+          <span className="flex items-center gap-2 font-medium text-foreground">
+            <Users className="h-4 w-4 text-[#967A59]" /> Guests who uploaded
+          </span>
+          <span className="text-foreground font-medium tabular-nums">{usage.guests}</span>
+        </div>
       </div>
     </Card>
   );
