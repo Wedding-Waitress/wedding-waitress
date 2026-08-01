@@ -4405,6 +4405,15 @@ export type Database = {
           videos_used: number
         }[]
       }
+      get_event_media_guestbook_public: {
+        Args: { _token: string }
+        Returns: {
+          guestbook_message: string
+          id: string
+          uploaded_at: string
+          uploader_name: string
+        }[]
+      }
       get_event_media_items_host: {
         Args: { _event_id: string }
         Returns: {
