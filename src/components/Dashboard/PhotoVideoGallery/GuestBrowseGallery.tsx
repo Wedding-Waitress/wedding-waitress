@@ -4,7 +4,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, X, ChevronLeft, ChevronRight, Play, ImageIcon, AlertCircle } from 'lucide-react';
+import { Loader2, X, ChevronLeft, ChevronRight, Play, Pause, Share2, Download, ImageIcon, AlertCircle } from 'lucide-react';
+import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/galleryFile';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 
@@ -35,6 +36,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [slideshow, setSlideshow] = useState(false);
   const mounted = useRef(true);
 
   useEffect(() => () => { mounted.current = false; }, []);
@@ -76,7 +78,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   );
 
   const openAt = (i: number) => setOpenIndex(i);
-  const close = useCallback(() => setOpenIndex(null), []);
+  const close = useCallback(() => { setOpenIndex(null); setSlideshow(false); }, []);
   const step = useCallback((dir: 1 | -1) => {
     setOpenIndex(prev => {
       if (prev === null || items.length === 0) return prev;
@@ -100,7 +102,33 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     };
   }, [openIndex, close, step]);
 
+  // Auto-advancing slideshow while the lightbox is open.
+  useEffect(() => {
+    if (!slideshow || openIndex === null || items.length < 2) return;
+    const id = window.setInterval(() => step(1), 4000);
+    return () => window.clearInterval(id);
+  }, [slideshow, openIndex, items.length, step]);
+
   const current = openIndex !== null ? items[openIndex] : null;
+
+  const shareCurrent = async () => {
+    if (!current) return;
+    const url = current.signed_url;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Shared memory', text: current.caption || undefined, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch { /* cancelled */ }
+  };
+
+  const downloadCurrent = () => {
+    if (!current) return;
+    const ext = current.kind === 'video' ? 'mp4' : 'jpg';
+    downloadSignedUrl(current.signed_url, `memory-${current.id.slice(0, 8)}.${ext}`);
+  };
+
 
   if (loading) {
     return (
@@ -173,14 +201,46 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
 
       {current && createPortal(
         <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col" role="dialog" aria-modal="true">
-          <div className="flex items-center justify-between px-4 py-3 text-white/90">
-            <span className="text-xs tracking-wide">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 text-white">
+            <span className="text-lg sm:text-xl font-semibold tracking-wide tabular-nums">
               {(openIndex ?? 0) + 1} / {items.length}
             </span>
-            <button type="button" aria-label="Close" onClick={close} className="p-2 -m-2 text-white/80 hover:text-white">
-              <X className="h-6 w-6" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label={slideshow ? 'Pause slideshow' : 'Play slideshow'}
+                onClick={() => setSlideshow(v => !v)}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                {slideshow ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+              </button>
+              <button
+                type="button"
+                aria-label="Share"
+                onClick={shareCurrent}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                <Share2 className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                aria-label="Download"
+                onClick={downloadCurrent}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                <Download className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={close}
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white"
+              >
+                <X className="h-7 w-7" />
+              </button>
+            </div>
           </div>
+
 
           <div className="flex-1 relative flex items-center justify-center px-2 min-h-0">
             {items.length > 1 && (
