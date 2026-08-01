@@ -315,6 +315,16 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId]);
 
+  const setSlideshowEnabled = useCallback(async (enabled: boolean) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, slideshow_enabled: enabled } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_slideshow', { _event_id: eventId, _enabled: enabled });
+    if (err) {
+      setMeta(m => m ? { ...m, slideshow_enabled: !enabled } : m);
+      throw new Error(err.message || 'Failed to update Live Slideshow');
+    }
+  }, [eventId]);
+
   const setPhotoBoothEnabled = useCallback(async (enabled: boolean) => {
     if (!eventId) return;
     setMeta(m => m ? { ...m, photo_booth_enabled: enabled } : m);
