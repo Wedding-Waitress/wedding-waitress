@@ -33,11 +33,11 @@ interface LiveItem {
   signed_url: string;
 }
 
-const DEFAULT_PHOTO_INTERVAL_SEC = 8;
+const DEFAULT_PHOTO_INTERVAL_SEC = 4;
 // Videos play inline (muted) for at most 15 seconds before advancing.
 const MAX_VIDEO_MS = 15 * 1000;
-// Poll for newly approved uploads (in addition to realtime) every 12s.
-const POLL_ITEMS_MS = 12 * 1000;
+// Poll for newly approved uploads (in addition to realtime) every 15s.
+const POLL_ITEMS_MS = 15 * 1000;
 // Re-fetch signed URLs before they expire (edge function TTL = 600s).
 const REFRESH_URLS_MS = 8 * 60 * 1000;
 
@@ -280,7 +280,7 @@ const GalleryLiveView: React.FC = () => {
               key={current.id}
               src={current.signed_url}
               alt={current.caption || 'Guest photo'}
-              className="max-w-full max-h-full object-contain animate-in fade-in duration-700"
+              className="max-w-full max-h-full object-contain animate-in fade-in duration-1000"
             />
           ) : (
             <video
