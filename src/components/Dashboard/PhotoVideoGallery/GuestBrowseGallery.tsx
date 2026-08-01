@@ -27,7 +27,7 @@ const firstNameOf = (n?: string | null) => (n?.trim().split(/\s+/)[0] || 'A gues
 
 interface Props {
   token: string;
-  theme: ResolvedGalleryTheme;
+  theme: GalleryTheme;
   accent: string;
   /** Bumped by the parent after a successful upload to force an immediate refresh. */
   refreshKey?: number;
