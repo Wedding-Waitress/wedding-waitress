@@ -216,14 +216,14 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
       {/* -------- Leave a message -------- */}
       <div className={`${cardClass} space-y-6`}>
         <div className="text-center">
-          <h2 className={`text-xl font-semibold ${theme.textClass}`}>Sign the Guest Book</h2>
-          <p className={`text-sm mt-1 ${theme.mutedClass}`}>
+          <h2 className="text-xl font-bold text-black">Sign the Guest Book</h2>
+          <p className="text-sm mt-1 text-black">
             Leave a written note, a voice message, or both.
           </p>
         </div>
 
         <div>
-          <Label htmlFor="gb-name" className={`text-base font-semibold ${theme.textClass}`}>
+          <Label htmlFor="gb-name" className="text-base font-semibold text-black">
             Your full name <span className="text-red-400">*</span>
           </Label>
           <Input
@@ -236,7 +236,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
           />
         </div>
 
-
         {/* Option A — text */}
         <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: `${accent}55` }}>
           <div className="flex items-center gap-2">
@@ -244,7 +243,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
               className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
               style={{ backgroundColor: accent }}
             >A</span>
-            <h3 className={`text-base font-semibold ${theme.textClass}`}>Leave a Text Message</h3>
+            <h3 className="text-base font-semibold text-black">Leave a text message</h3>
           </div>
           <Textarea
             id="gb-text"
@@ -266,18 +265,20 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
                 className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
                 style={{ backgroundColor: accent }}
               >B</span>
-              <h3 className={`text-base font-semibold ${theme.textClass}`}>Leave a Voice Message</h3>
+              <h3 className="text-base font-semibold text-black">Leave a voice message</h3>
             </div>
-            <p className={`text-xs ${theme.mutedClass}`}>Record up to {MAX_SECONDS} seconds.</p>
+            <p className="text-xs text-black">Record up to {MAX_SECONDS} seconds.</p>
 
             {recPhase === 'idle' && (
               <Button
                 type="button"
-                variant="outline"
-                className="w-full h-12 text-base lv-premium-shade"
+                className="w-full h-12 text-base text-white bg-[#22c55e] hover:bg-[#22c55e]/90 active:translate-y-[2px] active:shadow-none transition-all"
+                style={{
+                  boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.25), 0 4px 0 #15803d',
+                }}
                 onClick={startSession}
               >
-                <Mic className="h-5 w-5 mr-2" /> Start voice message
+                <Mic className="h-5 w-5 mr-2 text-white" /> Start voice message
               </Button>
             )}
 
