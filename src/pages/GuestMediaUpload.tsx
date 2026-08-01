@@ -588,6 +588,8 @@ export const GuestMediaUpload: React.FC = () => {
             )}
           </div>
         </Card>
+        )}
+
         {theme.showBranding && (
           <p className={`mt-6 text-center text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
             Powered by Wedding Waitress
