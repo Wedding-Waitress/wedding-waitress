@@ -29,8 +29,8 @@ const LEATHER_STYLE: React.CSSProperties = {
   ].join(', '),
   backgroundBlendMode: 'normal, overlay, soft-light, normal, normal',
   backgroundSize: 'cover',
-  backgroundAttachment: 'fixed',
 };
+
 
 interface GalleryPublic {
   gallery_id: string;
