@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Loader2, MessageCircle, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
+  Loader2, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
 } from 'lucide-react';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
@@ -216,8 +216,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
       {/* -------- Leave a message -------- */}
       <div className={`${cardClass} space-y-6`}>
         <div className="text-center">
-          <MessageCircle className="h-8 w-8 mx-auto mb-2" style={{ color: accent }} />
-          <h2 className={`text-xl font-semibold ${theme.textClass}`}>Sign the Guestbook</h2>
+          <h2 className={`text-xl font-semibold ${theme.textClass}`}>Sign the Guest Book</h2>
           <p className={`text-sm mt-1 ${theme.mutedClass}`}>
             Leave a written note, a voice message, or both.
           </p>
@@ -225,17 +224,18 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
 
         <div>
           <Label htmlFor="gb-name" className={`text-base font-semibold ${theme.textClass}`}>
-            Your full name <span className="text-red-500">*</span>
+            Your full name <span className="text-red-400">*</span>
           </Label>
           <Input
             id="gb-name"
-            className="h-12 text-base mt-2"
+            className="h-12 text-base mt-2 bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Enter your full name"
             maxLength={100}
           />
         </div>
+
 
         {/* Option A — text */}
         <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: `${accent}55` }}>
@@ -248,12 +248,13 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
           </div>
           <Textarea
             id="gb-text"
-            className="min-h-[110px] text-base"
+            className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
             value={message}
             onChange={e => setMessage(e.target.value)}
             maxLength={2000}
             placeholder="Write your message for the couple…"
           />
+
           <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
         </div>
 
