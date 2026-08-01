@@ -159,11 +159,16 @@ export const GalleryLightbox: React.FC<Props> = ({ items, index, onIndexChange, 
         <div className="text-sm">
           <strong className="text-white">{item.uploader_name || 'Anonymous guest'}</strong>
           {item.caption ? <span className="ml-2">{item.caption}</span> : null}
+          <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-xs text-white align-middle">
+            <span aria-hidden>❤️</span>
+            <span>{item.like_count ?? 0}</span>
+          </span>
         </div>
         {showInfo && (
           <div className="mt-3 mx-auto max-w-md rounded-xl bg-white/10 backdrop-blur-sm p-4 text-left text-sm space-y-1.5">
             <div className="flex justify-between gap-4"><span className="text-white/60">Uploader</span><span className="text-white text-right">{item.uploader_name || 'Anonymous guest'}</span></div>
             <div className="flex justify-between gap-4"><span className="text-white/60">Uploaded</span><span className="text-white text-right">{fmtDate(item.uploaded_at)}</span></div>
+            <div className="flex justify-between gap-4"><span className="text-white/60">Guest hearts</span><span className="text-white text-right">{item.like_count ?? 0}</span></div>
             <div className="flex justify-between gap-4"><span className="text-white/60">Album</span><span className="text-white text-right">{item.album || 'No album'}</span></div>
             <div className="flex justify-between gap-4"><span className="text-white/60">Type</span>
               <span className="text-right">
