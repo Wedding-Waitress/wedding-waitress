@@ -475,9 +475,9 @@ export const GuestMediaUpload: React.FC = () => {
       </header>
 
       {/* ---------- TABS + CONTENT ---------- */}
-      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4">
+      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={LEATHER_STYLE}>
       <div className={`${activeTab === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
-        <div className={`mb-6 grid grid-cols-3 gap-1 rounded-full p-1 ${theme.isDark ? 'bg-white/10' : 'bg-white/80 border border-[#E8E1D6]'}`}>
+        <div className="mb-6 grid grid-cols-3 gap-1 rounded-full p-1 bg-black/35 border border-white/15 backdrop-blur-sm">
           {(['upload', 'gallery', 'guestbook'] as const).map(tab => {
             const active = activeTab === tab;
             return (
@@ -485,8 +485,7 @@ export const GuestMediaUpload: React.FC = () => {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`h-11 rounded-full text-sm font-medium capitalize transition-colors ${active ? 'text-white' : theme.mutedClass}`}
-                style={active ? { backgroundColor: accent } : undefined}
+                className={`h-11 rounded-full text-sm font-medium capitalize transition-colors ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`}
               >
                 {tab}
               </button>
@@ -495,10 +494,11 @@ export const GuestMediaUpload: React.FC = () => {
         </div>
 
         {activeTab === 'upload' && (
-          <p className={`text-center text-base mb-6 leading-relaxed whitespace-pre-line ${theme.mutedClass}`}>
+          <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white/85">
             {displayWelcome}
           </p>
         )}
+
 
         {activeTab === 'gallery' && token && (
           <GuestBrowseGallery token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
