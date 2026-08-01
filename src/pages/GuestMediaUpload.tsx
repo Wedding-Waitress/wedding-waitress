@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -16,6 +16,7 @@ import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
+import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -711,6 +712,7 @@ export const GuestMediaUpload: React.FC = () => {
             Powered by Wedding Waitress
           </p>
         )}
+      </div>
       </div>
     </div>
   );
