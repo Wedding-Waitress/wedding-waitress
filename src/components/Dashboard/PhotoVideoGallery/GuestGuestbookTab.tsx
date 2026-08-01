@@ -254,7 +254,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
         </div>
 
         <div>
-          <Label htmlFor="gb-name" className={`text-sm font-semibold ${theme.textClass}`}>
+          <Label htmlFor="gb-name" className={`text-base font-semibold ${theme.textClass}`}>
             Your full name <span className="text-red-500">*</span>
           </Label>
           <Input
