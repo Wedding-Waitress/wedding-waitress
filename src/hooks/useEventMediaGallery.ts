@@ -32,6 +32,7 @@ export interface GalleryMeta {
   photo_booth_strip_bottom_text: string | null;
   photo_booth_strip_logo_url: string | null;
   photo_booth_strip_template_url: string | null;
+  slideshow_enabled: boolean;
 }
 
 export interface PhotoBoothTemplateSettings {
