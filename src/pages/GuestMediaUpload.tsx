@@ -5,7 +5,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
 import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
@@ -70,8 +69,6 @@ export const GuestMediaUpload: React.FC = () => {
   const [awaitingPicker, setAwaitingPicker] = useState(false);
   const [pickerHint, setPickerHint] = useState<string | null>(null);
   const [name, setName] = useState('');
-  const [caption, setCaption] = useState('');
-  const [guestbook, setGuestbook] = useState('');
   const [showThanks, setShowThanks] = useState(false);
   const [thanksSummary, setThanksSummary] = useState<{ success: number; failures: { name: string; reason: string }[] } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -200,8 +197,8 @@ export const GuestMediaUpload: React.FC = () => {
     await uploadFiles(items, {
       token,
       uploaderName: name.trim(),
-      caption: caption.trim(),
-      guestbookMessage: guestbook.trim(),
+      caption: '',
+      guestbookMessage: '',
       limits: gallery,
     });
   };
@@ -232,8 +229,6 @@ export const GuestMediaUpload: React.FC = () => {
     setThanksSummary(null);
     setItems([]);
     setStages({});
-    setCaption('');
-    setGuestbook('');
     reset();
   };
 
@@ -684,15 +679,6 @@ export const GuestMediaUpload: React.FC = () => {
             );
           })()}
 
-          <div className="space-y-3">
-            <Label htmlFor="g-cap" className="text-lg font-bold text-[#1D1D1F] block">Caption (optional)</Label>
-            <Input id="g-cap" className="h-14 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={caption} onChange={e => setCaption(e.target.value)} placeholder="A short note about these memories" />
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="g-msg" className="text-lg font-bold text-[#1D1D1F] block">Message to the couple (optional)</Label>
-            <Textarea id="g-msg" className="mt-1 text-base border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4 py-3 min-h-[110px] resize-none" rows={4} value={guestbook} onChange={e => setGuestbook(e.target.value)} placeholder="Leave a guestbook message" />
-          </div>
 
           <div className="pt-1">
             <Button
