@@ -117,14 +117,33 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     };
   }, [openIndex, close, step]);
 
+  const current = openIndex !== null ? items[openIndex] : null;
+
   // Auto-advancing slideshow while the lightbox is open.
+  // Photos: exactly 6s. Videos: advance only when playback finishes (see onEnded).
   useEffect(() => {
     if (!slideshow || openIndex === null || items.length < 2) return;
-    const id = window.setInterval(() => step(1), 4000);
-    return () => window.clearInterval(id);
-  }, [slideshow, openIndex, items.length, step]);
+    if (current?.kind === 'video') return;
+    const id = window.setTimeout(() => step(1), 6000);
+    return () => window.clearTimeout(id);
+  }, [slideshow, openIndex, items.length, step, current?.kind]);
 
-  const current = openIndex !== null ? items[openIndex] : null;
+  // True fullscreen while the slideshow is running.
+  useEffect(() => {
+    const el = lightboxRef.current;
+    if (!el) return;
+    if (slideshow && !document.fullscreenElement) {
+      el.requestFullscreen?.().catch(() => { /* ignore */ });
+    } else if (!slideshow && document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => { /* ignore */ });
+    }
+  }, [slideshow]);
+
+  useEffect(() => {
+    const onFsChange = () => { if (!document.fullscreenElement) setSlideshow(false); };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
 
   const shareCurrent = async () => {
     if (!current) return;
