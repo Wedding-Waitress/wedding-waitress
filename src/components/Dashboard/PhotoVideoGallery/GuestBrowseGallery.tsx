@@ -340,7 +340,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 >
                   {b.icon}
                 </button>
-                <span className="pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-md border border-white/70 bg-transparent px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                <span className="pointer-events-none absolute left-full ml-2 whitespace-nowrap rounded-md border border-white bg-transparent px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
                   {b.label}
                 </span>
               </div>
