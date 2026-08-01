@@ -13,12 +13,15 @@ interface Props {
 export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
   const usage = useMemo(() => {
     let photos = 0, videos = 0, bytes = 0;
+    const guests = new Set<string>();
     for (const i of items) {
       if (i.kind === 'photo') photos++;
       else if (i.kind === 'video') videos++;
       bytes += i.byte_size || 0;
+      const who = (i.uploader_name || '').trim().toLowerCase();
+      if (who) guests.add(who);
     }
-    return { photos, videos, bytes };
+    return { photos, videos, bytes, guests: guests.size };
   }, [items]);
 
   const photoPct = meta.max_photos > 0 ? Math.min(100, (usage.photos / meta.max_photos) * 100) : 0;
