@@ -447,7 +447,7 @@ export const GuestMediaUpload: React.FC = () => {
             if (storageFull) fullParts.push('storage');
             return (
           <div className="space-y-3">
-            <Label className="text-lg font-bold text-[#1D1D1F] block">Photos & videos</Label>
+            <Label className="text-lg font-bold text-[#1D1D1F] block">Photos & Videos</Label>
 
             <div className="mt-1 mb-4 bg-[#FBF7F0] rounded-xl p-4 border border-[#E8E1D6] space-y-2.5">
               <p className="text-sm font-semibold text-[#1D1D1F]">Upload limits</p>
