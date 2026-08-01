@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle, Play, Link2 } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle, Play, Link2, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryUploadUrl, buildGalleryLiveUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
@@ -77,6 +77,24 @@ export const GallerySetupCard: React.FC<{
             </div>
           )}
           <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="lv-premium-shade"
+              onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
+              disabled={!guestUrl}
+              title="Open the guest gallery page in a new tab"
+            >
+              <ImageIcon className="h-4 w-4 mr-1" /> View Gallery
+            </Button>
+            <Button
+              variant="outline"
+              className="lv-premium-shade"
+              onClick={() => guestUrl && window.open(`${guestUrl}?tab=guestbook`, '_blank', 'noopener,noreferrer')}
+              disabled={!guestUrl}
+              title="Open the guest guestbook messages in a new tab"
+            >
+              <BookOpen className="h-4 w-4 mr-1" /> View Guestbook
+            </Button>
             <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code
             </Button>
