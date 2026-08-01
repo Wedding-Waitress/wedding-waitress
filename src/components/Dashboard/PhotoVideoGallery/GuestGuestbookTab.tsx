@@ -1,6 +1,5 @@
 // Guest-facing unified Guestbook tab — shown on /gallery/:token?tab=guestbook
 // Option A: leave a written message. Option B: leave a voice message (max 60s).
-// Below both options: the list of messages left by guests (approved items only).
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,17 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Loader2, MessageCircle, AlertCircle, Quote, Mic, Square, RotateCcw, CheckCircle2,
+  Loader2, MessageCircle, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
 } from 'lucide-react';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
-
-interface GuestbookRow {
-  id: string;
-  uploader_name: string | null;
-  guestbook_message: string | null;
-  uploaded_at: string | null;
-}
 
 interface Props {
   token: string;
