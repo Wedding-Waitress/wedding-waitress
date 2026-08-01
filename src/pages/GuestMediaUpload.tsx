@@ -210,10 +210,12 @@ export const GuestMediaUpload: React.FC = () => {
 
       }
     }
-  }, [uploading, progress]);
+  }, [uploading, progress, token]);
 
   const handleShareMore = () => {
+    setActiveTab('upload');
     setShowThanks(false);
+
     setThanksSummary(null);
     setItems([]);
     setStages({});
