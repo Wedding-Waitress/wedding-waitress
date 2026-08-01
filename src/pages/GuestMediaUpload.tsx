@@ -411,7 +411,7 @@ export const GuestMediaUpload: React.FC = () => {
         <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Circular event avatar */}
           <div
-            className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
+            className="w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
             style={{ borderColor: accent }}
           >
             {heroBg ? (
