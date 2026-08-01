@@ -14,11 +14,11 @@ import { GalleryLimitsCard } from './GalleryLimitsCard';
 import { GalleryGrid } from './GalleryGrid';
 import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GalleryBrandingCard } from './GalleryBrandingCard';
-import { GalleryVideoGuestbookCard } from './GalleryVideoGuestbookCard';
+import { GalleryGuestbookCard } from './GalleryGuestbookCard';
 import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
 import { GalleryPhotoBoothTemplatesCard } from './GalleryPhotoBoothTemplatesCard';
 import { GallerySlideshowCard } from './GallerySlideshowCard';
-import { GuestbookList } from './GuestbookList';
+import { GuestbookMessagesList } from './GuestbookMessagesList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -28,7 +28,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -115,7 +115,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
 
             <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
 
-              <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
+              <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
               <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
               {meta.photo_booth_enabled && (
                 <GalleryPhotoBoothTemplatesCard
@@ -136,7 +136,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
                 eventName={events.find(e => e.id === selectedEventId)?.name}
                 galleryTitle={meta.gallery_title}
               />
-              <GuestbookList items={items} />
+              <GuestbookMessagesList eventId={selectedEventId} items={items} />
             </Section>
           </div>
         </PinchZoomContainer>
