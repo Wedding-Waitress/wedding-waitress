@@ -231,11 +231,12 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
 export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Promise<HTMLCanvasElement> {
   const { w: STRIP_W, h: STRIP_H } = PB_STRIP_SINGLE;
   const padding = 34;
+  const gap = 18;
+  const footerH = Math.round(STRIP_H * 0.2); // 400 — bottom branding strip
+  const photoAreaH = STRIP_H - footerH;
   const photoW = STRIP_W - padding * 2;
-  const photoH = Math.round(photoW * 0.75);
-  const gap = 16;
-  const stackH = padding + photoH * PB_STRIP_COUNT + gap * (PB_STRIP_COUNT - 1);
-  const footerH = STRIP_H - stackH;
+  const photoH = Math.round((photoAreaH - padding * 2 - gap * (PB_STRIP_COUNT - 1)) / PB_STRIP_COUNT);
+  const stackH = photoAreaH;
 
   const stripCanvas = document.createElement('canvas');
   stripCanvas.width = STRIP_W; stripCanvas.height = STRIP_H;
