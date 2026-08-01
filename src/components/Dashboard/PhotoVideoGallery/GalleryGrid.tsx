@@ -37,7 +37,7 @@ export const GalleryGrid: React.FC<{
   onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
   onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
 }> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum }) => {
-  const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
+  const [lightboxId, setLightboxId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
   const [mediaType, setMediaType] = useState<MediaTypeFilter>('all');
