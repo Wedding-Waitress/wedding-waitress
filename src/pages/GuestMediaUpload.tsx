@@ -426,14 +426,14 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {activeTab === 'upload' && (
-        <Card className="p-5 space-y-5">
+        <Card className="p-6 sm:p-7 space-y-7 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white/95">
 
-          <div>
-            <Label htmlFor="g-name" className="text-base font-medium">
-              Your first name <span className="text-red-500" aria-hidden="true">*</span>
+          <div className="space-y-3">
+            <Label htmlFor="g-name" className="text-lg font-bold text-[#1D1D1F] block">
+              Your full name <span className="text-red-500" aria-hidden="true">*</span>
             </Label>
-            <p className="text-xs text-[#6E6E73] mt-1">So the couple knows who shared these memories</p>
-            <Input id="g-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah" />
+            <p className="text-sm text-[#6E6E73]">So the couple knows who shared these memories</p>
+            <Input id="g-name" className="h-13 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
           </div>
 
           {(() => {
@@ -446,23 +446,23 @@ export const GuestMediaUpload: React.FC = () => {
             if (videosFull) fullParts.push('videos');
             if (storageFull) fullParts.push('storage');
             return (
-          <div>
-            <Label className="text-base font-medium">Photos & videos</Label>
+          <div className="space-y-3">
+            <Label className="text-lg font-bold text-[#1D1D1F] block">Photos & videos</Label>
 
-            <div className="mt-2 mb-3 bg-white/70 rounded-xl p-3.5 border border-[#E8E1D6] space-y-2">
-              <p className="text-xs font-medium text-[#1D1D1F]">Upload limits</p>
-              <div className="flex items-start gap-2 text-xs text-[#6E6E73]">
+            <div className="mt-1 mb-4 bg-[#FBF7F0] rounded-xl p-4 border border-[#E8E1D6] space-y-2.5">
+              <p className="text-sm font-semibold text-[#1D1D1F]">Upload limits</p>
+              <div className="flex items-start gap-2 text-sm text-[#6E6E73]">
                 <ImageIcon className="h-4 w-4 text-[#967A59] mt-0.5 shrink-0" />
                 <span>Photos: JPG, PNG, WebP up to {formatBytes(gallery.max_photo_bytes)}</span>
               </div>
-              <div className="flex items-start gap-2 text-xs text-[#6E6E73]">
+              <div className="flex items-start gap-2 text-sm text-[#6E6E73]">
                 <Video className="h-4 w-4 text-[#967A59] mt-0.5 shrink-0" />
                 <span>Videos: MP4, MOV up to {formatBytes(gallery.max_video_bytes)} and {Math.floor(gallery.max_video_duration_sec / 60)} minutes</span>
               </div>
             </div>
 
             {anyFull && (
-              <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-3.5 text-sm text-red-800">
+              <div className="mb-4 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">
                 <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
                   <div className="font-medium">The gallery is full</div>
@@ -481,32 +481,40 @@ export const GuestMediaUpload: React.FC = () => {
               className="hidden"
               onChange={e => onFiles(e.target.files)}
             />
-            <Button type="button" variant="outline" className="lv-premium-shade w-full h-12" onClick={openPicker} disabled={uploading || validating || awaitingPicker || anyFull}>
+            <Button
+              type="button"
+              className="lv-premium-shade w-full h-14 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+              style={{ backgroundColor: '#967A59' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#7F6549'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#967A59'; }}
+              onClick={openPicker}
+              disabled={uploading || validating || awaitingPicker || anyFull}
+            >
               {awaitingPicker
-                ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Waiting for picker…</>
+                ? <><Loader2 className="animate-spin h-5 w-5 mr-2" /> Waiting for picker…</>
                 : validating
-                  ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Preparing selected files…</>
+                  ? <><Loader2 className="animate-spin h-5 w-5 mr-2" /> Preparing selected files…</>
                   : anyFull
-                    ? <><AlertCircle className="h-4 w-4 mr-2" /> Gallery full</>
-                    : <><Upload className="h-4 w-4 mr-2" /> Choose files</>}
+                    ? <><AlertCircle className="h-5 w-5 mr-2" /> Gallery full</>
+                    : <><Upload className="h-5 w-5 mr-2" /> Choose files</>}
             </Button>
 
             {(awaitingPicker || validating) && (
-              <div className="mt-2 text-xs text-[#6E6E73] flex items-center gap-1.5">
-                <Loader2 className="animate-spin h-3 w-3" />
+              <div className="mt-2 text-sm text-[#6E6E73] flex items-center gap-1.5">
+                <Loader2 className="animate-spin h-3.5 w-3.5" />
                 {awaitingPicker ? 'Waiting for your selection…' : 'Preparing selected files…'}
               </div>
             )}
 
             {pickerHint && (
-              <div className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 flex items-start gap-1.5">
-                <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+              <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <span>{pickerHint}</span>
               </div>
             )}
 
             {items.length > 0 && (
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-4 space-y-2.5">
                 {items.map((it, i) => {
                   const p = progress[i];
                   const status = p?.status;
@@ -519,7 +527,7 @@ export const GuestMediaUpload: React.FC = () => {
                       ? (it.durationUnknown ? 'duration unknown' : `${it.duration ?? '?'}s`)
                       : null;
                   return (
-                    <li key={i} className="text-sm border border-border rounded-lg p-2.5 bg-white">
+                    <li key={i} className="text-sm border border-[#E8E1D6] rounded-xl p-3 bg-white">
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{it.fileName}</div>
@@ -587,19 +595,19 @@ export const GuestMediaUpload: React.FC = () => {
             );
           })()}
 
-          <div>
-            <Label htmlFor="g-cap" className="text-base">Caption (optional)</Label>
-            <Input id="g-cap" className="h-11 text-base mt-2" value={caption} onChange={e => setCaption(e.target.value)} placeholder="A short note about these memories" />
+          <div className="space-y-3">
+            <Label htmlFor="g-cap" className="text-lg font-bold text-[#1D1D1F] block">Caption (optional)</Label>
+            <Input id="g-cap" className="h-13 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={caption} onChange={e => setCaption(e.target.value)} placeholder="A short note about these memories" />
           </div>
 
-          <div>
-            <Label htmlFor="g-msg" className="text-base">Message to the couple (optional)</Label>
-            <Textarea id="g-msg" className="mt-2 text-base" rows={3} value={guestbook} onChange={e => setGuestbook(e.target.value)} placeholder="Leave a guestbook message" />
+          <div className="space-y-3">
+            <Label htmlFor="g-msg" className="text-lg font-bold text-[#1D1D1F] block">Message to the couple (optional)</Label>
+            <Textarea id="g-msg" className="mt-1 text-base border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4 py-3 min-h-[110px] resize-none" rows={4} value={guestbook} onChange={e => setGuestbook(e.target.value)} placeholder="Leave a guestbook message" />
           </div>
 
-          <div>
+          <div className="pt-1">
             <Button
-              className="lv-premium-shade w-full h-12 text-white"
+              className="lv-premium-shade w-full h-14 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
               style={{ backgroundColor: accent }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
@@ -607,14 +615,14 @@ export const GuestMediaUpload: React.FC = () => {
               onClick={onSubmit}
             >
               {uploading
-                ? (<><Loader2 className="animate-spin h-4 w-4 mr-2" /> Uploading…</>)
+                ? (<><Loader2 className="animate-spin h-5 w-5 mr-2" /> Uploading…</>)
                 : `Share ${validCount || ''} file${validCount === 1 ? '' : 's'}`}
             </Button>
 
             {!uploading && !validating && (
-              <div className={`mt-2 text-xs text-center min-h-[1.25rem] ${theme.mutedClass}`}>
+              <div className={`mt-3 text-sm text-center min-h-[1.25rem] ${theme.mutedClass}`}>
                 {!name.trim() && items.length > 0
-                  ? 'Enter your first name above to share these memories'
+                  ? 'Enter your full name above to share these memories'
                   : name.trim() && validCount === 0 && items.length > 0
                     ? 'Remove invalid files or choose new ones to share'
                     : name.trim() && items.length === 0
