@@ -401,48 +401,67 @@ export const GalleryGrid: React.FC<{
       {filtered.length === 0 ? (
         <p className="text-sm text-muted-foreground py-8 text-center">No items in this view.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
           {filtered.map(it => {
             const isHidden = it.moderation_status === 'hidden';
             const isSelected = selected.has(it.id);
+            const boothBadge = it.is_photo_booth_strip
+              ? 'Strip'
+              : it.is_photo_booth
+                ? 'Booth'
+                : it.is_guestbook
+                  ? 'Guestbook'
+                  : null;
             return (
               <div
                 key={it.id}
-                className={`relative group rounded-lg overflow-hidden border bg-muted flex flex-col ${
+                className={`relative group rounded-lg overflow-hidden border bg-white flex flex-col ${
                   isSelected ? 'border-[#967A59] ring-2 ring-[#967A59]' : 'border-border'
                 } ${isHidden ? 'opacity-60' : ''}`}
               >
-                <div className="aspect-square relative">
+                {/* Square 1:1 thumbnail */}
+                <div className="relative w-full aspect-square overflow-hidden">
                   <MediaThumb
                     item={it}
                     onOpen={() => {
                       if (selectMode) { toggleOne(it.id); return; }
-                      if (it.signed_url) setLightbox(it);
+                      if (it.signed_url) setLightboxId(it.id);
                     }}
                   />
+
                   {selectMode && (
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); toggleOne(it.id); }}
-                      className="absolute inset-0 z-20 flex items-start justify-start p-2 bg-black/0 hover:bg-black/10 transition-colors"
+                      className="absolute inset-0 z-20 flex items-start justify-start p-1.5 bg-black/0 hover:bg-black/10 transition-colors"
                       aria-label={isSelected ? 'Deselect' : 'Select'}
                     >
                       <span className={`rounded-full p-0.5 ${isSelected ? 'bg-[#967A59] text-white' : 'bg-white/90 text-[#1D1D1F]'}`}>
-                        {isSelected ? <CheckCircle2 className="h-6 w-6" /> : <Circle className="h-6 w-6" />}
+                        {isSelected ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
                       </span>
                     </button>
                   )}
-                  {isHidden && (
-                    <div className="absolute top-1 left-1 z-10 bg-black/70 text-white text-[10px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide">
-                      Hidden
-                    </div>
-                  )}
+
+                  {/* Status / type badges */}
+                  <div className="absolute top-1 left-1 z-10 flex flex-col items-start gap-1 pointer-events-none">
+                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                      isHidden ? 'bg-black/70 text-white' : 'bg-green-600/85 text-white'
+                    }`}>
+                      {isHidden ? 'Hidden' : 'Approved'}
+                    </span>
+                    {boothBadge && (
+                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide bg-[#967A59]/90 text-white">
+                        {boothBadge}
+                      </span>
+                    )}
+                  </div>
+
                   {!selectMode && (
                     <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
                       {it.signed_url && (
                         <button
                           onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
-                          className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                          className="bg-white/90 rounded-md p-1 hover:bg-white"
                           title="Open in new tab"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
@@ -451,7 +470,7 @@ export const GalleryGrid: React.FC<{
                       {it.signed_url && (
                         <button
                           onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it))}
-                          className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                          className="bg-white/90 rounded-md p-1 hover:bg-white"
                           title="Download"
                         >
                           <Download className="h-3.5 w-3.5" />
@@ -459,14 +478,14 @@ export const GalleryGrid: React.FC<{
                       )}
                       <button
                         onClick={() => toggleModeration(it)}
-                        className="bg-white/90 rounded-md p-1.5 hover:bg-white"
+                        className="bg-white/90 rounded-md p-1 hover:bg-white"
                         title={isHidden ? 'Approve / show again' : 'Hide from guests'}
                       >
                         {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
                       <button
                         onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
-                        className="bg-white/90 rounded-md p-1.5 hover:bg-white text-red-600"
+                        className="bg-white/90 rounded-md p-1 hover:bg-white text-red-600"
                         title="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -474,35 +493,21 @@ export const GalleryGrid: React.FC<{
                     </div>
                   )}
                 </div>
-                <div className="px-2 py-1.5 bg-white border-t border-border text-xs">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="font-medium text-[#1D1D1F] truncate flex items-center gap-1">
-                      {it.is_guestbook && (
-                        <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Guestbook</span>
-                      )}
-                      {it.is_photo_booth && !it.is_photo_booth_strip && (
-                        <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Photo Booth</span>
-                      )}
-                      {it.is_photo_booth_strip && (
-                        <span className="text-[9px] px-1 py-0.5 rounded bg-[#967A59]/15 text-[#967A59] uppercase tracking-wide shrink-0">Photo Booth Strip</span>
-                      )}
-                      <span className="truncate">{it.uploader_name || 'Anonymous guest'}</span>
-                    </div>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide ${
-                      isHidden ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {isHidden ? 'Hidden' : 'Approved'}
-                    </span>
+
+                {/* Meta strip */}
+                <div className="px-1.5 py-1.5 border-t border-border text-[11px]">
+                  <div className="font-medium text-[#1D1D1F] truncate" title={it.uploader_name || 'Anonymous guest'}>
+                    {it.uploader_name || 'Anonymous guest'}
                   </div>
                   {it.caption && (
-                    <div className="text-muted-foreground line-clamp-2 mt-0.5" title={it.caption}>{it.caption}</div>
+                    <div className="text-muted-foreground truncate" title={it.caption}>{it.caption}</div>
                   )}
-                  <div className="mt-1.5">
+                  <div className="mt-1">
                     <Select
                       value={it.album ?? '__none__'}
                       onValueChange={(v) => moveSingleToAlbum(it.id, v === '__none__' ? null : (v as GalleryAlbum))}
                     >
-                      <SelectTrigger className="h-7 text-[11px] px-2 bg-white" onClick={(e) => e.stopPropagation()}>
+                      <SelectTrigger className="h-7 text-[10px] px-1.5 bg-white" onClick={(e) => e.stopPropagation()}>
                         <span className="flex items-center gap-1 truncate">
                           <FolderOpen className="h-3 w-3 text-[#967A59] shrink-0" />
                           <span className="truncate">{it.album ?? 'No album'}</span>
@@ -523,39 +528,15 @@ export const GalleryGrid: React.FC<{
         </div>
       )}
 
-      {lightbox && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
-          <div className="max-w-5xl max-h-full" onClick={e => e.stopPropagation()}>
-            {lightbox.kind === 'photo' ? (
-              <img src={lightbox.signed_url} alt={lightbox.caption || ''} className="max-h-[85vh] max-w-full" />
-            ) : lightbox.kind === 'audio' ? (
-              <div className="bg-white rounded-lg p-6 min-w-[320px]">
-                <audio src={lightbox.signed_url} controls autoPlay className="w-full" />
-              </div>
-            ) : (
-              <video src={lightbox.signed_url} controls autoPlay className="max-h-[85vh] max-w-full" />
-            )}
-            {(lightbox.caption || lightbox.uploader_name) && (
-              <div className="text-white text-center mt-3 text-sm">
-                {lightbox.uploader_name && <strong className="mr-2">{lightbox.uploader_name}</strong>}
-                {lightbox.caption}
-              </div>
-            )}
-            <div className="flex justify-center gap-3 mt-4">
-              {lightbox.signed_url && (
-                <Button
-                  className="lv-premium-shade"
-                  variant="outline"
-                  onClick={() => downloadSignedUrl(lightbox.signed_url!, filenameFor(lightbox))}
-                >
-                  <Download className="h-4 w-4 mr-1" /> Download
-                </Button>
-              )}
-              <Button className="lv-premium-shade" variant="outline" onClick={() => setLightbox(null)}>Close</Button>
-            </div>
-          </div>
-        </div>
+      {lightboxIndex >= 0 && (
+        <GalleryLightbox
+          items={lightboxItems}
+          index={lightboxIndex}
+          onIndexChange={(i) => setLightboxId(lightboxItems[i]?.id ?? null)}
+          onClose={() => setLightboxId(null)}
+        />
       )}
+
 
       <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DialogContent className="sm:max-w-md">
