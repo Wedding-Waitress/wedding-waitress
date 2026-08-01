@@ -133,7 +133,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
           <p className={`text-xs mt-1 ${theme.mutedClass}`}>Be the first to share a photo or video.</p>
         </div>
       ) : (
-        <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
+        <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 p-2 sm:p-3">
           {items.map((it, i) => (
             <li key={it.id} className="min-w-0">
               <div
@@ -159,18 +159,16 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 ) : (
                   <img
                     src={it.signed_url}
-                    alt={it.caption || `Shared by ${firstNameOf(it.uploader_name)}`}
+                    alt={it.caption || 'Shared memory'}
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                 )}
               </div>
-              <p className={`mt-1.5 text-[11px] text-center truncate ${theme.mutedClass}`}>
-                {firstNameOf(it.uploader_name)}
-              </p>
             </li>
           ))}
         </ul>
+
       )}
 
       {current && createPortal(
