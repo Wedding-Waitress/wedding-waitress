@@ -442,7 +442,7 @@ export const GuestMediaUpload: React.FC = () => {
           <Button
             type="button"
             onClick={() => { setActiveTab('upload'); scrollToExplore(); }}
-            className="lv-premium-shade mt-8 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
+            className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
             style={{ backgroundColor: accent }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
@@ -455,7 +455,7 @@ export const GuestMediaUpload: React.FC = () => {
         <button
           type="button"
           onClick={scrollToExplore}
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/75 hover:text-white transition-colors"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/75 hover:text-white transition-colors"
           aria-label="Scroll to explore"
         >
           <span className="text-[10px] uppercase tracking-[0.35em]">Explore</span>
