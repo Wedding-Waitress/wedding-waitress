@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Maximize, Minimize, Play, Pause } from 'lucide-react';
+import { Maximize, Minimize, Play, Pause, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
+import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
 
 interface LiveMeta {
   gallery_id: string;
@@ -31,6 +32,7 @@ interface LiveItem {
   caption: string | null;
   uploaded_at: string | null;
   signed_url: string;
+  like_count?: number;
 }
 
 const DEFAULT_PHOTO_INTERVAL_SEC = 4;
@@ -51,6 +53,8 @@ const GalleryLiveView: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [likeBusy, setLikeBusy] = useState(false);
   const passwordRef = useRef<string>('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
@@ -108,6 +112,9 @@ const GalleryLiveView: React.FC = () => {
       }
       return rows;
     });
+    try {
+      setLikedIds(await fetchLikedItemIds(t));
+    } catch { /* reactions are best-effort */ }
   }, []);
 
   useEffect(() => {
@@ -224,6 +231,21 @@ const GalleryLiveView: React.FC = () => {
 
   const current = items.length > 0 ? items[index % items.length] : null;
 
+  const handleLike = async () => {
+    if (!token || !current || likeBusy) return;
+    setLikeBusy(true);
+    try {
+      const res = await toggleGalleryLike(token, current.id);
+      setItems(prev => prev.map(i => (i.id === current.id ? { ...i, like_count: res.like_count } : i)));
+      setLikedIds(prev => {
+        const next = new Set(prev);
+        if (res.liked) next.add(current.id); else next.delete(current.id);
+        return next;
+      });
+    } catch { /* ignore — guest reactions are non-critical */ }
+    finally { setLikeBusy(false); }
+  };
+
   const theme = resolveGalleryTheme(meta);
 
   if (meta?.password_required && !unlocked && token) {
@@ -319,6 +341,22 @@ const GalleryLiveView: React.FC = () => {
           </div>
           {items.length > 0 && (
             <div className="flex items-center gap-2 shrink-0 pointer-events-auto">
+              {current && (
+                <button
+                  onClick={handleLike}
+                  disabled={likeBusy}
+                  className={`h-10 px-3 rounded-full flex items-center gap-1.5 backdrop-blur-sm transition-colors ${
+                    likedIds.has(current.id)
+                      ? 'bg-rose-500/90 text-white'
+                      : 'bg-white/10 hover:bg-white/20 text-white/80 hover:text-white'
+                  }`}
+                  title={likedIds.has(current.id) ? 'Remove your heart' : 'Love this photo'}
+                  aria-label="Like this item"
+                >
+                  <Heart className={`h-4 w-4 ${likedIds.has(current.id) ? 'fill-current' : ''}`} />
+                  <span className="text-sm font-medium">{current.like_count ?? 0}</span>
+                </button>
+              )}
               <button
                 onClick={togglePause}
                 className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center backdrop-blur-sm transition-colors"

@@ -837,6 +837,7 @@ export type Database = {
           is_photo_booth: boolean
           is_photo_booth_strip: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
+          like_count: number
           mime_type: string
           moderation_status: string
           storage_path: string
@@ -862,6 +863,7 @@ export type Database = {
           is_photo_booth?: boolean
           is_photo_booth_strip?: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
+          like_count?: number
           mime_type: string
           moderation_status?: string
           storage_path: string
@@ -887,6 +889,7 @@ export type Database = {
           is_photo_booth?: boolean
           is_photo_booth_strip?: boolean
           kind?: Database["public"]["Enums"]["event_media_kind"]
+          like_count?: number
           mime_type?: string
           moderation_status?: string
           storage_path?: string
@@ -918,6 +921,35 @@ export type Database = {
             columns: ["upload_token_id"]
             isOneToOne: false
             referencedRelation: "event_media_upload_tokens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_media_likes: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          item_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          item_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_media_likes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "event_media_items"
             referencedColumns: ["id"]
           },
         ]
@@ -4386,6 +4418,7 @@ export type Database = {
           is_photo_booth: boolean
           is_photo_booth_strip: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
+          like_count: number
           mime_type: string
           moderation_status: string
           storage_path: string
@@ -4400,10 +4433,17 @@ export type Database = {
           duration_sec: number
           id: string
           kind: Database["public"]["Enums"]["event_media_kind"]
+          like_count: number
           mime_type: string
           storage_path: string
           uploaded_at: string
           uploader_name: string
+        }[]
+      }
+      get_event_media_likes_for_device: {
+        Args: { _device_id: string; _token: string }
+        Returns: {
+          item_id: string
         }[]
       }
       get_event_messaging_analytics: {
@@ -4829,6 +4869,13 @@ export type Database = {
       sync_relation_display_for_event: {
         Args: { p_event_id: string }
         Returns: undefined
+      }
+      toggle_event_media_like: {
+        Args: { _device_id: string; _item_id: string; _token: string }
+        Returns: {
+          like_count: number
+          liked: boolean
+        }[]
       }
       update_dj_mc_item_by_token:
         | {
