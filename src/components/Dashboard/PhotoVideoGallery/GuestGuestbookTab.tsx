@@ -206,7 +206,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
       setDone('Thank you — your message has been added to the guestbook.');
       setMessage('');
       discardRecording();
-      load();
     }
   };
 
@@ -349,47 +348,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
             : 'Submit to Guestbook'}
         </Button>
       </div>
-
-      {/* -------- Messages -------- */}
-      {loading ? (
-        <div className="py-12 flex justify-center">
-          <Loader2 className="h-7 w-7 animate-spin" style={{ color: accent }} />
-        </div>
-      ) : error ? (
-        <div className={`${cardClass} text-center`}>
-          <AlertCircle className="h-6 w-6 mx-auto mb-2 text-red-500" />
-          <p className={`text-sm ${theme.mutedClass}`}>{error}</p>
-        </div>
-      ) : rows.length === 0 ? (
-        <div className={`${cardClass} text-center py-10`}>
-          <MessageCircle className="h-9 w-9 mx-auto mb-3" style={{ color: accent }} />
-          <p className={`text-base font-medium ${theme.textClass}`}>No messages yet</p>
-          <p className={`text-sm mt-1.5 ${theme.mutedClass}`}>Be the first to leave a note for the couple.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <p className={`text-center text-sm ${theme.mutedClass}`}>
-            {rows.length} {rows.length === 1 ? 'message' : 'messages'} for the couple
-          </p>
-          <ul className="space-y-4">
-            {rows.map(r => (
-              <li
-                key={r.id}
-                className={`relative rounded-2xl border p-5 sm:p-6 ${theme.surfaceClass} shadow-[0_4px_20px_rgba(0,0,0,0.04)]`}
-              >
-                <Quote className="h-5 w-5 mb-3 opacity-70" style={{ color: accent }} />
-                <p className={`text-base leading-relaxed whitespace-pre-wrap ${theme.textClass}`}>
-                  {r.guestbook_message}
-                </p>
-                <p className={`mt-4 text-sm ${theme.mutedClass}`}>
-                  — {r.uploader_name?.trim() || 'A guest'}
-                  {r.uploaded_at && ` • ${new Date(r.uploaded_at).toLocaleDateString()}`}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };
