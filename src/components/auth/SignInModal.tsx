@@ -277,6 +277,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
   // Reset modal state when closed
   const handleOpenChange = (newOpen: boolean) => {
+    // Never allow the modal to close while a request is in flight
+    // (prevents the premature close after "Email me the code")
+    if (!newOpen && loading) return;
     onOpenChange(newOpen);
     if (!newOpen) {
       setStep('form');
