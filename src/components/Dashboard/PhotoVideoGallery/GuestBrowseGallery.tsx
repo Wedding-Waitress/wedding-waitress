@@ -177,7 +177,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                   {it.kind === 'video' ? (
                     <>
                       <video
-                        src={it.signed_url}
+                        src={`${it.signed_url}#t=0.1`}
                         className="w-full h-full object-cover"
                         muted
                         playsInline
