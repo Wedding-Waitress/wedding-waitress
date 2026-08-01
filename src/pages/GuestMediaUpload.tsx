@@ -15,6 +15,7 @@ import { formatDisplayDate } from '@/lib/utils';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
+import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -58,6 +59,9 @@ export const GuestMediaUpload: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
+  const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
+  const [galleryRefresh, setGalleryRefresh] = useState(0);
+
   const [items, setItems] = useState<ValidationResult[]>([]);
   const [stages, setStages] = useState<Record<number, ValidationStage>>({});
   const [validating, setValidating] = useState(false);
@@ -80,6 +84,8 @@ export const GuestMediaUpload: React.FC = () => {
       if (sessionStorage.getItem(galleryPasswordKey(token))) setUnlocked(true);
       const savedName = sessionStorage.getItem(nameStorageKey);
       if (savedName) setName(savedName);
+      // First visit defaults to Upload; returning guests who already shared land on Gallery.
+      if (sessionStorage.getItem(`gallery-has-uploaded:${token}`)) setActiveTab('gallery');
     } catch {}
   }, [token, nameStorageKey]);
 
@@ -203,12 +209,19 @@ export const GuestMediaUpload: React.FC = () => {
           .map(p => ({ name: p.fileName, reason: p.error || 'Could not be uploaded' }));
         setThanksSummary({ success, failures });
         setShowThanks(true);
+        // Guests land on the browse gallery once they've shared something.
+        setActiveTab('gallery');
+        setGalleryRefresh(n => n + 1);
+        try { if (token) sessionStorage.setItem(`gallery-has-uploaded:${token}`, '1'); } catch {}
+
       }
     }
-  }, [uploading, progress]);
+  }, [uploading, progress, token]);
 
   const handleShareMore = () => {
+    setActiveTab('upload');
     setShowThanks(false);
+
     setThanksSummary(null);
     setItems([]);
     setStages({});
@@ -364,7 +377,7 @@ export const GuestMediaUpload: React.FC = () => {
   return (
     <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
-      <div className="max-w-md mx-auto">
+      <div className={`${activeTab === 'gallery' ? 'max-w-5xl' : 'max-w-md'} mx-auto`}>
         {theme.coverImageUrl && (
           <div className="mb-6 -mt-2 rounded-2xl overflow-hidden border border-black/5 shadow-sm">
             <img src={theme.coverImageUrl} alt="" className="w-full h-40 sm:h-48 object-cover" />
@@ -391,7 +404,30 @@ export const GuestMediaUpload: React.FC = () => {
           </p>
         </div>
 
+        <div className={`mb-6 grid grid-cols-2 gap-1 rounded-full p-1 ${theme.isDark ? 'bg-white/10' : 'bg-white/80 border border-[#E8E1D6]'}`}>
+          {(['upload', 'gallery'] as const).map(tab => {
+            const active = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`h-10 rounded-full text-sm font-medium transition-colors ${active ? 'text-white' : theme.mutedClass}`}
+                style={active ? { backgroundColor: accent } : undefined}
+              >
+                {tab === 'upload' ? 'Upload' : 'Gallery'}
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab === 'gallery' && token && (
+          <GuestBrowseGallery token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
+        )}
+
+        {activeTab === 'upload' && (
         <Card className="p-5 space-y-5">
+
           <div>
             <Label htmlFor="g-name" className="text-base font-medium">
               Your first name <span className="text-red-500" aria-hidden="true">*</span>
@@ -588,6 +624,8 @@ export const GuestMediaUpload: React.FC = () => {
             )}
           </div>
         </Card>
+        )}
+
         {theme.showBranding && (
           <p className={`mt-6 text-center text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
             Powered by Wedding Waitress
