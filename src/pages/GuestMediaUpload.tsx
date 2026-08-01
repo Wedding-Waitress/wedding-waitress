@@ -379,56 +379,123 @@ export const GuestMediaUpload: React.FC = () => {
 
   const validCount = items.filter(i => i.ok).length;
 
+  const heroBg = theme.coverImageUrl;
+  const scrollToExplore = () => {
+    document.getElementById('gallery-explore')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
+    <div className={`min-h-screen overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
-      <div className={`${activeTab === 'gallery' ? 'max-w-5xl' : 'max-w-md'} mx-auto`}>
-        {theme.coverImageUrl && (
-          <div className="mb-6 -mt-2 rounded-2xl overflow-hidden border border-black/5 shadow-sm">
-            <img src={theme.coverImageUrl} alt="" className="w-full h-40 sm:h-48 object-cover" />
-          </div>
+
+      {/* ---------- HERO ---------- */}
+      <header className="relative min-h-[100svh] flex flex-col items-center justify-center px-5 py-16 text-center overflow-hidden">
+        {heroBg ? (
+          <>
+            <div
+              className="absolute inset-0 bg-center bg-cover scale-110 blur-[18px]"
+              style={{ backgroundImage: `url(${heroBg})` }}
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
+          </>
+        ) : (
+          <div
+            className="absolute inset-0"
+            aria-hidden="true"
+            style={{ background: 'radial-gradient(120% 90% at 50% 0%, #3B2E22 0%, #241C15 45%, #120E0A 100%)' }}
+          />
         )}
-        <div className="text-center mb-8">
-          {theme.logoImageUrl ? (
-            <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-16 mb-4 object-contain" />
-          ) : (
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4" style={{ backgroundColor: accentSoftBg }}>
-              <Camera className="h-8 w-8" style={{ color: accent }} />
-            </div>
+
+        <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
+          {/* Circular event avatar */}
+          <div
+            className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
+            style={{ borderColor: accent }}
+          >
+            {heroBg ? (
+              <img src={heroBg} alt="" className="w-full h-full object-cover" />
+            ) : theme.logoImageUrl ? (
+              <img src={theme.logoImageUrl} alt="" className="w-full h-full object-contain p-3" />
+            ) : (
+              <Camera className="h-12 w-12" style={{ color: accent }} />
+            )}
+          </div>
+
+          {showDate && (
+            <span
+              className="mt-6 inline-block rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[11px] uppercase tracking-[0.22em] text-white/85 backdrop-blur-sm"
+            >
+              {formatDisplayDate(gallery.event_date)}
+            </span>
           )}
-          <h1 className={`text-3xl font-semibold leading-tight ${theme.textClass}`}>
+
+          <h1 className="mt-5 text-4xl sm:text-6xl font-semibold leading-[1.1] tracking-tight text-white">
             {displayTitle}
           </h1>
-          {showDate && (
-            <p className={`text-sm mt-2 ${theme.mutedClass}`}>
-              {formatDisplayDate(gallery.event_date)}
-            </p>
-          )}
-          <p className={`text-base mt-3 max-w-xs mx-auto leading-relaxed whitespace-pre-line ${theme.mutedClass}`}>
-            {displayWelcome}
+
+          <p className="mt-4 text-base sm:text-lg text-white/80 max-w-md leading-relaxed">
+            Help us capture every memory from today
           </p>
+
+          <Button
+            type="button"
+            onClick={() => { setActiveTab('upload'); scrollToExplore(); }}
+            className="lv-premium-shade mt-8 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
+            style={{ backgroundColor: accent }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
+          >
+            <Upload className="h-5 w-5 mr-2" />
+            Upload Photos &amp; Videos
+          </Button>
         </div>
 
-        <div className={`mb-6 grid grid-cols-2 gap-1 rounded-full p-1 ${theme.isDark ? 'bg-white/10' : 'bg-white/80 border border-[#E8E1D6]'}`}>
-          {(['upload', 'gallery'] as const).map(tab => {
+        <button
+          type="button"
+          onClick={scrollToExplore}
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/75 hover:text-white transition-colors"
+          aria-label="Scroll to explore"
+        >
+          <span className="text-[10px] uppercase tracking-[0.35em]">Explore</span>
+          <ChevronDown className="h-5 w-5 animate-bounce" />
+        </button>
+      </header>
+
+      {/* ---------- TABS + CONTENT ---------- */}
+      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4">
+      <div className={`${activeTab === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
+        <div className={`mb-6 grid grid-cols-3 gap-1 rounded-full p-1 ${theme.isDark ? 'bg-white/10' : 'bg-white/80 border border-[#E8E1D6]'}`}>
+          {(['upload', 'gallery', 'guestbook'] as const).map(tab => {
             const active = activeTab === tab;
             return (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`h-10 rounded-full text-sm font-medium transition-colors ${active ? 'text-white' : theme.mutedClass}`}
+                className={`h-11 rounded-full text-sm font-medium capitalize transition-colors ${active ? 'text-white' : theme.mutedClass}`}
                 style={active ? { backgroundColor: accent } : undefined}
               >
-                {tab === 'upload' ? 'Upload' : 'Gallery'}
+                {tab}
               </button>
             );
           })}
         </div>
 
+        {activeTab === 'upload' && (
+          <p className={`text-center text-base mb-6 leading-relaxed whitespace-pre-line ${theme.mutedClass}`}>
+            {displayWelcome}
+          </p>
+        )}
+
         {activeTab === 'gallery' && token && (
           <GuestBrowseGallery token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
         )}
+
+        {activeTab === 'guestbook' && token && (
+          <GuestGuestbookTab token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
+        )}
+
 
         {activeTab === 'upload' && (
         <Card className="p-6 sm:p-7 space-y-7 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white/95">
