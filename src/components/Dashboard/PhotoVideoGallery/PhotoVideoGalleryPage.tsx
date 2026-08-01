@@ -9,7 +9,7 @@ import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GallerySetupCard } from './GallerySetupCard';
 import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
-import { GalleryLimitsCard } from './GalleryLimitsCard';
+
 import { GalleryGrid } from './GalleryGrid';
 import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GalleryBrandingCard } from './GalleryBrandingCard';
@@ -103,9 +103,8 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             </Section>
 
-            <Section title="Overview" subtitle="Usage and limits for this event's gallery.">
+            <Section title="Overview" subtitle="Usage for this event's gallery.">
               <GalleryUsageCard meta={meta} items={items} />
-              <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             </Section>
 
             <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
