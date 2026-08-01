@@ -84,6 +84,8 @@ export const GuestMediaUpload: React.FC = () => {
       if (sessionStorage.getItem(galleryPasswordKey(token))) setUnlocked(true);
       const savedName = sessionStorage.getItem(nameStorageKey);
       if (savedName) setName(savedName);
+      // First visit defaults to Upload; returning guests who already shared land on Gallery.
+      if (sessionStorage.getItem(`gallery-has-uploaded:${token}`)) setActiveTab('gallery');
     } catch {}
   }, [token, nameStorageKey]);
 
