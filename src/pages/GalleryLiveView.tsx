@@ -74,12 +74,7 @@ const GalleryLiveView: React.FC = () => {
     } catch {}
   }, [token]);
 
-  const headerTitle = useMemo(() => {
-    if (!meta) return '';
-    if (meta.gallery_title?.trim()) return meta.gallery_title.trim();
-    const couple = [meta.partner1_name, meta.partner2_name].filter(Boolean).join(' & ');
-    return couple || meta.event_name || '';
-  }, [meta]);
+  const headerTitle = useMemo(() => resolveGalleryTitle(meta), [meta]);
 
   const photoIntervalMs = useMemo(() => {
     const s = meta?.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;

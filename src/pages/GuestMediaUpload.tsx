@@ -346,7 +346,7 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
 
           <p className={`mt-5 text-xs italic ${theme.mutedClass}`}>
-            With love from {couple || gallery.event_name} 🤍
+            With love from {couple || displayTitle} 🤍
           </p>
           {theme.showBranding && (
             <p className={`mt-3 text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
