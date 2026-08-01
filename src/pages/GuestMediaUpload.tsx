@@ -411,7 +411,7 @@ export const GuestMediaUpload: React.FC = () => {
         <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Circular event avatar */}
           <div
-            className="w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
+            className="w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
             style={{ borderColor: accent }}
           >
             {heroBg ? (
@@ -442,7 +442,7 @@ export const GuestMediaUpload: React.FC = () => {
           <Button
             type="button"
             onClick={() => { setActiveTab('upload'); scrollToExplore(); }}
-            className="lv-premium-shade mt-8 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
+            className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
             style={{ backgroundColor: accent }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
@@ -455,7 +455,7 @@ export const GuestMediaUpload: React.FC = () => {
         <button
           type="button"
           onClick={scrollToExplore}
-          className="absolute bottom-7 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/75 hover:text-white transition-colors"
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 text-white/75 hover:text-white transition-colors"
           aria-label="Scroll to explore"
         >
           <span className="text-[10px] uppercase tracking-[0.35em]">Explore</span>
