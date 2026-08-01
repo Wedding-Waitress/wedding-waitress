@@ -501,12 +501,13 @@ export const GuestMediaUpload: React.FC = () => {
 
 
         {activeTab === 'gallery' && token && (
-          <GuestBrowseGallery token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
+          <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} />
         )}
 
         {activeTab === 'guestbook' && token && (
-          <GuestGuestbookTab token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={!!gallery?.video_guestbook_enabled} />
+          <GuestGuestbookTab token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={!!gallery?.video_guestbook_enabled} />
         )}
+
 
 
         {activeTab === 'upload' && (
