@@ -79,7 +79,8 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
         </Card>
       ) : meta ? (
         <PinchZoomContainer naturalWidth={1000}>
-          <div className="space-y-6">
+          <div className="space-y-8">
+
             {error && (
               <Card className="p-3 flex items-center gap-2 border-destructive/40">
                 <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
