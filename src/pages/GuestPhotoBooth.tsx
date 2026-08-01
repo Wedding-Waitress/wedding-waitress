@@ -49,7 +49,7 @@ interface GalleryPublic {
 
 type Phase = 'preview' | 'captured' | 'saving' | 'saved';
 
-const STRIP_COUNT = 3;
+
 
 export const GuestPhotoBooth: React.FC = () => {
   const { token } = useParams<{ token: string }>();
