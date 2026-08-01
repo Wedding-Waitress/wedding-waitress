@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive, Users } from 'lucide-react';
 import { formatBytes } from '@/lib/mediaValidation';
 import type { GalleryMeta, GalleryItem } from '@/hooks/useEventMediaGallery';
 
