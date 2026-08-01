@@ -1,12 +1,10 @@
 // Guest-facing browse gallery — shown in the "Gallery" tab of /gallery/:token
-// Read-only grid of ALL approved photos & videos, with device-based hearts
-// and a fullscreen lightbox. Hidden / unapproved items are never returned by
-// the gallery-live-feed edge function.
+// Read-only grid of ALL approved photos & videos. Hidden / unapproved items are
+// never returned by the gallery-live-feed edge function.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Heart, X, ChevronLeft, ChevronRight, Play, ImageIcon, AlertCircle } from 'lucide-react';
-import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
+import { Loader2, X, ChevronLeft, ChevronRight, Play, ImageIcon, AlertCircle } from 'lucide-react';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 
@@ -18,7 +16,6 @@ export interface BrowseItem {
   caption: string | null;
   uploaded_at: string | null;
   signed_url: string;
-  like_count?: number | null;
 }
 
 const POLL_MS = 20 * 1000;
@@ -37,8 +34,6 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const [items, setItems] = useState<BrowseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
-  const [busyId, setBusyId] = useState<string | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const mounted = useRef(true);
 
@@ -73,30 +68,6 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     const id = window.setInterval(() => load(false), POLL_MS);
     return () => window.clearInterval(id);
   }, [load]);
-
-  useEffect(() => {
-    let active = true;
-    fetchLikedItemIds(token)
-      .then(s => { if (active) setLikedIds(s); })
-      .catch(() => {});
-    return () => { active = false; };
-  }, [token]);
-
-  const onToggleLike = useCallback(async (itemId: string) => {
-    if (busyId) return;
-    setBusyId(itemId);
-    try {
-      const res = await toggleGalleryLike(token, itemId);
-      setLikedIds(prev => {
-        const next = new Set(prev);
-        if (res.liked) next.add(itemId); else next.delete(itemId);
-        return next;
-      });
-      setItems(prev => prev.map(i => (i.id === itemId ? { ...i, like_count: res.like_count } : i)));
-    } catch { /* best-effort */ } finally {
-      setBusyId(null);
-    }
-  }, [busyId, token]);
 
   const count = items.length;
   const countLabel = useMemo(
@@ -163,60 +134,42 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
         </div>
       ) : (
         <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
-          {items.map((it, i) => {
-            const liked = likedIds.has(it.id);
-            return (
-              <li key={it.id} className="min-w-0">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => openAt(i)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); } }}
-                  className={`relative aspect-square w-full overflow-hidden rounded-xl border cursor-pointer group ${theme.isDark ? 'border-white/10 bg-white/5' : 'border-[#E8E1D6] bg-[#F6F1E9]'}`}
-                >
-                  {it.kind === 'video' ? (
-                    <>
-                      <video
-                        src={`${it.signed_url}#t=0.1`}
-                        className="w-full h-full object-cover"
-                        muted
-                        playsInline
-                        preload="metadata"
-                      />
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/25">
-                        <Play className="h-7 w-7 text-white" fill="white" />
-                      </span>
-                    </>
-                  ) : (
-                    <img
-                      src={it.signed_url}
-                      alt={it.caption || `Shared by ${firstNameOf(it.uploader_name)}`}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          {items.map((it, i) => (
+            <li key={it.id} className="min-w-0">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => openAt(i)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); } }}
+                className={`relative aspect-square w-full overflow-hidden rounded-xl border cursor-pointer group ${theme.isDark ? 'border-white/10 bg-white/5' : 'border-[#E8E1D6] bg-[#F6F1E9]'}`}
+              >
+                {it.kind === 'video' ? (
+                  <>
+                    <video
+                      src={`${it.signed_url}#t=0.1`}
+                      className="w-full h-full object-cover"
+                      muted
+                      playsInline
+                      preload="metadata"
                     />
-                  )}
-
-                  <button
-                    type="button"
-                    aria-label={liked ? 'Remove your like' : 'Like this memory'}
-                    onClick={(e) => { e.stopPropagation(); onToggleLike(it.id); }}
-                    disabled={busyId === it.id}
-                    className="absolute bottom-1.5 right-1.5 inline-flex items-center gap-1 rounded-full bg-black/45 backdrop-blur-sm px-2 py-1 text-[11px] text-white"
-                  >
-                    <Heart
-                      className="h-3.5 w-3.5"
-                      style={liked ? { color: '#F26D7D' } : undefined}
-                      fill={liked ? '#F26D7D' : 'transparent'}
-                    />
-                    {(it.like_count ?? 0) > 0 && <span>{it.like_count}</span>}
-                  </button>
-                </div>
-                <p className={`mt-1.5 text-[11px] text-center truncate ${theme.mutedClass}`}>
-                  {firstNameOf(it.uploader_name)}
-                </p>
-              </li>
-            );
-          })}
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+                      <Play className="h-7 w-7 text-white" fill="white" />
+                    </span>
+                  </>
+                ) : (
+                  <img
+                    src={it.signed_url}
+                    alt={it.caption || `Shared by ${firstNameOf(it.uploader_name)}`}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  />
+                )}
+              </div>
+              <p className={`mt-1.5 text-[11px] text-center truncate ${theme.mutedClass}`}>
+                {firstNameOf(it.uploader_name)}
+              </p>
+            </li>
+          ))}
         </ul>
       )}
 
@@ -276,20 +229,6 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
           <div className="px-5 py-5 text-center text-white">
             {current.caption && <p className="text-sm mb-1.5 text-white/90">{current.caption}</p>}
             <p className="text-sm">Shared by {firstNameOf(current.uploader_name)}</p>
-            <button
-              type="button"
-              onClick={() => onToggleLike(current.id)}
-              disabled={busyId === current.id}
-              aria-label={likedIds.has(current.id) ? 'Remove your like' : 'Like this memory'}
-              className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm"
-            >
-              <Heart
-                className="h-4 w-4"
-                style={likedIds.has(current.id) ? { color: '#F26D7D' } : undefined}
-                fill={likedIds.has(current.id) ? '#F26D7D' : 'transparent'}
-              />
-              {current.like_count ?? 0}
-            </button>
           </div>
         </div>,
         document.body,
