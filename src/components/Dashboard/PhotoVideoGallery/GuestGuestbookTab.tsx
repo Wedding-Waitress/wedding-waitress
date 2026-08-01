@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Loader2, MessageCircle, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
+  Loader2, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
 } from 'lucide-react';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
