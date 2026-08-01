@@ -433,7 +433,7 @@ export const GuestMediaUpload: React.FC = () => {
               Your full name <span className="text-red-500" aria-hidden="true">*</span>
             </Label>
             <p className="text-sm text-[#6E6E73]">So the couple knows who shared these memories</p>
-            <Input id="g-name" className="h-13 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
+            <Input id="g-name" className="h-14 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
           </div>
 
           {(() => {
