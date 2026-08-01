@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Loader2, MessageCircle, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
+  Loader2, AlertCircle, Mic, Square, RotateCcw, CheckCircle2,
 } from 'lucide-react';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
@@ -216,20 +216,19 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
       {/* -------- Leave a message -------- */}
       <div className={`${cardClass} space-y-6`}>
         <div className="text-center">
-          <MessageCircle className="h-8 w-8 mx-auto mb-2" style={{ color: accent }} />
-          <h2 className={`text-xl font-semibold ${theme.textClass}`}>Sign the Guestbook</h2>
-          <p className={`text-sm mt-1 ${theme.mutedClass}`}>
+          <h2 className="text-xl font-semibold text-white">Sign the Guestbook</h2>
+          <p className="text-sm mt-1 text-white/75">
             Leave a written note, a voice message, or both.
           </p>
         </div>
 
         <div>
-          <Label htmlFor="gb-name" className={`text-base font-semibold ${theme.textClass}`}>
+          <Label htmlFor="gb-name" className="text-base font-semibold text-white">
             Your full name <span className="text-red-500">*</span>
           </Label>
           <Input
             id="gb-name"
-            className="h-12 text-base mt-2"
+            className="h-12 text-base mt-2 text-white placeholder:text-white/60"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Enter your full name"
@@ -244,17 +243,17 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
               className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
               style={{ backgroundColor: accent }}
             >A</span>
-            <h3 className={`text-base font-semibold ${theme.textClass}`}>Leave a Text Message</h3>
+            <h3 className="text-base font-semibold text-white">Leave a Text Message</h3>
           </div>
           <Textarea
             id="gb-text"
-            className="min-h-[110px] text-base"
+            className="min-h-[110px] text-base text-white placeholder:text-white/60"
             value={message}
             onChange={e => setMessage(e.target.value)}
             maxLength={2000}
             placeholder="Write your message for the couple…"
           />
-          <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
+          <p className="text-xs text-white/60">{message.trim().length}/2000</p>
         </div>
 
         {/* Option B — voice */}
@@ -265,15 +264,15 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
                 className="inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
                 style={{ backgroundColor: accent }}
               >B</span>
-              <h3 className={`text-base font-semibold ${theme.textClass}`}>Leave a Voice Message</h3>
+              <h3 className="text-base font-semibold text-white">Leave a Voice Message</h3>
             </div>
-            <p className={`text-xs ${theme.mutedClass}`}>Record up to {MAX_SECONDS} seconds.</p>
+            <p className="text-xs text-white/60">Record up to {MAX_SECONDS} seconds.</p>
 
             {recPhase === 'idle' && (
               <Button
                 type="button"
                 variant="outline"
-                className="w-full h-12 text-base lv-premium-shade"
+                className="w-full h-12 text-base text-white lv-premium-shade"
                 onClick={startSession}
               >
                 <Mic className="h-5 w-5 mr-2" /> Start voice message
@@ -284,7 +283,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2 text-sm">
                   {recPhase === 'recording' && <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />}
-                  <span className={`font-medium tabular-nums ${theme.textClass}`}>
+                  <span className="font-medium tabular-nums text-white">
                     {String(seconds).padStart(2, '0')}s / {MAX_SECONDS}s
                   </span>
                 </div>
@@ -307,7 +306,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
                       <Square className="h-5 w-5 mr-2" fill="currentColor" /> Stop
                     </Button>
                   )}
-                  <Button type="button" variant="outline" className="h-12" onClick={discardRecording}>
+                  <Button type="button" variant="outline" className="h-12 text-white" onClick={discardRecording}>
                     Cancel
                   </Button>
                 </div>
@@ -317,7 +316,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
             {recPhase === 'review' && recordedUrl && (
               <div className="space-y-3">
                 <audio src={recordedUrl} controls className="w-full" />
-                <Button type="button" variant="outline" className="w-full h-11" onClick={discardRecording}>
+                <Button type="button" variant="outline" className="w-full h-11 text-white" onClick={discardRecording}>
                   <RotateCcw className="h-4 w-4 mr-2" /> Record again
                 </Button>
               </div>
