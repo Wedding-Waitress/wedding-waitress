@@ -23,7 +23,8 @@ export interface GalleryMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
-  video_guestbook_enabled: boolean;
+  /** Voice Guestbook (recordings) — stored in DB as video_guestbook_enabled. */
+  voice_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
   photo_booth_mode: 'single' | 'strip';
   photo_booth_single_bottom_text: string | null;
