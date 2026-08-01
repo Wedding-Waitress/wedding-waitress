@@ -104,9 +104,17 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               </Section>
             </div>
 
+            <Section title="Password protection" subtitle="Control who can upload or view the gallery.">
+              <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
+            </Section>
 
+            <Section title="Overview" subtitle="Usage and limits for this event's gallery.">
+              <GalleryUsageCard meta={meta} items={items} />
+              <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
+            </Section>
 
             <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
+
               <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
               <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
               {meta.photo_booth_enabled && (
