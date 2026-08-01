@@ -102,7 +102,33 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     };
   }, [openIndex, close, step]);
 
+  // Auto-advancing slideshow while the lightbox is open.
+  useEffect(() => {
+    if (!slideshow || openIndex === null || items.length < 2) return;
+    const id = window.setInterval(() => step(1), 4000);
+    return () => window.clearInterval(id);
+  }, [slideshow, openIndex, items.length, step]);
+
   const current = openIndex !== null ? items[openIndex] : null;
+
+  const shareCurrent = async () => {
+    if (!current) return;
+    const url = current.signed_url;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Shared memory', text: current.caption || undefined, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch { /* cancelled */ }
+  };
+
+  const downloadCurrent = () => {
+    if (!current) return;
+    const ext = current.kind === 'video' ? 'mp4' : 'jpg';
+    downloadSignedUrl(current.signed_url, `memory-${current.id.slice(0, 8)}.${ext}`);
+  };
+
 
   if (loading) {
     return (
