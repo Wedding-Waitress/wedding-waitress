@@ -17,6 +17,21 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 
+/** Dark walnut / aged-leather texture used for the hero fallback and the lower page section. */
+const LEATHER_STYLE: React.CSSProperties = {
+  backgroundColor: '#1C1410',
+  backgroundImage: [
+    'radial-gradient(80% 60% at 50% 35%, rgba(104, 79, 55, 0.55) 0%, rgba(60, 43, 30, 0) 65%)',
+    `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+    'repeating-linear-gradient(100deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0) 3px, rgba(255,255,255,0.05) 5px, rgba(0,0,0,0) 8px)',
+    'radial-gradient(120% 110% at 50% 50%, rgba(0,0,0,0) 35%, rgba(10, 6, 3, 0.75) 80%, rgba(0,0,0,0.92) 100%)',
+    'linear-gradient(180deg, rgba(74, 54, 36, 0.35) 0%, rgba(22, 15, 10, 0.55) 60%, rgba(8, 5, 3, 0.85) 100%)',
+  ].join(', '),
+  backgroundBlendMode: 'normal, overlay, soft-light, normal, normal',
+  backgroundSize: 'cover',
+};
+
+
 interface GalleryPublic {
   gallery_id: string;
   event_id: string;
@@ -244,6 +259,9 @@ export const GuestMediaUpload: React.FC = () => {
   const accent = theme.themeColor;
   const accentHover = theme.themeColorHover;
   const accentSoftBg = `${accent}1A`;
+  // Lower page section always sits on the dark leather texture -> force light text.
+  const lowerTheme = { ...theme, isDark: true, textClass: 'text-white', mutedClass: 'text-white/75', borderClass: 'border-white/15' };
+
 
   if (loading) {
     return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
@@ -397,27 +415,9 @@ export const GuestMediaUpload: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
           </>
         ) : (
-          <div
-            className="absolute inset-0"
-            aria-hidden="true"
-            style={{
-              backgroundColor: '#1C1410',
-              backgroundImage: [
-                // Warm center glow (subtle)
-                'radial-gradient(80% 60% at 50% 35%, rgba(104, 79, 55, 0.55) 0%, rgba(60, 43, 30, 0) 65%)',
-                // Fine grain speckles using inline SVG noise
-                `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                // Aged leather creases / wood grain streaks
-                'repeating-linear-gradient(100deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0) 3px, rgba(255,255,255,0.05) 5px, rgba(0,0,0,0) 8px)',
-                // Deep vignette to focus on the centre
-                'radial-gradient(120% 110% at 50% 50%, rgba(0,0,0,0) 35%, rgba(10, 6, 3, 0.75) 80%, rgba(0,0,0,0.92) 100%)',
-                // Warm undertone wash
-                'linear-gradient(180deg, rgba(74, 54, 36, 0.35) 0%, rgba(22, 15, 10, 0.55) 60%, rgba(8, 5, 3, 0.85) 100%)',
-              ].join(', '),
-              backgroundBlendMode: 'normal, overlay, soft-light, normal, normal',
-            }}
-          />
+          <div className="absolute inset-0" aria-hidden="true" style={LEATHER_STYLE} />
         )}
+
 
         <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Circular event avatar */}
@@ -475,9 +475,9 @@ export const GuestMediaUpload: React.FC = () => {
       </header>
 
       {/* ---------- TABS + CONTENT ---------- */}
-      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4">
+      <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={LEATHER_STYLE}>
       <div className={`${activeTab === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
-        <div className={`mb-6 grid grid-cols-3 gap-1 rounded-full p-1 ${theme.isDark ? 'bg-white/10' : 'bg-white/80 border border-[#E8E1D6]'}`}>
+        <div className="mb-6 grid grid-cols-3 gap-1 rounded-full p-1 bg-black/35 border border-white/15 backdrop-blur-sm">
           {(['upload', 'gallery', 'guestbook'] as const).map(tab => {
             const active = activeTab === tab;
             return (
@@ -485,8 +485,7 @@ export const GuestMediaUpload: React.FC = () => {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`h-11 rounded-full text-sm font-medium capitalize transition-colors ${active ? 'text-white' : theme.mutedClass}`}
-                style={active ? { backgroundColor: accent } : undefined}
+                className={`h-11 rounded-full text-sm font-medium capitalize transition-colors ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`}
               >
                 {tab}
               </button>
@@ -495,18 +494,20 @@ export const GuestMediaUpload: React.FC = () => {
         </div>
 
         {activeTab === 'upload' && (
-          <p className={`text-center text-base mb-6 leading-relaxed whitespace-pre-line ${theme.mutedClass}`}>
+          <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white/85">
             {displayWelcome}
           </p>
         )}
 
+
         {activeTab === 'gallery' && token && (
-          <GuestBrowseGallery token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
+          <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} />
         )}
 
         {activeTab === 'guestbook' && token && (
-          <GuestGuestbookTab token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={!!gallery?.video_guestbook_enabled} />
+          <GuestGuestbookTab token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={!!gallery?.video_guestbook_enabled} />
         )}
+
 
 
         {activeTab === 'upload' && (
@@ -710,10 +711,11 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {theme.showBranding && (
-          <p className={`mt-6 text-center text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
+          <p className="mt-6 text-center text-[10px] uppercase tracking-wider text-white/70">
             Powered by Wedding Waitress
           </p>
         )}
+
       </div>
       </div>
     </div>
