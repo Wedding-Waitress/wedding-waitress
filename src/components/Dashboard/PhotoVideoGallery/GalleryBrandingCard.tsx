@@ -196,16 +196,8 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
         />
       </div>
 
-      {/* Show branding */}
-      <div className="flex items-center justify-between gap-3 rounded-md border border-border p-3">
-        <div>
-          <Label htmlFor="g-branding" className="text-sm">Show “Powered by Wedding Waitress” footer</Label>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Turn off to hide Wedding Waitress branding on the guest upload page and Live View.
-          </p>
-        </div>
-        <Switch id="g-branding" checked={showBranding} onCheckedChange={setShowBranding} />
-      </div>
+
+
 
       <div className="flex justify-between gap-2">
         <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving}>

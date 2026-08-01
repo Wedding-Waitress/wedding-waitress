@@ -13,6 +13,7 @@ import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
+import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -323,9 +324,7 @@ export const GuestVideoGuestbook: React.FC = () => {
                 Leave another message
               </Button>
             </div>
-            {theme.showBranding && (
-              <p className={`mt-4 text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>Powered by Wedding Waitress</p>
-            )}
+            {theme.showBranding && <GalleryFooterLogo className="mt-4" />}
           </Card>
         ) : (
           <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>
@@ -481,11 +480,7 @@ export const GuestVideoGuestbook: React.FC = () => {
           </Card>
         )}
 
-        {theme.showBranding && phase !== 'saved' && (
-          <p className={`mt-4 text-center text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>
-            Powered by Wedding Waitress
-          </p>
-        )}
+        {theme.showBranding && phase !== 'saved' && <GalleryFooterLogo className="mt-4" />}
       </div>
     </div>
   );
