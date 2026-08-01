@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, X, ChevronLeft, ChevronRight, Play, Pause, Share2, Download, ImageIcon, AlertCircle } from 'lucide-react';
+import { Loader2, X, ChevronLeft, ChevronRight, Play, Pause, Share2, Download, ImageIcon, AlertCircle, Trash2 } from 'lucide-react';
 import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/galleryFile';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
