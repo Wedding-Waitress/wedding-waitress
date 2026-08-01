@@ -397,27 +397,9 @@ export const GuestMediaUpload: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
           </>
         ) : (
-          <div
-            className="absolute inset-0"
-            aria-hidden="true"
-            style={{
-              backgroundColor: '#1C1410',
-              backgroundImage: [
-                // Warm center glow (subtle)
-                'radial-gradient(80% 60% at 50% 35%, rgba(104, 79, 55, 0.55) 0%, rgba(60, 43, 30, 0) 65%)',
-                // Fine grain speckles using inline SVG noise
-                `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                // Aged leather creases / wood grain streaks
-                'repeating-linear-gradient(100deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.18) 1px, rgba(0,0,0,0) 3px, rgba(255,255,255,0.05) 5px, rgba(0,0,0,0) 8px)',
-                // Deep vignette to focus on the centre
-                'radial-gradient(120% 110% at 50% 50%, rgba(0,0,0,0) 35%, rgba(10, 6, 3, 0.75) 80%, rgba(0,0,0,0.92) 100%)',
-                // Warm undertone wash
-                'linear-gradient(180deg, rgba(74, 54, 36, 0.35) 0%, rgba(22, 15, 10, 0.55) 60%, rgba(8, 5, 3, 0.85) 100%)',
-              ].join(', '),
-              backgroundBlendMode: 'normal, overlay, soft-light, normal, normal',
-            }}
-          />
+          <div className="absolute inset-0" aria-hidden="true" style={LEATHER_STYLE} />
         )}
+
 
         <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Circular event avatar */}
