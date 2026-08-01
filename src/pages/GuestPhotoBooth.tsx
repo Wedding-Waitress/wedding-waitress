@@ -13,6 +13,7 @@ import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { usePhotoBoothUpload } from '@/hooks/usePhotoBoothUpload';
+import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import {
   composeSingleBlob,
   composeStripBlob,
@@ -380,9 +381,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 {mode === 'strip' ? 'Make another strip' : 'Take another photo'}
               </Button>
             </div>
-            {theme.showBranding && (
-              <p className={`mt-4 text-[10px] uppercase tracking-wider ${theme.mutedClass}`}>Powered by Wedding Waitress</p>
-            )}
+            {theme.showBranding && <GalleryFooterLogo className="mt-4" />}
           </Card>
         ) : (
           <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>

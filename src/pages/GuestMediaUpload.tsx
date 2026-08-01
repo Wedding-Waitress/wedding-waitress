@@ -16,6 +16,7 @@ import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
+import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 
 /** Default hero background used when the event has no cover image. */
 const DEFAULT_HERO_BG = '/default-hero-bg.png';
@@ -709,11 +710,7 @@ export const GuestMediaUpload: React.FC = () => {
         </Card>
         )}
 
-        {theme.showBranding && (
-          <p className="mt-6 text-center text-[10px] uppercase tracking-wider text-white">
-            Powered by Wedding Waitress
-          </p>
-        )}
+        {theme.showBranding && <GalleryFooterLogo className="mt-6" />}
 
       </div>
       </div>
