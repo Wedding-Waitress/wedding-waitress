@@ -83,6 +83,7 @@ export interface GalleryItem {
   is_guestbook: boolean;
   is_photo_booth: boolean;
   is_photo_booth_strip: boolean;
+  like_count?: number;
   signed_url?: string;
 }
 
