@@ -391,7 +391,30 @@ export const GuestMediaUpload: React.FC = () => {
           </p>
         </div>
 
+        <div className={`mb-6 grid grid-cols-2 gap-1 rounded-full p-1 ${theme.isDark ? 'bg-white/10' : 'bg-white/80 border border-[#E8E1D6]'}`}>
+          {(['upload', 'gallery'] as const).map(tab => {
+            const active = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`h-10 rounded-full text-sm font-medium transition-colors ${active ? 'text-white' : theme.mutedClass}`}
+                style={active ? { backgroundColor: accent } : undefined}
+              >
+                {tab === 'upload' ? 'Upload' : 'Gallery'}
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab === 'gallery' && token && (
+          <GuestBrowseGallery token={token} theme={theme} accent={accent} refreshKey={galleryRefresh} />
+        )}
+
+        {activeTab === 'upload' && (
         <Card className="p-5 space-y-5">
+
           <div>
             <Label htmlFor="g-name" className="text-base font-medium">
               Your first name <span className="text-red-500" aria-hidden="true">*</span>
