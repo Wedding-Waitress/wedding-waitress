@@ -259,6 +259,9 @@ export const GuestMediaUpload: React.FC = () => {
   const accent = theme.themeColor;
   const accentHover = theme.themeColorHover;
   const accentSoftBg = `${accent}1A`;
+  // Lower page section always sits on the dark leather texture -> force light text.
+  const lowerTheme = { ...theme, isDark: true, textClass: 'text-white', mutedClass: 'text-white/75', borderClass: 'border-white/15' };
+
 
   if (loading) {
     return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
