@@ -86,6 +86,21 @@ export const GalleryGrid: React.FC<{
     return sorted;
   }, [searchedTyped, filter, sortMode]);
 
+  // Lightbox navigates approved items only (never hidden/unapproved).
+  const lightboxItems = useMemo(
+    () => filtered.filter(i => i.moderation_status === 'approved' && !!i.signed_url),
+    [filtered]
+  );
+  const lightboxIndex = useMemo(
+    () => (lightboxId ? lightboxItems.findIndex(i => i.id === lightboxId) : -1),
+    [lightboxId, lightboxItems]
+  );
+  // Close if the open item is no longer navigable (hidden, deleted or filtered out).
+  useEffect(() => {
+    if (lightboxId && lightboxIndex === -1) setLightboxId(null);
+  }, [lightboxId, lightboxIndex]);
+
+
   // Clean up selection when items change (deleted items)
   useEffect(() => {
     setSelected(prev => {
