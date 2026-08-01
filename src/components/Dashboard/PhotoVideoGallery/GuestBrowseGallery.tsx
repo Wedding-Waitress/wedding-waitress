@@ -42,6 +42,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const mounted = useRef(true);
+  const lightboxRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => () => { mounted.current = false; }, []);
 
