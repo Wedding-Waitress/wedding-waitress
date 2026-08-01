@@ -98,7 +98,7 @@ export function buildGallerySlideshowUrl(token: string): string {
 }
 
 /**
- * Builds a Photo & Video Gallery Video Guestbook URL for the given token.
+ * Builds a Photo & Video Gallery Voice Guestbook URL for the given token.
  */
 export function buildGalleryGuestbookUrl(token: string): string {
   const baseUrl = getPublicBaseUrl();

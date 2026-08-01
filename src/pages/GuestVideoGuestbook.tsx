@@ -1,4 +1,4 @@
-// Public guest Video Guestbook page — /gallery-guestbook/:token
+// Public guest Voice Guestbook page — /gallery-guestbook/:token
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -224,7 +224,7 @@ export const GuestVideoGuestbook: React.FC = () => {
   const save = async () => {
     if (!recordedBlob || !token || mode === 'idle') return;
     if (!name.trim()) {
-      setErrorMsg('Please add your first name first.');
+      setErrorMsg('Please add your full name first.');
       return;
     }
     const dur = Math.min(MAX_SECONDS, Math.max(1, seconds || 1));
@@ -280,7 +280,7 @@ export const GuestVideoGuestbook: React.FC = () => {
           <Video className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
           <p className={`text-sm ${theme.mutedClass}`}>
-            {!gallery.is_open ? 'The host has closed this gallery.' : 'The Video Guestbook is not enabled for this event.'}
+            {!gallery.is_open ? 'The host has closed this gallery.' : 'The Voice Guestbook is not enabled for this event.'}
           </p>
         </Card>
       </div>
@@ -293,7 +293,7 @@ export const GuestVideoGuestbook: React.FC = () => {
 
   return (
     <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
-      <SeoHead title={`${gallery.event_name} — Video Guestbook`} description="Leave a short video or voice message for the couple." />
+      <SeoHead title={`${gallery.event_name} — Voice Guestbook`} description="Leave a short video or voice message for the couple." />
       <div className="max-w-md mx-auto">
         <div className="text-center mb-6">
           {theme.logoImageUrl ? (
@@ -303,7 +303,7 @@ export const GuestVideoGuestbook: React.FC = () => {
               <Video className="h-8 w-8" style={{ color: accent }} />
             </div>
           )}
-          <h1 className="text-2xl font-semibold leading-tight">Video Guestbook</h1>
+          <h1 className="text-2xl font-semibold leading-tight">Voice Guestbook</h1>
           <p className={`text-sm mt-2 ${theme.mutedClass}`}>Leave a short message for {title} — up to {MAX_SECONDS} seconds.</p>
         </div>
 
@@ -330,8 +330,8 @@ export const GuestVideoGuestbook: React.FC = () => {
         ) : (
           <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>
             <div>
-              <Label htmlFor="gb-name" className="text-base font-medium">Your first name <span className="text-red-500">*</span></Label>
-              <Input id="gb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah" />
+              <Label htmlFor="gb-name" className="text-base font-medium">Your full name <span className="text-red-500">*</span></Label>
+              <Input id="gb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
             </div>
             <div>
               <Label htmlFor="gb-msg" className="text-base font-medium">Add a short note (optional)</Label>
