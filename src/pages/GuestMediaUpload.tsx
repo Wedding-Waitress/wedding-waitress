@@ -17,6 +17,9 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 
+/** Default hero background used when the event has no cover image. */
+const DEFAULT_HERO_BG = '/default-hero-bg.png';
+
 /** Dark walnut / aged-leather texture used for the hero fallback and the lower page section. */
 const LEATHER_STYLE: React.CSSProperties = {
   backgroundColor: '#1C1410',
