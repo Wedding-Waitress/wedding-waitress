@@ -36,6 +36,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [slideshow, setSlideshow] = useState(false);
   const mounted = useRef(true);
 
   useEffect(() => () => { mounted.current = false; }, []);
