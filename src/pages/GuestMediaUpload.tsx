@@ -364,7 +364,7 @@ export const GuestMediaUpload: React.FC = () => {
   return (
     <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
-      <div className="max-w-md mx-auto">
+      <div className={`${activeTab === 'gallery' ? 'max-w-5xl' : 'max-w-md'} mx-auto`}>
         {theme.coverImageUrl && (
           <div className="mb-6 -mt-2 rounded-2xl overflow-hidden border border-black/5 shadow-sm">
             <img src={theme.coverImageUrl} alt="" className="w-full h-40 sm:h-48 object-cover" />
