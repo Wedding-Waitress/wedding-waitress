@@ -107,6 +107,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               />
 
             )}
+            <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
             <GalleryDownloadsCard
