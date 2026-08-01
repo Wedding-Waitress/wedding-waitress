@@ -724,6 +724,47 @@ export type Database = {
           },
         ]
       }
+      event_guestbook_messages: {
+        Row: {
+          created_at: string
+          event_id: string
+          gallery_id: string
+          id: string
+          message: string
+          moderation_status: string
+          updated_at: string
+          uploader_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          gallery_id: string
+          id?: string
+          message: string
+          moderation_status?: string
+          updated_at?: string
+          uploader_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          gallery_id?: string
+          id?: string
+          message?: string
+          moderation_status?: string
+          updated_at?: string
+          uploader_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_guestbook_messages_gallery_id_fkey"
+            columns: ["gallery_id"]
+            isOneToOne: false
+            referencedRelation: "event_media_galleries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_media_galleries: {
         Row: {
           background_style: string
@@ -4870,6 +4911,10 @@ export type Database = {
       set_event_media_video_guestbook: {
         Args: { _enabled: boolean; _event_id: string }
         Returns: undefined
+      }
+      submit_event_guestbook_text: {
+        Args: { _message: string; _token: string; _uploader_name: string }
+        Returns: string
       }
       submit_guest_song_requests: {
         Args: { _event_id: string; _guest_id: string; _requests: Json }
