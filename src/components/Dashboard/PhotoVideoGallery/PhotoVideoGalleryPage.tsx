@@ -92,6 +92,13 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             )}
             <Section title="Guest access" subtitle="The QR code and link your guests use.">
               <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
+            </Section>
+
+            <Section title="Branding & theme" subtitle="How the gallery looks to your guests.">
+              <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
+            </Section>
+
+            <Section title="Password protection" subtitle="Control who can upload or view the gallery.">
               <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             </Section>
 
@@ -100,10 +107,10 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <GalleryLimitsCard meta={meta} onUpdate={updateLimits} />
             </Section>
 
-            <Section title="Appearance" subtitle="How the gallery looks to your guests.">
+            <Section title="Appearance" subtitle="Display settings for the gallery and slideshow.">
               <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
-              <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             </Section>
+
 
             <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
               <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
