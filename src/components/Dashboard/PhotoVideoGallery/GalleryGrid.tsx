@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Trash2, Play, Camera, AlertTriangle, FileVideo, FileImage, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen } from 'lucide-react';
+import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen } from 'lucide-react';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
 import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
+import { MediaThumb } from './MediaThumb';
+import { GalleryLightbox } from './GalleryLightbox';
+import { downloadSignedUrl, filenameFor } from './galleryFile';
 import {
   Dialog,
   DialogContent,
@@ -15,125 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
-
-const PREVIEW_TIMEOUT_MS = 10000;
-
-const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item, onOpen }) => {
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setStatus('loading');
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (!item.signed_url) {
-      timerRef.current = setTimeout(() => setStatus('error'), PREVIEW_TIMEOUT_MS);
-      return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-    }
-    timerRef.current = setTimeout(() => {
-      setStatus(prev => (prev === 'loading' ? 'error' : prev));
-    }, PREVIEW_TIMEOUT_MS);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [item.signed_url, item.id]);
-
-  const onLoaded = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setStatus('ready');
-  };
-  const onErr = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setStatus('error');
-  };
-
-  if (status === 'error' || !item.signed_url) {
-    const Icon = item.kind === 'video' ? FileVideo : item.kind === 'audio' ? FileImage : FileImage;
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center text-center p-2 bg-muted">
-        <Icon className="h-8 w-8 text-muted-foreground mb-1" />
-        <div className="text-[11px] font-medium uppercase text-muted-foreground">{item.kind}</div>
-        {item.uploader_name && (
-          <div className="text-[11px] text-muted-foreground truncate max-w-full">by {item.uploader_name}</div>
-        )}
-        <div className="flex items-center gap-1 mt-1 text-amber-600">
-          <AlertTriangle className="h-3 w-3" />
-          <span className="text-[10px]">Preview unavailable</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (item.kind === 'audio') {
-    return (
-      <div className="w-full h-full relative cursor-pointer bg-gradient-to-br from-[#967A59]/10 to-[#967A59]/25 flex flex-col items-center justify-center" onClick={onOpen}>
-        <div className="w-14 h-14 rounded-full bg-[#967A59] flex items-center justify-center mb-2">
-          <Play className="h-7 w-7 text-white" fill="white" />
-        </div>
-        <div className="text-[11px] font-medium uppercase text-[#967A59]">Voice</div>
-        {item.duration_sec ? <div className="text-[10px] text-[#6E6E73] mt-0.5">{item.duration_sec}s</div> : null}
-        <audio src={item.signed_url} preload="metadata" onLoadedMetadata={onLoaded} onError={onErr} className="hidden" />
-      </div>
-    );
-  }
-
-
-  if (item.kind === 'photo') {
-    return (
-      <img
-        src={item.signed_url}
-        alt={item.caption || ''}
-        loading="lazy"
-        className="w-full h-full object-cover cursor-zoom-in"
-        onClick={onOpen}
-        onLoad={onLoaded}
-        onError={onErr}
-      />
-    );
-  }
-  return (
-    <div className="w-full h-full relative cursor-pointer" onClick={onOpen}>
-      <video
-        src={item.signed_url}
-        className="w-full h-full object-cover"
-        preload="metadata"
-        muted
-        onLoadedMetadata={onLoaded}
-        onLoadedData={onLoaded}
-        onError={onErr}
-      />
-      <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
-        <Play className="h-10 w-10 text-white" fill="white" />
-      </div>
-      {status === 'loading' && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs text-white/80 bg-black/40">
-          Loading…
-        </div>
-      )}
-    </div>
-  );
-};
-
-async function downloadSignedUrl(url: string, filenameHint: string) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const objUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = objUrl;
-    a.download = filenameHint || 'download';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(objUrl), 1000);
-  } catch {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
-}
-
-function filenameFor(item: GalleryItem): string {
-  const ext = (item.storage_path.split('.').pop() || (item.kind === 'video' ? 'mp4' : 'jpg')).split('?')[0];
-  const who = (item.uploader_name || 'guest').replace(/[^a-z0-9-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'guest';
-  return `${who}-${item.id.slice(0, 8)}.${ext}`;
-}
 
 type Filter = 'all' | 'approved' | 'hidden';
 type MediaTypeFilter = 'all' | 'photos' | 'videos';
@@ -144,6 +28,7 @@ const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
   { value: 'all', label: 'All Uploads' },
   ...GALLERY_ALBUMS.map(a => ({ value: a as AlbumFilter, label: a })),
 ];
+
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
