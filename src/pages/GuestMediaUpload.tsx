@@ -203,6 +203,11 @@ export const GuestMediaUpload: React.FC = () => {
           .map(p => ({ name: p.fileName, reason: p.error || 'Could not be uploaded' }));
         setThanksSummary({ success, failures });
         setShowThanks(true);
+        // Guests land on the browse gallery once they've shared something.
+        setActiveTab('gallery');
+        setGalleryRefresh(n => n + 1);
+        try { if (token) sessionStorage.setItem(`gallery-has-uploaded:${token}`, '1'); } catch {}
+
       }
     }
   }, [uploading, progress]);
