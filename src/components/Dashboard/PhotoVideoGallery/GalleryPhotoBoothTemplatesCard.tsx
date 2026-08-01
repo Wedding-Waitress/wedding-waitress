@@ -9,6 +9,8 @@ import { Image as ImageIcon, Upload, X, Save, Loader2, LayoutGrid, FileImage, Ro
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
+import { PhotoBoothTemplatePreview } from './PhotoBoothTemplatePreview';
+import { defaultBottomText, formatEventDate, type ComposeOpts } from '@/lib/photoBoothTemplate';
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/jpeg,image/png,image/webp';
@@ -17,10 +19,17 @@ const TEMPLATE_ACCEPT = 'image/jpeg';
 interface Props {
   eventId: string;
   meta: GalleryMeta;
+  eventName?: string | null;
+  eventDate?: string | null;
   onSave: (kind: 'single' | 'strip', s: PhotoBoothTemplateSettings) => Promise<void>;
 }
 
-export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta, onSave }) => {
+export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta, eventName, eventDate, onSave }) => {
+  const dateText = formatEventDate(eventDate || null);
+  const title = (eventName || '').trim();
+  const fallbackText = defaultBottomText(title, dateText);
+  const hashtag = meta.gallery_title?.startsWith('#') ? meta.gallery_title : undefined;
+
   return (
     <Card className="p-5 space-y-5">
       <div>
@@ -41,6 +50,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           { label: 'Landscape template', size: '1800 × 1080 px (JPEG)' },
         ]}
         eventId={eventId}
+        eventTitle={title}
+        dateText={dateText}
+        hashtag={hashtag}
+        showBranding={meta.show_branding}
+        fallbackText={fallbackText}
         bottomText={meta.photo_booth_single_bottom_text}
         logoUrl={meta.photo_booth_single_logo_url}
         templateUrl={meta.photo_booth_single_template_url}
@@ -57,6 +71,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           { label: 'Side-by-side strip canvas', size: '1440 × 2000 px (JPEG)' },
         ]}
         eventId={eventId}
+        eventTitle={title}
+        dateText={dateText}
+        hashtag={hashtag}
+        showBranding={meta.show_branding}
+        fallbackText={fallbackText}
         bottomText={meta.photo_booth_strip_bottom_text}
         logoUrl={meta.photo_booth_strip_logo_url}
         templateUrl={meta.photo_booth_strip_template_url}
@@ -72,13 +91,18 @@ interface EditorProps {
   description: string;
   recommended: { label: string; size: string }[];
   eventId: string;
+  eventTitle: string;
+  dateText: string;
+  hashtag?: string;
+  showBranding: boolean;
+  fallbackText: string;
   bottomText: string | null;
   logoUrl: string | null;
   templateUrl: string | null;
   onSave: (s: PhotoBoothTemplateSettings) => Promise<void>;
 }
 
-const TemplateEditor: React.FC<EditorProps> = ({ kind, title, description, recommended, eventId, bottomText, logoUrl, templateUrl, onSave }) => {
+const TemplateEditor: React.FC<EditorProps> = ({ kind, title, description, recommended, eventId, eventTitle, dateText, hashtag, showBranding, fallbackText, bottomText, logoUrl, templateUrl, onSave }) => {
   const { toast } = useToast();
   const [text, setText] = useState(bottomText || '');
   const [logo, setLogo] = useState<string | null>(logoUrl);
@@ -148,9 +172,19 @@ const TemplateEditor: React.FC<EditorProps> = ({ kind, title, description, recom
   };
 
   const handleReset = () => {
-    setText('');
+    setText(fallbackText);
     setLogo(null);
     setTpl(null);
+  };
+
+  const previewOpts: ComposeOpts = {
+    title: eventTitle,
+    dateText,
+    hashtag,
+    bottomText: text.trim() || null,
+    logoUrl: logo,
+    templateUrl: tpl,
+    showBranding,
   };
 
   return (
@@ -169,10 +203,12 @@ const TemplateEditor: React.FC<EditorProps> = ({ kind, title, description, recom
           className="h-11 mt-1.5"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={kind === 'strip' ? 'e.g. Sarah & Daniel · 14 June 2026' : 'e.g. Cheers from our wedding!'}
+          placeholder={fallbackText}
           maxLength={120}
         />
-        <p className="text-xs text-muted-foreground mt-1">Shown across the bottom of every photo. Leave empty to hide.</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Shown on the bottom branding strip. Leave empty to use the default: <span className="font-medium text-[#1D1D1F]">{fallbackText}</span>
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -198,6 +234,16 @@ const TemplateEditor: React.FC<EditorProps> = ({ kind, title, description, recom
           onClear={() => setTpl(null)}
           aspect="cover"
         />
+      </div>
+
+      <div>
+        <Label className="text-sm">Live preview</Label>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {tpl ? 'Using your uploaded template artwork.' : 'Using the built-in default template — no upload needed.'}
+        </p>
+        <div className="mt-2">
+          <PhotoBoothTemplatePreview kind={kind} opts={previewOpts} />
+        </div>
       </div>
 
       <div className="rounded-md border border-border bg-muted/40 p-3 text-xs text-[#1D1D1F]">
