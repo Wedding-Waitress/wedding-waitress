@@ -4,6 +4,7 @@ import { Maximize, Minimize, Play, Pause, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
+import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
 
 interface LiveMeta {

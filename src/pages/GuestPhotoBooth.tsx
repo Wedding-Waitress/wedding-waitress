@@ -11,6 +11,7 @@ import { Camera, Loader2, AlertCircle, RotateCcw, X, Save, Heart, RefreshCw } fr
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
+import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { usePhotoBoothUpload } from '@/hooks/usePhotoBoothUpload';
 import {
   composeSingleBlob,
@@ -166,7 +167,7 @@ export const GuestPhotoBooth: React.FC = () => {
 
   const buildComposeOpts = (): ComposeOpts => {
     const couple = [gallery?.partner1_name, gallery?.partner2_name].filter(Boolean).join(' & ');
-    const title = couple || gallery?.event_name || '';
+    const title = resolveGalleryTitle(gallery);
     const dateText = formatEventDate(gallery?.event_date || null);
     const titleRaw = gallery?.gallery_title || '';
     const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
@@ -337,7 +338,7 @@ export const GuestPhotoBooth: React.FC = () => {
   }
 
   const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
-  const title = couple || gallery.event_name;
+  const title = resolveGalleryTitle(gallery);
   const isCameraSupported = typeof window !== 'undefined' && !!navigator?.mediaDevices?.getUserMedia;
   const startLabel = mode === 'strip' ? 'Start Photo Strip' : 'Start Photo Booth';
   const stripProgress = stripPhotos.length; // 0..3
