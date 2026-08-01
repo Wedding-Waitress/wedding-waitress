@@ -18,12 +18,18 @@ function slugify(s: string | null | undefined, fallback = 'gallery'): string {
 function extOf(item: GalleryItem): string {
   const raw = (item.storage_path.split('.').pop() || '').split('?')[0].toLowerCase();
   if (raw && raw.length <= 5) return raw;
-  return item.kind === 'video' ? 'mp4' : 'jpg';
+  if (item.kind === 'video') return 'mp4';
+  if (item.kind === 'audio') return 'webm';
+  return 'jpg';
 }
 
 function entryNameFor(item: GalleryItem, used: Set<string>): string {
   const who = slugify(item.uploader_name, 'guest');
-  const folder = item.kind === 'video' ? 'videos' : 'photos';
+  const folder = item.kind === 'video'
+    ? (item.is_guestbook ? 'guestbook-video' : 'videos')
+    : item.kind === 'audio'
+      ? 'guestbook-voice'
+      : 'photos';
   const base = `${who}-${item.id.slice(0, 8)}`;
   let name = `${folder}/${base}.${extOf(item)}`;
   let i = 2;

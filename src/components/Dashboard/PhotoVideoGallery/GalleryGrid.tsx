@@ -425,7 +425,7 @@ export const GalleryGrid: React.FC<{
               : it.is_photo_booth
                 ? 'Booth'
                 : it.is_guestbook
-                  ? 'Guestbook'
+                  ? (it.kind === 'audio' ? 'Voice' : 'Video')
                   : null;
             return (
               <div

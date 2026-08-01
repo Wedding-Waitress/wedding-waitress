@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive, Users } from 'lucide-react';
 import { formatBytes } from '@/lib/mediaValidation';
 import type { GalleryMeta, GalleryItem } from '@/hooks/useEventMediaGallery';
 
@@ -13,12 +13,15 @@ interface Props {
 export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
   const usage = useMemo(() => {
     let photos = 0, videos = 0, bytes = 0;
+    const guests = new Set<string>();
     for (const i of items) {
       if (i.kind === 'photo') photos++;
       else if (i.kind === 'video') videos++;
       bytes += i.byte_size || 0;
+      const who = (i.uploader_name || '').trim().toLowerCase();
+      if (who) guests.add(who);
     }
-    return { photos, videos, bytes };
+    return { photos, videos, bytes, guests: guests.size };
   }, [items]);
 
   const photoPct = meta.max_photos > 0 ? Math.min(100, (usage.photos / meta.max_photos) * 100) : 0;
@@ -91,6 +94,12 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
           warn={storageWarn}
           sub={`${formatBytes(remainingBytes)} remaining`}
         />
+        <div className="flex items-center justify-between pt-1 border-t border-border text-sm">
+          <span className="flex items-center gap-2 font-medium text-foreground">
+            <Users className="h-4 w-4 text-[#967A59]" /> Guests who uploaded
+          </span>
+          <span className="text-foreground font-medium tabular-nums">{usage.guests}</span>
+        </div>
       </div>
     </Card>
   );
