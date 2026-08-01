@@ -90,6 +90,14 @@ export function buildGalleryLiveUrl(token: string): string {
 }
 
 /**
+ * Builds the Live Slideshow URL (venue TV / projector view) for the given token.
+ */
+export function buildGallerySlideshowUrl(token: string): string {
+  const baseUrl = getPublicBaseUrl();
+  return `${baseUrl}/gallery/${encodeURIComponent(token)}/slideshow`;
+}
+
+/**
  * Builds a Photo & Video Gallery Video Guestbook URL for the given token.
  */
 export function buildGalleryGuestbookUrl(token: string): string {

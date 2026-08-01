@@ -746,6 +746,7 @@ export type Database = {
           photo_booth_strip_template_url: string | null
           show_branding: boolean
           show_event_date: boolean
+          slideshow_enabled: boolean
           slideshow_photo_duration_sec: number
           theme_color: string | null
           updated_at: string
@@ -774,6 +775,7 @@ export type Database = {
           photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
+          slideshow_enabled?: boolean
           slideshow_photo_duration_sec?: number
           theme_color?: string | null
           updated_at?: string
@@ -802,6 +804,7 @@ export type Database = {
           photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
+          slideshow_enabled?: boolean
           slideshow_photo_duration_sec?: number
           theme_color?: string | null
           updated_at?: string
@@ -4313,6 +4316,7 @@ export type Database = {
           primary_token: string
           show_branding: boolean
           show_event_date: boolean
+          slideshow_enabled: boolean
           slideshow_photo_duration_sec: number
           theme_color: string
           video_guestbook_enabled: boolean
@@ -4351,6 +4355,7 @@ export type Database = {
           photo_booth_strip_template_url: string
           show_branding: boolean
           show_event_date: boolean
+          slideshow_enabled: boolean
           slideshow_photo_duration_sec: number
           theme_color: string
           video_guestbook_enabled: boolean
@@ -4807,6 +4812,10 @@ export type Database = {
       }
       set_event_media_photo_booth_mode: {
         Args: { _event_id: string; _mode: string }
+        Returns: undefined
+      }
+      set_event_media_slideshow: {
+        Args: { _enabled: boolean; _event_id: string }
         Returns: undefined
       }
       set_event_media_video_guestbook: {

@@ -32,6 +32,7 @@ export interface GalleryMeta {
   photo_booth_strip_bottom_text: string | null;
   photo_booth_strip_logo_url: string | null;
   photo_booth_strip_template_url: string | null;
+  slideshow_enabled: boolean;
 }
 
 export interface PhotoBoothTemplateSettings {
@@ -314,6 +315,16 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId]);
 
+  const setSlideshowEnabled = useCallback(async (enabled: boolean) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, slideshow_enabled: enabled } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_slideshow', { _event_id: eventId, _enabled: enabled });
+    if (err) {
+      setMeta(m => m ? { ...m, slideshow_enabled: !enabled } : m);
+      throw new Error(err.message || 'Failed to update Live Slideshow');
+    }
+  }, [eventId]);
+
   const setPhotoBoothEnabled = useCallback(async (enabled: boolean) => {
     if (!eventId) return;
     setMeta(m => m ? { ...m, photo_booth_enabled: enabled } : m);
@@ -362,5 +373,5 @@ export function useEventMediaGallery(eventId: string | null) {
     });
   }, [eventId]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate };
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled };
 }

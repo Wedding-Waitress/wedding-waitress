@@ -34,6 +34,10 @@ interface LiveItem {
 }
 
 const DEFAULT_PHOTO_INTERVAL_SEC = 8;
+// Videos play inline (muted) for at most 15 seconds before advancing.
+const MAX_VIDEO_MS = 15 * 1000;
+// Poll for newly approved uploads (in addition to realtime) every 12s.
+const POLL_ITEMS_MS = 12 * 1000;
 // Re-fetch signed URLs before they expire (edge function TTL = 600s).
 const REFRESH_URLS_MS = 8 * 60 * 1000;
 
@@ -164,8 +168,9 @@ const GalleryLiveView: React.FC = () => {
         () => { loadItems(token).catch(() => {}); }
       )
       .subscribe();
+    const poll = window.setInterval(() => { loadItems(token).catch(() => {}); }, POLL_ITEMS_MS);
     const refresh = window.setInterval(() => { loadItems(token).catch(() => {}); }, REFRESH_URLS_MS);
-    return () => { supabase.removeChannel(channel); window.clearInterval(refresh); };
+    return () => { supabase.removeChannel(channel); window.clearInterval(poll); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
   // Advance helper (respects pause)
@@ -178,7 +183,7 @@ const GalleryLiveView: React.FC = () => {
     setIndex(i => (items.length === 0 ? 0 : (i + 1) % items.length));
   }, [items.length]);
 
-  // Photo auto-advance timer; videos advance on `ended`
+  // Photo auto-advance timer; videos advance on `ended` or after 15s max
   useEffect(() => {
     if (photoTimerRef.current) {
       window.clearTimeout(photoTimerRef.current);
@@ -189,6 +194,8 @@ const GalleryLiveView: React.FC = () => {
     if (!current) return;
     if (current.kind === 'photo') {
       photoTimerRef.current = window.setTimeout(advance, photoIntervalMs);
+    } else {
+      photoTimerRef.current = window.setTimeout(advance, MAX_VIDEO_MS);
     }
     return () => {
       if (photoTimerRef.current) {
@@ -300,9 +307,13 @@ const GalleryLiveView: React.FC = () => {
                 {current.caption}
               </div>
             )}
-            {current?.uploader_name && (
+            {(current?.uploader_name || current?.uploaded_at) && (
               <div className="text-white/70 text-sm md:text-base mt-1">
-                — {current.uploader_name}
+                {current?.uploader_name ? `— ${current.uploader_name.trim().split(/\s+/)[0]}` : ''}
+                {current?.uploader_name && current?.uploaded_at ? ' · ' : ''}
+                {current?.uploaded_at
+                  ? new Date(current.uploaded_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+                  : ''}
               </div>
             )}
           </div>

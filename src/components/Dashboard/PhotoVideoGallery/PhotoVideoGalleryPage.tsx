@@ -17,6 +17,7 @@ import { GalleryBrandingCard } from './GalleryBrandingCard';
 import { GalleryVideoGuestbookCard } from './GalleryVideoGuestbookCard';
 import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
 import { GalleryPhotoBoothTemplatesCard } from './GalleryPhotoBoothTemplatesCard';
+import { GallerySlideshowCard } from './GallerySlideshowCard';
 import { GuestbookList } from './GuestbookList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -27,7 +28,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVideoGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
 
   return (
     <div className="space-y-6">
@@ -91,6 +92,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             <GalleryUsageCard meta={meta} items={items} />
             <GalleryDisplaySettingsCard meta={meta} onSave={updateDisplaySettings} />
+            <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
             <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             <GalleryVideoGuestbookCard meta={meta} onToggle={setVideoGuestbookEnabled} />
