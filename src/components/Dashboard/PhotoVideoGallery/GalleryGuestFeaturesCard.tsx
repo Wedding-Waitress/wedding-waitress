@@ -1,5 +1,6 @@
 // Guest Features card — enable/disable guest-facing features per event.
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
   meta, onToggleUpload, onToggleGalleryView, onToggleGuestbookText,
   onToggleVoice, onTogglePhotoBooth, onToggleSlideshow,
 }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -34,14 +36,15 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
     }
   };
 
-  const features: { key: string; title: string; desc: string; checked: boolean; fn: (v: boolean) => Promise<void> }[] = [
-    { key: 'upload', title: 'Upload Photos & Videos', desc: 'Allow guests to upload photos and videos', checked: !!meta.guest_upload_enabled, fn: onToggleUpload },
+  const features: { key: string; title: string; desc: string; checked: boolean; fn: (v: boolean) => Promise<void>; href?: string }[] = [
+    { key: 'upload', title: 'Upload Photos & Videos', desc: 'Allow guests to upload photos and videos', checked: !!meta.guest_upload_enabled, fn: onToggleUpload, href: '/dashboard/photo-video-gallery/upload-photos-videos' },
     { key: 'view', title: 'Photo & Video Gallery View', desc: 'Let guests browse the shared gallery', checked: !!meta.gallery_view_enabled, fn: onToggleGalleryView },
     { key: 'booth', title: 'Photo Booth', desc: 'Let guests use the on-screen photo booth', checked: !!meta.photo_booth_enabled, fn: onTogglePhotoBooth },
     { key: 'gbvoice', title: 'Guestbook - Voice Message', desc: 'Allow guests to record a voice message', checked: !!meta.voice_guestbook_enabled, fn: onToggleVoice },
     { key: 'gbtext', title: 'Guestbook - Text Message', desc: 'Allow guests to leave a written message', checked: !!meta.guestbook_text_enabled, fn: onToggleGuestbookText },
     { key: 'slideshow', title: 'Live Slide Show', desc: 'Display uploaded photos in a live slideshow', checked: !!meta.slideshow_enabled, fn: onToggleSlideshow },
   ];
+
 
   return (
     <Card className="p-4 sm:p-5 md:p-6 space-y-5 overflow-hidden" style={{ backgroundColor: '#ffffff', borderColor: 'rgba(0,0,0,0.12)' }}>
@@ -70,12 +73,13 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
               <button
                 type="button"
                 aria-label={`Manage ${f.title}`}
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (f.href) navigate(f.href); }}
                 className="shrink-0 self-start sm:self-auto rounded-full border-2 border-white bg-transparent px-4 py-1.5 min-h-[44px] text-sm font-bold text-white shadow-[0_2px_6px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-200 ease-out hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
               >
                 Manage
               </button>
             </div>
+
             <div className="flex items-center justify-between gap-3">
               <span className="text-lg md:text-xl font-bold text-white">{f.checked ? 'On' : 'Off'}</span>
               <Switch

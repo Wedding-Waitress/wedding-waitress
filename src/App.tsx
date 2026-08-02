@@ -17,6 +17,8 @@ const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 // Lazy: split everything else into separate chunks for instant initial load
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
+const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeaturePage").then(m => ({ default: m.GalleryUploadFeaturePage })));
+
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
 const KioskView = lazy(() => import("./pages/KioskView").then(m => ({ default: m.KioskView })));
@@ -140,6 +142,8 @@ const App = () => (
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<GalleryUploadFeaturePage />} />
+
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
           {/* Running Sheet is now a dashboard tab, no standalone route */}
