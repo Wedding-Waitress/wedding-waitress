@@ -494,15 +494,16 @@ export const GuestMediaUpload: React.FC = () => {
         const tabs = ([
           uploadOn ? 'upload' : null,
           galleryOn ? 'gallery' : null,
-          boothOn ? 'booth' : null,
           guestbookOn ? 'guestbook' : null,
+          boothOn ? 'booth' : null,
         ].filter(Boolean)) as TabKey[];
         const labels: Record<TabKey, string> = {
           upload: 'Upload',
           gallery: 'Gallery',
-          booth: 'Digital Photo Booth',
+          booth: 'Photo Booth',
           guestbook: 'Guestbook',
         };
+
         const boothHref = token ? `/gallery-photobooth/${token}` : '#';
         // Only the Digital Photo Booth is enabled -> send the guest straight there.
         if (tabs.length === 1 && tabs[0] === 'booth') {
