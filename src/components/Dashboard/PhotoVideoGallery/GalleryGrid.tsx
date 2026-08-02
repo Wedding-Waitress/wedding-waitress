@@ -46,7 +46,12 @@ export const GalleryGrid: React.FC<{
   dark?: boolean;
   /** Event name used for customer-friendly shared-photo download filenames. */
   eventName?: string | null;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName }) => {
+  /**
+   * Scoped opt-out: removes the per-card hover action overlay entirely
+   * (Photo & Video Sharing workspace). Actions move to selection mode only.
+   */
+  hideCardActions?: boolean;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -564,7 +569,7 @@ export const GalleryGrid: React.FC<{
                     )}
                   </div>
 
-                  {!selectMode && (
+                  {!selectMode && !hideCardActions && (
                     <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
                       {it.signed_url && (
                         <button
