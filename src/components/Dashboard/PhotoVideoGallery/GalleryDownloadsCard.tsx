@@ -24,13 +24,27 @@ function extOf(item: GalleryItem): string {
   return 'jpg';
 }
 
-function entryNameFor(item: GalleryItem, used: Set<string>): string {
-  const who = slugify(item.uploader_name, 'guest');
+function entryNameFor(item: GalleryItem, used: Set<string>, eventName?: string | null): string {
   const folder = item.kind === 'video'
     ? (item.is_guestbook ? 'guestbook-video' : 'videos')
     : item.kind === 'audio'
       ? 'guestbook-voice'
       : 'photos';
+
+  // Shared photos use the customer-friendly "00001-Event-Name.ext" scheme.
+  const shared = sharedPhotoFilename(item as any, eventName);
+  if (shared) {
+    let name = `${folder}/${shared}`;
+    let i = 2;
+    while (used.has(name)) {
+      name = `${folder}/${shared.replace(/(\.[^.]+)$/, `-${i}$1`)}`;
+      i++;
+    }
+    used.add(name);
+    return name;
+  }
+
+  const who = slugify(item.uploader_name, 'guest');
   const base = `${who}-${item.id.slice(0, 8)}`;
   let name = `${folder}/${base}.${extOf(item)}`;
   let i = 2;
