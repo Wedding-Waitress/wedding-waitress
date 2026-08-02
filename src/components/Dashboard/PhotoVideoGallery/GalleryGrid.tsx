@@ -255,57 +255,61 @@ export const GalleryGrid: React.FC<{
     </button>
   );
 
-  return (
-    <Card className="p-4 sm:p-5 overflow-hidden">
-      <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
-        <div className="min-w-0">
-          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
-        </div>
-
-        <div className="flex gap-2 flex-wrap items-center">
-          {!selectMode ? (
+  const selectControls = (
+    <div className="flex gap-2 flex-wrap items-center">
+      {!selectMode ? (
+        <Button
+          className="lv-premium-shade"
+          variant="outline"
+          size="sm"
+          onClick={() => setSelectMode(true)}
+        >
+          <CheckCircle2 className="h-4 w-4 mr-1" /> Select
+        </Button>
+      ) : (
+        <>
+          <Button
+            className="lv-premium-shade"
+            variant="outline"
+            size="sm"
+            onClick={selectAllVisible}
+          >
+            <CheckCircle2 className="h-4 w-4 mr-1" />
+            {allVisibleSelected ? 'Deselect All' : 'Select All'}
+          </Button>
+          {visibleSelectedCount > 0 && (
             <Button
               className="lv-premium-shade"
-              variant="outline"
+              variant="destructive"
               size="sm"
-              onClick={() => setSelectMode(true)}
+              disabled={bulkBusy}
+              onClick={() => setConfirmDelete(true)}
             >
-              <CheckCircle2 className="h-4 w-4 mr-1" /> Select
+              <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({visibleSelectedCount})
             </Button>
-          ) : (
-            <>
-              <Button
-                className="lv-premium-shade"
-                variant="outline"
-                size="sm"
-                onClick={selectAllVisible}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-1" />
-                {allVisibleSelected ? 'Deselect All' : 'Select All'}
-              </Button>
-              {visibleSelectedCount > 0 && (
-                <Button
-                  className="lv-premium-shade"
-                  variant="destructive"
-                  size="sm"
-                  disabled={bulkBusy}
-                  onClick={() => setConfirmDelete(true)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({visibleSelectedCount})
-                </Button>
-              )}
-              <Button
-                className="lv-premium-shade"
-                variant="outline"
-                size="sm"
-                onClick={exitSelectMode}
-              >
-                <X className="h-4 w-4 mr-1" /> Cancel
-              </Button>
-            </>
           )}
+          <Button
+            className="lv-premium-shade"
+            variant="outline"
+            size="sm"
+            onClick={exitSelectMode}
+          >
+            <X className="h-4 w-4 mr-1" /> Cancel
+          </Button>
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <Card className={`p-4 sm:p-5 overflow-hidden ${dark ? 'bg-black border-white/15' : ''}`}>
+      <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
+          <p className="text-sm mt-1 break-words" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
+
+        {!dark && selectControls}
 
       </div>
 
@@ -317,7 +321,7 @@ export const GalleryGrid: React.FC<{
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search uploader, caption or message…"
-            className="h-9 pl-9"
+            className="h-9 pl-9 bg-white text-[#1D1D1F]"
           />
           {search && (
             <button
@@ -331,7 +335,7 @@ export const GalleryGrid: React.FC<{
           )}
         </div>
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
-          <SelectTrigger className="h-9 md:w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-9 md:w-[140px] bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All media</SelectItem>
             <SelectItem value="photos">Photos</SelectItem>
@@ -339,7 +343,7 @@ export const GalleryGrid: React.FC<{
           </SelectContent>
         </Select>
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="h-9 md:w-[150px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-9 md:w-[150px] bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
@@ -349,8 +353,8 @@ export const GalleryGrid: React.FC<{
 
       {/* Album + moderation filter pills in one row */}
       <div className="flex gap-2 flex-wrap mb-4 items-center">
-        <FolderOpen className="h-4 w-4 text-[#6E6E73]" />
-        <span className="text-xs text-[#6E6E73] mr-1">Album:</span>
+        <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
+        <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
         {ALBUM_FILTERS.map(a => {
           const active = albumFilter === a.value;
           return (
@@ -366,11 +370,14 @@ export const GalleryGrid: React.FC<{
             </button>
           );
         })}
-        <div className="w-px h-5 bg-border mx-1" />
+        <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
         <FilterBtn value="all" label="All" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
+        {dark && <div className="ml-auto">{selectControls}</div>}
       </div>
+
+
 
 
 
