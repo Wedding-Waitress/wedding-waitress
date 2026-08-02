@@ -104,25 +104,37 @@ export const GalleryPasswordGate: React.FC<Props> = ({ token, title, onVerified,
               autoFocus
               value={pw}
               onChange={(e) => setPw(e.target.value)}
+              disabled={blocked}
+              aria-describedby={err ? 'gallery-pw-error' : undefined}
               className={`h-12 text-base mt-2 ${isDark ? 'bg-white/10 border-white/20 text-white placeholder:text-white/40' : ''}`}
               placeholder="Enter password"
             />
           </div>
           {err && (
-            <div className="text-sm text-red-500 flex items-center gap-1.5">
-              <AlertCircle className="h-4 w-4" /> {err}
+            <div
+              id="gallery-pw-error"
+              role="alert"
+              aria-live="polite"
+              className="text-sm text-red-500 flex items-center gap-1.5"
+            >
+              <AlertCircle className="h-4 w-4 shrink-0" /> {err}
             </div>
           )}
           <Button
             type="submit"
             className="lv-premium-shade w-full h-12 text-white"
             style={{ backgroundColor: accent }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
+            onMouseEnter={(e) => { if (!blocked) (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
-            disabled={loading || !pw.trim()}
+            disabled={loading || blocked || !pw.trim()}
           >
-            {loading ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Verifying…</> : 'Unlock gallery'}
+            {loading
+              ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Verifying…</>
+              : blocked
+                ? `Try again in ${Math.max(1, Math.ceil(retryAfter / 60))} min`
+                : 'Unlock gallery'}
           </Button>
+
         </form>
       </Card>
     </div>
