@@ -144,6 +144,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<GalleryUploadFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />)
 
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
