@@ -16,6 +16,7 @@ type Status = 'approved' | 'hidden';
 
 interface Props {
   items: GalleryItem[];
+  eventName?: string | null;
   loading?: boolean;
   error?: string | null;
   onSetModeration: (id: string, status: Status) => Promise<void>;
@@ -33,7 +34,7 @@ function fmtDuration(sec: number | null) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, loading, error, onSetModeration }) => {
+export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, loading, error, onSetModeration }) => {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
