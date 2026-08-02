@@ -20,6 +20,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m
 const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeaturePage").then(m => ({ default: m.GalleryUploadFeaturePage })));
 const GalleryViewFeaturePage = lazy(() => import("./pages/GalleryViewFeaturePage").then(m => ({ default: m.GalleryViewFeaturePage })));
 const GalleryPhotoBoothFeaturePage = lazy(() => import("./pages/GalleryPhotoBoothFeaturePage").then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
+const GalleryTextGuestbookFeaturePage = lazy(() => import("./pages/GalleryTextGuestbookFeaturePage").then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
 
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
@@ -147,6 +148,7 @@ const App = () => (
           <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<GalleryUploadFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<GalleryTextGuestbookFeaturePage />} />
 
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
