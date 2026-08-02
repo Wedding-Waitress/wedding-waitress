@@ -105,7 +105,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
       </header>
 
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12">
         {children}
       </main>
     </div>
