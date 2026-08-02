@@ -71,12 +71,13 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
               <button
                 type="button"
                 aria-label={`Manage ${f.title}`}
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (f.href) navigate(f.href); }}
                 className="shrink-0 self-start sm:self-auto rounded-full border-2 border-white bg-transparent px-4 py-1.5 min-h-[44px] text-sm font-bold text-white shadow-[0_2px_6px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-200 ease-out hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
               >
                 Manage
               </button>
             </div>
+
             <div className="flex items-center justify-between gap-3">
               <span className="text-lg md:text-xl font-bold text-white">{f.checked ? 'On' : 'Off'}</span>
               <Switch
