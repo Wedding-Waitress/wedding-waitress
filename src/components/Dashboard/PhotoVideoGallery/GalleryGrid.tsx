@@ -564,7 +564,7 @@ export const GalleryGrid: React.FC<{
                     )}
                   </div>
 
-                  {!selectMode && (
+                  {!selectMode && !hideCardActions && (
                     <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
                       {it.signed_url && (
                         <button
