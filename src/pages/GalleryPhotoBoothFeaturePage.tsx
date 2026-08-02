@@ -1,4 +1,4 @@
-// Feature workspace: Photo Booth
+// Feature workspace: Digital Photo Booth
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -47,7 +47,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
 
   const boothUrl = meta?.primary_token ? buildGalleryPhotoBoothUrl(meta.primary_token) : '';
 
-  // Filtered view of the existing uploads — Photo Booth captures only.
+  // Filtered view of the existing uploads — Digital Photo Booth captures only.
   const boothItems = useMemo(() => items.filter(i => categoryOf(i) === 'photo_booth'), [items]);
 
   const handleToggle = async (v: boolean) => {
@@ -72,19 +72,19 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
   return (
     <>
       <SeoHead
-        title="Photo Booth | Wedding Waitress"
+        title="Digital Photo Booth | Wedding Waitress"
         description="Let guests take photos on their phone or tablet and send them directly to your event gallery."
         noIndex
       />
       <FeatureWorkspaceLayout
-        title="Photo Booth"
+        title="Digital Photo Booth"
         description="Let guests take photos on their phone or tablet and send them directly to your event gallery."
         eventName={(selectedEvent as any)?.name}
         enabled={!!meta?.photo_booth_enabled}
         toggleDisabled={saving || loading || !meta}
         onToggle={handleToggle}
         onBack={goBack}
-        disabledNotice="This feature is currently turned off for your guests. You can still manage and preview the Photo Booth."
+        disabledNotice="This feature is currently turned off for your guests. You can still manage and preview the Digital Photo Booth."
         headerAction={
           <Button
             variant="outline"
@@ -92,20 +92,20 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
             disabled={!boothUrl}
             onClick={() => boothUrl && window.open(boothUrl, '_blank', 'noopener,noreferrer')}
           >
-            <Camera className="h-4 w-4 mr-1" /> Launch Photo Booth
+            <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
           </Button>
         }
       >
         {loading && !meta ? (
           <Card className="p-12 flex flex-col items-center justify-center gap-3">
             <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
-            <p className="text-sm text-muted-foreground">Loading Photo Booth…</p>
+            <p className="text-sm text-muted-foreground">Loading Digital Photo Booth…</p>
           </Card>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
             <AlertTriangle className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Gallery page to manage the Photo Booth.'}
+              {error || 'Select an event on the Photo & Video Gallery page to manage the Digital Photo Booth.'}
             </p>
           </Card>
         ) : (
@@ -131,9 +131,9 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
               onSetModeration={setModeration}
               onSetAlbum={setAlbum}
               onBulkSetAlbum={bulkSetAlbum}
-              title="Photo Booth Captures"
-              description="Review, organise, approve, hide and download photos taken in your Photo Booth."
-              emptyText="No Photo Booth captures yet — share the QR code with your guests."
+              title="Digital Photo Booth Captures"
+              description="Review, organise, approve, hide and download photos taken in your Digital Photo Booth."
+              emptyText="No Digital Photo Booth captures yet — share the QR code with your guests."
             />
 
             <GalleryDownloadsCard
@@ -142,13 +142,13 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
               galleryTitle={meta.gallery_title}
               scopes={['all', 'approved']}
               labels={{
-                all: 'Download All Photo Booth Photos',
-                approved: 'Download Approved Photo Booth Photos',
+                all: 'Download All Digital Photo Booth Photos',
+                approved: 'Download Approved Digital Photo Booth Photos',
               }}
-              title="Download Photo Booth Photos"
-              description="Bundle your Photo Booth captures into a single ZIP file — original files, unchanged."
+              title="Download Digital Photo Booth Photos"
+              description="Bundle your Digital Photo Booth captures into a single ZIP file — original files, unchanged."
               filePrefix="photo-booth"
-              emptyText="No Photo Booth captures yet — ZIP downloads will activate once guests take photos."
+              emptyText="No Digital Photo Booth captures yet — ZIP downloads will activate once guests take photos."
             />
           </div>
         )}
