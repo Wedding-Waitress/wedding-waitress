@@ -52,7 +52,7 @@ export const GuestbookMessagesList: React.FC<{ eventId: string | null; items: Ga
         <ul className="space-y-3">
           {rows.map(m => (
             <li key={`${m.source}-${m.id}`} className="border border-border rounded-lg p-3 bg-[#FBF8F3]">
-              <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap">{m.message}</p>
+              <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words">{m.message}</p>
               <p className="text-xs text-muted-foreground mt-1.5">
                 — {m.name || 'Anonymous guest'}
                 {m.at && ` • ${new Date(m.at).toLocaleDateString()}`}
