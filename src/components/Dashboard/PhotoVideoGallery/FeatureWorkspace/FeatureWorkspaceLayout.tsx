@@ -3,6 +3,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import logoImage from '@/assets/wedding-waitress-full-logo.png';
 
 export interface FeatureWorkspaceLayoutProps {
   title: string;
