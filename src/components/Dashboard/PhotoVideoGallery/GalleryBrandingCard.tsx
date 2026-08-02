@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, GalleryBrandingSettings } from '@/hooks/useEventMediaGallery';
 import { DEFAULT_THEME_COLOR } from '@/lib/galleryTheme';
 import { GalleryBackgroundGalleryModal } from './GalleryBackgroundGalleryModal';
+import { GalleryBackgroundColorPicker } from './GalleryBackgroundColorPicker';
+import { normalizeHexColor } from '@/lib/backgroundColorPalette';
 import canvaLogo from '@/assets/canva-logo.png';
 
 interface Props {
@@ -43,11 +45,15 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   const coverInput = useRef<HTMLInputElement>(null);
   const logoInput = useRef<HTMLInputElement>(null);
   const bgInput = useRef<HTMLInputElement>(null);
+  const [hexDraft, setHexDraft] = useState<string>(meta.background_color || DEFAULT_BG_COLOR);
+  const [hexError, setHexError] = useState<string | null>(null);
 
   useEffect(() => {
     setBg(meta.background_style || 'cream');
     setBgMode(meta.background_mode || 'preset');
     setBgColor(meta.background_color || DEFAULT_BG_COLOR);
+    setHexDraft(meta.background_color || DEFAULT_BG_COLOR);
+    setHexError(null);
     setBgImageUrl(meta.background_image_url || null);
     setCoverUrl(meta.cover_image_url || null);
     setLogoUrl(meta.logo_image_url || null);
@@ -126,6 +132,8 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   const handleReset = () => {
     setBg('cream');
     setBgMode('preset');
+    setHexDraft(DEFAULT_BG_COLOR);
+    setHexError(null);
     setBgColor(DEFAULT_BG_COLOR);
     setBgImageUrl(null);
     setCoverUrl(null);
