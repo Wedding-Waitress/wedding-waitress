@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { guestbookRecordingFilename } from '@/lib/audioGuestbookFilename';
+import { photoBoothFilename } from '@/lib/photoBoothFilename';
 
 type ZipScope = 'all' | 'approved' | 'photos' | 'videos';
 
@@ -34,7 +35,9 @@ function entryNameFor(item: GalleryItem, used: Set<string>, eventName?: string |
       : 'photos';
 
   // Shared photos and shared videos use the customer-friendly "00001-Event-Name.ext" scheme.
-  const shared = sharedMediaFilename(item as any, eventName) || guestbookRecordingFilename(item as any, eventName);
+  const shared = sharedMediaFilename(item as any, eventName)
+    || guestbookRecordingFilename(item as any, eventName)
+    || photoBoothFilename(item as any, eventName);
   if (shared) {
     let name = `${folder}/${shared}`;
     let i = 2;

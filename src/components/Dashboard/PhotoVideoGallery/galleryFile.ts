@@ -2,6 +2,7 @@
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { guestbookRecordingFilename } from '@/lib/audioGuestbookFilename';
+import { photoBoothFilename } from '@/lib/photoBoothFilename';
 
 export async function downloadSignedUrl(url: string, filenameHint: string) {
   try {
@@ -28,6 +29,10 @@ export function filenameFor(item: GalleryItem, eventName?: string | null): strin
   // Private Audio Guestbook recordings use "00001-Event-Name-Audio.ext".
   const recording = guestbookRecordingFilename(item as any, eventName);
   if (recording) return recording;
+
+  // Digital Photo Booth captures + strips use "00001-Event-Name-Photo-Booth.ext".
+  const booth = photoBoothFilename(item as any, eventName);
+  if (booth) return booth;
 
   const ext = (item.storage_path.split('.').pop() || (item.kind === 'video' ? 'mp4' : 'jpg')).split('?')[0];
   const who = (item.uploader_name || 'guest').replace(/[^a-z0-9-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'guest';
