@@ -49,19 +49,8 @@ export const GalleryGuestbookCard: React.FC<{
       </div>
 
 
-      {/* Text messages */}
-      <div className="rounded-lg border border-border p-3 flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-start gap-2">
-          <PenLine className="h-4 w-4 mt-0.5 text-[#967A59]" />
-          <div>
-            <p className="text-sm font-medium text-[#1D1D1F]">Text messages</p>
-            <p className="text-xs text-[#6E6E73]">Always available while the gallery is open.</p>
-          </div>
-        </div>
-        <span className="text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-full px-2.5 py-1">
-          Enabled
-        </span>
-      </div>
+
+
 
       {/* Voice messages */}
       <div className="rounded-lg border border-border p-3 space-y-3">
