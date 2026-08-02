@@ -30,6 +30,7 @@ interface LiveMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  slideshow_enabled: boolean;
   settings: SlideshowSettings;
 }
 
@@ -164,6 +165,7 @@ const GalleryLiveView: React.FC = () => {
           logo_image_url: row.logo_image_url ?? null,
           show_branding: row.show_branding !== false,
           settings: slideshowSettingsFromRow(row),
+          slideshow_enabled: row.slideshow_enabled !== false,
         });
         // Only fetch items if no password gate, or already unlocked from sessionStorage.
         if (!passwordRequired || passwordRef.current) {
@@ -302,6 +304,22 @@ const GalleryLiveView: React.FC = () => {
       />
     );
   }
+
+  // Saved direct link to a slideshow the host has switched off.
+  if (isSlideshow && meta && !meta.slideshow_enabled) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0B] px-6 text-center">
+        <div className="max-w-md">
+          <h1 className="text-white text-2xl md:text-3xl font-light">Live Slideshow unavailable</h1>
+          <p className="text-white/70 text-sm md:text-base mt-3">
+            The host has turned off the Live Slideshow for this event.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-[#0A0A0B] text-white">

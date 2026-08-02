@@ -102,7 +102,9 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
             key={current.id}
             src={current.signed_url}
             alt={current.caption || 'Guest photo'}
-            className={`max-w-full max-h-full object-contain ${transitionClass}`}
+            loading="lazy"
+            decoding="async"
+            className={`absolute inset-0 w-full h-full object-contain ${transitionClass}`}
           />
         ) : (
           <video
@@ -111,9 +113,10 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
             autoPlay={!paused}
             muted
             playsInline
+            preload="metadata"
             onEnded={advance}
             onError={advance}
-            className={`max-w-full max-h-full object-contain ${transitionClass}`}
+            className={`absolute inset-0 w-full h-full object-contain ${transitionClass}`}
           />
         )}
 
