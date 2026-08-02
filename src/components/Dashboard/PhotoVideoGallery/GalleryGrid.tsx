@@ -455,7 +455,7 @@ export const GalleryGrid: React.FC<{
       )}
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-8 text-center">No items in this view.</p>
+        <p className={`text-sm py-8 text-center ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>No items in this view.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
           {filtered.map(it => {
