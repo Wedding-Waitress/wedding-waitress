@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -234,10 +233,10 @@ export const GalleryGrid: React.FC<{
 
   if (items.length === 0) {
     return (
-      <Card className="p-12 text-center">
-        <Camera className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-        <p className="text-muted-foreground">{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
-      </Card>
+      <div className={`p-12 text-center rounded-2xl border ${dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}>
+        <Camera className={`h-12 w-12 mx-auto mb-3 ${dark ? 'text-white/80' : 'text-muted-foreground'}`} />
+        <p className={dark ? 'text-white/80' : 'text-muted-foreground'}>{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
+      </div>
     );
   }
 
@@ -302,7 +301,7 @@ export const GalleryGrid: React.FC<{
   );
 
   return (
-    <Card className={`p-4 sm:p-5 overflow-hidden ${dark ? 'bg-black border-white/15' : ''}`}>
+    <div className={`p-4 sm:p-5 overflow-hidden rounded-2xl border ${dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
@@ -456,7 +455,7 @@ export const GalleryGrid: React.FC<{
       )}
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-8 text-center">No items in this view.</p>
+        <p className={`text-sm py-8 text-center ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>No items in this view.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
           {filtered.map(it => {
@@ -624,8 +623,8 @@ export const GalleryGrid: React.FC<{
             </Button>
           </DialogFooter>
 
-        </DialogContent>
+      </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 };
