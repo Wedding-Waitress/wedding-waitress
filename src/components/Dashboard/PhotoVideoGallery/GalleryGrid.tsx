@@ -25,7 +25,7 @@ type SortMode = 'newest' | 'oldest';
 type AlbumFilter = 'all' | GalleryAlbum;
 
 const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
-  { value: 'all', label: 'All Uploads' },
+  { value: 'all', label: 'All Albums' },
   ...GALLERY_ALBUMS.map(a => ({ value: a as AlbumFilter, label: a })),
 ];
 
@@ -308,13 +308,11 @@ export const GalleryGrid: React.FC<{
           <p className="text-sm mt-1 break-words" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
 
-        {!dark && selectControls}
-
       </div>
 
-      {/* Search + type + sort */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-2 mb-3">
-        <div className="relative">
+      {/* Search + type + sort + select */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
@@ -334,7 +332,7 @@ export const GalleryGrid: React.FC<{
           )}
         </div>
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
-          <SelectTrigger className="h-9 md:w-[140px] bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full sm:w-[140px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All media</SelectItem>
             <SelectItem value="photos">Photos</SelectItem>
@@ -342,16 +340,17 @@ export const GalleryGrid: React.FC<{
           </SelectContent>
         </Select>
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="h-9 md:w-[150px] bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full sm:w-[150px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
+        <div className="shrink-0">{selectControls}</div>
       </div>
 
       {/* Album + moderation filter pills in one row */}
-      <div className="flex gap-2 flex-wrap mb-4 items-center">
+      <div className="flex gap-2 flex-wrap mb-5 items-center">
         <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
         <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
         {ALBUM_FILTERS.map(a => {
@@ -370,10 +369,9 @@ export const GalleryGrid: React.FC<{
           );
         })}
         <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
-        <FilterBtn value="all" label="All" count={counts.all} />
+        <FilterBtn value="all" label="All Statuses" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
-        {dark && <div className="ml-auto">{selectControls}</div>}
       </div>
 
 
