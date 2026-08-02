@@ -336,8 +336,8 @@ export const GalleryGrid: React.FC<{
 
       {/* Album + moderation filter pills in one row */}
       <div className="flex gap-2 flex-wrap mb-4 items-center">
-        <FolderOpen className="h-4 w-4 text-[#6E6E73]" />
-        <span className="text-xs text-[#6E6E73] mr-1">Album:</span>
+        <FolderOpen className="h-4 w-4 text-white/70" />
+        <span className="text-xs text-white/70 mr-1">Album:</span>
         {ALBUM_FILTERS.map(a => {
           const active = albumFilter === a.value;
           return (
@@ -346,14 +346,14 @@ export const GalleryGrid: React.FC<{
               type="button"
               onClick={() => setAlbumFilter(a.value)}
               className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
-                active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+                active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
               }`}
             >
               {a.label}
             </button>
           );
         })}
-        <div className="w-px h-5 bg-border mx-1" />
+        <div className="w-px h-5 bg-white/20 mx-1" />
         <FilterBtn value="all" label="All" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
@@ -362,58 +362,58 @@ export const GalleryGrid: React.FC<{
 
 
       {selectMode && (
-        <div className="flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40">
+        <div className="flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-white/10 bg-white/5">
           <div className="flex items-center gap-3 flex-wrap">
             <button
               type="button"
               onClick={selectAllVisible}
-              className="lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white text-[#1D1D1F] border-border hover:bg-muted"
+              className="lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white/10 text-white border-white/20 hover:bg-white/20"
             >
               {allVisibleSelected ? 'Clear visible' : `Select all visible (${visibleIds.length})`}
             </button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-white/70">
               {visibleSelectedCount} selected{selected.size > visibleSelectedCount ? ` (${selected.size - visibleSelectedCount} hidden by filters)` : ''}
             </span>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button
-              className="lv-premium-shade"
+              className="lv-premium-shade !bg-black !text-white !border-white/20 hover:!bg-white/10"
               variant="outline"
               size="sm"
               disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={() => bulkSetModeration('approved')}
             >
-              <Eye className="h-4 w-4 mr-1 text-green-600" /> Approve
+              <Eye className="h-4 w-4 mr-1 text-white" /> Approve
             </Button>
             <Button
-              className="lv-premium-shade"
+              className="lv-premium-shade !bg-black !text-white !border-white/20 hover:!bg-white/10"
               variant="outline"
               size="sm"
               disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={() => bulkSetModeration('hidden')}
             >
-              <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
+              <EyeOff className="h-4 w-4 mr-1 text-white" /> Hide
             </Button>
             <Select
               disabled={bulkBusy || visibleSelectedCount === 0}
               value=""
               onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
             >
-              <SelectTrigger className="lv-premium-shade h-9 w-[170px] bg-white">
+              <SelectTrigger className="lv-premium-shade h-9 w-[170px] !bg-black !text-white !border-white/30">
                 <span className="flex items-center text-sm">
-                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59]" /> Move to album…
+                  <FolderOpen className="h-4 w-4 mr-1 text-white/70" /> Move to album…
                 </span>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="!bg-black !border-white/20 text-white">
                 {GALLERY_ALBUMS.map(a => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
+                  <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" key={a} value={a}>{a}</SelectItem>
                 ))}
-                <SelectItem value="__none__">No album</SelectItem>
+                <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="__none__">No album</SelectItem>
               </SelectContent>
             </Select>
 
             <Button
-              className="lv-premium-shade"
+              className="lv-premium-shade !bg-black !text-white !border-white/20 hover:!bg-white/10"
               variant="outline"
               size="sm"
               disabled={bulkBusy || visibleSelectedCount === 0}
@@ -435,7 +435,7 @@ export const GalleryGrid: React.FC<{
       )}
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-8 text-center">No items in this view.</p>
+        <p className="text-sm text-white/70 py-8 text-center">No items in this view.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
           {filtered.map(it => {
@@ -451,13 +451,14 @@ export const GalleryGrid: React.FC<{
             return (
               <div
                 key={it.id}
-                className={`relative group rounded-lg overflow-hidden border bg-white flex flex-col ${
-                  isSelected ? 'border-[#967A59] ring-2 ring-[#967A59]' : 'border-border'
+                className={`relative group rounded-lg overflow-hidden border bg-black flex flex-col ${
+                  isSelected ? 'border-[#967A59] ring-2 ring-[#967A59]' : 'border-white/20'
                 } ${isHidden ? 'opacity-60' : ''}`}
               >
                 {/* Square 1:1 thumbnail */}
                 <div className="relative w-full aspect-square overflow-hidden">
                   <MediaThumb
+                    dark
                     item={it}
                     onOpen={() => {
                       if (selectMode) { toggleOne(it.id); return; }
@@ -497,7 +498,7 @@ export const GalleryGrid: React.FC<{
                       {it.signed_url && (
                         <button
                           onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
-                          className="bg-white/90 rounded-md p-1 hover:bg-white"
+                          className="bg-white/10 rounded-md p-1 hover:bg-white/20 text-white"
                           title="Open in new tab"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
@@ -506,7 +507,7 @@ export const GalleryGrid: React.FC<{
                       {it.signed_url && (
                         <button
                           onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it))}
-                          className="bg-white/90 rounded-md p-1 hover:bg-white"
+                          className="bg-white/10 rounded-md p-1 hover:bg-white/20 text-white"
                           title="Download"
                         >
                           <Download className="h-3.5 w-3.5" />
@@ -514,14 +515,14 @@ export const GalleryGrid: React.FC<{
                       )}
                       <button
                         onClick={() => toggleModeration(it)}
-                        className="bg-white/90 rounded-md p-1 hover:bg-white"
+                        className="bg-white/10 rounded-md p-1 hover:bg-white/20 text-white"
                         title={isHidden ? 'Approve / show again' : 'Hide from guests'}
                       >
-                        {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
+                        {isHidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                       </button>
                       <button
                         onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
-                        className="bg-white/90 rounded-md p-1 hover:bg-white text-red-600"
+                        className="bg-white/10 rounded-md p-1 hover:bg-white/20 text-red-400"
                         title="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -540,28 +541,28 @@ export const GalleryGrid: React.FC<{
 
 
                 {/* Meta strip */}
-                <div className="px-1.5 py-1.5 border-t border-border text-[11px]">
-                  <div className="font-medium text-[#1D1D1F] truncate" title={it.uploader_name || 'Anonymous guest'}>
+                <div className="px-1.5 py-1.5 border-t border-white/10 bg-black text-[11px]">
+                  <div className="font-medium text-white truncate" title={it.uploader_name || 'Anonymous guest'}>
                     {it.uploader_name || 'Anonymous guest'}
                   </div>
                   {it.caption && (
-                    <div className="text-muted-foreground truncate" title={it.caption}>{it.caption}</div>
+                    <div className="text-white/70 truncate" title={it.caption}>{it.caption}</div>
                   )}
                   <div className="mt-1">
                     <Select
                       value={it.album ?? '__none__'}
                       onValueChange={(v) => moveSingleToAlbum(it.id, v === '__none__' ? null : (v as GalleryAlbum))}
                     >
-                      <SelectTrigger className="h-7 text-[10px] px-1.5 bg-white" onClick={(e) => e.stopPropagation()}>
+                      <SelectTrigger className="h-7 text-[10px] px-1.5 !bg-black !text-white !border-white/20" onClick={(e) => e.stopPropagation()}>
                         <span className="flex items-center gap-1 truncate">
-                          <FolderOpen className="h-3 w-3 text-[#967A59] shrink-0" />
+                          <FolderOpen className="h-3 w-3 text-white/70 shrink-0" />
                           <span className="truncate">{it.album ?? 'No album'}</span>
                         </span>
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">No album</SelectItem>
+                      <SelectContent className="!bg-black !border-white/20 text-white">
+                        <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="__none__">No album</SelectItem>
                         {GALLERY_ALBUMS.map(a => (
-                          <SelectItem key={a} value={a}>{a}</SelectItem>
+                          <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" key={a} value={a}>{a}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
