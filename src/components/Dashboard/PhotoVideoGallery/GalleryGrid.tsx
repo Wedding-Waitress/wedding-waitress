@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen } from 'lucide-react';
+import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
 import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
