@@ -7,6 +7,7 @@ import { Download, Loader2, FileArchive, AlertTriangle } from 'lucide-react';
 import JSZip from 'jszip';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
+import { publicGalleryItems } from '@/lib/mediaPrivacy';
 
 type ZipScope = 'all' | 'approved' | 'photos' | 'videos';
 
@@ -77,8 +78,17 @@ export const GalleryDownloadsCard: React.FC<{
   description?: string;
   filePrefix?: string;
   emptyText?: string;
-}> = ({ items, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText }) => {
+  /**
+   * Privacy scope. 'public' (default) hard-strips private Guestbook content from every ZIP.
+   * Only the organiser-only Guestbook workspaces may pass 'guestbook'.
+   */
+  privacyScope?: 'public' | 'guestbook';
+}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public' }) => {
   const { toast } = useToast();
+  const items = useMemo(
+    () => (privacyScope === 'guestbook' ? itemsProp : publicGalleryItems(itemsProp)),
+    [itemsProp, privacyScope],
+  );
   const [busy, setBusy] = useState<ZipScope | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
   const [zipPct, setZipPct] = useState(0);

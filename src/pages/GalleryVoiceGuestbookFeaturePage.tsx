@@ -122,6 +122,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
             />
 
             <GalleryDownloadsCard
+              privacyScope="guestbook"
               items={recordings}
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
