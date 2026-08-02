@@ -917,6 +917,7 @@ export type Database = {
           like_count: number
           mime_type: string
           moderation_status: string
+          share_photo_seq: number | null
           source_category: string
           storage_path: string
           upload_status: Database["public"]["Enums"]["event_media_upload_status"]
@@ -944,6 +945,7 @@ export type Database = {
           like_count?: number
           mime_type: string
           moderation_status?: string
+          share_photo_seq?: number | null
           source_category?: string
           storage_path: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
@@ -971,6 +973,7 @@ export type Database = {
           like_count?: number
           mime_type?: string
           moderation_status?: string
+          share_photo_seq?: number | null
           source_category?: string
           storage_path?: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
@@ -4523,6 +4526,7 @@ export type Database = {
           like_count: number
           mime_type: string
           moderation_status: string
+          share_photo_seq: number
           source_category: string
           storage_path: string
           uploaded_at: string
@@ -4539,6 +4543,8 @@ export type Database = {
           kind: Database["public"]["Enums"]["event_media_kind"]
           like_count: number
           mime_type: string
+          share_photo_seq: number
+          source_category: string
           storage_path: string
           uploaded_at: string
           uploader_name: string
