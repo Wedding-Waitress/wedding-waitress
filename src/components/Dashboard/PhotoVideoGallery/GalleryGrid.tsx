@@ -231,7 +231,7 @@ export const GalleryGrid: React.FC<{
     return (
       <Card className="p-12 text-center">
         <Camera className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-        <p className="text-muted-foreground">No uploads yet — share the QR code with your guests.</p>
+        <p className="text-muted-foreground">{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
       </Card>
     );
   }
