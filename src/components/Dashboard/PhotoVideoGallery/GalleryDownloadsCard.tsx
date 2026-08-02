@@ -165,15 +165,15 @@ export const GalleryDownloadsCard: React.FC<{
     }
   };
 
-  const scopes: ZipScope[] = ['all', 'approved', 'photos', 'videos'];
+  const scopes: ZipScope[] = scopesProp ?? ['all', 'approved', 'photos', 'videos'];
 
   return (
     <Card className="p-4 space-y-4 overflow-hidden">
       <div className="flex items-start gap-2">
         <FileArchive className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
-          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Download as ZIP</h3>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Bundle uploaded media into a single ZIP file.</p>
+          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>{title || 'Download as ZIP'}</h3>
+          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
         </div>
       </div>
 
