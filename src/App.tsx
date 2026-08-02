@@ -140,6 +140,8 @@ const App = () => (
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<GalleryUploadFeaturePage />} />
+
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
           {/* Running Sheet is now a dashboard tab, no standalone route */}
