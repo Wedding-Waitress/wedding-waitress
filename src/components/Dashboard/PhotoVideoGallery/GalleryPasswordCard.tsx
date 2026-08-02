@@ -39,10 +39,16 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
     setSaving(true);
     try {
       await onSave({ enabled, password: pw.length > 0 ? pw : null });
-      toast({ title: enabled ? 'Password protection saved' : 'Password protection turned off' });
+      toast({ title: enabled ? 'Gallery password saved successfully.' : 'Password protection turned off' });
       setPw('');
     } catch (e: any) {
-      toast({ title: 'Could not save', description: e?.message || 'Please try again.', variant: 'destructive' });
+      // Never surface raw Postgres errors to the organiser.
+      const msg = /unauthorized/i.test(e?.message || '')
+        ? "You don't have permission to change this event's gallery password."
+        : /at least 4/i.test(e?.message || '')
+          ? 'Password must be at least 4 characters.'
+          : 'We could not save your password. Please try again.';
+      toast({ title: 'Could not save', description: msg, variant: 'destructive' });
     } finally {
       setSaving(false);
     }
