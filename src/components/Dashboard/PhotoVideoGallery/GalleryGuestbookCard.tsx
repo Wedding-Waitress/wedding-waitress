@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, Copy, ExternalLink, MessageCircle, PenLine } from 'lucide-react';
+import { Mic, Copy, ExternalLink, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestbookUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
