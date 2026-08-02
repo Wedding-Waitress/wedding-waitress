@@ -545,7 +545,7 @@ export const GuestMediaUpload: React.FC = () => {
 
           {tabs.map(tab => {
             const active = current === tab;
-            const cls = `h-11 rounded-full text-sm font-medium transition-colors px-2 truncate ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
+            const cls = `h-11 sm:flex-1 min-w-0 rounded-full text-sm font-medium transition-colors px-2 truncate ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
             if (tab === 'booth') {
               return (
                 <a key={tab} href={boothHref} className={`${cls} flex items-center justify-center`}>
