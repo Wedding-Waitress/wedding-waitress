@@ -1,4 +1,4 @@
-// Feature workspace: Upload Photos & Videos (stage 1 — layout foundation).
+// Feature workspace: Photo & Video Sharing (stage 1 — layout foundation).
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,10 +62,10 @@ export const GalleryUploadFeaturePage: React.FC = () => {
 
   return (
     <>
-      <SeoHead title="Upload Photos & Videos | Wedding Waitress" description="Manage the photos and videos uploaded by your guests." noIndex />
+      <SeoHead title="Photo & Video Sharing | Wedding Waitress" description="Manage the photos and videos shared by your guests." noIndex />
       <FeatureWorkspaceLayout
-        title="Upload Photos & Videos"
-        description="Manage the photos and videos uploaded by your guests."
+        title="Photo & Video Sharing"
+        description="Manage the photos and videos shared by your guests."
         eventName={(selectedEvent as any)?.name}
         enabled={!!meta?.guest_upload_enabled}
         toggleDisabled={saving || loading || !meta}
@@ -81,7 +81,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
           <Card className="p-10 flex flex-col items-center text-center gap-3">
             <AlertTriangle className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Gallery page to manage guest uploads.'}
+              {error || 'Select an event on the Photo & Video Gallery page to manage photo & video sharing.'}
             </p>
           </Card>
         ) : (
@@ -97,6 +97,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
               onSetModeration={setModeration}
               onSetAlbum={setAlbum}
               onBulkSetAlbum={bulkSetAlbum}
+              title="Shared Photos & Videos"
             />
 
             <GalleryDownloadsCard

@@ -1,4 +1,4 @@
-// Voice Guestbook Access — QR code + public guestbook link (voice-message workspace).
+// Audio Guestbook Access — QR code + public guestbook link (voice-message workspace).
 // Reuses the existing event gallery token and the guest-facing recording route.
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
@@ -30,7 +30,7 @@ export const GalleryVoiceGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = 
   const copy = async () => {
     if (!url) return;
     await navigator.clipboard.writeText(url);
-    toast({ title: 'Voice Guestbook link copied' });
+    toast({ title: 'Audio Guestbook link copied' });
   };
 
   const downloadQr = () => {
@@ -47,7 +47,7 @@ export const GalleryVoiceGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = 
     <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Voice Guestbook Access
+          <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Audio Guestbook Access
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           Share the QR code or link your guests use to record a voice message for you.
@@ -57,7 +57,7 @@ export const GalleryVoiceGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = 
       <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
         <div className="flex justify-center">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="Voice Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+            <img src={qrDataUrl} alt="Audio Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
           ) : (
             <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
           )}
@@ -67,11 +67,11 @@ export const GalleryVoiceGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = 
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-              <p className="text-sm text-destructive">Guestbook link not ready — please retry.</p>
+              <p className="text-sm text-destructive">Audio Guestbook link not ready — please retry.</p>
             </div>
           ) : (
             <div>
-              <Label className="text-sm">Public Guestbook link</Label>
+              <Label className="text-sm">Public Audio Guestbook link</Label>
               <div className="flex flex-wrap gap-2 mt-1.5">
                 <Input value={url} readOnly className="h-11 text-sm min-w-0 flex-1" />
                 <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
@@ -83,7 +83,7 @@ export const GalleryVoiceGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = 
 
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="lv-premium-shade" onClick={open} disabled={!url}>
-              <ExternalLink className="h-4 w-4 mr-1" /> Open Voice Guestbook
+              <ExternalLink className="h-4 w-4 mr-1" /> Open Audio Guestbook
             </Button>
             <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code

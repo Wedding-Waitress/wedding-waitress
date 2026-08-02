@@ -21,7 +21,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
 
   return (
     <div
-      className="space-y-6 -m-4 p-4 sm:-m-6 sm:p-6 rounded-none overflow-x-hidden"
+      className="space-y-6 -m-4 p-4 pb-8 sm:-m-6 sm:p-6 sm:pb-12 rounded-none overflow-x-hidden min-h-screen"
       style={{ backgroundColor: '#472c1d' }}
     >
       <div className="flex items-start gap-3">

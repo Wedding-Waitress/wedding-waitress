@@ -1,4 +1,4 @@
-// Guestbook Voice Messages — full-width moderation list for guest recordings.
+// Audio & Video Guestbook Messages — full-width moderation list for guest recordings.
 // Reuses existing gallery items (is_guestbook recordings: audio, or video recordings).
 import React, { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
@@ -108,7 +108,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, loading, erro
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
             <Mic className="h-5 w-5 text-[#967A59] shrink-0" />
-            <span className="min-w-0 break-words">Guestbook Voice Messages ({recordings.length})</span>
+            <span className="min-w-0 break-words">Audio & Video Guestbook Messages ({recordings.length})</span>
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
             Listen to, search, approve or hide the recordings your guests have left.

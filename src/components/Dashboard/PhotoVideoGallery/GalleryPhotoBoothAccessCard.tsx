@@ -1,4 +1,4 @@
-// Photo Booth Access — QR code + guest photo-booth link (feature workspace).
+// Digital Photo Booth Access — QR code + guest photo-booth link (feature workspace).
 // Reuses the existing event gallery token and guest-facing /gallery-photobooth route.
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
@@ -26,7 +26,7 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
   const copy = async () => {
     if (!boothUrl) return;
     await navigator.clipboard.writeText(boothUrl);
-    toast({ title: 'Photo Booth link copied' });
+    toast({ title: 'Digital Photo Booth link copied' });
   };
 
   const downloadQr = () => {
@@ -45,17 +45,17 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
     <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Booth Access
+          <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Digital Photo Booth Access
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
-          Share the QR code or link guests use to open the Photo Booth on their phone or tablet.
+          Share the QR code or link guests use to open the Digital Photo Booth on their phone or tablet.
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
         <div className="flex justify-center">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="Photo Booth QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+            <img src={qrDataUrl} alt="Digital Photo Booth QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
           ) : (
             <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
           )}
@@ -65,11 +65,11 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-              <p className="text-sm text-destructive">Photo Booth link not ready — please retry.</p>
+              <p className="text-sm text-destructive">Digital Photo Booth link not ready — please retry.</p>
             </div>
           ) : (
             <div>
-              <Label className="text-sm">Event Photo Booth link</Label>
+              <Label className="text-sm">Event Digital Photo Booth Link</Label>
               <div className="flex flex-wrap gap-2 mt-1.5">
                 <Input value={boothUrl} readOnly className="h-11 text-sm min-w-0 flex-1" />
                 <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
@@ -81,7 +81,7 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
 
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="lv-premium-shade" onClick={launch} disabled={!boothUrl}>
-              <Camera className="h-4 w-4 mr-1" /> Launch Photo Booth
+              <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
             </Button>
             <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code

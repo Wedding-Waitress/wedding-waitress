@@ -1,10 +1,10 @@
-// How the Voice Guestbook works — 3 simple visual steps.
+// How the Audio Guestbook works — 3 simple visual steps.
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { QrCode, Mic, CheckCircle2, HelpCircle } from 'lucide-react';
 
 const STEPS = [
-  { icon: QrCode, title: 'Open the Guestbook', text: 'Guests open the Guestbook using the link or QR code.' },
+  { icon: QrCode, title: 'Open the Audio Guestbook', text: 'Guests open the Audio Guestbook using the link or QR code.' },
   { icon: Mic, title: 'Record a message', text: 'They allow microphone access and record their message.' },
   { icon: CheckCircle2, title: 'Review the recording', text: 'Their recording appears here for the event organiser to review.' },
 ];
@@ -13,7 +13,7 @@ export const GalleryVoiceGuestbookStepsCard: React.FC = () => (
   <Card className="h-full p-5 sm:p-6 space-y-5 overflow-hidden">
     <div className="min-w-0">
       <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-        <HelpCircle className="h-5 w-5 text-[#967A59] shrink-0" /> How the Voice Guestbook Works
+        <HelpCircle className="h-5 w-5 text-[#967A59] shrink-0" /> How the Audio Guestbook Works
       </h2>
       <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
         Three simple steps from QR code to a recording you can keep forever.

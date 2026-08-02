@@ -1,4 +1,4 @@
-// Photo Booth template settings — bottom text, optional logo, optional template artwork
+// Digital Photo Booth template settings — bottom text, optional logo, optional template artwork
 // for both Single Photo and Photo Strip modes.
 import React, { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
@@ -34,7 +34,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     <Card className="p-5 space-y-5">
       <div>
         <h2 className="text-lg font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <FileImage className="h-5 w-5 text-[#967A59]" /> Photo Booth templates
+          <FileImage className="h-5 w-5 text-[#967A59]" /> Digital Photo Booth Templates
         </h2>
         <p className="text-sm text-muted-foreground">
           Customise the final image guests receive — add bottom text, a small logo, or upload your own JPEG template artwork.
