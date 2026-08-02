@@ -363,7 +363,13 @@ const GalleryLiveView: React.FC = () => {
               key={current.id}
               src={current.signed_url}
               alt={current.caption || 'Guest photo'}
-              className="absolute max-w-full max-h-full object-contain animate-in fade-in duration-1000"
+              className={`absolute max-w-full max-h-full object-contain ${
+                settings.transition === 'none'
+                  ? ''
+                  : settings.transition === 'slide'
+                    ? 'animate-in slide-in-from-right-10 fade-in duration-700'
+                    : 'animate-in fade-in duration-1000'
+              }`}
             />
           ) : (
             <video
@@ -375,7 +381,13 @@ const GalleryLiveView: React.FC = () => {
               muted
               onEnded={advance}
               onError={advance}
-              className="absolute max-w-full max-h-full object-contain animate-in fade-in duration-700"
+              className={`absolute max-w-full max-h-full object-contain ${
+                settings.transition === 'none'
+                  ? ''
+                  : settings.transition === 'slide'
+                    ? 'animate-in slide-in-from-right-10 fade-in duration-700'
+                    : 'animate-in fade-in duration-700'
+              }`}
             />
           )
         )}
