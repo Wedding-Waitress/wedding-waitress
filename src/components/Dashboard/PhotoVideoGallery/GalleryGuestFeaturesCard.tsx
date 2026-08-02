@@ -68,7 +68,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
               <p className="text-xs md:text-sm lg:text-base mt-2 leading-relaxed text-white/90">{f.desc}</p>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-lg md:text-xl font-bold" style={{ color: f.checked ? '#22c55e' : '#ef4444' }}>{f.checked ? 'On' : 'Off'}</span>
+              <span className="text-lg md:text-xl font-bold text-white">{f.checked ? 'On' : 'Off'}</span>
               <Switch
                 checked={f.checked}
                 disabled={busy === f.key}
