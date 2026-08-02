@@ -77,7 +77,7 @@ export const GalleryPasswordGate: React.FC<Props> = ({ token, title, onVerified,
   const accentHover = t.themeColorHover;
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 ${t.bgClass} ${t.textClass}`}>
+    <div className={`min-h-screen flex items-center justify-center px-4 ${t.bgClass} ${t.textClass}`} style={t.pageStyle}>
       <Card className={`p-8 max-w-md w-full ${t.surfaceClass}`}>
         {t.showBranding === false ? null : t.logoImageUrl ? (
           <img src={t.logoImageUrl} alt="" className="mx-auto max-h-12 mb-3 object-contain" />

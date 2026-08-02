@@ -275,11 +275,11 @@ export const GuestMediaUpload: React.FC = () => {
 
 
   if (loading) {
-    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
         <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h1 className="text-xl font-semibold mb-2">Gallery link not found</h1>
@@ -300,7 +300,7 @@ export const GuestMediaUpload: React.FC = () => {
   }
   if (!gallery.is_open) {
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
         <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <Camera className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
@@ -322,7 +322,7 @@ export const GuestMediaUpload: React.FC = () => {
     const greeting = firstName ? `Thank you, ${firstName}!` : 'Thank you!';
     const fileWord = (n: number) => (n === 1 ? 'file' : 'files');
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden ${theme.bgStyle === 'cream' ? 'bg-gradient-to-b from-[#F8F5F0] via-[#F4EEE4] to-[#EFE6D6]' : theme.bgClass} ${theme.textClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden ${theme.bgMode === 'preset' && theme.bgStyle === 'cream' ? 'bg-gradient-to-b from-[#F8F5F0] via-[#F4EEE4] to-[#EFE6D6]' : theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
         <SeoHead title={`${gallery.event_name} — Thank you for sharing`} description="Your memories have been shared with the couple." />
         <Card className={`p-7 sm:p-8 max-w-md w-full text-center backdrop-blur-sm ${theme.isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-[#E8E1D6]'} ${theme.textClass}`}>
           {theme.logoImageUrl && (
@@ -408,7 +408,7 @@ export const GuestMediaUpload: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
+    <div className={`min-h-screen overflow-x-hidden ${theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
       <SeoHead title={`${gallery.event_name} — Share your photos & videos`} description="Upload photos and short videos to the wedding gallery." />
 
       {/* ---------- HERO ---------- */}
