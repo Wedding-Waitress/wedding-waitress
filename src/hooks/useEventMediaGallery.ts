@@ -105,6 +105,8 @@ export interface GalleryItem {
   share_video_seq?: number | null;
   /** Permanent per-event Audio Guestbook recording number (private recordings only). */
   guestbook_recording_seq?: number | null;
+  /** Permanent per-event Digital Photo Booth number (booth captures + strips). */
+  photo_booth_seq?: number | null;
   like_count?: number;
   signed_url?: string;
 }
