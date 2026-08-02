@@ -224,7 +224,7 @@ export const GalleryDownloadsCard: React.FC<{
       {!busy && counts.all === 0 && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <AlertTriangle className="h-3.5 w-3.5" />
-          No uploaded media yet — ZIP downloads will activate once guests upload.
+          {emptyText || 'No uploaded media yet — ZIP downloads will activate once guests upload.'}
         </div>
       )}
     </Card>
