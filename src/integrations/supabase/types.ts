@@ -772,6 +772,9 @@ export type Database = {
           created_at: string
           event_id: string
           gallery_title: string | null
+          gallery_view_enabled: boolean
+          guest_upload_enabled: boolean
+          guestbook_text_enabled: boolean
           id: string
           is_open: boolean
           logo_image_url: string | null
@@ -801,6 +804,9 @@ export type Database = {
           created_at?: string
           event_id: string
           gallery_title?: string | null
+          gallery_view_enabled?: boolean
+          guest_upload_enabled?: boolean
+          guestbook_text_enabled?: boolean
           id?: string
           is_open?: boolean
           logo_image_url?: string | null
@@ -830,6 +836,9 @@ export type Database = {
           created_at?: string
           event_id?: string
           gallery_title?: string | null
+          gallery_view_enabled?: boolean
+          guest_upload_enabled?: boolean
+          guestbook_text_enabled?: boolean
           id?: string
           is_open?: boolean
           logo_image_url?: string | null
@@ -4368,6 +4377,9 @@ export type Database = {
           cover_image_url: string
           gallery_id: string
           gallery_title: string
+          gallery_view_enabled: boolean
+          guest_upload_enabled: boolean
+          guestbook_text_enabled: boolean
           has_password: boolean
           is_open: boolean
           logo_image_url: string
@@ -4408,6 +4420,9 @@ export type Database = {
           event_name: string
           gallery_id: string
           gallery_title: string
+          gallery_view_enabled: boolean
+          guest_upload_enabled: boolean
+          guestbook_text_enabled: boolean
           is_open: boolean
           logo_image_url: string
           max_photo_bytes: number
@@ -4887,6 +4902,10 @@ export type Database = {
       set_event_media_gallery_open: {
         Args: { _event_id: string; _is_open: boolean }
         Returns: boolean
+      }
+      set_event_media_guest_feature: {
+        Args: { _enabled: boolean; _event_id: string; _feature: string }
+        Returns: undefined
       }
       set_event_media_moderation: {
         Args: { _item_id: string; _status: string }

@@ -7,6 +7,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GallerySetupCard } from './GallerySetupCard';
+import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 
@@ -27,7 +28,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, setModeration, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setOpen, deleteItem, setModeration, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
 
   return (
     <div
@@ -92,6 +93,16 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
                 </Button>
               </Card>
             )}
+            <GalleryGuestFeaturesCard
+              meta={meta}
+              onToggleUpload={(v) => setGuestFeature('guest_upload_enabled', v)}
+              onToggleGalleryView={(v) => setGuestFeature('gallery_view_enabled', v)}
+              onToggleGuestbookText={(v) => setGuestFeature('guestbook_text_enabled', v)}
+              onToggleVoice={setVoiceGuestbookEnabled}
+              onTogglePhotoBooth={setPhotoBoothEnabled}
+              onToggleSlideshow={setSlideshowEnabled}
+            />
+
             <Section title="Guest access" subtitle="The QR code and link your guests use.">
               <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
             </Section>

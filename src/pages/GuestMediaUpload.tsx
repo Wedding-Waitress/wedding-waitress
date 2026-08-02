@@ -61,6 +61,9 @@ interface GalleryPublic {
   logo_image_url: string | null;
   show_branding: boolean;
   video_guestbook_enabled?: boolean;
+  guest_upload_enabled?: boolean;
+  gallery_view_enabled?: boolean;
+  guestbook_text_enabled?: boolean;
 }
 
 interface GalleryUsage {
@@ -476,10 +479,31 @@ export const GuestMediaUpload: React.FC = () => {
 
       {/* ---------- TABS + CONTENT ---------- */}
       <div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={{ backgroundColor: '#000000' }}>
-      <div className={`${activeTab === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
-        <div className="mb-6 grid grid-cols-3 gap-1 rounded-full p-1 bg-black border border-white/25">
-          {(['upload', 'gallery', 'guestbook'] as const).map(tab => {
-            const active = activeTab === tab;
+      {(() => {
+        const uploadOn = gallery.guest_upload_enabled !== false;
+        const galleryOn = gallery.gallery_view_enabled !== false;
+        const textOn = gallery.guestbook_text_enabled !== false;
+        const voiceOn = !!gallery.video_guestbook_enabled;
+        const guestbookOn = textOn || voiceOn;
+        const tabs = ([
+          uploadOn ? 'upload' : null,
+          galleryOn ? 'gallery' : null,
+          guestbookOn ? 'guestbook' : null,
+        ].filter(Boolean)) as ('upload' | 'gallery' | 'guestbook')[];
+        const current = tabs.includes(activeTab) ? activeTab : (tabs[0] ?? null);
+        if (!current) {
+          return (
+            <div className="max-w-md mx-auto text-center text-white/80 py-16">
+              <p>The host has turned off guest features for this gallery.</p>
+            </div>
+          );
+        }
+        return (
+      <div className={`${current === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
+        {tabs.length > 1 && (
+        <div className="mb-6 grid gap-1 rounded-full p-1 bg-black border border-white/25" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+          {tabs.map(tab => {
+            const active = current === tab;
             return (
               <button
                 key={tab}
@@ -492,25 +516,26 @@ export const GuestMediaUpload: React.FC = () => {
             );
           })}
         </div>
+        )}
 
-        {activeTab === 'upload' && (
+        {current === 'upload' && (
           <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white">
             {displayWelcome}
           </p>
         )}
 
 
-        {activeTab === 'gallery' && token && (
+        {current === 'gallery' && token && (
           <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} />
         )}
 
-        {activeTab === 'guestbook' && token && (
-          <GuestGuestbookTab token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={!!gallery?.video_guestbook_enabled} />
+        {current === 'guestbook' && token && (
+          <GuestGuestbookTab token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={voiceOn} textEnabled={textOn} />
         )}
 
 
 
-        {activeTab === 'upload' && (
+        {current === 'upload' && (
         <Card className="p-6 sm:p-7 space-y-7 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white/95">
 
           <div className="space-y-3">
@@ -713,6 +738,8 @@ export const GuestMediaUpload: React.FC = () => {
         {theme.showBranding && <GalleryFooterLogo className="mt-6" />}
 
       </div>
+        );
+      })()}
       </div>
     </div>
   );
