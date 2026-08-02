@@ -332,7 +332,7 @@ export const GalleryGrid: React.FC<{
           )}
         </div>
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
-          <SelectTrigger className="h-9 md:w-[140px] bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full sm:w-[140px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All media</SelectItem>
             <SelectItem value="photos">Photos</SelectItem>
@@ -340,16 +340,17 @@ export const GalleryGrid: React.FC<{
           </SelectContent>
         </Select>
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="h-9 md:w-[150px] bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-9 w-full sm:w-[150px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
+        <div className="shrink-0">{selectControls}</div>
       </div>
 
       {/* Album + moderation filter pills in one row */}
-      <div className="flex gap-2 flex-wrap mb-4 items-center">
+      <div className="flex gap-2 flex-wrap mb-5 items-center">
         <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
         <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
         {ALBUM_FILTERS.map(a => {
@@ -368,10 +369,9 @@ export const GalleryGrid: React.FC<{
           );
         })}
         <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
-        <FilterBtn value="all" label="All" count={counts.all} />
+        <FilterBtn value="all" label="All Statuses" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
-        {dark && <div className="ml-auto">{selectControls}</div>}
       </div>
 
 
