@@ -70,11 +70,20 @@ export const GalleryDownloadsCard: React.FC<{
   items: GalleryItem[];
   eventName?: string | null;
   galleryTitle?: string | null;
-}> = ({ items, eventName, galleryTitle }) => {
+  /** Optional overrides used by feature workspaces (e.g. Photo Booth). */
+  scopes?: ZipScope[];
+  labels?: Partial<Record<ZipScope, string>>;
+  title?: string;
+  description?: string;
+  filePrefix?: string;
+  emptyText?: string;
+}> = ({ items, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState<ZipScope | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
   const [zipPct, setZipPct] = useState(0);
+
+  const labelFor = (s: ZipScope) => labels?.[s] || SCOPE_LABEL[s];
 
   const counts = useMemo(() => ({
     all: filterFor('all', items).length,
@@ -85,8 +94,8 @@ export const GalleryDownloadsCard: React.FC<{
 
   const prefix = useMemo(() => {
     const base = slugify(galleryTitle || eventName, 'wedding') || 'wedding';
-    return `${base}-gallery`;
-  }, [galleryTitle, eventName]);
+    return `${base}-${filePrefix || 'gallery'}`;
+  }, [galleryTitle, eventName, filePrefix]);
 
   const buildZip = async (scope: ZipScope) => {
     if (busy) return;
@@ -156,15 +165,15 @@ export const GalleryDownloadsCard: React.FC<{
     }
   };
 
-  const scopes: ZipScope[] = ['all', 'approved', 'photos', 'videos'];
+  const scopes: ZipScope[] = scopesProp ?? ['all', 'approved', 'photos', 'videos'];
 
   return (
     <Card className="p-4 space-y-4 overflow-hidden">
       <div className="flex items-start gap-2">
         <FileArchive className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
-          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Download as ZIP</h3>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Bundle uploaded media into a single ZIP file.</p>
+          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>{title || 'Download as ZIP'}</h3>
+          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
         </div>
       </div>
 
@@ -184,7 +193,7 @@ export const GalleryDownloadsCard: React.FC<{
             >
               <span className="flex items-center min-w-0">
                 {isBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
-                <span className="truncate">{SCOPE_LABEL[scope]}</span>
+                <span className="truncate">{labelFor(scope)}</span>
               </span>
               <span className="text-xs text-muted-foreground shrink-0">{count}</span>
             </Button>
@@ -197,7 +206,7 @@ export const GalleryDownloadsCard: React.FC<{
         <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Preparing {SCOPE_LABEL[busy].replace('Download ', '').toLowerCase()} ZIP…
+              Preparing {labelFor(busy).replace('Download ', '').toLowerCase()} ZIP…
               {progress.total > 0 && ` (${progress.done}/${progress.total} files)`}
             </span>
             <span>{zipPct > 0 ? `${zipPct}%` : ''}</span>
@@ -215,7 +224,7 @@ export const GalleryDownloadsCard: React.FC<{
       {!busy && counts.all === 0 && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <AlertTriangle className="h-3.5 w-3.5" />
-          No uploaded media yet — ZIP downloads will activate once guests upload.
+          {emptyText || 'No uploaded media yet — ZIP downloads will activate once guests upload.'}
         </div>
       )}
     </Card>

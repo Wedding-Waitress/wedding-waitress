@@ -36,7 +36,11 @@ export const GalleryGrid: React.FC<{
   onSetModeration: (id: string, status: 'approved' | 'hidden') => Promise<void>;
   onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
   onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
-}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum }) => {
+  /** Optional heading overrides (used by feature workspaces such as Photo Booth). */
+  title?: string;
+  description?: string;
+  emptyText?: string;
+}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText }) => {
   const [lightboxId, setLightboxId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
@@ -227,7 +231,7 @@ export const GalleryGrid: React.FC<{
     return (
       <Card className="p-12 text-center">
         <Camera className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-        <p className="text-muted-foreground">No uploads yet — share the QR code with your guests.</p>
+        <p className="text-muted-foreground">{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
       </Card>
     );
   }
@@ -250,8 +254,8 @@ export const GalleryGrid: React.FC<{
     <Card className="p-4 sm:p-5 overflow-hidden">
       <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div className="min-w-0">
-          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> Guest Uploads ({items.length})</h2>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Review, organise, approve, hide and download guest photos, videos and messages.</p>
+          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
+          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
 
         <div className="flex gap-2 flex-wrap items-center">

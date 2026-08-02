@@ -9,8 +9,6 @@ import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
 import { GalleryGuestbookCard } from './GalleryGuestbookCard';
-import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
-import { GalleryPhotoBoothTemplatesCard } from './GalleryPhotoBoothTemplatesCard';
 import { GallerySlideshowCard } from './GallerySlideshowCard';
 import { GuestbookMessagesList } from './GuestbookMessagesList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
@@ -100,16 +98,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
 
             <div className="space-y-4">
               <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
-              <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
-              {meta.photo_booth_enabled && (
-                <GalleryPhotoBoothTemplatesCard
-                  eventId={selectedEventId}
-                  meta={meta}
-                  eventName={events.find(e => e.id === selectedEventId)?.name}
-                  eventDate={(events.find(e => e.id === selectedEventId) as any)?.date}
-                  onSave={updatePhotoBoothTemplate}
-                />
-              )}
               <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             </div>
 
