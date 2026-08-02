@@ -155,6 +155,7 @@ const GalleryLiveView: React.FC = () => {
           cover_image_url: row.cover_image_url ?? null,
           logo_image_url: row.logo_image_url ?? null,
           show_branding: row.show_branding !== false,
+          settings: slideshowSettingsFromRow(row),
         });
         // Only fetch items if no password gate, or already unlocked from sessionStorage.
         if (!passwordRequired || passwordRef.current) {
