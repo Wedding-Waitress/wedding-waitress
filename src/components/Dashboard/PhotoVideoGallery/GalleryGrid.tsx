@@ -225,9 +225,9 @@ export const GalleryGrid: React.FC<{
 
   if (items.length === 0) {
     return (
-      <Card className="p-12 text-center">
-        <Camera className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-        <p className="text-muted-foreground">No uploads yet — share the QR code with your guests.</p>
+      <Card className="!bg-black !text-white !border-white/10 p-12 text-center">
+        <Camera className="h-12 w-12 mx-auto mb-3 text-white/50" />
+        <p className="text-white/70">No uploads yet — share the QR code with your guests.</p>
       </Card>
     );
   }
@@ -238,7 +238,7 @@ export const GalleryGrid: React.FC<{
       className={`lv-premium-shade px-3 h-9 rounded-md text-sm border transition-colors ${
         filter === value
           ? 'bg-[#967A59] text-white border-[#967A59]'
-          : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
       }`}
       type="button"
     >
@@ -247,13 +247,13 @@ export const GalleryGrid: React.FC<{
   );
 
   return (
-    <Card className="p-5">
+    <Card className="!bg-black !text-white !border-white/10 p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-        <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({items.length})</h2>
+        <h2 className="text-lg font-semibold text-white">Guest uploads ({items.length})</h2>
         <div className="flex gap-2 flex-wrap items-center">
           {!selectMode ? (
             <Button
-              className="lv-premium-shade"
+              className="lv-premium-shade !bg-black !text-white !border-white/20 hover:!bg-white/10"
               variant="outline"
               size="sm"
               onClick={() => setSelectMode(true)}
@@ -263,7 +263,7 @@ export const GalleryGrid: React.FC<{
           ) : (
             <>
               <Button
-                className="lv-premium-shade"
+                className="lv-premium-shade !bg-black !text-white !border-white/20 hover:!bg-white/10"
                 variant="outline"
                 size="sm"
                 onClick={selectAllVisible}
@@ -283,7 +283,7 @@ export const GalleryGrid: React.FC<{
                 </Button>
               )}
               <Button
-                className="lv-premium-shade"
+                className="lv-premium-shade !bg-black !text-white !border-white/20 hover:!bg-white/10"
                 variant="outline"
                 size="sm"
                 onClick={exitSelectMode}
@@ -299,37 +299,37 @@ export const GalleryGrid: React.FC<{
       {/* Search + type + sort */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-2 mb-3">
         <div className="relative">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-white/60 pointer-events-none" />
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search uploader, caption or message…"
-            className="h-9 pl-9"
+            className="h-9 pl-9 !bg-black !text-white !border-white/30 !placeholder:text-white/60"
           />
           {search && (
             <button
               type="button"
               aria-label="Clear search"
               onClick={() => setSearch('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-white/60 hover:text-white"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
-          <SelectTrigger className="h-9 md:w-[140px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All media</SelectItem>
-            <SelectItem value="photos">Photos</SelectItem>
-            <SelectItem value="videos">Videos</SelectItem>
+          <SelectTrigger className="h-9 md:w-[140px] !bg-black !text-white !border-white/30"><SelectValue /></SelectTrigger>
+          <SelectContent className="!bg-black !border-white/20 text-white">
+            <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="all">All media</SelectItem>
+            <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="photos">Photos</SelectItem>
+            <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="videos">Videos</SelectItem>
           </SelectContent>
         </Select>
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="h-9 md:w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest first</SelectItem>
-            <SelectItem value="oldest">Oldest first</SelectItem>
+          <SelectTrigger className="h-9 md:w-[150px] !bg-black !text-white !border-white/30"><SelectValue /></SelectTrigger>
+          <SelectContent className="!bg-black !border-white/20 text-white">
+            <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="newest">Newest first</SelectItem>
+            <SelectItem className="text-white focus:!bg-[#967A59] focus:!text-white" value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
       </div>
