@@ -53,7 +53,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
 
   return (
     <>
-      <SeoHead title="Upload Photos & Videos | Wedding Waitress" description="Manage the photos and videos uploaded by your guests." noindex />
+      <SeoHead title="Upload Photos & Videos | Wedding Waitress" description="Manage the photos and videos uploaded by your guests." noIndex />
       <FeatureWorkspaceLayout
         title="Upload Photos & Videos"
         description="Manage the photos and videos uploaded by your guests."
