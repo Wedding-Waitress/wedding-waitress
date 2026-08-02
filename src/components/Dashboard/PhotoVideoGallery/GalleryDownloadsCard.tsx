@@ -206,7 +206,7 @@ export const GalleryDownloadsCard: React.FC<{
         <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              Preparing {SCOPE_LABEL[busy].replace('Download ', '').toLowerCase()} ZIP…
+              Preparing {labelFor(busy).replace('Download ', '').toLowerCase()} ZIP…
               {progress.total > 0 && ` (${progress.done}/${progress.total} files)`}
             </span>
             <span>{zipPct > 0 ? `${zipPct}%` : ''}</span>
