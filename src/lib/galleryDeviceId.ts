@@ -1,4 +1,4 @@
-// Opaque,随机 browser/device identifier for gallery rate limiting.
+// Opaque, random browser/device identifier for gallery rate limiting.
 // Supplementary only — it can be reset by the guest, which is why the
 // server also enforces a per-IP threshold.
 const KEY = 'ww-gallery-device-id';
