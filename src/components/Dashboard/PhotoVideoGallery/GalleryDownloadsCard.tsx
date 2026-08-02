@@ -83,7 +83,12 @@ export const GalleryDownloadsCard: React.FC<{
    * Only the organiser-only Guestbook workspaces may pass 'guestbook'.
    */
   privacyScope?: 'public' | 'guestbook';
-}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public' }) => {
+  /**
+   * Button layout. 'grid' (default) renders two columns; 'vertical' renders a full-width
+   * single column stack.
+   */
+  layout?: 'grid' | 'vertical';
+}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid' }) => {
   const { toast } = useToast();
   const items = useMemo(
     () => (privacyScope === 'guestbook' ? itemsProp : publicGalleryItems(itemsProp)),
