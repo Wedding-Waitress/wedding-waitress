@@ -10,7 +10,6 @@ import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
 import { GalleryGuestbookCard } from './GalleryGuestbookCard';
 import { GallerySlideshowCard } from './GallerySlideshowCard';
-import { GuestbookMessagesList } from './GuestbookMessagesList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -20,7 +19,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { meta, loading, error, refresh, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
 
   return (
     <div
@@ -100,8 +99,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
               <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             </div>
-
-            <GuestbookMessagesList eventId={selectedEventId} items={items} />
           </div>
         </PinchZoomContainer>
       ) : (

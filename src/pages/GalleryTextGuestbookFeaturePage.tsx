@@ -1,0 +1,119 @@
+// Feature workspace: Guestbook – Text Message
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useEvents } from '@/hooks/useEvents';
+import { useSelectedEvent } from '@/hooks/useSelectedEvent';
+import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
+import { useToast } from '@/hooks/use-toast';
+import { SeoHead } from '@/components/SEO/SeoHead';
+import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
+import { GalleryTextGuestbookAccessCard, buildTextGuestbookUrl } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookAccessCard';
+import { GalleryTextGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookStepsCard';
+import { GalleryTextMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextMessagesCard';
+import { Button } from '@/components/ui/enhanced-button';
+import { Card } from '@/components/ui/card';
+import { Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
+
+export const GalleryTextGuestbookFeaturePage: React.FC = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [authChecked, setAuthChecked] = useState(false);
+  const { events } = useEvents();
+  const { selectedEventId, selectedEvent } = useSelectedEvent(events);
+  const { meta, items, loading, error, setModeration, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) navigate('/');
+      else setAuthChecked(true);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session) navigate('/');
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
+  const guestUrl = buildTextGuestbookUrl(meta?.primary_token ?? null);
+
+  const handleToggle = async (v: boolean) => {
+    setSaving(true);
+    try {
+      await setGuestFeature('guestbook_text_enabled', v);
+    } catch (e: any) {
+      toast({ title: 'Could not update', description: e?.message || 'Please try again.', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
+        <Loader2 className="h-6 w-6 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <SeoHead
+        title="Guestbook – Text Message | Wedding Waitress"
+        description="Manage the written messages your guests leave for your special event."
+        noIndex
+      />
+      <FeatureWorkspaceLayout
+        title="Guestbook – Text Message"
+        description="Manage the written messages your guests leave for your special event."
+        eventName={(selectedEvent as any)?.name}
+        enabled={!!meta?.guestbook_text_enabled}
+        toggleDisabled={saving || loading || !meta}
+        onToggle={handleToggle}
+        onBack={goBack}
+        disabledNotice="This feature is currently turned off for your guests. You can still manage existing messages and preview the Guestbook."
+        headerAction={
+          <Button
+            variant="outline"
+            className="lv-premium-shade bg-white/10 text-white border-white/40 hover:bg-white hover:text-[#967A59]"
+            disabled={!guestUrl}
+            onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
+          >
+            <ExternalLink className="h-4 w-4 mr-1" /> Preview as Guest
+          </Button>
+        }
+      >
+        {loading && !meta ? (
+          <Card className="p-12 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+            <p className="text-sm text-muted-foreground">Loading Guestbook…</p>
+          </Card>
+        ) : !meta ? (
+          <Card className="p-10 flex flex-col items-center text-center gap-3">
+            <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground break-words">
+              {error || 'Select an event on the Photo & Video Gallery page to manage the Guestbook.'}
+            </p>
+          </Card>
+        ) : (
+          <div className="space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <GalleryTextGuestbookAccessCard meta={meta} />
+              <GalleryTextGuestbookStepsCard />
+            </div>
+
+            <GalleryTextMessagesCard
+              eventId={selectedEventId}
+              items={items}
+              eventName={(selectedEvent as any)?.name}
+              onSetItemModeration={setModeration}
+            />
+          </div>
+        )}
+      </FeatureWorkspaceLayout>
+    </>
+  );
+};
+
+export default GalleryTextGuestbookFeaturePage;
