@@ -729,6 +729,7 @@ export type Database = {
           created_at: string
           event_id: string
           gallery_id: string
+          guestbook_seq: number | null
           id: string
           message: string
           moderation_status: string
@@ -740,6 +741,7 @@ export type Database = {
           created_at?: string
           event_id: string
           gallery_id: string
+          guestbook_seq?: number | null
           id?: string
           message: string
           moderation_status?: string
@@ -751,6 +753,7 @@ export type Database = {
           created_at?: string
           event_id?: string
           gallery_id?: string
+          guestbook_seq?: number | null
           id?: string
           message?: string
           moderation_status?: string
