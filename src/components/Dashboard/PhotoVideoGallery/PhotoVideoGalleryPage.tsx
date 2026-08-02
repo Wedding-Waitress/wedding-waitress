@@ -7,6 +7,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GallerySetupCard } from './GallerySetupCard';
+import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 
