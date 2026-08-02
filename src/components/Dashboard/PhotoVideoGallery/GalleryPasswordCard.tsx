@@ -53,8 +53,8 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
       <div className="flex items-start gap-3">
         <Lock className="h-5 w-5 text-[#967A59] mt-0.5" />
         <div className="flex-1">
-          <h3 className="dashboard-section-title text-base">Password Protection</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Password Protection</h3>
+          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>
             Add a password to control who can upload or view the gallery.
           </p>
         </div>
