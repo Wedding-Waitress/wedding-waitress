@@ -32,12 +32,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
   return (
     <div
       className="space-y-6 -m-4 p-4 sm:-m-6 sm:p-6 rounded-none"
-      style={{
-        backgroundImage: "url('/gallery-page-bg.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }}
+      style={{ backgroundColor: '#472c1d' }}
     >
       <div className="flex items-center gap-3">
         <Camera className="h-6 w-6 text-[#967A59]" />
