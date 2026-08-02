@@ -192,7 +192,7 @@ export const GalleryDownloadsCard: React.FC<{
         </div>
       </div>
 
-      <div className={`grid grid-cols-1 gap-2 ${layout === 'vertical' ? '' : 'sm:grid-cols-2'}`}>
+      <div className={`gap-2 ${layout === 'vertical' ? 'flex flex-col' : 'grid grid-cols-1 sm:grid-cols-2'}`}>
         {scopes.map(scope => {
           const isBusy = busy === scope;
           const count = counts[scope];
