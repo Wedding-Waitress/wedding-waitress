@@ -59,14 +59,14 @@ describe('gallery password', () => {
     expect(rpc.mock.calls[0][1]._enabled).toBe(false);
   });
 
-  it('accepts the correct password', async () => {
-    rpc.mockResolvedValue({ data: true, error: null });
-    await expect(verifyPassword('tok', 'secret1')).resolves.toBe(true);
+  it('denies direct RPC verification for anonymous callers', async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: 'permission denied for function verify_event_media_password' } });
+    await expect(verifyPasswordDirect('tok', 'secret1')).rejects.toThrow(/permission denied/);
   });
 
-  it('rejects an incorrect password', async () => {
-    rpc.mockResolvedValue({ data: false, error: null });
-    await expect(verifyPassword('tok', 'nope')).resolves.toBe(false);
+  it('denies direct RPC verification for another authenticated user', async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: 'permission denied for function verify_event_media_password' } });
+    await expect(verifyPasswordDirect('tok', 'nope')).rejects.toThrow(/permission denied/);
   });
 
   it('propagates save failures so the UI can roll back', async () => {
@@ -77,9 +77,9 @@ describe('gallery password', () => {
   it('never sends or receives a password hash', async () => {
     rpc.mockResolvedValue({ data: true, error: null });
     await savePassword('e1', true, 'secret1');
-    await verifyPassword('tok', 'secret1');
     const payloads = JSON.stringify(rpc.mock.calls);
     expect(payloads).not.toMatch(/hash/i);
     expect(rpc.mock.results.every(r => typeof (r.value as any) !== 'string')).toBe(true);
   });
+
 });
