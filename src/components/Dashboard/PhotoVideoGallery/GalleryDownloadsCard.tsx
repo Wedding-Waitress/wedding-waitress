@@ -8,7 +8,7 @@ import JSZip from 'jszip';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
-import { sharedPhotoFilename } from '@/lib/sharedPhotoFilename';
+import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 
 type ZipScope = 'all' | 'approved' | 'photos' | 'videos';
 
@@ -32,8 +32,8 @@ function entryNameFor(item: GalleryItem, used: Set<string>, eventName?: string |
       ? 'guestbook-voice'
       : 'photos';
 
-  // Shared photos use the customer-friendly "00001-Event-Name.ext" scheme.
-  const shared = sharedPhotoFilename(item as any, eventName);
+  // Shared photos and shared videos use the customer-friendly "00001-Event-Name.ext" scheme.
+  const shared = sharedMediaFilename(item as any, eventName);
   if (shared) {
     let name = `${folder}/${shared}`;
     let i = 2;

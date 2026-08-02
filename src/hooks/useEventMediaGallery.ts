@@ -101,6 +101,8 @@ export interface GalleryItem {
   source_category?: 'guest_upload' | 'photo_booth' | 'guestbook_recording';
   /** Permanent per-event shared-photo number (guest_upload photos only). */
   share_photo_seq?: number | null;
+  /** Permanent per-event shared-video number (guest_upload videos only). */
+  share_video_seq?: number | null;
   like_count?: number;
   signed_url?: string;
 }
