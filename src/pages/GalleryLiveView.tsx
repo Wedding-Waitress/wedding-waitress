@@ -193,15 +193,20 @@ const GalleryLiveView: React.FC = () => {
     return () => { supabase.removeChannel(channel); window.clearInterval(poll); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
-  // Advance helper (respects pause)
+  // Advance helper (respects pause + loop setting)
   const advance = useCallback(() => {
     if (isPausedRef.current) {
       pendingAdvanceRef.current = true;
       return;
     }
     pendingAdvanceRef.current = false;
-    setIndex(i => (items.length === 0 ? 0 : (i + 1) % items.length));
-  }, [items.length]);
+    setIndex(i => {
+      if (items.length === 0) return 0;
+      const next = i + 1;
+      if (next >= items.length) return settings.loop ? 0 : i;
+      return next;
+    });
+  }, [items.length, settings.loop]);
 
   // Photo auto-advance timer; videos advance on `ended` or after 15s max
   useEffect(() => {
