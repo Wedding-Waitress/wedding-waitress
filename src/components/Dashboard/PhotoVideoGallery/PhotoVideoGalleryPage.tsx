@@ -7,9 +7,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
-import { GalleryPasswordCard } from './GalleryPasswordCard';
 
-import { GalleryBrandingCard } from './GalleryBrandingCard';
 import { GalleryGuestbookCard } from './GalleryGuestbookCard';
 import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
 import { GalleryPhotoBoothTemplatesCard } from './GalleryPhotoBoothTemplatesCard';
@@ -24,7 +22,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setPassword, updateBranding, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
 
   return (
     <div
@@ -99,10 +97,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               onTogglePhotoBooth={setPhotoBoothEnabled}
               onToggleSlideshow={setSlideshowEnabled}
             />
-
-            <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-
-            <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
 
             <div className="space-y-4">
               <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
