@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, X, ChevronLeft, ChevronRight, Play, Pause, Share2, Download, ImageIcon, AlertCircle, Trash2 } from 'lucide-react';
+import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/galleryFile';
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
