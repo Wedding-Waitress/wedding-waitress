@@ -921,6 +921,7 @@ export type Database = {
           like_count: number
           mime_type: string
           moderation_status: string
+          photo_booth_seq: number | null
           share_photo_seq: number | null
           share_video_seq: number | null
           source_category: string
@@ -951,6 +952,7 @@ export type Database = {
           like_count?: number
           mime_type: string
           moderation_status?: string
+          photo_booth_seq?: number | null
           share_photo_seq?: number | null
           share_video_seq?: number | null
           source_category?: string
@@ -981,6 +983,7 @@ export type Database = {
           like_count?: number
           mime_type?: string
           moderation_status?: string
+          photo_booth_seq?: number | null
           share_photo_seq?: number | null
           share_video_seq?: number | null
           source_category?: string
@@ -4536,6 +4539,7 @@ export type Database = {
           like_count: number
           mime_type: string
           moderation_status: string
+          photo_booth_seq: number
           share_photo_seq: number
           share_video_seq: number
           source_category: string
