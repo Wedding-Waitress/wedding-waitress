@@ -334,8 +334,8 @@ export const GalleryGrid: React.FC<{
         </Select>
       </div>
 
-      {/* Album filter pills */}
-      <div className="flex gap-2 flex-wrap mb-3 items-center">
+      {/* Album + moderation filter pills in one row */}
+      <div className="flex gap-2 flex-wrap mb-4 items-center">
         <FolderOpen className="h-4 w-4 text-[#6E6E73]" />
         <span className="text-xs text-[#6E6E73] mr-1">Album:</span>
         {ALBUM_FILTERS.map(a => {
@@ -353,14 +353,12 @@ export const GalleryGrid: React.FC<{
             </button>
           );
         })}
-      </div>
-
-      {/* Moderation pills */}
-      <div className="flex gap-2 flex-wrap mb-4">
+        <div className="w-px h-5 bg-border mx-1" />
         <FilterBtn value="all" label="All" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
       </div>
+
 
 
       {selectMode && (
