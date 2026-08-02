@@ -501,8 +501,18 @@ export const GuestMediaUpload: React.FC = () => {
             </div>
           );
         }
+        const unavailableRequest = requestedTab && !tabs.includes(requestedTab)
+          ? requestedTab === 'upload' ? 'Uploading photos and videos is'
+            : requestedTab === 'gallery' ? 'The guest gallery is'
+            : 'The guestbook is'
+          : null;
         return (
       <div className={`${current === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
+        {unavailableRequest && (
+          <div className="mb-6 rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-center">
+            <p className="text-sm text-white break-words">{unavailableRequest} currently unavailable for this event.</p>
+          </div>
+        )}
         {tabs.length > 1 && (
         <div className="mb-6 grid gap-1 rounded-full p-1 bg-black border border-white/25" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
           {tabs.map(tab => {
