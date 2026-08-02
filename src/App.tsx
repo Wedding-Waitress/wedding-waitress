@@ -17,6 +17,8 @@ const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 // Lazy: split everything else into separate chunks for instant initial load
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
+const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeaturePage").then(m => ({ default: m.GalleryUploadFeaturePage })));
+
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
 const KioskView = lazy(() => import("./pages/KioskView").then(m => ({ default: m.KioskView })));
