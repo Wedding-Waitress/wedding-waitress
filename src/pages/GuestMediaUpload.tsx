@@ -64,6 +64,7 @@ interface GalleryPublic {
   guest_upload_enabled?: boolean;
   gallery_view_enabled?: boolean;
   guestbook_text_enabled?: boolean;
+  photo_booth_enabled?: boolean;
 }
 
 interface GalleryUsage {
@@ -487,7 +488,7 @@ export const GuestMediaUpload: React.FC = () => {
         const galleryOn = gallery.gallery_view_enabled !== false;
         const textOn = gallery.guestbook_text_enabled !== false;
         const voiceOn = !!gallery.video_guestbook_enabled;
-        const boothOn = !!(gallery as any).photo_booth_enabled;
+        const boothOn = !!gallery.photo_booth_enabled;
         const guestbookOn = textOn || voiceOn;
         type TabKey = 'upload' | 'gallery' | 'booth' | 'guestbook';
         const tabs = ([
