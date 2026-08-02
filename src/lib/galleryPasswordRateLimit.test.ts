@@ -95,10 +95,13 @@ describe('gallery password rate limiting (client contract)', () => {
   });
 
   it('does not embed any service-role credential in client code', async () => {
-    const src = await import('@/lib/verifyGalleryPassword?raw' as any).catch(() => null);
-    // Defensive: the module must reference only the edge function, not keys.
-    expect(String(src ?? '')).not.toMatch(/service_role|SERVICE_ROLE/);
+    const { readFileSync } = await import('node:fs');
+    const src = readFileSync('src/lib/verifyGalleryPassword.ts', 'utf8')
+      + readFileSync('src/lib/galleryDeviceId.ts', 'utf8')
+      + readFileSync('src/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate.tsx', 'utf8');
+    expect(src).not.toMatch(/service_role|SERVICE_ROLE|MEDIA_PASSWORD_RL_PEPPER/);
   });
+
 
   it('concurrent submissions each hit the server (no client-only allowance)', async () => {
     invoke.mockResolvedValue({ data: { ok: false }, error: null });
