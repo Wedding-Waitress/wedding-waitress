@@ -86,28 +86,27 @@ export const GalleryUploadFeaturePage: React.FC = () => {
           </Card>
         ) : (
           <div className="space-y-6 sm:space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
-              <GalleryUsageCard meta={meta} items={publicItems} />
-            </div>
-
-            <GalleryGrid
-              items={publicItems}
-              onDelete={deleteItem}
-              onSetModeration={setModeration}
-              onSetAlbum={setAlbum}
-              onBulkSetAlbum={bulkSetAlbum}
-              title="Shared Photos & Videos"
-              description="Review, organise, approve, hide and download guest photos and videos."
-              dark
-            />
-
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
+            <GalleryUsageCard meta={meta} items={publicItems} />
             <GalleryDownloadsCard
               items={publicItems}
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
             />
           </div>
+
+          <GalleryGrid
+            items={publicItems}
+            onDelete={deleteItem}
+            onSetModeration={setModeration}
+            onSetAlbum={setAlbum}
+            onBulkSetAlbum={bulkSetAlbum}
+            title="Shared Photos & Videos"
+            description="Review, organise, approve, hide and download guest photos and videos."
+            dark
+          />
+        </div>
         )}
       </FeatureWorkspaceLayout>
     </>
