@@ -18,7 +18,11 @@ export async function downloadSignedUrl(url: string, filenameHint: string) {
   }
 }
 
-export function filenameFor(item: GalleryItem): string {
+export function filenameFor(item: GalleryItem, eventName?: string | null): string {
+  // Shared photos use the numbered "00001-Event-Name.ext" scheme.
+  const shared = sharedPhotoFilename(item as any, eventName);
+  if (shared) return shared;
+
   const ext = (item.storage_path.split('.').pop() || (item.kind === 'video' ? 'mp4' : 'jpg')).split('?')[0];
   const who = (item.uploader_name || 'guest').replace(/[^a-z0-9-_ ]/gi, '').trim().replace(/\s+/g, '_') || 'guest';
   return `${who}-${item.id.slice(0, 8)}.${ext}`;
