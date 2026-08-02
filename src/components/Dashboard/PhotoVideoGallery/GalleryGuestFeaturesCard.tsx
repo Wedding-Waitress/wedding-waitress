@@ -50,8 +50,6 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Enable or disable the features your guests can see and use.</p>
       </div>
 
-
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {features.map(f => (
           <div
@@ -61,12 +59,22 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
               backgroundColor: '#967A59',
               borderColor: 'rgba(0,0,0,0.10)',
               boxShadow: '0 4px 14px -4px rgba(29,29,31,0.25), 0 1px 3px rgba(29,29,31,0.10)',
-              minHeight: '170px',
+              minHeight: '190px',
             }}
           >
-            <div className="min-w-0">
-              <p className="text-[18px] md:text-[20px] lg:text-[24px] font-bold leading-tight text-white break-words">{f.title}</p>
-              <p className="text-xs md:text-sm lg:text-base mt-2 leading-relaxed text-white/90 break-words">{f.desc}</p>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-[18px] md:text-[20px] lg:text-[24px] font-bold leading-tight text-white break-words">{f.title}</p>
+                <p className="text-xs md:text-sm lg:text-base mt-2 leading-relaxed text-white/90 break-words">{f.desc}</p>
+              </div>
+              <button
+                type="button"
+                aria-label={`Manage ${f.title}`}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                className="shrink-0 self-start sm:self-auto rounded-full border-2 border-white bg-transparent px-4 py-1.5 min-h-[44px] text-sm font-bold text-white shadow-[0_2px_6px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all duration-200 ease-out hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
+              >
+                Manage
+              </button>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-lg md:text-xl font-bold text-white">{f.checked ? 'On' : 'Off'}</span>
