@@ -64,6 +64,7 @@ interface GalleryPublic {
   guest_upload_enabled?: boolean;
   gallery_view_enabled?: boolean;
   guestbook_text_enabled?: boolean;
+  photo_booth_enabled?: boolean;
 }
 
 interface GalleryUsage {
@@ -487,21 +488,48 @@ export const GuestMediaUpload: React.FC = () => {
         const galleryOn = gallery.gallery_view_enabled !== false;
         const textOn = gallery.guestbook_text_enabled !== false;
         const voiceOn = !!gallery.video_guestbook_enabled;
+        const boothOn = !!gallery.photo_booth_enabled;
         const guestbookOn = textOn || voiceOn;
+        type TabKey = 'upload' | 'gallery' | 'booth' | 'guestbook';
         const tabs = ([
           uploadOn ? 'upload' : null,
           galleryOn ? 'gallery' : null,
+          boothOn ? 'booth' : null,
           guestbookOn ? 'guestbook' : null,
-        ].filter(Boolean)) as ('upload' | 'gallery' | 'guestbook')[];
-        const current = tabs.includes(activeTab) ? activeTab : (tabs[0] ?? null);
-        if (!current) {
+        ].filter(Boolean)) as TabKey[];
+        const labels: Record<TabKey, string> = {
+          upload: 'Upload',
+          gallery: 'Gallery',
+          booth: 'Digital Photo Booth',
+          guestbook: 'Guestbook',
+        };
+        const boothHref = token ? `/gallery-photobooth/${token}` : '#';
+        // Only the Digital Photo Booth is enabled -> send the guest straight there.
+        if (tabs.length === 1 && tabs[0] === 'booth') {
           return (
-            <div className="max-w-md mx-auto text-center text-white/80 py-16">
-              <p>The host has turned off guest features for this gallery.</p>
+            <div className="max-w-md mx-auto text-center py-16 space-y-4">
+              <p className="text-white/80">Opening the Digital Photo Booth…</p>
+              <a href={boothHref} className="inline-flex items-center justify-center h-12 px-6 rounded-full text-white font-semibold lv-premium-shade" style={{ backgroundColor: accent }}>
+                Launch Digital Photo Booth
+              </a>
             </div>
           );
         }
-        const unavailableRequest = requestedTab && !tabs.includes(requestedTab)
+        const current = (tabs as string[]).includes(activeTab) ? activeTab : ((tabs.find(t => t !== 'booth') ?? null) as 'upload' | 'gallery' | 'guestbook' | null);
+        if (!current) {
+          return (
+            <div className="max-w-md mx-auto py-20 text-center">
+              <div className="rounded-2xl border border-white/20 bg-white/[0.06] px-6 py-10 backdrop-blur-sm">
+                <Heart className="h-10 w-10 mx-auto mb-4" style={{ color: accent }} />
+                <h2 className="text-xl font-semibold text-white">This event experience is currently unavailable</h2>
+                <p className="mt-2 text-sm text-white/70 leading-relaxed">
+                  The hosts have turned off guest features for now. Please check back a little later.
+                </p>
+              </div>
+            </div>
+          );
+        }
+        const unavailableRequest = requestedTab && !(tabs as string[]).includes(requestedTab)
           ? requestedTab === 'upload' ? 'Uploading photos and videos is'
             : requestedTab === 'gallery' ? 'The guest gallery is'
             : 'The guestbook is'
@@ -514,22 +542,32 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
         )}
         {tabs.length > 1 && (
-        <div className="mb-6 grid gap-1 rounded-full p-1 bg-black border border-white/25" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+        <div className="mb-6 grid grid-cols-2 sm:flex gap-1 rounded-3xl sm:rounded-full p-1 bg-black border border-white/25">
+
           {tabs.map(tab => {
             const active = current === tab;
+            const cls = `h-11 sm:flex-1 min-w-0 rounded-full text-sm font-medium transition-colors px-2 truncate ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
+            if (tab === 'booth') {
+              return (
+                <a key={tab} href={boothHref} className={`${cls} flex items-center justify-center`}>
+                  {labels[tab]}
+                </a>
+              );
+            }
             return (
               <button
                 key={tab}
                 type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`h-11 rounded-full text-sm font-medium capitalize transition-colors ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`}
+                onClick={() => setActiveTab(tab as 'upload' | 'gallery' | 'guestbook')}
+                className={cls}
               >
-                {tab}
+                {labels[tab]}
               </button>
             );
           })}
         </div>
         )}
+
 
         {current === 'upload' && (
           <p className="text-center text-base mb-6 leading-relaxed whitespace-pre-line text-white">
