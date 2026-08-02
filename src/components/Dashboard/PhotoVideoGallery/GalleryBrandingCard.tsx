@@ -115,10 +115,10 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
     <Card className="p-5 space-y-5">
       <div>
         <h2 className="text-lg font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <Palette className="h-5 w-5 text-[#967A59]" /> Branding &amp; theme
+          <Palette className="h-5 w-5 text-[#967A59]" /> Branding &amp; Theme
         </h2>
         <p className="text-sm text-muted-foreground">
-          Customise the look of the guest upload page, password gate, thank-you screen, and Live View.
+          Customise the look of your guest gallery.
         </p>
       </div>
 
