@@ -83,6 +83,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
   const [activeTab, setActiveTab] = useState<'upload' | 'gallery' | 'guestbook'>('upload');
+  // Tab explicitly requested via a saved direct link (?tab=…), used to explain disabled features.
+  const [requestedTab, setRequestedTab] = useState<'upload' | 'gallery' | 'guestbook' | null>(null);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
