@@ -233,10 +233,24 @@ export function useEventMediaGallery(eventId: string | null) {
     setMeta(m => m ? { ...m, is_open: open } : m);
   }, [eventId]);
 
+  /**
+   * Authoritative deletion for gallery media (single + bulk).
+   * Cards are only removed from state after the backend confirms the rows are gone.
+   */
+  const deleteItems = useCallback(async (ids: string[]) => {
+    const result = await deleteEventMediaItems(ids);
+    if (result.deletedIds.length > 0) {
+      const gone = new Set(result.deletedIds);
+      setItems(prev => prev.filter(i => !gone.has(i.id)));
+      // Refetch so counts, usage, ZIP totals and filters all reflect the backend.
+      if (eventId) loadItems(eventId).catch(() => {});
+    }
+    return result;
+  }, [eventId, loadItems]);
+
   const deleteItem = useCallback(async (id: string) => {
-    await (supabase as any).rpc('delete_event_media_item', { _item_id: id });
-    setItems(prev => prev.filter(i => i.id !== id));
-  }, []);
+    await deleteItems([id]);
+  }, [deleteItems]);
 
   const setModeration = useCallback(async (id: string, status: 'approved' | 'hidden') => {
     // Optimistic update
