@@ -61,7 +61,7 @@ const GalleryLiveView: React.FC = () => {
   // Projector/TV slideshow route: clean fullscreen, no controls.
   const isSlideshow = location.pathname.endsWith('/slideshow');
   const [meta, setMeta] = useState<LiveMeta | null>(null);
-  const [items, setItems] = useState<LiveItem[]>([]);
+  const [rawItems, setItems] = useState<LiveItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
