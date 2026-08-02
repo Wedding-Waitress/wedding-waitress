@@ -1,6 +1,7 @@
 // Host-side gallery hook
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
 
 export interface GalleryMeta {
