@@ -8,7 +8,6 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
-import { GalleryGuestbookCard } from './GalleryGuestbookCard';
 import { GallerySlideshowCard } from './GallerySlideshowCard';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -96,7 +95,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
             />
 
             <div className="space-y-4">
-              <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
               <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             </div>
           </div>
