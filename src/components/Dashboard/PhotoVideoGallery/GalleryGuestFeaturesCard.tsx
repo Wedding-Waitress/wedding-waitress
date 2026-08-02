@@ -55,24 +55,26 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
         {features.map(f => (
           <div
             key={f.key}
-            className="rounded-xl border p-4 flex flex-col justify-between gap-4 transition-shadow"
+            className="rounded-xl border p-5 flex flex-col justify-between gap-5 transition-shadow h-full"
             style={{
               backgroundColor: '#967A59',
               borderColor: 'rgba(0,0,0,0.10)',
               boxShadow: '0 4px 14px -4px rgba(29,29,31,0.25), 0 1px 3px rgba(29,29,31,0.10)',
+              minHeight: '190px',
             }}
           >
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#1D1D1F' }}>{f.title}</p>
-              <p className="text-xs mt-1 leading-relaxed" style={{ color: 'rgba(29,29,31,0.78)' }}>{f.desc}</p>
+              <p className="text-[18px] md:text-[20px] lg:text-[24px] font-bold leading-tight text-white">{f.title}</p>
+              <p className="text-xs md:text-sm lg:text-base mt-2 leading-relaxed text-white/90">{f.desc}</p>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs" style={{ color: 'rgba(29,29,31,0.7)' }}>{f.checked ? 'On' : 'Off'}</span>
+              <span className="text-lg md:text-xl font-bold" style={{ color: f.checked ? '#22c55e' : '#ef4444' }}>{f.checked ? 'On' : 'Off'}</span>
               <Switch
                 checked={f.checked}
                 disabled={busy === f.key}
                 onCheckedChange={(v) => run(f.key, f.fn, v)}
                 aria-label={f.title}
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
               />
             </div>
           </div>
