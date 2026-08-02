@@ -11,6 +11,7 @@ import { MessageCircle, Loader2, Search, Eye, EyeOff, Download, RefreshCw } from
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import { guestbookCsvFilename, guestbookMessageFilename, guestbookMessageTxt, guestbookSeqLabel } from '@/lib/guestbookFilename';
 
 type Status = 'approved' | 'hidden';
 type Source = 'text' | 'recording';
@@ -22,6 +23,7 @@ interface Row {
   at: string | null;
   status: Status;
   source: Source;
+  seq: number | null;
 }
 
 interface Props {
@@ -61,7 +63,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
     setError(null);
     const { data, error: err } = await (supabase as any)
       .from('event_guestbook_messages')
-      .select('id, uploader_name, message, moderation_status, created_at')
+      .select('id, uploader_name, message, moderation_status, created_at, guestbook_seq')
       .eq('event_id', eventId)
       .order('created_at', { ascending: false });
     if (err) setError(err.message || 'Could not load messages');
@@ -72,6 +74,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
       at: r.created_at,
       status: (r.moderation_status === 'hidden' ? 'hidden' : 'approved') as Status,
       source: 'text' as const,
+      seq: typeof r.guestbook_seq === 'number' ? r.guestbook_seq : null,
     })));
     setLoading(false);
   }, [eventId]);
@@ -88,6 +91,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
       at: i.uploaded_at,
       status: (i.moderation_status === 'hidden' ? 'hidden' : 'approved') as Status,
       source: 'recording' as const,
+      seq: null,
     })), [items]);
 
   const allRows = useMemo(() => [...textRows, ...recordingRows], [textRows, recordingRows]);
@@ -142,22 +146,38 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
     }
   };
 
+  const downloadTxt = (r: Row) => {
+    try {
+      const body = guestbookMessageTxt(
+        { seq: r.seq, name: r.name, message: r.message, at: r.at, status: r.status, hasRecording: r.source === 'recording' },
+        eventName,
+      );
+      const blob = new Blob(['\uFEFF' + body], { type: 'text/plain;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = guestbookMessageFilename(r.seq, eventName);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    } catch (e: any) {
+      toast({ title: 'Download failed', description: e?.message || 'Please try again.', variant: 'destructive' });
+    }
+  };
+
   const exportCsv = () => {
     if (rows.length === 0) return;
-    const header = ['Guest name', 'Message', 'Submitted', 'Status'];
+    const header = ['Message Number', 'Guest name', 'Message', 'Submitted', 'Status'];
     const body = rows.map(r => [
+      csvCell(guestbookSeqLabel(r.seq)),
       csvCell(r.name || 'Anonymous guest'),
       csvCell(r.message),
       csvCell(r.at ? new Date(r.at).toLocaleString() : ''),
       csvCell(r.status === 'hidden' ? 'Hidden' : 'Approved'),
     ].join(','));
     const csv = [header.map(csvCell).join(','), ...body].join('\r\n');
-    const slug = (eventName || 'event').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'event';
-    const date = new Date().toISOString().slice(0, 10);
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${slug}-guestbook-messages-${date}.csv`;
+    a.download = guestbookCsvFilename(eventName);
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     toast({ title: 'Export started', description: `${rows.length} message${rows.length === 1 ? '' : 's'} exported.` });
@@ -290,7 +310,12 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
                     <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words mt-2">{r.message}</p>
                     <p className="text-xs text-muted-foreground mt-2">{fmt(r.at)}</p>
                   </div>
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
+                    {r.source === 'text' && (
+                      <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" onClick={() => downloadTxt(r)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    )}
                     {r.status === 'approved' ? (
                       <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'hidden')}>
                         <EyeOff className="h-4 w-4 mr-1" /> Hide
