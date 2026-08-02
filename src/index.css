@@ -1006,6 +1006,47 @@ input::placeholder, textarea::placeholder, [data-placeholder] {
   filter: brightness(0.9);
 }
 
+/* Elegant embossed green pill button (guest Guestbook recording actions) */
+.ww-emboss-green {
+  background-color: #2E9E5B;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.06));
+  color: #fff;
+  border: 0;
+  border-radius: 9999px;
+  font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    0 4px 0 #1E6B3E,
+    0 6px 12px rgba(30,107,62,0.22);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.ww-emboss-green:hover:not(:disabled) {
+  background-color: #34AC64;
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 5px 0 #1E6B3E,
+    0 8px 16px rgba(30,107,62,0.26);
+}
+.ww-emboss-green:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+.ww-emboss-green:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 1px 0 #1E6B3E,
+    0 2px 6px rgba(30,107,62,0.2);
+}
+.ww-emboss-green:disabled {
+  opacity: 0.55;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 0 #1E6B3E;
+  transform: none;
+}
+
+
+
 /* CTA video section animations */
 @keyframes ctaZoom {
   0% { transform: scale(1.05); }
