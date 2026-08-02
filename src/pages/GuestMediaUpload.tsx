@@ -541,8 +541,8 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
         )}
         {tabs.length > 1 && (
-        <div className={`mb-6 grid gap-1 rounded-3xl sm:rounded-full p-1 bg-black border border-white/25 ${tabs.length >= 3 ? 'grid-cols-2' : 'grid-cols-2'} sm:grid-cols-none`} style={{ gridTemplateColumns: undefined }}>
-          <div className="contents sm:hidden" />
+        <div className="mb-6 grid grid-cols-2 sm:flex gap-1 rounded-3xl sm:rounded-full p-1 bg-black border border-white/25">
+
           {tabs.map(tab => {
             const active = current === tab;
             const cls = `h-11 rounded-full text-sm font-medium transition-colors px-2 truncate ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
