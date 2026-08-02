@@ -150,6 +150,7 @@ const App = () => (
           <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<GalleryTextGuestbookFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<GalleryVoiceGuestbookFeaturePage />} />
 
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
