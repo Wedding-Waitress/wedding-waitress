@@ -25,7 +25,7 @@ type SortMode = 'newest' | 'oldest';
 type AlbumFilter = 'all' | GalleryAlbum;
 
 const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
-  { value: 'all', label: 'All Uploads' },
+  { value: 'all', label: 'All Albums' },
   ...GALLERY_ALBUMS.map(a => ({ value: a as AlbumFilter, label: a })),
 ];
 
@@ -308,13 +308,11 @@ export const GalleryGrid: React.FC<{
           <p className="text-sm mt-1 break-words" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
 
-        {!dark && selectControls}
-
       </div>
 
-      {/* Search + type + sort */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-2 mb-3">
-        <div className="relative">
+      {/* Search + type + sort + select */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
