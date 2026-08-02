@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, GalleryBrandingSettings } from '@/hooks/useEventMediaGallery';
 import { DEFAULT_THEME_COLOR } from '@/lib/galleryTheme';
 import { GalleryBackgroundGalleryModal } from './GalleryBackgroundGalleryModal';
+import { GalleryBackgroundColorPicker } from './GalleryBackgroundColorPicker';
+import { normalizeHexColor } from '@/lib/backgroundColorPalette';
 import canvaLogo from '@/assets/canva-logo.png';
 
 interface Props {
@@ -43,11 +45,15 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   const coverInput = useRef<HTMLInputElement>(null);
   const logoInput = useRef<HTMLInputElement>(null);
   const bgInput = useRef<HTMLInputElement>(null);
+  const [hexDraft, setHexDraft] = useState<string>(meta.background_color || DEFAULT_BG_COLOR);
+  const [hexError, setHexError] = useState<string | null>(null);
 
   useEffect(() => {
     setBg(meta.background_style || 'cream');
     setBgMode(meta.background_mode || 'preset');
     setBgColor(meta.background_color || DEFAULT_BG_COLOR);
+    setHexDraft(meta.background_color || DEFAULT_BG_COLOR);
+    setHexError(null);
     setBgImageUrl(meta.background_image_url || null);
     setCoverUrl(meta.cover_image_url || null);
     setLogoUrl(meta.logo_image_url || null);
@@ -126,6 +132,8 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   const handleReset = () => {
     setBg('cream');
     setBgMode('preset');
+    setHexDraft(DEFAULT_BG_COLOR);
+    setHexError(null);
     setBgColor(DEFAULT_BG_COLOR);
     setBgImageUrl(null);
     setCoverUrl(null);
@@ -208,44 +216,51 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
           {/* Custom colour */}
           <div>
             <div className="flex items-center justify-between gap-2">
-              <Label className="text-sm">Custom background colour</Label>
+              <Label className="text-sm">Choose a background colour</Label>
               {bgMode === 'color' && (
                 <span className="text-[11px] font-semibold text-[#967A59] uppercase tracking-wide">Selected</span>
               )}
             </div>
-            <div className="mt-1.5 flex items-center gap-2">
-              <input
-                type="color"
+            <div className="mt-1.5">
+              <GalleryBackgroundColorPicker
                 value={bgColor}
-                onChange={(e) => { setBgColor(e.target.value); setBgMode('color'); }}
-                className={`h-11 w-14 shrink-0 rounded-md border cursor-pointer bg-transparent p-1 ${
-                  bgMode === 'color' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'
-                }`}
-                aria-label="Custom background colour"
-              />
-              <Input
-                value={bgColor}
-                onChange={(e) => {
-                  const v = e.target.value.trim();
-                  if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) {
-                    const next = v.startsWith('#') ? v : `#${v}`;
-                    setBgColor(next);
-                    if (/^#[0-9a-fA-F]{6}$/.test(next)) setBgMode('color');
-                  }
-                }}
-                maxLength={7}
-                aria-label="Custom background colour hex value"
-                className="h-11 font-mono min-w-0 flex-1"
-              />
-              <button
-                type="button"
-                onClick={() => setBgMode('color')}
-                className="h-11 w-11 shrink-0 rounded-md border border-border"
-                style={{ backgroundColor: bgColor }}
-                aria-label="Use this background colour"
+                active={bgMode === 'color'}
+                onSelect={(hex) => { setBgColor(hex); setHexDraft(hex); setHexError(null); setBgMode('color'); }}
               />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+
+            <div className="mt-3">
+              <Label className="text-sm" htmlFor="gallery-bg-hex">Hex colour code</Label>
+              <Input
+                id="gallery-bg-hex"
+                value={hexDraft}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setHexDraft(v);
+                  const norm = normalizeHexColor(v);
+                  if (norm) {
+                    setHexError(null);
+                    setBgColor(norm);
+                    setBgMode('color');
+                  } else {
+                    setHexError('Enter a valid hex code, e.g. #F8F5F0');
+                  }
+                }}
+                onBlur={() => {
+                  const norm = normalizeHexColor(hexDraft);
+                  if (norm) { setHexDraft(norm); setHexError(null); }
+                  else { setHexDraft(bgColor); setHexError(null); }
+                }}
+                maxLength={7}
+                placeholder="#F8F5F0"
+                aria-invalid={!!hexError}
+                aria-label="Hex colour code"
+                className="mt-1.5 h-11 font-mono"
+              />
+              {hexError && <p className="text-xs text-destructive mt-1">{hexError}</p>}
+            </div>
+
+            <p className="text-xs text-muted-foreground mt-2">
               Changes the guest page background only — buttons and accents stay Wedding Waitress gold.
             </p>
           </div>
