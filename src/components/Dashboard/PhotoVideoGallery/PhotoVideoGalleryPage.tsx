@@ -8,7 +8,6 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
-import { GallerySlideshowCard } from './GallerySlideshowCard';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
