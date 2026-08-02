@@ -43,11 +43,12 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
   ];
 
   return (
-    <Card className="p-5 sm:p-6 space-y-5" style={{ backgroundColor: '#3a2317', borderColor: 'rgba(255,255,255,0.18)' }}>
+    <Card className="p-5 sm:p-6 space-y-5" style={{ backgroundColor: '#ffffff', borderColor: 'rgba(0,0,0,0.12)' }}>
       <div>
-        <h2 className="text-xl font-semibold text-white">Guest Features</h2>
-        <p className="text-sm text-white/75 mt-1">Enable or disable the features your guests can see and use.</p>
+        <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Guest Features</h2>
+        <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Enable or disable the features your guests can see and use.</p>
       </div>
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {features.map(f => (
