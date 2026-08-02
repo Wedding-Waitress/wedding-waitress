@@ -42,7 +42,7 @@ export const GuestbookMessagesList: React.FC<{ eventId: string | null; items: Ga
 
   return (
     <Card className="p-5">
-      <h2 className="text-lg font-semibold text-[#1D1D1F] mb-4 flex items-center gap-2">
+      <h2 className="text-xl font-bold text-black mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
         <MessageCircle className="h-5 w-5 text-[#967A59]" /> Guestbook messages ({rows.length})
       </h2>
       {loading ? (

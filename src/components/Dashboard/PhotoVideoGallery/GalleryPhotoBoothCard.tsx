@@ -54,8 +54,8 @@ export const GalleryPhotoBoothCard: React.FC<{
             <Camera className="h-5 w-5 text-[#967A59]" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-[#1D1D1F]">Photo Booth</h2>
-            <p className="text-sm text-muted-foreground">Let guests snap a photo on their phone or tablet that goes straight into your gallery.</p>
+            <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Photo Booth</h2>
+            <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Let guests snap a photo on their phone or tablet that goes straight into your gallery.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

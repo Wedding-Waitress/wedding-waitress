@@ -56,8 +56,8 @@ export const GallerySlideshowCard: React.FC<{
             <MonitorPlay className="h-5 w-5 text-[#967A59]" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-[#1D1D1F]">Live Slideshow</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Live Slideshow</h2>
+            <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>
               Fullscreen auto-advancing slideshow of approved photos and videos — perfect for a TV or projector at the venue.
             </p>
           </div>

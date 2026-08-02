@@ -41,8 +41,8 @@ export const GalleryGuestbookCard: React.FC<{
           <MessageCircle className="h-5 w-5 text-[#967A59]" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-[#1D1D1F]">Guestbook</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Guestbook</h2>
+          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>
             Guests can leave a written note, a voice message, or both — all in one Guestbook tab.
           </p>
         </div>

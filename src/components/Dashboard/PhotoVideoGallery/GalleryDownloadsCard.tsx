@@ -163,8 +163,8 @@ export const GalleryDownloadsCard: React.FC<{
       <div className="flex items-center gap-2">
         <FileArchive className="h-5 w-5 text-[#967A59]" />
         <div>
-          <h3 className="font-semibold text-foreground">Download as ZIP</h3>
-          <p className="text-xs text-muted-foreground">Bundle uploaded media into a single ZIP file.</p>
+          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Download as ZIP</h3>
+          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Bundle uploaded media into a single ZIP file.</p>
         </div>
       </div>
 
