@@ -234,10 +234,10 @@ export const GalleryGrid: React.FC<{
 
   if (items.length === 0) {
     return (
-      <Card className={`p-12 text-center ${dark ? 'bg-black border-white/15' : ''}`}>
+      <div className={`p-12 text-center rounded-2xl border ${dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}>
         <Camera className={`h-12 w-12 mx-auto mb-3 ${dark ? 'text-white/80' : 'text-muted-foreground'}`} />
         <p className={dark ? 'text-white/80' : 'text-muted-foreground'}>{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
-      </Card>
+      </div>
     );
   }
 
