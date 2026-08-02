@@ -92,10 +92,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               onTogglePhotoBooth={setPhotoBoothEnabled}
               onToggleSlideshow={setSlideshowEnabled}
             />
-
-            <div className="space-y-4">
-              <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
-            </div>
           </div>
         </PinchZoomContainer>
       ) : (
