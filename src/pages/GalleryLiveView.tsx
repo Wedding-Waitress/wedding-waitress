@@ -7,6 +7,12 @@ import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
 import { formatDisplayDate } from '@/lib/utils';
+import {
+  applySlideshowSettings,
+  slideshowSettingsFromRow,
+  DEFAULT_SLIDESHOW_SETTINGS,
+  type SlideshowSettings,
+} from '@/lib/slideshowSettings';
 
 interface LiveMeta {
   gallery_id: string;
@@ -24,6 +30,7 @@ interface LiveMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  settings: SlideshowSettings;
 }
 
 interface LiveItem {
@@ -35,6 +42,7 @@ interface LiveItem {
   uploader_name: string | null;
   caption: string | null;
   uploaded_at: string | null;
+  album: string | null;
   signed_url: string;
   like_count?: number;
 }
