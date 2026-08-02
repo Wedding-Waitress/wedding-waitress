@@ -234,9 +234,9 @@ export const GalleryGrid: React.FC<{
 
   if (items.length === 0) {
     return (
-      <Card className="p-12 text-center">
-        <Camera className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-        <p className="text-muted-foreground">{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
+      <Card className={`p-12 text-center ${dark ? 'bg-black border-white/15' : ''}`}>
+        <Camera className={`h-12 w-12 mx-auto mb-3 ${dark ? 'text-white/80' : 'text-muted-foreground'}`} />
+        <p className={dark ? 'text-white/80' : 'text-muted-foreground'}>{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
       </Card>
     );
   }
