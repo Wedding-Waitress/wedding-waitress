@@ -27,7 +27,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
   const { selectedEventId, selectedEvent } = useSelectedEvent(events);
   const {
     meta, items, loading, error,
-    deleteItem, setModeration, setAlbum, bulkSetAlbum,
+    deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum,
     setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate,
   } = useEventMediaGallery(selectedEventId);
   const [saving, setSaving] = useState(false);
@@ -128,6 +128,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
             <GalleryGrid
               items={boothItems}
               onDelete={deleteItem}
+              onDeleteMany={deleteItems}
               onSetModeration={setModeration}
               onSetAlbum={setAlbum}
               onBulkSetAlbum={bulkSetAlbum}
