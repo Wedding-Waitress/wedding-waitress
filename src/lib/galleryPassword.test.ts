@@ -18,7 +18,9 @@ const savePassword = async (eventId: string, enabled: boolean, password: string 
   return true;
 };
 
-const verifyPassword = async (token: string, password: string) => {
+// Direct RPC verification is now revoked for anon/authenticated; the browser
+// must go through the rate-limited edge function instead.
+const verifyPasswordDirect = async (token: string, password: string) => {
   const { data, error } = await (supabase as any).rpc('verify_event_media_password', {
     _token: token,
     _password: password,
@@ -26,6 +28,7 @@ const verifyPassword = async (token: string, password: string) => {
   if (error) throw new Error(error.message);
   return data === true;
 };
+
 
 describe('gallery password', () => {
   beforeEach(() => rpc.mockReset());
