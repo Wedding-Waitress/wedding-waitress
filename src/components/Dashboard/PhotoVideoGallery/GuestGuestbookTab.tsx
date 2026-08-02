@@ -20,6 +20,8 @@ interface Props {
   refreshKey?: number;
   /** Whether the host enabled the Voice Guestbook for this event. */
   voiceEnabled?: boolean;
+  /** Whether the host enabled written guestbook messages. */
+  textEnabled?: boolean;
 }
 
 const MAX_SECONDS = 60;
@@ -40,7 +42,7 @@ function extFor(mime: string): string {
   }
 }
 
-export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refreshKey: _refreshKey = 0, voiceEnabled = true }) => {
+export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refreshKey: _refreshKey = 0, voiceEnabled = true, textEnabled = true }) => {
   const mounted = useRef(true);
 
   // shared
@@ -237,6 +239,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
         </div>
 
         {/* Option A — text */}
+        {textEnabled && (
         <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: `${accent}55` }}>
           <div className="flex items-center gap-2">
             <span
@@ -256,6 +259,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({ token, theme, accent, refre
 
           <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
         </div>
+        )}
 
         {/* Option B — voice */}
         {voiceEnabled && (
