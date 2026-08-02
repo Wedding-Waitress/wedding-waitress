@@ -41,9 +41,9 @@ describe('sharedPhotoFilename', () => {
     expect(sharedPhotoFilename(photo({ source_category: 'guestbook_recording' }), 'E')).toBeNull();
     expect(isSharedPhoto(photo({ source_category: 'photo_booth' }) as any)).toBe(false);
   });
-  it('returns null without a sequence or event name', () => {
+  it('returns null without a sequence, and falls back for blank event names', () => {
     expect(sharedPhotoFilename(photo({ share_photo_seq: null }), 'E')).toBeNull();
-    expect(sharedPhotoFilename(photo(), '   ')).toBeNull();
+    expect(sharedPhotoFilename(photo(), '   ')).toBe('00001-Event.jpg');
   });
 });
 
