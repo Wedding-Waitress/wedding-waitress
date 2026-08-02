@@ -22,6 +22,7 @@ const GalleryViewFeaturePage = lazy(() => import("./pages/GalleryViewFeaturePage
 const GalleryPhotoBoothFeaturePage = lazy(() => import("./pages/GalleryPhotoBoothFeaturePage").then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
 const GalleryTextGuestbookFeaturePage = lazy(() => import("./pages/GalleryTextGuestbookFeaturePage").then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
 const GalleryVoiceGuestbookFeaturePage = lazy(() => import("./pages/GalleryVoiceGuestbookFeaturePage").then(m => ({ default: m.GalleryVoiceGuestbookFeaturePage })));
+const GallerySlideshowFeaturePage = lazy(() => import("./pages/GallerySlideshowFeaturePage").then(m => ({ default: m.GallerySlideshowFeaturePage })));
 
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
