@@ -32,16 +32,17 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
 
   return (
     <div
-      className="space-y-6 -m-4 p-4 sm:-m-6 sm:p-6 rounded-none"
+      className="space-y-6 -m-4 p-4 sm:-m-6 sm:p-6 rounded-none overflow-x-hidden"
       style={{ backgroundColor: '#472c1d' }}
     >
-      <div className="flex items-center gap-3">
-        <Camera className="h-6 w-6 text-[#967A59]" />
-        <div>
-          <h1 className="text-2xl font-bold text-white">Photo &amp; Video Gallery</h1>
-          <p className="text-sm text-white/80">Let guests upload photos and short videos via QR code.</p>
+      <div className="flex items-start gap-3">
+        <Camera className="h-6 w-6 text-[#967A59] shrink-0 mt-1" />
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-white break-words">Photo &amp; Video Gallery</h1>
+          <p className="text-sm text-white/80 break-words">Let guests upload photos and short videos via QR code.</p>
         </div>
       </div>
+
 
       <Card className="p-4">
         <label className="text-sm font-medium block mb-2">Select event</label>

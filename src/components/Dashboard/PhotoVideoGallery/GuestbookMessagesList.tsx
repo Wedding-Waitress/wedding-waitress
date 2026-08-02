@@ -41,17 +41,18 @@ export const GuestbookMessagesList: React.FC<{ eventId: string | null; items: Ga
   if (!loading && rows.length === 0) return null;
 
   return (
-    <Card className="p-5">
-      <h2 className="text-xl font-bold text-black mb-4 flex items-center gap-2" style={{ color: '#000000' }}>
-        <MessageCircle className="h-5 w-5 text-[#967A59]" /> Guestbook messages ({rows.length})
+    <Card className="p-4 sm:p-5 overflow-hidden">
+      <h2 className="text-xl font-bold text-black mb-4 flex items-start gap-2" style={{ color: '#000000' }}>
+        <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0 mt-0.5" /> <span className="min-w-0 break-words">Guestbook messages ({rows.length})</span>
       </h2>
+
       {loading ? (
         <div className="py-6 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-[#967A59]" /></div>
       ) : (
         <ul className="space-y-3">
           {rows.map(m => (
             <li key={`${m.source}-${m.id}`} className="border border-border rounded-lg p-3 bg-[#FBF8F3]">
-              <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap">{m.message}</p>
+              <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words">{m.message}</p>
               <p className="text-xs text-muted-foreground mt-1.5">
                 — {m.name || 'Anonymous guest'}
                 {m.at && ` • ${new Date(m.at).toLocaleDateString()}`}

@@ -247,12 +247,13 @@ export const GalleryGrid: React.FC<{
   );
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-        <div>
-          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><Images className="h-5 w-5 text-[#967A59]" /> Guest Uploads ({items.length})</h2>
-          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Review, organise, approve, hide and download guest photos, videos and messages.</p>
+    <Card className="p-4 sm:p-5 overflow-hidden">
+      <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> Guest Uploads ({items.length})</h2>
+          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Review, organise, approve, hide and download guest photos, videos and messages.</p>
         </div>
+
         <div className="flex gap-2 flex-wrap items-center">
           {!selectMode ? (
             <Button
@@ -402,11 +403,12 @@ export const GalleryGrid: React.FC<{
               value=""
               onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
             >
-              <SelectTrigger className="lv-premium-shade h-9 w-[170px] bg-white">
-                <span className="flex items-center text-sm">
-                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59]" /> Move to album…
+              <SelectTrigger className="lv-premium-shade h-9 w-full sm:w-[170px] bg-white">
+                <span className="flex items-center text-sm min-w-0">
+                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59] shrink-0" /> <span className="truncate">Move to album…</span>
                 </span>
               </SelectTrigger>
+
               <SelectContent>
                 {GALLERY_ALBUMS.map(a => (
                   <SelectItem key={a} value={a}>{a}</SelectItem>

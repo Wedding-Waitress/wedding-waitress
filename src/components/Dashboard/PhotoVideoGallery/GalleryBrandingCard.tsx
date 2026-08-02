@@ -112,15 +112,16 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   };
 
   return (
-    <Card className="h-full p-5 space-y-5">
-      <div>
+    <Card className="h-full p-4 sm:p-5 space-y-5 overflow-hidden">
+      <div className="min-w-0">
         <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}>
-          <Palette className="h-5 w-5 text-[#967A59]" /> Branding &amp; Theme
+          <Palette className="h-5 w-5 text-[#967A59] shrink-0" /> Branding &amp; Theme
         </h2>
-        <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>
+        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           Customise the look of your guest gallery.
         </p>
       </div>
+
 
       {/* Theme colour */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -131,7 +132,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
               type="color"
               value={themeColor}
               onChange={(e) => setThemeColor(e.target.value)}
-              className="h-11 w-14 rounded-md border border-border cursor-pointer bg-transparent p-1"
+              className="h-11 w-14 shrink-0 rounded-md border border-border cursor-pointer bg-transparent p-1"
               aria-label="Theme colour"
             />
             <Input
@@ -141,9 +142,10 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
                 if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setThemeColor(v.startsWith('#') ? v : `#${v}`);
               }}
               maxLength={7}
-              className="h-11 font-mono"
+              className="h-11 font-mono min-w-0 flex-1"
             />
           </div>
+
           <p className="text-xs text-muted-foreground mt-1">Used for buttons and accents. Defaults to {DEFAULT_THEME_COLOR}.</p>
         </div>
 
@@ -199,12 +201,12 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
 
 
 
-      <div className="flex justify-between gap-2">
-        <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving}>
+      <div className="flex flex-wrap justify-between gap-2">
+        <Button variant="outline" className="lv-premium-shade h-11" onClick={handleReset} disabled={saving}>
           Reset to default
         </Button>
         <Button
-          className="lv-premium-shade"
+          className="lv-premium-shade h-11"
           variant="default"
           disabled={!dirty || saving || !!uploading}
           onClick={handleSave}
@@ -213,6 +215,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
           Save branding
         </Button>
       </div>
+
     </Card>
   );
 };

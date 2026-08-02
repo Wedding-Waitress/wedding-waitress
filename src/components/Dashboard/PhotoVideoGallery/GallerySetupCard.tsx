@@ -39,13 +39,13 @@ export const GallerySetupCard: React.FC<{
   };
 
   return (
-    <Card className="h-full p-5 space-y-5">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><QrIcon className="h-5 w-5 text-[#967A59]" /> Guest Upload Link</h2>
-          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Share the QR code or link your guests use to access the gallery.</p>
+    <Card className="h-full p-4 sm:p-5 space-y-5 overflow-hidden">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Guest Upload Link</h2>
+          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Share the QR code or link your guests use to access the gallery.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Label htmlFor="open-toggle" className="text-sm">Gallery open</Label>
           <Switch id="open-toggle" checked={meta.is_open} onCheckedChange={onToggleOpen} />
         </div>
@@ -54,12 +54,12 @@ export const GallerySetupCard: React.FC<{
       <div className="grid grid-cols-1 xl:grid-cols-[180px_1fr] gap-5 items-start">
         <div className="flex justify-center">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="Gallery QR code" className="w-44 h-44 rounded-lg border border-border" />
+            <img src={qrDataUrl} alt="Gallery QR code" className="w-36 h-36 sm:w-44 sm:h-44 rounded-lg border border-border" />
           ) : (
-            <div className="w-44 h-44 rounded-lg border border-dashed border-border" />
+            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
           )}
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
@@ -69,13 +69,14 @@ export const GallerySetupCard: React.FC<{
             <div>
               <Label className="text-sm">Public upload link</Label>
               <div className="flex gap-2 mt-1.5">
-                <Input value={guestUrl} readOnly className="h-11 text-sm" />
-                <Button variant="outline" className="lv-premium-shade h-11" onClick={copy}>
+                <Input value={guestUrl} readOnly className="h-11 text-sm min-w-0 flex-1" />
+                <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
                   <Copy className="h-4 w-4 mr-1" /> Copy
                 </Button>
               </div>
             </div>
           )}
+
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"

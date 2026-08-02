@@ -49,20 +49,20 @@ export const GallerySlideshowCard: React.FC<{
   };
 
   return (
-    <Card className="p-5 space-y-4">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-start gap-3">
+    <Card className="p-4 sm:p-5 space-y-4 overflow-hidden">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-start gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full bg-[#967A59]/10 flex items-center justify-center shrink-0">
             <MonitorPlay className="h-5 w-5 text-[#967A59]" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Live Slideshow</h2>
-            <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>
+            <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
               Fullscreen auto-advancing slideshow of approved photos and videos — perfect for a TV or projector at the venue.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Label htmlFor="slideshow-toggle" className="text-sm">Enabled</Label>
           <Switch id="slideshow-toggle" checked={enabled} onCheckedChange={handleToggle} />
         </div>
@@ -72,11 +72,12 @@ export const GallerySlideshowCard: React.FC<{
         <div className="rounded-lg border border-border bg-muted/40 p-3 grid grid-cols-1 md:grid-cols-[176px_1fr] gap-4 items-start">
           <div className="flex justify-center">
             {qrDataUrl ? (
-              <img src={qrDataUrl} alt="Live Slideshow QR code" className="w-40 h-40 rounded-lg border border-border bg-white" />
+              <img src={qrDataUrl} alt="Live Slideshow QR code" className="w-36 h-36 sm:w-40 sm:h-40 rounded-lg border border-border bg-white" />
             ) : (
-              <div className="w-40 h-40 rounded-lg border border-dashed border-border" />
+              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-lg border border-dashed border-border" />
             )}
           </div>
+
           <div className="space-y-3">
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Live Slideshow link</Label>

@@ -159,12 +159,12 @@ export const GalleryDownloadsCard: React.FC<{
   const scopes: ZipScope[] = ['all', 'approved', 'photos', 'videos'];
 
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex items-center gap-2">
-        <FileArchive className="h-5 w-5 text-[#967A59]" />
-        <div>
+    <Card className="p-4 space-y-4 overflow-hidden">
+      <div className="flex items-start gap-2">
+        <FileArchive className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
+        <div className="min-w-0">
           <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Download as ZIP</h3>
-          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Bundle uploaded media into a single ZIP file.</p>
+          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Bundle uploaded media into a single ZIP file.</p>
         </div>
       </div>
 
@@ -177,20 +177,21 @@ export const GalleryDownloadsCard: React.FC<{
             <Button
               key={scope}
               variant="outline"
-              className="lv-premium-shade justify-between h-11"
+              className="lv-premium-shade justify-between h-11 w-full min-w-0 gap-2"
               onClick={() => buildZip(scope)}
               disabled={disabled}
               title={count === 0 ? 'No items available' : undefined}
             >
-              <span className="flex items-center">
-                {isBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-                {SCOPE_LABEL[scope]}
+              <span className="flex items-center min-w-0">
+                {isBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
+                <span className="truncate">{SCOPE_LABEL[scope]}</span>
               </span>
-              <span className="text-xs text-muted-foreground">{count}</span>
+              <span className="text-xs text-muted-foreground shrink-0">{count}</span>
             </Button>
           );
         })}
       </div>
+
 
       {busy && (
         <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
