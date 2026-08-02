@@ -624,8 +624,8 @@ export const GalleryGrid: React.FC<{
             </Button>
           </DialogFooter>
 
-        </DialogContent>
+      </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 };
