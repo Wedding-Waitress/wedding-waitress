@@ -98,6 +98,8 @@ export const GalleryUploadFeaturePage: React.FC = () => {
               onSetAlbum={setAlbum}
               onBulkSetAlbum={bulkSetAlbum}
               title="Shared Photos & Videos"
+              description="Review, organise, approve, hide and download guest photos and videos."
+              dark
             />
 
             <GalleryDownloadsCard
