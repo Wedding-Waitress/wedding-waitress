@@ -72,3 +72,6 @@ verify_jwt = false
 
 [functions.delete-event-media]
 verify_jwt = true
+
+[functions.verify-gallery-password]
+verify_jwt = false

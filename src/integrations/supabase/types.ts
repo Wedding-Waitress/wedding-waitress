@@ -2560,6 +2560,45 @@ export type Database = {
           },
         ]
       }
+      media_password_rate_limits: {
+        Row: {
+          attempt_count: number
+          blocked_until: string | null
+          created_at: string
+          event_id: string | null
+          id: string
+          key_hash: string
+          last_attempt_at: string
+          scope: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          attempt_count?: number
+          blocked_until?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          key_hash: string
+          last_attempt_at?: string
+          scope: string
+          updated_at?: string
+          window_start?: string
+        }
+        Update: {
+          attempt_count?: number
+          blocked_until?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          key_hash?: string
+          last_attempt_at?: string
+          scope?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       notification_settings: {
         Row: {
           created_at: string | null
@@ -4314,6 +4353,10 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: Json
       }
+      check_media_password_rate_limit: {
+        Args: { _device_key: string; _ip_key: string }
+        Returns: number
+      }
       cleanup_old_access_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       clear_dj_mc_section_items_by_token: {
@@ -4446,6 +4489,10 @@ export type Database = {
           sections: Json
           start_time: string
         }[]
+      }
+      get_event_id_for_media_token: {
+        Args: { _token: string }
+        Returns: string
       }
       get_event_media_gallery_host: {
         Args: { _event_id: string }
@@ -4910,6 +4957,15 @@ export type Database = {
           _referring_guest_id: string
         }
         Returns: undefined
+      }
+      record_media_password_attempt: {
+        Args: {
+          _device_key: string
+          _event_id: string
+          _ip_key: string
+          _success: boolean
+        }
+        Returns: number
       }
       record_referral_signup: { Args: { p_code: string }; Returns: undefined }
       register_event_guestbook_upload: {
