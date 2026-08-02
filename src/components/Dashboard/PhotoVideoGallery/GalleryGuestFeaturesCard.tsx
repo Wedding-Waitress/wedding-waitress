@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { SlidersHorizontal } from 'lucide-react';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 interface Props {
