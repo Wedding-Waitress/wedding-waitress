@@ -790,8 +790,16 @@ export type Database = {
           photo_booth_strip_template_url: string | null
           show_branding: boolean
           show_event_date: boolean
+          slideshow_albums: string[]
           slideshow_enabled: boolean
+          slideshow_include_photos: boolean
+          slideshow_include_videos: boolean
+          slideshow_loop: boolean
+          slideshow_order: string
           slideshow_photo_duration_sec: number
+          slideshow_show_caption: boolean
+          slideshow_slide_duration_sec: number
+          slideshow_transition: string
           theme_color: string | null
           updated_at: string
           user_id: string
@@ -822,8 +830,16 @@ export type Database = {
           photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
+          slideshow_albums?: string[]
           slideshow_enabled?: boolean
+          slideshow_include_photos?: boolean
+          slideshow_include_videos?: boolean
+          slideshow_loop?: boolean
+          slideshow_order?: string
           slideshow_photo_duration_sec?: number
+          slideshow_show_caption?: boolean
+          slideshow_slide_duration_sec?: number
+          slideshow_transition?: string
           theme_color?: string | null
           updated_at?: string
           user_id: string
@@ -854,8 +870,16 @@ export type Database = {
           photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
+          slideshow_albums?: string[]
           slideshow_enabled?: boolean
+          slideshow_include_photos?: boolean
+          slideshow_include_videos?: boolean
+          slideshow_loop?: boolean
+          slideshow_order?: string
           slideshow_photo_duration_sec?: number
+          slideshow_show_caption?: boolean
+          slideshow_slide_duration_sec?: number
+          slideshow_transition?: string
           theme_color?: string | null
           updated_at?: string
           user_id?: string
@@ -4401,8 +4425,16 @@ export type Database = {
           primary_token: string
           show_branding: boolean
           show_event_date: boolean
+          slideshow_albums: string[]
           slideshow_enabled: boolean
+          slideshow_include_photos: boolean
+          slideshow_include_videos: boolean
+          slideshow_loop: boolean
+          slideshow_order: string
           slideshow_photo_duration_sec: number
+          slideshow_show_caption: boolean
+          slideshow_slide_duration_sec: number
+          slideshow_transition: string
           theme_color: string
           video_guestbook_enabled: boolean
           welcome_message: string
@@ -4443,8 +4475,16 @@ export type Database = {
           photo_booth_strip_template_url: string
           show_branding: boolean
           show_event_date: boolean
+          slideshow_albums: string[]
           slideshow_enabled: boolean
+          slideshow_include_photos: boolean
+          slideshow_include_videos: boolean
+          slideshow_loop: boolean
+          slideshow_order: string
           slideshow_photo_duration_sec: number
+          slideshow_show_caption: boolean
+          slideshow_slide_duration_sec: number
+          slideshow_transition: string
           theme_color: string
           video_guestbook_enabled: boolean
           welcome_message: string
@@ -4494,6 +4534,7 @@ export type Database = {
       get_event_media_items_public: {
         Args: { _token: string }
         Returns: {
+          album: string
           caption: string
           duration_sec: number
           id: string
@@ -5032,6 +5073,20 @@ export type Database = {
           _kind: string
           _logo_url: string
           _template_url: string
+        }
+        Returns: undefined
+      }
+      update_event_media_slideshow_settings: {
+        Args: {
+          _albums: string[]
+          _event_id: string
+          _include_photos: boolean
+          _include_videos: boolean
+          _loop: boolean
+          _order: string
+          _show_caption: boolean
+          _slide_duration_sec: number
+          _transition: string
         }
         Returns: undefined
       }
