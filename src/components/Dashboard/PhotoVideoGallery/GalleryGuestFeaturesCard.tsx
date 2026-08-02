@@ -35,11 +35,11 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
   };
 
   const features: { key: string; title: string; desc: string; checked: boolean; fn: (v: boolean) => Promise<void> }[] = [
-    { key: 'upload', title: 'Upload Photo & Video', desc: 'Allow guests to upload photos and videos', checked: !!meta.guest_upload_enabled, fn: onToggleUpload },
+    { key: 'upload', title: 'Upload Photos & Videos', desc: 'Allow guests to upload photos and videos', checked: !!meta.guest_upload_enabled, fn: onToggleUpload },
     { key: 'view', title: 'Photo & Video Gallery View', desc: 'Let guests browse the shared gallery', checked: !!meta.gallery_view_enabled, fn: onToggleGalleryView },
-    { key: 'gbtext', title: 'Guestbook - Text Message', desc: 'Allow guests to leave a written message', checked: !!meta.guestbook_text_enabled, fn: onToggleGuestbookText },
-    { key: 'gbvoice', title: 'Guestbook - Voice Message', desc: 'Allow guests to record a voice message', checked: !!meta.voice_guestbook_enabled, fn: onToggleVoice },
     { key: 'booth', title: 'Photo Booth', desc: 'Let guests use the on-screen photo booth', checked: !!meta.photo_booth_enabled, fn: onTogglePhotoBooth },
+    { key: 'gbvoice', title: 'Guestbook - Voice Message', desc: 'Allow guests to record a voice message', checked: !!meta.voice_guestbook_enabled, fn: onToggleVoice },
+    { key: 'gbtext', title: 'Guestbook - Text Message', desc: 'Allow guests to leave a written message', checked: !!meta.guestbook_text_enabled, fn: onToggleGuestbookText },
     { key: 'slideshow', title: 'Live Slide Show', desc: 'Display uploaded photos in a live slideshow', checked: !!meta.slideshow_enabled, fn: onToggleSlideshow },
   ];
 
@@ -55,15 +55,19 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
         {features.map(f => (
           <div
             key={f.key}
-            className="rounded-xl border p-4 flex flex-col justify-between gap-4"
-            style={{ backgroundColor: '#472c1d', borderColor: 'rgba(255,255,255,0.18)' }}
+            className="rounded-xl border p-4 flex flex-col justify-between gap-4 transition-shadow"
+            style={{
+              backgroundColor: '#967A59',
+              borderColor: 'rgba(0,0,0,0.10)',
+              boxShadow: '0 4px 14px -4px rgba(29,29,31,0.25), 0 1px 3px rgba(29,29,31,0.10)',
+            }}
           >
             <div>
-              <p className="text-sm font-semibold text-white">{f.title}</p>
-              <p className="text-xs text-white/70 mt-1 leading-relaxed">{f.desc}</p>
+              <p className="text-sm font-semibold" style={{ color: '#1D1D1F' }}>{f.title}</p>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: 'rgba(29,29,31,0.78)' }}>{f.desc}</p>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-white/60">{f.checked ? 'On' : 'Off'}</span>
+              <span className="text-xs" style={{ color: 'rgba(29,29,31,0.7)' }}>{f.checked ? 'On' : 'Off'}</span>
               <Switch
                 checked={f.checked}
                 disabled={busy === f.key}
