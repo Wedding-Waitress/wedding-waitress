@@ -90,10 +90,18 @@ const GalleryLiveView: React.FC = () => {
 
   const headerTitle = useMemo(() => resolveGalleryTitle(meta), [meta]);
 
+  const settings = useMemo<SlideshowSettings>(
+    () => meta?.settings ?? DEFAULT_SLIDESHOW_SETTINGS,
+    [meta?.settings],
+  );
+
+  // Only approved, non-hidden media reaches the client; apply saved filters + order.
+  const items = useMemo(() => applySlideshowSettings(rawItems, settings), [rawItems, settings]);
+
   const photoIntervalMs = useMemo(() => {
-    const s = meta?.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;
+    const s = settings.slide_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;
     return Math.max(3, Math.min(60, s)) * 1000;
-  }, [meta?.slideshow_photo_duration_sec]);
+  }, [settings.slide_duration_sec]);
 
   useEffect(() => {
     document.title = headerTitle ? `${headerTitle} — Live Gallery` : 'Live Gallery';
