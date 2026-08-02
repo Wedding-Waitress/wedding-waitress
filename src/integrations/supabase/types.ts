@@ -4527,6 +4527,7 @@ export type Database = {
           caption: string
           duration_sec: number
           guestbook_message: string
+          guestbook_recording_seq: number
           id: string
           is_guestbook: boolean
           is_photo_booth: boolean

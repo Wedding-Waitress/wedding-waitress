@@ -103,6 +103,8 @@ export interface GalleryItem {
   share_photo_seq?: number | null;
   /** Permanent per-event shared-video number (guest_upload videos only). */
   share_video_seq?: number | null;
+  /** Permanent per-event Audio Guestbook recording number (private recordings only). */
+  guestbook_recording_seq?: number | null;
   like_count?: number;
   signed_url?: string;
 }

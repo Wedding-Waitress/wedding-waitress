@@ -116,6 +116,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
 
             <GalleryVoiceMessagesCard
               items={recordings}
+              eventName={(selectedEvent as any)?.name}
               loading={loading}
               error={error}
               onSetModeration={setModeration}
