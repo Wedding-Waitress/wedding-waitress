@@ -13,6 +13,10 @@ export interface FeatureWorkspaceLayoutProps {
   toggleDisabled?: boolean;
   onBack: () => void;
   backLabel?: string;
+  /** Optional extra action rendered in the header (e.g. Preview as Guest). */
+  headerAction?: React.ReactNode;
+  /** Optional override for the "feature is off" notice. */
+  disabledNotice?: string;
   children?: React.ReactNode;
 }
 
@@ -25,6 +29,8 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   toggleDisabled,
   onBack,
   backLabel = 'Back to Photo & Video Gallery',
+  headerAction,
+  disabledNotice,
   children,
 }) => {
   return (
@@ -54,7 +60,8 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 lg:justify-end lg:gap-6 shrink-0">
+            <div className="flex flex-wrap items-center justify-between gap-4 lg:justify-end lg:gap-6 shrink-0">
+              {headerAction && <div className="order-last lg:order-first shrink-0">{headerAction}</div>}
               {eventName && (
                 <div className="min-w-0">
                   <p className="text-[11px] uppercase tracking-wide text-white/60">Selected event</p>
@@ -77,7 +84,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
           {!enabled && (
             <div className="mt-4 rounded-xl border border-white/25 bg-white/10 px-4 py-3">
               <p className="text-sm text-white break-words">
-                This feature is currently turned off for your guests. You can still manage its settings and content.
+                {disabledNotice || 'This feature is currently turned off for your guests. You can still manage its settings and content.'}
               </p>
             </div>
           )}
