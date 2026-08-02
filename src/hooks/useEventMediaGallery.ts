@@ -37,6 +37,15 @@ export interface GalleryMeta {
   guest_upload_enabled: boolean;
   gallery_view_enabled: boolean;
   guestbook_text_enabled: boolean;
+  /** Live Slideshow settings (per event). */
+  slideshow_include_photos: boolean;
+  slideshow_include_videos: boolean;
+  slideshow_albums: string[];
+  slideshow_order: 'newest' | 'oldest' | 'shuffle';
+  slideshow_slide_duration_sec: number;
+  slideshow_transition: 'fade' | 'slide' | 'none';
+  slideshow_show_caption: boolean;
+  slideshow_loop: boolean;
 }
 
 export interface PhotoBoothTemplateSettings {
