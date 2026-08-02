@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Props {
   items: GalleryItem[];      // navigable list (approved only)
+  eventName?: string | null;
   index: number;
   onIndexChange: (i: number) => void;
   onClose: () => void;
@@ -20,7 +21,7 @@ const fmtDate = (iso: string | null) => {
   return d.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-export const GalleryLightbox: React.FC<Props> = ({ items, index, onIndexChange, onClose }) => {
+export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIndexChange, onClose }) => {
   const [showInfo, setShowInfo] = useState(false);
   const { toast } = useToast();
   const item = items[index];
@@ -82,7 +83,7 @@ export const GalleryLightbox: React.FC<Props> = ({ items, index, onIndexChange, 
         <div className="flex items-center gap-2">
           {item.signed_url && (
             <button type="button" className={iconBtn} title="Download" aria-label="Download"
-              onClick={() => downloadSignedUrl(item.signed_url!, filenameFor(item))}>
+              onClick={() => downloadSignedUrl(item.signed_url!, filenameFor(item, eventName))}>
               <Download className="h-5 w-5" />
             </button>
           )}

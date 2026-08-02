@@ -103,6 +103,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
             onSetModeration={setModeration}
             onSetAlbum={setAlbum}
             onBulkSetAlbum={bulkSetAlbum}
+            eventName={(selectedEvent as any)?.name}
             title="Shared Photos & Videos"
             description="Review, organise, approve, hide and download guest photos and videos."
             dark

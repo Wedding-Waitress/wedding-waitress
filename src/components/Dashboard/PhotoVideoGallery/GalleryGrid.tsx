@@ -42,7 +42,9 @@ export const GalleryGrid: React.FC<{
   emptyText?: string;
   /** Black gallery surface (Photo & Video Sharing workspace). */
   dark?: boolean;
-}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark }) => {
+  /** Event name used for customer-friendly shared-photo download filenames. */
+  eventName?: string | null;
+}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -202,7 +204,7 @@ export const GalleryGrid: React.FC<{
       const it = withUrl[i];
       // sequential, one-by-one, small gap so browser doesn't drop downloads
       // eslint-disable-next-line no-await-in-loop
-      await downloadSignedUrl(it.signed_url!, filenameFor(it));
+      await downloadSignedUrl(it.signed_url!, filenameFor(it, eventName));
       // eslint-disable-next-line no-await-in-loop
       await new Promise(r => setTimeout(r, 350));
     }
@@ -523,7 +525,7 @@ export const GalleryGrid: React.FC<{
                       )}
                       {it.signed_url && (
                         <button
-                          onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it))}
+                          onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it, eventName))}
                           className="bg-white/90 rounded-md p-1 hover:bg-white"
                           title="Download"
                         >
@@ -594,6 +596,7 @@ export const GalleryGrid: React.FC<{
       {lightboxIndex >= 0 && (
         <GalleryLightbox
           items={lightboxItems}
+          eventName={eventName}
           index={lightboxIndex}
           onIndexChange={(i) => setLightboxId(lightboxItems[i]?.id ?? null)}
           onClose={() => setLightboxId(null)}
