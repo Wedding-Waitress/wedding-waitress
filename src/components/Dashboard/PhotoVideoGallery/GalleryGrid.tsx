@@ -590,20 +590,21 @@ export const GalleryGrid: React.FC<{
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[#1D1D1F]">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete {selected.size} item{selected.size === 1 ? '' : 's'}?
+              Delete {visibleSelectedCount} item{visibleSelectedCount === 1 ? '' : 's'}?
             </DialogTitle>
             <DialogDescription>
-              This permanently removes the selected uploads and their files from storage. This cannot be undone.
+              Are you sure you want to delete {visibleSelectedCount} item{visibleSelectedCount === 1 ? '' : 's'}? This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-            <Button variant="outline" size="sm" onClick={() => setConfirmDelete(false)} disabled={bulkBusy}>
+            <Button variant="secondary" size="sm" onClick={() => setConfirmDelete(false)} disabled={bulkBusy}>
               Cancel
             </Button>
             <Button variant="destructive" size="sm" onClick={bulkDelete} disabled={bulkBusy}>
-              {bulkBusy ? 'Deleting…' : `Delete ${selected.size}`}
+              {bulkBusy ? 'Deleting…' : 'Yes, Delete'}
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </Card>
