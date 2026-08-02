@@ -11,6 +11,7 @@ import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery
 import { GalleryPhotoBoothAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPhotoBoothAccessCard';
 import { GalleryPhotoBoothStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPhotoBoothStepsCard';
 import { GalleryPhotoBoothTemplatesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPhotoBoothTemplatesCard';
+import { categoryOf } from '@/lib/mediaPrivacy';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
 import { Button } from '@/components/ui/enhanced-button';
@@ -47,7 +48,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
   const boothUrl = meta?.primary_token ? buildGalleryPhotoBoothUrl(meta.primary_token) : '';
 
   // Filtered view of the existing uploads — Photo Booth captures only.
-  const boothItems = useMemo(() => items.filter(i => i.is_photo_booth), [items]);
+  const boothItems = useMemo(() => items.filter(i => categoryOf(i) === 'photo_booth'), [items]);
 
   const handleToggle = async (v: boolean) => {
     setSaving(true);

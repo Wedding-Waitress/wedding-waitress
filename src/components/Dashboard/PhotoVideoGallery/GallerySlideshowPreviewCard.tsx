@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, Maximize, Minimize, MonitorPlay } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import { guestVisibleItems } from '@/lib/mediaPrivacy';
 import { applySlideshowSettings, type SlideshowSettings } from '@/lib/slideshowSettings';
 
 const MAX_VIDEO_MS = 15 * 1000;
@@ -23,9 +24,7 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
 
   // Only approved, uploaded, non-guestbook photos/videos are eligible — same rule as the live route.
   const eligible = useMemo(() => {
-    const approved = items.filter(
-      i => i.moderation_status === 'approved' && !i.is_guestbook && (i.kind === 'photo' || i.kind === 'video') && !!i.signed_url,
-    );
+    const approved = guestVisibleItems(items).filter(i => !!i.signed_url);
     return applySlideshowSettings(approved, settings);
   }, [items, settings]);
 

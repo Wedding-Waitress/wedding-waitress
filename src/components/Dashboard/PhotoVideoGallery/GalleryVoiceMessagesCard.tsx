@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Mic, Search, Eye, EyeOff, Download, Loader2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { downloadSignedUrl, filenameFor } from './galleryFile';
+import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 
 type Status = 'approved' | 'hidden';
@@ -43,7 +44,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, loading, erro
 
   // Recordings only — text-only guestbook messages are excluded.
   const recordings = useMemo(
-    () => items.filter(i => i.is_guestbook && (i.kind === 'audio' || i.kind === 'video')),
+    () => guestbookRecordings(items),
     [items],
   );
 

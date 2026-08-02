@@ -1,5 +1,5 @@
 // Feature workspace: Upload Photos & Videos (stage 1 — layout foundation).
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents } from '@/hooks/useEvents';
@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
+import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
@@ -23,6 +24,9 @@ export const GalleryUploadFeaturePage: React.FC = () => {
   const { selectedEventId, selectedEvent } = useSelectedEvent(events);
   const { meta, items, loading, error, setOpen, deleteItem, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = useEventMediaGallery(selectedEventId);
   const [saving, setSaving] = useState(false);
+
+  // Public gallery media only — private Guestbook recordings never appear here.
+  const publicItems = useMemo(() => publicGalleryItems(items), [items]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -84,11 +88,11 @@ export const GalleryUploadFeaturePage: React.FC = () => {
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
               <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
-              <GalleryUsageCard meta={meta} items={items} />
+              <GalleryUsageCard meta={meta} items={publicItems} />
             </div>
 
             <GalleryGrid
-              items={items}
+              items={publicItems}
               onDelete={deleteItem}
               onSetModeration={setModeration}
               onSetAlbum={setAlbum}
@@ -96,7 +100,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
             />
 
             <GalleryDownloadsCard
-              items={items}
+              items={publicItems}
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
             />

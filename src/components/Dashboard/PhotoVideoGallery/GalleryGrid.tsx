@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
+import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
 import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +41,9 @@ export const GalleryGrid: React.FC<{
   title?: string;
   description?: string;
   emptyText?: string;
-}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText }) => {
+}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText }) => {
+  // Defence in depth: private Guestbook content is never rendered in a gallery grid.
+  const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
