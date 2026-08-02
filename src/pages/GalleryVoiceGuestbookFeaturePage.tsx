@@ -127,8 +127,8 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
               scopes={['all', 'approved']}
-              labels={{ all: 'Download All Voice Messages', approved: 'Download Approved Voice Messages' }}
-              title="Download Voice Messages"
+              labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
+              title="Download Guestbook Messages"
               description="Save your guests' original recordings as a ZIP archive."
               filePrefix="voice-messages"
               emptyText="No recordings to download yet."

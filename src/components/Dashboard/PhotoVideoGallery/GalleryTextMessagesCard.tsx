@@ -1,4 +1,4 @@
-// Guestbook Text Messages — full-width moderation list for written guest messages.
+// Digital Guestbook Messages — full-width moderation list for written guest messages.
 // Reuses existing records: public.event_guestbook_messages (text submissions) plus the
 // written note attached to Voice Guestbook recordings (event_media_items.guestbook_message).
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -171,7 +171,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
             <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0" />
-            <span className="min-w-0 break-words">Guestbook Text Messages ({allRows.length})</span>
+            <span className="min-w-0 break-words">Digital Guestbook Messages ({allRows.length})</span>
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
             Read, search, approve or hide the written messages your guests have left.
@@ -315,7 +315,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
             <p className="text-xs text-muted-foreground break-words">Exports the {rows.length} message{rows.length === 1 ? '' : 's'} currently shown.</p>
           </div>
           <Button variant="outline" className="lv-premium-shade" onClick={exportCsv} disabled={rows.length === 0}>
-            <Download className="h-4 w-4 mr-1" /> Export Text Messages as CSV
+            <Download className="h-4 w-4 mr-1" /> Export Digital Guestbook Messages as CSV
           </Button>
         </div>
       </div>
