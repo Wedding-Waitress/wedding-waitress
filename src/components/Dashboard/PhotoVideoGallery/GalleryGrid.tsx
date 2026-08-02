@@ -249,7 +249,10 @@ export const GalleryGrid: React.FC<{
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
-        <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({items.length})</h2>
+        <div>
+          <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest Uploads ({items.length})</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">Review, organise, approve, hide and download guest photos, videos and messages.</p>
+        </div>
         <div className="flex gap-2 flex-wrap items-center">
           {!selectMode ? (
             <Button

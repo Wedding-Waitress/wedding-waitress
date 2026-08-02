@@ -103,26 +103,17 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               onToggleSlideshow={setSlideshowEnabled}
             />
 
-            <Section title="Guest access" subtitle="The QR code and link your guests use.">
-              <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
-            </Section>
+            <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Section title="Branding & theme" subtitle="How the gallery looks to your guests.">
-                <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-              </Section>
+              <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             </div>
 
-            <Section title="Password protection" subtitle="Control who can upload or view the gallery.">
-              <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
-            </Section>
+            <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
 
-            <Section title="Overview" subtitle="Usage for this event's gallery.">
-              <GalleryUsageCard meta={meta} items={items} />
-            </Section>
+            <GalleryUsageCard meta={meta} items={items} />
 
-            <Section title="Guest experiences" subtitle="Optional extras guests can use on the day.">
-
+            <div className="space-y-4">
               <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
               <GalleryPhotoBoothCard meta={meta} onToggle={setPhotoBoothEnabled} onModeChange={setPhotoBoothMode} />
               {meta.photo_booth_enabled && (
@@ -135,9 +126,9 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
                 />
               )}
               <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
-            </Section>
+            </div>
 
-            <Section title="Media library" subtitle="Moderate, organise, download and read guest messages.">
+            <div className="space-y-4">
               <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
               <GalleryDownloadsCard
                 items={items}
@@ -145,7 +136,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
                 galleryTitle={meta.gallery_title}
               />
               <GuestbookMessagesList eventId={selectedEventId} items={items} />
-            </Section>
+            </div>
           </div>
         </PinchZoomContainer>
       ) : (
@@ -161,14 +152,5 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
   );
 };
 
-const Section: React.FC<{ title: string; subtitle?: string; children: React.ReactNode }> = ({ title, subtitle, children }) => (
-  <section className="space-y-3">
-    <div className="px-0.5">
-      <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-white">{title}</h2>
-      {subtitle && <p className="text-xs text-white/80 mt-0.5">{subtitle}</p>}
-    </div>
-    <div className="space-y-4">{children}</div>
-  </section>
-);
 
 export default PhotoVideoGalleryPage;
