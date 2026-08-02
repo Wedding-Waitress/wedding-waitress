@@ -1,4 +1,4 @@
-// Feature workspace: Guestbook – Text Message
+// Feature workspace: Digital Guestbook
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,19 +60,19 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   return (
     <>
       <SeoHead
-        title="Guestbook – Text Message | Wedding Waitress"
-        description="Manage the written messages your guests leave for your special event."
+        title="Digital Guestbook | Wedding Waitress"
+        description="Read and manage private written messages and well wishes from your guests."
         noIndex
       />
       <FeatureWorkspaceLayout
-        title="Guestbook – Text Message"
-        description="Manage the written messages your guests leave for your special event."
+        title="Digital Guestbook"
+        description="Read and manage private written messages and well wishes from your guests."
         eventName={(selectedEvent as any)?.name}
         enabled={!!meta?.guestbook_text_enabled}
         toggleDisabled={saving || loading || !meta}
         onToggle={handleToggle}
         onBack={goBack}
-        disabledNotice="This feature is currently turned off for your guests. You can still manage existing messages and preview the Guestbook."
+        disabledNotice="This feature is currently turned off for your guests. You can still manage existing messages and preview the Digital Guestbook."
         headerAction={
           <Button
             variant="outline"
@@ -87,13 +87,13 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         {loading && !meta ? (
           <Card className="p-12 flex flex-col items-center justify-center gap-3">
             <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
-            <p className="text-sm text-muted-foreground">Loading Guestbook…</p>
+            <p className="text-sm text-muted-foreground">Loading Digital Guestbook…</p>
           </Card>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
             <AlertTriangle className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Gallery page to manage the Guestbook.'}
+              {error || 'Select an event on the Photo & Video Gallery page to manage the Digital Guestbook.'}
             </p>
           </Card>
         ) : (
