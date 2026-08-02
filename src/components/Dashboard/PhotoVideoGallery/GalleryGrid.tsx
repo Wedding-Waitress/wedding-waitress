@@ -179,17 +179,67 @@ export const GalleryGrid: React.FC<{
     });
   };
 
+  /**
+   * The single authoritative delete path for this section — used by the hover
+   * rubbish-bin button, "Delete Selected" and the bulk toolbar Delete button.
+   * Cards stay visible until the backend confirms deletion.
+   */
+  const runDelete = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    try {
+      const res = onDeleteMany
+        ? await onDeleteMany(ids)
+        : await (async () => {
+            const deletedIds: string[] = [];
+            const failedIds: string[] = [];
+            for (const id of ids) {
+              try { await onDelete(id); deletedIds.push(id); } catch { failedIds.push(id); }
+            }
+            return { deletedIds, failedIds, storageFailedPaths: [] };
+          })();
+
+      // Clear ONLY successfully deleted items from the selection.
+      if (res.deletedIds.length > 0) {
+        setSelected(prev => {
+          const next = new Set(prev);
+          res.deletedIds.forEach(id => next.delete(id));
+          return next;
+        });
+      }
+
+      if (res.failedIds.length > 0) {
+        toast({
+          title: res.deletedIds.length > 0
+            ? `Deleted ${res.deletedIds.length} of ${ids.length}`
+            : 'Nothing was deleted',
+          description: `${res.failedIds.length} item${res.failedIds.length === 1 ? '' : 's'} could not be deleted. Please refresh and try again.`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: `Deleted ${res.deletedIds.length} item${res.deletedIds.length === 1 ? '' : 's'}` });
+      }
+    } catch (e: any) {
+      toast({
+        title: 'Delete failed',
+        description: e?.message || 'The media could not be deleted. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const bulkDelete = async () => {
     setConfirmDelete(false);
-    if (selectedItems.length === 0) return;
-    setBulkBusy(true);
     const ids = selectedItems.map(i => i.id);
-    for (const id of ids) {
-      try { await onDelete(id); } catch { /* hook may throw; continue */ }
-    }
-    setBulkBusy(false);
-    toast({ title: `Deleted ${ids.length} item${ids.length === 1 ? '' : 's'}` });
-    exitSelectMode();
+    if (ids.length === 0) return;
+    await runDelete(ids);
+    setSelected(prev => {
+      // Leave select mode only when nothing is left selected.
+      if (prev.size === 0) setSelectMode(false);
+      return prev;
+    });
   };
 
   const bulkDownload = async () => {
