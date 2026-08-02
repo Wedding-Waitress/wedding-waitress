@@ -114,10 +114,10 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   return (
     <Card className="p-5 space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-[#1D1D1F] flex items-center gap-2">
+        <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}>
           <Palette className="h-5 w-5 text-[#967A59]" /> Branding &amp; Theme
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>
           Customise the look of your guest gallery.
         </p>
       </div>
