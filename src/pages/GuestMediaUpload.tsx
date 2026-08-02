@@ -61,6 +61,9 @@ interface GalleryPublic {
   logo_image_url: string | null;
   show_branding: boolean;
   video_guestbook_enabled?: boolean;
+  guest_upload_enabled?: boolean;
+  gallery_view_enabled?: boolean;
+  guestbook_text_enabled?: boolean;
 }
 
 interface GalleryUsage {
