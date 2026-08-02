@@ -30,12 +30,20 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
   const { meta, items, loading, error, refresh, setOpen, deleteItem, setModeration, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled } = useEventMediaGallery(selectedEventId);
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6 -m-4 p-4 sm:-m-6 sm:p-6 rounded-none"
+      style={{
+        backgroundImage: "url('/gallery-page-bg.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       <div className="flex items-center gap-3">
         <Camera className="h-6 w-6 text-[#967A59]" />
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Photo &amp; Video Gallery</h1>
-          <p className="text-sm text-muted-foreground">Let guests upload photos and short videos via QR code.</p>
+          <h1 className="text-2xl font-bold text-white">Photo &amp; Video Gallery</h1>
+          <p className="text-sm text-white/80">Let guests upload photos and short videos via QR code.</p>
         </div>
       </div>
 
