@@ -70,11 +70,20 @@ export const GalleryDownloadsCard: React.FC<{
   items: GalleryItem[];
   eventName?: string | null;
   galleryTitle?: string | null;
-}> = ({ items, eventName, galleryTitle }) => {
+  /** Optional overrides used by feature workspaces (e.g. Photo Booth). */
+  scopes?: ZipScope[];
+  labels?: Partial<Record<ZipScope, string>>;
+  title?: string;
+  description?: string;
+  filePrefix?: string;
+  emptyText?: string;
+}> = ({ items, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText }) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState<ZipScope | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
   const [zipPct, setZipPct] = useState(0);
+
+  const labelFor = (s: ZipScope) => labels?.[s] || SCOPE_LABEL[s];
 
   const counts = useMemo(() => ({
     all: filterFor('all', items).length,
@@ -85,8 +94,8 @@ export const GalleryDownloadsCard: React.FC<{
 
   const prefix = useMemo(() => {
     const base = slugify(galleryTitle || eventName, 'wedding') || 'wedding';
-    return `${base}-gallery`;
-  }, [galleryTitle, eventName]);
+    return `${base}-${filePrefix || 'gallery'}`;
+  }, [galleryTitle, eventName, filePrefix]);
 
   const buildZip = async (scope: ZipScope) => {
     if (busy) return;
