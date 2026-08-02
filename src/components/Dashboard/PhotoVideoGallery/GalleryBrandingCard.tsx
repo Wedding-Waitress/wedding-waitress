@@ -132,7 +132,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
               type="color"
               value={themeColor}
               onChange={(e) => setThemeColor(e.target.value)}
-              className="h-11 w-14 rounded-md border border-border cursor-pointer bg-transparent p-1"
+              className="h-11 w-14 shrink-0 rounded-md border border-border cursor-pointer bg-transparent p-1"
               aria-label="Theme colour"
             />
             <Input
@@ -142,9 +142,10 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
                 if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setThemeColor(v.startsWith('#') ? v : `#${v}`);
               }}
               maxLength={7}
-              className="h-11 font-mono"
+              className="h-11 font-mono min-w-0 flex-1"
             />
           </div>
+
           <p className="text-xs text-muted-foreground mt-1">Used for buttons and accents. Defaults to {DEFAULT_THEME_COLOR}.</p>
         </div>
 
@@ -200,12 +201,12 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
 
 
 
-      <div className="flex justify-between gap-2">
-        <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving}>
+      <div className="flex flex-wrap justify-between gap-2">
+        <Button variant="outline" className="lv-premium-shade h-11" onClick={handleReset} disabled={saving}>
           Reset to default
         </Button>
         <Button
-          className="lv-premium-shade"
+          className="lv-premium-shade h-11"
           variant="default"
           disabled={!dirty || saving || !!uploading}
           onClick={handleSave}
@@ -214,6 +215,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
           Save branding
         </Button>
       </div>
+
     </Card>
   );
 };
