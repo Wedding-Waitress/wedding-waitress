@@ -6,6 +6,7 @@
 // public tokens or user agents. Only HMAC-SHA256 digests of the
 // rate-limit identifiers (peppered with a server-only secret) are stored.
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { hmacKey, trustedIp } from './rateLimitKeys.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,30 +20,6 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 
-/** HMAC-SHA256 of `value` using the server-only pepper. */
-export async function hmacKey(pepper: string, value: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(pepper),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  );
-  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(value));
-  return Array.from(new Uint8Array(sig))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-/**
- * Trusted client IP. Only gateway-supplied headers are consulted — never the
- * request body or query string.
- */
-export function trustedIp(headers: Headers): string {
-  const xff = headers.get('x-forwarded-for') || '';
-  const first = xff.split(',')[0]?.trim();
-  return first || headers.get('cf-connecting-ip') || headers.get('x-real-ip') || 'unknown';
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
