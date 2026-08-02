@@ -305,6 +305,22 @@ const GalleryLiveView: React.FC = () => {
     );
   }
 
+  // Saved direct link to a slideshow the host has switched off.
+  if (isSlideshow && meta && !meta.slideshow_enabled) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0B] px-6 text-center">
+        <div className="max-w-md">
+          <h1 className="text-white text-2xl md:text-3xl font-light">Live Slideshow unavailable</h1>
+          <p className="text-white/70 text-sm md:text-base mt-3">
+            The host has turned off the Live Slideshow for this event.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-[#0A0A0B] text-white">
       {/* Soft elegant vignette */}
