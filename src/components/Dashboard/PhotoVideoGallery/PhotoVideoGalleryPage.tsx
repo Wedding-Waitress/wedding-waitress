@@ -6,13 +6,9 @@ import { Button } from '@/components/ui/enhanced-button';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
-import { GallerySetupCard } from './GallerySetupCard';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
-import { GalleryUsageCard } from './GalleryUsageCard';
 import { GalleryPasswordCard } from './GalleryPasswordCard';
 
-import { GalleryGrid } from './GalleryGrid';
-import { GalleryDownloadsCard } from './GalleryDownloadsCard';
 import { GalleryBrandingCard } from './GalleryBrandingCard';
 import { GalleryGuestbookCard } from './GalleryGuestbookCard';
 import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
@@ -28,7 +24,7 @@ interface Props {
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEventSelect }) => {
   const { events, loading: eventsLoading } = useEvents();
-  const { meta, items, loading, error, refresh, setOpen, deleteItem, setModeration, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, refresh, setPassword, updateBranding, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature } = useEventMediaGallery(selectedEventId);
 
   return (
     <div
@@ -104,14 +100,9 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               onToggleSlideshow={setSlideshowEnabled}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
-              <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
-            </div>
+            <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
 
             <GalleryPasswordCard passwordEnabled={meta.password_enabled} hasPassword={meta.has_password} onSave={setPassword} />
-
-            <GalleryUsageCard meta={meta} items={items} />
 
             <div className="space-y-4">
               <GalleryGuestbookCard meta={meta} onToggleVoice={setVoiceGuestbookEnabled} />
@@ -128,15 +119,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               <GallerySlideshowCard meta={meta} onToggle={setSlideshowEnabled} />
             </div>
 
-            <div className="space-y-4">
-              <GalleryGrid items={items} onDelete={deleteItem} onSetModeration={setModeration} onSetAlbum={setAlbum} onBulkSetAlbum={bulkSetAlbum} />
-              <GalleryDownloadsCard
-                items={items}
-                eventName={events.find(e => e.id === selectedEventId)?.name}
-                galleryTitle={meta.gallery_title}
-              />
-              <GuestbookMessagesList eventId={selectedEventId} items={items} />
-            </div>
+            <GuestbookMessagesList eventId={selectedEventId} items={items} />
           </div>
         </PinchZoomContainer>
       ) : (

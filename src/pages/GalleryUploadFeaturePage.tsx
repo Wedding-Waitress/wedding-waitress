@@ -8,7 +8,12 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
-import { Loader2, Upload } from 'lucide-react';
+import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
+import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
+import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
+import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
+import { Card } from '@/components/ui/card';
+import { Loader2, AlertTriangle } from 'lucide-react';
 
 export const GalleryUploadFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +21,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const { events } = useEvents();
   const { selectedEventId, selectedEvent } = useSelectedEvent(events);
-  const { meta, loading, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, setOpen, deleteItem, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = useEventMediaGallery(selectedEventId);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -63,16 +68,40 @@ export const GalleryUploadFeaturePage: React.FC = () => {
         onToggle={handleToggle}
         onBack={goBack}
       >
-        <section className="mx-auto w-full max-w-[1100px] rounded-2xl border shadow-[0_18px_40px_-18px_rgba(0,0,0,0.55)] px-5 sm:px-10 py-14 sm:py-24 text-center"
-          style={{ backgroundColor: '#FBF8F3', borderColor: 'rgba(0,0,0,0.08)' }}>
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: 'rgba(150,122,89,0.12)' }}>
-            <Upload className="h-6 w-6 text-[#967A59]" />
+        {loading && !meta ? (
+          <Card className="p-12 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+            <p className="text-sm text-muted-foreground">Loading gallery…</p>
+          </Card>
+        ) : !meta ? (
+          <Card className="p-10 flex flex-col items-center text-center gap-3">
+            <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground break-words">
+              {error || 'Select an event on the Photo & Video Gallery page to manage guest uploads.'}
+            </p>
+          </Card>
+        ) : (
+          <div className="space-y-6 sm:space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
+              <GalleryUsageCard meta={meta} items={items} />
+            </div>
+
+            <GalleryGrid
+              items={items}
+              onDelete={deleteItem}
+              onSetModeration={setModeration}
+              onSetAlbum={setAlbum}
+              onBulkSetAlbum={bulkSetAlbum}
+            />
+
+            <GalleryDownloadsCard
+              items={items}
+              eventName={(selectedEvent as any)?.name}
+              galleryTitle={meta.gallery_title}
+            />
           </div>
-          <h2 className="mt-6 text-xl sm:text-2xl font-bold" style={{ color: '#1D1D1F' }}>Upload workspace</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm sm:text-base break-words" style={{ color: '#6E6E73' }}>
-            This is where the upload tools and settings for this feature will live.
-          </p>
-        </section>
+        )}
       </FeatureWorkspaceLayout>
     </>
   );
