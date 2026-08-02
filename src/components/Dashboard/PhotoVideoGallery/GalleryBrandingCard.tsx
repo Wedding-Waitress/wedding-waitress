@@ -112,7 +112,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   };
 
   return (
-    <Card className="p-5 space-y-5">
+    <Card className="h-full p-5 space-y-5">
       <div>
         <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}>
           <Palette className="h-5 w-5 text-[#967A59]" /> Branding &amp; Theme

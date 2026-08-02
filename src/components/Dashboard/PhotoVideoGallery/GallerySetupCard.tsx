@@ -39,7 +39,7 @@ export const GallerySetupCard: React.FC<{
   };
 
   return (
-    <Card className="p-5 space-y-5">
+    <Card className="h-full p-5 space-y-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><QrIcon className="h-5 w-5 text-[#967A59]" /> Guest Upload Link</h2>
@@ -51,7 +51,7 @@ export const GallerySetupCard: React.FC<{
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-5 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[180px_1fr] gap-5 items-start">
         <div className="flex justify-center">
           {qrDataUrl ? (
             <img src={qrDataUrl} alt="Gallery QR code" className="w-44 h-44 rounded-lg border border-border" />
