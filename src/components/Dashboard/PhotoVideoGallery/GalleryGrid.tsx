@@ -250,7 +250,7 @@ export const GalleryGrid: React.FC<{
     <Card className="p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({items.length})</h2>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
           {!selectMode ? (
             <Button
               className="lv-premium-shade"
@@ -261,16 +261,39 @@ export const GalleryGrid: React.FC<{
               <CheckCircle2 className="h-4 w-4 mr-1" /> Select
             </Button>
           ) : (
-            <Button
-              className="lv-premium-shade"
-              variant="outline"
-              size="sm"
-              onClick={exitSelectMode}
-            >
-              <X className="h-4 w-4 mr-1" /> Cancel
-            </Button>
+            <>
+              <Button
+                className="lv-premium-shade"
+                variant="outline"
+                size="sm"
+                onClick={selectAllVisible}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-1" />
+                {allVisibleSelected ? 'Deselect All' : 'Select All'}
+              </Button>
+              {visibleSelectedCount > 0 && (
+                <Button
+                  className="lv-premium-shade"
+                  variant="destructive"
+                  size="sm"
+                  disabled={bulkBusy}
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({visibleSelectedCount})
+                </Button>
+              )}
+              <Button
+                className="lv-premium-shade"
+                variant="outline"
+                size="sm"
+                onClick={exitSelectMode}
+              >
+                <X className="h-4 w-4 mr-1" /> Cancel
+              </Button>
+            </>
           )}
         </div>
+
       </div>
 
       {/* Search + type + sort */}
@@ -567,20 +590,21 @@ export const GalleryGrid: React.FC<{
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[#1D1D1F]">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete {selected.size} item{selected.size === 1 ? '' : 's'}?
+              Delete {visibleSelectedCount} item{visibleSelectedCount === 1 ? '' : 's'}?
             </DialogTitle>
             <DialogDescription>
-              This permanently removes the selected uploads and their files from storage. This cannot be undone.
+              Are you sure you want to delete {visibleSelectedCount} item{visibleSelectedCount === 1 ? '' : 's'}? This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-            <Button variant="outline" size="sm" onClick={() => setConfirmDelete(false)} disabled={bulkBusy}>
+            <Button variant="secondary" size="sm" onClick={() => setConfirmDelete(false)} disabled={bulkBusy}>
               Cancel
             </Button>
             <Button variant="destructive" size="sm" onClick={bulkDelete} disabled={bulkBusy}>
-              {bulkBusy ? 'Deleting…' : `Delete ${selected.size}`}
+              {bulkBusy ? 'Deleting…' : 'Yes, Delete'}
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
     </Card>
