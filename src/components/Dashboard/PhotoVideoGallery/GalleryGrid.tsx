@@ -250,7 +250,7 @@ export const GalleryGrid: React.FC<{
     <Card className="p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <h2 className="text-lg font-semibold text-[#1D1D1F]">Guest uploads ({items.length})</h2>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
           {!selectMode ? (
             <Button
               className="lv-premium-shade"
@@ -261,16 +261,39 @@ export const GalleryGrid: React.FC<{
               <CheckCircle2 className="h-4 w-4 mr-1" /> Select
             </Button>
           ) : (
-            <Button
-              className="lv-premium-shade"
-              variant="outline"
-              size="sm"
-              onClick={exitSelectMode}
-            >
-              <X className="h-4 w-4 mr-1" /> Cancel
-            </Button>
+            <>
+              <Button
+                className="lv-premium-shade"
+                variant="outline"
+                size="sm"
+                onClick={selectAllVisible}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-1" />
+                {allVisibleSelected ? 'Deselect All' : 'Select All'}
+              </Button>
+              {visibleSelectedCount > 0 && (
+                <Button
+                  className="lv-premium-shade"
+                  variant="destructive"
+                  size="sm"
+                  disabled={bulkBusy}
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete Selected ({visibleSelectedCount})
+                </Button>
+              )}
+              <Button
+                className="lv-premium-shade"
+                variant="outline"
+                size="sm"
+                onClick={exitSelectMode}
+              >
+                <X className="h-4 w-4 mr-1" /> Cancel
+              </Button>
+            </>
           )}
         </div>
+
       </div>
 
       {/* Search + type + sort */}
