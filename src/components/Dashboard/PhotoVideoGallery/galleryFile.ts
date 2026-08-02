@@ -1,6 +1,6 @@
 // Shared file helpers for the Photo & Video Gallery dashboard grid + lightbox.
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
-import { sharedPhotoFilename } from '@/lib/sharedPhotoFilename';
+import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 
 export async function downloadSignedUrl(url: string, filenameHint: string) {
   try {
@@ -20,8 +20,8 @@ export async function downloadSignedUrl(url: string, filenameHint: string) {
 }
 
 export function filenameFor(item: GalleryItem, eventName?: string | null): string {
-  // Shared photos use the numbered "00001-Event-Name.ext" scheme.
-  const shared = sharedPhotoFilename(item as any, eventName);
+  // Shared photos and shared videos use the numbered "00001-Event-Name.ext" scheme.
+  const shared = sharedMediaFilename(item as any, eventName);
   if (shared) return shared;
 
   const ext = (item.storage_path.split('.').pop() || (item.kind === 'video' ? 'mp4' : 'jpg')).split('?')[0];

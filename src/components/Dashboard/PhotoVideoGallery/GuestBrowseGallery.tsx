@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, X, ChevronLeft, ChevronRight, Play, Pause, Share2, Download, ImageIcon, AlertCircle, Trash2 } from 'lucide-react';
 import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/galleryFile';
-import { sharedPhotoFilename } from '@/lib/sharedPhotoFilename';
+import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 
@@ -21,6 +21,7 @@ export interface BrowseItem {
   storage_path?: string;
   source_category?: string | null;
   share_photo_seq?: number | null;
+  share_video_seq?: number | null;
 }
 
 const POLL_MS = 20 * 1000;
@@ -166,7 +167,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
 
   const downloadCurrent = () => {
     if (!current) return;
-    const shared = sharedPhotoFilename(current as any, eventName);
+    const shared = sharedMediaFilename(current as any, eventName);
     if (shared) {
       downloadSignedUrl(current.signed_url, shared);
       return;
