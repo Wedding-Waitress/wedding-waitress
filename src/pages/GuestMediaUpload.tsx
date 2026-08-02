@@ -494,15 +494,16 @@ export const GuestMediaUpload: React.FC = () => {
         const tabs = ([
           uploadOn ? 'upload' : null,
           galleryOn ? 'gallery' : null,
-          boothOn ? 'booth' : null,
           guestbookOn ? 'guestbook' : null,
+          boothOn ? 'booth' : null,
         ].filter(Boolean)) as TabKey[];
         const labels: Record<TabKey, string> = {
           upload: 'Upload',
           gallery: 'Gallery',
-          booth: 'Digital Photo Booth',
+          booth: 'Photo Booth',
           guestbook: 'Guestbook',
         };
+
         const boothHref = token ? `/gallery-photobooth/${token}` : '#';
         // Only the Digital Photo Booth is enabled -> send the guest straight there.
         if (tabs.length === 1 && tabs[0] === 'booth') {
@@ -542,15 +543,15 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
         )}
         {tabs.length > 1 && (
-        <div className="mb-6 grid grid-cols-2 sm:flex gap-1 rounded-3xl sm:rounded-full p-1 bg-black border border-white/25">
+        <div className="mb-6 flex flex-nowrap w-full gap-1 rounded-full p-1 bg-black border border-white/25 overflow-hidden">
 
           {tabs.map(tab => {
             const active = current === tab;
-            const cls = `h-11 sm:flex-1 min-w-0 rounded-full text-sm font-medium transition-colors px-2 truncate ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
+            const cls = `flex-1 basis-0 min-w-0 h-11 flex items-center justify-center text-center rounded-full font-medium transition-colors px-1.5 sm:px-3 text-[12px] sm:text-sm whitespace-nowrap leading-none ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
             if (tab === 'booth') {
               return (
-                <a key={tab} href={boothHref} className={`${cls} flex items-center justify-center`}>
-                  {labels[tab]}
+                <a key={tab} href={boothHref} className={cls}>
+                  <span className="truncate">{labels[tab]}</span>
                 </a>
               );
             }
@@ -561,12 +562,13 @@ export const GuestMediaUpload: React.FC = () => {
                 onClick={() => setActiveTab(tab as 'upload' | 'gallery' | 'guestbook')}
                 className={cls}
               >
-                {labels[tab]}
+                <span className="truncate">{labels[tab]}</span>
               </button>
             );
           })}
         </div>
         )}
+
 
 
         {current === 'upload' && (
