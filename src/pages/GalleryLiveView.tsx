@@ -397,12 +397,12 @@ const GalleryLiveView: React.FC = () => {
       {(current && (current.caption || current.uploader_name)) || items.length > 0 ? (
         <div className="absolute bottom-0 left-0 right-0 z-20 px-8 pt-16 pb-7 bg-gradient-to-t from-black/80 via-black/35 to-transparent flex items-end justify-between gap-4">
           <div className="pointer-events-none min-w-0">
-            {current?.caption && (
+            {settings.show_caption && current?.caption && (
               <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
                 {current.caption}
               </div>
             )}
-            {(uploaderLabel || current?.uploaded_at) && (
+            {settings.show_caption && (uploaderLabel || current?.uploaded_at) && (
               <div className="text-white/75 text-sm md:text-lg mt-1 font-light tracking-wide">
                 {uploaderLabel}
                 {uploaderLabel && current?.uploaded_at ? ' · ' : ''}
