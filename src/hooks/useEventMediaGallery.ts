@@ -1,6 +1,7 @@
 // Host-side gallery hook
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { SlideshowSettings } from '@/lib/slideshowSettings';
 
 export interface GalleryMeta {
   gallery_id: string;
@@ -37,6 +38,15 @@ export interface GalleryMeta {
   guest_upload_enabled: boolean;
   gallery_view_enabled: boolean;
   guestbook_text_enabled: boolean;
+  /** Live Slideshow settings (per event). */
+  slideshow_include_photos: boolean;
+  slideshow_include_videos: boolean;
+  slideshow_albums: string[];
+  slideshow_order: 'newest' | 'oldest' | 'shuffle';
+  slideshow_slide_duration_sec: number;
+  slideshow_transition: 'fade' | 'slide' | 'none';
+  slideshow_show_caption: boolean;
+  slideshow_loop: boolean;
 }
 
 export interface PhotoBoothTemplateSettings {
@@ -395,5 +405,36 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature };
+  const updateSlideshowSettings = useCallback(async (s: SlideshowSettings) => {
+    if (!eventId) return;
+    const prev = meta;
+    setMeta(m => m ? {
+      ...m,
+      slideshow_include_photos: s.include_photos,
+      slideshow_include_videos: s.include_videos,
+      slideshow_albums: s.albums,
+      slideshow_order: s.order,
+      slideshow_slide_duration_sec: s.slide_duration_sec,
+      slideshow_transition: s.transition,
+      slideshow_show_caption: s.show_caption,
+      slideshow_loop: s.loop,
+    } : m);
+    const { error: err } = await (supabase as any).rpc('update_event_media_slideshow_settings', {
+      _event_id: eventId,
+      _include_photos: s.include_photos,
+      _include_videos: s.include_videos,
+      _albums: s.albums,
+      _order: s.order,
+      _slide_duration_sec: s.slide_duration_sec,
+      _transition: s.transition,
+      _show_caption: s.show_caption,
+      _loop: s.loop,
+    });
+    if (err) {
+      setMeta(prev);
+      throw new Error(err.message || 'Failed to save slideshow settings');
+    }
+  }, [eventId, meta]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature, updateSlideshowSettings };
 }

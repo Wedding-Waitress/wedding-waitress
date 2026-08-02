@@ -42,7 +42,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
     { key: 'booth', title: 'Photo Booth', desc: 'Let guests use the on-screen photo booth', checked: !!meta.photo_booth_enabled, fn: onTogglePhotoBooth, href: '/dashboard/photo-video-gallery/photo-booth' },
     { key: 'gbvoice', title: 'Guestbook - Voice Message', desc: 'Allow guests to record a voice message', checked: !!meta.voice_guestbook_enabled, fn: onToggleVoice, href: '/dashboard/photo-video-gallery/guestbook-voice-message' },
     { key: 'gbtext', title: 'Guestbook - Text Message', desc: 'Allow guests to leave a written message', checked: !!meta.guestbook_text_enabled, fn: onToggleGuestbookText, href: '/dashboard/photo-video-gallery/guestbook-text-message' },
-    { key: 'slideshow', title: 'Live Slide Show', desc: 'Display uploaded photos in a live slideshow', checked: !!meta.slideshow_enabled, fn: onToggleSlideshow },
+    { key: 'slideshow', title: 'Live Slideshow', desc: 'Display uploaded photos in a live slideshow', checked: !!meta.slideshow_enabled, fn: onToggleSlideshow, href: '/dashboard/photo-video-gallery/live-slideshow' },
   ];
 
 

@@ -7,6 +7,12 @@ import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
 import { formatDisplayDate } from '@/lib/utils';
+import {
+  applySlideshowSettings,
+  slideshowSettingsFromRow,
+  DEFAULT_SLIDESHOW_SETTINGS,
+  type SlideshowSettings,
+} from '@/lib/slideshowSettings';
 
 interface LiveMeta {
   gallery_id: string;
@@ -24,6 +30,7 @@ interface LiveMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  settings: SlideshowSettings;
 }
 
 interface LiveItem {
@@ -35,6 +42,7 @@ interface LiveItem {
   uploader_name: string | null;
   caption: string | null;
   uploaded_at: string | null;
+  album: string | null;
   signed_url: string;
   like_count?: number;
 }
@@ -53,7 +61,7 @@ const GalleryLiveView: React.FC = () => {
   // Projector/TV slideshow route: clean fullscreen, no controls.
   const isSlideshow = location.pathname.endsWith('/slideshow');
   const [meta, setMeta] = useState<LiveMeta | null>(null);
-  const [items, setItems] = useState<LiveItem[]>([]);
+  const [rawItems, setItems] = useState<LiveItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
@@ -82,10 +90,18 @@ const GalleryLiveView: React.FC = () => {
 
   const headerTitle = useMemo(() => resolveGalleryTitle(meta), [meta]);
 
+  const settings = useMemo<SlideshowSettings>(
+    () => meta?.settings ?? DEFAULT_SLIDESHOW_SETTINGS,
+    [meta?.settings],
+  );
+
+  // Only approved, non-hidden media reaches the client; apply saved filters + order.
+  const items = useMemo(() => applySlideshowSettings(rawItems, settings), [rawItems, settings]);
+
   const photoIntervalMs = useMemo(() => {
-    const s = meta?.slideshow_photo_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;
+    const s = settings.slide_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;
     return Math.max(3, Math.min(60, s)) * 1000;
-  }, [meta?.slideshow_photo_duration_sec]);
+  }, [settings.slide_duration_sec]);
 
   useEffect(() => {
     document.title = headerTitle ? `${headerTitle} — Live Gallery` : 'Live Gallery';
@@ -147,6 +163,7 @@ const GalleryLiveView: React.FC = () => {
           cover_image_url: row.cover_image_url ?? null,
           logo_image_url: row.logo_image_url ?? null,
           show_branding: row.show_branding !== false,
+          settings: slideshowSettingsFromRow(row),
         });
         // Only fetch items if no password gate, or already unlocked from sessionStorage.
         if (!passwordRequired || passwordRef.current) {
@@ -184,15 +201,20 @@ const GalleryLiveView: React.FC = () => {
     return () => { supabase.removeChannel(channel); window.clearInterval(poll); window.clearInterval(refresh); };
   }, [meta?.event_id, token, loadItems]);
 
-  // Advance helper (respects pause)
+  // Advance helper (respects pause + loop setting)
   const advance = useCallback(() => {
     if (isPausedRef.current) {
       pendingAdvanceRef.current = true;
       return;
     }
     pendingAdvanceRef.current = false;
-    setIndex(i => (items.length === 0 ? 0 : (i + 1) % items.length));
-  }, [items.length]);
+    setIndex(i => {
+      if (items.length === 0) return 0;
+      const next = i + 1;
+      if (next >= items.length) return settings.loop ? 0 : i;
+      return next;
+    });
+  }, [items.length, settings.loop]);
 
   // Photo auto-advance timer; videos advance on `ended` or after 15s max
   useEffect(() => {
@@ -341,7 +363,13 @@ const GalleryLiveView: React.FC = () => {
               key={current.id}
               src={current.signed_url}
               alt={current.caption || 'Guest photo'}
-              className="absolute max-w-full max-h-full object-contain animate-in fade-in duration-1000"
+              className={`absolute max-w-full max-h-full object-contain ${
+                settings.transition === 'none'
+                  ? ''
+                  : settings.transition === 'slide'
+                    ? 'animate-in slide-in-from-right-10 fade-in duration-700'
+                    : 'animate-in fade-in duration-1000'
+              }`}
             />
           ) : (
             <video
@@ -353,7 +381,13 @@ const GalleryLiveView: React.FC = () => {
               muted
               onEnded={advance}
               onError={advance}
-              className="absolute max-w-full max-h-full object-contain animate-in fade-in duration-700"
+              className={`absolute max-w-full max-h-full object-contain ${
+                settings.transition === 'none'
+                  ? ''
+                  : settings.transition === 'slide'
+                    ? 'animate-in slide-in-from-right-10 fade-in duration-700'
+                    : 'animate-in fade-in duration-700'
+              }`}
             />
           )
         )}
@@ -363,12 +397,12 @@ const GalleryLiveView: React.FC = () => {
       {(current && (current.caption || current.uploader_name)) || items.length > 0 ? (
         <div className="absolute bottom-0 left-0 right-0 z-20 px-8 pt-16 pb-7 bg-gradient-to-t from-black/80 via-black/35 to-transparent flex items-end justify-between gap-4">
           <div className="pointer-events-none min-w-0">
-            {current?.caption && (
+            {settings.show_caption && current?.caption && (
               <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
                 {current.caption}
               </div>
             )}
-            {(uploaderLabel || current?.uploaded_at) && (
+            {settings.show_caption && (uploaderLabel || current?.uploaded_at) && (
               <div className="text-white/75 text-sm md:text-lg mt-1 font-light tracking-wide">
                 {uploaderLabel}
                 {uploaderLabel && current?.uploaded_at ? ' · ' : ''}
