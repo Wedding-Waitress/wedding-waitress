@@ -193,7 +193,7 @@ export const GalleryDownloadsCard: React.FC<{
             >
               <span className="flex items-center min-w-0">
                 {isBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
-                <span className="truncate">{SCOPE_LABEL[scope]}</span>
+                <span className="truncate">{labelFor(scope)}</span>
               </span>
               <span className="text-xs text-muted-foreground shrink-0">{count}</span>
             </Button>
