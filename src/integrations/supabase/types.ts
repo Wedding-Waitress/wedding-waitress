@@ -1102,6 +1102,30 @@ export type Database = {
           },
         ]
       }
+      event_media_seq_counters: {
+        Row: {
+          created_at: string
+          event_id: string
+          last_value: number
+          seq_kind: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          last_value?: number
+          seq_kind: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          last_value?: number
+          seq_kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_media_upload_tokens: {
         Row: {
           created_at: string
@@ -4873,6 +4897,10 @@ export type Database = {
           _user_id: string
         }
         Returns: string
+      }
+      next_event_media_seq: {
+        Args: { _event_id: string; _seq_kind: string }
+        Returns: number
       }
       public_manage_guest_group: {
         Args: {
