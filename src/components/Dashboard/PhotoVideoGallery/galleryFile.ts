@@ -1,5 +1,6 @@
 // Shared file helpers for the Photo & Video Gallery dashboard grid + lightbox.
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import { sharedPhotoFilename } from '@/lib/sharedPhotoFilename';
 
 export async function downloadSignedUrl(url: string, filenameHint: string) {
   try {
