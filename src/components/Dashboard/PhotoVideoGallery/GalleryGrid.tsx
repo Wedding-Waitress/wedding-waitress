@@ -41,7 +41,9 @@ export const GalleryGrid: React.FC<{
   title?: string;
   description?: string;
   emptyText?: string;
-}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText }) => {
+  /** Black gallery surface (Photo & Video Sharing workspace). */
+  dark?: boolean;
+}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
