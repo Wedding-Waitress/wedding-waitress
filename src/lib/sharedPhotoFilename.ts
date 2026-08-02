@@ -20,8 +20,13 @@ export interface NameableMedia extends ClassifiableItem {
   share_video_seq?: number | null;
 }
 
-/** Convert an event name into a safe filename fragment. */
-export function safeEventName(name: string | null | undefined): string {
+/**
+ * Convert an event name into a safe filename fragment.
+ * Strips unsafe filesystem characters (/ \ : * ? " < > |), turns "&" into "and",
+ * removes apostrophes and collapses spaces into hyphens. Empty or unusable names
+ * fall back to "Event" so a filename is never malformed.
+ */
+export function safeEventName(name: string | null | undefined, fallback = 'Event'): string {
   const cleaned = (name || '')
     .replace(/&/g, ' and ')
     .replace(/['’`]/g, '')
@@ -29,7 +34,7 @@ export function safeEventName(name: string | null | undefined): string {
     .trim()
     .replace(/[\s-]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return cleaned;
+  return cleaned || fallback;
 }
 
 const VIDEO_EXT_BY_MIME: Record<string, string> = {
