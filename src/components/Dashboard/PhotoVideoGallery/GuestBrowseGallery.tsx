@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, X, ChevronLeft, ChevronRight, Play, Pause, Share2, Download, ImageIcon, AlertCircle, Trash2 } from 'lucide-react';
 import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/galleryFile';
+import { sharedPhotoFilename } from '@/lib/sharedPhotoFilename';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 
@@ -17,6 +18,9 @@ export interface BrowseItem {
   caption: string | null;
   uploaded_at: string | null;
   signed_url: string;
+  storage_path?: string;
+  source_category?: string | null;
+  share_photo_seq?: number | null;
 }
 
 const POLL_MS = 20 * 1000;
@@ -29,9 +33,11 @@ interface Props {
   accent: string;
   /** Bumped by the parent after a successful upload to force an immediate refresh. */
   refreshKey?: number;
+  /** Event name used for customer-friendly shared-photo download filenames. */
+  eventName?: string | null;
 }
 
-export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refreshKey = 0 }) => {
+export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refreshKey = 0, eventName }) => {
   const [items, setItems] = useState<BrowseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +166,11 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
 
   const downloadCurrent = () => {
     if (!current) return;
+    const shared = sharedPhotoFilename(current as any, eventName);
+    if (shared) {
+      downloadSignedUrl(current.signed_url, shared);
+      return;
+    }
     const ext = current.kind === 'video' ? 'mp4' : 'jpg';
     downloadSignedUrl(current.signed_url, `memory-${current.id.slice(0, 8)}.${ext}`);
   };

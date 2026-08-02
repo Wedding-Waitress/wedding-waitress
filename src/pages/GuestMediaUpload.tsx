@@ -579,7 +579,7 @@ export const GuestMediaUpload: React.FC = () => {
 
 
         {current === 'gallery' && token && (
-          <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} />
+          <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} eventName={gallery.event_name} />
         )}
 
         {current === 'guestbook' && token && (
