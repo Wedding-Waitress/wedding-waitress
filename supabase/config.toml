@@ -69,3 +69,6 @@ verify_jwt = true
 
 [functions.gallery-live-feed]
 verify_jwt = false
+
+[functions.delete-event-media]
+verify_jwt = true

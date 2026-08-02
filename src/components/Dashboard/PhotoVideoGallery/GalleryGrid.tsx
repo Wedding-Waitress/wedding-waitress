@@ -32,7 +32,9 @@ const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void | Promise<void>;
+  /** Preferred bulk-safe delete: resolves with exactly which IDs the backend removed. */
+  onDeleteMany?: (ids: string[]) => Promise<{ deletedIds: string[]; failedIds: string[]; storageFailedPaths: string[] }>;
   onSetModeration: (id: string, status: 'approved' | 'hidden') => Promise<void>;
   onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
   onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
@@ -44,7 +46,7 @@ export const GalleryGrid: React.FC<{
   dark?: boolean;
   /** Event name used for customer-friendly shared-photo download filenames. */
   eventName?: string | null;
-}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName }) => {
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -179,17 +181,67 @@ export const GalleryGrid: React.FC<{
     });
   };
 
+  /**
+   * The single authoritative delete path for this section — used by the hover
+   * rubbish-bin button, "Delete Selected" and the bulk toolbar Delete button.
+   * Cards stay visible until the backend confirms deletion.
+   */
+  const runDelete = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    try {
+      const res = onDeleteMany
+        ? await onDeleteMany(ids)
+        : await (async () => {
+            const deletedIds: string[] = [];
+            const failedIds: string[] = [];
+            for (const id of ids) {
+              try { await onDelete(id); deletedIds.push(id); } catch { failedIds.push(id); }
+            }
+            return { deletedIds, failedIds, storageFailedPaths: [] };
+          })();
+
+      // Clear ONLY successfully deleted items from the selection.
+      if (res.deletedIds.length > 0) {
+        setSelected(prev => {
+          const next = new Set(prev);
+          res.deletedIds.forEach(id => next.delete(id));
+          return next;
+        });
+      }
+
+      if (res.failedIds.length > 0) {
+        toast({
+          title: res.deletedIds.length > 0
+            ? `Deleted ${res.deletedIds.length} of ${ids.length}`
+            : 'Nothing was deleted',
+          description: `${res.failedIds.length} item${res.failedIds.length === 1 ? '' : 's'} could not be deleted. Please refresh and try again.`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: `Deleted ${res.deletedIds.length} item${res.deletedIds.length === 1 ? '' : 's'}` });
+      }
+    } catch (e: any) {
+      toast({
+        title: 'Delete failed',
+        description: e?.message || 'The media could not be deleted. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const bulkDelete = async () => {
     setConfirmDelete(false);
-    if (selectedItems.length === 0) return;
-    setBulkBusy(true);
     const ids = selectedItems.map(i => i.id);
-    for (const id of ids) {
-      try { await onDelete(id); } catch { /* hook may throw; continue */ }
-    }
-    setBulkBusy(false);
-    toast({ title: `Deleted ${ids.length} item${ids.length === 1 ? '' : 's'}` });
-    exitSelectMode();
+    if (ids.length === 0) return;
+    await runDelete(ids);
+    setSelected(prev => {
+      // Leave select mode only when nothing is left selected.
+      if (prev.size === 0) setSelectMode(false);
+      return prev;
+    });
   };
 
   const bulkDownload = async () => {
@@ -540,7 +592,7 @@ export const GalleryGrid: React.FC<{
                         {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
                       <button
-                        onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
+                        onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) runDelete([it.id]); }}
                         className="bg-white/90 rounded-md p-1 hover:bg-white text-red-600"
                         title="Delete"
                       >

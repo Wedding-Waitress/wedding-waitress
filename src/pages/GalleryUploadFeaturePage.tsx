@@ -22,7 +22,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const { events } = useEvents();
   const { selectedEventId, selectedEvent } = useSelectedEvent(events);
-  const { meta, items, loading, error, setOpen, deleteItem, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = useEventMediaGallery(selectedEventId);
   const [saving, setSaving] = useState(false);
 
   // Public gallery media only — private Guestbook recordings never appear here.
@@ -100,6 +100,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
           <GalleryGrid
             items={publicItems}
             onDelete={deleteItem}
+              onDeleteMany={deleteItems}
             onSetModeration={setModeration}
             onSetAlbum={setAlbum}
             onBulkSetAlbum={bulkSetAlbum}

@@ -1,6 +1,7 @@
 // Host-side gallery hook
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
 
 export interface GalleryMeta {
@@ -233,10 +234,24 @@ export function useEventMediaGallery(eventId: string | null) {
     setMeta(m => m ? { ...m, is_open: open } : m);
   }, [eventId]);
 
+  /**
+   * Authoritative deletion for gallery media (single + bulk).
+   * Cards are only removed from state after the backend confirms the rows are gone.
+   */
+  const deleteItems = useCallback(async (ids: string[]) => {
+    const result = await deleteEventMediaItems(ids);
+    if (result.deletedIds.length > 0) {
+      const gone = new Set(result.deletedIds);
+      setItems(prev => prev.filter(i => !gone.has(i.id)));
+      // Refetch so counts, usage, ZIP totals and filters all reflect the backend.
+      if (eventId) loadItems(eventId).catch(() => {});
+    }
+    return result;
+  }, [eventId, loadItems]);
+
   const deleteItem = useCallback(async (id: string) => {
-    await (supabase as any).rpc('delete_event_media_item', { _item_id: id });
-    setItems(prev => prev.filter(i => i.id !== id));
-  }, []);
+    await deleteItems([id]);
+  }, [deleteItems]);
 
   const setModeration = useCallback(async (id: string, status: 'approved' | 'hidden') => {
     // Optimistic update
@@ -446,5 +461,5 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId, meta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature, updateSlideshowSettings };
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, deleteItems, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature, updateSlideshowSettings };
 }

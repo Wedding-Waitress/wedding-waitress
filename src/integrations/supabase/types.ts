@@ -4325,6 +4325,14 @@ export type Database = {
         Returns: boolean
       }
       delete_event_media_item: { Args: { _item_id: string }; Returns: boolean }
+      delete_event_media_items: {
+        Args: { _item_ids: string[] }
+        Returns: {
+          event_id: string
+          id: string
+          storage_path: string
+        }[]
+      }
       delete_running_sheet_item_by_token: {
         Args: { item_id: string; share_token: string }
         Returns: boolean
