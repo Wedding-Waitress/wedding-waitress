@@ -147,12 +147,18 @@ const App = () => (
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<GalleryUploadFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/photo-video-sharing" element={<GalleryUploadFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<GalleryTextGuestbookFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<GalleryVoiceGuestbookFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/digital-photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/digital-guestbook" element={<GalleryTextGuestbookFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<GalleryVoiceGuestbookFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/live-slideshow" element={<GallerySlideshowFeaturePage />} />
+
+          {/* Legacy workspace routes — permanent redirects so bookmarks keep working */}
+          <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />
+          <Route path="/dashboard/photo-video-gallery/photo-booth" element={<Navigate to="/dashboard/photo-video-gallery/digital-photo-booth" replace />} />
+          <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
+          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/audio-guestbook" replace />} />
 
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
