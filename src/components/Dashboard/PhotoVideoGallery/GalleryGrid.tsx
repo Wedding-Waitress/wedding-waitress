@@ -469,8 +469,8 @@ export const GalleryGrid: React.FC<{
             return (
               <div
                 key={it.id}
-                className={`relative group rounded-lg overflow-hidden border bg-white flex flex-col ${
-                  isSelected ? 'border-[#967A59] ring-2 ring-[#967A59]' : 'border-border'
+                className={`relative group rounded-lg overflow-hidden border border-black bg-white flex flex-col ${
+                  isSelected ? 'ring-2 ring-[#967A59]' : ''
                 } ${isHidden ? 'opacity-60' : ''}`}
               >
                 {/* Square 1:1 thumbnail */}
