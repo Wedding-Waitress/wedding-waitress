@@ -83,7 +83,12 @@ export const GalleryDownloadsCard: React.FC<{
    * Only the organiser-only Guestbook workspaces may pass 'guestbook'.
    */
   privacyScope?: 'public' | 'guestbook';
-}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public' }) => {
+  /**
+   * Button layout. 'grid' (default) renders two columns; 'vertical' renders a full-width
+   * single column stack.
+   */
+  layout?: 'grid' | 'vertical';
+}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid' }) => {
   const { toast } = useToast();
   const items = useMemo(
     () => (privacyScope === 'guestbook' ? itemsProp : publicGalleryItems(itemsProp)),
@@ -178,7 +183,7 @@ export const GalleryDownloadsCard: React.FC<{
   const scopes: ZipScope[] = scopesProp ?? ['all', 'approved', 'photos', 'videos'];
 
   return (
-    <Card className="p-4 space-y-4 overflow-hidden">
+    <Card className="p-4 space-y-4 overflow-hidden h-full flex flex-col">
       <div className="flex items-start gap-2">
         <FileArchive className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
@@ -187,7 +192,7 @@ export const GalleryDownloadsCard: React.FC<{
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className={`grid grid-cols-1 gap-2 ${layout === 'vertical' ? '' : 'sm:grid-cols-2'}`}>
         {scopes.map(scope => {
           const isBusy = busy === scope;
           const count = counts[scope];
@@ -196,14 +201,14 @@ export const GalleryDownloadsCard: React.FC<{
             <Button
               key={scope}
               variant="outline"
-              className="lv-premium-shade justify-between h-11 w-full min-w-0 gap-2"
+              className="lv-premium-shade justify-between h-11 w-full gap-2"
               onClick={() => buildZip(scope)}
               disabled={disabled}
               title={count === 0 ? 'No items available' : undefined}
             >
-              <span className="flex items-center min-w-0">
+              <span className="flex items-center">
                 {isBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
-                <span className="truncate">{labelFor(scope)}</span>
+                <span className="whitespace-nowrap">{labelFor(scope)}</span>
               </span>
               <span className="text-xs text-muted-foreground shrink-0">{count}</span>
             </Button>

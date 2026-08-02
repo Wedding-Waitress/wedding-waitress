@@ -36,7 +36,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
   const storageWarn = !storageFull && storagePct >= 80;
 
   return (
-    <Card className="p-4 sm:p-5 overflow-hidden">
+    <Card className="h-full p-4 sm:p-5 overflow-hidden">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><BarChart3 className="h-5 w-5 text-[#967A59] shrink-0" /> Gallery Usage</h2>
