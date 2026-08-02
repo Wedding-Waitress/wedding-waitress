@@ -19,6 +19,7 @@ const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
 const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeaturePage").then(m => ({ default: m.GalleryUploadFeaturePage })));
 const GalleryViewFeaturePage = lazy(() => import("./pages/GalleryViewFeaturePage").then(m => ({ default: m.GalleryViewFeaturePage })));
+const GalleryPhotoBoothFeaturePage = lazy(() => import("./pages/GalleryPhotoBoothFeaturePage").then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
 
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
