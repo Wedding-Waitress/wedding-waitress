@@ -107,6 +107,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
             eventName={(selectedEvent as any)?.name}
             title="Shared Photos & Videos"
             description="Review, organise, approve, hide and download guest photos and videos."
+            hideCardActions
             dark
           />
         </div>
