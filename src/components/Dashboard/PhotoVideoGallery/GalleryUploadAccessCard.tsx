@@ -1,4 +1,4 @@
-// Guest Upload Access — QR code + public upload link (feature workspace).
+// Photo & Video Sharing Access — QR code + public upload link (feature workspace).
 // Reuses the same meta/token/toggle logic as the original setup card; Live View
 // controls intentionally live elsewhere (future Live Slideshow page).
 import React, { useEffect, useState } from 'react';
@@ -46,10 +46,10 @@ export const GalleryUploadAccessCard: React.FC<{
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Guest Upload Access
+            <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Photo & Video Sharing Access
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
-            Share the QR code or link your guests use to upload photos and videos.
+            Share the QR code or link your guests use to share photos and videos.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -61,7 +61,7 @@ export const GalleryUploadAccessCard: React.FC<{
       <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
         <div className="flex justify-center">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="Guest upload QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+            <img src={qrDataUrl} alt="Photo & Video Sharing QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
           ) : (
             <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
           )}
@@ -70,11 +70,11 @@ export const GalleryUploadAccessCard: React.FC<{
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-              <p className="text-sm text-destructive">Upload link not ready — please retry.</p>
+              <p className="text-sm text-destructive">Sharing link not ready — please retry.</p>
             </div>
           ) : (
             <div>
-              <Label className="text-sm">Public upload link</Label>
+              <Label className="text-sm">Public sharing link</Label>
               <div className="flex flex-wrap gap-2 mt-1.5">
                 <Input value={guestUrl} readOnly className="h-11 text-sm min-w-0 flex-1" />
                 <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
@@ -90,9 +90,9 @@ export const GalleryUploadAccessCard: React.FC<{
               className="lv-premium-shade"
               onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
               disabled={!guestUrl}
-              title="Open the guest upload page in a new tab"
+              title="Open the sharing page in a new tab"
             >
-              <ImageIcon className="h-4 w-4 mr-1" /> Open guest upload page
+              <ImageIcon className="h-4 w-4 mr-1" /> Open sharing page
             </Button>
             <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code
