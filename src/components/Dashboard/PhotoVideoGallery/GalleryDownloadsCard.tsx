@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
+import { sharedPhotoFilename } from '@/lib/sharedPhotoFilename';
 
 type ZipScope = 'all' | 'approved' | 'photos' | 'videos';
 
@@ -149,7 +150,7 @@ export const GalleryDownloadsCard: React.FC<{
           const res = await fetch(item.signed_url!);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const blob = await res.blob();
-          zip.file(entryNameFor(item, used), blob);
+          zip.file(entryNameFor(item, used, eventName), blob);
         } catch {
           failures++;
         }
