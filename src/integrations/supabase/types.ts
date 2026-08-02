@@ -4357,6 +4357,7 @@ export type Database = {
         Args: { _device_key: string; _ip_key: string }
         Returns: number
       }
+      cleanup_media_password_rate_limits: { Args: never; Returns: number }
       cleanup_old_access_attempts: { Args: never; Returns: undefined }
       cleanup_old_rate_limits: { Args: never; Returns: undefined }
       clear_dj_mc_section_items_by_token: {
