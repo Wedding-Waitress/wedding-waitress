@@ -47,22 +47,23 @@ export const GalleryPhotoBoothCard: React.FC<{
   };
 
   return (
-    <Card className="p-5 space-y-4">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-start gap-3">
+    <Card className="p-4 sm:p-5 space-y-4 overflow-hidden">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-start gap-3 min-w-0">
           <div className="w-10 h-10 rounded-full bg-[#967A59]/10 flex items-center justify-center shrink-0">
             <Camera className="h-5 w-5 text-[#967A59]" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Photo Booth</h2>
-            <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Let guests snap a photo on their phone or tablet that goes straight into your gallery.</p>
+            <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>Let guests snap a photo on their phone or tablet that goes straight into your gallery.</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Label htmlFor="photobooth-toggle" className="text-sm">Enabled</Label>
           <Switch id="photobooth-toggle" checked={!!meta.photo_booth_enabled} onCheckedChange={handleToggle} />
         </div>
       </div>
+
 
       {meta.photo_booth_enabled && (
         <>
