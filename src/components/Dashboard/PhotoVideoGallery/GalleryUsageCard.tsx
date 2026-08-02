@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive, Users } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive, Users, BarChart3 } from 'lucide-react';
 import { formatBytes } from '@/lib/mediaValidation';
 import type { GalleryMeta, GalleryItem } from '@/hooks/useEventMediaGallery';
 
@@ -39,7 +39,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Gallery Usage</h2>
+          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><BarChart3 className="h-5 w-5 text-[#967A59]" /> Gallery Usage</h2>
           <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>View photo, video and storage usage for this event.</p>
         </div>
         <HardDrive className="h-5 w-5 text-[#967A59] shrink-0" />

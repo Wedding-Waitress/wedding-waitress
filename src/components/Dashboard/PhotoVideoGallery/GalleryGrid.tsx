@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen } from 'lucide-react';
+import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
 import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
@@ -250,7 +250,7 @@ export const GalleryGrid: React.FC<{
     <Card className="p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
         <div>
-          <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Guest Uploads ({items.length})</h2>
+          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><Images className="h-5 w-5 text-[#967A59]" /> Guest Uploads ({items.length})</h2>
           <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Review, organise, approve, hide and download guest photos, videos and messages.</p>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
