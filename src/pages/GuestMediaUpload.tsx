@@ -738,6 +738,8 @@ export const GuestMediaUpload: React.FC = () => {
         {theme.showBranding && <GalleryFooterLogo className="mt-6" />}
 
       </div>
+        );
+      })()}
       </div>
     </div>
   );
