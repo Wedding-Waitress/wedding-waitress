@@ -1,5 +1,6 @@
 // Guest Features card — enable/disable guest-facing features per event.
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
   meta, onToggleUpload, onToggleGalleryView, onToggleGuestbookText,
   onToggleVoice, onTogglePhotoBooth, onToggleSlideshow,
 }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [busy, setBusy] = useState<string | null>(null);
 
