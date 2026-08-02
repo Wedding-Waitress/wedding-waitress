@@ -24,7 +24,7 @@ const useInView = <T extends HTMLElement>(rootMargin = '300px') => {
   return { ref, inView };
 };
 
-export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void; dark?: boolean }> = ({ item, onOpen, dark = false }) => {
+export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item, onOpen }) => {
   const { ref, inView } = useInView<HTMLDivElement>();
   const [status, setStatus] = useState<Status>('idle');
   const [attempt, setAttempt] = useState(0);
@@ -45,24 +45,24 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void; dark?
 
   const Fallback = ({ label, warn }: { label: string; warn?: boolean }) => (
     <div
-      className={`absolute inset-0 flex flex-col items-center justify-center gap-1 text-center p-2 cursor-pointer ${dark ? 'bg-[#111]' : 'bg-muted'}`}
+      className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-muted text-center p-2 cursor-pointer"
       onClick={onOpen}
     >
       {item.kind === 'video' ? (
-        <FileVideo className={`h-7 w-7 ${dark ? 'text-white/60' : 'text-muted-foreground'}`} />
+        <FileVideo className="h-7 w-7 text-muted-foreground" />
       ) : item.kind === 'audio' ? (
-        <Mic className={`h-7 w-7 ${dark ? 'text-white/60' : 'text-muted-foreground'}`} />
+        <Mic className="h-7 w-7 text-muted-foreground" />
       ) : (
-        <FileImage className={`h-7 w-7 ${dark ? 'text-white/60' : 'text-muted-foreground'}`} />
+        <FileImage className="h-7 w-7 text-muted-foreground" />
       )}
-      <span className={`text-[10px] ${warn ? (dark ? 'text-amber-400' : 'text-amber-600') : (dark ? 'text-white/70' : 'text-muted-foreground')} flex items-center gap-1`}>
+      <span className={`text-[10px] ${warn ? 'text-amber-600' : 'text-muted-foreground'} flex items-center gap-1`}>
         {warn && <AlertTriangle className="h-3 w-3" />} {label}
       </span>
     </div>
   );
 
   return (
-    <div ref={ref} className={`absolute inset-0 ${dark ? 'bg-[#111]' : 'bg-muted'}`}>
+    <div ref={ref} className="absolute inset-0 bg-muted">
       {!item.signed_url ? (
         <Fallback label="Preview unavailable" warn />
       ) : item.kind === 'audio' ? (
@@ -93,8 +93,8 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void; dark?
             />
           )}
           {status !== 'ready' && status !== 'error' && (
-            <div className={`absolute inset-0 flex items-center justify-center ${dark ? 'bg-[#111]' : 'bg-muted'}`}>
-              <Loader2 className={`h-5 w-5 animate-spin ${dark ? 'text-white/50' : 'text-muted-foreground'}`} />
+            <div className="absolute inset-0 flex items-center justify-center bg-muted">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           )}
           {status === 'error' && <Fallback label="Preview unavailable" warn />}
@@ -121,8 +121,8 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void; dark?
             <div className="absolute inset-0 bg-gradient-to-br from-[#2b2b2e] to-[#4a4a4f]" />
           )}
           {status !== 'ready' && status !== 'error' && (
-            <div className={`absolute inset-0 flex items-center justify-center ${dark ? 'bg-[#111]' : 'bg-muted'}`}>
-              <Loader2 className={`h-5 w-5 animate-spin ${dark ? 'text-white/50' : 'text-muted-foreground'}`} />
+            <div className="absolute inset-0 flex items-center justify-center bg-muted">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           )}
           <div className="absolute inset-0 flex items-center justify-center bg-black/25 pointer-events-none">
