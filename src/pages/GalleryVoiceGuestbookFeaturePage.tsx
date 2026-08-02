@@ -11,6 +11,7 @@ import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery
 import { GalleryVoiceGuestbookAccessCard, buildVoiceGuestbookUrl } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceGuestbookAccessCard';
 import { GalleryVoiceGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceGuestbookStepsCard';
 import { GalleryVoiceSettingsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceSettingsCard';
+import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { GalleryVoiceMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceMessagesCard';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
 import { Button } from '@/components/ui/enhanced-button';
@@ -42,7 +43,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
 
   // Recordings only — text-only guestbook messages are never included.
   const recordings = useMemo(
-    () => items.filter(i => i.is_guestbook && (i.kind === 'audio' || i.kind === 'video')),
+    () => guestbookRecordings(items),
     [items],
   );
 
@@ -114,7 +115,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
             <GalleryVoiceSettingsCard meta={meta} />
 
             <GalleryVoiceMessagesCard
-              items={items}
+              items={recordings}
               loading={loading}
               error={error}
               onSetModeration={setModeration}

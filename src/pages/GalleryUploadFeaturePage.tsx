@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
+import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
@@ -84,11 +85,11 @@ export const GalleryUploadFeaturePage: React.FC = () => {
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
               <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
-              <GalleryUsageCard meta={meta} items={items} />
+              <GalleryUsageCard meta={meta} items={publicItems} />
             </div>
 
             <GalleryGrid
-              items={items}
+              items={publicItems}
               onDelete={deleteItem}
               onSetModeration={setModeration}
               onSetAlbum={setAlbum}
@@ -96,7 +97,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
             />
 
             <GalleryDownloadsCard
-              items={items}
+              items={publicItems}
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
             />

@@ -97,6 +97,8 @@ export interface GalleryItem {
   is_guestbook: boolean;
   is_photo_booth: boolean;
   is_photo_booth_strip: boolean;
+  /** Authoritative privacy classification (see src/lib/mediaPrivacy.ts). */
+  source_category?: 'guest_upload' | 'photo_booth' | 'guestbook_recording';
   like_count?: number;
   signed_url?: string;
 }
