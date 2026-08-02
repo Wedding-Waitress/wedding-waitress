@@ -1,5 +1,5 @@
 // Feature workspace: Upload Photos & Videos (stage 1 — layout foundation).
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents } from '@/hooks/useEvents';
