@@ -25,6 +25,9 @@ export const GalleryUploadFeaturePage: React.FC = () => {
   const { meta, items, loading, error, setOpen, deleteItem, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = useEventMediaGallery(selectedEventId);
   const [saving, setSaving] = useState(false);
 
+  // Public gallery media only — private Guestbook recordings never appear here.
+  const publicItems = useMemo(() => publicGalleryItems(items), [items]);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) navigate('/');
