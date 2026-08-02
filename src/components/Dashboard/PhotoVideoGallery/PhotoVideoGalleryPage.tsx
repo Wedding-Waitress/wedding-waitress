@@ -103,9 +103,8 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               onToggleSlideshow={setSlideshowEnabled}
             />
 
-            <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+              <GallerySetupCard meta={meta} onToggleOpen={setOpen} />
               <GalleryBrandingCard eventId={selectedEventId} meta={meta} onSave={updateBranding} />
             </div>
 
