@@ -1,4 +1,4 @@
-// Voice Message Settings — surfaces the existing recording settings used by the guest recorder.
+// Audio & Video Message Settings — surfaces the existing recording settings used by the guest recorder.
 // Read-only: values come from the saved gallery settings; no new settings are introduced here.
 import React from 'react';
 import { Card } from '@/components/ui/card';
@@ -36,7 +36,7 @@ export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta
     <Card className="p-5 sm:p-6 space-y-5 overflow-hidden">
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <Settings2 className="h-5 w-5 text-[#967A59] shrink-0" /> Voice Message Settings
+          <Settings2 className="h-5 w-5 text-[#967A59] shrink-0" /> Audio & Video Message Settings
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           The saved recording settings currently used by your guest recorder.
