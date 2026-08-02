@@ -87,7 +87,7 @@ export const BACKGROUND_COLOR_FAMILIES: PaletteFamily[] = [
     swatches: [
       { name: 'Butter', hex: '#FCF3D8' },
       { name: 'Soft gold', hex: '#F0DFA8' },
-      { name: 'Honey', hex: '#DFBE६'.replace('६', '6') },
+      { name: 'Honey', hex: '#DFC97E' },
       { name: 'Antique gold', hex: '#B79447' },
       { name: 'Bronze', hex: '#8A6D2B' },
     ],
