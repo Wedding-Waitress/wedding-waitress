@@ -9,8 +9,6 @@ import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
 import { GalleryGuestbookCard } from './GalleryGuestbookCard';
-import { GalleryPhotoBoothCard } from './GalleryPhotoBoothCard';
-import { GalleryPhotoBoothTemplatesCard } from './GalleryPhotoBoothTemplatesCard';
 import { GallerySlideshowCard } from './GallerySlideshowCard';
 import { GuestbookMessagesList } from './GuestbookMessagesList';
 import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
