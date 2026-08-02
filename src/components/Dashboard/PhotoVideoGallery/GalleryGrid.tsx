@@ -302,7 +302,7 @@ export const GalleryGrid: React.FC<{
   );
 
   return (
-    <Card className={`p-4 sm:p-5 overflow-hidden ${dark ? 'bg-black border-white/15' : ''}`}>
+    <div className={`p-4 sm:p-5 overflow-hidden rounded-2xl border ${dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
