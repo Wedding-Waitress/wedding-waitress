@@ -912,6 +912,7 @@ export type Database = {
           event_id: string
           gallery_id: string
           guestbook_message: string | null
+          guestbook_recording_seq: number | null
           id: string
           is_guestbook: boolean
           is_photo_booth: boolean
@@ -941,6 +942,7 @@ export type Database = {
           event_id: string
           gallery_id: string
           guestbook_message?: string | null
+          guestbook_recording_seq?: number | null
           id?: string
           is_guestbook?: boolean
           is_photo_booth?: boolean
@@ -970,6 +972,7 @@ export type Database = {
           event_id?: string
           gallery_id?: string
           guestbook_message?: string | null
+          guestbook_recording_seq?: number | null
           id?: string
           is_guestbook?: boolean
           is_photo_booth?: boolean
