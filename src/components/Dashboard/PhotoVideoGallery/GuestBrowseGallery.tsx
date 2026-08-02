@@ -181,8 +181,8 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     setDeleting(true);
     setDeleteError(null);
     try {
-      const { error: err } = await (supabase as any).rpc('delete_event_media_item', { _item_id: current.id });
-      if (err) throw new Error(err.message);
+      // Same authoritative deletion path as the dashboard grid (DB row + storage object).
+      await deleteEventMediaItems([current.id]);
       const removedId = current.id;
       setItems(prev => {
         const next = prev.filter(i => i.id !== removedId);
