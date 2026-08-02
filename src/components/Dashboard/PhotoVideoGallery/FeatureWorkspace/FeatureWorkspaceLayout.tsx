@@ -38,32 +38,41 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
       {/* Slim header */}
       <header className="w-full border-b border-white/15">
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-start gap-3 sm:gap-4 min-w-0">
-              <img
-                src="/wedding-waitress-logo.png"
-                alt="Wedding Waitress"
-                className="h-8 w-auto shrink-0 mt-0.5"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-              <div className="min-w-0">
-                <button
-                  type="button"
-                  onClick={onBack}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/40 px-3 py-1.5 min-h-[36px] text-xs sm:text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
-                >
-                  <ArrowLeft className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{backLabel}</span>
-                </button>
-                <h1 className="mt-3 text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words">{title}</h1>
-                <p className="text-sm text-white/80 mt-1 break-words">{description}</p>
-              </div>
+          {/* Logo — top left */}
+          <div className="flex justify-center lg:justify-start">
+            <img
+              src="/wedding-waitress-logo.png"
+              alt="Wedding Waitress"
+              className="h-8 w-auto shrink-0"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+          </div>
+
+          {/* Header row: back (left) · title (true centre) · actions + event + toggle (right) */}
+          <div className="relative mt-4 flex flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+            {/* Left */}
+            <div className="w-full lg:w-auto lg:max-w-[26%] flex justify-center lg:justify-start shrink-0">
+              <button
+                type="button"
+                onClick={onBack}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/40 px-3 py-1.5 min-h-[36px] text-xs sm:text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
+              >
+                <ArrowLeft className="h-4 w-4 shrink-0" />
+                <span className="truncate">{backLabel}</span>
+              </button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 lg:justify-end lg:gap-6 shrink-0">
-              {headerAction && <div className="order-last lg:order-first shrink-0">{headerAction}</div>}
+            {/* Centre — statically centred on mobile/tablet, absolutely centred on desktop */}
+            <div className="w-full text-center lg:absolute lg:left-1/2 lg:top-0 lg:-translate-x-1/2 lg:w-[40%] lg:max-w-[560px] lg:px-2 pointer-events-none">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words">{title}</h1>
+              <p className="text-sm text-white/80 mt-1 break-words">{description}</p>
+            </div>
+
+            {/* Right */}
+            <div className="w-full lg:w-auto lg:max-w-[30%] flex flex-wrap items-center justify-center gap-4 lg:justify-end lg:gap-5 shrink-0">
+              {headerAction && <div className="shrink-0">{headerAction}</div>}
               {eventName && (
-                <div className="min-w-0">
+                <div className="min-w-0 text-center lg:text-left">
                   <p className="text-[11px] uppercase tracking-wide text-white/60">Selected event</p>
                   <p className="text-sm sm:text-base font-semibold text-white truncate max-w-[220px]">{eventName}</p>
                 </div>
