@@ -108,6 +108,7 @@ export const GuestMediaUpload: React.FC = () => {
       // ?tab=gallery / ?tab=guestbook always wins; otherwise default to Upload.
       const urlTab = new URLSearchParams(window.location.search).get('tab');
       if (urlTab === 'gallery' || urlTab === 'guestbook' || urlTab === 'upload') {
+        setRequestedTab(urlTab);
         setActiveTab(urlTab);
       } else if (sessionStorage.getItem(`gallery-has-uploaded:${token}`)) {
         setActiveTab('gallery');
