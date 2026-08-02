@@ -32,7 +32,9 @@ const ALBUM_FILTERS: { value: AlbumFilter; label: string }[] = [
 
 export const GalleryGrid: React.FC<{
   items: GalleryItem[];
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => void | Promise<void>;
+  /** Preferred bulk-safe delete: resolves with exactly which IDs the backend removed. */
+  onDeleteMany?: (ids: string[]) => Promise<{ deletedIds: string[]; failedIds: string[]; storageFailedPaths: string[] }>;
   onSetModeration: (id: string, status: 'approved' | 'hidden') => Promise<void>;
   onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
   onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
@@ -44,7 +46,7 @@ export const GalleryGrid: React.FC<{
   dark?: boolean;
   /** Event name used for customer-friendly shared-photo download filenames. */
   eventName?: string | null;
-}> = ({ items: itemsProp, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName }) => {
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -590,7 +592,7 @@ export const GalleryGrid: React.FC<{
                         {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
                       <button
-                        onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) onDelete(it.id); }}
+                        onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) runDelete([it.id]); }}
                         className="bg-white/90 rounded-md p-1 hover:bg-white text-red-600"
                         title="Delete"
                       >
