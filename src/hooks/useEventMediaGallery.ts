@@ -380,5 +380,20 @@ export function useEventMediaGallery(eventId: string | null) {
     });
   }, [eventId]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled };
+  const setGuestFeature = useCallback(async (
+    feature: 'guest_upload_enabled' | 'gallery_view_enabled' | 'guestbook_text_enabled',
+    enabled: boolean,
+  ) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, [feature]: enabled } : m);
+    const { error: err } = await (supabase as any).rpc('set_event_media_guest_feature', {
+      _event_id: eventId, _feature: feature, _enabled: enabled,
+    });
+    if (err) {
+      setMeta(m => m ? { ...m, [feature]: !enabled } : m);
+      throw new Error(err.message || 'Failed to update feature');
+    }
+  }, [eventId]);
+
+  return { meta, items, loading, error, refresh, setOpen, deleteItem, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature };
 }
