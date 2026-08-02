@@ -39,8 +39,8 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-[#1D1D1F]">Gallery usage</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Photos, videos and storage used for this event.</p>
+          <h2 className="text-lg font-semibold text-[#1D1D1F]">Gallery Usage</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">View photo, video and storage usage for this event.</p>
         </div>
         <HardDrive className="h-5 w-5 text-[#967A59] shrink-0" />
       </div>
