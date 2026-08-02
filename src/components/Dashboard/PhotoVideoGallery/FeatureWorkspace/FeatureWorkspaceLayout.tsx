@@ -29,6 +29,8 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   toggleDisabled,
   onBack,
   backLabel = 'Back to Photo & Video Gallery',
+  headerAction,
+  disabledNotice,
   children,
 }) => {
   return (
