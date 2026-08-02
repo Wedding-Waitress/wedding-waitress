@@ -773,6 +773,9 @@ export type Database = {
       }
       event_media_galleries: {
         Row: {
+          background_color: string | null
+          background_image_url: string | null
+          background_mode: string
           background_style: string
           cover_image_url: string | null
           created_at: string
@@ -813,6 +816,9 @@ export type Database = {
           welcome_message: string | null
         }
         Insert: {
+          background_color?: string | null
+          background_image_url?: string | null
+          background_mode?: string
           background_style?: string
           cover_image_url?: string | null
           created_at?: string
@@ -853,6 +859,9 @@ export type Database = {
           welcome_message?: string | null
         }
         Update: {
+          background_color?: string | null
+          background_image_url?: string | null
+          background_mode?: string
           background_style?: string
           cover_image_url?: string | null
           created_at?: string
@@ -4498,6 +4507,9 @@ export type Database = {
       get_event_media_gallery_host: {
         Args: { _event_id: string }
         Returns: {
+          background_color: string
+          background_image_url: string
+          background_mode: string
           background_style: string
           cover_image_url: string
           gallery_id: string
@@ -4546,6 +4558,9 @@ export type Database = {
         Returns: {
           allowed_photo_mimes: string[]
           allowed_video_mimes: string[]
+          background_color: string
+          background_image_url: string
+          background_mode: string
           background_style: string
           cover_image_url: string
           event_date: string
@@ -5148,6 +5163,9 @@ export type Database = {
       }
       update_event_media_branding: {
         Args: {
+          _background_color?: string
+          _background_image_url?: string
+          _background_mode?: string
           _background_style: string
           _cover_image_url: string
           _event_id: string
