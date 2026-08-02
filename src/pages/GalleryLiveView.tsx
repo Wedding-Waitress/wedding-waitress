@@ -30,6 +30,7 @@ interface LiveMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  slideshow_enabled: boolean;
   settings: SlideshowSettings;
 }
 
