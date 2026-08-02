@@ -13,6 +13,10 @@ export interface FeatureWorkspaceLayoutProps {
   toggleDisabled?: boolean;
   onBack: () => void;
   backLabel?: string;
+  /** Optional extra action rendered in the header (e.g. Preview as Guest). */
+  headerAction?: React.ReactNode;
+  /** Optional override for the "feature is off" notice. */
+  disabledNotice?: string;
   children?: React.ReactNode;
 }
 
