@@ -79,8 +79,6 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
               />
             </div>
           </div>
-
-          </div>
         ))}
       </div>
     </Card>
