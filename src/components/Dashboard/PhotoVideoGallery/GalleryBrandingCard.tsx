@@ -3,12 +3,13 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Palette, Save, Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Palette, Save, Loader2, Upload, X, Image as ImageIcon, Images, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, GalleryBrandingSettings } from '@/hooks/useEventMediaGallery';
 import { DEFAULT_THEME_COLOR } from '@/lib/galleryTheme';
+import { GalleryBackgroundGalleryModal } from './GalleryBackgroundGalleryModal';
+import canvaLogo from '@/assets/canva-logo.png';
 
 interface Props {
   eventId: string;
@@ -16,43 +17,54 @@ interface Props {
   onSave: (b: GalleryBrandingSettings) => Promise<void>;
 }
 
-const BG_OPTIONS: { value: 'light' | 'dark' | 'cream'; label: string; swatch: string; sample: string }[] = [
-  { value: 'cream', label: 'Soft cream', swatch: '#F8F5F0', sample: '#F8F5F0' },
-  { value: 'light', label: 'Light', swatch: '#FFFFFF', sample: '#FFFFFF' },
-  { value: 'dark',  label: 'Dark',  swatch: '#0B0B0B', sample: '#0B0B0B' },
+type BgMode = 'preset' | 'color' | 'image';
+
+const BG_OPTIONS: { value: 'light' | 'dark' | 'cream'; label: string; sample: string }[] = [
+  { value: 'cream', label: 'Soft cream', sample: '#F8F5F0' },
+  { value: 'light', label: 'Light', sample: '#FFFFFF' },
+  { value: 'dark',  label: 'Dark',  sample: '#0B0B0B' },
 ];
 
+const DEFAULT_BG_COLOR = '#F8F5F0';
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ACCEPT = 'image/jpeg,image/png,image/webp';
 
 export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) => {
   const { toast } = useToast();
-  const [themeColor, setThemeColor] = useState<string>(meta.theme_color || DEFAULT_THEME_COLOR);
   const [bg, setBg] = useState<'light' | 'dark' | 'cream'>(meta.background_style || 'cream');
+  const [bgMode, setBgMode] = useState<BgMode>(meta.background_mode || 'preset');
+  const [bgColor, setBgColor] = useState<string>(meta.background_color || DEFAULT_BG_COLOR);
+  const [bgImageUrl, setBgImageUrl] = useState<string | null>(meta.background_image_url || null);
   const [coverUrl, setCoverUrl] = useState<string | null>(meta.cover_image_url || null);
   const [logoUrl, setLogoUrl] = useState<string | null>(meta.logo_image_url || null);
-  const [showBranding, setShowBranding] = useState<boolean>(meta.show_branding !== false);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState<'cover' | 'logo' | null>(null);
+  const [uploading, setUploading] = useState<'cover' | 'logo' | 'background' | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const coverInput = useRef<HTMLInputElement>(null);
   const logoInput = useRef<HTMLInputElement>(null);
+  const bgInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setThemeColor(meta.theme_color || DEFAULT_THEME_COLOR);
     setBg(meta.background_style || 'cream');
+    setBgMode(meta.background_mode || 'preset');
+    setBgColor(meta.background_color || DEFAULT_BG_COLOR);
+    setBgImageUrl(meta.background_image_url || null);
     setCoverUrl(meta.cover_image_url || null);
     setLogoUrl(meta.logo_image_url || null);
-    setShowBranding(meta.show_branding !== false);
-  }, [meta.gallery_id, meta.theme_color, meta.background_style, meta.cover_image_url, meta.logo_image_url, meta.show_branding]);
+  }, [
+    meta.gallery_id, meta.background_style, meta.background_mode, meta.background_color,
+    meta.background_image_url, meta.cover_image_url, meta.logo_image_url,
+  ]);
 
   const dirty =
-    themeColor !== (meta.theme_color || DEFAULT_THEME_COLOR) ||
     bg !== (meta.background_style || 'cream') ||
+    bgMode !== (meta.background_mode || 'preset') ||
+    (bgMode === 'color' && bgColor !== (meta.background_color || DEFAULT_BG_COLOR)) ||
+    (bgImageUrl || null) !== (meta.background_image_url || null) ||
     (coverUrl || null) !== (meta.cover_image_url || null) ||
-    (logoUrl || null) !== (meta.logo_image_url || null) ||
-    showBranding !== (meta.show_branding !== false);
+    (logoUrl || null) !== (meta.logo_image_url || null);
 
-  const handlePick = async (kind: 'cover' | 'logo', file: File | null) => {
+  const uploadImage = async (kind: 'cover' | 'logo' | 'background', file: File | null) => {
     if (!file) return;
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
       toast({ title: 'Unsupported file type', description: 'Use JPG, PNG, or WebP', variant: 'destructive' });
@@ -75,13 +87,16 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
       if (error) throw error;
       const { data: pub } = supabase.storage.from('event-media-branding').getPublicUrl(path);
       const url = pub.publicUrl;
-      if (kind === 'cover') setCoverUrl(url); else setLogoUrl(url);
+      if (kind === 'cover') setCoverUrl(url);
+      else if (kind === 'logo') setLogoUrl(url);
+      else { setBgImageUrl(url); setBgMode('image'); }
     } catch (e: any) {
       toast({ title: 'Upload failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
       setUploading(null);
       if (kind === 'cover' && coverInput.current) coverInput.current.value = '';
       if (kind === 'logo' && logoInput.current) logoInput.current.value = '';
+      if (kind === 'background' && bgInput.current) bgInput.current.value = '';
     }
   };
 
@@ -89,11 +104,16 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
     setSaving(true);
     try {
       await onSave({
-        theme_color: themeColor === DEFAULT_THEME_COLOR ? null : themeColor,
+        // Accent colour is permanently Wedding Waitress gold — the column is kept
+        // for backwards compatibility but is no longer customisable.
+        theme_color: null,
         background_style: bg,
         cover_image_url: coverUrl,
         logo_image_url: logoUrl,
-        show_branding: showBranding,
+        show_branding: meta.show_branding !== false,
+        background_mode: bgMode,
+        background_color: bgMode === 'color' ? bgColor : null,
+        background_image_url: bgMode === 'image' ? bgImageUrl : null,
       });
       toast({ title: 'Branding saved' });
     } catch (e: any) {
@@ -104,104 +124,227 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
   };
 
   const handleReset = () => {
-    setThemeColor(DEFAULT_THEME_COLOR);
     setBg('cream');
+    setBgMode('preset');
+    setBgColor(DEFAULT_BG_COLOR);
+    setBgImageUrl(null);
     setCoverUrl(null);
     setLogoUrl(null);
-    setShowBranding(true);
   };
 
+  const previewStyle: React.CSSProperties =
+    bgMode === 'color'
+      ? { backgroundColor: bgColor }
+      : bgMode === 'image' && bgImageUrl
+        ? { backgroundImage: `url("${bgImageUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
+        : { backgroundColor: BG_OPTIONS.find(o => o.value === bg)?.sample || '#F8F5F0' };
+
   return (
-    <Card className="h-full p-4 sm:p-5 space-y-5 overflow-hidden">
+    <Card className="h-full p-4 sm:p-6 space-y-6 overflow-hidden">
       <div className="min-w-0">
-        <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}>
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
           <Palette className="h-5 w-5 text-[#967A59] shrink-0" /> Branding &amp; Theme
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
-          Customise the look of your guest gallery.
+          Customise the look of your guest gallery. Buttons and accents always use the Wedding Waitress
+          gold ({DEFAULT_THEME_COLOR}).
         </p>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+        {/* LEFT — Event Branding */}
+        <section className="space-y-5 min-w-0">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-[#967A59]">Event Branding</h3>
 
-      {/* Theme colour */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <Label className="text-sm">Theme colour</Label>
-          <div className="mt-1.5 flex items-center gap-2">
+          <ImagePicker
+            label="Cover image (optional)"
+            hint="Shown at the top of your guest-facing event page."
+            url={coverUrl}
+            uploading={uploading === 'cover'}
+            inputRef={coverInput}
+            onPick={(f) => uploadImage('cover', f)}
+            onClear={() => setCoverUrl(null)}
+          />
+
+          <ImagePicker
+            label="Logo (optional)"
+            hint="Displayed above your event title."
+            url={logoUrl}
+            uploading={uploading === 'logo'}
+            inputRef={logoInput}
+            onPick={(f) => uploadImage('logo', f)}
+            onClear={() => setLogoUrl(null)}
+            aspect="contain"
+          />
+        </section>
+
+        {/* RIGHT — Background Design */}
+        <section className="space-y-5 min-w-0">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-[#967A59]">Background Design</h3>
+
+          {/* Presets */}
+          <div>
+            <Label className="text-sm">Background style</Label>
+            <div className="mt-1.5 grid grid-cols-3 gap-2">
+              {BG_OPTIONS.map(opt => {
+                const active = bgMode === 'preset' && bg === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => { setBg(opt.value); setBgMode('preset'); }}
+                    className={`rounded-md border p-2 flex flex-col items-center gap-1.5 transition-colors ${
+                      active ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border hover:border-[#967A59]/50'
+                    }`}
+                  >
+                    <div className="w-full h-10 rounded border border-black/5" style={{ background: opt.sample }} />
+                    <span className="text-xs font-medium">{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Custom colour */}
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-sm">Custom background colour</Label>
+              {bgMode === 'color' && (
+                <span className="text-[11px] font-semibold text-[#967A59] uppercase tracking-wide">Selected</span>
+              )}
+            </div>
+            <div className="mt-1.5 flex items-center gap-2">
+              <input
+                type="color"
+                value={bgColor}
+                onChange={(e) => { setBgColor(e.target.value); setBgMode('color'); }}
+                className={`h-11 w-14 shrink-0 rounded-md border cursor-pointer bg-transparent p-1 ${
+                  bgMode === 'color' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'
+                }`}
+                aria-label="Custom background colour"
+              />
+              <Input
+                value={bgColor}
+                onChange={(e) => {
+                  const v = e.target.value.trim();
+                  if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) {
+                    const next = v.startsWith('#') ? v : `#${v}`;
+                    setBgColor(next);
+                    if (/^#[0-9a-fA-F]{6}$/.test(next)) setBgMode('color');
+                  }
+                }}
+                maxLength={7}
+                aria-label="Custom background colour hex value"
+                className="h-11 font-mono min-w-0 flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => setBgMode('color')}
+                className="h-11 w-11 shrink-0 rounded-md border border-border"
+                style={{ backgroundColor: bgColor }}
+                aria-label="Use this background colour"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Changes the guest page background only — buttons and accents stay Wedding Waitress gold.
+            </p>
+          </div>
+
+          {/* Background image tools */}
+          <div>
+            <Label className="text-sm">Background image</Label>
             <input
-              type="color"
-              value={themeColor}
-              onChange={(e) => setThemeColor(e.target.value)}
-              className="h-11 w-14 shrink-0 rounded-md border border-border cursor-pointer bg-transparent p-1"
-              aria-label="Theme colour"
+              ref={bgInput}
+              type="file"
+              accept={ACCEPT}
+              className="hidden"
+              onChange={(e) => uploadImage('background', e.target.files?.[0] || null)}
             />
-            <Input
-              value={themeColor}
-              onChange={(e) => {
-                const v = e.target.value.trim();
-                if (/^#?[0-9a-fA-F]{0,6}$/.test(v)) setThemeColor(v.startsWith('#') ? v : `#${v}`);
-              }}
-              maxLength={7}
-              className="h-11 font-mono min-w-0 flex-1"
-            />
+            <div className="mt-1.5 flex flex-col gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="lv-premium-shade w-full h-11 justify-center"
+                onClick={() => bgInput.current?.click()}
+                disabled={uploading === 'background'}
+              >
+                {uploading === 'background'
+                  ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Uploading…</>
+                  : <><Upload className="h-4 w-4 mr-1.5" /> {bgImageUrl ? 'Replace Background Image' : 'Upload Background Image'}</>}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="lv-premium-shade w-full h-11 justify-center"
+                onClick={() => setGalleryOpen(true)}
+              >
+                <Images className="h-4 w-4 mr-1.5" /> Browse Background Gallery
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => window.open('https://www.canva.com/', '_blank', 'noopener,noreferrer')}
+                className="lv-premium-shade h-11 px-4 rounded-md w-full flex items-center justify-center gap-2 text-white text-sm font-medium border-0 hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#7C3AED' }}
+                aria-label="Design with Canva"
+              >
+                <img src={canvaLogo} alt="" className="h-5 w-5 rounded-full object-cover" />
+                Design with Canva
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5">
+              Create or customise a design in Canva, download it as PNG or JPG, then return here and use
+              Upload Background Image. JPG, PNG and WebP are supported (max 5 MB).
+            </p>
+
+            {bgImageUrl && (
+              <div className="mt-3 rounded-md border border-border overflow-hidden">
+                <img src={bgImageUrl} alt="Background preview" className="w-full h-32 object-cover" />
+                <div className="flex gap-2 p-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="lv-premium-shade flex-1"
+                    onClick={() => bgInput.current?.click()}
+                    disabled={uploading === 'background'}
+                  >
+                    <Upload className="h-4 w-4 mr-1" /> Replace Image
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="lv-premium-shade flex-1"
+                    onClick={() => { setBgImageUrl(null); setBgMode('preset'); }}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" /> Remove Image
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
-          <p className="text-xs text-muted-foreground mt-1">Used for buttons and accents. Defaults to {DEFAULT_THEME_COLOR}.</p>
-        </div>
-
-        <div>
-          <Label className="text-sm">Background style</Label>
-          <div className="mt-1.5 grid grid-cols-3 gap-2">
-            {BG_OPTIONS.map(opt => {
-              const active = bg === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setBg(opt.value)}
-                  className={`rounded-md border p-2 flex flex-col items-center gap-1.5 transition-colors ${
-                    active ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border hover:border-[#967A59]/50'
-                  }`}
-                >
-                  <div
-                    className="w-full h-10 rounded border border-black/5"
-                    style={{ background: opt.sample }}
-                  />
-                  <span className="text-xs font-medium">{opt.label}</span>
-                </button>
-              );
-            })}
+          {/* Live preview */}
+          <div>
+            <Label className="text-sm">Live preview</Label>
+            <div
+              className="mt-1.5 rounded-lg border border-border h-28 flex items-center justify-center"
+              style={previewStyle}
+            >
+              <span
+                className="rounded-full px-4 py-2 text-sm font-semibold text-white"
+                style={{ backgroundColor: DEFAULT_THEME_COLOR }}
+              >
+                Share your photos
+              </span>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
 
-      {/* Cover + Logo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <ImagePicker
-          label="Cover image (optional)"
-          hint="Shown at the top of the guest upload page. Recommended 1600×600."
-          url={coverUrl}
-          uploading={uploading === 'cover'}
-          inputRef={coverInput}
-          onPick={(f) => handlePick('cover', f)}
-          onClear={() => setCoverUrl(null)}
-        />
-        <ImagePicker
-          label="Logo (optional)"
-          hint="Small logo shown above the gallery title."
-          url={logoUrl}
-          uploading={uploading === 'logo'}
-          inputRef={logoInput}
-          onPick={(f) => handlePick('logo', f)}
-          onClear={() => setLogoUrl(null)}
-          aspect="contain"
-        />
-      </div>
-
-
-
-
-      <div className="flex flex-wrap justify-between gap-2">
+      <div className="flex flex-wrap justify-between gap-2 pt-1">
         <Button variant="outline" className="lv-premium-shade h-11" onClick={handleReset} disabled={saving}>
           Reset to default
         </Button>
@@ -216,6 +359,12 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
         </Button>
       </div>
 
+      <GalleryBackgroundGalleryModal
+        open={galleryOpen}
+        onOpenChange={setGalleryOpen}
+        currentUrl={bgImageUrl}
+        onApply={(url) => { setBgImageUrl(url); setBgMode('image'); }}
+      />
     </Card>
   );
 };
@@ -266,16 +415,23 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
         </div>
       )}
     </div>
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      className="lv-premium-shade mt-2 w-full"
-      onClick={() => inputRef.current?.click()}
-      disabled={uploading}
-    >
-      {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? 'Replace image' : 'Choose image'}</>}
-    </Button>
+    <div className="mt-2 flex gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="lv-premium-shade flex-1"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+      >
+        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? 'Replace Image' : 'Choose Image'}</>}
+      </Button>
+      {url && (
+        <Button type="button" variant="destructive" size="sm" className="lv-premium-shade flex-1" onClick={onClear}>
+          <Trash2 className="h-4 w-4 mr-1" /> Remove Image
+        </Button>
+      )}
+    </div>
   </div>
 );
 
