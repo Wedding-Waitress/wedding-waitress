@@ -36,7 +36,11 @@ export const GalleryGrid: React.FC<{
   onSetModeration: (id: string, status: 'approved' | 'hidden') => Promise<void>;
   onSetAlbum: (id: string, album: GalleryAlbum | null) => Promise<void>;
   onBulkSetAlbum: (ids: string[], album: GalleryAlbum | null) => Promise<number>;
-}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum }) => {
+  /** Optional heading overrides (used by feature workspaces such as Photo Booth). */
+  title?: string;
+  description?: string;
+  emptyText?: string;
+}> = ({ items, onDelete, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText }) => {
   const [lightboxId, setLightboxId] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('all');
   const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
