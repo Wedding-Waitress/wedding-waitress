@@ -98,7 +98,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, loading, erro
       toast({ title: 'Recording unavailable', description: 'This file is still processing. Please refresh and try again.', variant: 'destructive' });
       return;
     }
-    try { await downloadSignedUrl(item.signed_url, filenameFor(item)); }
+    try { await downloadSignedUrl(item.signed_url, filenameFor(item, eventName)); }
     catch (e: any) { toast({ title: 'Download failed', description: e?.message || 'Please try again.', variant: 'destructive' }); }
   };
 
