@@ -732,6 +732,7 @@ export type Database = {
           id: string
           message: string
           moderation_status: string
+          source_category: string
           updated_at: string
           uploader_name: string | null
         }
@@ -742,6 +743,7 @@ export type Database = {
           id?: string
           message: string
           moderation_status?: string
+          source_category?: string
           updated_at?: string
           uploader_name?: string | null
         }
@@ -752,6 +754,7 @@ export type Database = {
           id?: string
           message?: string
           moderation_status?: string
+          source_category?: string
           updated_at?: string
           uploader_name?: string | null
         }
@@ -914,6 +917,7 @@ export type Database = {
           like_count: number
           mime_type: string
           moderation_status: string
+          source_category: string
           storage_path: string
           upload_status: Database["public"]["Enums"]["event_media_upload_status"]
           upload_token_expires_at: string | null
@@ -940,6 +944,7 @@ export type Database = {
           like_count?: number
           mime_type: string
           moderation_status?: string
+          source_category?: string
           storage_path: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
           upload_token_expires_at?: string | null
@@ -966,6 +971,7 @@ export type Database = {
           like_count?: number
           mime_type?: string
           moderation_status?: string
+          source_category?: string
           storage_path?: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
           upload_token_expires_at?: string | null
@@ -4501,15 +4507,6 @@ export type Database = {
           videos_used: number
         }[]
       }
-      get_event_media_guestbook_public: {
-        Args: { _token: string }
-        Returns: {
-          guestbook_message: string
-          id: string
-          uploaded_at: string
-          uploader_name: string
-        }[]
-      }
       get_event_media_items_host: {
         Args: { _event_id: string }
         Returns: {
@@ -4526,6 +4523,7 @@ export type Database = {
           like_count: number
           mime_type: string
           moderation_status: string
+          source_category: string
           storage_path: string
           uploaded_at: string
           uploader_name: string
