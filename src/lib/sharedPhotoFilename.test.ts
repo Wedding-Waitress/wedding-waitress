@@ -18,6 +18,13 @@ describe('safeEventName', () => {
   it('strips unsupported characters', () => {
     expect(safeEventName('Ana/Bo: Party!')).toBe('Ana-Bo-Party');
   });
+  it('removes every unsafe filesystem character', () => {
+    expect(safeEventName('a/b\\c:d*e?f"g<h>i|j')).toBe('a-b-c-d-e-f-g-h-i-j');
+  });
+  it('falls back to a safe name when the event name is empty or unusable', () => {
+    expect(safeEventName('')).toBe('Event');
+    expect(safeEventName('***')).toBe('Event');
+  });
 });
 
 describe('sharedPhotoFilename', () => {

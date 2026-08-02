@@ -26,9 +26,9 @@ describe('photoBoothFilename', () => {
     expect(photoBoothFilename(booth({ source_category: 'guestbook_recording' }), 'X')).toBeNull();
   });
 
-  it('returns null when unnumbered or event name missing', () => {
+  it('returns null when unnumbered, and falls back for empty event names', () => {
     expect(photoBoothFilename(booth({ photo_booth_seq: null }), 'X')).toBeNull();
-    expect(photoBoothFilename(booth(), '')).toBeNull();
+    expect(photoBoothFilename(booth(), '')).toBe('00001-Event-Photo-Booth.jpg');
   });
 
   it('classifies legacy rows via is_photo_booth flag', () => {
