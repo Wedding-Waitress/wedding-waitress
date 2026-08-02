@@ -42,8 +42,8 @@ export const GallerySetupCard: React.FC<{
     <Card className="p-5 space-y-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-lg font-semibold text-[#1D1D1F] flex items-center gap-2"><QrIcon className="h-5 w-5 text-[#967A59]" /> Guest Upload Link</h2>
-          <p className="text-sm text-muted-foreground">Share the QR code or link your guests use to access the gallery.</p>
+          <h2 className="text-xl font-bold text-black flex items-center gap-2" style={{ color: '#000000' }}><QrIcon className="h-5 w-5 text-[#967A59]" /> Guest Upload Link</h2>
+          <p className="text-sm mt-1" style={{ color: '#1a1a1a' }}>Share the QR code or link your guests use to access the gallery.</p>
         </div>
         <div className="flex items-center gap-3">
           <Label htmlFor="open-toggle" className="text-sm">Gallery open</Label>
