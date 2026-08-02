@@ -298,7 +298,7 @@ const GalleryLiveView: React.FC = () => {
       <GalleryPasswordGate
         token={token}
         variant="dark"
-        theme={{ ...theme, isDark: true, bgClass: 'bg-black', surfaceClass: 'bg-white/5 border-white/10', textClass: 'text-white', mutedClass: 'text-white/70', borderClass: 'border-white/10' }}
+        theme={{ ...theme, isDark: true, pageStyle: {}, bgClass: 'bg-black', surfaceClass: 'bg-white/5 border-white/10', textClass: 'text-white', mutedClass: 'text-white/70', borderClass: 'border-white/10' }}
         title={`${headerTitle || 'Gallery'} — password required`}
         onVerified={(pw) => { passwordRef.current = pw; setUnlocked(true); }}
       />

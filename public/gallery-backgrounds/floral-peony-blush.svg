@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="g" cx="0.5" cy="0.25" r="0.95"><stop offset="0" stop-color="#FFF9FA"/><stop offset="1" stop-color="#F1D6DF"/></radialGradient><pattern id="p" width="230" height="230" patternUnits="userSpaceOnUse">
+    <g fill="#DCA6B8" opacity="0.3">
+      <ellipse cx="158.7" cy="115.0" rx="26.5" ry="12.7" transform="rotate(0 158.7 115.0)"/><ellipse cx="136.8" cy="152.8" rx="26.5" ry="12.7" transform="rotate(60 136.8 152.8)"/><ellipse cx="93.2" cy="152.8" rx="26.5" ry="12.7" transform="rotate(120 93.2 152.8)"/><ellipse cx="71.3" cy="115.0" rx="26.5" ry="12.7" transform="rotate(180 71.3 115.0)"/><ellipse cx="93.1" cy="77.2" rx="26.5" ry="12.7" transform="rotate(240 93.1 77.2)"/><ellipse cx="136.8" cy="77.2" rx="26.5" ry="12.7" transform="rotate(300 136.8 77.2)"/>
+      <circle cx="115" cy="115" r="8.05"/>
+    </g>
+  </pattern></defs><rect width="1600" height="1000" fill="#FCF1F4"/><rect width="1600" height="1000" fill="url(#g)"/><rect width="1600" height="1000" fill="url(#p)"/></svg>

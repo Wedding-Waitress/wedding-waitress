@@ -308,11 +308,11 @@ export const GuestPhotoBooth: React.FC = () => {
   const accentSoftBg = `${accent}1A`;
 
   if (loading) {
-    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
         <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h1 className="text-xl font-semibold mb-2">Photo Booth link not found</h1>
@@ -326,7 +326,7 @@ export const GuestPhotoBooth: React.FC = () => {
   }
   if (!gallery.is_open || !gallery.photo_booth_enabled) {
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
         <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <Camera className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
@@ -346,7 +346,7 @@ export const GuestPhotoBooth: React.FC = () => {
   const stripBusy = stripActive || (mode === 'strip' && countdown !== null);
 
   return (
-    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
+    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
       <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
       <div className="max-w-md mx-auto">
         <div className="text-center mb-6">

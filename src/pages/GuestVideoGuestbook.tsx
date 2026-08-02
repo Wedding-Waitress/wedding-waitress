@@ -258,11 +258,11 @@ export const GuestVideoGuestbook: React.FC = () => {
   const accentSoftBg = `${accent}1A`;
 
   if (loading) {
-    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
         <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h1 className="text-xl font-semibold mb-2">Guestbook link not found</h1>
@@ -276,7 +276,7 @@ export const GuestVideoGuestbook: React.FC = () => {
   }
   if (!gallery.is_open || !gallery.video_guestbook_enabled) {
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`}>
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
         <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
           <Video className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
@@ -293,7 +293,7 @@ export const GuestVideoGuestbook: React.FC = () => {
   const isMediaRecorderSupported = typeof window !== 'undefined' && !!(window as any).MediaRecorder && !!navigator?.mediaDevices?.getUserMedia;
 
   return (
-    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`}>
+    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
       <SeoHead title={`${gallery.event_name} — Voice Guestbook`} description="Leave a short video or voice message for the couple." />
       <div className="max-w-md mx-auto">
         <div className="text-center mb-6">

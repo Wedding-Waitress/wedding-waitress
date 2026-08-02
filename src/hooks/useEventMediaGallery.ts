@@ -25,6 +25,9 @@ export interface GalleryMeta {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  background_mode: 'preset' | 'color' | 'image';
+  background_color: string | null;
+  background_image_url: string | null;
   /** Voice Guestbook (recordings) — stored in DB as video_guestbook_enabled. */
   voice_guestbook_enabled: boolean;
   photo_booth_enabled: boolean;
@@ -69,6 +72,9 @@ export interface GalleryBrandingSettings {
   cover_image_url: string | null;
   logo_image_url: string | null;
   show_branding: boolean;
+  background_mode: 'preset' | 'color' | 'image';
+  background_color: string | null;
+  background_image_url: string | null;
 }
 
 export type GalleryAlbum = 'Ceremony' | 'Reception' | 'Dance Floor' | 'Speeches' | 'Bridal Party' | 'Other';
@@ -318,6 +324,9 @@ export function useEventMediaGallery(eventId: string | null) {
       _cover_image_url: b.cover_image_url,
       _logo_image_url: b.logo_image_url,
       _show_branding: b.show_branding,
+      _background_mode: b.background_mode,
+      _background_color: b.background_color,
+      _background_image_url: b.background_image_url,
     });
     if (err) {
       await loadMeta(eventId).catch(() => {});

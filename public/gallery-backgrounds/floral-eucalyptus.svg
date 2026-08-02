@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0.883022221559489" y1="0.17860619515673026" x2="0.11697777844051105" y2="0.8213938048432697"><stop offset="0" stop-color="#FAFCF8"/><stop offset="1" stop-color="#E2ECDF"/></linearGradient><pattern id="p" width="150" height="150" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="#7E9C7E" stroke-width="1.8" opacity="0.36" stroke-linecap="round">
+      <path d="M30 120 C52.5 75, 90 60, 122.99999999999999 33"/>
+      <ellipse cx="51.0" cy="98.4" rx="11.25" ry="4.5" transform="rotate(-35 51.0 98.4)"/><ellipse cx="65.7" cy="83.3" rx="11.25" ry="4.5" transform="rotate(-29 65.7 83.3)"/><ellipse cx="80.4" cy="68.2" rx="11.25" ry="4.5" transform="rotate(-23 80.4 68.2)"/><ellipse cx="95.1" cy="53.0" rx="11.25" ry="4.5" transform="rotate(-17 95.1 53.0)"/><ellipse cx="109.8" cy="37.9" rx="11.25" ry="4.5" transform="rotate(-11 109.8 37.9)"/>
+    </g>
+  </pattern></defs><rect width="1600" height="1000" fill="#F3F6F1"/><rect width="1600" height="1000" fill="url(#g)"/><rect width="1600" height="1000" fill="url(#p)"/></svg>
