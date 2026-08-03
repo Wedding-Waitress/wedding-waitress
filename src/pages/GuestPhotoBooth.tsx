@@ -284,6 +284,59 @@ export const GuestPhotoBooth: React.FC = () => {
     else window.close();
   };
 
+  // ---- Downloads (guest keeps a copy of the strip + original captures) ----
+  const baseName = safeEventName(gallery?.event_name);
+
+  const triggerDownload = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  };
+
+  const clearFallback = () => {
+    fallbackLinks.forEach(l => URL.revokeObjectURL(l.url));
+    setFallbackLinks([]);
+  };
+
+  const openDownloads = () => {
+    clearFallback();
+    setDownloadDone(null);
+    setDownloadOpen(true);
+  };
+
+  const closeDownloads = () => {
+    setDownloadOpen(false);
+    setDownloadDone(null);
+    clearFallback();
+  };
+
+  const downloadStrip = () => {
+    if (!capturedBlob) return;
+    triggerDownload(capturedBlob, `${baseName}-Photo-Strip.jpg`);
+    setDownloadDone('Your photo strip download has started.');
+  };
+
+  const downloadEverything = () => {
+    if (!capturedBlob) return;
+    const files: { blob: Blob; name: string }[] = [
+      { blob: capturedBlob, name: `${baseName}-Photo-Strip.jpg` },
+      ...stripPhotos.map((b, i) => ({ blob: b, name: `${baseName}-Photo-${i + 1}.jpg` })),
+    ];
+    files.forEach((f, i) => setTimeout(() => triggerDownload(f.blob, f.name), i * 400));
+    // Always offer individual links too — some mobile browsers block multi-downloads.
+    clearFallback();
+    setFallbackLinks(files.map(f => ({ name: f.name, url: URL.createObjectURL(f.blob) })));
+    setDownloadDone('Your downloads have started. If any file did not save, use the links below.');
+  };
+
+
+
   const save = async () => {
     if (!capturedBlob || !token) return;
     if (!name.trim()) { setErrorMsg('Please add your full name first.'); return; }
