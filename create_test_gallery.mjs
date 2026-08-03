@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { v4 as uuidv4 } from 'uuid';
 const url = 'https://xytxkidpourwdbzzwcdp.supabase.co';
 const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5dHhraWRwb3Vyd2Rienp3Y2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMTMzNTMsImV4cCI6MjA3Mjg4OTM1M30.37m5PSVqAjo51n8CYfDAu0gZr9lGCaAy3NU3PPYxMmI';
 const accessToken = process.env.LOVABLE_BROWSER_SUPABASE_ACCESS_TOKEN || '';
@@ -14,8 +13,9 @@ const userId = userData.user?.id;
 if (!userId) { console.log('no user'); process.exit(1); }
 
 const slug = 'test-' + Math.random().toString(36).substring(2, 10);
+const eventId = crypto.randomUUID();
 const event = {
-  id: uuidv4(),
+  id: eventId,
   user_id: userId,
   name: 'Test Photo Booth Event',
   date: '2026-12-31',
@@ -31,10 +31,10 @@ const { data: ev, error: evErr } = await supabase.from('events').insert(event).s
 if (evErr) { console.error('event insert error:', evErr.message); process.exit(1); }
 console.log('event created:', ev.id);
 
-const token = uuidv4().replace(/-/g, '');
+const token = crypto.randomUUID().replace(/-/g, '');
 const gallery = {
-  id: uuidv4(),
-  event_id: ev.id,
+  id: crypto.randomUUID(),
+  event_id: eventId,
   user_id: userId,
   primary_token: token,
   is_open: true,
@@ -49,7 +49,7 @@ const gallery = {
   max_video_bytes: 100000000,
   max_video_duration_sec: 60,
   max_photo_bytes: 10000000,
-  allowed_photo_mimes: ['image/jpeg','image/png','image/heic','image/heif','image/webp'],
+  allowed_photo_mimes: ['image/jpeg','image/png','image/heic','image/heif','image.webp'],
   allowed_video_mimes: ['video/mp4','video/quicktime','video/webm'],
   moderation_status: 'approved',
   show_branding: true,
