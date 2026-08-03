@@ -17,7 +17,7 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
-import photoBoothHeroAsset from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png.asset.json';
+import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
 import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
@@ -93,9 +93,7 @@ export const GuestMediaUpload: React.FC = () => {
   const [requestedTab, setRequestedTab] = useState<'upload' | 'gallery' | 'guestbook' | 'booth' | null>(null);
   // Immersive photo booth overlay visibility.
   const [boothOpen, setBoothOpen] = useState(false);
-  // Track whether the permanent Photo Booth hero artwork failed to load.
-  const [photoBoothHeroError, setPhotoBoothHeroError] = useState(false);
-  // Track whether the permanent Guestbook hero artwork failed to load.
+  // Gallery refresh trigger for the browse tab.
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
@@ -458,19 +456,25 @@ export const GuestMediaUpload: React.FC = () => {
                 />
               </div>
             ) : activeTab === 'booth' ? (
-
-              !photoBoothHeroError ? (
+              <div className="relative w-full h-full">
+                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
                 <img
-                  src={photoBoothHeroAsset.url}
+                  src={photoBoothHeroGold}
                   alt=""
-                  className="w-full h-full object-contain p-4 sm:p-6"
-                  onError={() => setPhotoBoothHeroError(true)}
+                  className="absolute inset-0 m-auto"
+                  style={{
+                    zIndex: 10,
+                    width: '86%',
+                    height: '86%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    opacity: 1,
+                    visibility: 'visible',
+                    filter: 'none',
+                    mixBlendMode: 'normal',
+                  }}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center px-6">
-                  <Camera className="h-16 w-16 sm:h-20 sm:w-20" style={{ color: accent }} />
-                </div>
-              )
+              </div>
             ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
             ) : theme.logoImageUrl ? (
