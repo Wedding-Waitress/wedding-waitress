@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Progress } from '@/components/ui/progress';
 import { Download, Loader2, FileArchive, AlertTriangle } from 'lucide-react';
 import JSZip from 'jszip';
+import { cn } from '@/lib/utils';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
@@ -107,7 +108,9 @@ export const GalleryDownloadsCard: React.FC<{
    * single column stack.
    */
   layout?: 'grid' | 'vertical';
-}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid' }) => {
+  /** Optional className for the outer card. */
+  className?: string;
+}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid', className }) => {
   const { toast } = useToast();
   const items = useMemo(
     () => (privacyScope === 'guestbook' ? itemsProp : publicGalleryItems(itemsProp)),
