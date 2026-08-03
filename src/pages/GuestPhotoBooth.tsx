@@ -730,7 +730,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
           </Card>
         )}
 
-        {theme.showBranding && (
+        {!embedded && theme.showBranding && (
           <div className="mt-8 flex justify-center">
             <GalleryFooterLogo />
           </div>
