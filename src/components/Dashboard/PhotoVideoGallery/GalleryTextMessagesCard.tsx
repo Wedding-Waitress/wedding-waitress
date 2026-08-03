@@ -336,12 +336,12 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
       )}
 
       <div className="pt-2 border-t border-border">
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+        <div className="flex flex-col gap-3 pt-4">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-[#1D1D1F]">Export Messages</p>
             <p className="text-xs text-muted-foreground break-words">Exports the {rows.length} message{rows.length === 1 ? '' : 's'} currently shown.</p>
           </div>
-          <Button variant="outline" className="lv-premium-shade" onClick={exportCsv} disabled={rows.length === 0}>
+          <Button variant="outline" className="lv-premium-shade w-full" onClick={exportCsv} disabled={rows.length === 0}>
             <Download className="h-4 w-4 mr-1" /> Export Digital Guestbook Messages as CSV
           </Button>
         </div>
