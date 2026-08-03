@@ -18,6 +18,9 @@ import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/Gue
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 
+// Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
+const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
+
 /** Default hero background used when the event has no cover image. */
 const DEFAULT_HERO_BG = '/default-hero-bg.png';
 
@@ -83,9 +86,11 @@ export const GuestMediaUpload: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
   const [unlocked, setUnlocked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'gallery' | 'guestbook'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload' | 'gallery' | 'guestbook' | 'booth'>('upload');
   // Tab explicitly requested via a saved direct link (?tab=…), used to explain disabled features.
-  const [requestedTab, setRequestedTab] = useState<'upload' | 'gallery' | 'guestbook' | null>(null);
+  const [requestedTab, setRequestedTab] = useState<'upload' | 'gallery' | 'guestbook' | 'booth' | null>(null);
+  // Immersive photo booth overlay visibility.
+  const [boothOpen, setBoothOpen] = useState(false);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
@@ -110,7 +115,7 @@ export const GuestMediaUpload: React.FC = () => {
       if (savedName) setName(savedName);
       // ?tab=gallery / ?tab=guestbook always wins; otherwise default to Upload.
       const urlTab = new URLSearchParams(window.location.search).get('tab');
-      if (urlTab === 'gallery' || urlTab === 'guestbook' || urlTab === 'upload') {
+      if (urlTab === 'gallery' || urlTab === 'guestbook' || urlTab === 'upload' || urlTab === 'booth') {
         setRequestedTab(urlTab);
         setActiveTab(urlTab);
       } else if (sessionStorage.getItem(`gallery-has-uploaded:${token}`)) {
@@ -504,19 +509,7 @@ export const GuestMediaUpload: React.FC = () => {
           guestbook: 'Guestbook',
         };
 
-        const boothHref = token ? `/gallery-photobooth/${token}` : '#';
-        // Only the Digital Photo Booth is enabled -> send the guest straight there.
-        if (tabs.length === 1 && tabs[0] === 'booth') {
-          return (
-            <div className="max-w-md mx-auto text-center py-16 space-y-4">
-              <p className="text-white/80">Opening the Digital Photo Booth…</p>
-              <a href={boothHref} className="inline-flex items-center justify-center h-12 px-6 rounded-full text-white font-semibold lv-premium-shade" style={{ backgroundColor: accent }}>
-                Launch Digital Photo Booth
-              </a>
-            </div>
-          );
-        }
-        const current = (tabs as string[]).includes(activeTab) ? activeTab : ((tabs.find(t => t !== 'booth') ?? null) as 'upload' | 'gallery' | 'guestbook' | null);
+        const current = ((tabs as string[]).includes(activeTab) ? activeTab : (tabs[0] ?? null)) as TabKey | null;
         if (!current) {
           return (
             <div className="max-w-md mx-auto py-20 text-center">
@@ -533,6 +526,7 @@ export const GuestMediaUpload: React.FC = () => {
         const unavailableRequest = requestedTab && !(tabs as string[]).includes(requestedTab)
           ? requestedTab === 'upload' ? 'Uploading photos and videos is'
             : requestedTab === 'gallery' ? 'The guest gallery is'
+            : requestedTab === 'booth' ? 'The Digital Photo Booth is'
             : 'The guestbook is'
           : null;
         return (
@@ -548,18 +542,11 @@ export const GuestMediaUpload: React.FC = () => {
           {tabs.map(tab => {
             const active = current === tab;
             const cls = `flex-1 basis-0 min-w-0 h-11 flex items-center justify-center text-center rounded-full font-medium transition-colors px-1.5 sm:px-3 text-[12px] sm:text-sm whitespace-nowrap leading-none ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
-            if (tab === 'booth') {
-              return (
-                <a key={tab} href={boothHref} className={cls}>
-                  <span className="truncate">{labels[tab]}</span>
-                </a>
-              );
-            }
             return (
               <button
                 key={tab}
                 type="button"
-                onClick={() => setActiveTab(tab as 'upload' | 'gallery' | 'guestbook')}
+                onClick={() => setActiveTab(tab)}
                 className={cls}
               >
                 <span className="truncate">{labels[tab]}</span>
@@ -580,6 +567,28 @@ export const GuestMediaUpload: React.FC = () => {
 
         {current === 'gallery' && token && (
           <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} eventName={gallery.event_name} />
+        )}
+
+        {current === 'booth' && token && (
+          <Card className="p-6 sm:p-8 text-center space-y-5 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white">
+            <div className="mx-auto inline-flex items-center justify-center w-16 h-16 rounded-full" style={{ backgroundColor: accentSoftBg }}>
+              <Camera className="h-8 w-8" style={{ color: accent }} />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-semibold text-[#1D1D1F]">Digital Photo Booth</h2>
+              <p className="text-base text-[#6E6E73] leading-relaxed max-w-md mx-auto">
+                Get ready to take four fun photos and create your Wedding Waitress photo strip.
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={() => setBoothOpen(true)}
+              className="lv-premium-shade w-full h-14 rounded-xl text-white text-base font-semibold bg-green-600 hover:bg-green-700"
+            >
+              <Camera className="h-5 w-5 mr-2 text-white" />
+              <span className="text-white">Launch Digital Photo Booth</span>
+            </Button>
+          </Card>
         )}
 
         {current === 'guestbook' && token && (
