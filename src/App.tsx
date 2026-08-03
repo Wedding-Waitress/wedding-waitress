@@ -21,7 +21,6 @@ const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeature
 const GalleryViewFeaturePage = lazy(() => import("./pages/GalleryViewFeaturePage").then(m => ({ default: m.GalleryViewFeaturePage })));
 const GalleryPhotoBoothFeaturePage = lazy(() => import("./pages/GalleryPhotoBoothFeaturePage").then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
 const GalleryTextGuestbookFeaturePage = lazy(() => import("./pages/GalleryTextGuestbookFeaturePage").then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
-const GalleryVoiceGuestbookFeaturePage = lazy(() => import("./pages/GalleryVoiceGuestbookFeaturePage").then(m => ({ default: m.GalleryVoiceGuestbookFeaturePage })));
 const GallerySlideshowFeaturePage = lazy(() => import("./pages/GallerySlideshowFeaturePage").then(m => ({ default: m.GallerySlideshowFeaturePage })));
 
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
@@ -151,14 +150,14 @@ const App = () => (
           <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/digital-photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/digital-guestbook" element={<GalleryTextGuestbookFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<GalleryVoiceGuestbookFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
           <Route path="/dashboard/photo-video-gallery/live-slideshow" element={<GallerySlideshowFeaturePage />} />
 
           {/* Legacy workspace routes — permanent redirects so bookmarks keep working */}
           <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />
           <Route path="/dashboard/photo-video-gallery/photo-booth" element={<Navigate to="/dashboard/photo-video-gallery/digital-photo-booth" replace />} />
           <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
-          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/audio-guestbook" replace />} />
+          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
 
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />

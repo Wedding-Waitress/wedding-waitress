@@ -1,5 +1,5 @@
-// Feature workspace: Digital Guestbook
-import React, { useEffect, useState } from 'react';
+// Feature workspace: Digital Guestbook (unified — written, audio and video messages)
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents } from '@/hooks/useEvents';
@@ -10,7 +10,10 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { GalleryTextGuestbookAccessCard, buildTextGuestbookUrl } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookAccessCard';
 import { GalleryTextGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookStepsCard';
-import { GalleryTextMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextMessagesCard';
+import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
+import { GalleryVoiceSettingsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceSettingsCard';
+import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
+import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
@@ -21,7 +24,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const { events } = useEvents();
   const { selectedEventId, selectedEvent } = useSelectedEvent(events);
-  const { meta, items, loading, error, setModeration, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { meta, items, loading, error, setModeration, setGuestbookEnabled, setGuestbookShare } = useEventMediaGallery(selectedEventId);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -38,10 +41,13 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
   const guestUrl = buildTextGuestbookUrl(meta?.primary_token ?? null);
 
+  // Recordings only — text-only guestbook messages are never included in downloads.
+  const recordings = useMemo(() => guestbookRecordings(items), [items]);
+
   const handleToggle = async (v: boolean) => {
     setSaving(true);
     try {
-      await setGuestFeature('guestbook_text_enabled', v);
+      await setGuestbookEnabled(v);
     } catch (e: any) {
       toast({ title: 'Could not update', description: e?.message || 'Please try again.', variant: 'destructive' });
     } finally {
@@ -61,14 +67,14 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
     <>
       <SeoHead
         title="Digital Guestbook | Wedding Waitress"
-        description="Read and manage private written messages and well wishes from your guests."
+        description="Read and manage private written, audio and video messages and well wishes from your guests."
         noIndex
       />
       <FeatureWorkspaceLayout
         title="Digital Guestbook"
-        description="Read and manage private written messages and well wishes from your guests."
+        description="Read and manage private written, audio and video messages and well wishes from your guests."
         eventName={(selectedEvent as any)?.name}
-        enabled={!!meta?.guestbook_text_enabled}
+        enabled={!!meta?.guestbook_text_enabled || !!meta?.voice_guestbook_enabled}
         toggleDisabled={saving || loading || !meta}
         onToggle={handleToggle}
         onBack={goBack}
@@ -103,11 +109,32 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
               <GalleryTextGuestbookAccessCard meta={meta} />
             </div>
 
-            <GalleryTextMessagesCard
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              <GalleryDownloadsCard
+                privacyScope="guestbook"
+                items={recordings}
+                eventName={(selectedEvent as any)?.name}
+                galleryTitle={meta.gallery_title}
+                scopes={['all', 'approved']}
+                labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
+                title="Download Guestbook Messages"
+                description="Save your guests' original recordings as a ZIP archive."
+                filePrefix="voice-messages"
+                emptyText="No recordings to download yet."
+                layout="vertical"
+                className="h-auto"
+              />
+              <GalleryVoiceSettingsCard meta={meta} />
+            </div>
+
+            <GalleryGuestbookMessagesCard
               eventId={selectedEventId}
               items={items}
               eventName={(selectedEvent as any)?.name}
+              loading={loading}
+              error={error}
               onSetItemModeration={setModeration}
+              onSetGuestbookShare={setGuestbookShare}
             />
           </div>
         )}

@@ -30,6 +30,8 @@ export interface ClassifiableItem {
   kind?: string;
   moderation_status?: string;
   signed_url?: string;
+  /** Organiser deliberately published this private guestbook recording to the gallery. */
+  shared_to_gallery?: boolean | null;
 }
 
 /** Resolve the authoritative category for a media row. */
@@ -53,9 +55,16 @@ export function isPrivateGuestbook(item: ClassifiableItem): boolean {
   return PRIVATE_GUESTBOOK_CATEGORIES.includes(categoryOf(item));
 }
 
+/** True when the organiser has deliberately shared a guestbook recording to the gallery. */
+export function isSharedGuestbookRecording(item: ClassifiableItem): boolean {
+  return categoryOf(item) === 'guestbook_recording' && item.shared_to_gallery === true;
+}
+
 /** True for content that belongs to the public gallery surface (regardless of moderation). */
 export function isPublicGalleryMedia(item: ClassifiableItem): boolean {
   const cat = categoryOf(item);
+  // Private guestbook recordings only become public when explicitly shared by the organiser.
+  if (cat === 'guestbook_recording') return item.shared_to_gallery === true;
   if (!PUBLIC_GALLERY_CATEGORIES.includes(cat)) return false;
   // Audio can only ever be a guestbook recording; never publish it.
   return item.kind !== 'audio';

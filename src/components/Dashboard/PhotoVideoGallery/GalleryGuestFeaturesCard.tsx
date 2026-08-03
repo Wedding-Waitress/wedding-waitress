@@ -11,15 +11,15 @@ interface Props {
   meta: GalleryMeta;
   onToggleUpload: (v: boolean) => Promise<void>;
   onToggleGalleryView: (v: boolean) => Promise<void>;
-  onToggleGuestbookText: (v: boolean) => Promise<void>;
-  onToggleVoice: (v: boolean) => Promise<void>;
+  /** Unified Digital Guestbook toggle — written, audio and video messages together. */
+  onToggleGuestbook: (v: boolean) => Promise<void>;
   onTogglePhotoBooth: (v: boolean) => Promise<void>;
   onToggleSlideshow: (v: boolean) => Promise<void>;
 }
 
 export const GalleryGuestFeaturesCard: React.FC<Props> = ({
-  meta, onToggleUpload, onToggleGalleryView, onToggleGuestbookText,
-  onToggleVoice, onTogglePhotoBooth, onToggleSlideshow,
+  meta, onToggleUpload, onToggleGalleryView, onToggleGuestbook,
+  onTogglePhotoBooth, onToggleSlideshow,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,8 +40,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
     { key: 'upload', title: 'Photo & Video Sharing', desc: 'Let guests share photos and videos from your event', checked: !!meta.guest_upload_enabled, fn: onToggleUpload, href: '/dashboard/photo-video-gallery/photo-video-sharing' },
     { key: 'view', title: 'Photo & Video Gallery View', desc: 'Let guests browse the shared gallery', checked: !!meta.gallery_view_enabled, fn: onToggleGalleryView, href: '/dashboard/photo-video-gallery/gallery-view' },
     { key: 'booth', title: 'Digital Photo Booth', desc: 'Let guests use the on-screen digital photo booth', checked: !!meta.photo_booth_enabled, fn: onTogglePhotoBooth, href: '/dashboard/photo-video-gallery/digital-photo-booth' },
-    { key: 'gbvoice', title: 'Audio Guestbook', desc: 'Let guests record private audio or video messages', checked: !!meta.voice_guestbook_enabled, fn: onToggleVoice, href: '/dashboard/photo-video-gallery/audio-guestbook' },
-    { key: 'gbtext', title: 'Digital Guestbook', desc: 'Let guests leave private written messages and well wishes', checked: !!meta.guestbook_text_enabled, fn: onToggleGuestbookText, href: '/dashboard/photo-video-gallery/digital-guestbook' },
+    { key: 'guestbook', title: 'Digital Guestbook', desc: 'Let guests leave private written, audio or video messages and well wishes', checked: !!meta.guestbook_text_enabled || !!meta.voice_guestbook_enabled, fn: onToggleGuestbook, href: '/dashboard/photo-video-gallery/digital-guestbook' },
     { key: 'slideshow', title: 'Live Slideshow', desc: 'Display uploaded photos in a live slideshow', checked: !!meta.slideshow_enabled, fn: onToggleSlideshow, href: '/dashboard/photo-video-gallery/live-slideshow' },
   ];
 

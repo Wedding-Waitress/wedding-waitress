@@ -1,12 +1,13 @@
-// How the Digital Guestbook works — 3 simple visual steps.
+// How the unified Digital Guestbook works — 4 simple visual steps.
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { QrCode, PenLine, CheckCircle2, HelpCircle } from 'lucide-react';
+import { QrCode, ListChecks, PenLine, Lock, HelpCircle } from 'lucide-react';
 
 const STEPS = [
-  { icon: QrCode, title: 'Open the Digital Guestbook', text: 'Guests open the Digital Guestbook using the link or QR code.' },
-  { icon: PenLine, title: 'Write a message', text: 'They write and submit their message for you.' },
-  { icon: CheckCircle2, title: 'Review the message', text: 'Their message appears here for the event organiser to review.' },
+  { icon: QrCode, title: 'Open the Digital Guestbook', text: 'Guests open it using the event link or QR code.' },
+  { icon: ListChecks, title: 'Choose a message type', text: 'They can leave a written, audio or video message.' },
+  { icon: PenLine, title: 'Create and submit', text: 'They write their message or record their audio or video.' },
+  { icon: Lock, title: 'Private delivery', text: 'Guestbook messages are sent privately to the event organisers and are not displayed in the public Photo & Video Gallery by default.' },
 ];
 
 export const GalleryTextGuestbookStepsCard: React.FC = () => (
@@ -16,7 +17,7 @@ export const GalleryTextGuestbookStepsCard: React.FC = () => (
         <HelpCircle className="h-5 w-5 text-[#967A59] shrink-0" /> How the Digital Guestbook Works
       </h2>
       <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
-        Three simple steps from your guest's phone straight into your Digital Guestbook.
+        Four simple steps from your guest's phone straight into your Digital Guestbook.
       </p>
     </div>
 
