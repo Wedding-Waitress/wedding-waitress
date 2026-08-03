@@ -512,7 +512,7 @@ export const GuestPhotoBooth: React.FC = () => {
           <Card className={`p-5 space-y-5 border border-[#472c1d] ${theme.surfaceClass} ${theme.textClass}`}>
             <div>
               <Label htmlFor="pb-name" className="text-base font-medium">Your Full Name <span className="text-red-500">*</span></Label>
-              <Input id="pb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
+              <Input id="pb-name" className="h-12 text-base mt-2 border border-[#472c1d]" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
             </div>
 
             {!isCameraSupported && (
