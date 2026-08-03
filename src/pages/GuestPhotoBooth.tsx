@@ -76,6 +76,8 @@ export const GuestPhotoBooth: React.FC = () => {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [downloadDone, setDownloadDone] = useState<string | null>(null);
   const [fallbackLinks, setFallbackLinks] = useState<{ name: string; url: string }[]>([]);
+  const [sharing, setSharing] = useState<null | 'strip' | 'all'>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
 
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
