@@ -13,7 +13,7 @@ import { GalleryPasswordCard } from '@/components/Dashboard/PhotoVideoGallery/Ga
 import { GalleryBrandingCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryBrandingCard';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
-import { buildGalleryUploadUrl } from '@/lib/urlUtils';
+import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import { Loader2, AlertTriangle, Eye } from 'lucide-react';
 
 export const GalleryViewFeaturePage: React.FC = () => {
@@ -38,9 +38,8 @@ export const GalleryViewFeaturePage: React.FC = () => {
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
 
-  const guestGalleryUrl = meta?.primary_token
-    ? `${buildGalleryUploadUrl(meta.primary_token)}?tab=gallery`
-    : '';
+  const guestGalleryUrl = buildGalleryGuestAppUrl(meta?.primary_token);
+
 
   const handleToggle = async (v: boolean) => {
     setSaving(true);

@@ -17,7 +17,7 @@ import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/G
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { Loader2, AlertTriangle, Camera } from 'lucide-react';
-import { buildGalleryPhotoBoothUrl } from '@/lib/urlUtils';
+import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 
 export const GalleryPhotoBoothFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
 
-  const boothUrl = meta?.primary_token ? buildGalleryPhotoBoothUrl(meta.primary_token) : '';
+  const boothUrl = buildGalleryGuestAppUrl(meta?.primary_token);
 
   // Filtered view of the existing uploads — Digital Photo Booth captures only.
   const boothItems = useMemo(() => items.filter(i => categoryOf(i) === 'photo_booth'), [items]);
