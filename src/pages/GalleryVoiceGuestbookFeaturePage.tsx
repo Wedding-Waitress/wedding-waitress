@@ -132,7 +132,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                   description="Save your guests' original recordings as a ZIP archive."
                   filePrefix="voice-messages"
                   emptyText="No recordings to download yet."
-                />
+                  layout="vertical"
                 <GalleryVoiceSettingsCard meta={meta} className="h-full" />
               </div>
             </div>
