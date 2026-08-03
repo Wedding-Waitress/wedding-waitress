@@ -109,12 +109,12 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
         </div>
       )}
 
-      <div className="pt-1">
+      <div className="flex justify-end pt-1">
         <Button
           type="button"
           onClick={submit}
           disabled={saving || !canSave}
-          className="lv-premium-shade h-11 bg-[#967A59] hover:bg-[#7d6448] text-white"
+          className="lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white"
         >
           {saving ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Saving…</> : <><Save className="h-4 w-4 mr-2" /> Save</>}
         </Button>
