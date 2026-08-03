@@ -753,7 +753,7 @@ export const GuestPhotoBooth: React.FC = () => {
               </div>
             )}
 
-            <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={closeDownloads}>
+            <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={closeDownloads} disabled={sharing !== null}>
               <X className="h-4 w-4 mr-2" /> Cancel
             </Button>
           </div>
