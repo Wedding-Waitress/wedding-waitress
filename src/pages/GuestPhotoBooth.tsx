@@ -76,6 +76,8 @@ export const GuestPhotoBooth: React.FC = () => {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [downloadDone, setDownloadDone] = useState<string | null>(null);
   const [fallbackLinks, setFallbackLinks] = useState<{ name: string; url: string }[]>([]);
+  const [sharing, setSharing] = useState<null | 'strip' | 'all'>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
 
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -287,6 +289,12 @@ export const GuestPhotoBooth: React.FC = () => {
   // ---- Downloads (guest keeps a copy of the strip + original captures) ----
   const baseName = safeEventName(gallery?.event_name);
 
+  // Mobile / tablet use the native share sheet; desktop keeps the existing anchor downloads.
+  const isTouchDevice = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0;
+  const isApple = typeof navigator !== 'undefined'
+    && (/iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (/Mac/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+
   const triggerDownload = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -307,33 +315,88 @@ export const GuestPhotoBooth: React.FC = () => {
   const openDownloads = () => {
     clearFallback();
     setDownloadDone(null);
+    setShareError(null);
     setDownloadOpen(true);
   };
 
   const closeDownloads = () => {
+    if (sharing) return;
     setDownloadOpen(false);
     setDownloadDone(null);
+    setShareError(null);
     clearFallback();
+  };
+
+  const buildFileList = (): { blob: Blob; name: string }[] => {
+    if (!capturedBlob) return [];
+    return [
+      { blob: capturedBlob, name: `${baseName}-Photo-Strip.jpg` },
+      ...stripPhotos.map((b, i) => ({ blob: b, name: `${baseName}-Photo-${i + 1}.jpg` })),
+    ];
+  };
+
+  // Files are prepared as soon as the modal opens, so the share() call stays
+  // directly attached to the guest's tap (required by iOS Safari).
+  const preparedRef = useRef<{ strip: File[]; all: File[] } | null>(null);
+  useEffect(() => {
+    if (!downloadOpen || !capturedBlob) { preparedRef.current = null; return; }
+    const list = buildFileList();
+    const files = list.map(f => new File([f.blob], f.name, { type: 'image/jpeg' }));
+    preparedRef.current = { strip: files.slice(0, 1), all: files };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [downloadOpen, capturedBlob, stripPhotos, baseName]);
+
+  const showFallbackLinks = () => {
+    clearFallback();
+    setFallbackLinks(buildFileList().map(f => ({ name: f.name, url: URL.createObjectURL(f.blob) })));
+  };
+
+  const shareFiles = async (which: 'strip' | 'all') => {
+    const prepared = preparedRef.current;
+    const files = which === 'strip' ? prepared?.strip : prepared?.all;
+    if (!files || files.length === 0) return;
+
+    const nav = navigator as Navigator & { canShare?: (d: any) => boolean; share?: (d: any) => Promise<void> };
+    if (!nav.share || !nav.canShare || !nav.canShare({ files })) {
+      setShareError('Your browser cannot open the save sheet. Use the links below to save each photo.');
+      showFallbackLinks();
+      return;
+    }
+
+    setShareError(null);
+    setDownloadDone(null);
+    setSharing(which);
+    try {
+      await nav.share({ files });
+      setDownloadDone(which === 'strip' ? 'Your photo strip was saved.' : 'Your 5 photos were saved.');
+    } catch (e: any) {
+      // Closing the sheet is a cancellation — stay silent.
+      if (e?.name !== 'AbortError') {
+        setShareError('That did not work. Use the links below to save each photo.');
+        showFallbackLinks();
+      }
+    } finally {
+      setSharing(null);
+    }
   };
 
   const downloadStrip = () => {
     if (!capturedBlob) return;
+    if (isTouchDevice) { void shareFiles('strip'); return; }
     triggerDownload(capturedBlob, `${baseName}-Photo-Strip.jpg`);
     setDownloadDone('Your photo strip download has started.');
   };
 
   const downloadEverything = () => {
     if (!capturedBlob) return;
-    const files: { blob: Blob; name: string }[] = [
-      { blob: capturedBlob, name: `${baseName}-Photo-Strip.jpg` },
-      ...stripPhotos.map((b, i) => ({ blob: b, name: `${baseName}-Photo-${i + 1}.jpg` })),
-    ];
+    if (isTouchDevice) { void shareFiles('all'); return; }
+    const files = buildFileList();
     files.forEach((f, i) => setTimeout(() => triggerDownload(f.blob, f.name), i * 400));
-    // Always offer individual links too — some mobile browsers block multi-downloads.
-    clearFallback();
-    setFallbackLinks(files.map(f => ({ name: f.name, url: URL.createObjectURL(f.blob) })));
+    // Always offer individual links too — some browsers block multi-downloads.
+    showFallbackLinks();
     setDownloadDone('Your downloads have started. If any file did not save, use the links below.');
   };
+
 
 
 
@@ -629,13 +692,23 @@ export const GuestPhotoBooth: React.FC = () => {
             <DialogTitle className="text-center text-lg">Download Your Photos</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-1">
+            {isTouchDevice && isApple && (
+              <p className="text-sm text-muted-foreground text-center">
+                {mode === 'strip' && stripPhotos.length > 0
+                  ? 'To add this to your Photos, select “Save Image” in the Apple menu. To add everything to your Photos, select “Save 5 Images” in the Apple menu.'
+                  : 'To add this to your Photos, select “Save Image” in the Apple menu.'}
+              </p>
+            )}
             <Button
               type="button"
               className="lv-premium-shade w-full h-12 text-white text-base"
               style={{ backgroundColor: accent }}
               onClick={downloadStrip}
+              disabled={sharing !== null}
             >
-              <Download className="h-5 w-5 mr-2" /> Download Photo Strip
+              {sharing === 'strip'
+                ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Opening…</>
+                : <><Download className="h-5 w-5 mr-2" /> Download Photo Strip</>}
             </Button>
             {mode === 'strip' && stripPhotos.length > 0 && (
               <Button
@@ -644,8 +717,11 @@ export const GuestPhotoBooth: React.FC = () => {
                 className="lv-premium-shade w-full h-12 text-base border-2"
                 style={{ borderColor: accent, color: accent, backgroundColor: accentSoftBg }}
                 onClick={downloadEverything}
+                disabled={sharing !== null}
               >
-                <Download className="h-5 w-5 mr-2" /> Download Everything
+                {sharing === 'all'
+                  ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Opening…</>
+                  : <><Download className="h-5 w-5 mr-2" /> Download Everything</>}
               </Button>
             )}
 
@@ -654,6 +730,13 @@ export const GuestPhotoBooth: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{downloadDone}</span>
               </div>
             )}
+
+            {shareError && (
+              <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3">
+                {shareError}
+              </div>
+            )}
+
 
             {fallbackLinks.length > 0 && (
               <div className="space-y-2">
@@ -670,7 +753,7 @@ export const GuestPhotoBooth: React.FC = () => {
               </div>
             )}
 
-            <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={closeDownloads}>
+            <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={closeDownloads} disabled={sharing !== null}>
               <X className="h-4 w-4 mr-2" /> Cancel
             </Button>
           </div>
