@@ -655,25 +655,15 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {current === 'booth' && token && (
-          <Card className="max-w-md mx-auto p-6 sm:p-8 text-center space-y-5 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white">
-            <div className="mx-auto inline-flex items-center justify-center w-16 h-16 rounded-full" style={{ backgroundColor: accentSoftBg }}>
-              <Camera className="h-8 w-8" style={{ color: accent }} />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-[#1D1D1F]">Digital Photo Booth</h2>
-              <p className="text-base text-[#6E6E73] leading-relaxed max-w-md mx-auto">
-                Get ready to take four fun photos and create your Wedding Waitress photo strip.
-              </p>
-            </div>
-            <Button
-              type="button"
-              onClick={() => setBoothOpen(true)}
-              className="lv-premium-shade w-full h-14 rounded-xl text-white text-base font-semibold bg-green-600 hover:bg-green-700"
-            >
-              <Camera className="h-5 w-5 mr-2 text-white" />
-              <span className="text-white">Launch Digital Photo Booth</span>
-            </Button>
-          </Card>
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} />
+              </div>
+            }
+          >
+            <GuestPhotoBooth tokenProp={token} embedded />
+          </React.Suspense>
         )}
 
         {current === 'guestbook' && token && (
