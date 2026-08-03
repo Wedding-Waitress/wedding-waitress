@@ -66,9 +66,11 @@ interface GuestPhotoBoothProps {
   onExit?: () => void;
   /** Rendered inline inside the unified guest app (no full-screen chrome/background/header). */
   embedded?: boolean;
+  /** Fired after a session is successfully saved to the shared event gallery. */
+  onSaved?: () => void;
 }
 
-export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit, embedded = false }) => {
+export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit, embedded = false, onSaved }) => {
   const params = useParams<{ token: string }>();
   const token = tokenProp ?? params.token;
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
