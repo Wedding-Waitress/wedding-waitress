@@ -611,7 +611,7 @@ export const GuestPhotoBooth: React.FC = () => {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="flex-1 h-11 text-base"
+                    className="flex-1 h-11 text-base bg-red-500 text-white hover:bg-red-600 border border-[#472c1d] shadow-none"
                     onClick={() => {
                       if (countdown !== null || stripActive) {
                         setCountdown(null);
