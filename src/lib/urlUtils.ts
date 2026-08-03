@@ -101,14 +101,14 @@ export function buildGallerySlideshowUrl(token: string): string {
  * Builds a Photo & Video Gallery Voice Guestbook URL for the given token.
  */
 export function buildGalleryGuestbookUrl(token: string): string {
-  const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/gallery-guestbook/${encodeURIComponent(token)}`;
+  // Canonical unified guest app — Guestbook tab.
+  return `${buildGalleryUploadUrl(token)}?tab=guestbook`;
 }
 
 /**
  * Builds a Photo & Video Gallery Photo Booth URL for the given token.
  */
 export function buildGalleryPhotoBoothUrl(token: string): string {
-  const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/gallery-photobooth/${encodeURIComponent(token)}`;
+  // Canonical unified guest app — Photo Booth tab.
+  return `${buildGalleryUploadUrl(token)}?tab=booth`;
 }

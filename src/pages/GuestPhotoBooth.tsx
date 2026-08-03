@@ -59,8 +59,16 @@ type Phase = 'preview' | 'captured' | 'saving' | 'saved';
 
 
 
-export const GuestPhotoBooth: React.FC = () => {
-  const { token } = useParams<{ token: string }>();
+interface GuestPhotoBoothProps {
+  /** When embedded in the unified guest app, the token is supplied directly. */
+  tokenProp?: string;
+  /** When provided, Cancel/close returns to the host app instead of navigating back. */
+  onExit?: () => void;
+}
+
+export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit }) => {
+  const params = useParams<{ token: string }>();
+  const token = tokenProp ?? params.token;
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -285,6 +293,7 @@ export const GuestPhotoBooth: React.FC = () => {
     setStripActive(false);
     setCountdown(null);
     setErrorMsg(null);
+    if (onExit) { onExit(); return; }
     if (window.history.length > 1) window.history.back();
     else window.close();
   };
@@ -509,6 +518,11 @@ export const GuestPhotoBooth: React.FC = () => {
               >
                 {mode === 'strip' ? 'Make another strip' : 'Take another photo'}
               </Button>
+              {onExit && (
+                <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={() => { stopStream(); onExit(); }}>
+                  <X className="h-4 w-4 mr-2" /> Close Photo Booth
+                </Button>
+              )}
             </div>
           </Card>
         ) : (
