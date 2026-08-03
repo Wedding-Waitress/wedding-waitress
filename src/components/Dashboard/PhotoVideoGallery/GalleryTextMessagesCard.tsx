@@ -214,8 +214,8 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
@@ -225,14 +225,14 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
           />
         </div>
         <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
