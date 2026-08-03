@@ -438,7 +438,20 @@ export const GuestMediaUpload: React.FC = () => {
             className="w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
             style={{ borderColor: accent }}
           >
-            {activeTab === 'booth' ? (
+            {activeTab === 'guestbook' ? (
+              !guestbookHeroError ? (
+                <img
+                  src={guestbookHeroAsset.url}
+                  alt=""
+                  className="w-full h-full object-contain p-4 sm:p-6"
+                  onError={() => setGuestbookHeroError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center px-6">
+                  <BookHeart className="h-16 w-16 sm:h-20 sm:w-20" style={{ color: accent }} />
+                </div>
+              )
+            ) : activeTab === 'booth' ? (
               !photoBoothHeroError ? (
                 <img
                   src={photoBoothHeroAsset.url}
