@@ -43,6 +43,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState<GalleryItem | null>(null);
 
   // Recordings only — text-only guestbook messages are excluded.
   const recordings = useMemo(
