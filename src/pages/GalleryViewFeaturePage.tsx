@@ -99,10 +99,10 @@ export const GalleryViewFeaturePage: React.FC = () => {
         ) : (
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-              <GalleryViewAccessCard meta={meta} guestUrl={guestGalleryUrl} />
               <div className="h-full [&>*]:h-full">
                 <GalleryBrandingCard eventId={selectedEventId!} meta={meta} onSave={updateBranding} />
               </div>
+              <GalleryViewAccessCard meta={meta} guestUrl={guestGalleryUrl} />
               <div className="h-full [&>*]:h-full">
                 <GalleryPasswordCard
                   passwordEnabled={meta.password_enabled}
