@@ -933,6 +933,7 @@ export type Database = {
           photo_booth_seq: number | null
           share_photo_seq: number | null
           share_video_seq: number | null
+          shared_to_gallery: boolean
           source_category: string
           storage_path: string
           upload_status: Database["public"]["Enums"]["event_media_upload_status"]
@@ -964,6 +965,7 @@ export type Database = {
           photo_booth_seq?: number | null
           share_photo_seq?: number | null
           share_video_seq?: number | null
+          shared_to_gallery?: boolean
           source_category?: string
           storage_path: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
@@ -995,6 +997,7 @@ export type Database = {
           photo_booth_seq?: number | null
           share_photo_seq?: number | null
           share_video_seq?: number | null
+          shared_to_gallery?: boolean
           source_category?: string
           storage_path?: string
           upload_status?: Database["public"]["Enums"]["event_media_upload_status"]
@@ -4637,6 +4640,7 @@ export type Database = {
           photo_booth_seq: number
           share_photo_seq: number
           share_video_seq: number
+          shared_to_gallery: boolean
           source_category: string
           storage_path: string
           uploaded_at: string
@@ -5074,6 +5078,10 @@ export type Database = {
       }
       set_event_media_guest_feature: {
         Args: { _enabled: boolean; _event_id: string; _feature: string }
+        Returns: undefined
+      }
+      set_event_media_guestbook_share: {
+        Args: { _item_id: string; _shared: boolean }
         Returns: undefined
       }
       set_event_media_moderation: {
