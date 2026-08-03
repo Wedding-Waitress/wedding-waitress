@@ -87,8 +87,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
               meta={meta}
               onToggleUpload={(v) => setGuestFeature('guest_upload_enabled', v)}
               onToggleGalleryView={(v) => setGuestFeature('gallery_view_enabled', v)}
-              onToggleGuestbookText={(v) => setGuestFeature('guestbook_text_enabled', v)}
-              onToggleVoice={setVoiceGuestbookEnabled}
+              onToggleGuestbook={setGuestbookEnabled}
               onTogglePhotoBooth={setPhotoBoothEnabled}
               onToggleSlideshow={setSlideshowEnabled}
             />
