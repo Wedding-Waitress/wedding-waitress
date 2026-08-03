@@ -438,12 +438,27 @@ export const GuestMediaUpload: React.FC = () => {
             style={{ borderColor: accent }}
           >
             {activeTab === 'guestbook' ? (
-              <img
-                src={guestbookHeroAsset.url}
-                alt="Please sign our Guest Book"
-                className="w-[86%] h-[86%] object-contain mx-auto"
-              />
+              <div className="relative w-full h-full">
+                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
+                <img
+                  src={guestBookHeroGold}
+                  alt=""
+                  className="absolute inset-0 m-auto"
+                  style={{
+                    zIndex: 10,
+                    width: '86%',
+                    height: '86%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    opacity: 1,
+                    visibility: 'visible',
+                    filter: 'none',
+                    mixBlendMode: 'normal',
+                  }}
+                />
+              </div>
             ) : activeTab === 'booth' ? (
+
               !photoBoothHeroError ? (
                 <img
                   src={photoBoothHeroAsset.url}
