@@ -112,3 +112,11 @@ export function buildGalleryPhotoBoothUrl(token: string): string {
   // Canonical unified guest app — Photo Booth tab.
   return `${buildGalleryUploadUrl(token)}?tab=booth`;
 }
+/**
+ * Canonical guest app URL (single source of truth for all Guest Experience
+ * access QR codes and public links). Opens the unified guest app on its
+ * default Upload tab.
+ */
+export function buildGalleryGuestAppUrl(token: string | null | undefined): string {
+  return token ? buildGalleryUploadUrl(token) : '';
+}

@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Copy, Download, QrCode as QrIcon, AlertTriangle, MonitorPlay } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGallerySlideshowUrl } from '@/lib/urlUtils';
+import { buildGallerySlideshowUrl, buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
+// Admin-only venue display URL (Launch Live Slideshow).
 export function buildLiveSlideshowUrl(token: string | null): string {
   return token ? buildGallerySlideshowUrl(token) : '';
 }
@@ -17,7 +18,9 @@ export function buildLiveSlideshowUrl(token: string | null): string {
 export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState('');
-  const url = buildLiveSlideshowUrl(meta.primary_token);
+  // Guest-facing QR / link is always the canonical unified guest app URL.
+  const url = buildGalleryGuestAppUrl(meta.primary_token);
+  const slideshowUrl = buildLiveSlideshowUrl(meta.primary_token);
 
   useEffect(() => {
     if (!url) { setQrDataUrl(''); return; }
@@ -40,7 +43,7 @@ export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta }> = ({ me
     a.click();
   };
 
-  const launch = () => { if (url) window.open(url, '_blank', 'noopener,noreferrer'); };
+  const launch = () => { if (slideshowUrl) window.open(slideshowUrl, '_blank', 'noopener,noreferrer'); };
 
   return (
     <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
@@ -81,7 +84,7 @@ export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta }> = ({ me
           )}
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" className="lv-premium-shade" onClick={launch} disabled={!url}>
+            <Button variant="outline" className="lv-premium-shade" onClick={launch} disabled={!slideshowUrl}>
               <MonitorPlay className="h-4 w-4 mr-1" /> Launch Live Slideshow
             </Button>
             <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>

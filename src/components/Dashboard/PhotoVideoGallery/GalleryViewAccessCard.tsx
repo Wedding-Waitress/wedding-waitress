@@ -1,20 +1,37 @@
-// Guest Gallery Access — public link to the guest-facing gallery view.
-import React from 'react';
+// Guest Gallery Access — public link + QR code to the unified guest app.
+import React, { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, Images, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Copy, Images, AlertTriangle, ExternalLink, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: string }> = ({ meta, guestUrl }) => {
   const { toast } = useToast();
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (!guestUrl) { setQrDataUrl(''); return; }
+    QRCode.toDataURL(guestUrl, { width: 512, margin: 2, color: { dark: '#1D1D1F', light: '#FFFFFF' } })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(''));
+  }, [guestUrl]);
 
   const copy = async () => {
     if (!guestUrl) return;
     await navigator.clipboard.writeText(guestUrl);
     toast({ title: 'Gallery link copied' });
+  };
+
+  const downloadQr = () => {
+    if (!qrDataUrl) return;
+    const a = document.createElement('a');
+    a.href = qrDataUrl;
+    a.download = 'gallery-qr.png';
+    a.click();
   };
 
   return (
@@ -35,6 +52,14 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
         </div>
       ) : (
         <div className="space-y-3">
+          <div className="flex justify-center">
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt="Guest gallery QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+            ) : (
+              <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
+            )}
+          </div>
+
           <Label className="text-sm">Public gallery link</Label>
           <Input value={guestUrl} readOnly className="h-11 text-sm w-full" />
           <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={copy}>
@@ -47,6 +72,9 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
             disabled={!guestUrl}
           >
             <ExternalLink className="h-4 w-4 mr-1" /> Open Gallery
+          </Button>
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl}>
+            <Download className="h-4 w-4 mr-1" /> Download QR code
           </Button>
         </div>
       )}
