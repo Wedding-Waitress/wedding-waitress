@@ -17,6 +17,7 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
+import photoBoothHeroAsset from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png.asset.json';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
@@ -91,6 +92,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [requestedTab, setRequestedTab] = useState<'upload' | 'gallery' | 'guestbook' | 'booth' | null>(null);
   // Immersive photo booth overlay visibility.
   const [boothOpen, setBoothOpen] = useState(false);
+  // Track whether the permanent Photo Booth hero artwork failed to load.
+  const [photoBoothHeroError, setPhotoBoothHeroError] = useState(false);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
@@ -433,11 +436,18 @@ export const GuestMediaUpload: React.FC = () => {
             style={{ borderColor: accent }}
           >
             {activeTab === 'booth' ? (
-              /* TODO: replace with final Photo Booth artwork (swap this block for an <img src={...} />). */
-              <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-center px-6">
-                <Camera className="h-16 w-16 sm:h-20 sm:w-20" style={{ color: accent }} />
-                <span className="text-white text-xl sm:text-2xl font-semibold tracking-tight">Digital Photo Booth</span>
-              </div>
+              !photoBoothHeroError ? (
+                <img
+                  src={photoBoothHeroAsset.url}
+                  alt=""
+                  className="w-full h-full object-contain p-4 sm:p-6"
+                  onError={() => setPhotoBoothHeroError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center px-6">
+                  <Camera className="h-16 w-16 sm:h-20 sm:w-20" style={{ color: accent }} />
+                </div>
+              )
             ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
             ) : theme.logoImageUrl ? (
