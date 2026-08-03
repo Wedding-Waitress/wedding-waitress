@@ -3,14 +3,16 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Settings2, Timer, HardDrive, Mic } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+
 
 function mb(bytes: number) {
   if (!bytes) return '—';
   return `${Math.round(bytes / (1024 * 1024))} MB`;
 }
 
-export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
+export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta; className?: string }> = ({ meta, className }) => {
   const rows = [
     {
       icon: Timer,
@@ -33,7 +35,7 @@ export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta
   ];
 
   return (
-    <Card className="p-5 sm:p-6 space-y-5 overflow-hidden">
+    <Card className={cn('p-5 sm:p-6 space-y-5 overflow-hidden', className)}>
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
           <Settings2 className="h-5 w-5 text-[#967A59] shrink-0" /> Audio & Video Message Settings
