@@ -678,7 +678,7 @@ export const GuestMediaUpload: React.FC = () => {
               </div>
             }
           >
-            <GuestPhotoBooth tokenProp={token} embedded />
+            <GuestPhotoBooth tokenProp={token} embedded onSaved={() => setGalleryRefresh(n => n + 1)} />
           </React.Suspense>
         )}
 
