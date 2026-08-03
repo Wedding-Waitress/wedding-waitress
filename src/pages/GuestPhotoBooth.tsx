@@ -287,7 +287,6 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   };
 
   const cancel = () => {
-    stopStream();
     if (capturedUrl) URL.revokeObjectURL(capturedUrl);
     setCapturedUrl(null);
     setCapturedBlob(null);
@@ -295,6 +294,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     setStripActive(false);
     setCountdown(null);
     setErrorMsg(null);
+    // Embedded in the unified guest app: reset only, stay on the Photo Booth tab.
+    if (embedded) { setPhase('preview'); return; }
+    stopStream();
     if (onExit) { onExit(); return; }
     if (window.history.length > 1) window.history.back();
     else window.close();
