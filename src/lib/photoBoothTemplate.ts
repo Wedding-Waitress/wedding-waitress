@@ -9,6 +9,7 @@
 //  - Single portrait 1080×1800, single landscape 1800×1080, strip print 1200×1800 (4×6)
 
 export const PB_CREAM = '#FBF7F0';
+export const PB_BROWN = '#967A59';
 export const PB_GOLD = '#C8A97E';
 export const PB_GOLD_DARK = '#B08F63';
 export const PB_INK = '#FFFFFF';
