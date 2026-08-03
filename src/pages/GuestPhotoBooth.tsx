@@ -509,7 +509,7 @@ export const GuestPhotoBooth: React.FC = () => {
             </div>
           </Card>
         ) : (
-          <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>
+          <Card className={`p-5 space-y-5 border border-[#472c1d] ${theme.surfaceClass} ${theme.textClass}`}>
             <div>
               <Label htmlFor="pb-name" className="text-base font-medium">Your full name <span className="text-red-500">*</span></Label>
               <Input id="pb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
