@@ -418,31 +418,51 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
 
 
+  // Guards against saving the same completed session twice (refresh / double tap / re-press Save).
+  const savingRef = useRef(false);
+
   const save = async () => {
     if (!capturedBlob || !token) return;
     if (!name.trim()) { setErrorMsg('Please add your full name first.'); return; }
+    if (savingRef.current) return;
+    savingRef.current = true;
     setPhase('saving');
     setErrorMsg(null);
     const prefix = mode === 'strip' ? 'photobooth-strip' : 'photobooth';
-    const filename = `${prefix}-${Date.now()}.jpg`;
+    const stamp = Date.now();
+    const uploaderName = name.trim();
     const ok = await upload(capturedBlob, {
       token,
       mime: 'image/jpeg',
-      uploaderName: name.trim(),
-      filename,
+      uploaderName,
+      filename: `${prefix}-${stamp}.jpg`,
       isStrip: mode === 'strip',
     });
     if (ok) {
+      // Also store each individual capture from the strip so all 5 images land in the gallery.
+      const singles = mode === 'strip' ? stripPhotos : [];
+      for (let i = 0; i < singles.length; i++) {
+        await upload(singles[i], {
+          token,
+          mime: 'image/jpeg',
+          uploaderName,
+          filename: `photobooth-${stamp}-${i + 1}.jpg`,
+          isStrip: false,
+        });
+      }
       setPhase('saved');
       if (capturedUrl) URL.revokeObjectURL(capturedUrl);
       setCapturedBlob(null);
       setCapturedUrl(null);
       setStripPhotos([]);
+      onSaved?.();
     } else {
       setPhase('captured');
       setErrorMsg('Could not upload your photo. Please try again.');
     }
+    savingRef.current = false;
   };
+
 
   const theme = resolveGalleryTheme(gallery);
   const accent = theme.themeColor;
