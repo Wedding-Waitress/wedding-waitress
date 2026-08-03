@@ -158,7 +158,7 @@ const App = () => (
           <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />
           <Route path="/dashboard/photo-video-gallery/photo-booth" element={<Navigate to="/dashboard/photo-video-gallery/digital-photo-booth" replace />} />
           <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
-          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/audio-guestbook" replace />} />
+          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
 
           <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
