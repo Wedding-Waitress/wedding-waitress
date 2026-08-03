@@ -427,9 +427,9 @@ export const GuestMediaUpload: React.FC = () => {
   ].filter(Boolean)) as Array<'upload' | 'gallery' | 'guestbook' | 'booth'>;
   const heroTab = availableTabs.includes(activeTab) ? activeTab : (availableTabs[0] ?? 'upload');
   const heroButtonLabel =
-    heroTab === 'gallery' ? 'View Photos & Videos'
+    heroTab === 'gallery' ? 'View Photo and Video Gallery'
       : heroTab === 'guestbook' ? 'Leave Your Message'
-        : heroTab === 'booth' ? 'Start the Photo Booth'
+        : heroTab === 'booth' ? 'Start the Photo Booth Fun'
           : 'Upload Photos & Videos';
 
   return (
