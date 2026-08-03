@@ -205,7 +205,7 @@ export const GalleryDownloadsCard: React.FC<{
   const scopes: ZipScope[] = scopesProp ?? ['all', 'approved', 'photos', 'videos'];
 
   return (
-    <Card className="p-4 space-y-4 overflow-hidden h-full flex flex-col">
+    <Card className={cn('p-4 space-y-4 overflow-hidden h-full flex flex-col', className)}>
       <div className="flex items-start gap-2">
         <FileArchive className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
