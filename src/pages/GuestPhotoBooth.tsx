@@ -580,7 +580,18 @@ export const GuestPhotoBooth: React.FC = () => {
                     <><Save className="h-5 w-5 mr-2" /> Save</>
                   )}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="lv-premium-shade w-full h-12 text-base border-2"
+                  style={{ borderColor: accent, color: accent, backgroundColor: accentSoftBg }}
+                  onClick={openDownloads}
+                  disabled={phase === 'saving' || !capturedBlob}
+                >
+                  <Download className="h-5 w-5 mr-2" /> Download
+                </Button>
                 <div className="flex gap-2">
+
                   <Button
                     type="button"
                     variant="outline"
