@@ -190,29 +190,6 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
         <section className="space-y-5 min-w-0">
           <h3 className="text-sm font-bold uppercase tracking-wide text-[#967A59]">Background Design</h3>
 
-          {/* Presets */}
-          <div>
-            <Label className="text-sm">Background style</Label>
-            <div className="mt-1.5 grid grid-cols-3 gap-2">
-              {BG_OPTIONS.map(opt => {
-                const active = bgMode === 'preset' && bg === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => { setBg(opt.value); setBgMode('preset'); }}
-                    className={`rounded-md border p-2 flex flex-col items-center gap-1.5 transition-colors ${
-                      active ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border hover:border-[#967A59]/50'
-                    }`}
-                  >
-                    <div className="w-full h-10 rounded border border-black/5" style={{ background: opt.sample }} />
-                    <span className="text-xs font-medium">{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Custom colour */}
           <div>
             <div className="flex items-center justify-between gap-2">
