@@ -746,10 +746,7 @@ export const GuestMediaUpload: React.FC = () => {
             />
             <Button
               type="button"
-              className="lv-premium-shade w-full h-14 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-              style={{ backgroundColor: '#967A59' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#7F6549'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#967A59'; }}
+              className="lv-premium-shade w-full h-14 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all bg-green-500 hover:bg-green-600"
               onClick={openPicker}
               disabled={uploading || validating || awaitingPicker || anyFull}
             >
