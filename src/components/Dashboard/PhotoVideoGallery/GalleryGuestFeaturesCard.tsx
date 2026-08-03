@@ -11,15 +11,15 @@ interface Props {
   meta: GalleryMeta;
   onToggleUpload: (v: boolean) => Promise<void>;
   onToggleGalleryView: (v: boolean) => Promise<void>;
-  onToggleGuestbookText: (v: boolean) => Promise<void>;
-  onToggleVoice: (v: boolean) => Promise<void>;
+  /** Unified Digital Guestbook toggle — written, audio and video messages together. */
+  onToggleGuestbook: (v: boolean) => Promise<void>;
   onTogglePhotoBooth: (v: boolean) => Promise<void>;
   onToggleSlideshow: (v: boolean) => Promise<void>;
 }
 
 export const GalleryGuestFeaturesCard: React.FC<Props> = ({
-  meta, onToggleUpload, onToggleGalleryView, onToggleGuestbookText,
-  onToggleVoice, onTogglePhotoBooth, onToggleSlideshow,
+  meta, onToggleUpload, onToggleGalleryView, onToggleGuestbook,
+  onTogglePhotoBooth, onToggleSlideshow,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
