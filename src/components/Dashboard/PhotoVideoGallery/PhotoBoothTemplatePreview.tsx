@@ -5,6 +5,7 @@ import {
   composeSingle,
   composeStrip,
   makePlaceholderPhoto,
+  PB_STRIP_COUNT,
   type ComposeOpts,
 } from '@/lib/photoBoothTemplate';
 
@@ -31,7 +32,7 @@ export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrai
       try {
         const canvas =
           kind === 'strip'
-            ? await composeStrip([0, 1, 2].map(i => makePlaceholderPhoto(i, true)), opts)
+            ? await composeStrip(Array.from({ length: PB_STRIP_COUNT }, (_, i) => makePlaceholderPhoto(i, true)), opts)
             : await composeSingle(makePlaceholderPhoto(0, portrait), opts);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
         if (cancelled) return;

@@ -94,7 +94,7 @@ export const GalleryPhotoBoothCard: React.FC<{
                   <LayoutGrid className="h-4 w-4 text-[#967A59]" />
                   <span className="text-sm font-medium text-[#1D1D1F]">Photo Strip</span>
                 </div>
-                <p className="text-xs text-[#6E6E73]">3 photos stacked into a wedding strip.</p>
+                <p className="text-xs text-[#6E6E73]">4 photos stacked into a wedding strip.</p>
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 // Public guest Photo Booth page — /gallery-photobooth/:token
-// Supports two modes: 'single' (one photo) and 'strip' (3 photos composed into a wedding strip)
+// Supports two modes: 'single' (one photo) and 'strip' (4 photos composed into a wedding strip)
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +23,7 @@ import {
 } from '@/lib/photoBoothTemplate';
 
 const STRIP_COUNT = PB_STRIP_COUNT;
+const PHOTO_BOOTH_BG = '/default-hero-bg.png';
 
 interface GalleryPublic {
   gallery_id: string;
@@ -342,24 +343,27 @@ export const GuestPhotoBooth: React.FC = () => {
   const title = resolveGalleryTitle(gallery);
   const isCameraSupported = typeof window !== 'undefined' && !!navigator?.mediaDevices?.getUserMedia;
   const startLabel = mode === 'strip' ? 'Start Photo Strip' : 'Start Photo Booth';
-  const stripProgress = stripPhotos.length; // 0..3
+  const stripProgress = stripPhotos.length; // 0..STRIP_COUNT
   const stripBusy = stripActive || (mode === 'strip' && countdown !== null);
 
   return (
-    <div className={`min-h-screen px-4 py-6 pt-8 overflow-x-hidden ${theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
+    <div className="relative min-h-screen px-4 py-6 pt-8 overflow-x-hidden">
       <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
-      <div className="max-w-md mx-auto">
+      <div
+        className="fixed inset-0 bg-center bg-cover"
+        style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})` }}
+        aria-hidden="true"
+      />
+      <div className="fixed inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
+      <div className="relative z-10 max-w-md mx-auto">
         <div className="text-center mb-6">
-          {theme.logoImageUrl ? (
-            <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-16 mb-3 object-contain" />
-          ) : (
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-3" style={{ backgroundColor: accentSoftBg }}>
-              <Camera className="h-8 w-8" style={{ color: accent }} />
-            </div>
-          )}
-          <h1 className="text-2xl font-semibold leading-tight">{mode === 'strip' ? 'Photo Strip Booth' : 'Photo Booth'}</h1>
-          <p className={`text-sm mt-2 ${theme.mutedClass}`}>
-            {mode === 'strip' ? `Three photos in a wedding strip for ${title}.` : `Take a photo for ${title}.`}
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 border border-white/20" style={{ backgroundColor: accentSoftBg }}>
+            <Camera className="h-6 w-6" style={{ color: accent }} />
+          </div>
+          <h1 className="text-2xl font-semibold leading-tight text-white">Digital Photo Booth</h1>
+          <p className="text-lg mt-1 text-white/90">{title}</p>
+          <p className="text-sm mt-2 text-white/70">
+            {mode === 'strip' ? `Get ready to take ${STRIP_COUNT} photos.` : 'Get ready to take a photo.'}
           </p>
         </div>
 
@@ -381,7 +385,6 @@ export const GuestPhotoBooth: React.FC = () => {
                 {mode === 'strip' ? 'Make another strip' : 'Take another photo'}
               </Button>
             </div>
-            {theme.showBranding && <GalleryFooterLogo className="mt-4" />}
           </Card>
         ) : (
           <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>
@@ -446,7 +449,7 @@ export const GuestPhotoBooth: React.FC = () => {
             )}
 
             {/* Strip thumbnails progress (during capture) */}
-            {mode === 'strip' && phase === 'preview' && stripProgress > 0 && stripProgress < STRIP_COUNT && (
+            {mode === 'strip' && phase === 'preview' && (
               <div className="flex gap-2 justify-center">
                 {Array.from({ length: STRIP_COUNT }).map((_, i) => (
                   <div
@@ -541,6 +544,12 @@ export const GuestPhotoBooth: React.FC = () => {
               </div>
             )}
           </Card>
+        )}
+
+        {theme.showBranding && (
+          <div className="mt-8 flex justify-center">
+            <GalleryFooterLogo />
+          </div>
         )}
       </div>
     </div>
