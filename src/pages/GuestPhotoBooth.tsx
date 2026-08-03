@@ -601,8 +601,8 @@ export const GuestPhotoBooth: React.FC = () => {
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant="outline"
-                    className="lv-premium-shade flex-1 h-11 text-base"
+                    variant="ghost"
+                    className="flex-1 h-11 text-base bg-[#967A59] text-white hover:bg-[#7d6649] border border-[#472c1d] shadow-none"
                     onClick={flipCamera}
                     disabled={!isCameraSupported || countdown !== null || stripActive}
                   >
