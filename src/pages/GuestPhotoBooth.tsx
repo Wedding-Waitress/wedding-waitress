@@ -64,9 +64,11 @@ interface GuestPhotoBoothProps {
   tokenProp?: string;
   /** When provided, Cancel/close returns to the host app instead of navigating back. */
   onExit?: () => void;
+  /** Rendered inline inside the unified guest app (no full-screen chrome/background/header). */
+  embedded?: boolean;
 }
 
-export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit }) => {
+export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit, embedded = false }) => {
   const params = useParams<{ token: string }>();
   const token = tokenProp ?? params.token;
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
@@ -285,7 +287,6 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   };
 
   const cancel = () => {
-    stopStream();
     if (capturedUrl) URL.revokeObjectURL(capturedUrl);
     setCapturedUrl(null);
     setCapturedBlob(null);
@@ -293,6 +294,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     setStripActive(false);
     setCountdown(null);
     setErrorMsg(null);
+    // Embedded in the unified guest app: reset only, stay on the Photo Booth tab.
+    if (embedded) { setPhase('preview'); return; }
+    stopStream();
     if (onExit) { onExit(); return; }
     if (window.history.length > 1) window.history.back();
     else window.close();
@@ -443,7 +447,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const accentSoftBg = `${accent}1A`;
 
   if (loading) {
-    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+    return embedded
+      ? <div className="flex items-center justify-center py-12"><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>
+      : <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
@@ -481,15 +487,20 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const stripBusy = stripActive || (mode === 'strip' && countdown !== null);
 
   return (
-    <div className="relative min-h-screen px-4 py-6 pt-8 overflow-x-hidden">
-      <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
-      <div
-        className="fixed inset-0"
-        style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundColor: '#2b1a12' }}
-        aria-hidden="true"
-      />
-      <div className="fixed inset-0 bg-black/25" aria-hidden="true" />
+    <div className={embedded ? 'relative overflow-x-hidden' : 'relative min-h-screen px-4 py-6 pt-8 overflow-x-hidden'}>
+      {!embedded && (
+        <>
+          <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
+          <div
+            className="fixed inset-0"
+            style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundColor: '#2b1a12' }}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-0 bg-black/25" aria-hidden="true" />
+        </>
+      )}
       <div className="relative z-10 max-w-md mx-auto">
+        {!embedded && (
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 border border-white/20" style={{ backgroundColor: accentSoftBg }}>
             <Camera className="h-6 w-6" style={{ color: accent }} />
@@ -500,6 +511,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
             {mode === 'strip' ? `Get ready to take ${STRIP_COUNT} photos.` : 'Get ready to take a photo.'}
           </p>
         </div>
+        )}
 
         {phase === 'saved' ? (
           <Card className={`p-7 text-center ${theme.surfaceClass} ${theme.textClass}`}>
