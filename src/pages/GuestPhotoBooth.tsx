@@ -73,6 +73,10 @@ export const GuestPhotoBooth: React.FC = () => {
   const [stripPhotos, setStripPhotos] = useState<Blob[]>([]);
   const [stripActive, setStripActive] = useState(false);
   const [flash, setFlash] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [downloadDone, setDownloadDone] = useState<string | null>(null);
+  const [fallbackLinks, setFallbackLinks] = useState<{ name: string; url: string }[]>([]);
+
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
