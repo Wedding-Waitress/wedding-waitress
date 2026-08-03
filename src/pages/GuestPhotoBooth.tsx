@@ -25,7 +25,10 @@ import {
 } from '@/lib/photoBoothTemplate';
 
 const STRIP_COUNT = PB_STRIP_COUNT;
-const PHOTO_BOOTH_BG = '/default-hero-bg.png';
+import photoBoothBgAsset from '@/assets/photo-booth-bg.png.asset.json';
+
+const PHOTO_BOOTH_BG = photoBoothBgAsset.url;
+const COUNTDOWN_SECONDS = 7;
 
 interface GalleryPublic {
   gallery_id: string;
@@ -216,7 +219,7 @@ export const GuestPhotoBooth: React.FC = () => {
     const nextPhotos = [...stripPhotos, blob];
     setStripPhotos(nextPhotos);
     if (nextPhotos.length < STRIP_COUNT) {
-      setTimeout(() => setCountdown(3), 700);
+      setTimeout(() => setCountdown(COUNTDOWN_SECONDS), 700);
     } else {
       setStripActive(false);
       try {
@@ -243,7 +246,7 @@ export const GuestPhotoBooth: React.FC = () => {
       setStripPhotos([]);
       setStripActive(true);
     }
-    setCountdown(3);
+    setCountdown(COUNTDOWN_SECONDS);
   };
 
   // Countdown ticker
@@ -472,11 +475,11 @@ export const GuestPhotoBooth: React.FC = () => {
     <div className="relative min-h-screen px-4 py-6 pt-8 overflow-x-hidden">
       <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
       <div
-        className="fixed inset-0 bg-center bg-cover"
-        style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})` }}
+        className="fixed inset-0"
+        style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundColor: '#2b1a12' }}
         aria-hidden="true"
       />
-      <div className="fixed inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/25" aria-hidden="true" />
       <div className="relative z-10 max-w-md mx-auto">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 border border-white/20" style={{ backgroundColor: accentSoftBg }}>
