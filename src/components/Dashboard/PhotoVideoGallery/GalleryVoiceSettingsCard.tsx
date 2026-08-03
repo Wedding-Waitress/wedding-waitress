@@ -3,7 +3,9 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Settings2, Timer, HardDrive, Mic } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+
 
 function mb(bytes: number) {
   if (!bytes) return '—';
