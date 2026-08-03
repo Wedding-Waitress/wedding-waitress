@@ -564,14 +564,14 @@ export const GuestMediaUpload: React.FC = () => {
 
           <Button
             type="button"
-            onClick={() => { if (activeTab !== 'booth') setActiveTab('upload'); scrollToExplore(); }}
+            onClick={scrollToTabSection}
             className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
             style={{ backgroundColor: accent }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
           >
             <Upload className="h-5 w-5 mr-2" />
-            Upload Photos &amp; Videos
+            {heroButtonLabel}
           </Button>
         </div>
 
