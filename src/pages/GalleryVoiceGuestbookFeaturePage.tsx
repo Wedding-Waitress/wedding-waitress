@@ -120,7 +120,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                 error={error}
                 onSetModeration={setModeration}
               />
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6 lg:self-stretch lg:h-full">
                 <GalleryDownloadsCard
                   privacyScope="guestbook"
                   items={recordings}
@@ -133,9 +133,12 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                   filePrefix="voice-messages"
                   emptyText="No recordings to download yet."
                   layout="vertical"
-                  className="h-auto"
+                  className="h-auto lg:h-full lg:flex-1 lg:justify-center"
                 />
-                <GalleryVoiceSettingsCard meta={meta} />
+                <GalleryVoiceSettingsCard
+                  meta={meta}
+                  className="h-auto lg:h-full lg:flex lg:flex-col lg:justify-center"
+                />
               </div>
             </div>
           </div>
