@@ -225,18 +225,20 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
 }
 
 /**
- * Photo strip composer — builds ONE vertical strip, then renders it TWICE
- * side-by-side on a landscape print canvas (1440×2000).
+ * Photo strip composer — builds ONE vertical 2×6 strip on the Wedding Waitress
+ * brand brown background, then renders it TWICE side-by-side on the 4×6 print
+ * canvas so both halves are exact duplicates.
  */
 export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Promise<HTMLCanvasElement> {
   const { w: STRIP_W, h: STRIP_H } = PB_STRIP_SINGLE;
-  const padding = 26;
+  const padding = 18;
   const gap = 14;
-  const footerH = Math.round(STRIP_H * 0.2); // 400 — bottom branding strip
-  const photoAreaH = STRIP_H - footerH;
+  const headerH = 62;                              // WEDDINGWAITRESS.COM.AU band
+  const footerH = Math.round(STRIP_H * 0.145);     // ~28% smaller than before
+  const photoAreaTop = headerH;
+  const photoAreaH = STRIP_H - headerH - footerH;
   const photoW = STRIP_W - padding * 2;
-  const photoH = Math.round((photoAreaH - padding * 2 - gap * (PB_STRIP_COUNT - 1)) / PB_STRIP_COUNT);
-  const stackH = photoAreaH;
+  const photoH = Math.round((photoAreaH - padding - gap * (PB_STRIP_COUNT - 1)) / PB_STRIP_COUNT);
 
   const stripCanvas = document.createElement('canvas');
   stripCanvas.width = STRIP_W; stripCanvas.height = STRIP_H;
@@ -260,11 +262,17 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     else { sh = halfW / tr; sy = (ih - sh) / 2; }
     sctx.drawImage(templateImg, sx, sy, sw, sh, 0, 0, STRIP_W, STRIP_H);
   } else {
-    sctx.fillStyle = PB_CREAM;
+    // Solid Wedding Waitress brown across the whole strip (background, borders,
+    // gaps, header and footer all share this colour).
+    sctx.fillStyle = PB_BROWN;
     sctx.fillRect(0, 0, STRIP_W, STRIP_H);
-    sctx.strokeStyle = 'rgba(200,169,126,0.35)';
-    sctx.lineWidth = 2;
-    sctx.strokeRect(8, 8, STRIP_W - 16, STRIP_H - 16);
+
+    // Compact white site brand at the top of every strip
+    sctx.fillStyle = '#FFFFFF';
+    sctx.textAlign = 'center';
+    sctx.textBaseline = 'middle';
+    sctx.font = '600 27px "Inter", system-ui, sans-serif';
+    sctx.fillText('WEDDINGWAITRESS.COM.AU', STRIP_W / 2, headerH / 2 + 4);
   }
 
   for (let i = 0; i < PB_STRIP_COUNT; i++) {
@@ -272,40 +280,51 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     if (!src) continue;
     const img = await resolveSource(src);
     const x = padding;
-    const y = padding + i * (photoH + gap);
-    sctx.fillStyle = '#FFFFFF';
-    sctx.fillRect(x - 4, y - 4, photoW + 8, photoH + 8);
+    const y = photoAreaTop + i * (photoH + gap);
     drawCover(sctx, img, x, y, photoW, photoH);
-    sctx.strokeStyle = 'rgba(200,169,126,0.5)';
-    sctx.lineWidth = 1;
-    sctx.strokeRect(x, y, photoW, photoH);
   }
 
-  await drawBrandingStrip(sctx, {
-    x: 0, y: stackH, width: STRIP_W, height: footerH,
-    opts, hasTemplate: !!templateImg, scale: 0.92,
-  });
+  if (templateImg) {
+    await drawBrandingStrip(sctx, {
+      x: 0, y: STRIP_H - footerH, width: STRIP_W, height: footerH,
+      opts, hasTemplate: true, scale: 0.92,
+    });
+  } else {
+    // Brown footer with white event name + date
+    const fy = STRIP_H - footerH;
+    sctx.fillStyle = PB_BROWN;
+    sctx.fillRect(0, fy, STRIP_W, footerH);
+    sctx.textAlign = 'center';
+    sctx.textBaseline = 'middle';
+    sctx.fillStyle = '#FFFFFF';
+
+    const title = (opts.bottomText && opts.bottomText.trim()) || (opts.title || '').trim();
+    const dateText = (opts.dateText || '').trim();
+    sctx.font = '600 34px "Inter", system-ui, sans-serif';
+    const lines = wrapLines(sctx, title || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
+    const lineH = 42;
+    const dateH = dateText ? 36 : 0;
+    let cursor = fy + footerH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
+    for (const ln of lines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
+    if (dateText) {
+      sctx.font = '500 26px "Inter", system-ui, sans-serif';
+      sctx.fillStyle = 'rgba(255,255,255,0.9)';
+      sctx.fillText(dateText, STRIP_W / 2, cursor + 4);
+    }
+  }
 
   const out = document.createElement('canvas');
   out.width = PB_STRIP_PRINT.w; out.height = PB_STRIP_PRINT.h;
   const octx = out.getContext('2d');
   if (!octx) throw new Error('Canvas not available');
-  octx.fillStyle = '#FFFFFF';
+  octx.fillStyle = templateImg ? '#FFFFFF' : PB_BROWN;
   octx.fillRect(0, 0, out.width, out.height);
   octx.drawImage(stripCanvas, 0, 0);
   octx.drawImage(stripCanvas, STRIP_W, 0);
-  octx.save();
-  octx.strokeStyle = 'rgba(200,169,126,0.6)';
-  octx.setLineDash([8, 8]);
-  octx.lineWidth = 1;
-  octx.beginPath();
-  octx.moveTo(STRIP_W, 0);
-  octx.lineTo(STRIP_W, out.height);
-  octx.stroke();
-  octx.restore();
 
   return out;
 }
+
 
 export const canvasToJpegBlob = (canvas: HTMLCanvasElement, quality = 0.92): Promise<Blob> =>
   new Promise((res, rej) => canvas.toBlob(b => (b ? res(b) : rej(new Error('Could not render image'))), 'image/jpeg', quality));
