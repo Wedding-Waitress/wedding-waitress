@@ -7,8 +7,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Camera, Loader2, AlertCircle, RotateCcw, X, Save, Heart, RefreshCw } from 'lucide-react';
+import { Camera, Loader2, AlertCircle, RotateCcw, X, Save, Heart, RefreshCw, Download, CheckCircle2 } from 'lucide-react';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { safeEventName } from '@/lib/sharedPhotoFilename';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
@@ -71,6 +73,10 @@ export const GuestPhotoBooth: React.FC = () => {
   const [stripPhotos, setStripPhotos] = useState<Blob[]>([]);
   const [stripActive, setStripActive] = useState(false);
   const [flash, setFlash] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [downloadDone, setDownloadDone] = useState<string | null>(null);
+  const [fallbackLinks, setFallbackLinks] = useState<{ name: string; url: string }[]>([]);
+
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -277,6 +283,59 @@ export const GuestPhotoBooth: React.FC = () => {
     if (window.history.length > 1) window.history.back();
     else window.close();
   };
+
+  // ---- Downloads (guest keeps a copy of the strip + original captures) ----
+  const baseName = safeEventName(gallery?.event_name);
+
+  const triggerDownload = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  };
+
+  const clearFallback = () => {
+    fallbackLinks.forEach(l => URL.revokeObjectURL(l.url));
+    setFallbackLinks([]);
+  };
+
+  const openDownloads = () => {
+    clearFallback();
+    setDownloadDone(null);
+    setDownloadOpen(true);
+  };
+
+  const closeDownloads = () => {
+    setDownloadOpen(false);
+    setDownloadDone(null);
+    clearFallback();
+  };
+
+  const downloadStrip = () => {
+    if (!capturedBlob) return;
+    triggerDownload(capturedBlob, `${baseName}-Photo-Strip.jpg`);
+    setDownloadDone('Your photo strip download has started.');
+  };
+
+  const downloadEverything = () => {
+    if (!capturedBlob) return;
+    const files: { blob: Blob; name: string }[] = [
+      { blob: capturedBlob, name: `${baseName}-Photo-Strip.jpg` },
+      ...stripPhotos.map((b, i) => ({ blob: b, name: `${baseName}-Photo-${i + 1}.jpg` })),
+    ];
+    files.forEach((f, i) => setTimeout(() => triggerDownload(f.blob, f.name), i * 400));
+    // Always offer individual links too — some mobile browsers block multi-downloads.
+    clearFallback();
+    setFallbackLinks(files.map(f => ({ name: f.name, url: URL.createObjectURL(f.blob) })));
+    setDownloadDone('Your downloads have started. If any file did not save, use the links below.');
+  };
+
+
 
   const save = async () => {
     if (!capturedBlob || !token) return;
@@ -521,7 +580,18 @@ export const GuestPhotoBooth: React.FC = () => {
                     <><Save className="h-5 w-5 mr-2" /> Save</>
                   )}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="lv-premium-shade w-full h-12 text-base border-2"
+                  style={{ borderColor: accent, color: accent, backgroundColor: accentSoftBg }}
+                  onClick={openDownloads}
+                  disabled={phase === 'saving' || !capturedBlob}
+                >
+                  <Download className="h-5 w-5 mr-2" /> Download
+                </Button>
                 <div className="flex gap-2">
+
                   <Button
                     type="button"
                     variant="outline"
@@ -552,8 +622,63 @@ export const GuestPhotoBooth: React.FC = () => {
           </div>
         )}
       </div>
+
+      <Dialog open={downloadOpen} onOpenChange={o => (o ? setDownloadOpen(true) : closeDownloads())}>
+        <DialogContent className="max-w-sm w-[calc(100%-2rem)] rounded-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center text-lg">Download Your Photos</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 pt-1">
+            <Button
+              type="button"
+              className="lv-premium-shade w-full h-12 text-white text-base"
+              style={{ backgroundColor: accent }}
+              onClick={downloadStrip}
+            >
+              <Download className="h-5 w-5 mr-2" /> Download Photo Strip
+            </Button>
+            {mode === 'strip' && stripPhotos.length > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                className="lv-premium-shade w-full h-12 text-base border-2"
+                style={{ borderColor: accent, color: accent, backgroundColor: accentSoftBg }}
+                onClick={downloadEverything}
+              >
+                <Download className="h-5 w-5 mr-2" /> Download Everything
+              </Button>
+            )}
+
+            {downloadDone && (
+              <div className="rounded-md border border-green-300 bg-green-50 text-green-900 text-sm p-3 flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{downloadDone}</span>
+              </div>
+            )}
+
+            {fallbackLinks.length > 0 && (
+              <div className="space-y-2">
+                {fallbackLinks.map(l => (
+                  <a
+                    key={l.name}
+                    href={l.url}
+                    download={l.name}
+                    className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                  >
+                    <Download className="h-4 w-4 shrink-0" /> <span className="truncate">{l.name}</span>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={closeDownloads}>
+              <X className="h-4 w-4 mr-2" /> Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 };
 
 export default GuestPhotoBooth;
