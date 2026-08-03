@@ -414,6 +414,23 @@ export const GuestMediaUpload: React.FC = () => {
   const scrollToExplore = () => {
     document.getElementById('gallery-explore')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+  const scrollToTabSection = () => {
+    const el = document.getElementById('guest-tab-section') || document.getElementById('gallery-explore');
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  // Effective tab (mirrors the availability logic used for the tab bar below)
+  const availableTabs = ([
+    gallery.guest_upload_enabled !== false ? 'upload' : null,
+    gallery.gallery_view_enabled !== false ? 'gallery' : null,
+    (gallery.guestbook_text_enabled !== false || !!gallery.video_guestbook_enabled) ? 'guestbook' : null,
+    gallery.photo_booth_enabled ? 'booth' : null,
+  ].filter(Boolean)) as Array<'upload' | 'gallery' | 'guestbook' | 'booth'>;
+  const heroTab = availableTabs.includes(activeTab) ? activeTab : (availableTabs[0] ?? 'upload');
+  const heroButtonLabel =
+    heroTab === 'gallery' ? 'View Photos & Videos'
+      : heroTab === 'guestbook' ? 'Leave Your Message'
+        : heroTab === 'booth' ? 'Start the Photo Booth'
+          : 'Upload Photos & Videos';
 
   return (
     <div className={`min-h-screen overflow-x-hidden ${theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
@@ -547,14 +564,14 @@ export const GuestMediaUpload: React.FC = () => {
 
           <Button
             type="button"
-            onClick={() => { if (activeTab !== 'booth') setActiveTab('upload'); scrollToExplore(); }}
+            onClick={scrollToTabSection}
             className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
             style={{ backgroundColor: accent }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
           >
             <Upload className="h-5 w-5 mr-2" />
-            Upload Photos &amp; Videos
+            {heroButtonLabel}
           </Button>
         </div>
 
@@ -639,6 +656,7 @@ export const GuestMediaUpload: React.FC = () => {
         </div>
         )}
 
+        <div id="guest-tab-section" className="scroll-mt-24" />
 
 
         {current === 'upload' && (
