@@ -65,6 +65,9 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
       : (a.uploaded_at || '').localeCompare(b.uploaded_at || ''));
   }, [recordings, search, statusFilter, sort]);
 
+  const audioRows = useMemo(() => rows.filter(i => i.kind !== 'video'), [rows]);
+  const videoRows = useMemo(() => rows.filter(i => i.kind === 'video'), [rows]);
+
   const toggleSelected = (id: string) => {
     setSelected(prev => {
       const next = new Set(prev);
