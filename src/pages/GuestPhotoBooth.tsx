@@ -692,13 +692,23 @@ export const GuestPhotoBooth: React.FC = () => {
             <DialogTitle className="text-center text-lg">Download Your Photos</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-1">
+            {isTouchDevice && isApple && (
+              <p className="text-sm text-muted-foreground text-center">
+                {mode === 'strip' && stripPhotos.length > 0
+                  ? 'To add this to your Photos, select “Save Image” in the Apple menu. To add everything to your Photos, select “Save 5 Images” in the Apple menu.'
+                  : 'To add this to your Photos, select “Save Image” in the Apple menu.'}
+              </p>
+            )}
             <Button
               type="button"
               className="lv-premium-shade w-full h-12 text-white text-base"
               style={{ backgroundColor: accent }}
               onClick={downloadStrip}
+              disabled={sharing !== null}
             >
-              <Download className="h-5 w-5 mr-2" /> Download Photo Strip
+              {sharing === 'strip'
+                ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Opening…</>
+                : <><Download className="h-5 w-5 mr-2" /> Download Photo Strip</>}
             </Button>
             {mode === 'strip' && stripPhotos.length > 0 && (
               <Button
@@ -707,8 +717,11 @@ export const GuestPhotoBooth: React.FC = () => {
                 className="lv-premium-shade w-full h-12 text-base border-2"
                 style={{ borderColor: accent, color: accent, backgroundColor: accentSoftBg }}
                 onClick={downloadEverything}
+                disabled={sharing !== null}
               >
-                <Download className="h-5 w-5 mr-2" /> Download Everything
+                {sharing === 'all'
+                  ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Opening…</>
+                  : <><Download className="h-5 w-5 mr-2" /> Download Everything</>}
               </Button>
             )}
 
@@ -717,6 +730,13 @@ export const GuestPhotoBooth: React.FC = () => {
                 <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{downloadDone}</span>
               </div>
             )}
+
+            {shareError && (
+              <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3">
+                {shareError}
+              </div>
+            )}
+
 
             {fallbackLinks.length > 0 && (
               <div className="space-y-2">
