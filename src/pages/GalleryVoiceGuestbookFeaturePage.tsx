@@ -133,9 +133,7 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                   filePrefix="voice-messages"
                   emptyText="No recordings to download yet."
                 />
-                <div className="flex-1 min-h-0">
-                  <GalleryVoiceSettingsCard meta={meta} />
-                </div>
+                <GalleryVoiceSettingsCard meta={meta} className="h-full" />
               </div>
             </div>
           </div>
