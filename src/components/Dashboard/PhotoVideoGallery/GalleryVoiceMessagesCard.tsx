@@ -197,67 +197,134 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
           </p>
         </div>
       ) : (
-        <ul className="space-y-4">
-          {rows.map(item => (
-            <li key={item.id} className="rounded-xl border border-border p-4 space-y-3 min-w-0">
-              <div className="flex flex-wrap items-start gap-3">
-                {selectMode && (
-                  <Checkbox className="mt-1" checked={selected.has(item.id)} onCheckedChange={() => toggleSelected(item.id)} />
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#1D1D1F] break-words">
-                    {item.uploader_name || 'Anonymous guest'}
-                  </p>
-                  <p className="text-xs text-[#6E6E73] break-words">
-                    {fmtDate(item.uploaded_at)} · {fmtDuration(item.duration_sec)} · {item.kind === 'video' ? 'Video message' : 'Voice message'}
-                  </p>
-                </div>
-                <span
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ${
-                    item.moderation_status === 'hidden'
-                      ? 'bg-muted text-[#6E6E73]'
-                      : 'bg-green-100 text-green-800'
-                  }`}
-                >
-                  {item.moderation_status === 'hidden' ? 'Hidden' : 'Approved'}
-                </span>
-              </div>
+        <div className="space-y-8">
+          {([
+            { key: 'audio' as const, label: 'Audio Messages', list: audioRows },
+            { key: 'video' as const, label: 'Video Messages', list: videoRows },
+          ]).filter(g => g.list.length > 0).map(group => (
+            <section key={group.key} className="space-y-3">
+              <h3 className="text-sm font-bold uppercase tracking-wide text-[#6E6E73] flex items-center gap-2">
+                {group.key === 'audio' ? <Mic className="h-4 w-4 text-[#967A59]" /> : <Video className="h-4 w-4 text-[#967A59]" />}
+                {group.label} ({group.list.length})
+              </h3>
+              <ul className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+                {group.list.map(item => (
+                  <li key={item.id} className="rounded-xl border border-border bg-[#FBF8F3] overflow-hidden min-w-0 flex flex-col">
+                    <button
+                      type="button"
+                      onClick={() => setPreview(item)}
+                      className="relative block w-full aspect-square bg-[#EFE7DA] group"
+                      aria-label={`Play recording from ${item.uploader_name || 'Anonymous guest'}`}
+                    >
+                      {item.kind === 'video' && item.signed_url ? (
+                        <video
+                          src={item.signed_url}
+                          muted
+                          playsInline
+                          preload="metadata"
+                          className="absolute inset-0 w-full h-full object-cover bg-black"
+                        />
+                      ) : (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <Mic className="h-8 w-8 text-[#967A59]" />
+                        </span>
+                      )}
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors">
+                        <span className="h-9 w-9 rounded-full bg-white/90 flex items-center justify-center shadow">
+                          <Play className="h-4 w-4 text-[#1D1D1F] ml-0.5" />
+                        </span>
+                      </span>
+                      {selectMode && (
+                        <span
+                          className="absolute top-1.5 left-1.5 z-10"
+                          onClick={(e) => { e.stopPropagation(); toggleSelected(item.id); }}
+                        >
+                          <Checkbox checked={selected.has(item.id)} onCheckedChange={() => toggleSelected(item.id)} />
+                        </span>
+                      )}
+                      <span
+                        className={`absolute bottom-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                          item.moderation_status === 'hidden' ? 'bg-white/90 text-[#6E6E73]' : 'bg-green-100 text-green-800'
+                        }`}
+                      >
+                        {item.moderation_status === 'hidden' ? 'Hidden' : 'Approved'}
+                      </span>
+                    </button>
 
-              {item.signed_url ? (
-                item.kind === 'video' ? (
-                  <video src={item.signed_url} controls playsInline className="w-full max-h-[320px] rounded-lg bg-black" />
+                    <div className="p-2 space-y-1 flex-1 flex flex-col min-w-0">
+                      <p className="text-xs font-semibold text-[#1D1D1F] break-words leading-tight">
+                        {item.uploader_name || 'Anonymous guest'}
+                      </p>
+                      <p className="text-[11px] text-[#6E6E73] break-words leading-tight">
+                        {fmtDate(item.uploaded_at)}
+                      </p>
+                      <p className="text-[11px] text-[#6E6E73] leading-tight">{fmtDuration(item.duration_sec)}</p>
+                      {item.guestbook_message && (
+                        <p className="text-[11px] text-[#1D1D1F] break-words line-clamp-2" title={item.guestbook_message}>
+                          “{item.guestbook_message}”
+                        </p>
+                      )}
+                      {item.kind !== 'video' && item.signed_url && (
+                        <audio src={item.signed_url} controls preload="none" className="w-full h-8 mt-1" />
+                      )}
+                      {!item.signed_url && (
+                        <p className="text-[11px] text-muted-foreground">Still processing.</p>
+                      )}
+                      <div className="flex gap-1 pt-1 mt-auto">
+                        {item.moderation_status === 'hidden' ? (
+                          <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleSingle(item, 'approved')}>
+                            <Eye className="h-3.5 w-3.5 mr-1" /> Show
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleSingle(item, 'hidden')}>
+                            <EyeOff className="h-3.5 w-3.5 mr-1" /> Hide
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
+                          <Download className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="break-words text-left">
+              {preview?.uploader_name || 'Anonymous guest'}
+            </DialogTitle>
+          </DialogHeader>
+          {preview && (
+            <div className="space-y-3">
+              <p className="text-xs text-[#6E6E73]">
+                {fmtDate(preview.uploaded_at)} · {fmtDuration(preview.duration_sec)} · {preview.kind === 'video' ? 'Video message' : 'Voice message'}
+              </p>
+              {preview.signed_url ? (
+                preview.kind === 'video' ? (
+                  <video src={preview.signed_url} controls autoPlay playsInline className="w-full max-h-[60vh] rounded-lg bg-black" />
                 ) : (
-                  <audio src={item.signed_url} controls className="w-full" />
+                  <audio src={preview.signed_url} controls autoPlay className="w-full" />
                 )
               ) : (
-                <p className="text-xs text-muted-foreground">Recording is still processing.</p>
+                <p className="text-sm text-muted-foreground">Recording is still processing.</p>
               )}
-
-              {item.guestbook_message && (
+              {preview.guestbook_message && (
                 <div className="rounded-lg bg-muted/40 p-3">
                   <p className="text-xs uppercase tracking-wide text-[#6E6E73]">Written note</p>
-                  <p className="text-sm text-[#1D1D1F] mt-1 break-words whitespace-pre-wrap">{item.guestbook_message}</p>
+                  <p className="text-sm text-[#1D1D1F] mt-1 break-words whitespace-pre-wrap">{preview.guestbook_message}</p>
                 </div>
               )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
-              <div className="flex flex-wrap gap-2">
-                {item.moderation_status === 'hidden' ? (
-                  <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(item, 'approved')}>
-                    <Eye className="h-4 w-4 mr-1" /> Approve
-                  </Button>
-                ) : (
-                  <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(item, 'hidden')}>
-                    <EyeOff className="h-4 w-4 mr-1" /> Hide
-                  </Button>
-                )}
-                <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
-                  <Download className="h-4 w-4 mr-1" /> Download
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
     </Card>
   );
 };
