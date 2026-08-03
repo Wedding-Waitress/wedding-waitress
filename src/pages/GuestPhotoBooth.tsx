@@ -64,9 +64,11 @@ interface GuestPhotoBoothProps {
   tokenProp?: string;
   /** When provided, Cancel/close returns to the host app instead of navigating back. */
   onExit?: () => void;
+  /** Rendered inline inside the unified guest app (no full-screen chrome/background/header). */
+  embedded?: boolean;
 }
 
-export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit }) => {
+export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit, embedded = false }) => {
   const params = useParams<{ token: string }>();
   const token = tokenProp ?? params.token;
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
