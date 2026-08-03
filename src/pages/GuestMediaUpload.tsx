@@ -809,6 +809,21 @@ export const GuestMediaUpload: React.FC = () => {
         );
       })()}
       </div>
+
+      {/* ---------- IMMERSIVE DIGITAL PHOTO BOOTH ---------- */}
+      {boothOpen && token && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-[#2b1a12]">
+          <React.Suspense
+            fallback={
+              <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} />
+              </div>
+            }
+          >
+            <GuestPhotoBooth tokenProp={token} onExit={() => setBoothOpen(false)} />
+          </React.Suspense>
+        </div>
+      )}
     </div>
   );
 };
