@@ -151,7 +151,7 @@ const App = () => (
           <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/digital-photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/digital-guestbook" element={<GalleryTextGuestbookFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<GalleryVoiceGuestbookFeaturePage />} />
+          <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
           <Route path="/dashboard/photo-video-gallery/live-slideshow" element={<GallerySlideshowFeaturePage />} />
 
           {/* Legacy workspace routes — permanent redirects so bookmarks keep working */}
