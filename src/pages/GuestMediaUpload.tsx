@@ -432,7 +432,13 @@ export const GuestMediaUpload: React.FC = () => {
             className="w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
             style={{ borderColor: accent }}
           >
-            {heroBg ? (
+            {activeTab === 'booth' ? (
+              /* TODO: replace with final Photo Booth artwork (swap this block for an <img src={...} />). */
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-center px-6">
+                <Camera className="h-16 w-16 sm:h-20 sm:w-20" style={{ color: accent }} />
+                <span className="text-white text-xl sm:text-2xl font-semibold tracking-tight">Digital Photo Booth</span>
+              </div>
+            ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
             ) : theme.logoImageUrl ? (
               <img src={theme.logoImageUrl} alt="" className="w-full h-full object-contain p-3" />
@@ -464,7 +470,7 @@ export const GuestMediaUpload: React.FC = () => {
 
           <Button
             type="button"
-            onClick={() => { setActiveTab('upload'); scrollToExplore(); }}
+            onClick={() => { if (activeTab !== 'booth') setActiveTab('upload'); scrollToExplore(); }}
             className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
             style={{ backgroundColor: accent }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
@@ -530,7 +536,7 @@ export const GuestMediaUpload: React.FC = () => {
             : 'The guestbook is'
           : null;
         return (
-      <div className={`${current === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
+      <div className={`${current === 'upload' || current === 'booth' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
         {unavailableRequest && (
           <div className="mb-6 rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-center">
             <p className="text-sm text-white break-words">{unavailableRequest} currently unavailable for this event.</p>
