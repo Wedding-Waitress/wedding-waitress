@@ -120,21 +120,24 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                 error={error}
                 onSetModeration={setModeration}
               />
-              <GalleryDownloadsCard
-                privacyScope="guestbook"
-                items={recordings}
-                eventName={(selectedEvent as any)?.name}
-                galleryTitle={meta.gallery_title}
-                scopes={['all', 'approved']}
-                labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
-                title="Download Guestbook Messages"
-                description="Save your guests' original recordings as a ZIP archive."
-                filePrefix="voice-messages"
-                emptyText="No recordings to download yet."
-              />
+              <div className="flex flex-col gap-6">
+                <GalleryDownloadsCard
+                  privacyScope="guestbook"
+                  items={recordings}
+                  eventName={(selectedEvent as any)?.name}
+                  galleryTitle={meta.gallery_title}
+                  scopes={['all', 'approved']}
+                  labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
+                  title="Download Guestbook Messages"
+                  description="Save your guests' original recordings as a ZIP archive."
+                  filePrefix="voice-messages"
+                  emptyText="No recordings to download yet."
+                  layout="vertical"
+                  className="h-auto"
+                />
+                <GalleryVoiceSettingsCard meta={meta} />
+              </div>
             </div>
-
-            <GalleryVoiceSettingsCard meta={meta} />
           </div>
         )}
       </FeatureWorkspaceLayout>
