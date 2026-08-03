@@ -108,12 +108,8 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
         ) : (
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GalleryVoiceGuestbookAccessCard meta={meta} />
-              <GalleryVoiceGuestbookStepsCard />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              <div className="lg:col-span-2">
+              <div className="flex flex-col gap-6">
+                <GalleryVoiceGuestbookAccessCard meta={meta} />
                 <GalleryVoiceMessagesCard
                   items={recordings}
                   eventName={(selectedEvent as any)?.name}
@@ -122,7 +118,9 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                   onSetModeration={setModeration}
                 />
               </div>
-              <div className="lg:col-span-1">
+
+              <div className="flex flex-col gap-6">
+                <GalleryVoiceGuestbookStepsCard />
                 <GalleryDownloadsCard
                   privacyScope="guestbook"
                   items={recordings}
@@ -135,10 +133,11 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
                   filePrefix="voice-messages"
                   emptyText="No recordings to download yet."
                 />
+                <div className="flex-1 min-h-0">
+                  <GalleryVoiceSettingsCard meta={meta} />
+                </div>
               </div>
             </div>
-
-            <GalleryVoiceSettingsCard meta={meta} />
           </div>
         )}
       </FeatureWorkspaceLayout>
