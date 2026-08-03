@@ -447,7 +447,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const accentSoftBg = `${accent}1A`;
 
   if (loading) {
-    return <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+    return embedded
+      ? <div className="flex items-center justify-center py-12"><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>
+      : <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
   }
   if (notFound || !gallery) {
     return (
