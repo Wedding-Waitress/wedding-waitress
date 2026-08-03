@@ -485,15 +485,20 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const stripBusy = stripActive || (mode === 'strip' && countdown !== null);
 
   return (
-    <div className="relative min-h-screen px-4 py-6 pt-8 overflow-x-hidden">
-      <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
-      <div
-        className="fixed inset-0"
-        style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundColor: '#2b1a12' }}
-        aria-hidden="true"
-      />
-      <div className="fixed inset-0 bg-black/25" aria-hidden="true" />
+    <div className={embedded ? 'relative overflow-x-hidden' : 'relative min-h-screen px-4 py-6 pt-8 overflow-x-hidden'}>
+      {!embedded && (
+        <>
+          <SeoHead title={`${gallery.event_name} — Photo Booth`} description="Snap a photo straight into the event gallery." />
+          <div
+            className="fixed inset-0"
+            style={{ backgroundImage: `url(${PHOTO_BOOTH_BG})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', backgroundColor: '#2b1a12' }}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-0 bg-black/25" aria-hidden="true" />
+        </>
+      )}
       <div className="relative z-10 max-w-md mx-auto">
+        {!embedded && (
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 border border-white/20" style={{ backgroundColor: accentSoftBg }}>
             <Camera className="h-6 w-6" style={{ color: accent }} />
@@ -504,6 +509,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
             {mode === 'strip' ? `Get ready to take ${STRIP_COUNT} photos.` : 'Get ready to take a photo.'}
           </p>
         </div>
+        )}
 
         {phase === 'saved' ? (
           <Card className={`p-7 text-center ${theme.surfaceClass} ${theme.textClass}`}>
