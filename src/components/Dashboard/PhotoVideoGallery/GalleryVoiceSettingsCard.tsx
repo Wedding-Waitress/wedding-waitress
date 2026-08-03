@@ -10,7 +10,7 @@ function mb(bytes: number) {
   return `${Math.round(bytes / (1024 * 1024))} MB`;
 }
 
-export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
+export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta; className?: string }> = ({ meta, className }) => {
   const rows = [
     {
       icon: Timer,
