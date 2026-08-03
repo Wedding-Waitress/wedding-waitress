@@ -536,7 +536,7 @@ export const GuestMediaUpload: React.FC = () => {
             : 'The guestbook is'
           : null;
         return (
-      <div className={`${current === 'upload' || current === 'booth' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
+      <div className={`${current === 'upload' ? 'max-w-md' : 'max-w-5xl'} mx-auto`}>
         {unavailableRequest && (
           <div className="mb-6 rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-center">
             <p className="text-sm text-white break-words">{unavailableRequest} currently unavailable for this event.</p>
@@ -576,7 +576,7 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {current === 'booth' && token && (
-          <Card className="p-6 sm:p-8 text-center space-y-5 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white">
+          <Card className="max-w-md mx-auto p-6 sm:p-8 text-center space-y-5 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white">
             <div className="mx-auto inline-flex items-center justify-center w-16 h-16 rounded-full" style={{ backgroundColor: accentSoftBg }}>
               <Camera className="h-8 w-8" style={{ color: accent }} />
             </div>
