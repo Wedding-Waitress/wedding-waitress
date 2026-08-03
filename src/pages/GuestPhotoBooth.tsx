@@ -229,7 +229,7 @@ export const GuestPhotoBooth: React.FC = () => {
 
   const startCountdown = () => {
     if (!streamReady || countdown !== null) return;
-    if (!name.trim()) { setErrorMsg('Please add your first name first.'); return; }
+    if (!name.trim()) { setErrorMsg('Please add your full name first.'); return; }
     setErrorMsg(null);
     if (mode === 'strip') {
       setStripPhotos([]);
@@ -280,7 +280,7 @@ export const GuestPhotoBooth: React.FC = () => {
 
   const save = async () => {
     if (!capturedBlob || !token) return;
-    if (!name.trim()) { setErrorMsg('Please add your first name first.'); return; }
+    if (!name.trim()) { setErrorMsg('Please add your full name first.'); return; }
     setPhase('saving');
     setErrorMsg(null);
     const prefix = mode === 'strip' ? 'photobooth-strip' : 'photobooth';
@@ -389,8 +389,8 @@ export const GuestPhotoBooth: React.FC = () => {
         ) : (
           <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>
             <div>
-              <Label htmlFor="pb-name" className="text-base font-medium">Your first name <span className="text-red-500">*</span></Label>
-              <Input id="pb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah" />
+              <Label htmlFor="pb-name" className="text-base font-medium">Your full name <span className="text-red-500">*</span></Label>
+              <Input id="pb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
             </div>
 
             {!isCameraSupported && (
