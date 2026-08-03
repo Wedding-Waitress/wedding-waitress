@@ -6,7 +6,7 @@
 //  - Bottom branding strip (~15% height) in soft rose/gold (#C8A97E)
 //  - Couple/event name + event date (or "Your Names • Your Date" placeholder)
 //  - Very subtle grey "Wedding Waitress" credit, bottom-right
-//  - Single portrait 1080×1800, single landscape 1800×1080, strip print 1440×2000
+//  - Single portrait 1080×1800, single landscape 1800×1080, strip print 1200×1800 (4×6)
 
 export const PB_CREAM = '#FBF7F0';
 export const PB_GOLD = '#C8A97E';
@@ -16,9 +16,9 @@ export const PB_CREDIT = '#8C8C8C';
 
 export const PB_SINGLE_PORTRAIT = { w: 1080, h: 1800 };
 export const PB_SINGLE_LANDSCAPE = { w: 1800, h: 1080 };
-export const PB_STRIP_PRINT = { w: 1440, h: 2000 };
-export const PB_STRIP_SINGLE = { w: 720, h: 2000 };
-export const PB_STRIP_COUNT = 3;
+export const PB_STRIP_PRINT = { w: 1200, h: 1800 };   // 4x6 portrait @300dpi
+export const PB_STRIP_SINGLE = { w: 600, h: 1800 };   // 2x6 vertical strip
+export const PB_STRIP_COUNT = 4;
 
 export const PB_PLACEHOLDER_TEXT = 'Your Names • Your Date';
 
@@ -230,8 +230,8 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
  */
 export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Promise<HTMLCanvasElement> {
   const { w: STRIP_W, h: STRIP_H } = PB_STRIP_SINGLE;
-  const padding = 34;
-  const gap = 18;
+  const padding = 26;
+  const gap = 14;
   const footerH = Math.round(STRIP_H * 0.2); // 400 — bottom branding strip
   const photoAreaH = STRIP_H - footerH;
   const photoW = STRIP_W - padding * 2;
