@@ -159,13 +159,13 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+      <div className="grid grid-cols-1 gap-6 items-start">
         {/* LEFT — Event Branding */}
         <section className="space-y-5 min-w-0">
           <h3 className="text-sm font-bold uppercase tracking-wide text-[#967A59]">Event Branding</h3>
 
           <ImagePicker
-            label="Cover image (optional)"
+            label="Cover Image / Logo (optional)"
             hint="Shown at the top of your guest-facing event page."
             url={coverUrl}
             uploading={uploading === 'cover'}
@@ -174,20 +174,22 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
             onClear={() => setCoverUrl(null)}
           />
 
-          <ImagePicker
-            label="Logo (optional)"
-            hint="Displayed above your event title."
-            url={logoUrl}
-            uploading={uploading === 'logo'}
-            inputRef={logoInput}
-            onPick={(f) => uploadImage('logo', f)}
-            onClear={() => setLogoUrl(null)}
-            aspect="contain"
-          />
+          <div className="hidden" aria-hidden="true">
+            <ImagePicker
+              label="Logo (optional)"
+              hint="Displayed above your event title."
+              url={logoUrl}
+              uploading={uploading === 'logo'}
+              inputRef={logoInput}
+              onPick={(f) => uploadImage('logo', f)}
+              onClear={() => setLogoUrl(null)}
+              aspect="contain"
+            />
+          </div>
         </section>
 
-        {/* RIGHT — Background Design */}
-        <section className="space-y-5 min-w-0">
+        {/* RIGHT — Background Design (hidden, kept mounted) */}
+        <section className="hidden space-y-5 min-w-0" aria-hidden="true">
           <h3 className="text-sm font-bold uppercase tracking-wide text-[#967A59]">Background Design</h3>
 
           {/* Custom colour */}
