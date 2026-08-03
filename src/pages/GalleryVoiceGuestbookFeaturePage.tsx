@@ -112,30 +112,26 @@ export const GalleryVoiceGuestbookFeaturePage: React.FC = () => {
               <GalleryVoiceGuestbookStepsCard />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              <div className="lg:col-span-2">
-                <GalleryVoiceMessagesCard
-                  items={recordings}
-                  eventName={(selectedEvent as any)?.name}
-                  loading={loading}
-                  error={error}
-                  onSetModeration={setModeration}
-                />
-              </div>
-              <div className="lg:col-span-1">
-                <GalleryDownloadsCard
-                  privacyScope="guestbook"
-                  items={recordings}
-                  eventName={(selectedEvent as any)?.name}
-                  galleryTitle={meta.gallery_title}
-                  scopes={['all', 'approved']}
-                  labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
-                  title="Download Guestbook Messages"
-                  description="Save your guests' original recordings as a ZIP archive."
-                  filePrefix="voice-messages"
-                  emptyText="No recordings to download yet."
-                />
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              <GalleryVoiceMessagesCard
+                items={recordings}
+                eventName={(selectedEvent as any)?.name}
+                loading={loading}
+                error={error}
+                onSetModeration={setModeration}
+              />
+              <GalleryDownloadsCard
+                privacyScope="guestbook"
+                items={recordings}
+                eventName={(selectedEvent as any)?.name}
+                galleryTitle={meta.gallery_title}
+                scopes={['all', 'approved']}
+                labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
+                title="Download Guestbook Messages"
+                description="Save your guests' original recordings as a ZIP archive."
+                filePrefix="voice-messages"
+                emptyText="No recordings to download yet."
+              />
             </div>
 
             <GalleryVoiceSettingsCard meta={meta} />
