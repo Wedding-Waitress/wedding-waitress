@@ -87,11 +87,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const [stripPhotos, setStripPhotos] = useState<Blob[]>([]);
   const [stripActive, setStripActive] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [downloadOpen, setDownloadOpen] = useState(false);
-  const [downloadDone, setDownloadDone] = useState<string | null>(null);
   const [fallbackLinks, setFallbackLinks] = useState<{ name: string; url: string }[]>([]);
-  const [sharing, setSharing] = useState<null | 'strip' | 'all'>(null);
-  const [shareError, setShareError] = useState<string | null>(null);
 
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
