@@ -95,6 +95,8 @@ export const GuestMediaUpload: React.FC = () => {
   const [boothOpen, setBoothOpen] = useState(false);
   // Track whether the permanent Photo Booth hero artwork failed to load.
   const [photoBoothHeroError, setPhotoBoothHeroError] = useState(false);
+  // Track whether the permanent Guestbook hero artwork failed to load.
+  const [guestbookHeroError, setGuestbookHeroError] = useState(false);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
