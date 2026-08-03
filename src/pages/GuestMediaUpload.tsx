@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown, BookHeart } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -18,7 +18,7 @@ import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/Gue
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import photoBoothHeroAsset from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png.asset.json';
-import guestbookHeroAsset from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png.asset.json';
+import guestbookHeroAsset from '@/assets/guestbook-hero-gold.png.asset.json';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
@@ -96,7 +96,6 @@ export const GuestMediaUpload: React.FC = () => {
   // Track whether the permanent Photo Booth hero artwork failed to load.
   const [photoBoothHeroError, setPhotoBoothHeroError] = useState(false);
   // Track whether the permanent Guestbook hero artwork failed to load.
-  const [guestbookHeroError, setGuestbookHeroError] = useState(false);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
@@ -439,18 +438,11 @@ export const GuestMediaUpload: React.FC = () => {
             style={{ borderColor: accent }}
           >
             {activeTab === 'guestbook' ? (
-              !guestbookHeroError ? (
-                <img
-                  src={guestbookHeroAsset.url}
-                  alt=""
-                  className="w-full h-full object-contain p-4 sm:p-6"
-                  onError={() => setGuestbookHeroError(true)}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center px-6">
-                  <BookHeart className="h-16 w-16 sm:h-20 sm:w-20" style={{ color: accent }} />
-                </div>
-              )
+              <img
+                src={guestbookHeroAsset.url}
+                alt="Please sign our Guest Book"
+                className="w-[86%] h-[86%] object-contain mx-auto"
+              />
             ) : activeTab === 'booth' ? (
               !photoBoothHeroError ? (
                 <img
