@@ -115,6 +115,8 @@ export interface GalleryItem {
   /** Permanent per-event Digital Photo Booth number (booth captures + strips). */
   photo_booth_seq?: number | null;
   like_count?: number;
+  /** Organiser deliberately published this private guestbook recording to the gallery. */
+  shared_to_gallery?: boolean;
   signed_url?: string;
 }
 
