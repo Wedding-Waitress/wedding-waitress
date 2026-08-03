@@ -343,7 +343,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
           Reset to default
         </Button>
         <Button
-          className="lv-premium-shade h-11"
+          className="lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white"
           variant="default"
           disabled={!dirty || saving || !!uploading}
           onClick={handleSave}

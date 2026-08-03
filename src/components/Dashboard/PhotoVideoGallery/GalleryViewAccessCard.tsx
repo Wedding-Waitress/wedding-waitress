@@ -34,27 +34,22 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
           <p className="text-sm text-destructive">Gallery link not ready — please retry.</p>
         </div>
       ) : (
-        <div>
+        <div className="space-y-3">
           <Label className="text-sm">Public gallery link</Label>
-          <div className="flex flex-wrap gap-2 mt-1.5">
-            <Input value={guestUrl} readOnly className="h-11 text-sm min-w-0 flex-1" />
-            <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
-              <Copy className="h-4 w-4 mr-1" /> Copy gallery link
-            </Button>
-          </div>
+          <Input value={guestUrl} readOnly className="h-11 text-sm w-full" />
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={copy}>
+            <Copy className="h-4 w-4 mr-1" /> Copy Gallery Link
+          </Button>
+          <Button
+            variant="outline"
+            className="lv-premium-shade h-11 w-full"
+            onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
+            disabled={!guestUrl}
+          >
+            <ExternalLink className="h-4 w-4 mr-1" /> Open Gallery
+          </Button>
         </div>
       )}
-
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          className="lv-premium-shade"
-          onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
-          disabled={!guestUrl}
-        >
-          <ExternalLink className="h-4 w-4 mr-1" /> Open gallery
-        </Button>
-      </div>
 
       <p className="text-xs text-muted-foreground break-words">
         Only approved media appears in the guest gallery. Anything you hide in your media library stays private.
