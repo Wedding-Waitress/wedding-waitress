@@ -368,6 +368,32 @@ export function useEventMediaGallery(eventId: string | null) {
     }
   }, [eventId]);
 
+  /** Unified Digital Guestbook toggle — controls written, audio and video messages together. */
+  const setGuestbookEnabled = useCallback(async (enabled: boolean) => {
+    if (!eventId) return;
+    setMeta(m => m ? { ...m, voice_guestbook_enabled: enabled, guestbook_text_enabled: enabled } : m);
+    const [voice, text] = await Promise.all([
+      (supabase as any).rpc('set_event_media_video_guestbook', { _event_id: eventId, _enabled: enabled }),
+      (supabase as any).rpc('set_event_media_guest_feature', { _event_id: eventId, _feature: 'guestbook_text_enabled', _enabled: enabled }),
+    ]);
+    if (voice?.error || text?.error) {
+      setMeta(m => m ? { ...m, voice_guestbook_enabled: !enabled, guestbook_text_enabled: !enabled } : m);
+      throw new Error(voice?.error?.message || text?.error?.message || 'Failed to update Digital Guestbook');
+    }
+  }, [eventId]);
+
+  /** Publish / un-publish a private guestbook recording to the public gallery. */
+  const setGuestbookShare = useCallback(async (id: string, shared: boolean) => {
+    setItems(prev => prev.map(i => (i.id === id ? { ...i, shared_to_gallery: shared } : i)));
+    const { error: err } = await (supabase as any).rpc('set_event_media_guestbook_share', { _item_id: id, _shared: shared });
+    if (err) {
+      setItems(prev => prev.map(i => (i.id === id ? { ...i, shared_to_gallery: !shared } : i)));
+      throw new Error(err.message || 'Failed to update gallery sharing');
+    }
+  }, []);
+
+
+
   const setSlideshowEnabled = useCallback(async (enabled: boolean) => {
     if (!eventId) return;
     setMeta(m => m ? { ...m, slideshow_enabled: enabled } : m);
