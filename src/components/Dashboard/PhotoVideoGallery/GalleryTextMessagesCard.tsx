@@ -186,162 +186,176 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
   const allSelected = rows.length > 0 && rows.every(r => selected.has(key(r)));
 
   return (
-    <Card className="p-5 sm:p-6 space-y-5 overflow-hidden">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0" />
-            <span className="min-w-0 break-words">Digital Guestbook Messages ({allRows.length})</span>
-          </h2>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
-            Read, search, approve or hide the written messages your guests have left.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => load()} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="lv-premium-shade"
-            onClick={() => { setSelectMode(s => !s); setSelected(new Set()); }}
-            disabled={allRows.length === 0}
-          >
-            {selectMode ? 'Cancel' : 'Select'}
-          </Button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by guest name or message…"
-            className="h-11 pl-9 text-base"
-          />
-        </div>
-        <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest first</SelectItem>
-            <SelectItem value="oldest">Oldest first</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="hidden">Hidden</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {selectMode && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
-          <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(c) => setSelected(c ? new Set(rows.map(key)) : new Set())}
-            />
-            Select all ({rows.length})
-          </label>
-          <span className="text-sm text-muted-foreground">{selected.size} selected</span>
-          <div className="flex flex-wrap gap-2 ml-auto">
-            <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('approved')}>
-              <Eye className="h-4 w-4 mr-1" /> Approve
-            </Button>
-            <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('hidden')}>
-              <EyeOff className="h-4 w-4 mr-1" /> Hide
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {error && <p className="text-sm text-destructive break-words">{error}</p>}
-
-      {loading ? (
-        <div className="py-10 flex flex-col items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin text-[#967A59]" />
-          <p className="text-sm text-muted-foreground">Loading messages…</p>
-        </div>
-      ) : rows.length === 0 ? (
-        <div className="py-12 text-center">
-          <MessageCircle className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground break-words">
-            {allRows.length === 0
-              ? 'No written messages yet — share the QR code or link with your guests.'
-              : 'No messages match your search or filters.'}
-          </p>
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {rows.map(r => {
-            const k = key(r);
-            const isSel = selected.has(k);
-            return (
-              <li key={k} className="rounded-xl border border-border bg-[#FBF8F3] p-4">
-                <div className="flex items-start gap-3">
-                  {selectMode && (
-                    <Checkbox
-                      className="mt-1 shrink-0"
-                      checked={isSel}
-                      onCheckedChange={(c) => setSelected(prev => {
-                        const next = new Set(prev);
-                        if (c) next.add(k); else next.delete(k);
-                        return next;
-                      })}
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-[#1D1D1F] break-words">{r.name || 'Anonymous guest'}</p>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-muted text-muted-foreground' : 'bg-green-100 text-green-800'}`}>
-                        {r.status === 'hidden' ? 'Hidden' : 'Approved'}
-                      </span>
-                      {r.source === 'recording' && (
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#967A59]/15 text-[#967A59]">Note with recording</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words mt-2">{r.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{fmt(r.at)}</p>
-                  </div>
-                  <div className="shrink-0 flex items-center gap-2">
-                    {r.source === 'text' && (
-                      <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" onClick={() => downloadTxt(r)}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {r.status === 'approved' ? (
-                      <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'hidden')}>
-                        <EyeOff className="h-4 w-4 mr-1" /> Hide
-                      </Button>
-                    ) : (
-                      <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'approved')}>
-                        <Eye className="h-4 w-4 mr-1" /> Approve
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <div className="pt-2 border-t border-border">
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+    <Card className="p-5 sm:p-6 overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-[35%_1fr] gap-6">
+        {/* LEFT — control panel */}
+        <div className="space-y-4 min-w-0">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#1D1D1F]">Export Messages</p>
-            <p className="text-xs text-muted-foreground break-words">Exports the {rows.length} message{rows.length === 1 ? '' : 's'} currently shown.</p>
+            <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+              <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0" />
+              <span className="min-w-0 break-words">Digital Guestbook Messages ({allRows.length})</span>
+            </h2>
+            <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+              Read, search, approve or hide the written messages your guests have left.
+            </p>
           </div>
-          <Button variant="outline" className="lv-premium-shade" onClick={exportCsv} disabled={rows.length === 0}>
-            <Download className="h-4 w-4 mr-1" /> Export Digital Guestbook Messages as CSV
-          </Button>
+
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => load()} disabled={loading}>
+              <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="lv-premium-shade"
+              onClick={() => { setSelectMode(s => !s); setSelected(new Set()); }}
+              disabled={allRows.length === 0}
+            >
+              {selectMode ? 'Cancel' : 'Select'}
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by guest name or message…"
+                className="h-11 pl-9 text-base"
+              />
+            </div>
+            <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
+              <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest first</SelectItem>
+                <SelectItem value="oldest">Oldest first</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
+              <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="hidden">Hidden</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectMode && (
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/30 p-3">
+              <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={(c) => setSelected(c ? new Set(rows.map(key)) : new Set())}
+                />
+                Select all ({rows.length})
+              </label>
+              <span className="text-sm text-muted-foreground">{selected.size} selected</span>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('approved')}>
+                  <Eye className="h-4 w-4 mr-1" /> Approve
+                </Button>
+                <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('hidden')}>
+                  <EyeOff className="h-4 w-4 mr-1" /> Hide
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-border space-y-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#1D1D1F]">Export Messages</p>
+              <p className="text-xs text-muted-foreground break-words">Exports the {rows.length} message{rows.length === 1 ? '' : 's'} currently shown.</p>
+            </div>
+            <Button variant="outline" className="lv-premium-shade w-full" onClick={exportCsv} disabled={rows.length === 0}>
+              <Download className="h-4 w-4 mr-1" /> Export Digital Guestbook Messages as CSV
+            </Button>
+          </div>
+        </div>
+
+        {/* RIGHT — scrollable accordion message panel */}
+        <div className="min-w-0">
+          {error && <p className="text-sm text-destructive break-words mb-3">{error}</p>}
+          <div className="h-[520px] overflow-y-auto pr-2 rounded-xl border border-border bg-muted/20 p-3">
+            {loading ? (
+              <div className="py-10 flex flex-col items-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin text-[#967A59]" />
+                <p className="text-sm text-muted-foreground">Loading messages…</p>
+              </div>
+            ) : rows.length === 0 ? (
+              <div className="py-12 text-center">
+                <MessageCircle className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground break-words">
+                  {allRows.length === 0
+                    ? 'No written messages yet — share the QR code or link with your guests.'
+                    : 'No messages match your search or filters.'}
+                </p>
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {rows.map(r => {
+                  const k = key(r);
+                  const isSel = selected.has(k);
+                  const isOpen = expanded === k;
+                  return (
+                    <li key={k} className="rounded-xl border border-border bg-[#FBF8F3] overflow-hidden">
+                      <div className="flex items-center gap-3 p-3">
+                        {selectMode && (
+                          <Checkbox
+                            className="shrink-0"
+                            checked={isSel}
+                            onCheckedChange={(c) => setSelected(prev => {
+                              const next = new Set(prev);
+                              if (c) next.add(k); else next.delete(k);
+                              return next;
+                            })}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          className="flex-1 min-w-0 text-left flex items-center gap-2 flex-wrap"
+                          onClick={() => setExpanded(isOpen ? null : k)}
+                          aria-expanded={isOpen}
+                        >
+                          <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                          <span className="text-sm font-semibold text-[#1D1D1F] break-words">{r.name || 'Anonymous guest'}</span>
+                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-muted text-muted-foreground' : 'bg-green-100 text-green-800'}`}>
+                            {r.status === 'hidden' ? 'Hidden' : 'Approved'}
+                          </span>
+                          {r.source === 'recording' && (
+                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#967A59]/15 text-[#967A59]">Note with recording</span>
+                          )}
+                          <span className="text-xs text-muted-foreground ml-auto shrink-0">{fmt(r.at)}</span>
+                        </button>
+                      </div>
+                      {isOpen && (
+                        <div className="px-3 pb-3 pt-0">
+                          <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words">{r.message}</p>
+                          <div className="flex flex-wrap items-center gap-2 mt-3">
+                            {r.source === 'text' && (
+                              <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" onClick={() => downloadTxt(r)}>
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {r.status === 'approved' ? (
+                              <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'hidden')}>
+                                <EyeOff className="h-4 w-4 mr-1" /> Hide
+                              </Button>
+                            ) : (
+                              <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'approved')}>
+                                <Eye className="h-4 w-4 mr-1" /> Approve
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </Card>
