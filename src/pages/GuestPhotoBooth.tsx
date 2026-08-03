@@ -289,6 +289,12 @@ export const GuestPhotoBooth: React.FC = () => {
   // ---- Downloads (guest keeps a copy of the strip + original captures) ----
   const baseName = safeEventName(gallery?.event_name);
 
+  // Mobile / tablet use the native share sheet; desktop keeps the existing anchor downloads.
+  const isTouchDevice = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0;
+  const isApple = typeof navigator !== 'undefined'
+    && (/iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (/Mac/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+
   const triggerDownload = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -309,33 +315,88 @@ export const GuestPhotoBooth: React.FC = () => {
   const openDownloads = () => {
     clearFallback();
     setDownloadDone(null);
+    setShareError(null);
     setDownloadOpen(true);
   };
 
   const closeDownloads = () => {
+    if (sharing) return;
     setDownloadOpen(false);
     setDownloadDone(null);
+    setShareError(null);
     clearFallback();
+  };
+
+  const buildFileList = (): { blob: Blob; name: string }[] => {
+    if (!capturedBlob) return [];
+    return [
+      { blob: capturedBlob, name: `${baseName}-Photo-Strip.jpg` },
+      ...stripPhotos.map((b, i) => ({ blob: b, name: `${baseName}-Photo-${i + 1}.jpg` })),
+    ];
+  };
+
+  // Files are prepared as soon as the modal opens, so the share() call stays
+  // directly attached to the guest's tap (required by iOS Safari).
+  const preparedRef = useRef<{ strip: File[]; all: File[] } | null>(null);
+  useEffect(() => {
+    if (!downloadOpen || !capturedBlob) { preparedRef.current = null; return; }
+    const list = buildFileList();
+    const files = list.map(f => new File([f.blob], f.name, { type: 'image/jpeg' }));
+    preparedRef.current = { strip: files.slice(0, 1), all: files };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [downloadOpen, capturedBlob, stripPhotos, baseName]);
+
+  const showFallbackLinks = () => {
+    clearFallback();
+    setFallbackLinks(buildFileList().map(f => ({ name: f.name, url: URL.createObjectURL(f.blob) })));
+  };
+
+  const shareFiles = async (which: 'strip' | 'all') => {
+    const prepared = preparedRef.current;
+    const files = which === 'strip' ? prepared?.strip : prepared?.all;
+    if (!files || files.length === 0) return;
+
+    const nav = navigator as Navigator & { canShare?: (d: any) => boolean; share?: (d: any) => Promise<void> };
+    if (!nav.share || !nav.canShare || !nav.canShare({ files })) {
+      setShareError('Your browser cannot open the save sheet. Use the links below to save each photo.');
+      showFallbackLinks();
+      return;
+    }
+
+    setShareError(null);
+    setDownloadDone(null);
+    setSharing(which);
+    try {
+      await nav.share({ files });
+      setDownloadDone(which === 'strip' ? 'Your photo strip was saved.' : 'Your 5 photos were saved.');
+    } catch (e: any) {
+      // Closing the sheet is a cancellation — stay silent.
+      if (e?.name !== 'AbortError') {
+        setShareError('That did not work. Use the links below to save each photo.');
+        showFallbackLinks();
+      }
+    } finally {
+      setSharing(null);
+    }
   };
 
   const downloadStrip = () => {
     if (!capturedBlob) return;
+    if (isTouchDevice) { void shareFiles('strip'); return; }
     triggerDownload(capturedBlob, `${baseName}-Photo-Strip.jpg`);
     setDownloadDone('Your photo strip download has started.');
   };
 
   const downloadEverything = () => {
     if (!capturedBlob) return;
-    const files: { blob: Blob; name: string }[] = [
-      { blob: capturedBlob, name: `${baseName}-Photo-Strip.jpg` },
-      ...stripPhotos.map((b, i) => ({ blob: b, name: `${baseName}-Photo-${i + 1}.jpg` })),
-    ];
+    if (isTouchDevice) { void shareFiles('all'); return; }
+    const files = buildFileList();
     files.forEach((f, i) => setTimeout(() => triggerDownload(f.blob, f.name), i * 400));
-    // Always offer individual links too — some mobile browsers block multi-downloads.
-    clearFallback();
-    setFallbackLinks(files.map(f => ({ name: f.name, url: URL.createObjectURL(f.blob) })));
+    // Always offer individual links too — some browsers block multi-downloads.
+    showFallbackLinks();
     setDownloadDone('Your downloads have started. If any file did not save, use the links below.');
   };
+
 
 
 
