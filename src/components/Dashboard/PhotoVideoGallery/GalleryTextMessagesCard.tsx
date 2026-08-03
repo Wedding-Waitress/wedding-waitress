@@ -214,8 +214,8 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col gap-3">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
@@ -225,14 +225,14 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
           />
         </div>
         <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 w-full"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
@@ -285,32 +285,34 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
             const isSel = selected.has(k);
             return (
               <li key={k} className="rounded-xl border border-border bg-[#FBF8F3] p-4">
-                <div className="flex items-start gap-3">
-                  {selectMode && (
-                    <Checkbox
-                      className="mt-1 shrink-0"
-                      checked={isSel}
-                      onCheckedChange={(c) => setSelected(prev => {
-                        const next = new Set(prev);
-                        if (c) next.add(k); else next.delete(k);
-                        return next;
-                      })}
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-[#1D1D1F] break-words">{r.name || 'Anonymous guest'}</p>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-muted text-muted-foreground' : 'bg-green-100 text-green-800'}`}>
-                        {r.status === 'hidden' ? 'Hidden' : 'Approved'}
-                      </span>
-                      {r.source === 'recording' && (
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#967A59]/15 text-[#967A59]">Note with recording</span>
-                      )}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                    {selectMode && (
+                      <Checkbox
+                        className="mt-1 shrink-0"
+                        checked={isSel}
+                        onCheckedChange={(c) => setSelected(prev => {
+                          const next = new Set(prev);
+                          if (c) next.add(k); else next.delete(k);
+                          return next;
+                        })}
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-[#1D1D1F] break-words">{r.name || 'Anonymous guest'}</p>
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-muted text-muted-foreground' : 'bg-green-100 text-green-800'}`}>
+                          {r.status === 'hidden' ? 'Hidden' : 'Approved'}
+                        </span>
+                        {r.source === 'recording' && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#967A59]/15 text-[#967A59]">Note with recording</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words mt-2">{r.message}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{fmt(r.at)}</p>
                     </div>
-                    <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words mt-2">{r.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{fmt(r.at)}</p>
                   </div>
-                  <div className="shrink-0 flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {r.source === 'text' && (
                       <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" onClick={() => downloadTxt(r)}>
                         <Download className="h-4 w-4" />
@@ -334,12 +336,12 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
       )}
 
       <div className="pt-2 border-t border-border">
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+        <div className="flex flex-col gap-3 pt-4">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-[#1D1D1F]">Export Messages</p>
             <p className="text-xs text-muted-foreground break-words">Exports the {rows.length} message{rows.length === 1 ? '' : 's'} currently shown.</p>
           </div>
-          <Button variant="outline" className="lv-premium-shade" onClick={exportCsv} disabled={rows.length === 0}>
+          <Button variant="outline" className="lv-premium-shade w-full" onClick={exportCsv} disabled={rows.length === 0}>
             <Download className="h-4 w-4 mr-1" /> Export Digital Guestbook Messages as CSV
           </Button>
         </div>
