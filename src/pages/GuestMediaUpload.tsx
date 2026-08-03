@@ -19,6 +19,7 @@ import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/Gues
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
 import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
+import uploadHeroDefault from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
