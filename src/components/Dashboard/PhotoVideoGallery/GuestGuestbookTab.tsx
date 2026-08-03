@@ -312,7 +312,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             {audio.phase === 'idle' && (
               <Button
                 type="button"
-                className="ww-emboss-green w-full h-12 text-base"
+                className="ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base"
                 onClick={audio.start}
               >
                 <Mic className="h-5 w-5 mr-2 text-white" /> Start Audio Message
@@ -371,7 +371,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             {video.phase === 'idle' && (
               <Button
                 type="button"
-                className="ww-emboss-green w-full h-12 text-base"
+                className="ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base"
                 onClick={video.start}
               >
                 <VideoIcon className="h-5 w-5 mr-2 text-white" /> Start Video Message
