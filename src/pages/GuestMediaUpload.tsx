@@ -19,6 +19,7 @@ import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/Gues
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
 import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
+import uploadHeroDefault from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
@@ -477,6 +478,26 @@ export const GuestMediaUpload: React.FC = () => {
               </div>
             ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
+            ) : activeTab === 'upload' ? (
+              <div className="relative w-full h-full">
+                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
+                <img
+                  src={uploadHeroDefault}
+                  alt=""
+                  className="absolute inset-0 m-auto"
+                  style={{
+                    zIndex: 10,
+                    width: '86%',
+                    height: '86%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    opacity: 1,
+                    visibility: 'visible',
+                    filter: 'none',
+                    mixBlendMode: 'normal',
+                  }}
+                />
+              </div>
             ) : theme.logoImageUrl ? (
               <img src={theme.logoImageUrl} alt="" className="w-full h-full object-contain p-3" />
             ) : (
