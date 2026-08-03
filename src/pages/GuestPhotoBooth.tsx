@@ -590,8 +590,8 @@ export const GuestPhotoBooth: React.FC = () => {
               <div className="space-y-2.5">
                 <Button
                   type="button"
-                  className="lv-premium-shade w-full h-12 text-white text-base"
-                  style={{ backgroundColor: accent }}
+                  variant="ghost"
+                  className="w-full h-12 text-white text-base bg-green-500 hover:bg-green-600 shadow-none"
                   disabled={!isCameraSupported || !streamReady || countdown !== null || stripActive}
                   onClick={startCountdown}
                 >
