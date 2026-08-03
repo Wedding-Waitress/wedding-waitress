@@ -93,7 +93,6 @@ export const GuestMediaUpload: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'upload' | 'gallery' | 'guestbook' | 'booth'>('upload');
   // Tab explicitly requested via a saved direct link (?tab=…), used to explain disabled features.
   const [requestedTab, setRequestedTab] = useState<'upload' | 'gallery' | 'guestbook' | 'booth' | null>(null);
-  // Immersive photo booth overlay visibility.
   // Gallery refresh trigger for the browse tab.
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
