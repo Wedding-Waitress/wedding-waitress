@@ -656,6 +656,7 @@ export const GuestMediaUpload: React.FC = () => {
         </div>
         )}
 
+        <div id="guest-tab-section" className="scroll-mt-24" />
 
 
         {current === 'upload' && (
