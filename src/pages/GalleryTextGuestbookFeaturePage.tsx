@@ -98,17 +98,16 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
           </Card>
         ) : (
           <div className="space-y-6 sm:space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
               <GalleryTextGuestbookAccessCard meta={meta} />
               <GalleryTextGuestbookStepsCard />
+              <GalleryTextMessagesCard
+                eventId={selectedEventId}
+                items={items}
+                eventName={(selectedEvent as any)?.name}
+                onSetItemModeration={setModeration}
+              />
             </div>
-
-            <GalleryTextMessagesCard
-              eventId={selectedEventId}
-              items={items}
-              eventName={(selectedEvent as any)?.name}
-              onSetItemModeration={setModeration}
-            />
           </div>
         )}
       </FeatureWorkspaceLayout>
