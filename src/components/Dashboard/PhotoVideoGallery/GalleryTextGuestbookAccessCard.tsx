@@ -54,22 +54,22 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = (
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
-        <div className="flex justify-center">
-          {qrDataUrl ? (
-            <img src={qrDataUrl} alt="Digital Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
-          ) : (
-            <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
-          )}
-        </div>
-
-        <div className="space-y-4 min-w-0">
-          {!meta.primary_token ? (
-            <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
-              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-              <p className="text-sm text-destructive">Digital Guestbook link not ready — please retry.</p>
+      <div className="space-y-4 min-w-0">
+        {!meta.primary_token ? (
+          <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
+            <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+            <p className="text-sm text-destructive">Digital Guestbook link not ready — please retry.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-center">
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="Digital Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+              ) : (
+                <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
+              )}
             </div>
-          ) : (
+
             <div>
               <Label className="text-sm">Public Digital Guestbook link</Label>
               <div className="flex flex-wrap gap-2 mt-1.5">
@@ -79,21 +79,19 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = (
                 </Button>
               </div>
             </div>
-          )}
 
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" className="lv-premium-shade" onClick={open} disabled={!url}>
+            <Button variant="outline" className="lv-premium-shade w-full" onClick={open} disabled={!url}>
               <ExternalLink className="h-4 w-4 mr-1" /> Open Digital Guestbook
             </Button>
-            <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
+            <Button variant="outline" className="lv-premium-shade w-full" onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code
             </Button>
-          </div>
+          </>
+        )}
 
-          <p className="text-xs text-muted-foreground">
-            This uses your existing event gallery link — no separate token or guest page is created.
-          </p>
-        </div>
+        <p className="text-xs text-muted-foreground">
+          This uses your existing event gallery link — no separate token or guest page is created.
+        </p>
       </div>
     </Card>
   );
