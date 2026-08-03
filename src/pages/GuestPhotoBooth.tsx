@@ -509,10 +509,10 @@ export const GuestPhotoBooth: React.FC = () => {
             </div>
           </Card>
         ) : (
-          <Card className={`p-5 space-y-5 ${theme.surfaceClass} ${theme.textClass}`}>
+          <Card className={`p-5 space-y-5 border border-[#472c1d] ${theme.surfaceClass} ${theme.textClass}`}>
             <div>
-              <Label htmlFor="pb-name" className="text-base font-medium">Your full name <span className="text-red-500">*</span></Label>
-              <Input id="pb-name" className="h-12 text-base mt-2" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
+              <Label htmlFor="pb-name" className="text-base font-medium">Your Full Name <span className="text-red-500">*</span></Label>
+              <Input id="pb-name" className="h-12 text-base mt-2 border border-[#472c1d]" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
             </div>
 
             {!isCameraSupported && (
@@ -536,7 +536,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="rounded-lg overflow-hidden bg-black aspect-[3/4] relative">
+              <div className="rounded-lg overflow-hidden bg-black aspect-[3/4] relative border border-[#472c1d]">
                 <video
                   ref={videoRef}
                   className="w-full h-full object-cover"
@@ -576,7 +576,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 {Array.from({ length: STRIP_COUNT }).map((_, i) => (
                   <div
                     key={i}
-                    className={`w-12 h-16 rounded border ${i < stripProgress ? 'border-[#967A59] bg-[#967A59]/15' : 'border-border bg-muted/40'}`}
+                    className={`w-12 h-16 rounded border border-[#472c1d] ${i < stripProgress ? 'bg-[#967A59]/15' : 'bg-muted/40'}`}
                   >
                     {i < stripProgress && (
                       <div className="w-full h-full flex items-center justify-center text-[#967A59] text-xs font-semibold">{i + 1}</div>
@@ -590,8 +590,8 @@ export const GuestPhotoBooth: React.FC = () => {
               <div className="space-y-2.5">
                 <Button
                   type="button"
-                  className="lv-premium-shade w-full h-12 text-white text-base"
-                  style={{ backgroundColor: accent }}
+                  variant="ghost"
+                  className="w-full h-12 text-white text-base bg-green-500 hover:bg-green-600 shadow-none"
                   disabled={!isCameraSupported || !streamReady || countdown !== null || stripActive}
                   onClick={startCountdown}
                 >
@@ -601,8 +601,8 @@ export const GuestPhotoBooth: React.FC = () => {
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant="outline"
-                    className="lv-premium-shade flex-1 h-11 text-base"
+                    variant="ghost"
+                    className="flex-1 h-11 text-base bg-[#967A59] text-white hover:bg-[#7d6649] border border-[#472c1d] shadow-none"
                     onClick={flipCamera}
                     disabled={!isCameraSupported || countdown !== null || stripActive}
                   >
@@ -611,7 +611,7 @@ export const GuestPhotoBooth: React.FC = () => {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="flex-1 h-11 text-base"
+                    className="flex-1 h-11 text-base bg-red-500 text-white hover:bg-red-600 border border-[#472c1d] shadow-none"
                     onClick={() => {
                       if (countdown !== null || stripActive) {
                         setCountdown(null);
