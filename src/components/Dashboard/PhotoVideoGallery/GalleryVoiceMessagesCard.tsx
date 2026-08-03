@@ -104,7 +104,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
   };
 
   return (
-    <Card className="p-5 sm:p-6 space-y-5 overflow-hidden">
+    <Card className="p-5 sm:p-6 space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
