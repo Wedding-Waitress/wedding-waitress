@@ -285,32 +285,34 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
             const isSel = selected.has(k);
             return (
               <li key={k} className="rounded-xl border border-border bg-[#FBF8F3] p-4">
-                <div className="flex items-start gap-3">
-                  {selectMode && (
-                    <Checkbox
-                      className="mt-1 shrink-0"
-                      checked={isSel}
-                      onCheckedChange={(c) => setSelected(prev => {
-                        const next = new Set(prev);
-                        if (c) next.add(k); else next.delete(k);
-                        return next;
-                      })}
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-semibold text-[#1D1D1F] break-words">{r.name || 'Anonymous guest'}</p>
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-muted text-muted-foreground' : 'bg-green-100 text-green-800'}`}>
-                        {r.status === 'hidden' ? 'Hidden' : 'Approved'}
-                      </span>
-                      {r.source === 'recording' && (
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#967A59]/15 text-[#967A59]">Note with recording</span>
-                      )}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                    {selectMode && (
+                      <Checkbox
+                        className="mt-1 shrink-0"
+                        checked={isSel}
+                        onCheckedChange={(c) => setSelected(prev => {
+                          const next = new Set(prev);
+                          if (c) next.add(k); else next.delete(k);
+                          return next;
+                        })}
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-[#1D1D1F] break-words">{r.name || 'Anonymous guest'}</p>
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-muted text-muted-foreground' : 'bg-green-100 text-green-800'}`}>
+                          {r.status === 'hidden' ? 'Hidden' : 'Approved'}
+                        </span>
+                        {r.source === 'recording' && (
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#967A59]/15 text-[#967A59]">Note with recording</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words mt-2">{r.message}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{fmt(r.at)}</p>
                     </div>
-                    <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words mt-2">{r.message}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{fmt(r.at)}</p>
                   </div>
-                  <div className="shrink-0 flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {r.source === 'text' && (
                       <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" onClick={() => downloadTxt(r)}>
                         <Download className="h-4 w-4" />
