@@ -536,7 +536,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 />
               </div>
             ) : (
-              <div className="rounded-lg overflow-hidden bg-black aspect-[3/4] relative">
+              <div className="rounded-lg overflow-hidden bg-black aspect-[3/4] relative border border-[#472c1d]">
                 <video
                   ref={videoRef}
                   className="w-full h-full object-cover"
