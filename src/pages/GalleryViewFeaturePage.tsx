@@ -99,8 +99,11 @@ export const GalleryViewFeaturePage: React.FC = () => {
           </Card>
         ) : (
           <div className="space-y-6 sm:space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
               <GalleryViewAccessCard meta={meta} guestUrl={guestGalleryUrl} />
+              <div className="h-full [&>*]:h-full">
+                <GalleryBrandingCard eventId={selectedEventId!} meta={meta} onSave={updateBranding} />
+              </div>
               <div className="h-full [&>*]:h-full">
                 <GalleryPasswordCard
                   passwordEnabled={meta.password_enabled}
@@ -110,12 +113,9 @@ export const GalleryViewFeaturePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <GalleryBrandingCard eventId={selectedEventId!} meta={meta} onSave={updateBranding} />
-              <p className="text-sm text-white/80 break-words">
-                These appearance settings are shared across your guest-facing gallery experiences.
-              </p>
-            </div>
+            <p className="text-sm text-white/80 break-words">
+              These appearance settings are shared across your guest-facing gallery experiences.
+            </p>
           </div>
         )}
       </FeatureWorkspaceLayout>
