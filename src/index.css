@@ -1045,6 +1045,32 @@ input::placeholder, textarea::placeholder, [data-placeholder] {
   transform: none;
 }
 
+/* Modifier for guestbook Start Audio/Start Video buttons: remove the outside drop-shadow beneath the button while keeping the gradient, embossed shape, internal highlight and hover effects */
+.ww-emboss-green.ww-emboss-green-no-drop {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+}
+.ww-emboss-green.ww-emboss-green-no-drop::before,
+.ww-emboss-green.ww-emboss-green-no-drop::after {
+  box-shadow: none;
+}
+.ww-emboss-green.ww-emboss-green-no-drop:hover:not(:disabled) {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+}
+.ww-emboss-green.ww-emboss-green-no-drop:hover:not(:disabled)::before,
+.ww-emboss-green.ww-emboss-green-no-drop:hover:not(:disabled)::after {
+  box-shadow: none;
+}
+.ww-emboss-green.ww-emboss-green-no-drop:active:not(:disabled) {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.ww-emboss-green.ww-emboss-green-no-drop:active:not(:disabled)::before,
+.ww-emboss-green.ww-emboss-green-no-drop:active:not(:disabled)::after {
+  box-shadow: none;
+}
+.ww-emboss-green.ww-emboss-green-no-drop:disabled {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+}
+
 
 
 /* CTA video section animations */
