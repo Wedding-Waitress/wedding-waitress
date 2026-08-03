@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown, BookHeart } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -18,7 +18,7 @@ import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/Gue
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import photoBoothHeroAsset from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png.asset.json';
-import guestbookHeroAsset from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png.asset.json';
+import guestbookHeroAsset from '@/assets/guestbook-hero-gold.png.asset.json';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
@@ -96,7 +96,6 @@ export const GuestMediaUpload: React.FC = () => {
   // Track whether the permanent Photo Booth hero artwork failed to load.
   const [photoBoothHeroError, setPhotoBoothHeroError] = useState(false);
   // Track whether the permanent Guestbook hero artwork failed to load.
-  const [guestbookHeroError, setGuestbookHeroError] = useState(false);
   const [galleryRefresh, setGalleryRefresh] = useState(0);
 
   const [items, setItems] = useState<ValidationResult[]>([]);
