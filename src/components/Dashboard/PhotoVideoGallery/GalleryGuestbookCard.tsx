@@ -5,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Mic, Copy, ExternalLink, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGalleryGuestbookUrl } from '@/lib/urlUtils';
+import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GalleryGuestbookCard: React.FC<{
@@ -13,7 +13,7 @@ export const GalleryGuestbookCard: React.FC<{
   onToggleVoice: (enabled: boolean) => Promise<void>;
 }> = ({ meta, onToggleVoice }) => {
   const { toast } = useToast();
-  const url = meta.primary_token ? buildGalleryGuestbookUrl(meta.primary_token) : '';
+  const url = buildGalleryGuestAppUrl(meta.primary_token);
 
   const handleToggle = async (enabled: boolean) => {
     try {

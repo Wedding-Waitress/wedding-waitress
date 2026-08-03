@@ -5,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Camera, Copy, ExternalLink, Image as ImageIcon, LayoutGrid } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGalleryPhotoBoothUrl } from '@/lib/urlUtils';
+import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GalleryPhotoBoothCard: React.FC<{
@@ -14,7 +14,7 @@ export const GalleryPhotoBoothCard: React.FC<{
   onModeChange: (mode: 'single' | 'strip') => Promise<void>;
 }> = ({ meta, onToggle, onModeChange }) => {
   const { toast } = useToast();
-  const url = meta.primary_token ? buildGalleryPhotoBoothUrl(meta.primary_token) : '';
+  const url = buildGalleryGuestAppUrl(meta.primary_token);
   const mode = meta.photo_booth_mode || 'single';
 
   const handleToggle = async (enabled: boolean) => {
