@@ -646,25 +646,29 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   type="button"
                   className="lv-premium-shade w-full h-12 text-white text-base"
                   style={{ backgroundColor: accent }}
-                  onClick={save}
-                  disabled={uploading || phase === 'saving'}
+                  onClick={downloadAndSave}
+                  disabled={uploading || phase === 'saving' || !capturedBlob}
                 >
                   {uploading || phase === 'saving' ? (
                     <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Saving…</>
                   ) : (
-                    <><Save className="h-5 w-5 mr-2" /> Save</>
+                    <><Download className="h-5 w-5 mr-2" /> Download and Save</>
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="lv-premium-shade w-full h-12 text-base border-2"
-                  style={{ borderColor: accent, color: accent, backgroundColor: accentSoftBg }}
-                  onClick={openDownloads}
-                  disabled={phase === 'saving' || !capturedBlob}
-                >
-                  <Download className="h-5 w-5 mr-2" /> Download
-                </Button>
+                {fallbackLinks.length > 0 && (
+                  <div className="space-y-2">
+                    {fallbackLinks.map(l => (
+                      <a
+                        key={l.name}
+                        href={l.url}
+                        download={l.name}
+                        className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                      >
+                        <Download className="h-4 w-4 shrink-0" /> <span className="truncate">{l.name}</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-2">
 
                   <Button
