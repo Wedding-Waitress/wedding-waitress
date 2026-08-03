@@ -576,7 +576,7 @@ export const GuestPhotoBooth: React.FC = () => {
                 {Array.from({ length: STRIP_COUNT }).map((_, i) => (
                   <div
                     key={i}
-                    className={`w-12 h-16 rounded border ${i < stripProgress ? 'border-[#967A59] bg-[#967A59]/15' : 'border-border bg-muted/40'}`}
+                    className={`w-12 h-16 rounded border border-[#472c1d] ${i < stripProgress ? 'bg-[#967A59]/15' : 'bg-muted/40'}`}
                   >
                     {i < stripProgress && (
                       <div className="w-full h-full flex items-center justify-center text-[#967A59] text-xs font-semibold">{i + 1}</div>
