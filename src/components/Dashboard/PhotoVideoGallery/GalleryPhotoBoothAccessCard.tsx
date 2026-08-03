@@ -8,13 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Copy, Download, QrCode as QrIcon, AlertTriangle, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGalleryPhotoBoothUrl } from '@/lib/urlUtils';
+import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
-  const boothUrl = meta.primary_token ? buildGalleryPhotoBoothUrl(meta.primary_token) : '';
+  const boothUrl = buildGalleryGuestAppUrl(meta.primary_token);
 
   useEffect(() => {
     if (!boothUrl) { setQrDataUrl(''); return; }

@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Copy, Download, QrCode as QrIcon, AlertTriangle, MonitorPlay } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGallerySlideshowUrl } from '@/lib/urlUtils';
+import { buildGallerySlideshowUrl, buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
+// Admin-only venue display URL (Launch Live Slideshow).
 export function buildLiveSlideshowUrl(token: string | null): string {
   return token ? buildGallerySlideshowUrl(token) : '';
 }
@@ -17,7 +18,9 @@ export function buildLiveSlideshowUrl(token: string | null): string {
 export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState('');
-  const url = buildLiveSlideshowUrl(meta.primary_token);
+  // Guest-facing QR / link is always the canonical unified guest app URL.
+  const url = buildGalleryGuestAppUrl(meta.primary_token);
+  const slideshowUrl = buildLiveSlideshowUrl(meta.primary_token);
 
   useEffect(() => {
     if (!url) { setQrDataUrl(''); return; }

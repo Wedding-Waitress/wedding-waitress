@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Copy, Download, QrCode as QrIcon, AlertTriangle, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { buildGalleryUploadUrl } from '@/lib/urlUtils';
+import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 export function buildTextGuestbookUrl(token: string | null): string {
-  return token ? `${buildGalleryUploadUrl(token)}?tab=guestbook` : '';
+  return buildGalleryGuestAppUrl(token);
 }
 
 export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
