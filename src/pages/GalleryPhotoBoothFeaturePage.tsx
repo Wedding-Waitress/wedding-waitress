@@ -105,7 +105,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
           <Card className="p-10 flex flex-col items-center text-center gap-3">
             <AlertTriangle className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Gallery page to manage the Digital Photo Booth.'}
+              {error || 'Select an event on the Photo & Video Sharing page to manage the Digital Photo Booth.'}
             </p>
           </Card>
         ) : (

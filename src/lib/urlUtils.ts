@@ -74,7 +74,7 @@ export function buildDynamicQRUrl(code: string): string {
 }
 
 /**
- * Builds a Photo & Video Gallery guest upload URL for the given token
+ * Builds a Photo & Video Sharing guest upload URL for the given token
  */
 export function buildGalleryUploadUrl(token: string): string {
   const baseUrl = getPublicBaseUrl();
@@ -82,7 +82,7 @@ export function buildGalleryUploadUrl(token: string): string {
 }
 
 /**
- * Builds a Photo & Video Gallery public Live View / Slideshow URL.
+ * Builds a Photo & Video Sharing public Live View / Slideshow URL.
  */
 export function buildGalleryLiveUrl(token: string): string {
   const baseUrl = getPublicBaseUrl();
@@ -98,7 +98,7 @@ export function buildGallerySlideshowUrl(token: string): string {
 }
 
 /**
- * Builds a Photo & Video Gallery Voice Guestbook URL for the given token.
+ * Builds a Photo & Video Sharing Voice Guestbook URL for the given token.
  */
 export function buildGalleryGuestbookUrl(token: string): string {
   // Canonical unified guest app — Guestbook tab.
@@ -106,7 +106,7 @@ export function buildGalleryGuestbookUrl(token: string): string {
 }
 
 /**
- * Builds a Photo & Video Gallery Photo Booth URL for the given token.
+ * Builds a Photo & Video Sharing Photo Booth URL for the given token.
  */
 export function buildGalleryPhotoBoothUrl(token: string): string {
   // Canonical unified guest app — Photo Booth tab.

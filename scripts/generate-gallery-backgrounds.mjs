@@ -1,4 +1,4 @@
-// Generates the built-in Photo & Video Gallery background library.
+// Generates the built-in Photo & Video Sharing background library.
 // Owned, hand-authored SVG artwork — no third-party or hotlinked assets.
 // Run: node scripts/generate-gallery-backgrounds.mjs
 import { mkdirSync, writeFileSync } from 'node:fs';

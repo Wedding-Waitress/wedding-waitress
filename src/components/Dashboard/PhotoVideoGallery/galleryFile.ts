@@ -1,4 +1,4 @@
-// Shared file helpers for the Photo & Video Gallery dashboard grid + lightbox.
+// Shared file helpers for the Photo & Video Sharing dashboard grid + lightbox.
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { guestbookRecordingFilename } from '@/lib/audioGuestbookFilename';

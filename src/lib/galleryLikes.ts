@@ -1,4 +1,4 @@
-// Anonymous guest reactions (hearts) for the Photo & Video Gallery.
+// Anonymous guest reactions (hearts) for the Photo & Video Sharing.
 // A per-device id stored in localStorage prevents double-liking from the same device.
 import { supabase } from '@/integrations/supabase/client';
 

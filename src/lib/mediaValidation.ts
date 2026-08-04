@@ -1,4 +1,4 @@
-// Photo & Video Gallery — Phase 1 client-side validation
+// Photo & Video Sharing — Phase 1 client-side validation
 export const PHOTO_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 export const VIDEO_MIMES = ['video/mp4', 'video/quicktime'];
 
