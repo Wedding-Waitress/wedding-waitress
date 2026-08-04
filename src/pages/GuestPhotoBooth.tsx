@@ -16,7 +16,7 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { usePhotoBoothUpload } from '@/hooks/usePhotoBoothUpload';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import {
-  composeSingleBlob,
+  
   composeStripBlob,
   formatEventDate,
   PB_STRIP_COUNT,
@@ -207,7 +207,8 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     const blob = await grabFrameBlob();
     if (!blob) { setErrorMsg('Could not capture photo'); return; }
     try {
-      const finalBlob = await composeSingleBlob(blob, buildComposeOpts());
+      // Individual photos are always saved as the original raw capture — no template styling.
+      const finalBlob = blob;
       setCapturedBlob(finalBlob);
       if (capturedUrl) URL.revokeObjectURL(capturedUrl);
       setCapturedUrl(URL.createObjectURL(finalBlob));
