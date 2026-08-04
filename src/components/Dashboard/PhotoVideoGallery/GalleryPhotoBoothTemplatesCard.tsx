@@ -484,9 +484,16 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
 
+          <div className="xl:col-span-3 space-y-3">
+            {footerDesignActive && (
+              <p className="rounded-lg border border-[#472c1d] bg-[#F5EADB] px-3 py-2 text-xs font-medium text-[#472c1d]">
+                {FOOTER_DISABLED_NOTE}
+              </p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           <div className={`rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
-            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
+
             <Textarea
               className="min-h-[88px] text-base"
               value={text}
