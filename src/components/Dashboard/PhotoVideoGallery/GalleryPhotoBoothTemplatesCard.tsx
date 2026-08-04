@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -19,10 +19,12 @@ import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
 } from '@/lib/photoBoothTemplate';
+import { PHOTO_BOOTH_BACKGROUND_TEMPLATES, isLibraryTemplateUrl } from '@/lib/photoBoothBackgroundTemplates';
+
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
-const TEMPLATE_ACCEPT = 'image/png,image/jpeg';
+const TEMPLATE_ACCEPT = 'image/jpeg';
 
 const FONT_OPTIONS = [
   'Inter',
