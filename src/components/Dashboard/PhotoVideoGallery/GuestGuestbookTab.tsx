@@ -376,6 +376,34 @@ export const GuestGuestbookTab: React.FC<Props> = ({
               placeholder="Write your message for the couple…"
             />
             <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
+            {savedTextId && !textDirty && savedBadge}
+            {showTextActions && (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  type="button"
+                  className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                  disabled={savingText || removingKind === 'text' || (!!savedTextId && !textDirty)}
+                  onClick={saveText}
+                >
+                  {savingText
+                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</>
+                    : (savedTextId && !textDirty)
+                      ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</>
+                      : 'Save'}
+                </Button>
+                <Button
+                  type="button"
+                  className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                  disabled={savingText || removingKind === 'text'}
+                  onClick={removeText}
+                >
+                  {removingKind === 'text'
+                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                    : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
+                </Button>
+              </div>
+            )}
+
           </div>
         )}
 
