@@ -73,14 +73,21 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
 
   const iconBtn = 'rounded-full bg-white/10 hover:bg-white/20 text-white p-2.5 transition-colors backdrop-blur-sm';
 
+  // Image is sized against the full viewport minus a small safety gap.
+  const mediaStyle: React.CSSProperties = {
+    maxHeight: 'calc(100dvh - 40px)',
+    maxWidth: 'calc(100vw - 24px)',
+  };
+
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] bg-black" onClick={onClose}>
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-2 p-3 sm:p-4 shrink-0" onClick={e => e.stopPropagation()}>
-        <div className="text-white/70 text-xs sm:text-sm">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between gap-2 p-3 sm:p-4" onClick={e => e.stopPropagation()}>
+        <div className="rounded-full bg-white/10 backdrop-blur-sm text-white text-sm sm:text-base font-medium px-4 py-2 min-w-[4.25rem] text-center tabular-nums select-none">
           {index + 1} / {items.length}
         </div>
         <div className="flex items-center gap-2">
+
           {item.signed_url && (
             <button type="button" className={iconBtn} title="Download" aria-label="Download"
               onClick={() => downloadSignedUrl(item.signed_url!, filenameFor(item, eventName))}>
