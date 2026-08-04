@@ -147,6 +147,21 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       toast({ title: 'Image too large', description: 'Max 8 MB', variant: 'destructive' });
       return;
     }
+    if (which === 'logo') {
+      try {
+        const { width, height } = await readImageSize(file);
+        const check = validateFooterPanelSize(width, height);
+        if (!check.ok) {
+          toast({ title: 'Wrong footer size', description: check.message, variant: 'destructive' });
+          if (logoInput.current) logoInput.current.value = '';
+          return;
+        }
+      } catch {
+        toast({ title: 'Could not read image', description: 'Try a different PNG, JPG or WebP file.', variant: 'destructive' });
+        return;
+      }
+    }
+
     setUploading(which);
     try {
       const { data: userData } = await supabase.auth.getUser();
