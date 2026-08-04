@@ -330,7 +330,7 @@ export const GuestMediaUpload: React.FC = () => {
     const greeting = firstName ? `Thank you, ${firstName}!` : 'Thank you!';
     const fileWord = (n: number) => (n === 1 ? 'file' : 'files');
     return (
-      <div className={`min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden ${theme.bgMode === 'preset' && theme.bgStyle === 'cream' ? 'bg-gradient-to-b from-[#F8F5F0] via-[#F4EEE4] to-[#EFE6D6]' : theme.bgClass} ${theme.textClass}`} style={theme.pageStyle}>
+      <div className="min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden" style={LEATHER_STYLE}>
         <SeoHead title={`${gallery.event_name} — Thank you for sharing`} description="Your memories have been shared with the couple." />
         <Card className={`p-7 sm:p-8 max-w-md w-full text-center backdrop-blur-sm ${theme.isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-[#E8E1D6]'} ${theme.textClass}`}>
           {theme.logoImageUrl && (
@@ -400,7 +400,7 @@ export const GuestMediaUpload: React.FC = () => {
           <p className={`mt-5 text-xs italic ${theme.mutedClass}`}>
             With love from {couple || displayTitle} 🤍
           </p>
-          {theme.showBranding && <GalleryFooterLogo className="mt-3" />}
+          {theme.showBranding && <GalleryFooterLogo className="mt-3" tone="brown" />}
         </Card>
       </div>
     );

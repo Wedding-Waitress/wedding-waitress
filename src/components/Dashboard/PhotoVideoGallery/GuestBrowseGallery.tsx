@@ -78,8 +78,8 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       if ((data as any)?.error) throw new Error((data as any).error);
       const rows = (((data as any)?.items || []) as BrowseItem[]);
       if (!mounted.current) return;
-      // Newest memories first for browsing.
-      setItems([...rows].reverse());
+      // Newest memories first for browsing, with each Photo Booth session shown strip-first.
+      setItems(orderBoothSessionsInPlace([...rows].reverse()));
       setError(null);
     } catch (e) {
       if (mounted.current && showSpinner) setError((e as Error).message || 'Could not load the gallery');
