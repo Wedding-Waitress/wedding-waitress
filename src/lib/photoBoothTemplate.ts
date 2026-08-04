@@ -392,7 +392,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   out.width = PB_STRIP_PRINT.w; out.height = PB_STRIP_PRINT.h;
   const octx = out.getContext('2d');
   if (!octx) throw new Error('Canvas not available');
-  octx.fillStyle = templateImg ? '#FFFFFF' : PB_BROWN;
+  octx.fillStyle = templateImg ? '#FFFFFF' : style.bgColor;
   octx.fillRect(0, 0, out.width, out.height);
   octx.drawImage(stripCanvas, 0, 0);
   octx.drawImage(stripCanvas, STRIP_W, 0);
