@@ -570,7 +570,7 @@ const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, in
     </div>
     <div className="mt-2 flex gap-2 flex-wrap">
       <Button type="button" variant="outline" size="sm" className="lv-premium-shade flex-1 min-w-[140px]" onClick={() => inputRef.current?.click()} disabled={uploading}>
-        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? 'Replace' : 'Choose file'}</>}
+        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? (replaceLabel || 'Replace') : 'Choose file'}</>}
       </Button>
       {url && (
         <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={onClear}>
