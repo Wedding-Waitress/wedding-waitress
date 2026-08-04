@@ -416,7 +416,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   const padding = 22;
   const gap = 16;
   const headerH = 68;                        // WEDDINGWAITRESS.COM.AU band
-  const footerH = Math.round(H * 0.108);     // footer under the photos
+  const footerH = FOOTER_PANEL_HEIGHT;       // footer under the photos (shared constant)
   const photoAreaTop = headerH;
   const photoAreaH = H - headerH - footerH;
   const photoW = HALF - padding * 2;
