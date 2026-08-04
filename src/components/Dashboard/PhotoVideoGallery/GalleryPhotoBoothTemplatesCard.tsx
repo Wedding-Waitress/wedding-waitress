@@ -412,7 +412,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* ── Section 2: Live Preview ─────────────────────────────────────── */}
       <Card className="p-5">
         <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-          <h3 className="text-base font-semibold text-[#1D1D1F] shrink-0">Live Photo Strip Preview</h3>
+          <h3 className="text-xl font-bold shrink-0" style={{ color: '#000000' }}>Live Photo Strip Preview</h3>
           <p className="text-xs text-muted-foreground break-words mt-1 sm:mt-0">
             {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
           </p>
