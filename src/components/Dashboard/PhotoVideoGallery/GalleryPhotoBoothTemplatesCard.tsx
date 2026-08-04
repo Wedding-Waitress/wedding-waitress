@@ -71,10 +71,15 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   const [uploading, setUploading] = useState<'logo' | 'template' | null>(null);
   const logoInput = useRef<HTMLInputElement>(null);
   const tplInput = useRef<HTMLInputElement>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
 
   /** Which background option is currently active — only one at a time. */
   const bgMode: 'colour' | 'library' | 'custom' =
     !tpl ? 'colour' : isLibraryTemplateUrl(tpl) ? 'library' : 'custom';
+
+  /** The library template currently applied, if any. */
+  const libraryTemplate = findLibraryTemplate(tpl);
+
 
   useEffect(() => {
     setText(meta.photo_booth_strip_bottom_text || '');
