@@ -14,6 +14,8 @@ import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [busy, setBusy] = useState<null | 'launch' | 'download'>(null);
+  const [liveMessage, setLiveMessage] = useState('');
   const boothUrl = buildGalleryGuestAppUrl(meta.primary_token);
 
   useEffect(() => {
@@ -25,21 +27,53 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
 
   const copy = async () => {
     if (!boothUrl) return;
-    await navigator.clipboard.writeText(boothUrl);
-    toast({ title: 'Digital Photo Booth link copied' });
+    try {
+      await navigator.clipboard.writeText(boothUrl);
+      toast({ title: 'Digital Photo Booth link copied.', duration: 2500 });
+      setLiveMessage('Digital Photo Booth link copied.');
+    } catch {
+      toast({
+        title: 'Could not copy the link',
+        description: 'Copy it manually from the field above and try again.',
+        variant: 'destructive',
+      });
+      setLiveMessage('Could not copy the Digital Photo Booth link.');
+    }
   };
 
-  const downloadQr = () => {
+  const downloadQr = async () => {
     if (!qrDataUrl) return;
-    const a = document.createElement('a');
-    a.href = qrDataUrl;
-    a.download = 'photo-booth-qr.png';
-    a.click();
+    setBusy('download');
+    try {
+      const a = document.createElement('a');
+      a.href = qrDataUrl;
+      a.download = 'photo-booth-qr.png';
+      a.click();
+      setLiveMessage('QR code downloaded.');
+    } catch {
+      toast({ title: 'Could not download the QR code', description: 'Please try again.', variant: 'destructive' });
+    } finally {
+      setBusy(null);
+    }
   };
 
-  const launch = () => {
-    if (boothUrl) window.open(boothUrl, '_blank', 'noopener,noreferrer');
+  const launch = async () => {
+    if (!boothUrl) return;
+    setBusy('launch');
+    try {
+      const win = window.open(boothUrl, '_blank', 'noopener,noreferrer');
+      if (!win) throw new Error('blocked');
+    } catch {
+      toast({
+        title: 'Could not open the Digital Photo Booth',
+        description: 'Your browser may have blocked the new tab. Allow pop-ups and try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setBusy(null);
+    }
   };
+
 
   return (
     <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
