@@ -466,7 +466,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       ctx.fillStyle = labelInk;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `600 30px ${cssFont(style.fontFamily)}`;
+      ctx.font = `600 34px ${cssFont(style.fontFamily)}`;
       ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, headerH / 2 + 4);
     }
 
