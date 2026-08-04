@@ -10,6 +10,8 @@ import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/gall
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
+import { categoryOf } from '@/lib/mediaPrivacy';
+import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
 
 export interface BrowseItem {
   id: string;
