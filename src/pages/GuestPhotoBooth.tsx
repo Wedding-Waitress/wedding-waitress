@@ -494,9 +494,30 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const accentSoftBg = `${accent}1A`;
 
   if (loading) {
+    const preparing = (
+      <div className="flex flex-col items-center justify-center gap-3 py-12" role="status" aria-live="polite">
+        <Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} />
+        <p className={`text-base font-medium ${embedded ? 'text-white' : theme.textClass}`}>Opening Photo Booth…</p>
+      </div>
+    );
     return embedded
-      ? <div className="flex items-center justify-center py-12"><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>
-      : <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+      ? preparing
+      : <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}>{preparing}</div>;
+  }
+  if (loadError) {
+    const errorCard = (
+      <Card className={`p-8 max-w-md mx-auto text-center ${theme.surfaceClass} ${theme.textClass}`}>
+        <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-500" />
+        <h2 className="text-lg font-semibold mb-2">We couldn’t open the Photo Booth</h2>
+        <p className={`text-sm ${theme.mutedClass}`}>{loadError}</p>
+        <Button type="button" className="lv-premium-shade mt-5 h-11 w-full text-white" style={{ backgroundColor: accent }} onClick={retryLoad}>
+          <RotateCcw className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </Card>
+    );
+    return embedded ? <div className="py-8">{errorCard}</div> : (
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>{errorCard}</div>
+    );
   }
   if (notFound || !gallery) {
     return (
@@ -509,6 +530,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
       </div>
     );
   }
+
   if (gallery.password_required && !unlocked && token) {
     return <GalleryPasswordGate token={token} title={`${gallery.event_name} — password required`} onVerified={() => setUnlocked(true)} theme={theme} />;
   }
