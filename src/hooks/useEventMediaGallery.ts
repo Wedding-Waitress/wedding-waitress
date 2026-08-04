@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
+import type { PhotoBoothStripStyle } from '@/lib/photoBoothTemplate';
 
 export interface GalleryMeta {
   gallery_id: string;
@@ -38,6 +39,7 @@ export interface GalleryMeta {
   photo_booth_strip_bottom_text: string | null;
   photo_booth_strip_logo_url: string | null;
   photo_booth_strip_template_url: string | null;
+  photo_booth_strip_style: PhotoBoothStripStyle | null;
   slideshow_enabled: boolean;
   guest_upload_enabled: boolean;
   gallery_view_enabled: boolean;
@@ -57,6 +59,7 @@ export interface PhotoBoothTemplateSettings {
   bottom_text: string | null;
   logo_url: string | null;
   template_url: string | null;
+  style?: PhotoBoothStripStyle | null;
 }
 
 export interface GalleryDisplaySettings {
@@ -433,6 +436,7 @@ export function useEventMediaGallery(eventId: string | null) {
       _bottom_text: s.bottom_text,
       _logo_url: s.logo_url,
       _template_url: s.template_url,
+      _style: s.style ?? {},
     });
     if (err) throw new Error(err.message || 'Failed to save Photo Booth template');
     setMeta(m => {
@@ -448,6 +452,7 @@ export function useEventMediaGallery(eventId: string | null) {
         photo_booth_strip_bottom_text: s.bottom_text,
         photo_booth_strip_logo_url: s.logo_url,
         photo_booth_strip_template_url: s.template_url,
+        photo_booth_strip_style: s.style ?? null,
       };
     });
   }, [eventId]);

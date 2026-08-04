@@ -52,6 +52,7 @@ interface GalleryPublic {
   photo_booth_strip_bottom_text: string | null;
   photo_booth_strip_logo_url: string | null;
   photo_booth_strip_template_url: string | null;
+  photo_booth_strip_style: any | null;
 }
 
 type Phase = 'preview' | 'captured' | 'saving' | 'saved';
@@ -200,6 +201,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
       logoUrl: (isStrip ? gallery?.photo_booth_strip_logo_url : gallery?.photo_booth_single_logo_url) || null,
       templateUrl: (isStrip ? gallery?.photo_booth_strip_template_url : gallery?.photo_booth_single_template_url) || null,
       showBranding: !!gallery?.show_branding,
+      style: isStrip ? (gallery?.photo_booth_strip_style || null) : null,
     };
   };
 

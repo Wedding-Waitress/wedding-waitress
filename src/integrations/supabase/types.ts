@@ -796,6 +796,7 @@ export type Database = {
           photo_booth_single_template_url: string | null
           photo_booth_strip_bottom_text: string | null
           photo_booth_strip_logo_url: string | null
+          photo_booth_strip_style: Json
           photo_booth_strip_template_url: string | null
           show_branding: boolean
           show_event_date: boolean
@@ -839,6 +840,7 @@ export type Database = {
           photo_booth_single_template_url?: string | null
           photo_booth_strip_bottom_text?: string | null
           photo_booth_strip_logo_url?: string | null
+          photo_booth_strip_style?: Json
           photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
@@ -882,6 +884,7 @@ export type Database = {
           photo_booth_single_template_url?: string | null
           photo_booth_strip_bottom_text?: string | null
           photo_booth_strip_logo_url?: string | null
+          photo_booth_strip_style?: Json
           photo_booth_strip_template_url?: string | null
           show_branding?: boolean
           show_event_date?: boolean
@@ -4537,6 +4540,7 @@ export type Database = {
           photo_booth_single_template_url: string
           photo_booth_strip_bottom_text: string
           photo_booth_strip_logo_url: string
+          photo_booth_strip_style: Json
           photo_booth_strip_template_url: string
           primary_token: string
           show_branding: boolean
@@ -4591,6 +4595,7 @@ export type Database = {
           photo_booth_single_template_url: string
           photo_booth_strip_bottom_text: string
           photo_booth_strip_logo_url: string
+          photo_booth_strip_style: Json
           photo_booth_strip_template_url: string
           show_branding: boolean
           show_event_date: boolean
@@ -5205,16 +5210,28 @@ export type Database = {
         }
         Returns: boolean
       }
-      update_event_media_photo_booth_template: {
-        Args: {
-          _bottom_text: string
-          _event_id: string
-          _kind: string
-          _logo_url: string
-          _template_url: string
-        }
-        Returns: undefined
-      }
+      update_event_media_photo_booth_template:
+        | {
+            Args: {
+              _bottom_text: string
+              _event_id: string
+              _kind: string
+              _logo_url: string
+              _template_url: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              _bottom_text: string
+              _event_id: string
+              _kind: string
+              _logo_url: string
+              _style?: Json
+              _template_url: string
+            }
+            Returns: undefined
+          }
       update_event_media_slideshow_settings: {
         Args: {
           _albums: string[]

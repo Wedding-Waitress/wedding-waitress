@@ -94,6 +94,47 @@ const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return lines.slice(0, 3);
 };
 
+/** Host-customisable photo strip styling (persisted per event). */
+export interface PhotoBoothStripStyle {
+  /** Background colour of the whole strip (ignored when template artwork is uploaded) */
+  bgColor?: string | null;
+  fontFamily?: string | null;
+  fontColor?: string | null;
+  nameSize?: number | null;
+  dateSize?: number | null;
+}
+
+export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
+  bgColor: PB_BROWN,
+  fontFamily: 'Inter',
+  fontColor: '#FFFFFF',
+  nameSize: 42,
+  dateSize: 30,
+};
+
+export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<PhotoBoothStripStyle> => ({
+  bgColor: s?.bgColor || PB_DEFAULT_STYLE.bgColor,
+  fontFamily: s?.fontFamily || PB_DEFAULT_STYLE.fontFamily,
+  fontColor: s?.fontColor || PB_DEFAULT_STYLE.fontColor,
+  nameSize: s?.nameSize || PB_DEFAULT_STYLE.nameSize,
+  dateSize: s?.dateSize || PB_DEFAULT_STYLE.dateSize,
+});
+
+/** Wraps a font-family name for canvas usage. */
+export const cssFont = (family?: string | null) =>
+  `"${(family || 'Inter').replace(/"/g, '')}", "Inter", system-ui, sans-serif`;
+
+/** Picks white or near-black text for readability on a given background colour. */
+export const contrastInk = (hex: string): string => {
+  const m = /^#?([0-9a-f]{6})$/i.exec((hex || '').trim());
+  if (!m) return '#FFFFFF';
+  const n = parseInt(m[1], 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return lum > 0.65 ? '#1D1D1F' : '#FFFFFF';
+};
+
+
 export interface ComposeOpts {
   /** Couple / event name */
   title: string;
@@ -106,7 +147,10 @@ export interface ComposeOpts {
   /** Host uploaded JPEG artwork; when set it replaces the default background + strip */
   templateUrl: string | null;
   showBranding: boolean;
+  /** Photo strip styling (colours, fonts) */
+  style?: PhotoBoothStripStyle | null;
 }
+
 
 /** Draws the default rose/gold branding strip with text + optional logo. */
 async function drawBrandingStrip(ctx: CanvasRenderingContext2D, opts: {
@@ -231,7 +275,9 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
  * canvas so both halves are exact duplicates.
  */
 export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Promise<HTMLCanvasElement> {
+  const style = resolveStripStyle(opts.style);
   const { w: STRIP_W, h: STRIP_H } = PB_STRIP_SINGLE;
+
   const padding = 18;
   const gap = 14;
   const headerH = 62;                              // WEDDINGWAITRESS.COM.AU band
@@ -263,18 +309,19 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     else { sh = halfW / tr; sy = (ih - sh) / 2; }
     sctx.drawImage(templateImg, sx, sy, sw, sh, 0, 0, STRIP_W, STRIP_H);
   } else {
-    // Solid Wedding Waitress brown across the whole strip (background, borders,
+    // Solid background colour across the whole strip (background, borders,
     // gaps, header and footer all share this colour).
-    sctx.fillStyle = PB_BROWN;
+    sctx.fillStyle = style.bgColor;
     sctx.fillRect(0, 0, STRIP_W, STRIP_H);
 
-    // Compact white site brand at the top of every strip
-    sctx.fillStyle = '#FFFFFF';
+    // Compact site brand at the top of every strip
+    sctx.fillStyle = contrastInk(style.bgColor);
     sctx.textAlign = 'center';
     sctx.textBaseline = 'middle';
-    sctx.font = '600 27px "Inter", system-ui, sans-serif';
+    sctx.font = `600 27px ${cssFont(style.fontFamily)}`;
     sctx.fillText('WEDDINGWAITRESS.COM.AU', STRIP_W / 2, headerH / 2 + 4);
   }
+
 
   for (let i = 0; i < PB_STRIP_COUNT; i++) {
     const src = photos[i] ?? photos[photos.length - 1];
@@ -291,34 +338,61 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       opts, hasTemplate: true, scale: 0.92,
     });
   } else {
-    // Brown footer with white event name + date
+    // Footer with optional logo + event name / date (or custom footer text)
     const fy = STRIP_H - footerH;
-    sctx.fillStyle = PB_BROWN;
+    sctx.fillStyle = style.bgColor;
     sctx.fillRect(0, fy, STRIP_W, footerH);
+
+    // Optional footer logo — contained inside the footer only, never over photos
+    let logoH = 0;
+    if (opts.logoUrl) {
+      try {
+        const logoImg = await loadImageEl(opts.logoUrl);
+        const maxH = Math.round(footerH * 0.34);
+        const maxW = STRIP_W - 80;
+        const ratio = (logoImg.naturalWidth || logoImg.width) / (logoImg.naturalHeight || logoImg.height);
+        let lh = maxH;
+        let lw = lh * ratio;
+        if (lw > maxW) { lw = maxW; lh = lw / ratio; }
+        sctx.drawImage(logoImg, STRIP_W / 2 - lw / 2, fy + 10, lw, lh);
+        logoH = lh + 10;
+      } catch { /* ignore logo failures */ }
+    }
+
     sctx.textAlign = 'center';
     sctx.textBaseline = 'middle';
-    sctx.fillStyle = '#FFFFFF';
+    sctx.fillStyle = style.fontColor;
 
-    const title = (opts.bottomText && opts.bottomText.trim()) || (opts.title || '').trim();
-    const dateText = (opts.dateText || '').trim();
-    sctx.font = '700 42px "Inter", system-ui, sans-serif';
-    const lines = wrapLines(sctx, title || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
-    const lineH = 50;
-    const dateH = dateText ? 38 : 0;
-    let cursor = fy + footerH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
+    const custom = (opts.bottomText || '').replace(/\r/g, '');
+    const hasCustom = !!custom.trim();
+    const nameSize = style.nameSize;
+    const dateSize = style.dateSize;
+    const font = cssFont(style.fontFamily);
+
+    sctx.font = `700 ${nameSize}px ${font}`;
+    const lines: string[] = hasCustom
+      ? custom.split('\n').flatMap(l => wrapLines(sctx, l.trim() || ' ', STRIP_W - 48)).slice(0, 3)
+      : wrapLines(sctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
+    const dateText = hasCustom ? '' : (opts.dateText || '').trim();
+
+    const lineH = Math.round(nameSize * 1.2);
+    const dateH = dateText ? Math.round(dateSize * 1.26) : 0;
+    const areaTop = fy + logoH;
+    const areaH = footerH - logoH;
+    let cursor = areaTop + areaH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
     for (const ln of lines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
     if (dateText) {
-      sctx.font = '500 30px "Inter", system-ui, sans-serif';
-      sctx.fillStyle = 'rgba(255,255,255,0.9)';
+      sctx.font = `500 ${dateSize}px ${font}`;
       sctx.fillText(dateText, STRIP_W / 2, cursor + 4);
     }
   }
+
 
   const out = document.createElement('canvas');
   out.width = PB_STRIP_PRINT.w; out.height = PB_STRIP_PRINT.h;
   const octx = out.getContext('2d');
   if (!octx) throw new Error('Canvas not available');
-  octx.fillStyle = templateImg ? '#FFFFFF' : PB_BROWN;
+  octx.fillStyle = templateImg ? '#FFFFFF' : style.bgColor;
   octx.fillRect(0, 0, out.width, out.height);
   octx.drawImage(stripCanvas, 0, 0);
   octx.drawImage(stripCanvas, STRIP_W, 0);
