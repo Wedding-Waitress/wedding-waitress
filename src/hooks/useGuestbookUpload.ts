@@ -86,11 +86,11 @@ export function useGuestbookUpload() {
       }
       setUploading(false);
       setProgress(100);
-      return true;
+      return item_id;
     } catch (e: any) {
       setError(e?.message || 'Upload failed');
       setUploading(false);
-      return false;
+      return null;
     }
   }, []);
 
