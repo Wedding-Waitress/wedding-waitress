@@ -356,12 +356,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </p>
       </section>
 
-      <div className="rounded-md border border-border bg-muted/40 p-3 text-xs text-[#1D1D1F]">
-        <p className="font-semibold mb-1">Recommended template dimensions</p>
-        <ul className="space-y-0.5 text-[#6E6E73]">
-          <li>• <span className="font-medium text-[#1D1D1F]">Side-by-side strip canvas:</span> 1440 × 2000 px (PNG or JPEG)</li>
-        </ul>
-      </div>
+
+
 
       <div className="flex justify-between gap-2 flex-wrap">
         <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving || !!uploading}>
