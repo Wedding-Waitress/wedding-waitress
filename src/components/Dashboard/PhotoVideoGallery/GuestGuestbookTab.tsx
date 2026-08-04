@@ -513,18 +513,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{done}</span>
           </div>
         )}
-
-        <Button
-          type="button"
-          className="w-full h-12 text-base text-white lv-premium-shade"
-          style={{ backgroundColor: accent }}
-          disabled={busy || (!hasText && !hasAudio && !hasVideo)}
-          onClick={submit}
-        >
-          {busy
-            ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending{uploading ? ` ${progress}%` : ''}…</>
-            : 'Submit to Guestbook'}
-        </Button>
       </div>
     </div>
   );
