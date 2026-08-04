@@ -113,16 +113,27 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
             </>
           )}
 
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl}>
-            <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl || busy !== null}>
+            {busy === 'launch' ? (
+              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Launching…</>
+            ) : (
+              <><Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth</>
+            )}
           </Button>
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl}>
-            <Download className="h-4 w-4 mr-1" /> Download QR code
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl || busy !== null}>
+            {busy === 'download' ? (
+              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Downloading…</>
+            ) : (
+              <><Download className="h-4 w-4 mr-1" /> Download QR code</>
+            )}
           </Button>
+
+          <p className="sr-only" role="status" aria-live="polite">{liveMessage}</p>
 
           <p className="text-xs text-muted-foreground mt-1">
             This uses your existing event gallery link — no separate token or guest page is created.
           </p>
+
         </div>
       </div>
     </Card>
