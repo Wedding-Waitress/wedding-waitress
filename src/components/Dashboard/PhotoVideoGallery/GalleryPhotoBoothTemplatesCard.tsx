@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -16,6 +16,8 @@ import { PhotoBoothColorPicker } from './PhotoBoothColorPicker';
 import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
+  FOOTER_PANEL_WIDTH, FOOTER_PANEL_HEIGHT, footerPanelMm,
+  validateFooterPanelSize, makeBlankFooterTemplate,
 } from '@/lib/photoBoothTemplate';
 import { isLibraryTemplateUrl, findLibraryTemplate } from '@/lib/photoBoothBackgroundTemplates';
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
@@ -25,6 +27,18 @@ import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDial
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
 const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
+const FOOTER_DISABLED_NOTE = 'A custom footer design is active. Remove it to use the text footer settings.';
+
+/** Reads the real pixel dimensions of a picked image file. */
+const readImageSize = (file: File) =>
+  new Promise<{ width: number; height: number }>((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res({ width: img.naturalWidth, height: img.naturalHeight }); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
+    img.src = url;
+  });
+
 
 const FONT_OPTIONS = [
   'Inter',
