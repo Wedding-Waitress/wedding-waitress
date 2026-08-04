@@ -486,7 +486,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
           <div className="xl:col-span-3 space-y-3">
             {footerDesignActive && (
-              <p className="rounded-lg border border-[#472c1d] bg-[#F5EADB] px-3 py-2 text-xs font-medium text-[#472c1d]">
+              <p className="rounded-lg border-2 border-green-700 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 text-center flex items-center justify-center">
                 {FOOTER_DISABLED_NOTE}
               </p>
             )}
