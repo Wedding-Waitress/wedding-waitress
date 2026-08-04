@@ -19,7 +19,9 @@ import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
 } from '@/lib/photoBoothTemplate';
-import { PHOTO_BOOTH_BACKGROUND_TEMPLATES, isLibraryTemplateUrl } from '@/lib/photoBoothBackgroundTemplates';
+import { isLibraryTemplateUrl, findLibraryTemplate } from '@/lib/photoBoothBackgroundTemplates';
+import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
+
 
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
