@@ -391,13 +391,18 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   for (let half = 0; half < 2; half++) {
     const offX = half * HALF;
 
-    if (!templateImg) {
-      ctx.fillStyle = contrastInk(style.bgColor);
+    {
+      // Website label — colour auto-adapts to the background right behind it.
+      const labelInk = templateImg
+        ? autoInkForRegion(ctx, offX + HALF * 0.1, 6, HALF * 0.8, headerH - 12, autoInkForHex(style.bgColor))
+        : autoInkForHex(style.bgColor);
+      ctx.fillStyle = labelInk;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = `600 30px ${cssFont(style.fontFamily)}`;
-      ctx.fillText('WEDDINGWAITRESS.COM.AU', offX + HALF / 2, headerH / 2 + 4);
+      ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, headerH / 2 + 4);
     }
+
 
     for (let i = 0; i < PB_STRIP_COUNT; i++) {
       const img = resolved[i];
