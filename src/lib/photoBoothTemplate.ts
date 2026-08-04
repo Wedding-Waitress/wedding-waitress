@@ -98,10 +98,17 @@ const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 export interface PhotoBoothStripStyle {
   /** Background colour of the whole strip (ignored when template artwork is uploaded) */
   bgColor?: string | null;
+  /** Legacy shared font family / colour — kept as backward-compatible defaults */
   fontFamily?: string | null;
   fontColor?: string | null;
   nameSize?: number | null;
   dateSize?: number | null;
+  /** Header (event name / first custom line) */
+  nameFontFamily?: string | null;
+  nameColor?: string | null;
+  /** Date (event date / subsequent custom lines) */
+  dateFontFamily?: string | null;
+  dateColor?: string | null;
 }
 
 export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
@@ -110,15 +117,27 @@ export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
   fontColor: '#FFFFFF',
   nameSize: 42,
   dateSize: 30,
+  nameFontFamily: 'Inter',
+  nameColor: '#FFFFFF',
+  dateFontFamily: 'Inter',
+  dateColor: '#FFFFFF',
 };
 
-export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<PhotoBoothStripStyle> => ({
-  bgColor: s?.bgColor || PB_DEFAULT_STYLE.bgColor,
-  fontFamily: s?.fontFamily || PB_DEFAULT_STYLE.fontFamily,
-  fontColor: s?.fontColor || PB_DEFAULT_STYLE.fontColor,
-  nameSize: s?.nameSize || PB_DEFAULT_STYLE.nameSize,
-  dateSize: s?.dateSize || PB_DEFAULT_STYLE.dateSize,
-});
+export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<PhotoBoothStripStyle> => {
+  const family = s?.fontFamily || PB_DEFAULT_STYLE.fontFamily;
+  const color = s?.fontColor || PB_DEFAULT_STYLE.fontColor;
+  return {
+    bgColor: s?.bgColor || PB_DEFAULT_STYLE.bgColor,
+    fontFamily: family,
+    fontColor: color,
+    nameSize: s?.nameSize || PB_DEFAULT_STYLE.nameSize,
+    dateSize: s?.dateSize || PB_DEFAULT_STYLE.dateSize,
+    nameFontFamily: s?.nameFontFamily || family,
+    nameColor: s?.nameColor || color,
+    dateFontFamily: s?.dateFontFamily || family,
+    dateColor: s?.dateColor || color,
+  };
+};
 
 /** Wraps a font-family name for canvas usage. */
 export const cssFont = (family?: string | null) =>
