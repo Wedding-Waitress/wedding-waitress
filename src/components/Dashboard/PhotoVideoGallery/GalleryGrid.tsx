@@ -99,13 +99,16 @@ export const GalleryGrid: React.FC<{
 
   const filtered = useMemo(() => {
     const base = filter === 'all' ? searchedTyped : searchedTyped.filter(i => i.moderation_status === filter);
+    if (boothSetOrder) {
+      return orderPhotoBoothItems(base, sortMode);
+    }
     const sorted = [...base].sort((a, b) => {
       const ta = a.uploaded_at ? Date.parse(a.uploaded_at) : 0;
       const tb = b.uploaded_at ? Date.parse(b.uploaded_at) : 0;
       return sortMode === 'newest' ? tb - ta : ta - tb;
     });
     return sorted;
-  }, [searchedTyped, filter, sortMode]);
+  }, [searchedTyped, filter, sortMode, boothSetOrder]);
 
   // Lightbox navigates approved items only (never hidden/unapproved).
   const lightboxItems = useMemo(
