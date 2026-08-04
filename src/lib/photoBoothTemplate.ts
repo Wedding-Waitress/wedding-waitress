@@ -292,18 +292,19 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     else { sh = halfW / tr; sy = (ih - sh) / 2; }
     sctx.drawImage(templateImg, sx, sy, sw, sh, 0, 0, STRIP_W, STRIP_H);
   } else {
-    // Solid Wedding Waitress brown across the whole strip (background, borders,
+    // Solid background colour across the whole strip (background, borders,
     // gaps, header and footer all share this colour).
-    sctx.fillStyle = PB_BROWN;
+    sctx.fillStyle = style.bgColor;
     sctx.fillRect(0, 0, STRIP_W, STRIP_H);
 
-    // Compact white site brand at the top of every strip
-    sctx.fillStyle = '#FFFFFF';
+    // Compact site brand at the top of every strip
+    sctx.fillStyle = contrastInk(style.bgColor);
     sctx.textAlign = 'center';
     sctx.textBaseline = 'middle';
-    sctx.font = '600 27px "Inter", system-ui, sans-serif';
+    sctx.font = `600 27px ${cssFont(style.fontFamily)}`;
     sctx.fillText('WEDDINGWAITRESS.COM.AU', STRIP_W / 2, headerH / 2 + 4);
   }
+
 
   for (let i = 0; i < PB_STRIP_COUNT; i++) {
     const src = photos[i] ?? photos[photos.length - 1];
