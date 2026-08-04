@@ -27,7 +27,7 @@ import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDial
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
 const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
-const FOOTER_DISABLED_NOTE = 'A custom footer design is active. Remove it to use the text footer settings.';
+const FOOTER_DISABLED_NOTE = 'Custom footer active. It replaces all footer text—include any names, dates or wording in your uploaded design.';
 
 /** Reads the real pixel dimensions of a picked image file. */
 const readImageSize = (file: File) =>
@@ -38,6 +38,29 @@ const readImageSize = (file: File) =>
     img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
     img.src = url;
   });
+
+/** True when a PNG actually contains at least one non-opaque pixel. */
+const readHasTransparency = (file: File) =>
+  new Promise<boolean>((res) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      try {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        const ctx = c.getContext('2d');
+        if (!ctx) return res(true);
+        ctx.drawImage(img, 0, 0);
+        const d = ctx.getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return res(true);
+        res(false);
+      } catch { res(true); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(true); };
+    img.src = url;
+  });
+
 
 
 const FONT_OPTIONS = [
@@ -156,11 +179,18 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           if (logoInput.current) logoInput.current.value = '';
           return;
         }
+        if (file.type === 'image/png' && !(await readHasTransparency(file))) {
+          toast({
+            title: 'No transparency detected',
+            description: 'This PNG has no transparent areas and will cover the footer background like a JPEG.',
+          });
+        }
       } catch {
         toast({ title: 'Could not read image', description: 'Try a different PNG, JPG or WebP file.', variant: 'destructive' });
         return;
       }
     }
+
 
     setUploading(which);
     try {
@@ -406,7 +436,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
           {/* 1. Complete custom footer design */}
           <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
@@ -421,10 +451,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               </span>
               <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
             </p>
-            <p className="text-xs text-muted-foreground">
-              Create one finished footer panel. It will be duplicated automatically beneath both photo-strip columns.
-              PNG, JPG or WebP — use PNG when you need transparency.
-            </p>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p><span className="font-semibold text-[#1D1D1F]">JPG/JPEG:</span> fills the complete footer with its own background.</p>
+              <p><span className="font-semibold text-[#1D1D1F]">Transparent PNG:</span> overlays your design while the selected photo-strip background remains visible.</p>
+            </div>
+
             <div className="mt-auto space-y-2">
               <ImageSlot
                 label=""
@@ -453,9 +484,16 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
 
+          <div className="xl:col-span-3 space-y-3">
+            {footerDesignActive && (
+              <p className="rounded-lg border border-[#472c1d] bg-[#F5EADB] px-3 py-2 text-xs font-medium text-[#472c1d]">
+                {FOOTER_DISABLED_NOTE}
+              </p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           <div className={`rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
-            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
+
             <Textarea
               className="min-h-[88px] text-base"
               value={text}
@@ -474,7 +512,6 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
           <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
-            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
 
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
             <div>
@@ -507,8 +544,6 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
           <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Date Font</h4>
-            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
-
             <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
             <div>
               <Label className="text-sm">Font family</Label>
@@ -537,7 +572,10 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               </Select>
             </div>
           </div>
+            </div>
+          </div>
         </div>
+
 
         {actionRow}
       </Card>
