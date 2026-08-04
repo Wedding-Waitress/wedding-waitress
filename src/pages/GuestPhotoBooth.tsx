@@ -619,6 +619,28 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
               </div>
             )}
 
+            {isCameraSupported && cameraError && (
+              <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3 space-y-3" role="alert">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{cameraError.message}</span>
+                </div>
+                {cameraError.kind !== 'unavailable' && (
+                  <Button
+                    type="button"
+                    className="lv-premium-shade w-full h-10 text-white"
+                    style={{ backgroundColor: accent }}
+                    onClick={retryCamera}
+                    disabled={cameraStarting}
+                  >
+                    {cameraStarting
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Retrying…</>
+                      : <><RotateCcw className="h-4 w-4 mr-2" /> Retry</>}
+                  </Button>
+                )}
+              </div>
+            )}
+
+
             {errorMsg && (
               <div className="rounded-md border border-red-300 bg-red-50 text-red-900 text-sm p-3 flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{errorMsg}</span>
