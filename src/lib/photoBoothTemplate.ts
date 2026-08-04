@@ -321,28 +321,55 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       opts, hasTemplate: true, scale: 0.92,
     });
   } else {
-    // Brown footer with white event name + date
+    // Footer with optional logo + event name / date (or custom footer text)
     const fy = STRIP_H - footerH;
-    sctx.fillStyle = PB_BROWN;
+    sctx.fillStyle = style.bgColor;
     sctx.fillRect(0, fy, STRIP_W, footerH);
+
+    // Optional footer logo — contained inside the footer only, never over photos
+    let logoH = 0;
+    if (opts.logoUrl) {
+      try {
+        const logoImg = await loadImageEl(opts.logoUrl);
+        const maxH = Math.round(footerH * 0.34);
+        const maxW = STRIP_W - 80;
+        const ratio = (logoImg.naturalWidth || logoImg.width) / (logoImg.naturalHeight || logoImg.height);
+        let lh = maxH;
+        let lw = lh * ratio;
+        if (lw > maxW) { lw = maxW; lh = lw / ratio; }
+        sctx.drawImage(logoImg, STRIP_W / 2 - lw / 2, fy + 10, lw, lh);
+        logoH = lh + 10;
+      } catch { /* ignore logo failures */ }
+    }
+
     sctx.textAlign = 'center';
     sctx.textBaseline = 'middle';
-    sctx.fillStyle = '#FFFFFF';
+    sctx.fillStyle = style.fontColor;
 
-    const title = (opts.bottomText && opts.bottomText.trim()) || (opts.title || '').trim();
-    const dateText = (opts.dateText || '').trim();
-    sctx.font = '700 42px "Inter", system-ui, sans-serif';
-    const lines = wrapLines(sctx, title || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
-    const lineH = 50;
-    const dateH = dateText ? 38 : 0;
-    let cursor = fy + footerH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
+    const custom = (opts.bottomText || '').replace(/\r/g, '');
+    const hasCustom = !!custom.trim();
+    const nameSize = style.nameSize;
+    const dateSize = style.dateSize;
+    const font = cssFont(style.fontFamily);
+
+    sctx.font = `700 ${nameSize}px ${font}`;
+    const lines: string[] = hasCustom
+      ? custom.split('\n').flatMap(l => wrapLines(sctx, l.trim() || ' ', STRIP_W - 48)).slice(0, 3)
+      : wrapLines(sctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
+    const dateText = hasCustom ? '' : (opts.dateText || '').trim();
+
+    const lineH = Math.round(nameSize * 1.2);
+    const dateH = dateText ? Math.round(dateSize * 1.26) : 0;
+    const areaTop = fy + logoH;
+    const areaH = footerH - logoH;
+    let cursor = areaTop + areaH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
     for (const ln of lines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
     if (dateText) {
-      sctx.font = '500 30px "Inter", system-ui, sans-serif';
-      sctx.fillStyle = 'rgba(255,255,255,0.9)';
+      sctx.font = `500 ${dateSize}px ${font}`;
       sctx.fillText(dateText, STRIP_W / 2, cursor + 4);
     }
   }
+
 
   const out = document.createElement('canvas');
   out.width = PB_STRIP_PRINT.w; out.height = PB_STRIP_PRINT.h;
