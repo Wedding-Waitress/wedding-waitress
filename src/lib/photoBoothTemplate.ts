@@ -235,7 +235,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   const padding = 18;
   const gap = 14;
   const headerH = 62;                              // WEDDINGWAITRESS.COM.AU band
-  const footerH = Math.round(STRIP_H * 0.145);     // ~28% smaller than before
+  const footerH = Math.round(STRIP_H * 0.108);     // tighter footer under the photos
   const photoAreaTop = headerH;
   const photoAreaH = STRIP_H - headerH - footerH;
   const photoW = STRIP_W - padding * 2;
