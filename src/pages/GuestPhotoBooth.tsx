@@ -663,7 +663,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   style={facingMode === 'user' ? { transform: 'scaleX(-1)' } : undefined}
                   playsInline muted autoPlay
                 />
-                {phase === 'preview' && !streamReady && isCameraSupported && countdown === null && (
+                {phase === 'preview' && !streamReady && !cameraError && isCameraSupported && countdown === null && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-sm">
                     <Loader2 className="animate-spin h-6 w-6 mr-2" /> Starting camera…
                   </div>
