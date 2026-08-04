@@ -542,9 +542,11 @@ interface ImageSlotProps {
   onClear: () => void;
   aspect: 'cover' | 'contain';
   clearLabel?: string;
+  replaceLabel?: string;
 }
 
-const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, inputRef, onPick, onClear, aspect, clearLabel }) => (
+const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, inputRef, onPick, onClear, aspect, clearLabel, replaceLabel }) => (
+
   <div>
     {label && <Label className="text-sm">{label}</Label>}
     <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={(e) => onPick(e.target.files?.[0] || null)} />
