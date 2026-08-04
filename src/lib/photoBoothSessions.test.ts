@@ -26,10 +26,19 @@ describe('photoBoothSessions', () => {
     expect(orderPhotoBoothItems(two, 'newest').map(i => i.id)).toEqual(['t', 'e', 's', 'a', 'b', 'c', 'd']);
   });
 
+  it('groups a set stored strip-first as one session', () => {
+    const stored = [item('s', 24, true), item('a', 25), item('b', 26), item('c', 27), item('d', 28)];
+    expect(groupPhotoBoothSessions(stored).map(s => s.items.map(i => i.id))).toEqual([
+      ['s', 'a', 'b', 'c', 'd'],
+    ]);
+    expect(orderPhotoBoothItems(stored, 'newest').map(i => i.id)).toEqual(['s', 'a', 'b', 'c', 'd']);
+  });
+
   it('keeps unfinished sets and ignores non-booth items', () => {
     const mixed = [item('a', 1), { id: 'x', source_category: 'guest_upload' as const }];
     expect(orderPhotoBoothItems(mixed as any).map(i => i.id)).toEqual(['a', 'x']);
   });
+
 
   it('builds sortable zip prefixes', () => {
     expect(boothSetPrefix(0, true)).toBe('01-photo-strip');
