@@ -87,7 +87,7 @@ interface AppSidebarProps {
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
     { id: "running-sheet", label: "Run Sheet", icon: ClipboardList },
-    { id: "photo-video-gallery", label: "Photo & Video Gallery", icon: Camera },
+    { id: "photo-video-gallery", label: "Photo & Video Sharing", icon: Camera },
   ];
   
   const menuItems = allMenuItems;

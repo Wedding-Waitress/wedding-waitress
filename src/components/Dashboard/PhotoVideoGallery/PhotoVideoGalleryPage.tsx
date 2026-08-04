@@ -1,4 +1,4 @@
-// Photo & Video Gallery dashboard page
+// Photo & Video Sharing dashboard page (parent module)
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,7 +27,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
       <div className="flex items-start gap-3">
         <Camera className="h-6 w-6 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-white break-words">Photo &amp; Video Gallery</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white break-words">Photo &amp; Video Sharing</h1>
           <p className="text-sm text-white/80 break-words">Let guests upload photos and short videos via QR code.</p>
         </div>
       </div>

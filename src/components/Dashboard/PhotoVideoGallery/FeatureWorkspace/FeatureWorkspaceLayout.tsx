@@ -29,7 +29,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   onToggle,
   toggleDisabled,
   onBack,
-  backLabel = 'Back to Photo & Video Gallery',
+  backLabel = 'Back to Photo & Video Sharing',
   headerAction,
   disabledNotice,
   children,
