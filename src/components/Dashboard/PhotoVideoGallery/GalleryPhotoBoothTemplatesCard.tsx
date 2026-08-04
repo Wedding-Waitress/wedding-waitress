@@ -1,4 +1,4 @@
-// Photo Booth Customization — background colour, custom template artwork,
+// Photo Booth Customisation — background colour, custom template artwork,
 // footer logo, footer fonts and custom footer text for the photo STRIP only.
 // Individual photos are always saved as raw originals (no styling).
 import React, { useEffect, useMemo, useRef, useState } from 'react';
