@@ -196,7 +196,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </div>
 
         <div className="space-y-4">
-          {/* 1. Background colour */}
+          {/* 1. Background colour — full width */}
           <div className={`rounded-lg border bg-background p-4 space-y-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
             <div className="flex items-center justify-between gap-2">
               <h4 className="text-sm font-semibold text-[#1D1D1F]">Background Colour</h4>
@@ -213,76 +213,73 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             )}
           </div>
 
-          {/* 2. Template library */}
-          <div className={`rounded-lg border bg-background p-4 space-y-3 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
-            <div className="flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
-              {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Wedding Waitress templates, ready to use. Browse the library to pick one.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <div className="w-20 shrink-0 rounded-md border border-border overflow-hidden bg-muted">
-                {libraryTemplate ? (
-                  <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" width={288} height={400} className="w-full aspect-[288/400] object-cover" />
-                ) : (
-                  <div className="w-full aspect-[288/400] flex items-center justify-center">
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
+          {/* 2 + 3 — library template and custom template, side by side on wider screens */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+            {/* Template library */}
+            <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
+                {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
               </div>
-              <div className="flex-1 min-w-0 space-y-2">
-                <p className="text-sm font-medium text-[#1D1D1F] truncate">
-                  {libraryTemplate ? libraryTemplate.name : 'No template selected'}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={() => setLibraryOpen(true)}>
-                    Browse Template Library
-                  </Button>
-                  {libraryTemplate && (
-                    <Button type="button" variant="outline" size="sm" className="lv-premium-shade text-[#B42318]" onClick={() => setTpl(customTpl ? null : null)}>
-                      Remove Template
-                    </Button>
+              <p className="text-xs text-muted-foreground">
+                Wedding Waitress templates, ready to use. Browse the library to pick one.
+              </p>
+              <div className="flex items-start gap-3">
+                <div className="w-14 shrink-0 rounded-md border border-border overflow-hidden bg-muted">
+                  {libraryTemplate ? (
+                    <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" width={288} height={400} className="w-full aspect-[288/400] object-cover" />
+                  ) : (
+                    <div className="w-full aspect-[288/400] flex items-center justify-center">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    </div>
                   )}
+                </div>
+                <div className="flex-1 min-w-0 space-y-2">
+                  <p className="text-sm font-medium text-[#1D1D1F] truncate">
+                    {libraryTemplate ? libraryTemplate.name : 'No template selected'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={() => setLibraryOpen(true)}>
+                      Browse Template Library
+                    </Button>
+                    {libraryTemplate && (
+                      <Button type="button" variant="outline" size="sm" className="lv-premium-shade text-[#B42318]" onClick={() => setTpl(null)}>
+                        Remove Template
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 3. Custom template */}
-          <div className={`rounded-lg border bg-background p-4 space-y-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
-            <div className="flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
-              {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            {/* Custom template */}
+            <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
+                {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> JPEG (.jpg / .jpeg), vertical, approx. 122 × 169 mm at 300 DPI. It becomes the complete background of the final two-strip image — nothing is stretched or repeated.
+              </p>
+              <div className="max-w-[220px]">
+                <ImageSlot
+                  label=""
+                  accept={TEMPLATE_ACCEPT}
+                  url={customTpl}
+                  uploading={uploading === 'template'}
+                  inputRef={tplInput}
+                  onPick={(f) => upload('template', f)}
+                  onClear={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
+                  aspect="contain"
+                  clearLabel="Remove"
+                />
+              </div>
+              {customTpl && bgMode !== 'custom' && (
+                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full sm:w-auto" onClick={() => setTpl(customTpl)}>
+                  Use my custom template
+                </Button>
+              )}
             </div>
-            <ul className="text-xs text-muted-foreground space-y-0.5">
-              <li>• <span className="font-medium text-[#1D1D1F]">1440 × 2000 pixels</span></li>
-              <li>• Approx. 122 × 169 mm at 300 DPI</li>
-              <li>• Vertical orientation</li>
-              <li>• JPEG file only (.jpg or .jpeg)</li>
-            </ul>
-            <p className="text-xs text-muted-foreground">
-              Your uploaded JPEG becomes the complete background of the final two-strip image, with the guest photos placed over it. Proportions are preserved — nothing is stretched.
-            </p>
-            <div className="max-w-md">
-              <ImageSlot
-                label=""
-                accept={TEMPLATE_ACCEPT}
-                url={customTpl}
-                uploading={uploading === 'template'}
-                inputRef={tplInput}
-                onPick={(f) => upload('template', f)}
-                onClear={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
-                aspect="contain"
-                clearLabel="Remove"
-              />
-            </div>
-            {customTpl && bgMode !== 'custom' && (
-              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full sm:w-auto" onClick={() => setTpl(customTpl)}>
-                Use my custom template
-              </Button>
-            )}
           </div>
         </div>
 
