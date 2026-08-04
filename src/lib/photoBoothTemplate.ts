@@ -260,7 +260,9 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
  * canvas so both halves are exact duplicates.
  */
 export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Promise<HTMLCanvasElement> {
+  const style = resolveStripStyle(opts.style);
   const { w: STRIP_W, h: STRIP_H } = PB_STRIP_SINGLE;
+
   const padding = 18;
   const gap = 14;
   const headerH = 62;                              // WEDDINGWAITRESS.COM.AU band
