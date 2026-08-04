@@ -27,7 +27,7 @@ import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDial
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
 const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
-const FOOTER_DISABLED_NOTE = 'A custom footer design is active. Remove it to use the text footer settings.';
+const FOOTER_DISABLED_NOTE = 'Custom footer active. It replaces all footer text—include any names, dates or wording in your uploaded design.';
 
 /** Reads the real pixel dimensions of a picked image file. */
 const readImageSize = (file: File) =>
@@ -38,6 +38,29 @@ const readImageSize = (file: File) =>
     img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
     img.src = url;
   });
+
+/** True when a PNG actually contains at least one non-opaque pixel. */
+const readHasTransparency = (file: File) =>
+  new Promise<boolean>((res) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      try {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        const ctx = c.getContext('2d');
+        if (!ctx) return res(true);
+        ctx.drawImage(img, 0, 0);
+        const d = ctx.getImageData(0, 0, c.width, c.height).data;
+        for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return res(true);
+        res(false);
+      } catch { res(true); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(true); };
+    img.src = url;
+  });
+
 
 
 const FONT_OPTIONS = [
