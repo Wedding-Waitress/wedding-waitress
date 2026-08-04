@@ -486,12 +486,23 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
           <div className="xl:col-span-3 space-y-3">
             {footerDesignActive && (
-              <p className="rounded-lg border-2 border-green-700 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 text-center flex items-center justify-center">
-                {FOOTER_DISABLED_NOTE}
+              <p
+                id="footer-custom-notice"
+                role="status"
+                aria-live="polite"
+                className="rounded-lg border-2 border-green-800 bg-green-50 px-4 py-3 text-sm font-semibold text-green-900 text-center flex items-center justify-center gap-2"
+              >
+                <Info className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span><span className="sr-only">Notice: </span>{FOOTER_DISABLED_NOTE}</span>
               </p>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-          <div className={`rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+            <fieldset
+              disabled={footerDesignActive}
+              aria-describedby={footerDesignActive ? 'footer-custom-notice' : undefined}
+              className={`grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-0 p-0 m-0 min-w-0 ${footerDesignActive ? 'opacity-50' : ''}`}
+            >
+          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
+
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
 
             <Textarea
