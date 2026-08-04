@@ -92,9 +92,9 @@ export const GalleryViewFeaturePage: React.FC = () => {
           <Card className="p-10 flex flex-col items-center text-center gap-3">
             <AlertTriangle className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Gallery page to manage the gallery view.'}
+              {error || 'Select an event on the Photo & Video Sharing page to manage the gallery view.'}
             </p>
-            <Button variant="outline" className="lv-premium-shade" onClick={goBack}>Back to Photo &amp; Video Gallery</Button>
+            <Button variant="outline" className="lv-premium-shade" onClick={goBack}>Back to Photo &amp; Video Sharing</Button>
           </Card>
         ) : (
           <div className="space-y-6 sm:space-y-8">
