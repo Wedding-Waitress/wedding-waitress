@@ -61,34 +61,32 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
           )}
         </div>
 
-        <div className="space-y-4 min-w-0">
+        <div className="flex flex-col gap-3 min-w-0">
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
               <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
               <p className="text-sm text-destructive">Digital Photo Booth link not ready — please retry.</p>
             </div>
           ) : (
-            <div>
-              <Label className="text-sm">Event Digital Photo Booth Link</Label>
-              <div className="flex flex-wrap gap-2 mt-1.5">
-                <Input value={boothUrl} readOnly className="h-11 text-sm min-w-0 flex-1" />
-                <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
-                  <Copy className="h-4 w-4 mr-1" /> Copy
-                </Button>
+            <>
+              <div>
+                <Label className="text-sm">Event Digital Photo Booth Link</Label>
+                <Input value={boothUrl} readOnly className="h-11 text-sm mt-1.5 w-full" />
               </div>
-            </div>
+              <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={copy}>
+                <Copy className="h-4 w-4 mr-1" /> Copy
+              </Button>
+            </>
           )}
 
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" className="lv-premium-shade" onClick={launch} disabled={!boothUrl}>
-              <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
-            </Button>
-            <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
-              <Download className="h-4 w-4 mr-1" /> Download QR code
-            </Button>
-          </div>
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl}>
+            <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
+          </Button>
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl}>
+            <Download className="h-4 w-4 mr-1" /> Download QR code
+          </Button>
 
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground mt-1">
             This uses your existing event gallery link — no separate token or guest page is created.
           </p>
         </div>
