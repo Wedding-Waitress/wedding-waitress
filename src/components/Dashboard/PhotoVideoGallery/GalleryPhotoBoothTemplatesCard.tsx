@@ -221,34 +221,28 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
                 {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground md:min-h-[72px]">
                 Wedding Waitress templates, ready to use. Browse the library to pick one.
               </p>
-              <div className="flex items-start gap-3">
-                <div className="w-14 shrink-0 rounded-md border border-border overflow-hidden bg-muted">
+              <div className="mt-auto space-y-2">
+                <div className="w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
                   {libraryTemplate ? (
-                    <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" width={288} height={400} className="w-full aspect-[288/400] object-cover" />
+                    <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" className="w-full h-full object-contain" />
                   ) : (
-                    <div className="w-full aspect-[288/400] flex items-center justify-center">
-                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                    </div>
+                    <>
+                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
+                    </>
                   )}
                 </div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <p className="text-sm font-medium text-[#1D1D1F] truncate">
-                    {libraryTemplate ? libraryTemplate.name : 'No template selected'}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={() => setLibraryOpen(true)}>
-                      Browse Template Library
-                    </Button>
-                    {libraryTemplate && (
-                      <Button type="button" variant="outline" size="sm" className="lv-premium-shade text-[#B42318]" onClick={() => setTpl(null)}>
-                        Remove Template
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setLibraryOpen(true)}>
+                  Browse Template Library
+                </Button>
+                {libraryTemplate && (
+                  <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9 text-[#B42318]" onClick={() => setTpl(null)}>
+                    Remove Template
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -258,27 +252,55 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
                 {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground md:min-h-[72px]">
                 <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> JPEG (.jpg / .jpeg), vertical, approx. 122 × 169 mm at 300 DPI. It becomes the complete background of the final two-strip image — nothing is stretched or repeated.
               </p>
-              <div className="max-w-[220px]">
-                <ImageSlot
-                  label=""
+              <div className="mt-auto space-y-2">
+                <input
+                  ref={tplInput}
+                  type="file"
                   accept={TEMPLATE_ACCEPT}
-                  url={customTpl}
-                  uploading={uploading === 'template'}
-                  inputRef={tplInput}
-                  onPick={(f) => upload('template', f)}
-                  onClear={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
-                  aspect="contain"
-                  clearLabel="Remove"
+                  className="hidden"
+                  onChange={(e) => upload('template', e.target.files?.[0] || null)}
                 />
-              </div>
-              {customTpl && bgMode !== 'custom' && (
-                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full sm:w-auto" onClick={() => setTpl(customTpl)}>
-                  Use my custom template
+                <div className="relative w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+                  {customTpl ? (
+                    <>
+                      <img src={customTpl} alt="" className="w-full h-full object-contain bg-white" />
+                      <button
+                        type="button"
+                        onClick={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
+                        className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                        aria-label="Remove"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
+                    </>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="lv-premium-shade w-full h-9"
+                  onClick={() => tplInput.current?.click()}
+                  disabled={uploading === 'template'}
+                >
+                  {uploading === 'template'
+                    ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</>
+                    : <><Upload className="h-4 w-4 mr-1" /> Choose File</>}
                 </Button>
-              )}
+                {customTpl && bgMode !== 'custom' && (
+                  <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setTpl(customTpl)}>
+                    Use my custom template
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
