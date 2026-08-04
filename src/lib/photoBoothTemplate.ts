@@ -94,6 +94,32 @@ const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return lines.slice(0, 3);
 };
 
+/** Host-customisable photo strip styling (persisted per event). */
+export interface PhotoBoothStripStyle {
+  /** Background colour of the whole strip (ignored when template artwork is uploaded) */
+  bgColor?: string | null;
+  fontFamily?: string | null;
+  fontColor?: string | null;
+  nameSize?: number | null;
+  dateSize?: number | null;
+}
+
+export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
+  bgColor: PB_BROWN,
+  fontFamily: 'Inter',
+  fontColor: '#FFFFFF',
+  nameSize: 42,
+  dateSize: 30,
+};
+
+export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<PhotoBoothStripStyle> => ({
+  bgColor: s?.bgColor || PB_DEFAULT_STYLE.bgColor,
+  fontFamily: s?.fontFamily || PB_DEFAULT_STYLE.fontFamily,
+  fontColor: s?.fontColor || PB_DEFAULT_STYLE.fontColor,
+  nameSize: s?.nameSize || PB_DEFAULT_STYLE.nameSize,
+  dateSize: s?.dateSize || PB_DEFAULT_STYLE.dateSize,
+});
+
 export interface ComposeOpts {
   /** Couple / event name */
   title: string;
@@ -106,7 +132,10 @@ export interface ComposeOpts {
   /** Host uploaded JPEG artwork; when set it replaces the default background + strip */
   templateUrl: string | null;
   showBranding: boolean;
+  /** Photo strip styling (colours, fonts) */
+  style?: PhotoBoothStripStyle | null;
 }
+
 
 /** Draws the default rose/gold branding strip with text + optional logo. */
 async function drawBrandingStrip(ctx: CanvasRenderingContext2D, opts: {
