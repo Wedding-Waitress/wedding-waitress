@@ -1,4 +1,4 @@
-// Photo Booth Customization — background colour, custom template artwork,
+// Photo Booth Customisation — background colour, custom template artwork,
 // footer logo, footer fonts and custom footer text for the photo STRIP only.
 // Individual photos are always saved as raw originals (no styling).
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -145,10 +145,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   };
 
   return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
     <Card className="p-5 space-y-6">
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <FileImage className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Booth Customization
+          <FileImage className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Booth Customisation
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           Customise the final photo strip only — background, footer logo, fonts and footer text. Individual photos are always saved as original raw photos.
@@ -158,7 +159,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* 1. Background template colour */}
       <section className="space-y-2">
         <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <Palette className="h-4 w-4 text-[#967A59]" /> Background Template Color
+          <Palette className="h-4 w-4 text-[#967A59]" /> Background Template Colour
         </h3>
         <p className="text-xs text-muted-foreground">
           Applies to the whole photo-strip background. The four photo positions stay on top.
@@ -216,7 +217,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* 4. Font customization */}
       <section className="space-y-3">
         <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <TypeIcon className="h-4 w-4 text-[#967A59]" /> Font Customization
+          <TypeIcon className="h-4 w-4 text-[#967A59]" /> Font Customisation
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -277,17 +278,6 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </p>
       </section>
 
-      {/* Live preview */}
-      <div>
-        <Label className="text-sm">Live preview</Label>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
-        </p>
-        <div className="mt-2">
-          <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
-        </div>
-      </div>
-
       <div className="rounded-md border border-border bg-muted/40 p-3 text-xs text-[#1D1D1F]">
         <p className="font-semibold mb-1">Recommended template dimensions</p>
         <ul className="space-y-0.5 text-[#6E6E73]">
@@ -309,8 +299,23 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </Button>
       </div>
     </Card>
+
+    {/* Live preview — separate box, sticky on desktop */}
+    <Card className="p-5 lg:sticky lg:top-24">
+      <h2 className="text-xl font-bold" style={{ color: '#000000' }}>Live Preview</h2>
+      <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+        {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
+      </p>
+      <div className="mt-4 flex items-center justify-center">
+        <div className="w-full max-w-[420px]">
+          <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
+        </div>
+      </div>
+    </Card>
+    </div>
   );
 };
+
 
 interface ImageSlotProps {
   label: string;
