@@ -21,6 +21,66 @@ export const PB_STRIP_PRINT = { w: 1440, h: 2000 };   // full two-strip print ca
 export const PB_STRIP_SINGLE = { w: 720, h: 2000 };   // one half of the print canvas
 export const PB_STRIP_COUNT = 4;
 
+/**
+ * Footer panel geometry — the SINGLE source of truth shared by the renderer,
+ * the live preview, upload validation, the blank template download and tests.
+ * Derived directly from the strip renderer: one column is PB_STRIP_SINGLE.w
+ * wide and the footer band is round(canvasHeight * 0.108) tall.
+ */
+export const PB_STRIP_FOOTER_RATIO = 0.108;
+export const FOOTER_PANEL_WIDTH = PB_STRIP_SINGLE.w;                                  // 720
+export const FOOTER_PANEL_HEIGHT = Math.round(PB_STRIP_PRINT.h * PB_STRIP_FOOTER_RATIO); // 216
+/** Recommended safe area inset (px) for text/logos inside the footer panel. */
+export const FOOTER_PANEL_SAFE_INSET = 24;
+
+/** Physical size of the footer panel at 300 DPI, in millimetres. */
+export const footerPanelMm = () => ({
+  w: Math.round((FOOTER_PANEL_WIDTH / 300) * 25.4 * 10) / 10,
+  h: Math.round((FOOTER_PANEL_HEIGHT / 300) * 25.4 * 10) / 10,
+});
+
+export interface FooterPanelValidation {
+  ok: boolean;
+  width: number;
+  height: number;
+  message?: string;
+}
+
+/** Strict dimension check for an uploaded custom footer design. */
+export function validateFooterPanelSize(width: number, height: number): FooterPanelValidation {
+  if (width === FOOTER_PANEL_WIDTH && height === FOOTER_PANEL_HEIGHT) {
+    return { ok: true, width, height };
+  }
+  return {
+    ok: false,
+    width,
+    height,
+    message: `This image is ${width} × ${height} px. Your footer design must be exactly ${FOOTER_PANEL_WIDTH} × ${FOOTER_PANEL_HEIGHT} px. Please resize it or use the blank footer template.`,
+  };
+}
+
+/** Builds a transparent PNG blank footer template with a removable safe-area guide. */
+export function makeBlankFooterTemplate(withGuide = true): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = FOOTER_PANEL_WIDTH;
+  c.height = FOOTER_PANEL_HEIGHT;
+  const ctx = c.getContext('2d')!;
+  ctx.clearRect(0, 0, c.width, c.height);
+  if (withGuide) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(150,122,89,0.55)';
+    ctx.setLineDash([12, 10]);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      FOOTER_PANEL_SAFE_INSET, FOOTER_PANEL_SAFE_INSET,
+      c.width - FOOTER_PANEL_SAFE_INSET * 2, c.height - FOOTER_PANEL_SAFE_INSET * 2,
+    );
+    ctx.restore();
+  }
+  return c;
+}
+
+
 export const PB_PLACEHOLDER_TEXT = 'Your Names • Your Date';
 
 /** Default bottom text for an event: "Names • Date", falling back to the placeholder. */
