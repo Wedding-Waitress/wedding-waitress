@@ -56,7 +56,8 @@ export const GalleryGrid: React.FC<{
   boothSetOrder?: boolean;
   /** Optional controls rendered at the far right of the header row. */
   headerRight?: React.ReactNode;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight }) => {
+  toolbarRight?: React.ReactNode;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -417,6 +418,7 @@ export const GalleryGrid: React.FC<{
           </SelectContent>
         </Select>
         <div className="shrink-0">{selectControls}</div>
+        {toolbarRight && <div className="shrink-0 w-full sm:w-auto sm:ml-auto">{toolbarRight}</div>}
       </div>
 
       {/* Album + moderation filter pills in one row */}
@@ -539,7 +541,9 @@ export const GalleryGrid: React.FC<{
             return (
               <div
                 key={it.id}
-                className={`relative group rounded-lg overflow-hidden border border-black bg-white flex flex-col ${
+                className={`relative group rounded-lg overflow-hidden bg-white flex flex-col ${
+                  boothSetOrder ? 'border-2 border-[#472c1d]' : 'border border-black'
+                } ${
                   isSelected ? 'ring-2 ring-[#967A59]' : ''
                 } ${isHidden ? 'opacity-60' : ''}`}
               >

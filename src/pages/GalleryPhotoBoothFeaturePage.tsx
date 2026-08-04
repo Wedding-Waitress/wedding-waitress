@@ -137,17 +137,13 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
               title="Digital Photo Booth Captures"
               description="Review, organise, approve, hide and download photos taken in your Digital Photo Booth."
               emptyText="No Digital Photo Booth captures yet — share the QR code with your guests."
-              headerRight={
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
-                  <h3 className="text-base font-bold whitespace-nowrap" style={{ color: '#000000' }}>
-                    Download Digital Photo Booth Photos
-                  </h3>
-                  <PhotoBoothDownloadAllButton
-                    items={boothItems}
-                    eventName={(selectedEvent as any)?.name}
-                    galleryTitle={meta.gallery_title}
-                  />
-                </div>
+              toolbarRight={
+                <PhotoBoothDownloadAllButton
+                  items={boothItems}
+                  eventName={(selectedEvent as any)?.name}
+                  galleryTitle={meta.gallery_title}
+                  className="h-9"
+                />
               }
             />
 
