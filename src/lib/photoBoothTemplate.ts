@@ -153,6 +153,57 @@ export const contrastInk = (hex: string): string => {
   return lum > 0.65 ? '#1D1D1F' : '#FFFFFF';
 };
 
+/** Website label printed across the top of each photo strip column. */
+export const PB_SITE_LABEL = 'wedding waitress.com.au';
+export const PB_INK_DARK = '#0B0B0B';
+export const PB_INK_LIGHT = '#FFFFFF';
+
+/** WCAG relative luminance of an sRGB colour. */
+export const relativeLuminance = (r: number, g: number, b: number): number => {
+  const f = (c: number) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+};
+
+/** Chooses black or white — whichever gives the strongest WCAG contrast. */
+export const inkForLuminance = (L: number): string => {
+  const contrastWhite = 1.05 / (L + 0.05);
+  const contrastBlack = (L + 0.05) / 0.05;
+  return contrastBlack >= contrastWhite ? PB_INK_DARK : PB_INK_LIGHT;
+};
+
+/** Auto text colour for a solid hex background. */
+export const autoInkForHex = (hex: string): string => {
+  const m = /^#?([0-9a-f]{6})$/i.exec((hex || '').trim());
+  if (!m) return PB_INK_LIGHT;
+  const n = parseInt(m[1], 16);
+  return inkForLuminance(relativeLuminance((n >> 16) & 255, (n >> 8) & 255, n & 255));
+};
+
+/** Auto text colour by sampling the already-drawn canvas region behind the label. */
+export const autoInkForRegion = (
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number,
+  fallback = PB_INK_LIGHT,
+): string => {
+  try {
+    const data = ctx.getImageData(Math.max(0, Math.round(x)), Math.max(0, Math.round(y)), Math.max(1, Math.round(w)), Math.max(1, Math.round(h))).data;
+    let total = 0, count = 0;
+    const step = 4 * 4; // sample every 4th pixel
+    for (let i = 0; i < data.length; i += step) {
+      total += relativeLuminance(data[i], data[i + 1], data[i + 2]);
+      count++;
+    }
+    if (!count) return fallback;
+    return inkForLuminance(total / count);
+  } catch {
+    return fallback;
+  }
+};
+
+
 
 export interface ComposeOpts {
   /** Couple / event name */
@@ -340,13 +391,18 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   for (let half = 0; half < 2; half++) {
     const offX = half * HALF;
 
-    if (!templateImg) {
-      ctx.fillStyle = contrastInk(style.bgColor);
+    {
+      // Website label — colour auto-adapts to the background right behind it.
+      const labelInk = templateImg
+        ? autoInkForRegion(ctx, offX + HALF * 0.1, 6, HALF * 0.8, headerH - 12, autoInkForHex(style.bgColor))
+        : autoInkForHex(style.bgColor);
+      ctx.fillStyle = labelInk;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.font = `600 30px ${cssFont(style.fontFamily)}`;
-      ctx.fillText('WEDDINGWAITRESS.COM.AU', offX + HALF / 2, headerH / 2 + 4);
+      ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, headerH / 2 + 4);
     }
+
 
     for (let i = 0; i < PB_STRIP_COUNT; i++) {
       const img = resolved[i];

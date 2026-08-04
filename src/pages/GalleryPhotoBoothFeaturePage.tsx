@@ -109,7 +109,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
             </p>
           </Card>
         ) : (
-          <div className="space-y-6 sm:space-y-8">
+          <div className="pb-page space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
               <GalleryPhotoBoothStepsCard />
               <GalleryPhotoBoothAccessCard meta={meta} />
