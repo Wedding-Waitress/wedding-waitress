@@ -13,7 +13,7 @@ import { GalleryPhotoBoothStepsCard } from '@/components/Dashboard/PhotoVideoGal
 import { GalleryPhotoBoothTemplatesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPhotoBoothTemplatesCard';
 import { categoryOf } from '@/lib/mediaPrivacy';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
-import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
+import { PhotoBoothDownloadAllButton } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothDownloadAllButton';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { Loader2, AlertTriangle, Camera } from 'lucide-react';
@@ -132,25 +132,25 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
               onSetModeration={setModeration}
               onSetAlbum={setAlbum}
               onBulkSetAlbum={bulkSetAlbum}
+              boothSetOrder
+              eventName={(selectedEvent as any)?.name}
               title="Digital Photo Booth Captures"
               description="Review, organise, approve, hide and download photos taken in your Digital Photo Booth."
               emptyText="No Digital Photo Booth captures yet — share the QR code with your guests."
+              headerRight={
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full">
+                  <h3 className="text-base font-bold whitespace-nowrap" style={{ color: '#000000' }}>
+                    Download Digital Photo Booth Photos
+                  </h3>
+                  <PhotoBoothDownloadAllButton
+                    items={boothItems}
+                    eventName={(selectedEvent as any)?.name}
+                    galleryTitle={meta.gallery_title}
+                  />
+                </div>
+              }
             />
 
-            <GalleryDownloadsCard
-              items={boothItems}
-              eventName={(selectedEvent as any)?.name}
-              galleryTitle={meta.gallery_title}
-              scopes={['all', 'approved']}
-              labels={{
-                all: 'Download All Digital Photo Booth Photos',
-                approved: 'Download Approved Digital Photo Booth Photos',
-              }}
-              title="Download Digital Photo Booth Photos"
-              description="Bundle your Digital Photo Booth captures into a single ZIP file — original files, unchanged."
-              filePrefix="photo-booth"
-              emptyText="No Digital Photo Booth captures yet — ZIP downloads will activate once guests take photos."
-            />
           </div>
         )}
       </FeatureWorkspaceLayout>

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
+import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
 import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
@@ -51,7 +52,11 @@ export const GalleryGrid: React.FC<{
    * (Photo & Video Sharing workspace). Actions move to selection mode only.
    */
   hideCardActions?: boolean;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions }) => {
+  /** Digital Photo Booth: order each capture set strip-first. */
+  boothSetOrder?: boolean;
+  /** Optional controls rendered at the far right of the header row. */
+  headerRight?: React.ReactNode;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -95,13 +100,16 @@ export const GalleryGrid: React.FC<{
 
   const filtered = useMemo(() => {
     const base = filter === 'all' ? searchedTyped : searchedTyped.filter(i => i.moderation_status === filter);
+    if (boothSetOrder) {
+      return orderPhotoBoothItems(base, sortMode);
+    }
     const sorted = [...base].sort((a, b) => {
       const ta = a.uploaded_at ? Date.parse(a.uploaded_at) : 0;
       const tb = b.uploaded_at ? Date.parse(b.uploaded_at) : 0;
       return sortMode === 'newest' ? tb - ta : ta - tb;
     });
     return sorted;
-  }, [searchedTyped, filter, sortMode]);
+  }, [searchedTyped, filter, sortMode, boothSetOrder]);
 
   // Lightbox navigates approved items only (never hidden/unapproved).
   const lightboxItems = useMemo(
@@ -366,8 +374,11 @@ export const GalleryGrid: React.FC<{
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
           <p className="text-sm mt-1 break-words" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
-
+        {headerRight && (
+          <div className="w-full lg:w-auto lg:ml-auto shrink-0">{headerRight}</div>
+        )}
       </div>
+
 
       {/* Search + type + sort + select */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
