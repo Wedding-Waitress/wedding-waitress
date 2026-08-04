@@ -95,6 +95,25 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   /** The library template currently applied, if any. */
   const libraryTemplate = findLibraryTemplate(tpl);
 
+  /** A complete custom footer design is active — it replaces the whole text footer. */
+  const footerDesignActive = !!logo;
+  const panelMm = footerPanelMm();
+
+  const downloadBlankFooterTemplate = () => {
+    const canvas = makeBlankFooterTemplate(true);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `wedding-waitress-footer-template-${FOOTER_PANEL_WIDTH}x${FOOTER_PANEL_HEIGHT}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  };
+
+
+
 
   useEffect(() => {
     setText(meta.photo_booth_strip_bottom_text || '');
