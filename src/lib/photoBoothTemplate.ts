@@ -410,6 +410,12 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       drawCover(ctx, img, offX + padding, photoAreaTop + i * (photoH + gap), photoW, photoH);
     }
 
+    // ── Custom footer design overrides ALL footer text ────────────────────
+    if (footerPanelImg) {
+      ctx.drawImage(footerPanelImg, offX, H - footerH, HALF, footerH);
+      continue;
+    }
+
     if (templateImg) {
       await drawBrandingStrip(ctx, {
         x: offX, y: H - footerH, width: HALF, height: footerH,
@@ -418,23 +424,10 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       continue;
     }
 
-    // Footer with optional logo + event name / date (or custom footer text)
+    // Footer with the event name / date (or custom footer text)
     const fy = H - footerH;
+    const logoH = 0;
 
-    let logoH = 0;
-    if (opts.logoUrl) {
-      try {
-        const logoImg = await loadImageEl(opts.logoUrl);
-        const maxH = Math.round(footerH * 0.34);
-        const maxW = HALF - 90;
-        const ratio = (logoImg.naturalWidth || logoImg.width) / (logoImg.naturalHeight || logoImg.height);
-        let lh = maxH;
-        let lw = lh * ratio;
-        if (lw > maxW) { lw = maxW; lh = lw / ratio; }
-        ctx.drawImage(logoImg, offX + HALF / 2 - lw / 2, fy + 10, lw, lh);
-        logoH = lh + 10;
-      } catch { /* ignore logo failures */ }
-    }
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
