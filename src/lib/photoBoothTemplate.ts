@@ -17,8 +17,8 @@ export const PB_CREDIT = '#8C8C8C';
 
 export const PB_SINGLE_PORTRAIT = { w: 1080, h: 1800 };
 export const PB_SINGLE_LANDSCAPE = { w: 1800, h: 1080 };
-export const PB_STRIP_PRINT = { w: 1200, h: 1800 };   // 4x6 portrait @300dpi
-export const PB_STRIP_SINGLE = { w: 600, h: 1800 };   // 2x6 vertical strip
+export const PB_STRIP_PRINT = { w: 1200, h: 1960 };   // slightly taller print sheet
+export const PB_STRIP_SINGLE = { w: 600, h: 1960 };   // taller vertical strip (same width)
 export const PB_STRIP_COUNT = 4;
 
 export const PB_PLACEHOLDER_TEXT = 'Your Names • Your Date';
