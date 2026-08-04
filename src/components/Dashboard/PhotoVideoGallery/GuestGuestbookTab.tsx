@@ -151,7 +151,16 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+
+  // Per-section save state
   const [savingText, setSavingText] = useState(false);
+  const [savedTextId, setSavedTextId] = useState<string | null>(null);
+  const [savedTextValue, setSavedTextValue] = useState('');
+
+  const [savingKind, setSavingKind] = useState<'audio' | 'video' | null>(null);
+  const [savedAudioId, setSavedAudioId] = useState<string | null>(null);
+  const [savedVideoId, setSavedVideoId] = useState<string | null>(null);
+  const [removingKind, setRemovingKind] = useState<'text' | 'audio' | 'video' | null>(null);
 
   const audio = useRecorder('audio', setFormError);
   const video = useRecorder('video', setFormError);
@@ -179,65 +188,135 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     try { if (name.trim()) sessionStorage.setItem(nameKey, name.trim()); } catch { /* noop */ }
   }, [name, nameKey]);
 
-  const hasText = textEnabled && message.trim().length > 0;
-  const hasAudio = voiceEnabled && !!audio.blob;
-  const hasVideo = voiceEnabled && !!video.blob;
-  const busy = savingText || uploading;
+  const requireName = () => {
+    if (name.trim()) return true;
+    setFormError('Please add your full name first.');
+    return false;
+  };
 
-  const submit = async () => {
+  const thanks = 'Thank you — your message has been added to the guestbook. You can add another message type below.';
+
+  // ---- Text ----
+  const textDirty = message.trim().length > 0 && message.trim() !== savedTextValue;
+  const showTextActions = textEnabled && (message.trim().length > 0 || !!savedTextId);
+
+  const saveText = async () => {
+    if (savingText) return;
     setFormError(null);
-    setDone(null);
-    if (!hasText && !hasAudio && !hasVideo) {
-      setFormError('Please write a message or record an audio or video message first.');
-      return;
-    }
-    if (!name.trim()) {
-      setFormError('Please add your full name first.');
-      return;
-    }
-
-    let ok = true;
-
-    if (hasText) {
-      setSavingText(true);
-      const { error: err } = await (supabase as any).rpc('submit_event_guestbook_text', {
-        _token: token,
-        _uploader_name: name.trim(),
-        _message: message.trim(),
-      });
+    const value = message.trim();
+    if (!value) { setFormError('Please write a message first.'); return; }
+    if (!requireName()) return;
+    setSavingText(true);
+    try {
+      if (savedTextId) {
+        const { error: err } = await (supabase as any).rpc('update_event_guestbook_text', {
+          _token: token, _id: savedTextId, _uploader_name: name.trim(), _message: value,
+        });
+        if (err) throw err;
+      } else {
+        const { data, error: err } = await (supabase as any).rpc('submit_event_guestbook_text', {
+          _token: token, _uploader_name: name.trim(), _message: value,
+        });
+        if (err) throw err;
+        setSavedTextId(typeof data === 'string' ? data : (data?.id ?? null));
+      }
+      setSavedTextValue(value);
+      setDone(thanks);
+    } catch (e: any) {
+      setFormError(e?.message || 'Could not save your message. Please try again.');
+    } finally {
       setSavingText(false);
-      if (err) { ok = false; setFormError(err.message || 'Could not save your message'); }
-    }
-
-    if (hasAudio && audio.blob) {
-      const mime = normalizeMime(audio.mime || audio.blob.type || 'audio/webm');
-      const good = await upload(audio.blob, {
-        token, kind: 'audio', mime,
-        durationSec: Math.min(MAX_SECONDS, Math.max(1, audio.seconds || 1)),
-        uploaderName: name.trim(), message: '',
-        filename: `guestbook-audio-${Date.now()}.${extFor(mime)}`,
-      });
-      if (!good) { ok = false; setFormError('Could not upload your audio message. Please try again.'); }
-    }
-
-    if (hasVideo && video.blob) {
-      const mime = normalizeMime(video.mime || video.blob.type || 'video/webm');
-      const good = await upload(video.blob, {
-        token, kind: 'video', mime,
-        durationSec: Math.min(MAX_SECONDS, Math.max(1, video.seconds || 1)),
-        uploaderName: name.trim(), message: '',
-        filename: `guestbook-video-${Date.now()}.${extFor(mime)}`,
-      });
-      if (!good) { ok = false; setFormError('Could not upload your video message. Please try again.'); }
-    }
-
-    if (ok) {
-      setDone('Thank you — your message has been added to the guestbook.');
-      setMessage('');
-      audio.discard();
-      video.discard();
     }
   };
+
+  const removeText = async () => {
+    setFormError(null);
+    if (!savedTextId) { setMessage(''); return; }
+    setRemovingKind('text');
+    try {
+      const { error: err } = await (supabase as any).rpc('delete_event_guestbook_text', {
+        _token: token, _id: savedTextId,
+      });
+      if (err) throw err;
+      setSavedTextId(null);
+      setSavedTextValue('');
+      setMessage('');
+      setDone(null);
+    } catch (e: any) {
+      setFormError(e?.message || 'Could not remove your message. Please try again.');
+    } finally {
+      setRemovingKind(null);
+    }
+  };
+
+  // ---- Recordings ----
+  const saveRecording = async (kind: 'audio' | 'video') => {
+    if (savingKind) return;
+    const rec = kind === 'audio' ? audio : video;
+    if (!rec.blob) return;
+    setFormError(null);
+    if (!requireName()) return;
+    setSavingKind(kind);
+    const mime = normalizeMime(rec.mime || rec.blob.type || (kind === 'audio' ? 'audio/webm' : 'video/webm'));
+    const itemId = await upload(rec.blob, {
+      token, kind, mime,
+      durationSec: Math.min(MAX_SECONDS, Math.max(1, rec.seconds || 1)),
+      uploaderName: name.trim(), message: '',
+      filename: `guestbook-${kind}-${Date.now()}.${extFor(mime)}`,
+    });
+    setSavingKind(null);
+    if (!itemId) {
+      setFormError(`Could not save your ${kind} message. Your recording is still here — please try again.`);
+      return;
+    }
+    if (kind === 'audio') setSavedAudioId(itemId); else setSavedVideoId(itemId);
+    setDone(thanks);
+  };
+
+  const deleteSavedRecording = async (kind: 'audio' | 'video'): Promise<boolean> => {
+    const id = kind === 'audio' ? savedAudioId : savedVideoId;
+    if (!id) return true;
+    try {
+      const { error: err } = await (supabase as any).rpc('delete_event_guestbook_media', {
+        _token: token, _item_id: id,
+      });
+      if (err) throw err;
+      if (kind === 'audio') setSavedAudioId(null); else setSavedVideoId(null);
+      return true;
+    } catch (e: any) {
+      setFormError(e?.message || `Could not remove your ${kind} message. Please try again.`);
+      return false;
+    }
+  };
+
+  const removeRecording = async (kind: 'audio' | 'video') => {
+    setFormError(null);
+    setRemovingKind(kind);
+    const ok = await deleteSavedRecording(kind);
+    setRemovingKind(null);
+    if (!ok) return;
+    (kind === 'audio' ? audio : video).discard();
+    setDone(null);
+  };
+
+  const recordAgain = async (kind: 'audio' | 'video') => {
+    setFormError(null);
+    setRemovingKind(kind);
+    const ok = await deleteSavedRecording(kind);
+    setRemovingKind(null);
+    if (!ok) return;
+    const rec = kind === 'audio' ? audio : video;
+    rec.discard();
+    setDone(null);
+    await rec.start();
+  };
+
+  const savedBadge = (
+    <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
+      <CheckCircle2 className="h-4 w-4 shrink-0" /> Saved
+    </div>
+  );
+
 
   const cardClass = `rounded-2xl border p-4 sm:p-6 ${theme.surfaceClass}`;
   const optionClass = 'rounded-xl border p-3 sm:p-4 space-y-3';
@@ -297,6 +376,34 @@ export const GuestGuestbookTab: React.FC<Props> = ({
               placeholder="Write your message for the couple…"
             />
             <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
+            {savedTextId && !textDirty && savedBadge}
+            {showTextActions && (
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button
+                  type="button"
+                  className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                  disabled={savingText || removingKind === 'text' || (!!savedTextId && !textDirty)}
+                  onClick={saveText}
+                >
+                  {savingText
+                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</>
+                    : (savedTextId && !textDirty)
+                      ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</>
+                      : 'Save'}
+                </Button>
+                <Button
+                  type="button"
+                  className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                  disabled={savingText || removingKind === 'text'}
+                  onClick={removeText}
+                >
+                  {removingKind === 'text'
+                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                    : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
+                </Button>
+              </div>
+            )}
+
           </div>
         )}
 
@@ -346,16 +453,41 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             {audio.phase === 'review' && audio.url && (
               <div className="space-y-3">
                 <audio src={audio.url} controls className="w-full" />
+                {savedAudioId && savedBadge}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button type="button" variant="outline" className="h-11 flex-1" onClick={() => { audio.discard(); audio.start(); }}>
+                  <Button
+                    type="button"
+                    className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                    disabled={savingKind === 'audio' || removingKind === 'audio' || !!savedAudioId}
+                    onClick={() => saveRecording('audio')}
+                  >
+                    {savingKind === 'audio'
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving{uploading ? ` ${progress}%` : ''}…</>
+                      : savedAudioId ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</> : 'Save'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 flex-1"
+                    disabled={savingKind === 'audio' || removingKind === 'audio'}
+                    onClick={() => recordAgain('audio')}
+                  >
                     <RotateCcw className="h-4 w-4 mr-2" /> Record again
                   </Button>
-                  <Button type="button" variant="outline" className="h-11 flex-1 text-red-600" onClick={audio.discard}>
-                    <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  <Button
+                    type="button"
+                    className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                    disabled={savingKind === 'audio' || removingKind === 'audio'}
+                    onClick={() => removeRecording('audio')}
+                  >
+                    {removingKind === 'audio'
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                      : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
                   </Button>
                 </div>
               </div>
             )}
+
           </div>
         )}
 
@@ -411,16 +543,41 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             {video.phase === 'review' && video.url && (
               <div className="space-y-3">
                 <video src={video.url} controls playsInline className="w-full aspect-video rounded-lg bg-black" />
+                {savedVideoId && savedBadge}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button type="button" variant="outline" className="h-11 flex-1" onClick={() => { video.discard(); video.start(); }}>
+                  <Button
+                    type="button"
+                    className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                    disabled={savingKind === 'video' || removingKind === 'video' || !!savedVideoId}
+                    onClick={() => saveRecording('video')}
+                  >
+                    {savingKind === 'video'
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving{uploading ? ` ${progress}%` : ''}…</>
+                      : savedVideoId ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</> : 'Save'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 flex-1"
+                    disabled={savingKind === 'video' || removingKind === 'video'}
+                    onClick={() => recordAgain('video')}
+                  >
                     <RotateCcw className="h-4 w-4 mr-2" /> Record again
                   </Button>
-                  <Button type="button" variant="outline" className="h-11 flex-1 text-red-600" onClick={video.discard}>
-                    <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  <Button
+                    type="button"
+                    className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                    disabled={savingKind === 'video' || removingKind === 'video'}
+                    onClick={() => removeRecording('video')}
+                  >
+                    {removingKind === 'video'
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                      : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
                   </Button>
                 </div>
               </div>
             )}
+
           </div>
         )}
 
@@ -434,18 +591,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{done}</span>
           </div>
         )}
-
-        <Button
-          type="button"
-          className="w-full h-12 text-base text-white lv-premium-shade"
-          style={{ backgroundColor: accent }}
-          disabled={busy || (!hasText && !hasAudio && !hasVideo)}
-          onClick={submit}
-        >
-          {busy
-            ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Sending{uploading ? ` ${progress}%` : ''}…</>
-            : 'Submit to Guestbook'}
-        </Button>
       </div>
     </div>
   );

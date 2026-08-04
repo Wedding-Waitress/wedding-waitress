@@ -4407,6 +4407,14 @@ export type Database = {
         Args: { p_section_id: string; share_token: string }
         Returns: boolean
       }
+      delete_event_guestbook_media: {
+        Args: { _item_id: string; _token: string }
+        Returns: boolean
+      }
+      delete_event_guestbook_text: {
+        Args: { _id: string; _token: string }
+        Returns: boolean
+      }
       delete_event_media_item: { Args: { _item_id: string }; Returns: boolean }
       delete_event_media_items: {
         Args: { _item_ids: string[] }
@@ -5175,6 +5183,15 @@ export type Database = {
           share_token: string
         }
         Returns: boolean
+      }
+      update_event_guestbook_text: {
+        Args: {
+          _id: string
+          _message: string
+          _token: string
+          _uploader_name: string
+        }
+        Returns: string
       }
       update_event_media_branding: {
         Args: {
