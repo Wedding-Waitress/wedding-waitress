@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -16,6 +16,8 @@ import { PhotoBoothColorPicker } from './PhotoBoothColorPicker';
 import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
+  FOOTER_PANEL_WIDTH, FOOTER_PANEL_HEIGHT, footerPanelMm,
+  validateFooterPanelSize, makeBlankFooterTemplate,
 } from '@/lib/photoBoothTemplate';
 import { isLibraryTemplateUrl, findLibraryTemplate } from '@/lib/photoBoothBackgroundTemplates';
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
@@ -25,6 +27,18 @@ import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDial
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
 const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
+const FOOTER_DISABLED_NOTE = 'A custom footer design is active. Remove it to use the text footer settings.';
+
+/** Reads the real pixel dimensions of a picked image file. */
+const readImageSize = (file: File) =>
+  new Promise<{ width: number; height: number }>((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res({ width: img.naturalWidth, height: img.naturalHeight }); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
+    img.src = url;
+  });
+
 
 const FONT_OPTIONS = [
   'Inter',
@@ -81,6 +95,25 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   /** The library template currently applied, if any. */
   const libraryTemplate = findLibraryTemplate(tpl);
 
+  /** A complete custom footer design is active — it replaces the whole text footer. */
+  const footerDesignActive = !!logo;
+  const panelMm = footerPanelMm();
+
+  const downloadBlankFooterTemplate = () => {
+    const canvas = makeBlankFooterTemplate(true);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `wedding-waitress-footer-template-${FOOTER_PANEL_WIDTH}x${FOOTER_PANEL_HEIGHT}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  };
+
+
+
 
   useEffect(() => {
     setText(meta.photo_booth_strip_bottom_text || '');
@@ -114,6 +147,21 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       toast({ title: 'Image too large', description: 'Max 8 MB', variant: 'destructive' });
       return;
     }
+    if (which === 'logo') {
+      try {
+        const { width, height } = await readImageSize(file);
+        const check = validateFooterPanelSize(width, height);
+        if (!check.ok) {
+          toast({ title: 'Wrong footer size', description: check.message, variant: 'destructive' });
+          if (logoInput.current) logoInput.current.value = '';
+          return;
+        }
+      } catch {
+        toast({ title: 'Could not read image', description: 'Try a different PNG, JPG or WebP file.', variant: 'destructive' });
+        return;
+      }
+    }
+
     setUploading(which);
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -359,12 +407,25 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
-          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Image or Logo in Footer</h4>
+          {/* 1. Complete custom footer design */}
+          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
             <p className="text-xs text-muted-foreground">
-              A transparent-background PNG works best. It appears only inside the footer area — never over the photos — centred and scaled to fit.
+              Upload one complete footer design using the exact dimensions below. It will fill the footer beneath one
+              photo column and be duplicated automatically beneath both columns. When active, it replaces the event
+              name, date and all text-footer settings.
             </p>
-            <div className="mt-auto">
+            <p className="text-xs">
+              <span className="font-semibold text-[#1D1D1F]">
+                Required size: {FOOTER_PANEL_WIDTH} × {FOOTER_PANEL_HEIGHT} px
+              </span>
+              <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Create one finished footer panel. It will be duplicated automatically beneath both photo-strip columns.
+              PNG, JPG or WebP — use PNG when you need transparency.
+            </p>
+            <div className="mt-auto space-y-2">
               <ImageSlot
                 label=""
                 accept={LOGO_ACCEPT}
@@ -374,13 +435,27 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 onPick={(f) => upload('logo', f)}
                 onClear={() => setLogo(null)}
                 aspect="contain"
-                clearLabel="Remove footer image"
+                clearLabel="Remove Footer Design"
+                replaceLabel="Replace Footer Design"
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="lv-premium-shade w-full h-9"
+                onClick={downloadBlankFooterTemplate}
+              >
+                <Download className="h-4 w-4 mr-1" /> Download Blank Footer Template
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Keep important text and logos inside the recommended safe area.
+              </p>
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
+          <div className={`rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
+            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
             <Textarea
               className="min-h-[88px] text-base"
               value={text}
@@ -388,15 +463,19 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               placeholder={fallbackText}
               maxLength={160}
               rows={3}
+              disabled={footerDesignActive}
             />
             <p className="text-xs text-muted-foreground">
               Leave empty to show the event name and date: <span className="font-medium text-[#1D1D1F]">{fallbackText}</span>.
-              Custom text fully replaces them; line breaks are preserved. The first line uses the Header Font, later lines use the Date Font.
+              Custom text fully replaces them; line breaks are preserved. The first line uses the Footer Header Font, later lines use the Footer Date Font.
             </p>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Header Font</h4>
+
+          <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
+            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
+
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
             <div>
               <Label className="text-sm">Font family</Label>
@@ -426,8 +505,10 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Date Font</h4>
+          <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Date Font</h4>
+            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
+
             <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
             <div>
               <Label className="text-sm">Font family</Label>
@@ -476,9 +557,11 @@ interface ImageSlotProps {
   onClear: () => void;
   aspect: 'cover' | 'contain';
   clearLabel?: string;
+  replaceLabel?: string;
 }
 
-const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, inputRef, onPick, onClear, aspect, clearLabel }) => (
+const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, inputRef, onPick, onClear, aspect, clearLabel, replaceLabel }) => (
+
   <div>
     {label && <Label className="text-sm">{label}</Label>}
     <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={(e) => onPick(e.target.files?.[0] || null)} />
@@ -504,7 +587,7 @@ const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, in
     </div>
     <div className="mt-2 flex gap-2 flex-wrap">
       <Button type="button" variant="outline" size="sm" className="lv-premium-shade flex-1 min-w-[140px]" onClick={() => inputRef.current?.click()} disabled={uploading}>
-        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? 'Replace' : 'Choose file'}</>}
+        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? (replaceLabel || 'Replace') : 'Choose file'}</>}
       </Button>
       {url && (
         <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={onClear}>

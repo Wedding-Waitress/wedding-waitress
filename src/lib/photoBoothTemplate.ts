@@ -21,6 +21,66 @@ export const PB_STRIP_PRINT = { w: 1440, h: 2000 };   // full two-strip print ca
 export const PB_STRIP_SINGLE = { w: 720, h: 2000 };   // one half of the print canvas
 export const PB_STRIP_COUNT = 4;
 
+/**
+ * Footer panel geometry — the SINGLE source of truth shared by the renderer,
+ * the live preview, upload validation, the blank template download and tests.
+ * Derived directly from the strip renderer: one column is PB_STRIP_SINGLE.w
+ * wide and the footer band is round(canvasHeight * 0.108) tall.
+ */
+export const PB_STRIP_FOOTER_RATIO = 0.108;
+export const FOOTER_PANEL_WIDTH = PB_STRIP_SINGLE.w;                                  // 720
+export const FOOTER_PANEL_HEIGHT = Math.round(PB_STRIP_PRINT.h * PB_STRIP_FOOTER_RATIO); // 216
+/** Recommended safe area inset (px) for text/logos inside the footer panel. */
+export const FOOTER_PANEL_SAFE_INSET = 24;
+
+/** Physical size of the footer panel at 300 DPI, in millimetres. */
+export const footerPanelMm = () => ({
+  w: Math.round((FOOTER_PANEL_WIDTH / 300) * 25.4 * 10) / 10,
+  h: Math.round((FOOTER_PANEL_HEIGHT / 300) * 25.4 * 10) / 10,
+});
+
+export interface FooterPanelValidation {
+  ok: boolean;
+  width: number;
+  height: number;
+  message?: string;
+}
+
+/** Strict dimension check for an uploaded custom footer design. */
+export function validateFooterPanelSize(width: number, height: number): FooterPanelValidation {
+  if (width === FOOTER_PANEL_WIDTH && height === FOOTER_PANEL_HEIGHT) {
+    return { ok: true, width, height };
+  }
+  return {
+    ok: false,
+    width,
+    height,
+    message: `This image is ${width} × ${height} px. Your footer design must be exactly ${FOOTER_PANEL_WIDTH} × ${FOOTER_PANEL_HEIGHT} px. Please resize it or use the blank footer template.`,
+  };
+}
+
+/** Builds a transparent PNG blank footer template with a removable safe-area guide. */
+export function makeBlankFooterTemplate(withGuide = true): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = FOOTER_PANEL_WIDTH;
+  c.height = FOOTER_PANEL_HEIGHT;
+  const ctx = c.getContext('2d')!;
+  ctx.clearRect(0, 0, c.width, c.height);
+  if (withGuide) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(150,122,89,0.55)';
+    ctx.setLineDash([12, 10]);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      FOOTER_PANEL_SAFE_INSET, FOOTER_PANEL_SAFE_INSET,
+      c.width - FOOTER_PANEL_SAFE_INSET * 2, c.height - FOOTER_PANEL_SAFE_INSET * 2,
+    );
+    ctx.restore();
+  }
+  return c;
+}
+
+
 export const PB_PLACEHOLDER_TEXT = 'Your Names • Your Date';
 
 /** Default bottom text for an event: "Names • Date", falling back to the placeholder. */
@@ -356,7 +416,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   const padding = 22;
   const gap = 16;
   const headerH = 68;                        // WEDDINGWAITRESS.COM.AU band
-  const footerH = Math.round(H * 0.108);     // footer under the photos
+  const footerH = FOOTER_PANEL_HEIGHT;       // footer under the photos (shared constant)
   const photoAreaTop = headerH;
   const photoAreaH = H - headerH - footerH;
   const photoW = HALF - padding * 2;
@@ -371,6 +431,13 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   if (opts.templateUrl) {
     try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
   }
+
+  // Custom footer design (one complete footer panel, duplicated under both columns)
+  let footerPanelImg: HTMLImageElement | null = null;
+  if (opts.logoUrl) {
+    try { footerPanelImg = await loadImageEl(opts.logoUrl); } catch { footerPanelImg = null; }
+  }
+
 
   // ── Single, continuous background across the entire canvas ────────────────
   if (templateImg) {
@@ -410,6 +477,12 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       drawCover(ctx, img, offX + padding, photoAreaTop + i * (photoH + gap), photoW, photoH);
     }
 
+    // ── Custom footer design overrides ALL footer text ────────────────────
+    if (footerPanelImg) {
+      ctx.drawImage(footerPanelImg, offX, H - footerH, HALF, footerH);
+      continue;
+    }
+
     if (templateImg) {
       await drawBrandingStrip(ctx, {
         x: offX, y: H - footerH, width: HALF, height: footerH,
@@ -418,23 +491,10 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       continue;
     }
 
-    // Footer with optional logo + event name / date (or custom footer text)
+    // Footer with the event name / date (or custom footer text)
     const fy = H - footerH;
+    const logoH = 0;
 
-    let logoH = 0;
-    if (opts.logoUrl) {
-      try {
-        const logoImg = await loadImageEl(opts.logoUrl);
-        const maxH = Math.round(footerH * 0.34);
-        const maxW = HALF - 90;
-        const ratio = (logoImg.naturalWidth || logoImg.width) / (logoImg.naturalHeight || logoImg.height);
-        let lh = maxH;
-        let lw = lh * ratio;
-        if (lw > maxW) { lw = maxW; lh = lw / ratio; }
-        ctx.drawImage(logoImg, offX + HALF / 2 - lw / 2, fy + 10, lw, lh);
-        logoH = lh + 10;
-      } catch { /* ignore logo failures */ }
-    }
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
