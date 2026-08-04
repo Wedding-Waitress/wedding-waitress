@@ -374,8 +374,11 @@ export const GalleryGrid: React.FC<{
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
           <p className="text-sm mt-1 break-words" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
-
+        {headerRight && (
+          <div className="w-full lg:w-auto lg:ml-auto shrink-0">{headerRight}</div>
+        )}
       </div>
+
 
       {/* Search + type + sort + select */}
       <div className="flex flex-wrap items-center gap-2 mb-3">
