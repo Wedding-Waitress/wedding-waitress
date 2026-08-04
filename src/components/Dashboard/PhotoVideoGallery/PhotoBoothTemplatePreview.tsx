@@ -49,7 +49,7 @@ export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrai
   }, [key]);
 
   return (
-    <div className="rounded-md border border-border bg-[#F7F5F1] overflow-hidden flex items-center justify-center min-h-[280px] py-3 px-1.5">
+    <div className="flex items-center justify-center min-h-[280px] py-3 px-1.5">
       {busy && !url ? (
         <Loader2 className="h-5 w-5 animate-spin text-[#967A59]" />
       ) : failed ? (
@@ -58,7 +58,7 @@ export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrai
         <img
           src={url}
           alt={kind === 'strip' ? 'Photo strip template preview' : 'Individual photo template preview'}
-          className={`max-h-[700px] w-auto max-w-full object-contain shadow-sm ${busy ? 'opacity-60' : ''}`}
+          className={`max-h-[700px] w-auto max-w-full object-contain rounded-[2px] [box-shadow:0_6px_20px_-6px_rgba(29,29,31,0.18),0_2px_6px_-2px_rgba(29,29,31,0.10)] ${busy ? 'opacity-60' : ''}`}
         />
       ) : null}
     </div>
