@@ -145,10 +145,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   };
 
   return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
     <Card className="p-5 space-y-6">
       <div>
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <FileImage className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Booth Customization
+          <FileImage className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Booth Customisation
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           Customise the final photo strip only — background, footer logo, fonts and footer text. Individual photos are always saved as original raw photos.
@@ -158,7 +159,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* 1. Background template colour */}
       <section className="space-y-2">
         <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <Palette className="h-4 w-4 text-[#967A59]" /> Background Template Color
+          <Palette className="h-4 w-4 text-[#967A59]" /> Background Template Colour
         </h3>
         <p className="text-xs text-muted-foreground">
           Applies to the whole photo-strip background. The four photo positions stay on top.
