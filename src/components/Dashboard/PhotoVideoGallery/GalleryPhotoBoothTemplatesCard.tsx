@@ -278,8 +278,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* ── Section 1: Photo Strip Background ───────────────────────────── */}
       <Card className="p-5 space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-            <Palette className="h-4 w-4 text-[#967A59]" /> Photo Strip Background
+          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+            <Palette className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Strip Background
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Choose one background for the whole photo strip. The four photo positions and the footer stay on top.
