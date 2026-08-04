@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon, Download } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon, Download, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -278,8 +278,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* ── Section 1: Photo Strip Background ───────────────────────────── */}
       <Card className="p-5 space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-            <Palette className="h-4 w-4 text-[#967A59]" /> Photo Strip Background
+          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+            <Palette className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Strip Background
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Choose one background for the whole photo strip. The four photo positions and the footer stay on top.
@@ -412,7 +412,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* ── Section 2: Live Preview ─────────────────────────────────────── */}
       <Card className="p-5">
         <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-          <h3 className="text-base font-semibold text-[#1D1D1F] shrink-0">Live Photo Strip Preview</h3>
+          <h3 className="text-xl font-bold shrink-0" style={{ color: '#000000' }}>Live Photo Strip Preview</h3>
           <p className="text-xs text-muted-foreground break-words mt-1 sm:mt-0">
             {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
           </p>
@@ -428,8 +428,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* ── Section 3: Photo Strip Footer ───────────────────────────────── */}
       <Card className="p-5 space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-            <TypeIcon className="h-4 w-4 text-[#967A59]" /> Photo Strip Footer
+          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+            <TypeIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Strip Footer
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Everything that appears in the footer band under the four photos.
@@ -486,12 +486,23 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
           <div className="xl:col-span-3 space-y-3">
             {footerDesignActive && (
-              <p className="rounded-lg border-2 border-green-700 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 text-center flex items-center justify-center">
-                {FOOTER_DISABLED_NOTE}
+              <p
+                id="footer-custom-notice"
+                role="status"
+                aria-live="polite"
+                className="rounded-lg border-2 border-green-800 bg-green-50 px-4 py-3 text-sm font-semibold text-green-900 text-center flex items-center justify-center gap-2"
+              >
+                <Info className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span><span className="sr-only">Notice: </span>{FOOTER_DISABLED_NOTE}</span>
               </p>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-          <div className={`rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+            <fieldset
+              disabled={footerDesignActive}
+              aria-describedby={footerDesignActive ? 'footer-custom-notice' : undefined}
+              className={`grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-0 p-0 m-0 min-w-0 ${footerDesignActive ? 'opacity-50' : ''}`}
+            >
+          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
+
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
 
             <Textarea
@@ -510,7 +521,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
 
-          <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
 
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
@@ -542,7 +553,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
 
-          <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Date Font</h4>
             <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
             <div>
@@ -572,7 +583,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               </Select>
             </div>
           </div>
-            </div>
+            </fieldset>
           </div>
         </div>
 

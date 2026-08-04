@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle, Camera } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
@@ -14,6 +14,8 @@ import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [busy, setBusy] = useState<null | 'launch' | 'download'>(null);
+  const [liveMessage, setLiveMessage] = useState('');
   const boothUrl = buildGalleryGuestAppUrl(meta.primary_token);
 
   useEffect(() => {
@@ -25,21 +27,53 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
 
   const copy = async () => {
     if (!boothUrl) return;
-    await navigator.clipboard.writeText(boothUrl);
-    toast({ title: 'Digital Photo Booth link copied' });
+    try {
+      await navigator.clipboard.writeText(boothUrl);
+      toast({ title: 'Digital Photo Booth link copied.', duration: 2500 });
+      setLiveMessage('Digital Photo Booth link copied.');
+    } catch {
+      toast({
+        title: 'Could not copy the link',
+        description: 'Copy it manually from the field above and try again.',
+        variant: 'destructive',
+      });
+      setLiveMessage('Could not copy the Digital Photo Booth link.');
+    }
   };
 
-  const downloadQr = () => {
+  const downloadQr = async () => {
     if (!qrDataUrl) return;
-    const a = document.createElement('a');
-    a.href = qrDataUrl;
-    a.download = 'photo-booth-qr.png';
-    a.click();
+    setBusy('download');
+    try {
+      const a = document.createElement('a');
+      a.href = qrDataUrl;
+      a.download = 'photo-booth-qr.png';
+      a.click();
+      setLiveMessage('QR code downloaded.');
+    } catch {
+      toast({ title: 'Could not download the QR code', description: 'Please try again.', variant: 'destructive' });
+    } finally {
+      setBusy(null);
+    }
   };
 
-  const launch = () => {
-    if (boothUrl) window.open(boothUrl, '_blank', 'noopener,noreferrer');
+  const launch = async () => {
+    if (!boothUrl) return;
+    setBusy('launch');
+    try {
+      const win = window.open(boothUrl, '_blank', 'noopener,noreferrer');
+      if (!win) throw new Error('blocked');
+    } catch {
+      toast({
+        title: 'Could not open the Digital Photo Booth',
+        description: 'Your browser may have blocked the new tab. Allow pop-ups and try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setBusy(null);
+    }
   };
+
 
   return (
     <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
@@ -79,16 +113,27 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
             </>
           )}
 
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl}>
-            <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl || busy !== null}>
+            {busy === 'launch' ? (
+              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Launching…</>
+            ) : (
+              <><Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth</>
+            )}
           </Button>
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl}>
-            <Download className="h-4 w-4 mr-1" /> Download QR code
+          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl || busy !== null}>
+            {busy === 'download' ? (
+              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Downloading…</>
+            ) : (
+              <><Download className="h-4 w-4 mr-1" /> Download QR code</>
+            )}
           </Button>
+
+          <p className="sr-only" role="status" aria-live="polite">{liveMessage}</p>
 
           <p className="text-xs text-muted-foreground mt-1">
             This uses your existing event gallery link — no separate token or guest page is created.
           </p>
+
         </div>
       </div>
     </Card>
