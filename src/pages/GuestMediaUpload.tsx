@@ -680,16 +680,11 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
         {current === 'booth' && token && (
-          <React.Suspense
-            fallback={
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} />
-              </div>
-            }
-          >
+          <PhotoBoothBoundary accent={accent}>
             <GuestPhotoBooth tokenProp={token} embedded onSaved={() => setGalleryRefresh(n => n + 1)} />
-          </React.Suspense>
+          </PhotoBoothBoundary>
         )}
+
 
         {current === 'guestbook' && token && (
           <GuestGuestbookTab token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={voiceOn} textEnabled={textOn} />
