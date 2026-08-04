@@ -73,14 +73,21 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
 
   const iconBtn = 'rounded-full bg-white/10 hover:bg-white/20 text-white p-2.5 transition-colors backdrop-blur-sm';
 
+  // Image is sized against the full viewport minus a small safety gap.
+  const mediaStyle: React.CSSProperties = {
+    maxHeight: 'calc(100dvh - 40px)',
+    maxWidth: 'calc(100vw - 24px)',
+  };
+
   return createPortal(
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] bg-black" onClick={onClose}>
       {/* Top bar */}
-      <div className="flex items-center justify-between gap-2 p-3 sm:p-4 shrink-0" onClick={e => e.stopPropagation()}>
-        <div className="text-white/70 text-xs sm:text-sm">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between gap-2 p-3 sm:p-4" onClick={e => e.stopPropagation()}>
+        <div className="rounded-full bg-white/10 backdrop-blur-sm text-white text-sm sm:text-base font-medium px-4 py-2 min-w-[4.25rem] text-center tabular-nums select-none">
           {index + 1} / {items.length}
         </div>
         <div className="flex items-center gap-2">
+
           {item.signed_url && (
             <button type="button" className={iconBtn} title="Download" aria-label="Download"
               onClick={() => downloadSignedUrl(item.signed_url!, filenameFor(item, eventName))}>
@@ -107,25 +114,26 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
         </div>
       </div>
 
-      {/* Stage */}
-      <div className="flex-1 relative flex items-center justify-center min-h-0 px-2 sm:px-16">
+      {/* Stage — image fills the viewport minus a small safety gap */}
+      <div className="absolute inset-0 flex items-center justify-center">
         {items.length > 1 && (
           <button
             type="button"
             aria-label="Previous"
             onClick={(e) => { e.stopPropagation(); go(-1); }}
-            className="absolute left-1 sm:left-4 z-10 rounded-full bg-white/10 hover:bg-white/25 text-white p-2 sm:p-3 backdrop-blur-sm"
+            className="absolute left-1 sm:left-4 z-30 rounded-full bg-white/10 hover:bg-white/25 text-white p-2 sm:p-3 backdrop-blur-sm"
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
         )}
 
-        <div className="max-w-full max-h-full flex items-center justify-center" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-center" onClick={e => e.stopPropagation()}>
           {item.kind === 'photo' ? (
             <img
               src={item.signed_url}
               alt={item.caption || item.uploader_name || 'Guest upload'}
-              className="max-w-full max-h-[75vh] sm:max-h-[80vh] w-auto h-auto object-contain"
+              style={mediaStyle}
+              className="w-auto h-auto object-contain"
             />
           ) : item.kind === 'audio' ? (
             <div className="bg-white rounded-2xl p-6 w-[min(90vw,420px)]">
@@ -138,7 +146,8 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
               controls
               autoPlay
               playsInline
-              className="max-w-full max-h-[75vh] sm:max-h-[80vh] w-auto h-auto object-contain bg-black"
+              style={mediaStyle}
+              className="w-auto h-auto object-contain bg-black"
             />
           )}
         </div>
@@ -148,7 +157,7 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
             type="button"
             aria-label="Next"
             onClick={(e) => { e.stopPropagation(); go(1); }}
-            className="absolute right-1 sm:right-4 z-10 rounded-full bg-white/10 hover:bg-white/25 text-white p-2 sm:p-3 backdrop-blur-sm"
+            className="absolute right-1 sm:right-4 z-30 rounded-full bg-white/10 hover:bg-white/25 text-white p-2 sm:p-3 backdrop-blur-sm"
           >
             <ChevronRight className="h-6 w-6" />
           </button>
@@ -156,7 +165,8 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
       </div>
 
       {/* Bottom caption + info */}
-      <div className="shrink-0 p-4 text-center text-white/80" onClick={e => e.stopPropagation()}>
+      <div className="absolute bottom-0 left-0 right-0 z-20 p-4 text-center text-white/80 pointer-events-none [&_*]:pointer-events-auto" onClick={e => e.stopPropagation()}>
+
         <div className="text-sm">
           <strong className="text-white">{item.uploader_name || 'Anonymous guest'}</strong>
           {item.caption ? <span className="ml-2">{item.caption}</span> : null}
