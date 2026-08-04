@@ -156,42 +156,101 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </p>
       </div>
 
-      {/* 1. Background template colour */}
-      <section className="space-y-2">
-        <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <Palette className="h-4 w-4 text-[#967A59]" /> Background Template Colour
-        </h3>
-        <p className="text-xs text-muted-foreground">
-          Applies to the whole photo-strip background. The four photo positions stay on top.
-        </p>
-        <div className="max-w-xs">
-          <PhotoBoothColorPicker value={style.bgColor} onChange={(hex) => setStyle(s => ({ ...s, bgColor: hex }))} />
+      {/* Photo Strip Background — colour / library template / custom template */}
+      <section className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5 space-y-4">
+        <div>
+          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
+            <Palette className="h-4 w-4 text-[#967A59]" /> Photo Strip Background
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Choose one background for the whole photo strip. The four photo positions and the footer stay on top.
+          </p>
         </div>
-        {tpl && <p className="text-xs text-[#B45309]">A custom template is uploaded — it overrides this background colour.</p>}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+          {/* 1. Background colour */}
+          <div className={`rounded-lg border bg-background p-3 space-y-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Background Colour</h4>
+              {bgMode === 'colour' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <PhotoBoothColorPicker
+              value={style.bgColor}
+              onChange={(hex) => { setStyle(s => ({ ...s, bgColor: hex })); setTpl(null); }}
+            />
+            {bgMode !== 'colour' && (
+              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full" onClick={() => setTpl(null)}>
+                Use this colour
+              </Button>
+            )}
+          </div>
+
+          {/* 2. Template library */}
+          <div className={`rounded-lg border bg-background p-3 space-y-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
+              {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Wedding Waitress templates, ready to use.</p>
+            <div className="grid grid-cols-2 gap-2">
+              {PHOTO_BOOTH_BACKGROUND_TEMPLATES.map((t) => {
+                const selected = !!tpl && tpl.endsWith(t.url);
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTpl(t.url)}
+                    aria-pressed={selected}
+                    className={`relative rounded-md border overflow-hidden text-left transition-transform hover:scale-[1.02] ${selected ? 'border-[#967A59] ring-2 ring-[#967A59]/30' : 'border-border'}`}
+                  >
+                    <img src={t.thumbUrl} alt={t.name} loading="lazy" width={288} height={400} className="w-full h-24 object-cover" />
+                    {selected && (
+                      <span className="absolute top-1 right-1 rounded-full bg-[#16A34A] p-0.5">
+                        <Check className="h-3 w-3 text-white" />
+                      </span>
+                    )}
+                    <span className="block px-1.5 py-1 text-[11px] text-[#1D1D1F] truncate">{t.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. Custom template */}
+          <div className={`rounded-lg border bg-background p-3 space-y-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
+              {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <ul className="text-xs text-muted-foreground space-y-0.5">
+              <li>• <span className="font-medium text-[#1D1D1F]">1440 × 2000 pixels</span></li>
+              <li>• Approx. 122 × 169 mm at 300 DPI</li>
+              <li>• Vertical orientation</li>
+              <li>• JPEG file only (.jpg or .jpeg)</li>
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Your uploaded JPEG becomes the complete background of the final two-strip image, with the guest photos placed over it. Proportions are preserved — nothing is stretched.
+            </p>
+            <ImageSlot
+              label=""
+              accept={TEMPLATE_ACCEPT}
+              url={customTpl}
+              uploading={uploading === 'template'}
+              inputRef={tplInput}
+              onPick={(f) => upload('template', f)}
+              onClear={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
+              aspect="contain"
+              clearLabel="Remove"
+            />
+            {customTpl && bgMode !== 'custom' && (
+              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full" onClick={() => setTpl(customTpl)}>
+                Use my custom template
+              </Button>
+            )}
+          </div>
+        </div>
       </section>
 
-      {/* 2. Custom template */}
-      <section className="space-y-2">
-        <h3 className="text-base font-semibold text-[#1D1D1F]">Upload Custom Template</h3>
-        <p className="text-xs text-muted-foreground">
-          Recommended size <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> — high-quality PNG or JPEG.
-          The uploaded image becomes the complete background of the final two-strip print, with the photos placed on top.
-          Proportions are preserved — nothing is stretched.
-        </p>
-        <div className="max-w-md">
-          <ImageSlot
-            label=""
-            accept={TEMPLATE_ACCEPT}
-            url={tpl}
-            uploading={uploading === 'template'}
-            inputRef={tplInput}
-            onPick={(f) => upload('template', f)}
-            onClear={() => setTpl(null)}
-            aspect="contain"
-            clearLabel="Remove template and use background colour"
-          />
-        </div>
-      </section>
 
       {/* 3. Footer image / logo */}
       <section className="space-y-2">
