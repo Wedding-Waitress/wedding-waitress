@@ -575,7 +575,10 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               </Select>
             </div>
           </div>
+            </div>
+          </div>
         </div>
+
 
         {actionRow}
       </Card>
