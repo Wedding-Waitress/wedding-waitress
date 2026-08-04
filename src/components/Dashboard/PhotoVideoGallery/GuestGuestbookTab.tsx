@@ -490,16 +490,41 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             {video.phase === 'review' && video.url && (
               <div className="space-y-3">
                 <video src={video.url} controls playsInline className="w-full aspect-video rounded-lg bg-black" />
+                {savedVideoId && savedBadge}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button type="button" variant="outline" className="h-11 flex-1" onClick={() => { video.discard(); video.start(); }}>
+                  <Button
+                    type="button"
+                    className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                    disabled={savingKind === 'video' || removingKind === 'video' || !!savedVideoId}
+                    onClick={() => saveRecording('video')}
+                  >
+                    {savingKind === 'video'
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving{uploading ? ` ${progress}%` : ''}…</>
+                      : savedVideoId ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</> : 'Save'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 flex-1"
+                    disabled={savingKind === 'video' || removingKind === 'video'}
+                    onClick={() => recordAgain('video')}
+                  >
                     <RotateCcw className="h-4 w-4 mr-2" /> Record again
                   </Button>
-                  <Button type="button" variant="outline" className="h-11 flex-1 text-red-600" onClick={video.discard}>
-                    <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  <Button
+                    type="button"
+                    className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                    disabled={savingKind === 'video' || removingKind === 'video'}
+                    onClick={() => removeRecording('video')}
+                  >
+                    {removingKind === 'video'
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                      : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
                   </Button>
                 </div>
               </div>
             )}
+
           </div>
         )}
 
