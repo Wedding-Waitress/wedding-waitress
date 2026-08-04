@@ -23,9 +23,27 @@ export interface BrowseItem {
   source_category?: string | null;
   share_photo_seq?: number | null;
   share_video_seq?: number | null;
+  is_photo_booth_strip?: boolean;
+  photo_booth_seq?: number | null;
 }
 
 const POLL_MS = 20 * 1000;
+
+/**
+ * Reorders Photo Booth items so each capture set reads strip-first, while leaving
+ * every non-booth item exactly where it already was in the list.
+ */
+export function orderBoothSessionsInPlace(list: BrowseItem[]): BrowseItem[] {
+  const boothPositions: number[] = [];
+  list.forEach((it, i) => { if (categoryOf(it) === 'photo_booth') boothPositions.push(i); });
+  if (boothPositions.length === 0) return list;
+
+  const boothItems = boothPositions.map(i => list[i]);
+  const ordered = orderPhotoBoothItems(boothItems, 'newest');
+  const next = [...list];
+  boothPositions.forEach((pos, i) => { next[pos] = ordered[i]; });
+  return next;
+}
 
 const fullNameOf = (n?: string | null) => (n?.trim() || 'A guest');
 
