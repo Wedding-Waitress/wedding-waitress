@@ -23,7 +23,16 @@ import uploadHeroDefault from '@/assets/Wedding-Waitress-Upload-Hero-Default.png
 import galleryHeroDefault from '@/assets/Wedding-Waitress-Gallery-Hero-Default.png';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
-const GuestPhotoBooth = React.lazy(() => import('./GuestPhotoBooth'));
+// The dynamic import retries once before failing so a single flaky chunk request on first
+// open no longer forces the guest to refresh the whole page.
+import { PhotoBoothBoundary } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothBoundary';
+
+const importPhotoBooth = () =>
+  import('./GuestPhotoBooth').catch(() => new Promise<typeof import('./GuestPhotoBooth')>((resolve, reject) => {
+    setTimeout(() => { import('./GuestPhotoBooth').then(resolve, reject); }, 600);
+  }));
+
+const GuestPhotoBooth = React.lazy(importPhotoBooth);
 
 /** Default hero background used when the event has no cover image. */
 const DEFAULT_HERO_BG = '/default-hero-bg.png';
