@@ -61,16 +61,24 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   const [text, setText] = useState(meta.photo_booth_strip_bottom_text || '');
   const [logo, setLogo] = useState<string | null>(meta.photo_booth_strip_logo_url);
   const [tpl, setTpl] = useState<string | null>(meta.photo_booth_strip_template_url);
+  const [customTpl, setCustomTpl] = useState<string | null>(
+    isLibraryTemplateUrl(meta.photo_booth_strip_template_url) ? null : meta.photo_booth_strip_template_url,
+  );
   const [style, setStyle] = useState<Required<PhotoBoothStripStyle>>(savedStyle);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<'logo' | 'template' | null>(null);
   const logoInput = useRef<HTMLInputElement>(null);
   const tplInput = useRef<HTMLInputElement>(null);
 
+  /** Which background option is currently active — only one at a time. */
+  const bgMode: 'colour' | 'library' | 'custom' =
+    !tpl ? 'colour' : isLibraryTemplateUrl(tpl) ? 'library' : 'custom';
+
   useEffect(() => {
     setText(meta.photo_booth_strip_bottom_text || '');
     setLogo(meta.photo_booth_strip_logo_url);
     setTpl(meta.photo_booth_strip_template_url);
+    setCustomTpl(isLibraryTemplateUrl(meta.photo_booth_strip_template_url) ? null : meta.photo_booth_strip_template_url);
     setStyle(savedStyle);
   }, [meta.photo_booth_strip_bottom_text, meta.photo_booth_strip_logo_url, meta.photo_booth_strip_template_url, savedStyle]);
 
@@ -83,8 +91,15 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   const upload = async (which: 'logo' | 'template', file: File | null) => {
     if (!file) return;
     const allowed = (which === 'template' ? TEMPLATE_ACCEPT : LOGO_ACCEPT).split(',');
-    if (!allowed.includes(file.type)) {
-      toast({ title: 'Unsupported file type', description: 'Use a high-quality PNG or JPEG.', variant: 'destructive' });
+    const jpegOk = /\.(jpe?g)$/i.test(file.name) && (file.type === 'image/jpeg' || file.type === '');
+    if (which === 'template' ? !jpegOk : !allowed.includes(file.type)) {
+      toast({
+        title: 'Unsupported file type',
+        description: which === 'template'
+          ? 'Background templates must be a JPEG file (.jpg or .jpeg). PNG, GIF and WebP are not accepted.'
+          : 'Use a high-quality PNG or JPEG.',
+        variant: 'destructive',
+      });
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
@@ -98,10 +113,12 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       if (!uid) throw new Error('Not signed in');
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
       const path = `${uid}/${eventId}/photobooth-strip-${which}-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('event-media-branding').upload(path, file, { upsert: true, contentType: file.type });
+      const { error } = await supabase.storage.from('event-media-branding').upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
       if (error) throw error;
       const { data: pub } = supabase.storage.from('event-media-branding').getPublicUrl(path);
-      if (which === 'logo') setLogo(pub.publicUrl); else setTpl(pub.publicUrl);
+      if (which === 'logo') setLogo(pub.publicUrl);
+      else { setCustomTpl(pub.publicUrl); setTpl(pub.publicUrl); }
+
     } catch (e: any) {
       toast({ title: 'Upload failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
