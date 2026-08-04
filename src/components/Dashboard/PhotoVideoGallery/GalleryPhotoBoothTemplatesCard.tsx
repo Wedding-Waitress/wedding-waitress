@@ -217,7 +217,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* 4. Font customization */}
       <section className="space-y-3">
         <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <TypeIcon className="h-4 w-4 text-[#967A59]" /> Font Customization
+          <TypeIcon className="h-4 w-4 text-[#967A59]" /> Font Customisation
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
