@@ -120,6 +120,21 @@ export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<Pho
   dateSize: s?.dateSize || PB_DEFAULT_STYLE.dateSize,
 });
 
+/** Wraps a font-family name for canvas usage. */
+export const cssFont = (family?: string | null) =>
+  `"${(family || 'Inter').replace(/"/g, '')}", "Inter", system-ui, sans-serif`;
+
+/** Picks white or near-black text for readability on a given background colour. */
+export const contrastInk = (hex: string): string => {
+  const m = /^#?([0-9a-f]{6})$/i.exec((hex || '').trim());
+  if (!m) return '#FFFFFF';
+  const n = parseInt(m[1], 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return lum > 0.65 ? '#1D1D1F' : '#FFFFFF';
+};
+
+
 export interface ComposeOpts {
   /** Couple / event name */
   title: string;
