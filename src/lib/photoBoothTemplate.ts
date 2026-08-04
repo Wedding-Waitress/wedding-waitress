@@ -301,14 +301,14 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 
     const title = (opts.bottomText && opts.bottomText.trim()) || (opts.title || '').trim();
     const dateText = (opts.dateText || '').trim();
-    sctx.font = '600 34px "Inter", system-ui, sans-serif';
+    sctx.font = '700 42px "Inter", system-ui, sans-serif';
     const lines = wrapLines(sctx, title || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
-    const lineH = 42;
-    const dateH = dateText ? 36 : 0;
+    const lineH = 50;
+    const dateH = dateText ? 38 : 0;
     let cursor = fy + footerH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
     for (const ln of lines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
     if (dateText) {
-      sctx.font = '500 26px "Inter", system-ui, sans-serif';
+      sctx.font = '500 30px "Inter", system-ui, sans-serif';
       sctx.fillStyle = 'rgba(255,255,255,0.9)';
       sctx.fillText(dateText, STRIP_W / 2, cursor + 4);
     }
