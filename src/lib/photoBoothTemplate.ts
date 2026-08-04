@@ -17,8 +17,8 @@ export const PB_CREDIT = '#8C8C8C';
 
 export const PB_SINGLE_PORTRAIT = { w: 1080, h: 1800 };
 export const PB_SINGLE_LANDSCAPE = { w: 1800, h: 1080 };
-export const PB_STRIP_PRINT = { w: 1200, h: 1800 };   // 4x6 portrait @300dpi
-export const PB_STRIP_SINGLE = { w: 600, h: 1800 };   // 2x6 vertical strip
+export const PB_STRIP_PRINT = { w: 1200, h: 1960 };   // slightly taller print sheet
+export const PB_STRIP_SINGLE = { w: 600, h: 1960 };   // taller vertical strip (same width)
 export const PB_STRIP_COUNT = 4;
 
 export const PB_PLACEHOLDER_TEXT = 'Your Names • Your Date';
@@ -235,7 +235,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   const padding = 18;
   const gap = 14;
   const headerH = 62;                              // WEDDINGWAITRESS.COM.AU band
-  const footerH = Math.round(STRIP_H * 0.145);     // ~28% smaller than before
+  const footerH = Math.round(STRIP_H * 0.108);     // tighter footer under the photos
   const photoAreaTop = headerH;
   const photoAreaH = STRIP_H - headerH - footerH;
   const photoW = STRIP_W - padding * 2;
@@ -301,14 +301,14 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 
     const title = (opts.bottomText && opts.bottomText.trim()) || (opts.title || '').trim();
     const dateText = (opts.dateText || '').trim();
-    sctx.font = '600 34px "Inter", system-ui, sans-serif';
+    sctx.font = '700 42px "Inter", system-ui, sans-serif';
     const lines = wrapLines(sctx, title || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
-    const lineH = 42;
-    const dateH = dateText ? 36 : 0;
+    const lineH = 50;
+    const dateH = dateText ? 38 : 0;
     let cursor = fy + footerH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
     for (const ln of lines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
     if (dateText) {
-      sctx.font = '500 26px "Inter", system-ui, sans-serif';
+      sctx.font = '500 30px "Inter", system-ui, sans-serif';
       sctx.fillStyle = 'rgba(255,255,255,0.9)';
       sctx.fillText(dateText, STRIP_W / 2, cursor + 4);
     }
