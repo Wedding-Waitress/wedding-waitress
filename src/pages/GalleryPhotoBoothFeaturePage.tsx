@@ -142,7 +142,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
                   items={boothItems}
                   eventName={(selectedEvent as any)?.name}
                   galleryTitle={meta.gallery_title}
-                  className="h-9"
+                  className="!h-9"
                 />
               }
             />
