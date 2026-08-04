@@ -372,6 +372,13 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
   }
 
+  // Custom footer design (one complete footer panel, duplicated under both columns)
+  let footerPanelImg: HTMLImageElement | null = null;
+  if (opts.logoUrl) {
+    try { footerPanelImg = await loadImageEl(opts.logoUrl); } catch { footerPanelImg = null; }
+  }
+
+
   // ── Single, continuous background across the entire canvas ────────────────
   if (templateImg) {
     drawCover(ctx, templateImg, 0, 0, W, H);
