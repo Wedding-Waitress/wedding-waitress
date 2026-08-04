@@ -1,4 +1,4 @@
-// Full-screen lightbox viewer for the dashboard Photo & Video Gallery.
+// Full-screen lightbox viewer for the dashboard Photo & Video Sharing.
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, Download, Share2, Info } from 'lucide-react';
