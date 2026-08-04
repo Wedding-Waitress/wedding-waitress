@@ -4,11 +4,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -172,20 +171,34 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     style,
   };
 
+  const actionRow = (
+    <div className="flex justify-between gap-2 flex-wrap pt-1">
+      <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving || !!uploading}>
+        <RotateCcw className="h-4 w-4 mr-1" /> Reset to default
+      </Button>
+      <Button
+        className="lv-premium-shade font-bold text-white border-0 bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] active:translate-y-px shadow-[0_4px_10px_-2px_rgba(22,163,74,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-all"
+        disabled={!dirty || saving || !!uploading}
+        onClick={handleSave}
+      >
+        {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+        Save template
+      </Button>
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-    <Card className="p-5 space-y-6">
-      <div>
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <FileImage className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Booth Customisation
-        </h2>
-        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+    <div className="space-y-6">
+      {/* Page-level heading, directly on the brown page background */}
+      <div className="text-center px-2 py-2 sm:py-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">Custom Photo Booth Customisation</h2>
+        <p className="text-sm text-white/85 mt-2 max-w-3xl mx-auto break-words">
           Customise the final photo strip only — background, footer logo, fonts and footer text. Individual photos are always saved as original raw photos.
         </p>
       </div>
 
-      {/* Photo Strip Background — colour / library template / custom template */}
-      <section className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5 space-y-4">
+      {/* ── Section 1: Photo Strip Background ───────────────────────────── */}
+      <Card className="p-5 space-y-4">
         <div>
           <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
             <Palette className="h-4 w-4 text-[#967A59]" /> Photo Strip Background
@@ -195,115 +208,120 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </p>
         </div>
 
-        <div className="space-y-4">
-          {/* 1. Background colour — full width */}
-          <div className={`rounded-lg border bg-background p-4 space-y-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+          {/* 1. Background colour */}
+          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
             <div className="flex items-center justify-between gap-2">
               <h4 className="text-sm font-semibold text-[#1D1D1F]">Background Colour</h4>
               {bgMode === 'colour' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
             </div>
-            <PhotoBoothColorPicker
-              value={style.bgColor}
-              onChange={(hex) => { setStyle(s => ({ ...s, bgColor: hex })); setTpl(null); }}
-            />
-            {bgMode !== 'colour' && (
-              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full" onClick={() => setTpl(null)}>
-                Use this colour
-              </Button>
-            )}
+            <p className="text-xs text-muted-foreground lg:min-h-[72px]">
+              A single solid colour behind the whole photo strip. Pick a shade or enter an exact colour code.
+            </p>
+            <div className="mt-auto space-y-2">
+              <div className="w-full h-16 rounded-md border border-border overflow-hidden" style={{ backgroundColor: style.bgColor }} />
+              <PhotoBoothColorPicker
+                value={style.bgColor}
+                onChange={(hex) => { setStyle(s => ({ ...s, bgColor: hex })); setTpl(null); }}
+              />
+              {bgMode !== 'colour' && (
+                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setTpl(null)}>
+                  Use this colour
+                </Button>
+              )}
+            </div>
           </div>
 
-          {/* 2 + 3 — library template and custom template, side by side on wider screens */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-            {/* Template library */}
-            <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
-              <div className="flex items-center justify-between gap-2">
-                <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
-                {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
-              </div>
-              <p className="text-xs text-muted-foreground md:min-h-[72px]">
-                Wedding Waitress templates, ready to use. Browse the library to pick one.
-              </p>
-              <div className="mt-auto space-y-2">
-                <div className="w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
-                  {libraryTemplate ? (
-                    <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" className="w-full h-full object-contain" />
-                  ) : (
-                    <>
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
-                    </>
-                  )}
-                </div>
-                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setLibraryOpen(true)}>
-                  Browse Template Library
-                </Button>
-                {libraryTemplate && (
-                  <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9 text-[#B42318]" onClick={() => setTpl(null)}>
-                    Remove Template
-                  </Button>
-                )}
-              </div>
+          {/* 2. Template library */}
+          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
+              {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
             </div>
-
-            {/* Custom template */}
-            <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
-              <div className="flex items-center justify-between gap-2">
-                <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
-                {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
-              </div>
-              <p className="text-xs text-muted-foreground md:min-h-[72px]">
-                <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> JPEG (.jpg / .jpeg), vertical, approx. 122 × 169 mm at 300 DPI. It becomes the complete background of the final two-strip image — nothing is stretched or repeated.
-              </p>
-              <div className="mt-auto space-y-2">
-                <input
-                  ref={tplInput}
-                  type="file"
-                  accept={TEMPLATE_ACCEPT}
-                  className="hidden"
-                  onChange={(e) => upload('template', e.target.files?.[0] || null)}
-                />
-                <div className="relative w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
-                  {customTpl ? (
-                    <>
-                      <img src={customTpl} alt="" className="w-full h-full object-contain bg-white" />
-                      <button
-                        type="button"
-                        onClick={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
-                        className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
-                        aria-label="Remove"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
-                    </>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="lv-premium-shade w-full h-9"
-                  onClick={() => tplInput.current?.click()}
-                  disabled={uploading === 'template'}
-                >
-                  {uploading === 'template'
-                    ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</>
-                    : <><Upload className="h-4 w-4 mr-1" /> Choose File</>}
-                </Button>
-                {customTpl && bgMode !== 'custom' && (
-                  <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setTpl(customTpl)}>
-                    Use my custom template
-                  </Button>
+            <p className="text-xs text-muted-foreground lg:min-h-[72px]">
+              Wedding Waitress templates, ready to use. Browse the library to pick one.
+            </p>
+            <div className="mt-auto space-y-2">
+              <div className="w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+                {libraryTemplate ? (
+                  <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" className="w-full h-full object-contain" />
+                ) : (
+                  <>
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
+                  </>
                 )}
               </div>
+              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setLibraryOpen(true)}>
+                Browse Template Library
+              </Button>
+              {libraryTemplate && (
+                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9 text-[#B42318]" onClick={() => setTpl(null)}>
+                  Remove Template
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* 3. Custom template */}
+          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
+              {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <p className="text-xs text-muted-foreground lg:min-h-[72px]">
+              <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> JPEG (.jpg / .jpeg), vertical, approx. 122 × 169 mm at 300 DPI. It becomes the complete background of the final two-strip image.
+            </p>
+            <div className="mt-auto space-y-2">
+              <input
+                ref={tplInput}
+                type="file"
+                accept={TEMPLATE_ACCEPT}
+                className="hidden"
+                onChange={(e) => upload('template', e.target.files?.[0] || null)}
+              />
+              <div className="relative w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+                {customTpl ? (
+                  <>
+                    <img src={customTpl} alt="" className="w-full h-full object-contain bg-white" />
+                    <button
+                      type="button"
+                      onClick={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
+                      className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
+                      aria-label="Remove"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
+                  </>
+                )}
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="lv-premium-shade w-full h-9"
+                onClick={() => tplInput.current?.click()}
+                disabled={uploading === 'template'}
+              >
+                {uploading === 'template'
+                  ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</>
+                  : <><Upload className="h-4 w-4 mr-1" /> Choose File</>}
+              </Button>
+              {customTpl && bgMode !== 'custom' && (
+                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setTpl(customTpl)}>
+                  Use my custom template
+                </Button>
+              )}
             </div>
           </div>
         </div>
+
+        {actionRow}
 
         <PhotoBoothTemplateLibraryDialog
           open={libraryOpen}
@@ -311,12 +329,23 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           selectedUrl={tpl}
           onSelect={(url) => setTpl(url)}
         />
-      </section>
+      </Card>
 
+      {/* ── Section 2: Live Preview ─────────────────────────────────────── */}
+      <Card className="p-5">
+        <h3 className="text-base font-semibold text-[#1D1D1F]">Live Preview</h3>
+        <p className="text-xs text-muted-foreground mt-1 break-words">
+          {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
+        </p>
+        <div className="mt-4 flex items-center justify-center">
+          <div className="w-full max-w-[560px]">
+            <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
+          </div>
+        </div>
+      </Card>
 
-
-      {/* Photo Strip Footer */}
-      <section className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5 space-y-4">
+      {/* ── Section 3: Photo Strip Footer ───────────────────────────────── */}
+      <Card className="p-5 space-y-4">
         <div>
           <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
             <TypeIcon className="h-4 w-4 text-[#967A59]" /> Photo Strip Footer
@@ -326,27 +355,28 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </p>
         </div>
 
-        {/* Row 1 — footer image + custom footer text */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-background p-4 space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Image or Logo in Footer</h4>
             <p className="text-xs text-muted-foreground">
               A transparent-background PNG works best. It appears only inside the footer area — never over the photos — centred and scaled to fit.
             </p>
-            <ImageSlot
-              label=""
-              accept={LOGO_ACCEPT}
-              url={logo}
-              uploading={uploading === 'logo'}
-              inputRef={logoInput}
-              onPick={(f) => upload('logo', f)}
-              onClear={() => setLogo(null)}
-              aspect="contain"
-              clearLabel="Remove footer image"
-            />
+            <div className="mt-auto">
+              <ImageSlot
+                label=""
+                accept={LOGO_ACCEPT}
+                url={logo}
+                uploading={uploading === 'logo'}
+                inputRef={logoInput}
+                onPick={(f) => upload('logo', f)}
+                onClear={() => setLogo(null)}
+                aspect="contain"
+                clearLabel="Remove footer image"
+              />
+            </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-4 space-y-2">
+          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
             <Textarea
               className="min-h-[88px] text-base"
@@ -361,11 +391,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               Custom text fully replaces them; line breaks are preserved. The first line uses the Header Font, later lines use the Date Font.
             </p>
           </div>
-        </div>
 
-        {/* Row 2 — header font + date font */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Header Font</h4>
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
             <div>
@@ -396,7 +423,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Date Font</h4>
             <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
             <div>
@@ -427,43 +454,13 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
         </div>
-      </section>
 
-
-
-
-
-      <div className="flex justify-between gap-2 flex-wrap">
-        <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving || !!uploading}>
-          <RotateCcw className="h-4 w-4 mr-1" /> Reset to default
-        </Button>
-        <Button
-          className="lv-premium-shade font-bold text-white border-0 bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] active:translate-y-px shadow-[0_4px_10px_-2px_rgba(22,163,74,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-all"
-          disabled={!dirty || saving || !!uploading}
-          onClick={handleSave}
-        >
-          {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
-          Save template
-        </Button>
-      </div>
-    </Card>
-
-    {/* Live preview — separate box, sticky on desktop */}
-    <Card className="py-5 px-2.5 lg:sticky lg:top-24">
-      <h2 className="text-xl font-bold" style={{ color: '#000000' }}>Live Preview</h2>
-      <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
-        {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
-      </p>
-      <div className="mt-4 flex items-center justify-center">
-        <div className="w-full max-w-[560px]">
-          <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
-        </div>
-      </div>
-    </Card>
-
+        {actionRow}
+      </Card>
     </div>
   );
 };
+
 
 
 interface ImageSlotProps {
