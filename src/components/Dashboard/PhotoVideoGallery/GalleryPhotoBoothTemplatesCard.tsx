@@ -436,7 +436,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
           {/* 1. Complete custom footer design */}
           <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
@@ -451,10 +451,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               </span>
               <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
             </p>
-            <p className="text-xs text-muted-foreground">
-              Create one finished footer panel. It will be duplicated automatically beneath both photo-strip columns.
-              PNG, JPG or WebP — use PNG when you need transparency.
-            </p>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p><span className="font-semibold text-[#1D1D1F]">JPG/JPEG:</span> fills the complete footer with its own background.</p>
+              <p><span className="font-semibold text-[#1D1D1F]">Transparent PNG:</span> overlays your design while the selected photo-strip background remains visible.</p>
+            </div>
+
             <div className="mt-auto space-y-2">
               <ImageSlot
                 label=""
