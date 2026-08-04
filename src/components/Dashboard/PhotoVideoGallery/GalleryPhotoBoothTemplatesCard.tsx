@@ -179,11 +179,18 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           if (logoInput.current) logoInput.current.value = '';
           return;
         }
+        if (file.type === 'image/png' && !(await readHasTransparency(file))) {
+          toast({
+            title: 'No transparency detected',
+            description: 'This PNG has no transparent areas and will cover the footer background like a JPEG.',
+          });
+        }
       } catch {
         toast({ title: 'Could not read image', description: 'Try a different PNG, JPG or WebP file.', variant: 'destructive' });
         return;
       }
     }
+
 
     setUploading(which);
     try {
