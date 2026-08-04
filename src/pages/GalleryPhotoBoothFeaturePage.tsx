@@ -13,7 +13,7 @@ import { GalleryPhotoBoothStepsCard } from '@/components/Dashboard/PhotoVideoGal
 import { GalleryPhotoBoothTemplatesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPhotoBoothTemplatesCard';
 import { categoryOf } from '@/lib/mediaPrivacy';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
-import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
+import { PhotoBoothDownloadAllButton } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothDownloadAllButton';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { Loader2, AlertTriangle, Camera } from 'lucide-react';
