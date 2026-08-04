@@ -4659,9 +4659,11 @@ export type Database = {
           caption: string
           duration_sec: number
           id: string
+          is_photo_booth_strip: boolean
           kind: Database["public"]["Enums"]["event_media_kind"]
           like_count: number
           mime_type: string
+          photo_booth_seq: number
           share_photo_seq: number
           share_video_seq: number
           source_category: string
