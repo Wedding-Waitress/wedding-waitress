@@ -16,7 +16,7 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { usePhotoBoothUpload } from '@/hooks/usePhotoBoothUpload';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import {
-  composeSingleBlob,
+  
   composeStripBlob,
   formatEventDate,
   PB_STRIP_COUNT,
