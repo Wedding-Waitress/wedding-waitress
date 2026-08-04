@@ -521,7 +521,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
 
-          <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
+          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
 
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
