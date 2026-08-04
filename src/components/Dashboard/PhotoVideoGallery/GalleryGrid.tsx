@@ -51,7 +51,11 @@ export const GalleryGrid: React.FC<{
    * (Photo & Video Sharing workspace). Actions move to selection mode only.
    */
   hideCardActions?: boolean;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions }) => {
+  /** Digital Photo Booth: order each capture set strip-first. */
+  boothSetOrder?: boolean;
+  /** Optional controls rendered at the far right of the header row. */
+  headerRight?: React.ReactNode;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
