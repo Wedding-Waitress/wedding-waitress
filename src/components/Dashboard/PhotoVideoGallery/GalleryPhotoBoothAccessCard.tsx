@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle, Camera } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, AlertTriangle, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
