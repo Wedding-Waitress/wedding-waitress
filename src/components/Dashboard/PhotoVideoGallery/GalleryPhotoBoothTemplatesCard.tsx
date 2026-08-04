@@ -7,9 +7,8 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon, Check } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -42,6 +41,9 @@ const FONT_OPTIONS = [
   'Tahoma',
   'Courier New',
 ];
+
+/** Standard pixel sizes, 10px – 72px in 1px increments. */
+const FONT_SIZES = Array.from({ length: 63 }, (_, i) => i + 10);
 
 interface Props {
   eventId: string;
@@ -294,90 +296,120 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
 
 
-      {/* 3. Footer image / logo */}
-      <section className="space-y-2">
-        <h3 className="text-base font-semibold text-[#1D1D1F]">Add Image or Logo in Footer</h3>
-        <p className="text-xs text-muted-foreground">
-          A transparent-background PNG works best. It appears only inside the footer area — never over the photos — centred and scaled to fit.
-        </p>
-        <div className="max-w-md">
-          <ImageSlot
-            label=""
-            accept={LOGO_ACCEPT}
-            url={logo}
-            uploading={uploading === 'logo'}
-            inputRef={logoInput}
-            onPick={(f) => upload('logo', f)}
-            onClear={() => setLogo(null)}
-            aspect="contain"
-            clearLabel="Remove footer image"
-          />
+      {/* Photo Strip Footer */}
+      <section className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5 space-y-4">
+        <div>
+          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
+            <TypeIcon className="h-4 w-4 text-[#967A59]" /> Photo Strip Footer
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Everything that appears in the footer band under the four photos.
+          </p>
         </div>
-      </section>
 
-      {/* 4. Font customization */}
-      <section className="space-y-3">
-        <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <TypeIcon className="h-4 w-4 text-[#967A59]" /> Font Customisation
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-sm">Font family</Label>
-            <Select value={style.fontFamily} onValueChange={(v) => setStyle(s => ({ ...s, fontFamily: v }))}>
-              <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                {FONT_OPTIONS.map(f => (
-                  <SelectItem key={f} value={f}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Row 1 — footer image + custom footer text */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-border bg-background p-4 space-y-2">
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Image or Logo in Footer</h4>
+            <p className="text-xs text-muted-foreground">
+              A transparent-background PNG works best. It appears only inside the footer area — never over the photos — centred and scaled to fit.
+            </p>
+            <ImageSlot
+              label=""
+              accept={LOGO_ACCEPT}
+              url={logo}
+              uploading={uploading === 'logo'}
+              inputRef={logoInput}
+              onPick={(f) => upload('logo', f)}
+              onClear={() => setLogo(null)}
+              aspect="contain"
+              clearLabel="Remove footer image"
+            />
           </div>
-          <div>
-            <Label className="text-sm">Footer font colour</Label>
-            <div className="mt-1.5">
-              <PhotoBoothColorPicker value={style.fontColor} onChange={(hex) => setStyle(s => ({ ...s, fontColor: hex }))} />
+
+          <div className="rounded-lg border border-border bg-background p-4 space-y-2">
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
+            <Textarea
+              className="min-h-[88px] text-base"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder={fallbackText}
+              maxLength={160}
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground">
+              Leave empty to show the event name and date: <span className="font-medium text-[#1D1D1F]">{fallbackText}</span>.
+              Custom text fully replaces them; line breaks are preserved. The first line uses the Header Font, later lines use the Date Font.
+            </p>
+          </div>
+        </div>
+
+        {/* Row 2 — header font + date font */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Header Font</h4>
+            <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
+            <div>
+              <Label className="text-sm">Font family</Label>
+              <Select value={style.nameFontFamily} onValueChange={(v) => setStyle(s => ({ ...s, nameFontFamily: v }))}>
+                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {FONT_OPTIONS.map(f => (
+                    <SelectItem key={f} value={f}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm">Font colour</Label>
+              <div className="mt-1.5">
+                <PhotoBoothColorPicker value={style.nameColor} onChange={(hex) => setStyle(s => ({ ...s, nameColor: hex }))} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm">Font size</Label>
+              <Select value={String(style.nameSize)} onValueChange={(v) => setStyle(s => ({ ...s, nameSize: Number(v) }))}>
+                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)}>{n}px</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div>
-            <Label className="text-sm">Event name size — {style.nameSize}px</Label>
-            <Slider
-              className="mt-3"
-              min={24} max={72} step={1}
-              value={[style.nameSize]}
-              onValueChange={([v]) => setStyle(s => ({ ...s, nameSize: v }))}
-            />
-          </div>
-          <div>
-            <Label className="text-sm">Event date size — {style.dateSize}px</Label>
-            <Slider
-              className="mt-3"
-              min={16} max={56} step={1}
-              value={[style.dateSize]}
-              onValueChange={([v]) => setStyle(s => ({ ...s, dateSize: v }))}
-            />
+
+          <div className="rounded-lg border border-border bg-background p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Date Font</h4>
+            <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
+            <div>
+              <Label className="text-sm">Font family</Label>
+              <Select value={style.dateFontFamily} onValueChange={(v) => setStyle(s => ({ ...s, dateFontFamily: v }))}>
+                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {FONT_OPTIONS.map(f => (
+                    <SelectItem key={f} value={f}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-sm">Font colour</Label>
+              <div className="mt-1.5">
+                <PhotoBoothColorPicker value={style.dateColor} onChange={(hex) => setStyle(s => ({ ...s, dateColor: hex }))} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm">Font size</Label>
+              <Select value={String(style.dateSize)} onValueChange={(v) => setStyle(s => ({ ...s, dateSize: Number(v) }))}>
+                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)}>{n}px</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          These settings also apply to your Custom Footer Text. Keep the event name larger than the date for the classic photo-booth look.
-        </p>
       </section>
 
-      {/* 5. Custom footer text */}
-      <section className="space-y-2">
-        <h3 className="text-base font-semibold text-[#1D1D1F]">Custom Footer Text</h3>
-        <Textarea
-          className="mt-1 min-h-[88px] text-base"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={fallbackText}
-          maxLength={160}
-          rows={3}
-        />
-        <p className="text-xs text-muted-foreground">
-          Leave empty to show the event name and date: <span className="font-medium text-[#1D1D1F]">{fallbackText}</span>.
-          Custom text fully replaces them; line breaks are preserved.
-        </p>
-      </section>
 
 
 
