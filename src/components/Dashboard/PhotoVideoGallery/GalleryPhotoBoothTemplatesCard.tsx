@@ -301,17 +301,18 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     </Card>
 
     {/* Live preview — separate box, sticky on desktop */}
-    <Card className="p-5 lg:sticky lg:top-24">
+    <Card className="py-5 px-2.5 lg:sticky lg:top-24">
       <h2 className="text-xl font-bold" style={{ color: '#000000' }}>Live Preview</h2>
       <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
         {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
       </p>
       <div className="mt-4 flex items-center justify-center">
-        <div className="w-full max-w-[420px]">
+        <div className="w-full max-w-[560px]">
           <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
         </div>
       </div>
     </Card>
+
     </div>
   );
 };
