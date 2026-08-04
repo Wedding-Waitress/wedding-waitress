@@ -23,7 +23,8 @@ export function useGuestbookUpload() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const upload = useCallback(async (blob: Blob, opts: GuestbookUploadOptions): Promise<boolean> => {
+  /** Returns the created media item id on success, or null on failure. */
+  const upload = useCallback(async (blob: Blob, opts: GuestbookUploadOptions): Promise<string | null> => {
     setUploading(true);
     setError(null);
     setProgress(0);
