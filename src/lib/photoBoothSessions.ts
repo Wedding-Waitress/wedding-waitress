@@ -35,28 +35,43 @@ export function groupPhotoBoothSessions<T extends BoothOrderable>(items: T[]): B
     .sort((a, b) => seqOf(a) - seqOf(b));
 
   const sessions: BoothSession<T>[] = [];
-  let pending: T[] = [];
+  let strip: T | null = null;
+  let individuals: T[] = [];
 
-  const push = (strip: T | null, individuals: T[]) => {
+  const flush = () => {
     if (!strip && individuals.length === 0) return;
     sessions.push({
       index: sessions.length + 1,
       items: strip ? [strip, ...individuals] : individuals,
     });
+    strip = null;
+    individuals = [];
   };
 
+  // A capture set is one strip plus up to four individual photos. The strip may
+  // be stored before OR after its individuals depending on the upload order, so
+  // both arrangements are grouped into the same session and rendered strip-first.
   for (const item of booth) {
     if (item.is_photo_booth_strip) {
-      push(item, pending);
-      pending = [];
+      if (strip || individuals.length > 0) {
+        if (!strip) {
+          strip = item;
+          flush();
+          continue;
+        }
+        flush();
+      }
+      strip = item;
     } else {
-      pending.push(item);
+      if (strip && individuals.length >= 4) flush();
+      individuals.push(item);
     }
   }
-  push(null, pending);
+  flush();
 
   return sessions;
 }
+
 
 /**
  * Returns the items reordered so each booth set reads strip-first.
