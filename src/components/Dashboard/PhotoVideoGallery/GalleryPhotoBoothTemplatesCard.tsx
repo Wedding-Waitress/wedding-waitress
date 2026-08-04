@@ -43,6 +43,9 @@ const FONT_OPTIONS = [
   'Courier New',
 ];
 
+/** Standard pixel sizes, 10px – 72px in 1px increments. */
+const FONT_SIZES = Array.from({ length: 63 }, (_, i) => i + 10);
+
 interface Props {
   eventId: string;
   meta: GalleryMeta;
