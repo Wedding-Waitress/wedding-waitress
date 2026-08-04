@@ -527,7 +527,15 @@ export const GalleryGrid: React.FC<{
       {filtered.length === 0 ? (
         <p className={`text-sm py-8 text-center ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>No items in this view.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5">
+        <div
+          className={
+            boothSetOrder
+              // Booth captures: same card width as the standard grid, but doubled
+              // horizontal gaps and centred rows (max 5 cards per row on desktop).
+              ? 'flex flex-wrap justify-center gap-x-4 sm:gap-x-5 gap-y-2.5'
+              : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-2.5'
+          }
+        >
           {filtered.map(it => {
             const isHidden = it.moderation_status === 'hidden';
             const isSelected = selected.has(it.id);
