@@ -17,8 +17,8 @@ export const PB_CREDIT = '#8C8C8C';
 
 export const PB_SINGLE_PORTRAIT = { w: 1080, h: 1800 };
 export const PB_SINGLE_LANDSCAPE = { w: 1800, h: 1080 };
-export const PB_STRIP_PRINT = { w: 1200, h: 1960 };   // slightly taller print sheet
-export const PB_STRIP_SINGLE = { w: 600, h: 1960 };   // taller vertical strip (same width)
+export const PB_STRIP_PRINT = { w: 1440, h: 2000 };   // full two-strip print canvas
+export const PB_STRIP_SINGLE = { w: 720, h: 2000 };   // one half of the print canvas
 export const PB_STRIP_COUNT = 4;
 
 export const PB_PLACEHOLDER_TEXT = 'Your Names • Your Date';
@@ -289,97 +289,99 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
 }
 
 /**
- * Photo strip composer — builds ONE vertical 2×6 strip on the Wedding Waitress
- * brand brown background, then renders it TWICE side-by-side on the 4×6 print
- * canvas so both halves are exact duplicates.
+ * Photo strip composer — renders ONE complete 1440 × 2000 canvas.
+ *
+ * The background (solid colour, library template or custom uploaded JPEG) is
+ * drawn exactly once across the whole canvas at 0,0,1440,2000. The eight photo
+ * positions (4 left + 4 right) and the footer content are then drawn on top of
+ * that single continuous background. The background is never repeated, tiled,
+ * mirrored or split per strip.
  */
 export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Promise<HTMLCanvasElement> {
   const style = resolveStripStyle(opts.style);
-  const { w: STRIP_W, h: STRIP_H } = PB_STRIP_SINGLE;
+  const { w: W, h: H } = PB_STRIP_PRINT;
+  const HALF = PB_STRIP_SINGLE.w;
 
-  const padding = 18;
-  const gap = 14;
-  const headerH = 62;                              // WEDDINGWAITRESS.COM.AU band
-  const footerH = Math.round(STRIP_H * 0.108);     // tighter footer under the photos
+  const padding = 22;
+  const gap = 16;
+  const headerH = 68;                        // WEDDINGWAITRESS.COM.AU band
+  const footerH = Math.round(H * 0.108);     // footer under the photos
   const photoAreaTop = headerH;
-  const photoAreaH = STRIP_H - headerH - footerH;
-  const photoW = STRIP_W - padding * 2;
+  const photoAreaH = H - headerH - footerH;
+  const photoW = HALF - padding * 2;
   const photoH = Math.round((photoAreaH - padding - gap * (PB_STRIP_COUNT - 1)) / PB_STRIP_COUNT);
 
-  const stripCanvas = document.createElement('canvas');
-  stripCanvas.width = STRIP_W; stripCanvas.height = STRIP_H;
-  const sctx = stripCanvas.getContext('2d');
-  if (!sctx) throw new Error('Canvas not available');
+  const out = document.createElement('canvas');
+  out.width = W; out.height = H;
+  const ctx = out.getContext('2d');
+  if (!ctx) throw new Error('Canvas not available');
 
   let templateImg: HTMLImageElement | null = null;
   if (opts.templateUrl) {
     try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
   }
 
+  // ── Single, continuous background across the entire canvas ────────────────
   if (templateImg) {
-    // The print artwork is landscape (two strips) — use its LEFT half per strip.
-    const iw = templateImg.naturalWidth || templateImg.width;
-    const ih = templateImg.naturalHeight || templateImg.height;
-    const halfW = iw / 2;
-    const ir = halfW / ih;
-    const tr = STRIP_W / STRIP_H;
-    let sx = 0, sy = 0, sw = halfW, sh = ih;
-    if (ir > tr) { sw = ih * tr; sx = (halfW - sw) / 2; }
-    else { sh = halfW / tr; sy = (ih - sh) / 2; }
-    sctx.drawImage(templateImg, sx, sy, sw, sh, 0, 0, STRIP_W, STRIP_H);
+    drawCover(ctx, templateImg, 0, 0, W, H);
   } else {
-    // Solid background colour across the whole strip (background, borders,
-    // gaps, header and footer all share this colour).
-    sctx.fillStyle = style.bgColor;
-    sctx.fillRect(0, 0, STRIP_W, STRIP_H);
-
-    // Compact site brand at the top of every strip
-    sctx.fillStyle = contrastInk(style.bgColor);
-    sctx.textAlign = 'center';
-    sctx.textBaseline = 'middle';
-    sctx.font = `600 27px ${cssFont(style.fontFamily)}`;
-    sctx.fillText('WEDDINGWAITRESS.COM.AU', STRIP_W / 2, headerH / 2 + 4);
+    ctx.fillStyle = style.bgColor;
+    ctx.fillRect(0, 0, W, H);
   }
 
-
+  // Resolve the photos once and reuse them for both halves.
+  const resolved: (HTMLImageElement | HTMLCanvasElement | null)[] = [];
   for (let i = 0; i < PB_STRIP_COUNT; i++) {
     const src = photos[i] ?? photos[photos.length - 1];
-    if (!src) continue;
-    const img = await resolveSource(src);
-    const x = padding;
-    const y = photoAreaTop + i * (photoH + gap);
-    drawCover(sctx, img, x, y, photoW, photoH);
+    resolved.push(src ? await resolveSource(src) : null);
   }
 
-  if (templateImg) {
-    await drawBrandingStrip(sctx, {
-      x: 0, y: STRIP_H - footerH, width: STRIP_W, height: footerH,
-      opts, hasTemplate: true, scale: 0.92,
-    });
-  } else {
-    // Footer with optional logo + event name / date (or custom footer text)
-    const fy = STRIP_H - footerH;
-    sctx.fillStyle = style.bgColor;
-    sctx.fillRect(0, fy, STRIP_W, footerH);
+  // ── Foreground content, drawn per half over the shared background ─────────
+  for (let half = 0; half < 2; half++) {
+    const offX = half * HALF;
 
-    // Optional footer logo — contained inside the footer only, never over photos
+    if (!templateImg) {
+      ctx.fillStyle = contrastInk(style.bgColor);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `600 30px ${cssFont(style.fontFamily)}`;
+      ctx.fillText('WEDDINGWAITRESS.COM.AU', offX + HALF / 2, headerH / 2 + 4);
+    }
+
+    for (let i = 0; i < PB_STRIP_COUNT; i++) {
+      const img = resolved[i];
+      if (!img) continue;
+      drawCover(ctx, img, offX + padding, photoAreaTop + i * (photoH + gap), photoW, photoH);
+    }
+
+    if (templateImg) {
+      await drawBrandingStrip(ctx, {
+        x: offX, y: H - footerH, width: HALF, height: footerH,
+        opts, hasTemplate: true, scale: 0.92,
+      });
+      continue;
+    }
+
+    // Footer with optional logo + event name / date (or custom footer text)
+    const fy = H - footerH;
+
     let logoH = 0;
     if (opts.logoUrl) {
       try {
         const logoImg = await loadImageEl(opts.logoUrl);
         const maxH = Math.round(footerH * 0.34);
-        const maxW = STRIP_W - 80;
+        const maxW = HALF - 90;
         const ratio = (logoImg.naturalWidth || logoImg.width) / (logoImg.naturalHeight || logoImg.height);
         let lh = maxH;
         let lw = lh * ratio;
         if (lw > maxW) { lw = maxW; lh = lw / ratio; }
-        sctx.drawImage(logoImg, STRIP_W / 2 - lw / 2, fy + 10, lw, lh);
+        ctx.drawImage(logoImg, offX + HALF / 2 - lw / 2, fy + 10, lw, lh);
         logoH = lh + 10;
       } catch { /* ignore logo failures */ }
     }
 
-    sctx.textAlign = 'center';
-    sctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     const custom = (opts.bottomText || '').replace(/\r/g, '');
     const hasCustom = !!custom.trim();
@@ -388,18 +390,15 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     const nameFont = cssFont(style.nameFontFamily);
     const dateFont = cssFont(style.dateFontFamily);
 
-    // Header line(s) use the Header Font, secondary lines use the Date Font.
-    sctx.font = `700 ${nameSize}px ${nameFont}`;
-    const customLines = hasCustom
-      ? custom.split('\n').map(l => l.trim()).filter(Boolean)
-      : [];
+    ctx.font = `700 ${nameSize}px ${nameFont}`;
+    const customLines = hasCustom ? custom.split('\n').map(l => l.trim()).filter(Boolean) : [];
     const headLines: string[] = hasCustom
-      ? wrapLines(sctx, customLines[0] || ' ', STRIP_W - 48).slice(0, 2)
-      : wrapLines(sctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
+      ? wrapLines(ctx, customLines[0] || ' ', HALF - 56).slice(0, 2)
+      : wrapLines(ctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, HALF - 56).slice(0, 2);
 
-    sctx.font = `500 ${dateSize}px ${dateFont}`;
+    ctx.font = `500 ${dateSize}px ${dateFont}`;
     const subLines: string[] = hasCustom
-      ? customLines.slice(1).flatMap(l => wrapLines(sctx, l, STRIP_W - 48)).slice(0, 2)
+      ? customLines.slice(1).flatMap(l => wrapLines(ctx, l, HALF - 56)).slice(0, 2)
       : [(opts.dateText || '').trim()].filter(Boolean);
 
     const lineH = Math.round(nameSize * 1.2);
@@ -408,27 +407,17 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
     const areaH = footerH - logoH;
     let cursor = areaTop + areaH / 2 - (headLines.length * lineH + subLines.length * subH) / 2 + lineH / 2;
 
-    sctx.fillStyle = style.nameColor;
-    sctx.font = `700 ${nameSize}px ${nameFont}`;
-    for (const ln of headLines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
+    ctx.fillStyle = style.nameColor;
+    ctx.font = `700 ${nameSize}px ${nameFont}`;
+    for (const ln of headLines) { ctx.fillText(ln, offX + HALF / 2, cursor); cursor += lineH; }
 
     if (subLines.length) {
-      sctx.fillStyle = style.dateColor;
-      sctx.font = `500 ${dateSize}px ${dateFont}`;
+      ctx.fillStyle = style.dateColor;
+      ctx.font = `500 ${dateSize}px ${dateFont}`;
       cursor += 4;
-      for (const ln of subLines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += subH; }
+      for (const ln of subLines) { ctx.fillText(ln, offX + HALF / 2, cursor); cursor += subH; }
     }
   }
-
-
-  const out = document.createElement('canvas');
-  out.width = PB_STRIP_PRINT.w; out.height = PB_STRIP_PRINT.h;
-  const octx = out.getContext('2d');
-  if (!octx) throw new Error('Canvas not available');
-  octx.fillStyle = templateImg ? '#FFFFFF' : style.bgColor;
-  octx.fillRect(0, 0, out.width, out.height);
-  octx.drawImage(stripCanvas, 0, 0);
-  octx.drawImage(stripCanvas, STRIP_W, 0);
 
   return out;
 }
