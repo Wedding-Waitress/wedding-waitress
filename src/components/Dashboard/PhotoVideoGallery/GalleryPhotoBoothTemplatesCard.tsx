@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon } from 'lucide-react';
+import { Image as ImageIcon, Upload, X, Save, Loader2, FileImage, RotateCcw, Palette, Type as TypeIcon, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -19,10 +19,12 @@ import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
 } from '@/lib/photoBoothTemplate';
+import { PHOTO_BOOTH_BACKGROUND_TEMPLATES, isLibraryTemplateUrl } from '@/lib/photoBoothBackgroundTemplates';
+
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
-const TEMPLATE_ACCEPT = 'image/png,image/jpeg';
+const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
 
 const FONT_OPTIONS = [
   'Inter',
@@ -59,16 +61,24 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   const [text, setText] = useState(meta.photo_booth_strip_bottom_text || '');
   const [logo, setLogo] = useState<string | null>(meta.photo_booth_strip_logo_url);
   const [tpl, setTpl] = useState<string | null>(meta.photo_booth_strip_template_url);
+  const [customTpl, setCustomTpl] = useState<string | null>(
+    isLibraryTemplateUrl(meta.photo_booth_strip_template_url) ? null : meta.photo_booth_strip_template_url,
+  );
   const [style, setStyle] = useState<Required<PhotoBoothStripStyle>>(savedStyle);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<'logo' | 'template' | null>(null);
   const logoInput = useRef<HTMLInputElement>(null);
   const tplInput = useRef<HTMLInputElement>(null);
 
+  /** Which background option is currently active — only one at a time. */
+  const bgMode: 'colour' | 'library' | 'custom' =
+    !tpl ? 'colour' : isLibraryTemplateUrl(tpl) ? 'library' : 'custom';
+
   useEffect(() => {
     setText(meta.photo_booth_strip_bottom_text || '');
     setLogo(meta.photo_booth_strip_logo_url);
     setTpl(meta.photo_booth_strip_template_url);
+    setCustomTpl(isLibraryTemplateUrl(meta.photo_booth_strip_template_url) ? null : meta.photo_booth_strip_template_url);
     setStyle(savedStyle);
   }, [meta.photo_booth_strip_bottom_text, meta.photo_booth_strip_logo_url, meta.photo_booth_strip_template_url, savedStyle]);
 
@@ -81,8 +91,15 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   const upload = async (which: 'logo' | 'template', file: File | null) => {
     if (!file) return;
     const allowed = (which === 'template' ? TEMPLATE_ACCEPT : LOGO_ACCEPT).split(',');
-    if (!allowed.includes(file.type)) {
-      toast({ title: 'Unsupported file type', description: 'Use a high-quality PNG or JPEG.', variant: 'destructive' });
+    const jpegOk = /\.(jpe?g)$/i.test(file.name) && (file.type === 'image/jpeg' || file.type === '');
+    if (which === 'template' ? !jpegOk : !allowed.includes(file.type)) {
+      toast({
+        title: 'Unsupported file type',
+        description: which === 'template'
+          ? 'Background templates must be a JPEG file (.jpg or .jpeg). PNG, GIF and WebP are not accepted.'
+          : 'Use a high-quality PNG or JPEG.',
+        variant: 'destructive',
+      });
       return;
     }
     if (file.size > MAX_IMAGE_BYTES) {
@@ -96,10 +113,12 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       if (!uid) throw new Error('Not signed in');
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
       const path = `${uid}/${eventId}/photobooth-strip-${which}-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('event-media-branding').upload(path, file, { upsert: true, contentType: file.type });
+      const { error } = await supabase.storage.from('event-media-branding').upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
       if (error) throw error;
       const { data: pub } = supabase.storage.from('event-media-branding').getPublicUrl(path);
-      if (which === 'logo') setLogo(pub.publicUrl); else setTpl(pub.publicUrl);
+      if (which === 'logo') setLogo(pub.publicUrl);
+      else { setCustomTpl(pub.publicUrl); setTpl(pub.publicUrl); }
+
     } catch (e: any) {
       toast({ title: 'Upload failed', description: e?.message || 'Try again', variant: 'destructive' });
     } finally {
@@ -156,42 +175,101 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </p>
       </div>
 
-      {/* 1. Background template colour */}
-      <section className="space-y-2">
-        <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <Palette className="h-4 w-4 text-[#967A59]" /> Background Template Colour
-        </h3>
-        <p className="text-xs text-muted-foreground">
-          Applies to the whole photo-strip background. The four photo positions stay on top.
-        </p>
-        <div className="max-w-xs">
-          <PhotoBoothColorPicker value={style.bgColor} onChange={(hex) => setStyle(s => ({ ...s, bgColor: hex }))} />
+      {/* Photo Strip Background — colour / library template / custom template */}
+      <section className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5 space-y-4">
+        <div>
+          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
+            <Palette className="h-4 w-4 text-[#967A59]" /> Photo Strip Background
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Choose one background for the whole photo strip. The four photo positions and the footer stay on top.
+          </p>
         </div>
-        {tpl && <p className="text-xs text-[#B45309]">A custom template is uploaded — it overrides this background colour.</p>}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+          {/* 1. Background colour */}
+          <div className={`rounded-lg border bg-background p-3 space-y-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Background Colour</h4>
+              {bgMode === 'colour' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <PhotoBoothColorPicker
+              value={style.bgColor}
+              onChange={(hex) => { setStyle(s => ({ ...s, bgColor: hex })); setTpl(null); }}
+            />
+            {bgMode !== 'colour' && (
+              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full" onClick={() => setTpl(null)}>
+                Use this colour
+              </Button>
+            )}
+          </div>
+
+          {/* 2. Template library */}
+          <div className={`rounded-lg border bg-background p-3 space-y-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
+              {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Wedding Waitress templates, ready to use.</p>
+            <div className="grid grid-cols-2 gap-2">
+              {PHOTO_BOOTH_BACKGROUND_TEMPLATES.map((t) => {
+                const selected = !!tpl && tpl.endsWith(t.url);
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTpl(t.url)}
+                    aria-pressed={selected}
+                    className={`relative rounded-md border overflow-hidden text-left transition-transform hover:scale-[1.02] ${selected ? 'border-[#967A59] ring-2 ring-[#967A59]/30' : 'border-border'}`}
+                  >
+                    <img src={t.thumbUrl} alt={t.name} loading="lazy" width={288} height={400} className="w-full h-24 object-cover" />
+                    {selected && (
+                      <span className="absolute top-1 right-1 rounded-full bg-[#16A34A] p-0.5">
+                        <Check className="h-3 w-3 text-white" />
+                      </span>
+                    )}
+                    <span className="block px-1.5 py-1 text-[11px] text-[#1D1D1F] truncate">{t.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. Custom template */}
+          <div className={`rounded-lg border bg-background p-3 space-y-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
+              {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+            </div>
+            <ul className="text-xs text-muted-foreground space-y-0.5">
+              <li>• <span className="font-medium text-[#1D1D1F]">1440 × 2000 pixels</span></li>
+              <li>• Approx. 122 × 169 mm at 300 DPI</li>
+              <li>• Vertical orientation</li>
+              <li>• JPEG file only (.jpg or .jpeg)</li>
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              Your uploaded JPEG becomes the complete background of the final two-strip image, with the guest photos placed over it. Proportions are preserved — nothing is stretched.
+            </p>
+            <ImageSlot
+              label=""
+              accept={TEMPLATE_ACCEPT}
+              url={customTpl}
+              uploading={uploading === 'template'}
+              inputRef={tplInput}
+              onPick={(f) => upload('template', f)}
+              onClear={() => { setCustomTpl(null); if (bgMode === 'custom') setTpl(null); }}
+              aspect="contain"
+              clearLabel="Remove"
+            />
+            {customTpl && bgMode !== 'custom' && (
+              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full" onClick={() => setTpl(customTpl)}>
+                Use my custom template
+              </Button>
+            )}
+          </div>
+        </div>
       </section>
 
-      {/* 2. Custom template */}
-      <section className="space-y-2">
-        <h3 className="text-base font-semibold text-[#1D1D1F]">Upload Custom Template</h3>
-        <p className="text-xs text-muted-foreground">
-          Recommended size <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> — high-quality PNG or JPEG.
-          The uploaded image becomes the complete background of the final two-strip print, with the photos placed on top.
-          Proportions are preserved — nothing is stretched.
-        </p>
-        <div className="max-w-md">
-          <ImageSlot
-            label=""
-            accept={TEMPLATE_ACCEPT}
-            url={tpl}
-            uploading={uploading === 'template'}
-            inputRef={tplInput}
-            onPick={(f) => upload('template', f)}
-            onClear={() => setTpl(null)}
-            aspect="contain"
-            clearLabel="Remove template and use background colour"
-          />
-        </div>
-      </section>
 
       {/* 3. Footer image / logo */}
       <section className="space-y-2">
@@ -278,12 +356,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </p>
       </section>
 
-      <div className="rounded-md border border-border bg-muted/40 p-3 text-xs text-[#1D1D1F]">
-        <p className="font-semibold mb-1">Recommended template dimensions</p>
-        <ul className="space-y-0.5 text-[#6E6E73]">
-          <li>• <span className="font-medium text-[#1D1D1F]">Side-by-side strip canvas:</span> 1440 × 2000 px (PNG or JPEG)</li>
-        </ul>
-      </div>
+
+
 
       <div className="flex justify-between gap-2 flex-wrap">
         <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving || !!uploading}>
