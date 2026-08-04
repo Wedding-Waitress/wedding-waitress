@@ -33,35 +33,13 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   return (
     <Card className="p-5 space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <FileImage className="h-5 w-5 text-[#967A59]" /> Digital Photo Booth Templates
+        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+          <FileImage className="h-5 w-5 text-[#967A59] shrink-0" /> Digital Photo Booth Templates
         </h2>
-        <p className="text-sm text-muted-foreground">
-          Customise the final image guests receive — add bottom text, a small logo, or upload your own JPEG template artwork.
+        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+          Customise the photo strip — borders around the photos and the footer with your event name and date.
         </p>
       </div>
-
-      <TemplateEditor
-        kind="single"
-        title="Individual Photo template"
-        description="Used in Single Photo mode. Final output stays portrait or landscape depending on how the photo is taken."
-        recommended={[
-          { label: 'Portrait template', size: '1080 × 1800 px (JPEG)' },
-          { label: 'Landscape template', size: '1800 × 1080 px (JPEG)' },
-        ]}
-        eventId={eventId}
-        eventTitle={title}
-        dateText={dateText}
-        hashtag={hashtag}
-        showBranding={meta.show_branding}
-        fallbackText={fallbackText}
-        bottomText={meta.photo_booth_single_bottom_text}
-        logoUrl={meta.photo_booth_single_logo_url}
-        templateUrl={meta.photo_booth_single_template_url}
-        onSave={(s) => onSave('single', s)}
-      />
-
-      <div className="border-t border-border" />
 
       <TemplateEditor
         kind="strip"
