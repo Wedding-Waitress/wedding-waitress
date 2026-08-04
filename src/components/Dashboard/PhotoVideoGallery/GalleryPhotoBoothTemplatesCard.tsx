@@ -359,12 +359,25 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
-          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Image or Logo in Footer</h4>
+          {/* 1. Complete custom footer design */}
+          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
             <p className="text-xs text-muted-foreground">
-              A transparent-background PNG works best. It appears only inside the footer area — never over the photos — centred and scaled to fit.
+              Upload one complete footer design using the exact dimensions below. It will fill the footer beneath one
+              photo column and be duplicated automatically beneath both columns. When active, it replaces the event
+              name, date and all text-footer settings.
             </p>
-            <div className="mt-auto">
+            <p className="text-xs">
+              <span className="font-semibold text-[#1D1D1F]">
+                Required size: {FOOTER_PANEL_WIDTH} × {FOOTER_PANEL_HEIGHT} px
+              </span>
+              <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Create one finished footer panel. It will be duplicated automatically beneath both photo-strip columns.
+              PNG, JPG or WebP — use PNG when you need transparency.
+            </p>
+            <div className="mt-auto space-y-2">
               <ImageSlot
                 label=""
                 accept={LOGO_ACCEPT}
@@ -374,13 +387,27 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 onPick={(f) => upload('logo', f)}
                 onClear={() => setLogo(null)}
                 aspect="contain"
-                clearLabel="Remove footer image"
+                clearLabel="Remove Footer Design"
+                replaceLabel="Replace Footer Design"
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="lv-premium-shade w-full h-9"
+                onClick={downloadBlankFooterTemplate}
+              >
+                <Download className="h-4 w-4 mr-1" /> Download Blank Footer Template
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Keep important text and logos inside the recommended safe area.
+              </p>
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
+          <div className={`rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
+            {footerDesignActive && <p className="text-xs font-medium text-[#B45309]">{FOOTER_DISABLED_NOTE}</p>}
             <Textarea
               className="min-h-[88px] text-base"
               value={text}
@@ -388,12 +415,14 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               placeholder={fallbackText}
               maxLength={160}
               rows={3}
+              disabled={footerDesignActive}
             />
             <p className="text-xs text-muted-foreground">
               Leave empty to show the event name and date: <span className="font-medium text-[#1D1D1F]">{fallbackText}</span>.
-              Custom text fully replaces them; line breaks are preserved. The first line uses the Header Font, later lines use the Date Font.
+              Custom text fully replaces them; line breaks are preserved. The first line uses the Footer Header Font, later lines use the Footer Date Font.
             </p>
           </div>
+
 
           <div className={`rounded-lg border border-border bg-background p-3.5 space-y-3 ${footerDesignActive ? 'opacity-50 pointer-events-none select-none' : ''}`} aria-disabled={footerDesignActive}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
