@@ -112,16 +112,35 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     try { if (name.trim()) sessionStorage.setItem(nameKey, name.trim()); } catch {}
   }, [name, nameKey]);
 
+  // ---- Gallery / Photo Booth configuration loading ----------------------------------
+  // A failed load is a *recoverable* state (Retry), never a thrown render error.
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+
   useEffect(() => {
-    if (!token) return;
+    if (!token) { setLoading(false); setNotFound(true); return; }
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+    setNotFound(false);
     (async () => {
-      const { data } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
-      const row = Array.isArray(data) ? data[0] : data;
-      if (!row) setNotFound(true);
-      else setGallery(row as GalleryPublic);
-      setLoading(false);
+      try {
+        const { data, error } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
+        if (cancelled) return;
+        if (error) { setLoadError('We could not load the Photo Booth. Please check your connection and try again.'); return; }
+        const row = Array.isArray(data) ? data[0] : data;
+        if (!row) setNotFound(true);
+        else setGallery(row as GalleryPublic);
+      } catch {
+        if (!cancelled) setLoadError('We could not load the Photo Booth. Please check your connection and try again.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     })();
-  }, [token]);
+    return () => { cancelled = true; };
+  }, [token, loadAttempt]);
+
+  const retryLoad = useCallback(() => setLoadAttempt(n => n + 1), []);
 
   const stopStream = useCallback(() => {
     if (streamRef.current) {
@@ -131,8 +150,19 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     setStreamReady(false);
   }, []);
 
+  const [cameraError, setCameraError] = useState<{ kind: 'denied' | 'unavailable' | 'generic'; message: string } | null>(null);
+  const [cameraStarting, setCameraStarting] = useState(false);
+  // Guards against duplicate getUserMedia calls triggered by re-renders / StrictMode.
+  const cameraInitRef = useRef<string | null>(null);
+
   const startCamera = useCallback(async (fm: 'user' | 'environment') => {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError({ kind: 'unavailable', message: "Camera isn't supported in this browser. Try the latest Chrome, Safari, or Firefox." });
+      return;
+    }
     setErrorMsg(null);
+    setCameraError(null);
+    setCameraStarting(true);
     stopStream();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -147,22 +177,58 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
       }
       setStreamReady(true);
     } catch (e: any) {
-      setErrorMsg(e?.name === 'NotAllowedError' || /Permission/i.test(e?.message || '')
-        ? 'Camera permission denied. Please allow camera access.'
-        : (e?.message || 'Could not access your camera'));
+      const name = e?.name || '';
+      if (name === 'NotAllowedError' || name === 'SecurityError' || /Permission/i.test(e?.message || '')) {
+        setCameraError({
+          kind: 'denied',
+          message: 'Camera access is blocked. Tap the padlock (or “aA”) in your browser’s address bar, allow Camera for this site, then tap Retry.',
+        });
+      } else if (name === 'NotFoundError' || name === 'OverconstrainedError' || name === 'DevicesNotFoundError') {
+        setCameraError({ kind: 'unavailable', message: 'No compatible camera was found on this device.' });
+      } else if (name === 'NotReadableError' || name === 'TrackStartError') {
+        setCameraError({ kind: 'generic', message: 'Your camera is already in use by another app. Close it and tap Retry.' });
+      } else {
+        setCameraError({ kind: 'generic', message: e?.message || 'We could not start your camera. Please tap Retry.' });
+      }
+      cameraInitRef.current = null;
+    } finally {
+      setCameraStarting(false);
     }
   }, [stopStream]);
 
   const mode: 'single' | 'strip' = gallery?.photo_booth_mode === 'strip' ? 'strip' : 'single';
-  const ready = !!gallery && gallery.is_open && gallery.photo_booth_enabled && (!gallery.password_required || unlocked);
+  // Everything the camera depends on must be loaded before initialisation begins.
+  const configReady = !loading && !loadError && !notFound && !!gallery;
+  const ready = configReady && !!gallery && gallery.is_open && gallery.photo_booth_enabled && (!gallery.password_required || unlocked);
 
+  // Single initialisation per (ready, phase, facingMode) combination.
   useEffect(() => {
-    if (ready && phase === 'preview') startCamera(facingMode);
-    return () => { if (!ready) stopStream(); };
+    if (!ready || phase !== 'preview') return;
+    const key = `${facingMode}`;
+    if (cameraInitRef.current === key && streamRef.current) return;
+    cameraInitRef.current = key;
+    startCamera(facingMode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, phase, facingMode]);
 
-  useEffect(() => () => { stopStream(); if (capturedUrl) URL.revokeObjectURL(capturedUrl); }, [stopStream, capturedUrl]);
+  // Release the camera when leaving the preview phase or when config is no longer ready.
+  useEffect(() => {
+    if (ready && phase === 'preview') return;
+    cameraInitRef.current = null;
+    stopStream();
+  }, [ready, phase, stopStream]);
+
+  const retryCamera = useCallback(() => {
+    cameraInitRef.current = null;
+    setCameraError(null);
+    startCamera(facingMode);
+  }, [startCamera, facingMode]);
+
+  // Unmount cleanup only — must not depend on changing values.
+  const cleanupRef = useRef<() => void>(() => {});
+  cleanupRef.current = () => { stopStream(); if (capturedUrl) URL.revokeObjectURL(capturedUrl); };
+  useEffect(() => () => { cleanupRef.current(); }, []);
+
 
   const flipCamera = () => {
     setFacingMode(f => (f === 'user' ? 'environment' : 'user'));
@@ -428,9 +494,30 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const accentSoftBg = `${accent}1A`;
 
   if (loading) {
+    const preparing = (
+      <div className="flex flex-col items-center justify-center gap-3 py-12" role="status" aria-live="polite">
+        <Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} />
+        <p className={`text-base font-medium ${embedded ? 'text-white' : theme.textClass}`}>Opening Photo Booth…</p>
+      </div>
+    );
     return embedded
-      ? <div className="flex items-center justify-center py-12"><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>
-      : <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}><Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} /></div>;
+      ? preparing
+      : <div className={`min-h-screen flex items-center justify-center ${theme.bgClass}`} style={theme.pageStyle}>{preparing}</div>;
+  }
+  if (loadError) {
+    const errorCard = (
+      <Card className={`p-8 max-w-md mx-auto text-center ${theme.surfaceClass} ${theme.textClass}`}>
+        <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-500" />
+        <h2 className="text-lg font-semibold mb-2">We couldn’t open the Photo Booth</h2>
+        <p className={`text-sm ${theme.mutedClass}`}>{loadError}</p>
+        <Button type="button" className="lv-premium-shade mt-5 h-11 w-full text-white" style={{ backgroundColor: accent }} onClick={retryLoad}>
+          <RotateCcw className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </Card>
+    );
+    return embedded ? <div className="py-8">{errorCard}</div> : (
+      <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>{errorCard}</div>
+    );
   }
   if (notFound || !gallery) {
     return (
@@ -443,6 +530,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
       </div>
     );
   }
+
   if (gallery.password_required && !unlocked && token) {
     return <GalleryPasswordGate token={token} title={`${gallery.event_name} — password required`} onVerified={() => setUnlocked(true)} theme={theme} />;
   }
@@ -531,6 +619,28 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
               </div>
             )}
 
+            {isCameraSupported && cameraError && (
+              <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3 space-y-3" role="alert">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{cameraError.message}</span>
+                </div>
+                {cameraError.kind !== 'unavailable' && (
+                  <Button
+                    type="button"
+                    className="lv-premium-shade w-full h-10 text-white"
+                    style={{ backgroundColor: accent }}
+                    onClick={retryCamera}
+                    disabled={cameraStarting}
+                  >
+                    {cameraStarting
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Retrying…</>
+                      : <><RotateCcw className="h-4 w-4 mr-2" /> Retry</>}
+                  </Button>
+                )}
+              </div>
+            )}
+
+
             {errorMsg && (
               <div className="rounded-md border border-red-300 bg-red-50 text-red-900 text-sm p-3 flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{errorMsg}</span>
@@ -553,7 +663,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   style={facingMode === 'user' ? { transform: 'scaleX(-1)' } : undefined}
                   playsInline muted autoPlay
                 />
-                {phase === 'preview' && !streamReady && isCameraSupported && countdown === null && (
+                {phase === 'preview' && !streamReady && !cameraError && isCameraSupported && countdown === null && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-sm">
                     <Loader2 className="animate-spin h-6 w-6 mr-2" /> Starting camera…
                   </div>
