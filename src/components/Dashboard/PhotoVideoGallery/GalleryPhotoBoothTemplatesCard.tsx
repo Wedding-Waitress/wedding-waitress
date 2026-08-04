@@ -428,8 +428,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       {/* ── Section 3: Photo Strip Footer ───────────────────────────────── */}
       <Card className="p-5 space-y-4">
         <div>
-          <h3 className="text-base font-semibold text-[#1D1D1F] flex items-center gap-2">
-            <TypeIcon className="h-4 w-4 text-[#967A59]" /> Photo Strip Footer
+          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+            <TypeIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Strip Footer
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Everything that appears in the footer band under the four photos.
