@@ -24,7 +24,7 @@ import { PHOTO_BOOTH_BACKGROUND_TEMPLATES, isLibraryTemplateUrl } from '@/lib/ph
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
-const TEMPLATE_ACCEPT = 'image/jpeg';
+const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
 
 const FONT_OPTIONS = [
   'Inter',
