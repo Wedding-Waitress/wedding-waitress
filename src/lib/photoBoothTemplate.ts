@@ -380,29 +380,43 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 
     sctx.textAlign = 'center';
     sctx.textBaseline = 'middle';
-    sctx.fillStyle = style.fontColor;
 
     const custom = (opts.bottomText || '').replace(/\r/g, '');
     const hasCustom = !!custom.trim();
     const nameSize = style.nameSize;
     const dateSize = style.dateSize;
-    const font = cssFont(style.fontFamily);
+    const nameFont = cssFont(style.nameFontFamily);
+    const dateFont = cssFont(style.dateFontFamily);
 
-    sctx.font = `700 ${nameSize}px ${font}`;
-    const lines: string[] = hasCustom
-      ? custom.split('\n').flatMap(l => wrapLines(sctx, l.trim() || ' ', STRIP_W - 48)).slice(0, 3)
+    // Header line(s) use the Header Font, secondary lines use the Date Font.
+    sctx.font = `700 ${nameSize}px ${nameFont}`;
+    const customLines = hasCustom
+      ? custom.split('\n').map(l => l.trim()).filter(Boolean)
+      : [];
+    const headLines: string[] = hasCustom
+      ? wrapLines(sctx, customLines[0] || ' ', STRIP_W - 48).slice(0, 2)
       : wrapLines(sctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, STRIP_W - 48).slice(0, 2);
-    const dateText = hasCustom ? '' : (opts.dateText || '').trim();
+
+    sctx.font = `500 ${dateSize}px ${dateFont}`;
+    const subLines: string[] = hasCustom
+      ? customLines.slice(1).flatMap(l => wrapLines(sctx, l, STRIP_W - 48)).slice(0, 2)
+      : [(opts.dateText || '').trim()].filter(Boolean);
 
     const lineH = Math.round(nameSize * 1.2);
-    const dateH = dateText ? Math.round(dateSize * 1.26) : 0;
+    const subH = Math.round(dateSize * 1.26);
     const areaTop = fy + logoH;
     const areaH = footerH - logoH;
-    let cursor = areaTop + areaH / 2 - (lines.length * lineH + dateH) / 2 + lineH / 2;
-    for (const ln of lines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
-    if (dateText) {
-      sctx.font = `500 ${dateSize}px ${font}`;
-      sctx.fillText(dateText, STRIP_W / 2, cursor + 4);
+    let cursor = areaTop + areaH / 2 - (headLines.length * lineH + subLines.length * subH) / 2 + lineH / 2;
+
+    sctx.fillStyle = style.nameColor;
+    sctx.font = `700 ${nameSize}px ${nameFont}`;
+    for (const ln of headLines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += lineH; }
+
+    if (subLines.length) {
+      sctx.fillStyle = style.dateColor;
+      sctx.font = `500 ${dateSize}px ${dateFont}`;
+      cursor += 4;
+      for (const ln of subLines) { sctx.fillText(ln, STRIP_W / 2, cursor); cursor += subH; }
     }
   }
 
