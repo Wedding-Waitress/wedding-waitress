@@ -94,6 +94,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   };
 
   const handleDownloadPdfPage = async () => {
+    setExportTarget('single');
     setIsProcessing(true);
     setIsExporting(true);
     
@@ -117,12 +118,14 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         variant: 'destructive',
       });
     } finally {
+      setExportTarget(null);
       setIsProcessing(false);
       setIsExporting(false);
     }
   };
 
   const handleDownloadPdfAll = async () => {
+    setExportTarget('all');
     setIsProcessing(true);
     setIsExporting(true);
     
@@ -146,6 +149,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         variant: 'destructive',
       });
     } finally {
+      setExportTarget(null);
       setIsProcessing(false);
       setIsExporting(false);
     }
