@@ -240,6 +240,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     if (!currentEvent || paginatedGuests.length === 0) return;
     
     setIsExporting(true);
+    setExportTarget('single');
     try {
       toast({
         title: 'Generating PDF',
@@ -261,6 +262,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       });
     } finally {
       setIsExporting(false);
+      setExportTarget(null);
     }
   };
 
@@ -269,6 +271,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     if (!currentEvent || dietaryGuests.length === 0) return;
     
     setIsExporting(true);
+    setExportTarget('all');
     try {
       toast({
         title: 'Generating PDF',
@@ -290,6 +293,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       });
     } finally {
       setIsExporting(false);
+      setExportTarget(null);
     }
   };
 
