@@ -255,7 +255,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-amber-600 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
+              <TriangleAlert className="w-[18px] h-[18px]" strokeWidth={1.8} />
               Table Has Too Many Guests
             </AlertDialogTitle>
             <AlertDialogDescription>
