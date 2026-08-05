@@ -48,7 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
-import { Circle, Square, Save, Trash2 } from 'lucide-react';
+import { Circle, Square, Save, X, Table2, Users, TableProperties, Pencil, AlertTriangle } from 'lucide-react';
 
 export type TableType = 'round' | 'square' | 'long';
 
@@ -304,14 +304,17 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
       >
         <SheetHeader className="px-6 pt-6 max-lg:pt-6 lg:pr-12">
-          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary">
+          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary flex items-center gap-2">
+            {editingTable
+              ? <Pencil size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+              : <TableProperties size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />}
             {editingTable ? 'Edit Table' : 'Create Table'}
           </SheetTitle>
         </SheetHeader>
         
         <div className="space-y-4 sm:space-y-6 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
           <div className="grid gap-2">
-            <Label htmlFor="name">Table Name or No *</Label>
+            <Label htmlFor="name" className="flex items-center gap-1.5"><Table2 size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Table Name or No *</Label>
             <Input
               id="name"
               value={name}
@@ -403,7 +406,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="limit">Table Limit *</Label>
+            <Label htmlFor="limit" className="flex items-center gap-1.5"><Users size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Table Limit *</Label>
             <Input
               id="limit"
               type="number"
@@ -489,7 +492,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
-            <Save className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <Save size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
           <Button
@@ -499,7 +502,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             onClick={handleClose}
             disabled={isSubmitting}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
             Cancel
           </Button>
         </div>
@@ -508,7 +511,10 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Invalid Table Information</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
+              Invalid Table Information
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {errors.name || errors.limitSeats || "Please correct the form errors before saving."}
             </AlertDialogDescription>

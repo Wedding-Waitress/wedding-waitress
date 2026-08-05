@@ -77,7 +77,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
         <span className="truncate">
           {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
         </span>
-        <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-70" />
+        <GripVertical size={14} strokeWidth={1.8} className="flex-shrink-0 ml-1 opacity-70" aria-hidden="true" />
       </Badge>
     );
   }
@@ -121,12 +121,14 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
           {...attributes}
           {...listeners}
           aria-grabbed={isDragging}
+          aria-label="Drag guest to another seat or table"
+          title="Drag guest to another seat or table"
           tabIndex={0}
         >
           <span className="truncate min-w-0 whitespace-nowrap">
             {guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}
           </span>
-          <GripVertical className="h-3 w-3 flex-shrink-0 ml-1 opacity-50" />
+          <GripVertical size={14} strokeWidth={1.8} className="flex-shrink-0 ml-1 opacity-50" aria-hidden="true" />
         </Badge>
       </div>
       

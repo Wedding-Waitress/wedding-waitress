@@ -13,17 +13,20 @@
  */
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { 
-  Table, 
-  Users, 
-  UserCheck, 
-  Clock, 
-  Target,
-  Zap,
-  Mail,
-  CheckCircle2,
-  AlertCircle
+import {
+  UsersRound,
+  Table2,
+  Armchair,
+  UserCheck,
+  UserMinus,
+  CircleCheckBig,
+  Send,
+  MailPlus,
+  MailCheck,
+  MailQuestion
 } from "lucide-react";
+
+const STAT_ICON_PROPS = { size: 21, strokeWidth: 1.8, "aria-hidden": true } as const;
 
 interface StatItem {
   label: string;
@@ -65,61 +68,61 @@ export const StatsBar: React.FC<StatsBarProps> = ({
     {
       label: "Guest Limit",
       value: stats.eventGuestLimit,
-      icon: <Zap className="w-6 h-6" />,
+      icon: <UsersRound {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Tables Created",
       value: stats.tablesCreated,
-      icon: <Table className="w-6 h-6" />,
+      icon: <Table2 {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Seats Created",
       value: stats.seatsCreated,
-      icon: <Users className="w-6 h-6" />,
+      icon: <Armchair {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Seats Filled",
       value: stats.seatsFilled,
-      icon: <UserCheck className="w-6 h-6" />,
+      icon: <UserCheck {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Seats Remaining",
       value: stats.seatsRemaining,
-      icon: <Clock className="w-6 h-6" />,
+      icon: <UserMinus {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Full Tables",
       value: stats.tablesAtCapacity,
-      icon: <Target className="w-6 h-6" />,
+      icon: <CircleCheckBig {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Sent Invites",
       value: stats.sentInvites,
-      icon: <Mail className="w-6 h-6" />,
+      icon: <Send {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Unsent Invites",
       value: stats.unsentInvites,
-      icon: <Clock className="w-6 h-6" />,
+      icon: <MailPlus {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Replied Invites",
       value: stats.respondedInvites,
-      icon: <CheckCircle2 className="w-6 h-6" />,
+      icon: <MailCheck {...STAT_ICON_PROPS} />,
       color: "text-primary"
     },
     {
       label: "Unreplied Invites",
       value: stats.unrespondedInvites,
-      icon: <AlertCircle className="w-6 h-6" />,
+      icon: <MailQuestion {...STAT_ICON_PROPS} />,
       color: "text-primary"
     }
   ];

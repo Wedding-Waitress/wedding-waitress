@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Undo2 } from "lucide-react";
+import { Calendar, Users, MapPin, QrCode, Mail, Heart, Settings, TrendingUp, Plus, Printer, Undo2, TableProperties, CircleAlert, CalendarDays } from "lucide-react";
 import { normalizeRsvp } from '@/lib/rsvp';
 import { useEvents } from '@/hooks/useEvents';
 import { useSelectedEvent } from '@/hooks/useSelectedEvent';
@@ -516,12 +516,12 @@ export const Dashboard = () => {
                 <div className="flex items-start gap-3">
                   {/* Left: Icon + Title + Description */}
                   <div className="flex items-start gap-3 flex-1 max-lg:flex-col max-lg:gap-2">
-                    <MapPin className="w-10 h-10 sm:w-16 sm:h-16 text-primary flex-shrink-0" />
+                    <TableProperties size={34} strokeWidth={1.8} className="text-primary flex-shrink-0" aria-hidden="true" />
                     <div className="flex flex-col max-lg:w-full">
                       <CardTitle className="mb-2 text-left text-2xl font-bold text-foreground">Table Setup</CardTitle>
                       <div className="text-left text-sm text-muted-foreground">
                         <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
-                          <li className="text-red-600 font-bold">Important – Please Read:</li>
+                          <li className="text-red-600 font-bold"><span className="inline-flex items-center gap-1.5"><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
                           <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
                           <li>We suggest firstly adding a <strong>"Bridal Table"</strong> then the <strong>"1 Groom's Family"</strong> table, then the <strong>"2 Bride's Family"</strong> table.</li>
                           <li>Then add sequential numbering tables like <strong>"1, 2, 3, 4, 5 & etc"</strong></li>
@@ -546,8 +546,8 @@ export const Dashboard = () => {
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-border z-50">
                         {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
-                              <div className="flex items-center space-x-2">
-                                <Calendar className="w-4 h-4" />
+                              <div className="flex items-center gap-[7px]">
+                                <CalendarDays size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                                 <span>{event.name}</span>
                               </div>
                             </SelectItem>) : <SelectItem value="no-events" disabled>
@@ -565,11 +565,11 @@ export const Dashboard = () => {
                           <Button 
                             variant="default" 
                             size="sm" 
-                            className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white max-lg:h-11 max-lg:px-6" 
+                            className="rounded-full flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white max-lg:h-11 max-lg:px-6" 
                             disabled={!selectedEventId} 
                             onClick={handleCreateTable}
                           >
-                            <Plus className="w-4 h-4" />
+                            <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                             Create Tables
                           </Button>
                         </div>
