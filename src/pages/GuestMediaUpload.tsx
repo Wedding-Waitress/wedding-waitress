@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Images, BookOpen, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -625,7 +625,8 @@ export const GuestMediaUpload: React.FC = () => {
 
           {tabs.map(tab => {
             const active = current === tab;
-            const cls = `flex-1 basis-0 min-w-0 h-11 flex items-center justify-center text-center rounded-full font-medium transition-colors px-1.5 sm:px-3 text-[12px] sm:text-sm whitespace-nowrap leading-none ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
+            const TabIcon = tab === 'upload' ? Upload : tab === 'gallery' ? Images : tab === 'guestbook' ? BookOpen : Camera;
+            const cls = `flex-1 basis-0 min-w-0 min-h-[56px] py-2 flex flex-col items-center justify-center gap-1 text-center rounded-full font-medium transition-colors duration-150 px-1 sm:px-3 text-[11px] sm:text-sm whitespace-nowrap leading-none ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
             return (
               <button
                 key={tab}
@@ -633,6 +634,7 @@ export const GuestMediaUpload: React.FC = () => {
                 onClick={() => setActiveTab(tab)}
                 className={cls}
               >
+                <TabIcon className="h-[21px] w-[21px] shrink-0" strokeWidth={2} aria-hidden="true" />
                 <span className="truncate">{labels[tab]}</span>
               </button>
             );
