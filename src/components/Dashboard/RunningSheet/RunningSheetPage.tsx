@@ -242,28 +242,45 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
               }`}>
                 {selectedEvent.ceremony_enabled && (
                   <div className="text-left min-w-[280px]">
-                    <div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <HeartHandshake size={16} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                       <span className="font-semibold text-primary">Ceremony:</span>
-                      <span className="ml-2 text-muted-foreground">{formatFullDate(selectedEvent.ceremony_date)}</span>
+                      <CalendarDays size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">{formatFullDate(selectedEvent.ceremony_date)}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Start: {formatTimeDisplay(selectedEvent.ceremony_start_time)} — Finish: {formatTimeDisplay(selectedEvent.ceremony_finish_time)}
+                    <div className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                      <Clock3 size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                      <span>Start: {formatTimeDisplay(selectedEvent.ceremony_start_time)} — Finish: {formatTimeDisplay(selectedEvent.ceremony_finish_time)}</span>
                     </div>
-                    {selectedEvent.ceremony_venue && <div className="text-sm text-muted-foreground">{selectedEvent.ceremony_venue}</div>}
+                    {selectedEvent.ceremony_venue && (
+                      <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                        <MapPin size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                        <span>{selectedEvent.ceremony_venue}</span>
+                      </div>
+                    )}
                   </div>
                 )}
                 {selectedEvent.reception_enabled !== false && (
                   <div className="text-left min-w-[280px]">
-                    <div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <PartyPopper size={16} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                       <span className="font-semibold text-primary">Reception:</span>
-                      <span className="ml-2 text-muted-foreground">{formatFullDate(selectedEvent.date)}</span>
+                      <CalendarDays size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" aria-hidden="true" />
+                      <span className="text-muted-foreground">{formatFullDate(selectedEvent.date)}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Start: {formatTimeDisplay(selectedEvent.start_time)} — Finish: {formatTimeDisplay(selectedEvent.finish_time)}
+                    <div className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                      <Clock3 size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                      <span>Start: {formatTimeDisplay(selectedEvent.start_time)} — Finish: {formatTimeDisplay(selectedEvent.finish_time)}</span>
                     </div>
-                    {selectedEvent.venue && <div className="text-sm text-muted-foreground">{selectedEvent.venue}</div>}
+                    {selectedEvent.venue && (
+                      <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                        <MapPin size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                        <span>{selectedEvent.venue}</span>
+                      </div>
+                    )}
                   </div>
                 )}
+
               </div>
             </div>
           )}
