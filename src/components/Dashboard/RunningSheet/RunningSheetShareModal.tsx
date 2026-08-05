@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
-import { Copy, CircleCheck, Trash2, ExternalLink, UsersRound, Lock, Unlock, LoaderCircle, Share2 } from 'lucide-react';
+import { Copy, CircleCheck, Trash2, ExternalLink, Lock, Unlock, LoaderCircle, Share2 } from 'lucide-react';
 import { RunningSheetShareToken } from '@/types/runningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
