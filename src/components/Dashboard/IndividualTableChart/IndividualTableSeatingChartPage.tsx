@@ -274,7 +274,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <CardHeader className="space-y-4">
           {/* Title and Description */}
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <TableProperties className="w-6 h-6 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Individual Table Seating Chart
             </h1>
             <p className="text-muted-foreground">
