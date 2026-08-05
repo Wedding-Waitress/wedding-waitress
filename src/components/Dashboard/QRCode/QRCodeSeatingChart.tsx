@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar, QrCode, Download, Settings, Eye, ExternalLink, Copy } from 'lucide-react';
+import { CalendarDays, QrCode, MapPin, Clock3, CircleCheck, ExternalLink } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
@@ -88,9 +88,9 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       {/* Header Section */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10">
-              <QrCode className="w-6 h-6 text-primary" />
+              <QrCode className="w-6 h-6 text-primary" strokeWidth={1.8} />
             </div>
             <div>
               <CardTitle className="text-2xl font-bold text-foreground">QR Code Seating Chart</CardTitle>
@@ -105,12 +105,15 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
               </label>
               <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
                 <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
-                  <SelectValue placeholder="Choose Event" />
+                  <div className="flex items-center gap-[7px] min-w-0">
+                    <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                    <SelectValue placeholder="Choose Event" />
+                  </div>
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
                   {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
+                          <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>) : <SelectItem value="no-events" disabled>
@@ -121,21 +124,30 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </div>
             
             {selectedEvent && (
-              <div className="text-sm sm:text-lg font-medium text-[#967A59] space-y-1 sm:space-y-0">
-                <span className="block sm:inline">{selectedEvent.venue || 'Venue not specified'}</span>
-                <span className="hidden sm:inline">{' - '}</span>
-                <span className="block sm:inline">{formatEventDate(selectedEvent.date)}</span>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-lg font-medium text-[#967A59]">
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  {selectedEvent.venue || 'Venue not specified'}
+                </span>
+                <span className="hidden sm:inline">{'-'}</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  {formatEventDate(selectedEvent.date)}
+                </span>
                 {(selectedEvent.start_time || selectedEvent.finish_time) && (
-                  <span className="block sm:inline">
-                    <span className="hidden sm:inline">{' - '}</span>
-                    {selectedEvent.start_time && (
-                      <span>Start {formatDisplayTime(selectedEvent.start_time)}</span>
-                    )}
-                    {selectedEvent.start_time && selectedEvent.finish_time && ' — '}
-                    {selectedEvent.finish_time && (
-                      <span>Finish {formatDisplayTime(selectedEvent.finish_time)}</span>
-                    )}
-                  </span>
+                  <>
+                    <span className="hidden sm:inline">{'-'}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock3 className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                      {selectedEvent.start_time && (
+                        <span>Start {formatDisplayTime(selectedEvent.start_time)}</span>
+                      )}
+                      {selectedEvent.start_time && selectedEvent.finish_time && ' — '}
+                      {selectedEvent.finish_time && (
+                        <span>Finish {formatDisplayTime(selectedEvent.finish_time)}</span>
+                      )}
+                    </span>
+                  </>
                 )}
               </div>
             )}
@@ -144,11 +156,14 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           {/* Connected & Synced Status Bar */}
           {selectedEvent && (
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-green-50 border border-green-300 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+              <CircleCheck className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
               <span className="text-xs sm:text-sm font-medium text-green-800">Connected & Synced</span>
               <span className="hidden sm:inline text-sm text-green-700">—</span>
               <span className="text-xs sm:text-sm text-green-700 truncate">Linked: <strong>{selectedEvent.name}</strong></span>
-              <span className="hidden sm:inline text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded ml-auto">📱 Opens guest lookup</span>
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded ml-auto">
+                <ExternalLink className="w-[14px] h-[14px]" strokeWidth={1.8} aria-hidden="true" />
+                Opens guest lookup
+              </span>
             </div>
           )}
         </CardContent>

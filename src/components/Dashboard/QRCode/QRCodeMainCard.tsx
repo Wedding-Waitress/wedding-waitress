@@ -12,7 +12,7 @@
  * Last locked: 2026-02-19
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music } from 'lucide-react';
+import { Music2, Hash, SlidersHorizontal, Settings2, Shapes, ImagePlus, FileImage, ImageDown, MapPinned, Building2, MailCheck, Check, CircleCheck, LoaderCircle } from 'lucide-react';
 import { useGuestSongRequestSettings } from '@/hooks/useGuestSongRequestSettings';
 import { Select as SongReqSelect, SelectContent as SongReqSelectContent, SelectItem as SongReqSelectItem, SelectTrigger as SongReqSelectTrigger, SelectValue as SongReqSelectValue } from '@/components/ui/select';
 import { ColorPickerPopover } from '@/components/ui/color-picker-popover';
@@ -104,6 +104,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const [qrShapes, setQrShapes] = useState<QRShapeSettings>({ ...defaultShapes });
   const [qrLogo, setQrLogo] = useState<QRLogoSettings>({ ...defaultLogo });
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [downloading, setDownloading] = useState<'png' | 'jpg' | null>(null);
 
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
@@ -291,16 +293,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   // Action button handlers
   const handleDownloadPNG = useCallback(async () => {
     if (!qrDataUrl) return;
+    setDownloading('png');
     const link = document.createElement('a');
     link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
     link.href = qrDataUrl;
     link.click();
+    setDownloading(null);
     toast({
       title: "PNG downloaded successfully!"
     });
   }, [qrDataUrl, selectedEvent?.name, toast]);
   const handleDownloadJPG = useCallback(async () => {
     if (!qrDataUrl) return;
+    setDownloading('jpg');
     // Convert PNG to JPG
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -316,6 +321,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
       link.href = jpgDataUrl;
       link.click();
+      setDownloading(null);
       toast({
         title: "JPG downloaded successfully!"
       });
@@ -467,6 +473,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     try {
       const guestLookupUrl = eventUrl;
       await navigator.clipboard.writeText(guestLookupUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
       toast({
         title: "Link copied!",
         description: "The guest lookup link has been copied to your clipboard."
@@ -505,7 +513,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   return <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <QrCodeIcon className="h-5 w-5 text-[#856A4C]" />
+          <QrCodeIcon strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" />
           QR Code Generator
         </CardTitle>
       </CardHeader>
@@ -533,8 +541,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* COLOR Section */}
               <AccordionItem value="color" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-[#856A4C]" />
+                  <div className="flex items-center gap-[7px]">
+                    <Palette strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Color</span>
                   </div>
                 </AccordionTrigger>
@@ -566,8 +574,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* SHAPE Section */}
               <AccordionItem value="shape" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <Square className="h-4 w-4 text-[#856A4C]" />
+                  <div className="flex items-center gap-[7px]">
+                    <Shapes strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Shape & Form</span>
                   </div>
                 </AccordionTrigger>
@@ -646,8 +654,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* LOGO Section */}
               <AccordionItem value="logo" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-[#856A4C]" />
+                  <div className="flex items-center gap-[7px]">
+                    <ImagePlus strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Logo</span>
                   </div>
                 </AccordionTrigger>
@@ -668,8 +676,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         />
                         <div className="flex justify-between items-center">
                           <span className="text-xs text-muted-foreground">{qrLogo.size}%</span>
-                          <Button size="sm" variant="ghost" onClick={handleRemoveLogo} className="h-6 px-2 text-xs text-destructive">
-                            <Trash2 className="h-3 w-3" />
+                          <Button size="sm" variant="ghost" onClick={handleRemoveLogo} className="h-6 px-2 text-xs text-destructive" aria-label="Remove logo" title="Remove logo">
+                            <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px]" aria-hidden="true" /><span className="sr-only">Remove logo</span>
                           </Button>
                         </div>
                       </div>
@@ -689,9 +697,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       }}
                     >
                       {isUploadingLogo ? (
-                        <Loader2 className="h-5 w-5 mx-auto animate-spin text-[#856A4C]" />
+                        <LoaderCircle strokeWidth={1.8} className="h-[18px] w-[18px] mx-auto animate-spin text-[#856A4C]" />
                       ) : (
-                        <Upload className="h-5 w-5 mx-auto text-muted-foreground" />
+                        <Upload strokeWidth={1.8} className="h-[18px] w-[18px] mx-auto text-muted-foreground" />
                       )}
                       <p className="text-xs mt-1">{isUploadingLogo ? 'Uploading...' : 'Upload Logo'}</p>
                     </div>
@@ -704,6 +712,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <div className="flex-grow" />
             <div className="pt-4 border-t border-border">
               <Button variant="destructive" onClick={handleResetAll} className="lv-premium-shade w-full rounded-full">
+                <RotateCcw strokeWidth={1.8} className="h-[17px] w-[17px] mr-[7px]" aria-hidden="true" />
                 Reset to Default
               </Button>
             </div>
@@ -713,25 +722,25 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             {/* Open Live View - Full Width */}
             <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="lv-premium-shade w-full bg-green-500 hover:bg-green-600 text-white border-0">
-              <ExternalLink className="h-4 w-4 mr-2" />
+              <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
               Open Live View App
             </Button>
             
             {/* Copy Link - Full Width */}
             <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="lv-premium-shade border-[#C4A882] w-full">
-              <Link className="h-4 w-4 mr-2" />
+              {copiedLink ? <Check strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" /> : <Copy strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               Copy Link
             </Button>
             
             {/* PNG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="lv-premium-shade border-[#C4A882] w-full">
-              <FileDown className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="default" onClick={handleDownloadPNG} disabled={downloading === 'png'} className="lv-premium-shade border-[#C4A882] w-full">
+              {downloading === 'png' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <FileImage strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               PNG
             </Button>
             
             {/* JPG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="lv-premium-shade border-[#C4A882] w-full">
-              <ImageIcon className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={downloading === 'jpg'} className="lv-premium-shade border-[#C4A882] w-full">
+              {downloading === 'jpg' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <ImageDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               JPG
             </Button>
             
@@ -741,6 +750,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
             <div className="pt-4 border-t border-border">
               <Button variant="destructive" onClick={handleResetQR} className="lv-premium-shade w-full rounded-full">
+                <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
                 Reset to Default
               </Button>
             </div>
@@ -750,7 +760,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
           <CardHeader className="pb-3">
-            <CardTitle className="text-2xl font-bold text-foreground">Guest Live View Configuration</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground"><SlidersHorizontal strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" aria-hidden="true" />Guest Live View Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -763,10 +773,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
+                    <MailCheck strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
                     <div>
                       <h4 className="text-sm font-semibold flex items-center gap-3">
-                        <Mail className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
+                        <MailCheck strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
                         <span>RSVP Invite</span>
                       </h4>
                       <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests view your digital invitations &amp; RSVP</p>
@@ -788,7 +798,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="rsvp-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-[#856A4C]">Configure RSVP Invite Settings</span>
+                        <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure RSVP Invite Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
@@ -883,7 +893,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   }
                                 }}
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
+                                <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px] mr-1.5" />
                                 Remove
                               </Button>
                             </div>
@@ -935,7 +945,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 input.click();
                               }}
                             >
-                              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                              <Upload strokeWidth={1.8} className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                               <p className="text-xs font-medium">Upload Digital Invitation</p>
                               <p className="text-xs text-muted-foreground">PDF, JPG, or PNG</p>
                             </div>
@@ -984,7 +994,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
-                    <Video className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
+                    <Video strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Welcome Video</h4>
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Add a personal video message for your guests</p>
@@ -1006,7 +1016,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="video-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-[#856A4C]">Configure Welcome Video Settings</span>
+                        <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Welcome Video Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="p-3 bg-muted/30 rounded-md space-y-3">
@@ -1058,7 +1068,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     }
                                   }}
                                 >
-                                  <Trash2 className="w-3 h-3 mr-1" />
+                                  <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px] mr-1.5" />
                                   Remove
                                 </Button>
                               </div>
@@ -1122,7 +1132,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
-                    <MapPin className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
+                    <MapPinned strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Ceremony Floor Plan</h4>
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your ceremony floor plan to guests</p>
@@ -1144,7 +1154,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="floorplan-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-[#856A4C]">Configure Ceremony Floor Plan Settings</span>
+                        <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Ceremony Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
@@ -1168,7 +1178,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             >
                               <div className="flex items-start gap-2">
                                 {moduleSettings?.floor_plan_config?.source === 'upload' && (
-                                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                  <CircleCheck strokeWidth={1.8} className="h-[18px] w-[18px] text-green-600 mt-0.5 flex-shrink-0" />
                                 )}
                                 <div>
                                   <p className="text-sm font-semibold">Upload an Image</p>
@@ -1194,7 +1204,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             >
                               <div className="flex items-start gap-2">
                                 {moduleSettings?.floor_plan_config?.source === 'existing' && (
-                                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                  <CircleCheck strokeWidth={1.8} className="h-[18px] w-[18px] text-green-600 mt-0.5 flex-shrink-0" />
                                 )}
                                 <div>
                                   <p className="text-sm font-semibold">Use Existing Floor Plan</p>
@@ -1273,7 +1283,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       }
                                     }}
                                   >
-                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px] mr-1.5" />
                                     Remove
                                   </Button>
                                 </div>
@@ -1312,7 +1322,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     input.click();
                                   }}
                                 >
-                                  <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                  <Upload strokeWidth={1.8} className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                                   <p className="text-xs font-medium">Upload Ceremony Floor Plan Image</p>
                                   <p className="text-xs text-muted-foreground">JPG or PNG</p>
                                 </div>
@@ -1324,7 +1334,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.floor_plan_config?.source === 'existing' && (
                             <div className="mt-3 p-3 bg-green-50 rounded-md border border-green-200">
                               <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                <CircleCheck strokeWidth={1.8} className="h-[18px] w-[18px] text-green-600" />
                                 <p className="text-xs text-green-800 font-medium">
                                   Your ceremony floor plan from the Floor Plan page will be displayed to guests.
                                 </p>
@@ -1342,7 +1352,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
-                    <MapPin className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
+                    <Building2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Reception Floor Plan</h4>
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your reception floor plan to guests</p>
@@ -1364,7 +1374,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="reception-floorplan-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-[#856A4C]">Configure Reception Floor Plan Settings</span>
+                        <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Reception Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
@@ -1388,7 +1398,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             >
                               <div className="flex items-start gap-2">
                                 {moduleSettings?.reception_floor_plan_config?.source === 'upload' && (
-                                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                                  <CircleCheck strokeWidth={1.8} className="h-[18px] w-[18px] text-green-600 mt-0.5 flex-shrink-0" />
                                 )}
                                 <div>
                                   <p className="text-sm font-semibold">Upload an Image</p>
@@ -1414,7 +1424,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             >
                               <div className="flex items-start gap-2">
                                 {moduleSettings?.reception_floor_plan_config?.source === 'existing' && (
-                                  <CheckCircle2 className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                                  <CircleCheck strokeWidth={1.8} className="h-[18px] w-[18px] text-amber-600 mt-0.5 flex-shrink-0" />
                                 )}
                                 <div>
                                   <p className="text-sm font-semibold">Use Existing Floor Plan</p>
@@ -1494,7 +1504,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       }
                                     }}
                                   >
-                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px] mr-1.5" />
                                     Remove
                                   </Button>
                                 </div>
@@ -1533,7 +1543,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     input.click();
                                   }}
                                 >
-                                  <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                  <Upload strokeWidth={1.8} className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                                   <p className="text-xs font-medium">Upload Reception Floor Plan Image</p>
                                   <p className="text-xs text-muted-foreground">JPG or PNG</p>
                                 </div>
@@ -1545,7 +1555,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           {moduleSettings?.reception_floor_plan_config?.source === 'existing' && (
                             <div className="mt-3 p-3 bg-amber-50 rounded-md border border-amber-200">
                               <div className="flex items-center gap-2">
-                                <CheckCircle2 className="h-4 w-4 text-amber-600" />
+                                <CircleCheck strokeWidth={1.8} className="h-[18px] w-[18px] text-amber-600" />
                                 <div>
                                   <p className="text-xs text-amber-800 font-medium">
                                     Using existing floor plan
@@ -1568,7 +1578,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
-                    <UtensilsCrossed className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
+                    <UtensilsCrossed strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold">Menu</h4>
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Upload your wedding menu for guests to view</p>
@@ -1590,7 +1600,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="menu-config" className="border-0">
                       <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                        <span className="text-[#856A4C]">Configure Menu Settings</span>
+                        <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Menu Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
@@ -1667,7 +1677,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   }
                                 }}
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
+                                <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px] mr-1.5" />
                                 Remove
                               </Button>
                             </div>
@@ -1705,7 +1715,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 input.click();
                               }}
                             >
-                              <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                              <Upload strokeWidth={1.8} className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                               <p className="text-xs font-medium">Upload Wedding Menu</p>
                               <p className="text-xs text-muted-foreground">PDF, JPG, or PNG</p>
                             </div>
@@ -1720,7 +1730,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* Hero Image / Logo Module */}
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-3">
-                  <ImageIcon className="h-5 w-5 text-[#856A4C]" />
+                  <ImagePlus strokeWidth={1.8} className="h-5 w-5 text-[#856A4C]" />
                   <div>
                     <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
                     <p className="text-xs text-muted-foreground">Upload an image to replace the purple gradient behind your event header in the guest view</p>
@@ -1731,7 +1741,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="hero-image-config" className="border-0">
                     <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <span className="text-[#856A4C]">Configure Hero Background</span>
+                      <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Hero Background</span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-3 pt-2">
@@ -1819,7 +1829,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   }
                                 }}
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
+                                <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px] mr-1.5" />
                                 Remove
                               </Button>
                             </div>
@@ -1858,7 +1868,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               input.click();
                             }}
                           >
-                            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                            <Upload strokeWidth={1.8} className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                             <p className="text-xs font-medium">Upload Photo or Logo</p>
                             <p className="text-xs text-muted-foreground">JPG or PNG</p>
                           </div>
@@ -1873,10 +1883,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3">
-                    <Music className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
+                    <Music2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
                     <div>
                       <h4 className="text-sm font-semibold flex items-center gap-3">
-                        <Music className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
+                        <Music2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] hidden max-lg:inline-flex" />
                         <span>Guest Song Requests</span>
                       </h4>
                       <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests request songs from the Live View app</p>
@@ -1896,7 +1906,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
                 {songRequestSettings?.enabled && (
                   <div className="pt-2 space-y-2">
-                    <Label className="text-xs font-semibold">Maximum song requests per guest</Label>
+                    <Label className="text-xs font-semibold inline-flex items-center gap-1.5"><Hash strokeWidth={1.8} className="h-[18px] w-[18px] text-[#856A4C]" aria-hidden="true" />Maximum song requests per guest</Label>
                     <SongReqSelect
                       value={String(songRequestSettings?.max_requests_per_guest ?? 2)}
                       onValueChange={(v) => updateSongRequestSettings({ max_requests_per_guest: parseInt(v, 10) })}
