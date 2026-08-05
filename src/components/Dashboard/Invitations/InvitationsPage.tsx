@@ -6,7 +6,7 @@ import { useInvitationCardSettings, CardType, QrConfig } from '@/hooks/useInvita
 import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, LoaderCircle, FileText, CalendarDays, Mail, MailHeart, CalendarHeart, HandHeart, BadgeCheck, Printer, Download, Plus, Copy, Trash2, Pencil } from 'lucide-react';
+import { Loader2, LoaderCircle, FileText, CalendarDays, Mail, MailOpen, CalendarHeart, HandHeart, BadgeCheck, Printer, Download, Plus, Copy, Trash2, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
 import { generateInvitationQR } from '@/lib/invitationQR';
@@ -259,7 +259,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
-            <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><MailHeart className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitations, Save the Date & Thank You Cards</h1>
+            <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><MailOpen className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitations, Save the Date & Thank You Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create professional invitations (A4), save the dates (A4/A5), and thank you cards (A4/A5/A6) to send digitally or download to print
             </p>
@@ -337,7 +337,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {!selectedEventId && (
         <Card className="ww-box p-12 text-center">
-          <MailHeart className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
+          <MailOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription className="text-base">
             Choose an event above to start designing your invitations
@@ -352,7 +352,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
               <TabsList className="grid w-full grid-cols-3 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
-                <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><MailHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitation</TabsTrigger>
+                <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><MailOpen className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitation</TabsTrigger>
                 <TabsTrigger value="save_the_date" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><CalendarHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Save the Date</TabsTrigger>
                 <TabsTrigger value="thank_you" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><HandHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Thank You</TabsTrigger>
               </TabsList>
