@@ -3,10 +3,8 @@ import {
   Home, 
   Calendar, 
   Users, 
-  MapPin, 
   QrCode, 
   CreditCard,
-  ChefHat,
   Monitor,
   LayoutGrid,
   FileText,
@@ -20,9 +18,13 @@ import {
   Sparkles,
   LifeBuoy,
   Gift,
-  Printer,
-  Camera
+  Camera,
+  Table,
+  Table2,
+  Signpost,
+  UtensilsCrossed
 } from 'lucide-react';
+
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import {
@@ -74,15 +76,15 @@ interface AppSidebarProps {
   const allMenuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "my-events", label: "My Events", icon: Calendar },
-    { id: "table-list", label: "Tables", icon: MapPin },
+    { id: "table-list", label: "Tables", icon: Table },
     { id: "guest-list", label: "Guest List", icon: Users },
     { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
-    { id: "signage", label: "Seating Chart Signs", icon: Printer },
+    { id: "signage", label: "Seating Chart Signs", icon: Signpost },
     { id: "invitations", label: "Invitations & Cards", icon: Mail },
     { id: "place-cards", label: "Name Place Cards", icon: CreditCard },
-    { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
+    { id: "individual-table-chart", label: "Individual Table Charts", icon: Table2 },
     { id: "floor-plan", label: "Floor Plan", icon: LayoutGrid },
-    { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
+    { id: "dietary-chart", label: "Dietary Requirements", icon: UtensilsCrossed },
     { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
     { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
     { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
@@ -175,9 +177,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => handleItemClick(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-1 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`flex items-center gap-2 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
-                    <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} style={isGreenItem ? { color: '#967A59' } : undefined} />
+                    <Icon size={18} strokeWidth={1.8} className="!w-[18px] !h-[18px] shrink-0" style={isGreenItem ? { color: '#967A59' } : undefined} />
                     <span className={`${isActive ? 'font-bold' : 'font-normal'} text-base`} style={isGreenItem ? { color: '#967A59' } : undefined}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
