@@ -248,7 +248,11 @@ export function RunningSheetSection({
             {showNotes && (
               <div className="mt-3">
                 <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
-                  <div className="text-sm font-medium text-primary mb-1">Notes</div>
+                  <div className="text-sm font-medium text-primary mb-1 flex items-center gap-2">
+                    <NotebookPen size={17} strokeWidth={1.8} aria-hidden="true" />
+                    Notes
+                  </div>
+
                   <Textarea
                     value={notes || ''}
                     onChange={(e) => onNotesChange(e.target.value || null)}
