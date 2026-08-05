@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 import { ContactForm } from "@/components/ContactForm";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, ChevronUp, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks, TableProperties, UserRoundPlus, ScanLine, LayoutDashboard, UserRoundCheck, CalendarRange, MailCheck, LayoutTemplate, ContactRound, PanelsTopLeft, ClipboardCheck, MonitorSmartphone, Music2, Camera, Quote, CircleHelp, Newspaper, Clock3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Reveal } from "@/components/ui/Reveal";
