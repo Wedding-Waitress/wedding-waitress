@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MailHeart, MessageSquareText, Send, CircleCheck, XCircle, Clock, AlertTriangle, Lock, UsersRound, Search } from 'lucide-react';
+import { MailOpen, MessageSquareText, Send, CircleCheck, XCircle, Clock, AlertTriangle, Lock, UsersRound, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useInvitationSend } from '@/hooks/useInvitationSend';
 import { useUserPlan } from '@/hooks/useUserPlan';
@@ -33,7 +33,7 @@ const FREE_SEND_LIMIT = 3;
 const statusBadge = (status?: string) => {
   switch (status) {
     case 'email_sent':
-      return <Badge variant="secondary" className="text-[10px] gap-1"><MailHeart className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />Email sent</Badge>;
+      return <Badge variant="secondary" className="text-[10px] gap-1"><MailOpen className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />Email sent</Badge>;
     case 'sms_sent':
       return <Badge variant="secondary" className="text-[10px] gap-1"><MessageSquareText className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />SMS sent</Badge>;
     case 'both_sent':
@@ -157,7 +157,7 @@ export const InvitationSendModal: React.FC<Props> = ({
 
         <Tabs value={channel} onValueChange={(v) => { setChannel(v as 'email' | 'sms'); setSelected(new Set()); }}>
           <TabsList className="w-full">
-            <TabsTrigger value="email" className="flex-1 gap-2"><MailHeart className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />Email</TabsTrigger>
+            <TabsTrigger value="email" className="flex-1 gap-2"><MailOpen className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />Email</TabsTrigger>
             <TabsTrigger value="sms" className="flex-1 gap-2"><MessageSquareText className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />SMS</TabsTrigger>
           </TabsList>
         </Tabs>
