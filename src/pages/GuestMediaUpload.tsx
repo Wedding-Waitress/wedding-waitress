@@ -21,6 +21,7 @@ import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.
 import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
 import uploadHeroDefault from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
 import galleryHeroDefault from '@/assets/Wedding-Waitress-Gallery-Hero-Default.png';
+import uploadHeaderLogo from '@/assets/upload-header-logo.png.asset.json';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 // The dynamic import retries once before failing so a single flaky chunk request on first
@@ -504,25 +505,11 @@ export const GuestMediaUpload: React.FC = () => {
             ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
             ) : activeTab === 'upload' ? (
-              <div className="relative w-full h-full">
-                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-                <img
-                  src={uploadHeroDefault}
-                  alt=""
-                  className="absolute inset-0 m-auto"
-                  style={{
-                    zIndex: 10,
-                    width: '86%',
-                    height: '86%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    opacity: 1,
-                    visibility: 'visible',
-                    filter: 'none',
-                    mixBlendMode: 'normal',
-                  }}
-                />
-              </div>
+              <img
+                src={uploadHeaderLogo.url}
+                alt="Create and Share the Memories"
+                className="w-full h-full object-contain"
+              />
             ) : activeTab === 'gallery' ? (
               <div className="relative w-full h-full">
                 <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
