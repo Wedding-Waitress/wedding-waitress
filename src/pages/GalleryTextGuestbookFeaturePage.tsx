@@ -16,7 +16,7 @@ import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/G
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
-import { Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
+import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
 
 export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
-        <Loader2 className="h-6 w-6 animate-spin text-white" />
+        <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
       </div>
     );
   }
@@ -86,18 +86,18 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
             disabled={!guestUrl}
             onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
           >
-            <ExternalLink className="h-4 w-4 mr-1" /> Preview as Guest
+            <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Preview as Guest
           </Button>
         }
       >
         {loading && !meta ? (
           <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground">Loading Digital Guestbook…</p>
           </Card>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <TriangleAlert className="h-8 w-8 text-muted-foreground" strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage the Digital Guestbook.'}
             </p>

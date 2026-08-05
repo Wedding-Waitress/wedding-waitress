@@ -62,7 +62,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
               onClick={onBack}
               className="inline-flex items-center gap-1.5 rounded-full border border-white/40 px-3 py-1.5 min-h-[40px] text-xs sm:text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
             >
-              <ArrowLeft className="h-4 w-4 shrink-0" />
+              <ArrowLeft size={16} strokeWidth={1.8} className="shrink-0" />
               <span className="truncate">{backLabel}</span>
             </button>
 

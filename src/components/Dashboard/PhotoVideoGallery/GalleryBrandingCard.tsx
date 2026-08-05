@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Palette, Save, Loader2, Upload, X, Image as ImageIcon, Images, Trash2 } from 'lucide-react';
+import { Palette, Save, LoaderCircle, Upload, X, ImagePlus, Images, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, GalleryBrandingSettings } from '@/hooks/useEventMediaGallery';
@@ -151,7 +151,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
     <Card className="h-full p-4 sm:p-6 space-y-6 overflow-hidden">
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <Palette className="h-5 w-5 text-[#967A59] shrink-0" /> Branding &amp; Theme
+          <Palette className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> Branding &amp; Theme
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           Customise the look of your guest gallery. Buttons and accents always use the Wedding Waitress
@@ -263,8 +263,8 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
                 disabled={uploading === 'background'}
               >
                 {uploading === 'background'
-                  ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Uploading…</>
-                  : <><Upload className="h-4 w-4 mr-1.5" /> {bgImageUrl ? 'Replace Background Image' : 'Upload Background Image'}</>}
+                  ? <><LoaderCircle className="h-4 w-4 mr-1.5 animate-spin" strokeWidth={1.8} /> Uploading…</>
+                  : <><Upload className="h-4 w-4 mr-1.5" strokeWidth={1.8} /> {bgImageUrl ? 'Replace Background Image' : 'Upload Background Image'}</>}
               </Button>
 
               <Button
@@ -273,7 +273,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
                 className="lv-premium-shade w-full h-11 justify-center"
                 onClick={() => setGalleryOpen(true)}
               >
-                <Images className="h-4 w-4 mr-1.5" /> Browse Background Gallery
+                <Images className="h-4 w-4 mr-1.5" strokeWidth={1.8} /> Browse Background Gallery
               </Button>
 
               <button
@@ -304,7 +304,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
                     onClick={() => bgInput.current?.click()}
                     disabled={uploading === 'background'}
                   >
-                    <Upload className="h-4 w-4 mr-1" /> Replace Image
+                    <Upload className="h-4 w-4 mr-1" strokeWidth={1.8} /> Replace Image
                   </Button>
                   <Button
                     type="button"
@@ -313,7 +313,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
                     className="lv-premium-shade flex-1"
                     onClick={() => { setBgImageUrl(null); setBgMode('preset'); }}
                   >
-                    <Trash2 className="h-4 w-4 mr-1" /> Remove Image
+                    <Trash2 className="h-4 w-4 mr-1" strokeWidth={1.8} /> Remove Image
                   </Button>
                 </div>
               </div>
@@ -348,7 +348,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
           disabled={!dirty || saving || !!uploading}
           onClick={handleSave}
         >
-          {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+          {saving ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <Save className="h-4 w-4 mr-1" strokeWidth={1.8} />}
           Save branding
         </Button>
       </div>
@@ -399,12 +399,12 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
             className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1"
             aria-label="Remove image"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </div>
       ) : (
         <div className="h-32 flex flex-col items-center justify-center text-muted-foreground">
-          <ImageIcon className="h-6 w-6 mb-1" />
+          <ImagePlus className="h-6 w-6 mb-1" strokeWidth={1.8} />
           <span className="text-xs">No image</span>
         </div>
       )}
@@ -418,11 +418,11 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
       >
-        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? 'Replace Image' : 'Choose Image'}</>}
+        {uploading ? <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" strokeWidth={1.8} /> {url ? 'Replace Image' : 'Choose Image'}</>}
       </Button>
       {url && (
         <Button type="button" variant="destructive" size="sm" className="lv-premium-shade flex-1" onClick={onClear}>
-          <Trash2 className="h-4 w-4 mr-1" /> Remove Image
+          <Trash2 className="h-4 w-4 mr-1" strokeWidth={1.8} /> Remove Image
         </Button>
       )}
     </div>

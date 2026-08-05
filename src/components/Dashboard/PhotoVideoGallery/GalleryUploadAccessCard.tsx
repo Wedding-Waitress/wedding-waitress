@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle, Image as ImageIcon } from 'lucide-react';
+import { Copy, Download, QrCode, TriangleAlert, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
@@ -46,7 +46,7 @@ export const GalleryUploadAccessCard: React.FC<{
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Photo & Video Sharing Access
+            <QrCode className="h-5 w-5 text-[#967A59] shrink-0" /> Photo & Video Sharing Access
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
             Share the QR code or link your guests use to share photos and videos.
@@ -69,7 +69,7 @@ export const GalleryUploadAccessCard: React.FC<{
         <div className="space-y-4 min-w-0">
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
-              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+              <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
               <p className="text-sm text-destructive">Sharing link not ready — please retry.</p>
             </div>
           ) : (
@@ -92,7 +92,7 @@ export const GalleryUploadAccessCard: React.FC<{
               disabled={!guestUrl}
               title="Open the sharing page in a new tab"
             >
-              <ImageIcon className="h-4 w-4 mr-1" /> Open sharing page
+              <ExternalLink className="h-4 w-4 mr-1" /> Open sharing page
             </Button>
             <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code

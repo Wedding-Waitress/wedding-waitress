@@ -1,7 +1,7 @@
 // Digital Photo Booth: single "Download All" ZIP action shown in the captures header.
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
-import { Download, Loader2 } from 'lucide-react';
+import { FolderDown, LoaderCircle } from 'lucide-react';
 import JSZip from 'jszip';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
@@ -104,7 +104,7 @@ export const PhotoBoothDownloadAllButton: React.FC<{
       title={total === 0 ? 'No captures available' : undefined}
     >
       <span className="flex items-center">
-        {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
+        {busy ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin shrink-0" strokeWidth={1.8} /> : <FolderDown className="h-4 w-4 mr-2 shrink-0" strokeWidth={1.8} />}
         <span className="whitespace-nowrap">Download All Digital Photo Booth Photos</span>
       </span>
       <span className="text-xs text-muted-foreground shrink-0">{busy && done > 0 ? `${done}/${total}` : total}</span>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { MessageCircle, Loader2 } from 'lucide-react';
+import { MessageSquareText, LoaderCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 
@@ -43,11 +43,11 @@ export const GuestbookMessagesList: React.FC<{ eventId: string | null; items: Ga
   return (
     <Card className="p-4 sm:p-5 overflow-hidden">
       <h2 className="text-xl font-bold text-black mb-4 flex items-start gap-2" style={{ color: '#000000' }}>
-        <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0 mt-0.5" /> <span className="min-w-0 break-words">Guestbook messages ({rows.length})</span>
+        <MessageSquareText className="h-5 w-5 text-[#967A59] shrink-0 mt-0.5" strokeWidth={1.8} /> <span className="min-w-0 break-words">Guestbook messages ({rows.length})</span>
       </h2>
 
       {loading ? (
-        <div className="py-6 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-[#967A59]" /></div>
+        <div className="py-6 flex justify-center"><LoaderCircle className="h-5 w-5 animate-spin text-[#967A59]" strokeWidth={1.8} /></div>
       ) : (
         <ul className="space-y-3">
           {rows.map(m => (

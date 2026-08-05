@@ -3,7 +3,7 @@
 // and never shows a false "unavailable" state just because a large original
 // is still downloading.
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, FileImage, FileVideo, Mic, AlertTriangle, Loader2 } from 'lucide-react';
+import { Play, FileImage, FileVideo, Mic, TriangleAlert, LoaderCircle } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 
 type Status = 'idle' | 'loading' | 'ready' | 'error';
@@ -56,7 +56,7 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
         <FileImage className="h-7 w-7 text-muted-foreground" />
       )}
       <span className={`text-[10px] ${warn ? 'text-amber-600' : 'text-muted-foreground'} flex items-center gap-1`}>
-        {warn && <AlertTriangle className="h-3 w-3" />} {label}
+        {warn && <TriangleAlert className="h-3 w-3" />} {label}
       </span>
     </div>
   );
@@ -94,7 +94,7 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
           )}
           {status !== 'ready' && status !== 'error' && (
             <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           )}
           {status === 'error' && <Fallback label="Preview unavailable" warn />}
@@ -122,7 +122,7 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
           )}
           {status !== 'ready' && status !== 'error' && (
             <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           )}
           <div className="absolute inset-0 flex items-center justify-center bg-black/25 pointer-events-none">

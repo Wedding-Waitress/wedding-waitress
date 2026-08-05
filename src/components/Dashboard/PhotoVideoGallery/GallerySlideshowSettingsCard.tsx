@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings2, Loader2, Check } from 'lucide-react';
+import { Settings2, LoaderCircle, Check, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { GALLERY_ALBUMS, type GalleryMeta } from '@/hooks/useEventMediaGallery';
 import {
@@ -64,7 +64,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <Settings2 className="h-5 w-5 text-[#967A59] shrink-0" /> Slideshow Settings
+            <Settings2 size={22} strokeWidth={1.8} className="text-[#967A59] shrink-0" /> Slideshow Settings
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
             Choose what appears on screen and how it plays. Colours and logo come from your Branding &amp; Theme settings.
@@ -166,7 +166,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
 
       <div className="flex flex-wrap items-center gap-3">
         <Button className="lv-premium-shade h-11" onClick={save} disabled={saving || !dirty}>
-          {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : null} Save Settings
+          {saving ? <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" /> : <Save size={16} strokeWidth={1.8} className="mr-1.5" />} Save Settings
         </Button>
         {dirty && (
           <Button variant="outline" className="lv-premium-shade h-11" onClick={() => onChange(saved)} disabled={saving}>

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/enhanced-button';
-import { Check, ImageIcon } from 'lucide-react';
+import { CircleCheck, ImagePlus } from 'lucide-react';
 import {
   GALLERY_BACKGROUND_PRESETS,
   GALLERY_BACKGROUND_CATEGORIES,
@@ -37,7 +37,7 @@ export const GalleryBackgroundGalleryModal: React.FC<Props> = ({ open, onOpenCha
       <DialogContent className="max-w-5xl max-h-[92vh] flex flex-col bg-white p-0 gap-0">
         <DialogHeader className="px-5 pt-5 pb-3 max-lg:px-4">
           <DialogTitle className="flex items-center gap-2 text-lg max-lg:justify-center">
-            <ImageIcon className="h-5 w-5 text-[#967A59] shrink-0" />
+            <ImagePlus className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} />
             Background Gallery
           </DialogTitle>
           <DialogDescription className="max-lg:text-center">
@@ -79,7 +79,7 @@ export const GalleryBackgroundGalleryModal: React.FC<Props> = ({ open, onOpenCha
                   <img src={bg.url} alt={bg.name} loading="lazy" className="w-full h-28 sm:h-32 object-cover" />
                   {active && (
                     <span className="absolute top-2 right-2 rounded-full bg-[#967A59] text-white p-1">
-                      <Check className="h-3.5 w-3.5" />
+                      <CircleCheck className="h-3.5 w-3.5" strokeWidth={1.8} />
                     </span>
                   )}
                   <div className="px-2.5 py-2 bg-white">

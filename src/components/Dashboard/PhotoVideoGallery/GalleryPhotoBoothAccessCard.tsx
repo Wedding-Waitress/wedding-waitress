@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, Download, QrCode as QrIcon, AlertTriangle, Camera, Loader2 } from 'lucide-react';
+import { Copy, Download, QrCode as QrIcon, TriangleAlert, Camera, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
@@ -98,7 +98,7 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
         <div className="flex flex-col gap-3 min-w-0">
           {!meta.primary_token ? (
             <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
-              <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+              <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
               <p className="text-sm text-destructive">Digital Photo Booth link not ready — please retry.</p>
             </div>
           ) : (
@@ -115,14 +115,14 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
 
           <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl || busy !== null}>
             {busy === 'launch' ? (
-              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Launching…</>
+              <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Launching…</>
             ) : (
               <><Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth</>
             )}
           </Button>
           <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl || busy !== null}>
             {busy === 'download' ? (
-              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Downloading…</>
+              <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Downloading…</>
             ) : (
               <><Download className="h-4 w-4 mr-1" /> Download QR code</>
             )}

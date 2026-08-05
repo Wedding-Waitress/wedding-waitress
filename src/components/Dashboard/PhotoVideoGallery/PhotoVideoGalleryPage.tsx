@@ -8,7 +8,7 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
-import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Camera, LoaderCircle, TriangleAlert, RotateCcw, CalendarDays } from 'lucide-react';
 
 interface Props {
   selectedEventId: string | null;
@@ -24,8 +24,8 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
       className="space-y-6 -m-4 p-4 pb-8 sm:-m-6 sm:p-6 sm:pb-12 rounded-none overflow-x-hidden min-h-screen"
       style={{ backgroundColor: '#472c1d' }}
     >
-      <div className="flex items-start gap-3">
-        <Camera className="h-6 w-6 text-[#967A59] shrink-0 mt-1" />
+      <div className="flex items-start gap-2">
+        <Camera size={25} strokeWidth={1.8} className="text-[#967A59] shrink-0 mt-1" aria-hidden="true" />
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl font-bold text-white break-words">Photo &amp; Video Sharing</h1>
           <p className="text-sm text-white/80 break-words">Let guests upload photos and short videos via QR code.</p>
@@ -34,9 +34,17 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
 
 
       <Card className="p-4">
-        <label className="text-sm font-medium block mb-2">Select event</label>
+        <label className="text-sm font-medium flex items-center gap-2 mb-2">
+          <CalendarDays size={18} strokeWidth={1.8} className="text-[#967A59] shrink-0" aria-hidden="true" />
+          Select event
+        </label>
         <Select value={selectedEventId || 'no-event'} onValueChange={onEventSelect}>
-          <SelectTrigger className="h-11 text-base"><SelectValue placeholder="Select an event…" /></SelectTrigger>
+          <SelectTrigger className="h-11 text-base">
+            <span className="flex min-w-0 items-center gap-2">
+              <CalendarDays size={17} strokeWidth={1.8} className="text-[#967A59] shrink-0" aria-hidden="true" />
+              <SelectValue placeholder="Select an event…" />
+            </span>
+          </SelectTrigger>
           <SelectContent>
             {eventsLoading ? (
               <SelectItem value="loading" disabled>Loading…</SelectItem>
@@ -49,25 +57,26 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
         </Select>
       </Card>
 
+
       {!selectedEventId ? (
         <Card className="p-12 text-center">
-          <Camera className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+          <Camera strokeWidth={1.8} className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
           <p className="text-muted-foreground">Choose an event to set up its photo &amp; video gallery.</p>
         </Card>
       ) : loading && !meta ? (
         <Card className="p-12 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+          <LoaderCircle strokeWidth={1.8} className="animate-spin h-6 w-6 text-[#967A59]" />
           <p className="text-sm text-muted-foreground">Loading gallery…</p>
         </Card>
       ) : error && !meta ? (
         <Card className="p-8 flex flex-col items-center text-center gap-3">
-          <AlertTriangle className="h-8 w-8 text-destructive" />
+          <TriangleAlert strokeWidth={1.8} className="h-8 w-8 text-destructive" />
           <div>
             <p className="font-medium text-foreground">Could not load gallery</p>
             <p className="text-sm text-muted-foreground mt-1 break-words">{error}</p>
           </div>
           <Button variant="outline" className="lv-premium-shade" onClick={() => refresh()} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Retry
+            <RotateCcw strokeWidth={1.8} className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Retry
           </Button>
         </Card>
       ) : meta ? (
@@ -76,10 +85,10 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
 
             {error && (
               <Card className="p-3 flex items-center gap-2 border-destructive/40">
-                <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+                <TriangleAlert strokeWidth={1.8} className="h-4 w-4 text-destructive shrink-0" />
                 <p className="text-sm text-destructive flex-1 break-words">{error}</p>
                 <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => refresh()}>
-                  <RefreshCw className="h-3.5 w-3.5 mr-1" /> Retry
+                  <RotateCcw strokeWidth={1.8} className="h-3.5 w-3.5 mr-1" /> Retry
                 </Button>
               </Card>
             )}
@@ -95,10 +104,10 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({ selectedEventId, onEven
         </PinchZoomContainer>
       ) : (
         <Card className="p-8 flex flex-col items-center text-center gap-3">
-          <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+          <TriangleAlert strokeWidth={1.8} className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Gallery is unavailable for this event.</p>
           <Button variant="outline" className="lv-premium-shade" onClick={() => refresh()}>
-            <RefreshCw className="h-4 w-4 mr-1" /> Retry
+            <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1" /> Retry
           </Button>
         </Card>
       )}

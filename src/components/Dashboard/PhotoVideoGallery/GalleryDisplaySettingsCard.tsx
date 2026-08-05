@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Settings2, Save, Loader2 } from 'lucide-react';
+import { Settings2, Save, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryMeta, GalleryDisplaySettings } from '@/hooks/useEventMediaGallery';
 
@@ -61,7 +61,7 @@ export const GalleryDisplaySettingsCard: React.FC<Props> = ({ meta, onSave }) =>
     <Card className="p-5 space-y-5">
       <div>
         <h2 className="text-lg font-semibold text-[#1D1D1F] flex items-center gap-2">
-          <Settings2 className="h-5 w-5 text-[#967A59]" /> Display settings
+          <Settings2 className="h-5 w-5 text-[#967A59]" strokeWidth={1.8} /> Display settings
         </h2>
         <p className="text-sm text-muted-foreground">Customise what guests and the Live View see. Leave blank to keep defaults.</p>
       </div>
@@ -125,7 +125,7 @@ export const GalleryDisplaySettingsCard: React.FC<Props> = ({ meta, onSave }) =>
           disabled={!dirty || saving}
           onClick={handleSave}
         >
-          {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+          {saving ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <Save className="h-4 w-4 mr-1" strokeWidth={1.8} />}
           Save display settings
         </Button>
       </div>

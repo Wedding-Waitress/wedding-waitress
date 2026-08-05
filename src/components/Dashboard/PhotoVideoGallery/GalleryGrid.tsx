@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Trash2, Camera, AlertTriangle, ExternalLink, EyeOff, Eye, CheckCircle2, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
+import { Download, Trash2, Camera, TriangleAlert, ExternalLink, EyeOff, Check, CircleCheck, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
@@ -331,7 +331,7 @@ export const GalleryGrid: React.FC<{
           size="sm"
           onClick={() => setSelectMode(true)}
         >
-          <CheckCircle2 className="h-4 w-4 mr-1" /> Select
+          <CircleCheck className="h-4 w-4 mr-1" /> Select
         </Button>
       ) : (
         <>
@@ -341,7 +341,7 @@ export const GalleryGrid: React.FC<{
             size="sm"
             onClick={selectAllVisible}
           >
-            <CheckCircle2 className="h-4 w-4 mr-1" />
+            <CircleCheck className="h-4 w-4 mr-1" />
             {allVisibleSelected ? 'Deselect All' : 'Select All'}
           </Button>
           {visibleSelectedCount > 0 && (
@@ -472,7 +472,7 @@ export const GalleryGrid: React.FC<{
               disabled={bulkBusy || visibleSelectedCount === 0}
               onClick={() => bulkSetModeration('approved')}
             >
-              <Eye className="h-4 w-4 mr-1 text-green-600" /> Approve
+              <Check className="h-4 w-4 mr-1 text-green-600" /> Approve
             </Button>
             <Button
               className="lv-premium-shade"
@@ -575,7 +575,7 @@ export const GalleryGrid: React.FC<{
                       aria-label={isSelected ? 'Deselect' : 'Select'}
                     >
                       <span className={`rounded-full p-0.5 ${isSelected ? 'bg-[#967A59] text-white' : 'bg-white/90 text-[#1D1D1F]'}`}>
-                        {isSelected ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                        {isSelected ? <CircleCheck className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
                       </span>
                     </button>
                   )}
@@ -619,7 +619,7 @@ export const GalleryGrid: React.FC<{
                         className="bg-white/90 rounded-md p-1 hover:bg-white"
                         title={isHidden ? 'Approve / show again' : 'Hide from guests'}
                       >
-                        {isHidden ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
+                        {isHidden ? <Check className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
                       <button
                         onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) runDelete([it.id]); }}
@@ -690,7 +690,7 @@ export const GalleryGrid: React.FC<{
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-[#1D1D1F]">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <TriangleAlert className="h-5 w-5 text-destructive" />
               Delete {visibleSelectedCount} item{visibleSelectedCount === 1 ? '' : 's'}?
             </DialogTitle>
             <DialogDescription>

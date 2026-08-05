@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Mic, Copy, ExternalLink, MessageCircle } from 'lucide-react';
+import { Mic2, Copy, ExternalLink, MessageSquareText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
@@ -38,7 +38,7 @@ export const GalleryGuestbookCard: React.FC<{
     <Card className="p-4 sm:p-5 space-y-4 overflow-hidden">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-full bg-[#967A59]/10 flex items-center justify-center shrink-0">
-          <MessageCircle className="h-5 w-5 text-[#967A59]" />
+          <MessageSquareText className="h-5 w-5 text-[#967A59]" strokeWidth={1.8} />
         </div>
         <div className="min-w-0">
           <h2 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Guestbook</h2>
@@ -56,7 +56,7 @@ export const GalleryGuestbookCard: React.FC<{
       <div className="rounded-lg border border-border p-3 space-y-3">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-start gap-2">
-            <Mic className="h-4 w-4 mt-0.5 text-[#967A59]" />
+            <Mic2 className="h-4 w-4 mt-0.5 text-[#967A59]" strokeWidth={1.8} />
             <div>
               <p className="text-sm font-medium text-[#1D1D1F]">Voice messages</p>
               <p className="text-xs text-[#6E6E73]">Guests record a short voice or video message (max 60 seconds).</p>
@@ -81,10 +81,10 @@ export const GalleryGuestbookCard: React.FC<{
             </div>
             <div className="flex gap-2 flex-wrap">
               <Button className="lv-premium-shade" variant="outline" size="sm" onClick={copy} disabled={!url}>
-                <Copy className="h-4 w-4 mr-1" /> Copy link
+                <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy link
               </Button>
               <Button className="lv-premium-shade" variant="outline" size="sm" onClick={open} disabled={!url}>
-                <ExternalLink className="h-4 w-4 mr-1" /> Open Voice Guestbook
+                <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Open Voice Guestbook
               </Button>
             </div>
           </div>

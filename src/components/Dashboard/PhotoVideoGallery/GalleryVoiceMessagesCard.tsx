@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Mic, Search, Eye, EyeOff, Download, Loader2, AlertTriangle, Video, Play } from 'lucide-react';
+import { Mic2, Search, CircleCheck, EyeOff, Download, LoaderCircle, TriangleAlert, Video, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
@@ -113,7 +113,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <Mic className="h-5 w-5 text-[#967A59] shrink-0" />
+            <Mic2 className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} />
             <span className="min-w-0 break-words">Audio & Video Guestbook Messages ({recordings.length})</span>
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
@@ -134,7 +134,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
       {/* Filters */}
       <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -171,10 +171,10 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
           <span className="text-sm text-[#6E6E73]">{selected.size} selected</span>
           <div className="flex flex-wrap gap-2 ml-auto">
             <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('approved')}>
-              {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />} Approve
+              {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <CircleCheck className="h-4 w-4 mr-1" strokeWidth={1.8} />} Approve
             </Button>
             <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('hidden')}>
-              {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <EyeOff className="h-4 w-4 mr-1" />} Hide
+              {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <EyeOff className="h-4 w-4 mr-1" strokeWidth={1.8} />} Hide
             </Button>
           </div>
         </div>
@@ -182,19 +182,19 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
 
       {error && (
         <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
-          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+          <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
           <p className="text-sm text-destructive break-words">{error}</p>
         </div>
       )}
 
       {loading && recordings.length === 0 ? (
         <div className="py-12 flex flex-col items-center gap-3">
-          <Loader2 className="h-6 w-6 animate-spin text-[#967A59]" />
+          <LoaderCircle className="h-6 w-6 animate-spin text-[#967A59]" strokeWidth={1.8} />
           <p className="text-sm text-muted-foreground">Loading recordings…</p>
         </div>
       ) : rows.length === 0 ? (
         <div className="py-12 text-center">
-          <Mic className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+          <Mic2 className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />
           <p className="text-sm text-muted-foreground break-words">
             {recordings.length === 0
               ? 'No voice messages yet. Share the QR code or link so guests can record one.'
@@ -209,7 +209,7 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
           ]).filter(g => g.list.length > 0).map(group => (
             <section key={group.key} className="space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wide text-[#6E6E73] flex items-center gap-2">
-                {group.key === 'audio' ? <Mic className="h-4 w-4 text-[#967A59]" /> : <Video className="h-4 w-4 text-[#967A59]" />}
+                {group.key === 'audio' ? <Mic2 className="h-4 w-4 text-[#967A59]" strokeWidth={1.8} /> : <Video className="h-4 w-4 text-[#967A59]" strokeWidth={1.8} />}
                 {group.label} ({group.list.length})
               </h3>
               <ul className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
@@ -231,12 +231,12 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
                         />
                       ) : (
                         <span className="absolute inset-0 flex items-center justify-center">
-                          <Mic className="h-8 w-8 text-[#967A59]" />
+                          <Mic2 className="h-8 w-8 text-[#967A59]" strokeWidth={1.8} />
                         </span>
                       )}
                       <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors">
                         <span className="h-9 w-9 rounded-full bg-white/90 flex items-center justify-center shadow">
-                          <Play className="h-4 w-4 text-[#1D1D1F] ml-0.5" />
+                          <Play className="h-4 w-4 text-[#1D1D1F] ml-0.5" strokeWidth={1.8} />
                         </span>
                       </span>
                       {selectMode && (
@@ -278,15 +278,15 @@ export const GalleryVoiceMessagesCard: React.FC<Props> = ({ items, eventName, lo
                       <div className="flex gap-1 pt-1 mt-auto">
                         {item.moderation_status === 'hidden' ? (
                           <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleSingle(item, 'approved')}>
-                            <Eye className="h-3.5 w-3.5 mr-1" /> Show
+                            <CircleCheck className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Show
                           </Button>
                         ) : (
                           <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleSingle(item, 'hidden')}>
-                            <EyeOff className="h-3.5 w-3.5 mr-1" /> Hide
+                            <EyeOff className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Hide
                           </Button>
                         )}
-                        <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
-                          <Download className="h-3.5 w-3.5" />
+                        <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download" aria-label="Download recording" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
+                          <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       </div>
                     </div>
