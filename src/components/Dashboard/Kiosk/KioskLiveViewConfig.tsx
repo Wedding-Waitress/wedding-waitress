@@ -9,13 +9,19 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import {
-  Mail,
+  MailCheck,
   Video,
-  MapPin,
+  MapPinned,
   UtensilsCrossed,
-  Image as ImageIcon,
+  ImagePlus,
   Upload,
-  Settings,
+  Settings2,
+  SlidersHorizontal,
+  ShieldCheck,
+  Clock3,
+  ClipboardCheck,
+  UserPlus,
+  UserRoundCog,
   RotateCcw,
   Trash2,
 } from 'lucide-react';
@@ -116,7 +122,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
 
   const tiles: ModuleTile[] = [
     {
-      icon: <Mail className="h-5 w-5 text-[#856A4C]" />,
+      icon: <MailCheck className="h-5 w-5 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />,
       title: 'RSVP Invite',
       description: 'Let guests view your digital invitations & RSVP',
       visKey: 'show_rsvp_invite',
@@ -126,7 +132,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
       accept: 'PDF, JPG, or PNG',
     },
     {
-      icon: <Video className="h-5 w-5 text-[#856A4C]" />,
+      icon: <Video className="h-5 w-5 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />,
       title: 'Welcome Video',
       description: 'Add a personal video message for your guests',
       visKey: 'show_welcome_video',
@@ -136,7 +142,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
       accept: 'MP4, MOV, or WebM',
     },
     {
-      icon: <MapPin className="h-5 w-5 text-[#856A4C]" />,
+      icon: <MapPinned className="h-5 w-5 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />,
       title: 'Reception Floor Plan',
       description: 'Show your reception floor plan to guests',
       visKey: 'show_reception_floor_plan',
@@ -146,7 +152,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
       accept: 'JPG or PNG',
     },
     {
-      icon: <UtensilsCrossed className="h-5 w-5 text-[#856A4C]" />,
+      icon: <UtensilsCrossed className="h-5 w-5 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />,
       title: 'Menu',
       description: 'Upload your wedding menu for guests to view',
       visKey: 'show_menu',
@@ -161,7 +167,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
     <Card id="guest-live-view-configuration" className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full scroll-mt-24">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <Settings className="w-5 h-5 text-foreground" />
+          <Settings2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
           Guest Live View Configuration
         </CardTitle>
       </CardHeader>
@@ -210,7 +216,10 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                     <Accordion type="single" collapsible className="w-full mt-auto">
                       <AccordionItem value={`${tile.visKey}-cfg`} className="border-0">
                         <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                          <span className="text-[#856A4C]">Configure {tile.title} Settings</span>
+                          <span className="text-[#856A4C] inline-flex items-center gap-[7px]">
+                            <Settings2 className="w-[15px] h-[15px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                            Configure {tile.title} Settings
+                          </span>
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="space-y-3 pt-2">
@@ -230,7 +239,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                   className="lv-premium-shade text-white"
                                   onClick={() => triggerFile(tile.configKey, tile.bucket)}
                                 >
-                                  <RotateCcw className="h-3 w-3 mr-1" />
+                                  <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                                   Replace
                                 </Button>
                                 <Button
@@ -239,7 +248,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                   className="lv-premium-shade text-white"
                                   onClick={() => handleRemove(tile.configKey, tile.bucket)}
                                 >
-                                  <Trash2 className="h-3 w-3 mr-1" />
+                                  <Trash2 className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                                   Remove
                                 </Button>
                               </div>
@@ -248,7 +257,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                                 onClick={() => triggerFile(tile.configKey, tile.bucket)}
                               >
-                                <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                                <Upload className="h-[18px] w-[18px] mx-auto mb-2 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
                                 <p className="text-xs font-medium">{tile.uploadLabel}</p>
                                 <p className="text-xs text-muted-foreground">{tile.accept}</p>
                               </div>
@@ -265,7 +274,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
             const heroTile = (
               <div key="hero" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-3">
-                  <ImageIcon className="h-5 w-5 text-[#856A4C]" />
+                  <ImagePlus className="h-5 w-5 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <div>
                     <h4 className="text-sm font-semibold">Add Your Photo or Logo</h4>
                     <p className="text-xs text-muted-foreground">
@@ -279,7 +288,10 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 <Accordion type="single" collapsible className="w-full mt-auto">
                   <AccordionItem value="hero-cfg" className="border-0">
                     <AccordionTrigger className="text-sm py-2 hover:no-underline">
-                      <span className="text-[#856A4C]">Configure Hero Background</span>
+                      <span className="text-[#856A4C] inline-flex items-center gap-[7px]">
+                        <Settings2 className="w-[15px] h-[15px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                        Configure Hero Background
+                      </span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-3 pt-2">
@@ -302,7 +314,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 className="lv-premium-shade text-white"
                                 onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                               >
-                                <RotateCcw className="h-3 w-3 mr-1" />
+                                <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                                 Replace
                               </Button>
                               <Button
@@ -311,7 +323,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 className="lv-premium-shade text-white"
                                 onClick={() => handleRemove('hero_image_config', 'live-view-uploads')}
                               >
-                                <Trash2 className="h-3 w-3 mr-1" />
+                                <Trash2 className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                                 Remove
                               </Button>
                             </div>
@@ -321,7 +333,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                             className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                           >
-                            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                            <Upload className="h-[18px] w-[18px] mx-auto mb-2 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
                             <p className="text-xs font-medium">Upload Photo or Logo</p>
                             <p className="text-xs text-muted-foreground">JPG or PNG</p>
                           </div>
@@ -335,13 +347,19 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
 
             const togglesTile = (
               <div key="toggles" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <h4 className="text-sm font-semibold">Kiosk Display Toggles</h4>
+                <h4 className="text-sm font-semibold flex items-center gap-[7px]">
+                  <SlidersHorizontal className="h-5 w-5 text-[#856A4C] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  Kiosk Display Toggles
+                </h4>
                 <p className="text-xs text-muted-foreground">
                   Control which guest details appear on the kiosk result card.
                 </p>
 
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm">Show RSVP Status</span>
+                  <span className="text-sm inline-flex items-center gap-[7px]">
+                    <ClipboardCheck className="h-4 w-4 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                    Show RSVP Status
+                  </span>
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-xs whitespace-nowrap ${
@@ -359,7 +377,10 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Show Dietary Requirements</span>
+                  <span className="text-sm inline-flex items-center gap-[7px]">
+                    <UtensilsCrossed className="h-4 w-4 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                    Show Dietary Requirements
+                  </span>
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-xs whitespace-nowrap ${
@@ -384,35 +405,44 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               {
                 key: 'rsvp_override_auto_lock',
                 label: 'Keep RSVP Accept / Decline available',
+                Icon: ClipboardCheck,
               },
               {
                 key: 'plus_one_override_auto_lock',
                 label: 'Keep Add +1 Guest available',
+                Icon: UserPlus,
               },
               {
                 key: 'update_details_override_auto_lock',
                 label: 'Keep Update Your Details available',
+                Icon: UserRoundCog,
               },
             ] as const;
             const autoProtectionTile = (
               <div key="auto-protection" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] md:col-span-2">
                 <div className="flex items-center gap-3">
-                  <Settings className="h-5 w-5 text-[#856A4C]" />
+                  <ShieldCheck className="h-5 w-5 text-[#856A4C] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   <div>
                     <h4 className="text-sm font-semibold">7-Day Auto-Protection</h4>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground flex items-start gap-[7px]">
+                      <Clock3 className="h-4 w-4 shrink-0 mt-0.5" strokeWidth={1.8} aria-hidden="true" />
+                      <span>
                       In the 7 days before your event, RSVP, +1 and Update Details are
                       automatically hidden from guests in the Live View. Turn any toggle ON
                       to keep that action available during the final week.
+                      </span>
                     </p>
                   </div>
                 </div>
                 <div className="space-y-2 pt-2">
-                  {autoLockKeys.map(({ key, label }) => {
+                  {autoLockKeys.map(({ key, label, Icon }) => {
                     const checked = !!rsvpConf[key];
                     return (
                       <div key={key} className="flex items-center justify-between">
-                        <span className="text-sm">{label}</span>
+                        <span className="text-sm inline-flex items-center gap-[7px]">
+                          <Icon className="h-4 w-4 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                          {label}
+                        </span>
                         <div className="flex items-center gap-2">
                           <span className={`text-xs whitespace-nowrap ${checked ? 'text-green-600' : 'text-red-500'}`}>
                             {checked ? 'Override ON' : 'Auto-hide'}
