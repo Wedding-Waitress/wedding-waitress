@@ -325,7 +325,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
             {/* Table Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                <Table2 className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Table:
               </label>
               <Select 
