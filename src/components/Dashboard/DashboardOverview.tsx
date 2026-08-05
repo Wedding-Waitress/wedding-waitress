@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3 } from 'lucide-react';
+import { CalendarDays, ChartNoAxesCombined } from 'lucide-react';
 import type { Guest } from '@/hooks/useGuests';
 import { useFirstEventReferral, type ReferralEventLite } from '@/hooks/useFirstEventReferral';
 import { VenueReferralCard } from './VenueReferralCard';
@@ -47,7 +47,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       {events.length > 0 && (
         <Card className="ww-box">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap">
+            <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-2">
+              <CalendarDays size={18} strokeWidth={1.8} className="shrink-0" aria-hidden />
               Choose Event:
             </label>
             <Select value={selectedEventId || 'no-event'} onValueChange={onEventSelect}>
@@ -75,7 +76,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <Card className="ww-box">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-              <BarChart3 className="w-6 h-6 text-primary" />
+              <ChartNoAxesCombined size={22} strokeWidth={1.8} className="text-primary" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-foreground">Business analytics coming soon</h3>

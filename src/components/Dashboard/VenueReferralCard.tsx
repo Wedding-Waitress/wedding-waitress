@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, X, Sparkles } from 'lucide-react';
+import { Building2, X, Sparkles, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InviteVenueModal } from './InviteVenueModal';
 import type { ReferralEventLite } from '@/hooks/useFirstEventReferral';
@@ -26,7 +26,7 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
 
         <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
           <div className="w-12 h-12 rounded-2xl bg-[#967A59]/10 flex items-center justify-center shrink-0">
-            <Building2 className="w-6 h-6 text-[#967A59]" />
+            <Building2 size={22} strokeWidth={1.8} className="text-[#967A59]" />
           </div>
 
           <div className="flex-1 min-w-0">
@@ -46,8 +46,9 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full lg:w-auto shrink-0">
             <Button
               onClick={() => setOpen(true)}
-              className="lv-premium-shade h-11 rounded-full bg-[#967A59] hover:bg-[#7d6549] text-white w-full lg:w-auto px-6"
+              className="lv-premium-shade h-11 rounded-full bg-[#967A59] hover:bg-[#7d6549] text-white w-full lg:w-auto px-6 inline-flex items-center justify-center gap-[6px]"
             >
+              <Send size={16} strokeWidth={1.8} aria-hidden />
               Invite My Venue
             </Button>
             <Button
