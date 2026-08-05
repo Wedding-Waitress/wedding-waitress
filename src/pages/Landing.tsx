@@ -493,10 +493,15 @@ export const Landing = () => {
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
                   className="w-full flex items-center justify-between p-6 text-left"
                 >
                   <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                  {openFaq === i ? (
+                    <ChevronUp size={18} strokeWidth={1.8} aria-hidden="true" className="text-gray-400 shrink-0" />
+                  ) : (
+                    <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" className="text-gray-400 shrink-0" />
+                  )}
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-[500px] pb-6' : 'max-h-0'}`}>
                   <p className="px-6 text-sm text-gray-600 leading-relaxed">{item.a}</p>
