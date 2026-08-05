@@ -461,9 +461,9 @@ export const GuestMediaUpload: React.FC = () => {
           <div
             className={[
               "w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden flex items-center justify-center",
-              activeTab !== 'upload' ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
+              (activeTab !== 'upload' && activeTab !== 'gallery') ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
             ].join(' ')}
-            style={activeTab !== 'upload' ? { borderColor: accent } : undefined}
+            style={(activeTab !== 'upload' && activeTab !== 'gallery') ? { borderColor: accent } : undefined}
           >
             {activeTab === 'guestbook' ? (
               <div className="relative w-full h-full">
