@@ -18,9 +18,9 @@ import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/Gue
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
-import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png';
 import galleryHeaderLogo from '@/assets/gallery-header-logo.png';
+import guestbookHeaderLogo from '@/assets/guestbook-header-logo.png';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 // The dynamic import retries once before failing so a single flaky chunk request on first
@@ -460,30 +460,23 @@ export const GuestMediaUpload: React.FC = () => {
           <div
             className={[
               "w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden flex items-center justify-center",
-              (activeTab !== 'upload' && activeTab !== 'gallery') ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
+              (activeTab !== 'upload' && activeTab !== 'gallery' && activeTab !== 'guestbook') ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
             ].join(' ')}
-            style={(activeTab !== 'upload' && activeTab !== 'gallery') ? { borderColor: accent } : undefined}
+            style={(activeTab !== 'upload' && activeTab !== 'gallery' && activeTab !== 'guestbook') ? { borderColor: accent } : undefined}
           >
             {activeTab === 'guestbook' ? (
-              <div className="relative w-full h-full">
-                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-                <img
-                  src={guestBookHeroGold}
-                  alt=""
-                  className="absolute inset-0 m-auto"
-                  style={{
-                    zIndex: 10,
-                    width: '86%',
-                    height: '86%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    opacity: 1,
-                    visibility: 'visible',
-                    filter: 'none',
-                    mixBlendMode: 'normal',
-                  }}
-                />
-              </div>
+              <img
+                src={guestbookHeaderLogo}
+                alt="Please Sign Our Guest Book"
+                className="w-full h-full object-contain object-center block"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  display: 'block',
+                }}
+              />
             ) : activeTab === 'booth' ? (
               <div className="relative w-full h-full">
                 <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
