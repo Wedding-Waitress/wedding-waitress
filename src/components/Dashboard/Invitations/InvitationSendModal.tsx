@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, MessageSquare, Send, CheckCircle2, XCircle, Clock, AlertCircle, Lock } from 'lucide-react';
+import { MailHeart, MessageSquareText, Send, CircleCheck, XCircle, Clock, AlertTriangle, Lock, UsersRound, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useInvitationSend } from '@/hooks/useInvitationSend';
 import { useUserPlan } from '@/hooks/useUserPlan';
@@ -33,13 +33,13 @@ const FREE_SEND_LIMIT = 3;
 const statusBadge = (status?: string) => {
   switch (status) {
     case 'email_sent':
-      return <Badge variant="secondary" className="text-[10px] gap-1"><Mail className="w-3 h-3" />Email sent</Badge>;
+      return <Badge variant="secondary" className="text-[10px] gap-1"><MailHeart className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />Email sent</Badge>;
     case 'sms_sent':
-      return <Badge variant="secondary" className="text-[10px] gap-1"><MessageSquare className="w-3 h-3" />SMS sent</Badge>;
+      return <Badge variant="secondary" className="text-[10px] gap-1"><MessageSquareText className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />SMS sent</Badge>;
     case 'both_sent':
-      return <Badge variant="secondary" className="text-[10px] gap-1"><CheckCircle2 className="w-3 h-3" />Both sent</Badge>;
+      return <Badge variant="secondary" className="text-[10px] gap-1"><CircleCheck className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />Both sent</Badge>;
     default:
-      return <Badge variant="outline" className="text-[10px] gap-1"><Clock className="w-3 h-3" />Not sent</Badge>;
+      return <Badge variant="outline" className="text-[10px] gap-1"><Clock className="w-3 h-3" strokeWidth={1.8} aria-hidden="true" />Not sent</Badge>;
   }
 };
 
@@ -148,7 +148,7 @@ export const InvitationSendModal: React.FC<Props> = ({
       <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Send className="w-5 h-5 text-primary" /> Send Invitation to Guests
+            <Send className="w-5 h-5 text-primary" strokeWidth={1.8} aria-hidden="true" /> Send Invitation to Guests
           </DialogTitle>
           <DialogDescription>
             Select guests and choose a delivery channel. {channel === 'email' ? 'Email will include your designed invitation image.' : 'SMS will include the RSVP link.'}
@@ -157,21 +157,21 @@ export const InvitationSendModal: React.FC<Props> = ({
 
         <Tabs value={channel} onValueChange={(v) => { setChannel(v as 'email' | 'sms'); setSelected(new Set()); }}>
           <TabsList className="w-full">
-            <TabsTrigger value="email" className="flex-1 gap-2"><Mail className="w-4 h-4" />Email</TabsTrigger>
-            <TabsTrigger value="sms" className="flex-1 gap-2"><MessageSquare className="w-4 h-4" />SMS</TabsTrigger>
+            <TabsTrigger value="email" className="flex-1 gap-2"><MailHeart className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />Email</TabsTrigger>
+            <TabsTrigger value="sms" className="flex-1 gap-2"><MessageSquareText className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />SMS</TabsTrigger>
           </TabsList>
         </Tabs>
 
         {isStarterPlan && (
           <div className="text-xs text-muted-foreground bg-muted rounded-lg p-2 flex items-center gap-2">
-            <Lock className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            <Lock className="w-3.5 h-3.5 text-primary flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span>Free plan: {Math.max(0, FREE_SEND_LIMIT - sendCount)} sends remaining</span>
           </div>
         )}
 
         {filteredGuests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-            <AlertCircle className="w-8 h-8 mb-2" />
+            <AlertTriangle className="w-8 h-8 mb-2" strokeWidth={1.8} aria-hidden="true" />
             <p className="text-sm">No guests with {channel === 'email' ? 'email addresses' : 'mobile numbers'} found.</p>
           </div>
         ) : (
@@ -222,7 +222,7 @@ export const InvitationSendModal: React.FC<Props> = ({
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>Cancel</Button>
           <Button onClick={handleSend} disabled={sending || selected.size === 0}>
-            <Send className="w-4 h-4 mr-2" />
+            <Send className="w-4 h-4 mr-2" strokeWidth={1.8} aria-hidden="true" />
             Send to {selected.size} guest{selected.size !== 1 ? 's' : ''}
           </Button>
         </DialogFooter>

@@ -6,7 +6,7 @@ import { useInvitationCardSettings, CardType, QrConfig } from '@/hooks/useInvita
 import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Mail, Plus, Copy, Trash2, Pencil } from 'lucide-react';
+import { Loader2, LoaderCircle, FileText, CalendarDays, Mail, MailHeart, CalendarHeart, HandHeart, BadgeCheck, Printer, Download, Plus, Copy, Trash2, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
 import { generateInvitationQR } from '@/lib/invitationQR';
@@ -259,7 +259,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground">Invitations, Save the Date & Thank You Cards</h1>
+            <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><MailHeart className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitations, Save the Date & Thank You Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create professional invitations (A4), save the dates (A4/A5), and thank you cards (A4/A5/A6) to send digitally or download to print
             </p>
@@ -268,7 +268,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           {selectedEvent && (
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
-                <p className="font-medium text-green-600">
+                <p className="flex items-center gap-2 font-medium text-green-600">
+                  <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Manage your A4-A5 invitations and cards
                 </p>
                 <div className="text-muted-foreground space-y-1 mt-3">
@@ -298,7 +299,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4" />
+                          <CalendarDays className="h-[17px] w-[17px]" strokeWidth={1.8} aria-hidden="true" />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>
@@ -315,7 +316,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             {selectedEvent && (
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
                 <div className="text-sm">
-                  <span className="font-medium">Export Controls</span>
+                  <span className="inline-flex items-center gap-1.5 font-medium"><Printer className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your invitations as PDF ready for printing.</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -324,7 +325,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                     onClick={handleDownloadPDF}
                     className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
-                    {exporting ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                    {exporting ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" /> : <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                     {exporting ? 'Exporting…' : 'Download PDF'}
                   </button>
                 </div>
@@ -336,7 +337,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {!selectedEventId && (
         <Card className="ww-box p-12 text-center">
-          <Mail className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <MailHeart className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription className="text-base">
             Choose an event above to start designing your invitations
@@ -351,9 +352,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
               <TabsList className="grid w-full grid-cols-3 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
-                <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Invitation</TabsTrigger>
-                <TabsTrigger value="save_the_date" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Save the Date</TabsTrigger>
-                <TabsTrigger value="thank_you" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5">Thank You</TabsTrigger>
+                <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><MailHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitation</TabsTrigger>
+                <TabsTrigger value="save_the_date" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><CalendarHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Save the Date</TabsTrigger>
+                <TabsTrigger value="thank_you" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><HandHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Thank You</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -400,21 +401,25 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                       variant="ghost"
                       className="h-6 w-6 p-0"
                       onClick={() => handleStartRename(artwork.id!, artwork.name)}
+                      aria-label="Edit card"
+                      title="Edit card"
                     >
-                      <Pencil className="h-3 w-3" />
+                      <Pencil className="h-[15px] w-[15px]" strokeWidth={1.8} aria-hidden="true" />
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       className="h-6 w-6 p-0"
                       onClick={() => duplicateArtwork(artwork.id!)}
+                      aria-label="Duplicate card"
+                      title="Duplicate card"
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-[15px] w-[15px]" strokeWidth={1.8} aria-hidden="true" />
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                          <Trash2 className="h-3 w-3 text-destructive" />
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0" aria-label="Delete card" title="Delete card">
+                          <Trash2 className="h-[15px] w-[15px] text-destructive" strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -437,7 +442,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 onClick={handleOpenCreateDialog}
                 className="flex-shrink-0 w-48 h-[140px] max-sm:w-full max-sm:h-[160px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
               >
-                <Plus className="h-6 w-6 text-primary" />
+                <Plus className="h-[22px] w-[22px] text-primary" strokeWidth={1.8} aria-hidden="true" />
                 <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
               </button>
             </div>
