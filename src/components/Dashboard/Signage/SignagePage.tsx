@@ -12,7 +12,7 @@ import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit, useOptimizedPreview } from '@/lib/imagePipeline';
 import { exportSignagePDF } from '@/lib/signagePdfExporter';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
-import { Loader2, FileText, Calendar, Printer, Building2, QrCode, Heart, Sparkles, AlarmClock, Presentation, MonitorSmartphone, ClipboardList, FileImage, CreditCard, PanelsTopLeft, Mail, Badge } from 'lucide-react';
+import { Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
@@ -63,14 +63,14 @@ const PRINT_SIZES: ReadonlyArray<{
   icon: React.ComponentType<{ className?: string }>;
 }> = [
   
-  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: MonitorSmartphone },
-  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: ClipboardList },
-  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileImage },
+  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: FileText },
+  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: FileText },
+  { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileText },
   { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage', icon: FileText },
-  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards', icon: CreditCard },
+  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards', icon: FileText },
   { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards', icon: PanelsTopLeft },
   { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards', icon: Mail },
-  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts', icon: Badge },
+  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts', icon: Contact },
 ];
 
 const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
@@ -478,7 +478,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground">Wedding Waitress Signs Studio</h1>
+            <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><LayoutTemplate className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Wedding Waitress Signs Studio</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
             </p>
@@ -493,13 +493,16 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               </label>
               <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
                 <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
-                  <SelectValue placeholder="Choose Event" />
+                  <div className="flex items-center gap-[7px] min-w-0">
+                    <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                    <SelectValue placeholder="Choose Event" />
+                  </div>
                 </SelectTrigger>
                 <SelectContent className="bg-popover border-border z-50">
                   {events.map(event => (
                     <SelectItem key={event.id} value={event.id}>
                       <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4" />
+                        <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} />
                         <span>{event.name}</span>
                       </div>
                     </SelectItem>
@@ -512,7 +515,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           {selectedEvent && (
             <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-6 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
               <div className="flex flex-col gap-1">
-                <h3 className="text-lg lg:text-xl font-semibold text-primary leading-tight">
+                <h3 className="flex items-center gap-2 text-lg lg:text-xl font-semibold text-primary leading-tight">
+                  <Printer className="h-[22px] w-[22px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Print &amp; Export Studio
                 </h3>
                 <p className="text-[11px] lg:text-xs uppercase tracking-[0.14em] text-muted-foreground/80">
@@ -527,7 +531,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] gap-6">
                   <div>
-                    <p className="font-semibold text-primary text-base">
+                    <p className="flex items-center gap-2 font-semibold text-primary text-base">
+                      <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Professional Wedding Print Guidelines
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -560,7 +565,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div className="flex items-center gap-1.5">
-                              <Icon className={`h-4 w-4 transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
+                              <Icon strokeWidth={1.8} className={`h-[17px] w-[17px] transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
                               <span className={`text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
                                 {size.label}
                               </span>
@@ -570,15 +575,19 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                                 active
                                   ? 'bg-green-100 border-green-300 text-green-700'
                                   : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
-                              }`}>
-                                ⭐ Most Popular
+                              } inline-flex items-center gap-1`}>
+                                <Star className="h-[14px] w-[14px]" strokeWidth={1.8} aria-hidden="true" />
+                                Most Popular
                               </span>
                             )}
                           </div>
                           <span className={`text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
                           <span className={`text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
                           {active && (
-                            <span className="text-[10px] font-medium text-green-700 mt-2">✓ Selected for export</span>
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-green-700 mt-2">
+                              <CircleCheck className="h-[15px] w-[15px]" strokeWidth={1.8} aria-hidden="true" />
+                              Selected for export
+                            </span>
                           )}
                         </button>
                       );
@@ -594,13 +603,16 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   </label>
                   <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
                     <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
-                      <SelectValue placeholder="Choose Event" />
+                      <div className="flex items-center gap-[7px] min-w-0">
+                        <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                        <SelectValue placeholder="Choose Event" />
+                      </div>
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border z-50">
                       {events.map(event => (
                         <SelectItem key={event.id} value={event.id}>
                           <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} />
                             <span>{event.name}</span>
                           </div>
                         </SelectItem>
@@ -619,7 +631,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   return (
                     <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
                       <div className="text-sm">
-                        <span className="font-medium">Export Controls</span>
+                        <span className="inline-flex items-center gap-1.5 font-medium"><Printer className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Export Controls</span>
                         <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -628,7 +640,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           onClick={handleDownloadPDF}
                           className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                         >
-                          {exporting === 'pdf' ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                          {exporting === 'pdf' ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" /> : <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                           {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
                         </button>
                       </div>
