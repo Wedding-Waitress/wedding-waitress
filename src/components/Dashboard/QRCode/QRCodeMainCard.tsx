@@ -104,6 +104,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const [qrShapes, setQrShapes] = useState<QRShapeSettings>({ ...defaultShapes });
   const [qrLogo, setQrLogo] = useState<QRLogoSettings>({ ...defaultLogo });
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [downloading, setDownloading] = useState<'png' | 'jpg' | null>(null);
 
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
@@ -291,16 +293,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   // Action button handlers
   const handleDownloadPNG = useCallback(async () => {
     if (!qrDataUrl) return;
+    setDownloading('png');
     const link = document.createElement('a');
     link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
     link.href = qrDataUrl;
     link.click();
+    setDownloading(null);
     toast({
       title: "PNG downloaded successfully!"
     });
   }, [qrDataUrl, selectedEvent?.name, toast]);
   const handleDownloadJPG = useCallback(async () => {
     if (!qrDataUrl) return;
+    setDownloading('jpg');
     // Convert PNG to JPG
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -316,6 +321,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
       link.href = jpgDataUrl;
       link.click();
+      setDownloading(null);
       toast({
         title: "JPG downloaded successfully!"
       });
@@ -467,6 +473,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     try {
       const guestLookupUrl = eventUrl;
       await navigator.clipboard.writeText(guestLookupUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
       toast({
         title: "Link copied!",
         description: "The guest lookup link has been copied to your clipboard."
