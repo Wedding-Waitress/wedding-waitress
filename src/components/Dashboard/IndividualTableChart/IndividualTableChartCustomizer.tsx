@@ -209,12 +209,15 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {settings.tableShape !== 'long' && (
           <div className="space-y-4">
            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
-              <Type className="w-4 h-4" />
+              <Type className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Typography
             </span>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="larger-table-names" className="text-sm font-medium text-foreground">Guest Table Names Larger</Label>
+              <Label htmlFor="larger-table-names" className="text-sm font-medium text-foreground flex items-center gap-[7px]">
+                <Scaling className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Guest Table Names Larger
+              </Label>
               <Switch
                 id="larger-table-names"
                 checked={settings.largerTableNames}
@@ -226,7 +229,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Text Style</Label>
+              <Label className="text-xs text-muted-foreground flex items-center gap-[7px]">
+                <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Text Style
+              </Label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
