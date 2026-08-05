@@ -459,8 +459,11 @@ export const GuestMediaUpload: React.FC = () => {
         <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
           {/* Circular event avatar */}
           <div
-            className="w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden border-[3px] shadow-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm"
-            style={{ borderColor: accent }}
+            className={[
+              "w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden flex items-center justify-center",
+              activeTab !== 'upload' ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
+            ].join(' ')}
+            style={activeTab !== 'upload' ? { borderColor: accent } : undefined}
           >
             {activeTab === 'guestbook' ? (
               <div className="relative w-full h-full">
@@ -505,25 +508,18 @@ export const GuestMediaUpload: React.FC = () => {
             ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
             ) : activeTab === 'upload' ? (
-              <div className="relative w-full h-full">
-                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-                <img
-                  src={uploadHeroDefault}
-                  alt=""
-                  className="absolute inset-0 m-auto"
-                  style={{
-                    zIndex: 10,
-                    width: '86%',
-                    height: '86%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    opacity: 1,
-                    visibility: 'visible',
-                    filter: 'none',
-                    mixBlendMode: 'normal',
-                  }}
-                />
-              </div>
+              <img
+                src={uploadHeaderLogo}
+                alt="Create and Share the Memories"
+                className="w-full h-full object-contain object-center block"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  display: 'block',
+                }}
+              />
             ) : activeTab === 'gallery' ? (
               <div className="relative w-full h-full">
                 <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
