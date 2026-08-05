@@ -538,7 +538,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                       </Button>
                     )}
                     {r.source === 'text' && (
-                      <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download message" onClick={() => downloadTxt(r)}>
+                      <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
                         <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
                       </Button>
                     )}
