@@ -565,7 +565,7 @@ export const Dashboard = () => {
                           <Button 
                             variant="default" 
                             size="sm" 
-                            className="rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white max-lg:h-11 max-lg:px-6" 
+                            className="rounded-full flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white max-lg:h-11 max-lg:px-6" 
                             disabled={!selectedEventId} 
                             onClick={handleCreateTable}
                           >
