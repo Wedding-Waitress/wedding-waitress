@@ -192,15 +192,22 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
       {!disabled && (
         <div className="shrink-0 mt-1">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" title="Row actions" aria-label="Row actions">
+                      <EllipsisVertical size={16} strokeWidth={1.8} aria-hidden="true" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Row actions</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <DropdownMenuContent align="end" className="w-56">
               {/* Undo */}
               <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
-                <Undo2 className="h-4 w-4 mr-2" />
+                <Undo2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Undo
               </DropdownMenuItem>
 
@@ -208,7 +215,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
 
               {/* Highlight Row */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_section_header: !item.is_section_header })}>
-                <Highlighter className="h-4 w-4 mr-2" />
+                <Highlighter size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Highlight Row
                 {isHeader && <span className="ml-auto text-xs text-destructive">✓</span>}
               </DropdownMenuItem>
@@ -217,33 +224,44 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
               {hasDJMCData && onInsertFromDJMC && (
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
-                    <ListPlus className="h-4 w-4 mr-2 text-primary" />
+                    <ListPlus size={18} strokeWidth={1.8} className="mr-2 text-primary" aria-hidden="true" />
                     Insert from Questionnaire
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>Ceremony</DropdownMenuSubTrigger>
+                      <DropdownMenuSubTrigger>
+                        <HeartHandshake size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
+                        Ceremony
+                      </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
                         <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'ceremony', true)}>
-                          Names & Songs
+                          <Music2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
+                          Names &amp; Songs
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'ceremony', false)}>
+                          <UsersRound size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                           Names Only
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
                     <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>Bridal Party Introductions</DropdownMenuSubTrigger>
+                      <DropdownMenuSubTrigger>
+                        <UsersRound size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
+                        Bridal Party Introductions
+                      </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
                         <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'introductions', true)}>
-                          Names & Songs
+                          <Music2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
+                          Names &amp; Songs
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'introductions', false)}>
+                          <UsersRound size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                           Names Only
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
                     <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'speeches', false)}>
+                      <Mic2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Speeches (Names)
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
@@ -252,13 +270,13 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
 
               {/* Duplicate */}
               <DropdownMenuItem onClick={() => onDuplicate(item)}>
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Duplicate
               </DropdownMenuItem>
 
               {/* Clear Text */}
               <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
-                <Eraser className="h-4 w-4 mr-2" />
+                <Eraser size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Clear Text
               </DropdownMenuItem>
 
@@ -266,21 +284,21 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
 
               {/* Bold */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_bold: !item.is_bold })}>
-                <Bold className="h-4 w-4 mr-2" />
+                <Bold size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Bold
                 {item.is_bold && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
 
               {/* Italic */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_italic: !item.is_italic })}>
-                <Italic className="h-4 w-4 mr-2" />
+                <Italic size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Italic
                 {item.is_italic && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
 
               {/* Underline */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_underline: !item.is_underline })}>
-                <Underline className="h-4 w-4 mr-2" />
+                <Underline size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Underline
                 {item.is_underline && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
@@ -289,9 +307,10 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
 
               {/* Delete */}
               <DropdownMenuItem className="text-destructive" onClick={() => setShowDeleteDialog(true)}>
-                <Trash className="h-4 w-4 mr-2" />
+                <Trash2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                 Delete
               </DropdownMenuItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
