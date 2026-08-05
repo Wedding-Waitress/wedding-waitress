@@ -167,10 +167,20 @@ export function RunningSheetSection({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1">
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    title={isCollapsed ? 'Expand section' : 'Collapse section'}
+                    aria-label={isCollapsed ? 'Expand section' : 'Collapse section'}
+                  >
+                    {isCollapsed
+                      ? <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+                      : <ChevronUp size={16} strokeWidth={1.8} aria-hidden="true" />}
                   </Button>
                 </CollapsibleTrigger>
+
+                <ListChecks size={20} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
 
                 {editingLabel ? (
                   <Input
@@ -191,34 +201,48 @@ export function RunningSheetSection({
                 )}
               </div>
 
+              <TooltipProvider>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowNotes(!showNotes)} title="Notes">
-                  <MessageSquare className={`h-4 w-4 ${notes ? 'text-primary' : 'text-muted-foreground'}`} />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowNotes(!showNotes)} title="Notes" aria-label="Toggle notes">
+                      <MessageSquareText size={16} strokeWidth={1.8} className={notes ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Notes</TooltipContent>
+                </Tooltip>
 
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More actions">
+                          <EllipsisVertical size={16} strokeWidth={1.8} aria-hidden="true" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>More actions</TooltipContent>
+                  </Tooltip>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
-                      <Eraser className="h-4 w-4 mr-2" />
+                      <Eraser size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Clear All Fields
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
+                      <RotateCcw size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Reset to Default
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowDeleteAllDialog(true)} className="text-destructive">
-                      <Trash className="h-4 w-4 mr-2" />
+                      <Trash2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Delete All Rows
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
               </div>
+              </TooltipProvider>
+            </div>
+
             </div>
 
             {showNotes && (
