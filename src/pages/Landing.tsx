@@ -426,7 +426,15 @@ export const Landing = () => {
           <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
             <Reveal direction={textDir} className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                {t(`alternating.${feature.key}.title`)}
+                <span className="inline-flex items-start gap-2">
+                  {(() => {
+                    const FeatureIcon = alternatingIcons[feature.key];
+                    return FeatureIcon ? (
+                      <FeatureIcon size={22} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-2 md:mt-3" style={{ color: '#967A59' }} />
+                    ) : null;
+                  })()}
+                  <span>{t(`alternating.${feature.key}.title`)}</span>
+                </span>
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 {t(`alternating.${feature.key}.desc`)}
@@ -435,7 +443,7 @@ export const Landing = () => {
                 <Button variant="outline" className="btn-press rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
                   <span aria-hidden="true">{t('alternating.learnMore')}</span>
                   <span className="sr-only">{t('alternating.learnMore')} {t(`alternating.${feature.key}.title`)}</span>
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" className="ml-2 shrink-0" />
                 </Button>
               </Link>
             </Reveal>
