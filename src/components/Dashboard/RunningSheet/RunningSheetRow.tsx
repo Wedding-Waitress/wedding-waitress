@@ -13,9 +13,11 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import {
-  GripVertical, Copy, Trash, Eraser, ListPlus, Highlighter,
-  MoreVertical, Bold, Italic, Underline, Undo2,
+  GripVertical, Copy, Trash2, Eraser, ListPlus, Highlighter,
+  EllipsisVertical, Bold, Italic, Underline, Undo2,
+  HeartHandshake, UsersRound, Mic2, Music2,
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
 import {
