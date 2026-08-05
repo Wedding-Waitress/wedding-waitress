@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageCircle, Loader2, Search, Eye, EyeOff, Download, RefreshCw, ChevronDown } from 'lucide-react';
+import { MessageSquareText, LoaderCircle, Search, CircleCheck, EyeOff, Download, RotateCcw, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
@@ -193,7 +193,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
         <div className="space-y-4 min-w-0">
           <div className="min-w-0">
             <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-              <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0" />
+              <MessageSquareText className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} />
               <span className="min-w-0 break-words">Digital Guestbook Messages ({allRows.length})</span>
             </h2>
             <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
@@ -203,7 +203,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
 
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => load()} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+              {loading ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
             </Button>
             <Button
               variant="outline"
@@ -218,7 +218,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
 
           <div className="space-y-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -255,10 +255,10 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
               <span className="text-sm text-muted-foreground">{selected.size} selected</span>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('approved')}>
-                  <Eye className="h-4 w-4 mr-1" /> Approve
+                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <CircleCheck className="h-4 w-4 mr-1" strokeWidth={1.8} />} Approve
                 </Button>
                 <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleBulk('hidden')}>
-                  <EyeOff className="h-4 w-4 mr-1" /> Hide
+                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <EyeOff className="h-4 w-4 mr-1" strokeWidth={1.8} />} Hide
                 </Button>
               </div>
             </div>
@@ -270,7 +270,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
               <p className="text-xs text-muted-foreground break-words">Exports the {rows.length} message{rows.length === 1 ? '' : 's'} currently shown.</p>
             </div>
             <Button variant="outline" className="lv-premium-shade w-full" onClick={exportCsv} disabled={rows.length === 0}>
-              <Download className="h-4 w-4 mr-1" /> Export Digital Guestbook Messages as CSV
+              <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Export Digital Guestbook Messages as CSV
             </Button>
           </div>
         </div>
@@ -281,12 +281,12 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
           <div className="h-[520px] overflow-y-auto pr-2 rounded-xl border border-border bg-muted/20 p-3">
             {loading ? (
               <div className="py-10 flex flex-col items-center gap-2">
-                <Loader2 className="h-6 w-6 animate-spin text-[#967A59]" />
+                <LoaderCircle className="h-6 w-6 animate-spin text-[#967A59]" strokeWidth={1.8} />
                 <p className="text-sm text-muted-foreground">Loading messages…</p>
               </div>
             ) : rows.length === 0 ? (
               <div className="py-12 text-center">
-                <MessageCircle className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                <MessageSquareText className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />
                 <p className="text-sm text-muted-foreground break-words">
                   {allRows.length === 0
                     ? 'No written messages yet — share the QR code or link with your guests.'
@@ -335,17 +335,17 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
                           <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words">{r.message}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-3">
                             {r.source === 'text' && (
-                              <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" onClick={() => downloadTxt(r)}>
-                                <Download className="h-4 w-4" />
+                              <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
+                                <Download className="h-4 w-4" strokeWidth={1.8} />
                               </Button>
                             )}
                             {r.status === 'approved' ? (
                               <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'hidden')}>
-                                <EyeOff className="h-4 w-4 mr-1" /> Hide
+                                <EyeOff className="h-4 w-4 mr-1" strokeWidth={1.8} /> Hide
                               </Button>
                             ) : (
                               <Button size="sm" variant="outline" className="lv-premium-shade" onClick={() => handleSingle(r, 'approved')}>
-                                <Eye className="h-4 w-4 mr-1" /> Approve
+                                <CircleCheck className="h-4 w-4 mr-1" strokeWidth={1.8} /> Approve
                               </Button>
                             )}
                           </div>
