@@ -5,7 +5,7 @@
  */
 import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/enhanced-button";
-import { Globe, ChevronDown } from "lucide-react";
+import { Globe, ChevronDown, ChevronUp, Menu, X, CircleUserRound, ArrowRight, LogIn, UserPlus } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
@@ -149,8 +149,8 @@ export const Header: React.FC<HeaderProps> = ({
                         {t('nav.products')}
                       </Link>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" aria-label="Open products menu" className="min-h-[44px] px-2 text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
-                          <ChevronDown className="w-3 h-3" />
+                        <Button variant="ghost" size="sm" aria-label="Open products menu" title="Open products menu" className="min-h-[44px] px-2 text-gray-800 hover:text-gray-950 hover:bg-gray-50/80">
+                          <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                     </div>
@@ -185,11 +185,13 @@ export const Header: React.FC<HeaderProps> = ({
                 {!hideDashboardElements && (
                   <>
                     <Button variant="ghost" size="sm" onClick={() => setSignInOpen(true)} className="min-h-[44px] text-[15px] font-medium text-gray-800 hover:text-gray-950">
+                      <CircleUserRound size={18} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
                       {t('nav.signIn')}
                     </Button>
                     <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
                       <Button ref={signUpButtonRef} size="sm" className="min-h-[44px] text-sm bg-primary hover:bg-primary/90 text-white rounded-xl px-6">
                         {t('nav.getStarted')}
+                        <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" className="ml-1.5 shrink-0" />
                       </Button>
                     </AuthGatedCtaLink>
                     <CurrencySelector currency={currency} onCurrencyChange={setCurrency} />
@@ -219,14 +221,13 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                   className="min-h-[44px] min-w-[44px] p-2 rounded-xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center"
                   style={{ backgroundColor: '#967A59' }}
-                  aria-label="Open menu"
+                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                  title={mobileMenuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={mobileMenuOpen}
                 >
-                  <div className="flex flex-col space-y-1">
-                    <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                    <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                    <div className="w-5 h-0.5 bg-white rounded-sm"></div>
-                  </div>
+                  {mobileMenuOpen
+                    ? <X size={18} strokeWidth={1.8} aria-hidden="true" className="text-white" />
+                    : <Menu size={18} strokeWidth={1.8} aria-hidden="true" className="text-white" />}
                 </button>
                 {mobileMenuOpen && (() => {
                   // Uniform spacing for ALL items (main + product dropdown).
@@ -243,6 +244,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="ww-small-pill"
                         style={{ minWidth: '100px' }}
                       >
+                        <LogIn size={14} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                         {t('nav.signIn')}
                       </button>
                       <SignUpModal>
@@ -251,6 +253,7 @@ export const Header: React.FC<HeaderProps> = ({
                           className="ww-small-pill"
                           style={{ minWidth: '100px' }}
                         >
+                          <UserPlus size={14} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                           {t('nav.signUp')}
                         </button>
                       </SignUpModal>
@@ -275,9 +278,9 @@ export const Header: React.FC<HeaderProps> = ({
                       style={itemStyle}
                     >
                       <span>{t('nav.products')}</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform ${mobileProductsOpen ? 'rotate-180' : ''}`}
-                      />
+                      {mobileProductsOpen
+                        ? <ChevronUp size={18} strokeWidth={1.8} aria-hidden="true" />
+                        : <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" />}
                     </button>
                     {mobileProductsOpen && (
                       <div className="pl-2 my-1 border-l border-[#E8E1D6]">

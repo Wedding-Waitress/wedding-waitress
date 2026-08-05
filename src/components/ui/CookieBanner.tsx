@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Cookie } from 'lucide-react';
+import { Cookie, ShieldCheck, Settings2, CircleCheck, BarChart3, Megaphone, Save, Ban } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -108,7 +108,7 @@ export const CookieBanner = () => {
         <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-500">
           <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-[0_-4px_30px_rgba(0,0,0,0.12)] border border-border p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex items-start gap-3 flex-1">
-              <Cookie className="w-6 h-6 text-primary shrink-0 mt-0.5" />
+              <Cookie size={24} strokeWidth={1.8} aria-hidden="true" className="text-primary shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-foreground text-sm mb-1">We use cookies</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -126,6 +126,7 @@ export const CookieBanner = () => {
                 onClick={handleOpenPreferences}
                 className="flex-1 sm:flex-none rounded-xl text-xs"
               >
+                <Settings2 size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
                 Manage Preferences
               </Button>
               <Button
@@ -133,6 +134,7 @@ export const CookieBanner = () => {
                 onClick={handleAcceptAll}
                 className="flex-1 sm:flex-none rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs"
               >
+                <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
                 Accept All
               </Button>
             </div>
@@ -143,7 +145,10 @@ export const CookieBanner = () => {
       <Dialog open={prefsOpen} onOpenChange={setPrefsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Cookie Preferences</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck size={20} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
+              Cookie Preferences
+            </DialogTitle>
             <DialogDescription>
               Choose which cookies you want to allow. You can change these at any time.
             </DialogDescription>
@@ -152,7 +157,10 @@ export const CookieBanner = () => {
           <div className="space-y-4 py-2">
             <div className="flex items-start justify-between gap-4 p-3 rounded-lg border border-border">
               <div>
-                <p className="text-sm font-medium text-foreground">Necessary Cookies</p>
+                <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <ShieldCheck size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
+                  Necessary Cookies
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Required for the site to function. Always enabled.
                 </p>
@@ -162,7 +170,10 @@ export const CookieBanner = () => {
 
             <div className="flex items-start justify-between gap-4 p-3 rounded-lg border border-border">
               <div>
-                <p className="text-sm font-medium text-foreground">Analytics Cookies</p>
+                <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <BarChart3 size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
+                  Analytics Cookies
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Help us understand how visitors use the site.
                 </p>
@@ -172,7 +183,10 @@ export const CookieBanner = () => {
 
             <div className="flex items-start justify-between gap-4 p-3 rounded-lg border border-border">
               <div>
-                <p className="text-sm font-medium text-foreground">Marketing Cookies</p>
+                <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Megaphone size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
+                  Marketing Cookies
+                </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Used to deliver relevant ads and measure campaigns.
                 </p>
@@ -197,12 +211,14 @@ export const CookieBanner = () => {
               }}
               className="rounded-xl"
             >
+              <Ban size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
               Reject All
             </Button>
             <Button
               onClick={handleSavePreferences}
               className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
             >
+              <Save size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
               Save Preferences
             </Button>
           </DialogFooter>

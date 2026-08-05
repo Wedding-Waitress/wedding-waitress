@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { LoaderCircle, CircleUserRound, KeyRound, Mail, Send, LogIn, ArrowLeft, RotateCcw, TriangleAlert } from 'lucide-react';
 import { secureEmailSchema } from '@/lib/security/validation';
 import { logSecurityEvent, loginRateLimiter } from '@/lib/security/monitoring';
 import { sanitize } from '@/lib/security/inputSanitizer';
@@ -319,7 +319,12 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       >
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            {step === 'form' ? 'Sign in' : 'Enter the 6-digit code'}
+            <span className="inline-flex items-center justify-center gap-2">
+              {step === 'form'
+                ? <CircleUserRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
+                : <KeyRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />}
+              {step === 'form' ? 'Sign in' : 'Enter the 6-digit code'}
+            </span>
           </DialogTitle>
           <DialogDescription className="text-center">
             {step === 'form' 
@@ -333,7 +338,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
           <div className="space-y-4 mt-4">
             <form onSubmit={handleEmailSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="signin-email" className="text-sm font-medium">
+                <Label htmlFor="signin-email" className="flex items-center gap-2 text-sm font-medium">
+                  <Mail size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
                   Email
                 </Label>
                 <Input
@@ -347,7 +353,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
               </div>
 
               {(error || cooldownTimer > 0) && (
-                <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded">
+                  <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
                   {cooldownTimer > 0 
                     ? `Please wait ${cooldownTimer} seconds before trying again.`
                     : error
@@ -361,7 +368,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 className="w-full" 
                 disabled={loading || !email || cooldownTimer > 0}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading
+                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
+                  : <Send size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
                 {cooldownTimer > 0 ? `Wait ${cooldownTimer}s` : 'Email me the code'}
               </Button>
             </form>
@@ -378,9 +387,10 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 <button
                   type="button"
                   onClick={onBackToSignUp}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
                 >
-                  ← Back to Sign Up
+                  <ArrowLeft size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
+                  Back to Sign Up
                 </button>
               </div>
             </div>
@@ -405,7 +415,8 @@ export const SignInModal: React.FC<SignInModalProps> = ({
             </div>
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded text-center">
+              <div className="flex items-start justify-center gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded text-center">
+                <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
                 {error}
               </div>
             )}
@@ -416,7 +427,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 className="w-full" 
                 disabled={loading || verificationCode.join('').length !== 6}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading
+                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
+                  : <LogIn size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
                 Verify Code
               </Button>
 
@@ -425,8 +438,9 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                   type="button"
                   onClick={handleResend}
                   disabled={resendTimer > 0 || loading}
-                  className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  <RotateCcw size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                   {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend code'}
                 </button>
               </div>

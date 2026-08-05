@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 import { ContactForm } from "@/components/ContactForm";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, ChevronDown, ChevronUp, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, LayoutGrid, Map, ChefHat, ListChecks, TableProperties, UserRoundPlus, ScanLine, LayoutDashboard, UserRoundCheck, CalendarRange, MailCheck, LayoutTemplate, ContactRound, PanelsTopLeft, ClipboardCheck, MonitorSmartphone, Music2, Camera, Quote, CircleHelp, Newspaper, Clock3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { Reveal } from "@/components/ui/Reveal";
@@ -305,6 +305,24 @@ export const Landing = () => {
     { id: "floor-plan", key: "floorPlan", img: featureFloorplan },
   ];
 
+  // Semantic Lucide outline icon for each alternating feature heading.
+  const alternatingIcons: Record<string, React.ComponentType<any>> = {
+    guestList: ClipboardList,
+    tables: TableProperties,
+    qr: UserRoundCheck,
+    runningSheet: CalendarRange,
+    invitations: MailCheck,
+    myEvents: LayoutTemplate,
+    placeCards: ContactRound,
+    tableCharts: PanelsTopLeft,
+    dietary: UtensilsCrossed,
+    seatingChart: ClipboardCheck,
+    kiosk: MonitorSmartphone,
+    djmc: Music2,
+    floorPlan: LayoutGrid,
+    photoSharing: Camera,
+  };
+
   const extraFeatureKeys = [
     { icon: Music, key: "djmc" },
     { icon: UtensilsCrossed, key: "dietary" },
@@ -343,7 +361,10 @@ export const Landing = () => {
       <section id="how-it-works" className="py-16 md:py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('howItWorks.title')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <QrCode size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('howItWorks.title')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-4xl mx-auto">
             {t('howItWorks.subtitle')}
@@ -351,13 +372,13 @@ export const Landing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { icon: CalendarPlus, step: '1', titleKey: 'step1Title', descKey: 'step1Desc' },
-              { icon: UserPlus, step: '2', titleKey: 'step2Title', descKey: 'step2Desc' },
-              { icon: Palette, step: '3', titleKey: 'step3Title', descKey: 'step3Desc' },
-              { icon: Share2, step: '4', titleKey: 'step4Title', descKey: 'step4Desc' },
+              { icon: TableProperties, step: '2', titleKey: 'step2Title', descKey: 'step2Desc' },
+              { icon: UserRoundPlus, step: '3', titleKey: 'step3Title', descKey: 'step3Desc' },
+              { icon: ScanLine, step: '4', titleKey: 'step4Title', descKey: 'step4Desc' },
             ].map((item) => (
               <div key={item.step} className="text-center group">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>
-                  <item.icon className="w-8 h-8" style={{ color: '#967A59' }} />
+                  <item.icon size={25} strokeWidth={1.8} aria-hidden="true" style={{ color: '#967A59' }} />
                 </div>
                 <div className="text-sm font-bold mb-2" style={{ color: '#967A59' }}>{t('howItWorks.stepLabel')} {item.step}</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{t(`howItWorks.${item.titleKey}`)}</h3>
@@ -373,7 +394,10 @@ export const Landing = () => {
       <section className="py-16 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('featureCards.sectionTitle')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <LayoutDashboard size={23} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('featureCards.sectionTitle')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-2xl mx-auto">
             {t('featureCards.sectionSubtitle')}
@@ -420,7 +444,15 @@ export const Landing = () => {
           <div className={`max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-20 items-center ${idx % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
             <Reveal direction={textDir} className={`${idx % 2 === 1 ? 'md:[direction:ltr]' : ''}`}>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                {t(`alternating.${feature.key}.title`)}
+                <span className="inline-flex items-start gap-2">
+                  {(() => {
+                    const FeatureIcon = alternatingIcons[feature.key];
+                    return FeatureIcon ? (
+                      <FeatureIcon size={22} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-2 md:mt-3" style={{ color: '#967A59' }} />
+                    ) : null;
+                  })()}
+                  <span>{t(`alternating.${feature.key}.title`)}</span>
+                </span>
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 {t(`alternating.${feature.key}.desc`)}
@@ -429,7 +461,7 @@ export const Landing = () => {
                 <Button variant="outline" className="btn-press rounded-2xl px-8 py-5 text-base font-medium border-gray-300 hover:border-primary hover:text-primary transition-all">
                   <span aria-hidden="true">{t('alternating.learnMore')}</span>
                   <span className="sr-only">{t('alternating.learnMore')} {t(`alternating.${feature.key}.title`)}</span>
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" className="ml-2 shrink-0" />
                 </Button>
               </Link>
             </Reveal>
@@ -449,7 +481,10 @@ export const Landing = () => {
         <div className="max-w-7xl mx-auto">
           <p className="text-sm text-primary font-medium text-center mb-4">{t('testimonials.intro')}</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('testimonials.title')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <Quote size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('testimonials.title')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('testimonials.subtitle')}
@@ -457,9 +492,9 @@ export const Landing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.isArray(testimonialItems) && testimonialItems.map((item, i) => (
               <div key={i} className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-4" role="img" aria-label="5 out of 5 stars">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star key={j} size={16} strokeWidth={1.8} aria-hidden="true" className="fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
                 <p className="text-gray-600 leading-relaxed mb-4">"{item.text}"</p>
@@ -474,7 +509,10 @@ export const Landing = () => {
       <section id="faq" className="py-16 md:py-20 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('faq.title')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <CircleHelp size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('faq.title')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('faq.subtitle')}
@@ -487,10 +525,15 @@ export const Landing = () => {
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
                   className="w-full flex items-center justify-between p-6 text-left"
                 >
                   <span className="text-base font-semibold text-gray-900 pr-4">{item.q}</span>
-                  <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                  {openFaq === i ? (
+                    <ChevronUp size={18} strokeWidth={1.8} aria-hidden="true" className="text-gray-400 shrink-0" />
+                  ) : (
+                    <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" className="text-gray-400 shrink-0" />
+                  )}
                 </button>
                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-[500px] pb-6' : 'max-h-0'}`}>
                   <p className="px-6 text-sm text-gray-600 leading-relaxed">{item.a}</p>
@@ -506,7 +549,10 @@ export const Landing = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {t('blog.title')}
+              <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+                <Newspaper size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+                {t('blog.title')}
+              </span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               {t('blog.subtitle')}
@@ -542,7 +588,8 @@ export const Landing = () => {
                     )}
                   </Link>
                   <div className="p-6 flex flex-col flex-1">
-                    <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
+                    <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
+                      <Clock3 size={15} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                       {post.readingTime}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug">
@@ -558,9 +605,10 @@ export const Landing = () => {
                     <Link
                       to={`/blog/${post.slug}`}
                       onClick={() => window.scrollTo(0, 0)}
-                      className="mt-5 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
+                      className="mt-5 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
                     >
                       {t('blog.readMore')}
+                      <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                     </Link>
                   </div>
                 </article>
@@ -582,7 +630,10 @@ export const Landing = () => {
       <section id="contact" className="py-16 md:py-20 px-4">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('contact.title')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <Mail size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('contact.title')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('contact.subtitle')}
