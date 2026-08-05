@@ -218,7 +218,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                 className="ml-auto mr-12 lv-premium-shade"
                 onClick={() => setShowUpload((s) => !s)}
               >
-                <Upload className="h-4 w-4 mr-1" />
+                <Upload className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                 {showUpload ? 'Close Upload' : 'Admin Upload'}
               </Button>
             )}
@@ -234,7 +234,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                 onClick={() => setUploadMode('bulk')}
                 className="lv-premium-shade"
               >
-                <Layers className="h-4 w-4 mr-1" />
+                <Layers className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                 Bulk Upload
               </Button>
               <Button
@@ -243,7 +243,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                 onClick={() => setUploadMode('single')}
                 className="lv-premium-shade"
               >
-                <Upload className="h-4 w-4 mr-1" />
+                <Upload className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                 Single Upload
               </Button>
 
@@ -258,7 +258,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                   onClick={() => bulkDropRef.current?.click()}
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
-                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤500 MB)</p>
                   <input
                     ref={bulkDropRef}
@@ -277,7 +277,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
-                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-xs font-medium truncate">
                     {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤500 MB)'}
                   </p>
@@ -314,7 +314,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                   {uploading ? (
                     <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
                   ) : (
-                    <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                    <><Upload className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />Optimize & Upload</>
                   )}
                 </Button>
                 {uploading && uploadProgress && (
@@ -339,7 +339,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-3 mb-2">
               <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)} className="lv-premium-shade">
-                <ArrowLeft className="h-4 w-4 mr-1" />
+                <ArrowLeft className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                 Back to Gallery
               </Button>
               <div className="flex-1 min-w-0">
@@ -349,7 +349,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
             </div>
             <div className="flex justify-center mb-4">
               <Button className="bg-green-500 hover:bg-green-600 text-white lv-premium-shade" onClick={() => handleSelectImage(previewImage)}>
-                <Check className="h-4 w-4 mr-1" />
+                <Check className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                 Use This Image
               </Button>
             </div>
@@ -365,7 +365,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
           <>
             {!isAdmin && (
               <div className="relative w-[75%]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
                 <Input
                   placeholder="Search images..."
                   value={searchQuery}
@@ -409,14 +409,14 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                             onClick={() => setPreviewImage(image)}
                             className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                             View
                           </button>
                           <button
                             onClick={() => handleSelectImage(image)}
                             className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
                           >
-                            <Check className="h-3.5 w-3.5" />
+                            <Check className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                             Select
                           </button>
                           {isAdmin && (
@@ -424,7 +424,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                               onClick={() => setDeleteTarget(image)}
                               className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                               Delete
                             </button>
                           )}
@@ -441,7 +441,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                                   onClick={(e) => e.stopPropagation()}
                                   className="flex items-center gap-1.5 bg-amber-600 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-amber-700 transition-colors"
                                 >
-                                  <Tag className="h-3.5 w-3.5" />
+                                  <Tag className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                                   Categorize
                                 </button>
                               </PopoverTrigger>
@@ -488,7 +488,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                                       onClick={() => { setCategorizeMode('create'); setNewCategoryName(''); }}
                                       className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md text-left text-primary hover:bg-muted"
                                     >
-                                      <Plus className="h-3.5 w-3.5" />
+                                      <Plus className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                                       Create New Category
                                     </button>
                                   </>
@@ -571,7 +571,7 @@ export const InvitationGalleryModal: React.FC<InvitationGalleryModalProps> = ({
                   disabled={deleting}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90 lv-premium-shade"
                 >
-                  {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
+                  {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" strokeWidth={1.8} aria-hidden="true" />Delete</>}
                 </Button>
               </div>
             </div>
