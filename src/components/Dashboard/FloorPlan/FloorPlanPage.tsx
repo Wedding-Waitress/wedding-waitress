@@ -141,7 +141,8 @@ export const FloorPlanPage = ({
         <CardContent className="pt-4 sm:pt-6 space-y-4">
           {/* Title and Description */}
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <LayoutGrid className="w-6 h-6 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Floor Plan
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
