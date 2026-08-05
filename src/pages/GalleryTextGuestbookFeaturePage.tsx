@@ -109,7 +109,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
               <GalleryTextGuestbookAccessCard meta={meta} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
               <GalleryDownloadsCard
                 privacyScope="guestbook"
                 items={recordings}
