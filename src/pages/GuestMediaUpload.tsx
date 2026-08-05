@@ -20,8 +20,8 @@ import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/Gall
 import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
 import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
 import uploadHeroDefault from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
-import galleryHeroDefault from '@/assets/Wedding-Waitress-Gallery-Hero-Default.png';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png.asset.json';
+import galleryHeaderLogo from '@/assets/gallery-header-logo.png.asset.json';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 // The dynamic import retries once before failing so a single flaky chunk request on first
@@ -511,25 +511,11 @@ export const GuestMediaUpload: React.FC = () => {
                 className="w-full h-full object-contain"
               />
             ) : activeTab === 'gallery' ? (
-              <div className="relative w-full h-full">
-                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-                <img
-                  src={galleryHeroDefault}
-                  alt=""
-                  className="absolute inset-0 m-auto"
-                  style={{
-                    zIndex: 10,
-                    width: '86%',
-                    height: '86%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    opacity: 1,
-                    visibility: 'visible',
-                    filter: 'none',
-                    mixBlendMode: 'normal',
-                  }}
-                />
-              </div>
+              <img
+                src={galleryHeaderLogo.url}
+                alt="See Tonight Through Your Guests' Eyes"
+                className="w-full h-full object-contain"
+              />
             ) : theme.logoImageUrl ? (
               <img src={theme.logoImageUrl} alt="" className="w-full h-full object-contain p-3" />
             ) : (
