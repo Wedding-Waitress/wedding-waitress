@@ -10,7 +10,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
-import { Palette, Type, Image, MessageSquare, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode } from 'lucide-react';
+import { Palette, Type, Image, MessageSquare, MessageSquareText, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode, ListPlus, Heart, CalendarHeart, CalendarDays, MapPin, PartyPopper, CaseSensitive, Scaling, AlignCenter, CaseUpper, Move, ImagePlus, RotateCcw, Save } from 'lucide-react';
+
+const PRESET_ZONE_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+  couple_names: Heart,
+  event_name: CalendarHeart,
+  date: CalendarDays,
+  venue: MapPin,
+  welcome_message: MessageSquareText,
+  welcome_to_our_wedding: PartyPopper,
+  qr_instructions: QrCode,
+};
 import canvaEditBanner from '@/assets/canva-design-button.png';
 import canvaLogo from '@/assets/canva-logo.png';
 import canvaButtonMobile from '@/assets/canva-design-button-v2.png';
@@ -309,17 +319,17 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
-            <Palette className="h-5 w-5 text-foreground" />
+            <Palette className="h-[22px] w-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
             {headerTitle || 'Invitations, Save the Date & Thank You Cards'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="text-zones" className="space-y-4">
             <TabsList className="grid w-full grid-cols-4 max-sm:grid-cols-2 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
-              <TabsTrigger value="text-zones" className="max-sm:w-full">Text Zones</TabsTrigger>
-              <TabsTrigger value="background" className="max-sm:w-full">Background</TabsTrigger>
-              <TabsTrigger value="qr-code" className="max-sm:w-full">Add QR Code</TabsTrigger>
-              <TabsTrigger value="messages" className="max-sm:w-full">Messages</TabsTrigger>
+              <TabsTrigger value="text-zones" className="max-sm:w-full gap-1.5"><Type className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Text Zones</TabsTrigger>
+              <TabsTrigger value="background" className="max-sm:w-full gap-1.5"><Image className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Background</TabsTrigger>
+              <TabsTrigger value="qr-code" className="max-sm:w-full gap-1.5"><QrCode className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Add QR Code</TabsTrigger>
+              <TabsTrigger value="messages" className="max-sm:w-full gap-1.5"><MessageSquareText className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Messages</TabsTrigger>
             </TabsList>
 
             {/* TEXT ZONES TAB */}
@@ -331,10 +341,11 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 {/* Add Preset Zone buttons */}
                 <div className="space-y-2">
-                  <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Add Preset Zone</span>
+                  <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold"><ListPlus className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Add Preset Zone</span>
                   <div className="flex flex-wrap gap-2 max-w-fit">
                     {activePresetZones.map(pz => {
                       const isDisabled = textZones.some(z => z.preset_field === pz.field) || (pz.getDisabled ? pz.getDisabled(eventData) : false);
+                      const PresetIcon = PRESET_ZONE_ICONS[pz.field] || Plus;
                       return (
                         <Button
                           key={pz.field}
@@ -344,7 +355,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           className="text-xs text-foreground"
                           disabled={isDisabled}
                         >
-                          <Plus className="h-3 w-3 mr-1" />
+                          <PresetIcon className="h-4 w-4 mr-1.5" strokeWidth={1.8} />
                           {pz.label}
                         </Button>
                       );
@@ -356,7 +367,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   onClick={addCustomZone}
                   className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4 mr-2" strokeWidth={1.8} aria-hidden="true" />
                   Add Custom Text Zone
                 </Button>
 
@@ -366,19 +377,19 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     <div key={zone.id} className="p-3 border rounded-lg bg-muted/30 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-muted-foreground" />
+                          <GripVertical className="h-[18px] w-[18px] text-muted-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
                           <span className="text-sm font-medium text-[#967A59] border border-[#967A59] rounded-full px-3 py-1">{zone.label}</span>
                           {zone.type === 'preset' && (
                             <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">Preset</span>
                           )}
                         </div>
-                        <Button size="sm" variant="ghost" onClick={() => removeZone(zone.id)}>
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                        <Button size="sm" variant="ghost" onClick={() => removeZone(zone.id)} aria-label="Delete text zone" title="Delete text zone">
+                          <Trash2 className="h-4 w-4 text-destructive" strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </div>
 
                       <div>
-                        <Label className="text-xs">Text Content</Label>
+                        <Label className="text-xs inline-flex items-center gap-1.5"><Type className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Text Content</Label>
                         <Input
                           value={zone.text || (zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || '' : '')}
                           onChange={(e) => updateZone(zone.id, { text: e.target.value })}
@@ -389,14 +400,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-xs">Font</Label>
+                          <Label className="text-xs inline-flex items-center gap-1.5"><CaseSensitive className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Font</Label>
                           <PlaceCardFontPicker
                             value={zone.font_family}
                             onValueChange={(v) => updateZone(zone.id, { font_family: v })}
                           />
                         </div>
                         <div>
-                          <Label className="text-xs">Size (px)</Label>
+                          <Label className="text-xs inline-flex items-center gap-1.5"><Scaling className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Size (px)</Label>
                           <Select value={zone.font_size.toString()} onValueChange={(v) => updateZone(zone.id, { font_size: parseInt(v) })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -410,7 +421,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-xs">Font Color</Label>
+                          <Label className="text-xs inline-flex items-center gap-1.5"><Palette className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Font Color</Label>
                           <ColorPickerPopover
                             value={zone.font_color}
                             onChange={(color) => updateZone(zone.id, { font_color: color })}
@@ -432,7 +443,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-xs">Align</Label>
+                          <Label className="text-xs inline-flex items-center gap-1.5"><AlignCenter className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Align</Label>
                           <Select value={zone.text_align} onValueChange={(v) => updateZone(zone.id, { text_align: v })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -443,7 +454,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           </Select>
                         </div>
                         <div>
-                          <Label className="text-xs">Text Case</Label>
+                          <Label className="text-xs inline-flex items-center gap-1.5"><CaseUpper className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Text Case</Label>
                           <Select value={zone.text_case} onValueChange={(v) => updateZone(zone.id, { text_case: v })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -458,7 +469,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                       {/* Read-only position indicators */}
                       <div className="space-y-2 bg-muted/50 p-2 rounded-md">
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Position & Size (drag on preview to adjust)</p>
+                        <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium uppercase tracking-wider"><Move className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Position & Size (drag on preview to adjust)</p>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <span>X: {Math.round(zone.x_percent)}%</span>
                           <span>Y: {Math.round(zone.y_percent)}%</span>
@@ -495,6 +506,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
@@ -506,7 +518,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
               <div className="space-y-4">
                 <div>
                   <Label className="flex items-center gap-2 mb-3">
-                    <Image className="h-4 w-4" />
+                    <ImagePlus className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                     Background Image
                   </Label>
                   <RadioGroup
@@ -527,7 +539,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 {currentSettings.background_image_type === 'full' && (
                   <div>
-                    <Label className="mb-2 block">Upload Background Image</Label>
+                    <Label className="mb-2 flex items-center gap-2"><Upload className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Upload Background Image</Label>
                     <div className="space-y-2">
                       <input
                         type="file"
@@ -545,7 +557,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           disabled={uploading}
                           className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
-                          <Upload className="h-4 w-4" />
+                          <Upload className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                           {uploading ? 'Uploading...' : 'Choose File'}
                         </Button>
                         <Button
@@ -554,7 +566,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           onClick={() => setGalleryModalOpen(true)}
                           className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
-                          <Images className="h-4 w-4" />
+                          <Images className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                           Image Gallery
                         </Button>
                         <button
@@ -584,7 +596,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                             }}
                             className="w-full rounded-full flex items-center justify-center gap-2 bg-destructive/85 hover:bg-destructive/95"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                             Remove Image
                           </Button>
                         </div>
@@ -597,7 +609,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   <h4 className="text-sm font-medium">{bgSectionTitle || 'Invitation Customisation'}</h4>
                   {currentSettings.background_image_type === 'full' && currentSettings.background_image_url && (
                     <div className="space-y-2">
-                      <Label>Image Opacity</Label>
+                      <Label className="flex items-center gap-2"><Scaling className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Image Opacity</Label>
                       <Select
                         value={String(currentSettings.background_image_opacity || 100)}
                         onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
@@ -612,7 +624,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     </div>
                   )}
                   <div className="space-y-2">
-                    <Label>Card Background Color</Label>
+                    <Label className="flex items-center gap-2"><Palette className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Card Background Color</Label>
                     <ColorPickerPopover
                       value={currentSettings.background_color}
                       onChange={(color) => handleSettingChange('background_color', color)}
@@ -636,6 +648,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
@@ -646,12 +659,12 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             <TabsContent value="qr-code" className="space-y-4">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-primary">
-                  <QrCode className="h-5 w-5 inline-block mr-2" />
+                  <QrCode className="h-[18px] w-[18px] inline-block mr-2" strokeWidth={1.8} aria-hidden="true" />
                   {qrTabTitle || 'Add QR Code to Invite'}
                 </h3>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Choose Event</Label>
+                  <Label className="text-sm font-medium flex items-center gap-2"><CalendarDays className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Choose Event</Label>
                   <Select
                     value={currentSettings.qr_config?.event_id || 'none'}
                     onValueChange={(val) => {
@@ -679,7 +692,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 {currentSettings.qr_config?.enabled && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <Label className="text-sm">Show QR on Canvas</Label>
+                      <Label className="text-sm flex items-center gap-2"><Move className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Show QR on Canvas</Label>
                       <Switch
                         checked={currentSettings.qr_config.enabled}
                         onCheckedChange={(checked) => {
@@ -713,6 +726,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
@@ -724,7 +738,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
               <div className="space-y-4">
                 <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
                   <Label className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
+                    <MessageSquareText className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                     Notes / Caption
                   </Label>
                   <Textarea
@@ -747,6 +761,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
