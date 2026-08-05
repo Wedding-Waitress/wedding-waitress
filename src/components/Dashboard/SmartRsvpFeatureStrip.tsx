@@ -8,7 +8,7 @@
  * icons, no heavy shadow. Responsive: 4-col / 2x2 / stacked.
  */
 import React from 'react';
-import { Send, MessageSquare, Truck, Sparkles } from 'lucide-react';
+import { Send, MessagesSquare, Truck, ChartNoAxesCombined } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface SmartRsvpStripActions {
@@ -51,25 +51,25 @@ export const SmartRsvpFeatureStrip: React.FC<Props> = ({
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3', className)}>
       <Pill
-        icon={<Send className="w-4 h-4" />}
+        icon={<Send size={20} strokeWidth={1.8} aria-hidden="true" />}
         title="RSVP Command Centre"
         subtitle="Send & manage invitations"
         onClick={onCommandCentre}
       />
       <Pill
-        icon={<MessageSquare className="w-4 h-4" />}
+        icon={<MessagesSquare size={20} strokeWidth={1.8} aria-hidden="true" />}
         title="Communications Centre"
         subtitle="Email & SMS history"
         onClick={onCommunications}
       />
       <Pill
-        icon={<Truck className="w-4 h-4" />}
+        icon={<Truck size={20} strokeWidth={1.8} aria-hidden="true" />}
         title="Delivery Centre"
         subtitle="Tracking & resend"
         onClick={onDelivery}
       />
       <Pill
-        icon={<Sparkles className="w-4 h-4" />}
+        icon={<ChartNoAxesCombined size={20} strokeWidth={1.8} aria-hidden="true" />}
         title="Guest Intelligence Centre"
         subtitle="Smart RSVP analytics"
         onClick={onIntelligence}

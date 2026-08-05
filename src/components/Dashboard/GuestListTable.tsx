@@ -61,7 +61,20 @@ import {
   Hash,
   User,
   Heart,
-  ListOrdered
+  ListOrdered,
+  UsersRound,
+  Settings2,
+  CalendarDays,
+  HeartHandshake,
+  ClipboardCheck,
+  Contact,
+  UserPlus,
+  Link2,
+  Save,
+  Pencil,
+  FileUp,
+  FileDown,
+  MapPin
 } from "lucide-react";
 import {
   Tooltip,
@@ -1685,7 +1698,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             {/* Left: Title, Description, Event selector and Search */}
             <div className="w-full">
               <div className="flex items-baseline gap-3 mb-4 flex-wrap">
-                <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">
+                <h1 className="text-2xl font-bold text-foreground whitespace-nowrap inline-flex items-center gap-2">
+                  <UsersRound size={22} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                   Guest List
                 </h1>
                 <p className="text-sm text-muted-foreground hidden sm:block">
@@ -1789,7 +1803,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <div className="bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="bg-primary/10 text-primary rounded-full p-2.5 shrink-0">
-                    <ShieldCheck className="w-5 h-5" />
+                    <ShieldCheck size={21} strokeWidth={1.8} aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-base font-bold text-primary mb-1">Guest Live View APP Protection. You have full control in what your guests see by switching preferences On / Off.</h3>
@@ -1817,6 +1831,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     }, 250);
                   }}
                 >
+                  <Settings2 size={15} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                   Configure Guest Live View →
                 </Button>
               </div>
@@ -1825,7 +1840,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 1: Set Up Your Event</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><CalendarDays size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 1: Set Up Your Event</h3>
                   <p className="text-sm text-muted-foreground mb-4">Select your event and customise settings</p>
 
                   {/* Choose Event */}
@@ -1841,7 +1856,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         {events.map((event) => (
                           <SelectItem key={event.id} value={event.id}>
                             <div className="flex items-center space-x-2">
-                              <Calendar className="w-4 h-4" />
+                              <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />
                               <span>{event.name}</span>
                             </div>
                           </SelectItem>
@@ -1888,7 +1903,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 2: Step 2 - Guest Relationship Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 2: Guest Relationship Settings</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><HeartHandshake size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 2: Guest Relationship Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Optionally define how guests are related to you</p>
 
                   {selectedEventId ? (
@@ -1897,7 +1912,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       relationsHidden ? "border-border bg-muted/30" : "border-primary/40 bg-primary/5"
                     )}>
                       <div className="flex items-center justify-between mb-1">
-                        <Label className="text-sm font-medium text-foreground">Enable Relationships</Label>
+                        <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                          <Link2 size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                          Enable Relationships
+                        </Label>
                         <span className="text-xs text-muted-foreground italic mr-2">Optional</span>
                       </div>
                       <div className="force-toggle-colors flex items-center gap-3 mb-2">
@@ -1967,7 +1985,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {!useDefaultNames && (
                             <div className="flex flex-col gap-2 pl-2 mt-1">
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm font-medium w-20 shrink-0">Partner 1:</Label>
+                                <Label className="text-sm font-medium w-24 shrink-0 flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Partner 1:</Label>
                                 <Input
                                   id="partner1-name"
                                   value={partner1Name}
@@ -1981,7 +1999,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 />
                               </div>
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm font-medium w-20 shrink-0">Partner 2:</Label>
+                                <Label className="text-sm font-medium w-24 shrink-0 flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Partner 2:</Label>
                                 <Input
                                   value={partner2Name}
                                   onChange={(e) => {
@@ -2005,6 +2023,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   disabled={isSaving}
                                   className="h-8 rounded-full px-4 text-sm lv-premium-shade"
                                 >
+                                  <Save size={15} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                                   {isSaving ? 'Saving...' : 'Save Names'}
                                 </Button>
                                 {partnerNamesSaved && (
@@ -2026,7 +2045,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {/* BOX 3: Step 3 - Guest RSVP Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <div>
-                    <h3 className="text-lg font-bold text-primary mb-0.5">Step 3: Guest RSVP Settings</h3>
+                    <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><ClipboardCheck size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 3: Guest RSVP Settings</h3>
                     <p className="text-sm text-muted-foreground mb-4">Control whether invited guests can add additional people during RSVP.</p>
 
                     <div className="flex items-center justify-between mb-1">
@@ -2075,13 +2094,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 4: Step 4 - Guest Contact Settings */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 4: Guest Contact Settings</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><Contact size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 4: Guest Contact Settings</h3>
                   <p className="text-sm text-muted-foreground mb-4">Control what guest information can be collected through Live View RSVP.</p>
 
                   {selectedEventId ? (
                     <>
                       <div className="flex items-center justify-between mb-1">
-                        <Label className="text-sm font-medium text-foreground">Collect Guest Mailing Addresses</Label>
+                        <Label className="text-sm font-medium text-foreground flex items-center gap-1.5"><MapPin size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Collect Guest Mailing Addresses</Label>
                       </div>
                       <div className="force-toggle-colors-step4 flex items-center gap-3 mb-2">
                         {!collectGuestAddresses && <span className="text-xs font-medium text-red-500">OFF</span>}
@@ -2112,7 +2131,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                 {/* BOX 5: Step 5 - Add Your Guests */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                  <h3 className="text-lg font-bold text-primary mb-0.5">Step 5: Add Your Guests</h3>
+                  <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><UserPlus size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 5: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
                   <Button
@@ -2131,7 +2150,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     }}
                     className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
                   >
-                    <Users className="w-5 h-5" />
+                    <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" />
                     + Add Guest
                   </Button>
                   <p className="text-xs text-muted-foreground mt-3">Guests will appear in the table below</p>
@@ -2173,7 +2192,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
-                              <ArrowUpDown className="w-3 h-3" />
+                              <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true" />
                               Sort By
                               <ChevronDown className="w-3 h-3" />
                             </button>
@@ -2212,7 +2231,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
-                              <FileText className="w-3 h-3" />
+                              <FileUp size={16} strokeWidth={1.8} aria-hidden="true" />
                               Import / Export CSV
                               <ChevronDown className="w-3 h-3" />
                             </button>
@@ -2223,14 +2242,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               Download Template
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleImportCSV}>
-                              <Upload className="w-4 h-4 mr-2" />
+                              <FileUp size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                               Import CSV
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={exportGuestList}
                               disabled={guestCount === 0}
                             >
-                              <Download className="w-4 h-4 mr-2" />
+                              <FileDown size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                               Export Guest List
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -2268,7 +2287,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           {/* Search + Total Guests row */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search size={18} strokeWidth={1.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 placeholder="Search guests..."
                 value={searchTerm}
@@ -2288,7 +2307,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="hidden lg:flex mt-2 mb-8 mx-3 sm:mx-6 items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search size={18} strokeWidth={1.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
                 placeholder="Search guests..."
                 value={searchTerm}
@@ -2319,7 +2338,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   disabled={!selectedEventId}
                 >
-                  <ArrowUpDown className="w-3 h-3" />
+                  <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true" />
                   Sort By
                   <ChevronDown className="w-3 h-3" />
                 </button>
@@ -2344,7 +2363,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   disabled={!selectedEventId}
                 >
-                  <FileText className="w-3 h-3" />
+                  <FileUp size={16} strokeWidth={1.8} aria-hidden="true" />
                   Import / Export CSV
                   <ChevronDown className="w-3 h-3" />
                 </button>
@@ -2355,14 +2374,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   Download Template
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleImportCSV}>
-                  <Upload className="w-4 h-4 mr-2" />
+                  <FileUp size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                   Import CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={exportGuestList}
                   disabled={guestCount === 0}
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <FileDown size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                   Export Guest List
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -2569,8 +2588,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               onClick={() => { acknowledgePlusOneOptimistic(guest); handleEditGuest(guest); }}
                               className="h-9 w-9 p-0"
                               aria-label="Edit guest"
+                              title="Edit guest"
                             >
-                              <Edit className="w-4 h-4 text-green-500" />
+                              <Pencil size={16} strokeWidth={1.8} className="text-green-500" aria-hidden="true" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -2578,8 +2598,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               onClick={() => handleDeleteGuest(guest)}
                               className="h-9 w-9 p-0"
                               aria-label="Delete guest"
+                              title="Delete guest"
                             >
-                              <Trash2 className="w-4 h-4 text-red-500" />
+                              <Trash2 size={16} strokeWidth={1.8} className="text-red-500" aria-hidden="true" />
                             </Button>
                           </div>
                         </div>

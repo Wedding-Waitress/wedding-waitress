@@ -14,7 +14,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, AlertTriangle, Loader2, Zap } from 'lucide-react';
+import { MessageSquareText, AlertTriangle, Loader2, Zap, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { useSmsTopup } from '@/hooks/useSmsTopup';
@@ -185,7 +185,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
     if (health.state === 'unactivated') return null;
     return (
       <Card className={cn('p-3 flex items-center gap-3 rounded-2xl', health.toneClasses, className)}>
-        <MessageSquare className={cn('h-5 w-5 shrink-0', health.iconColor)} />
+        <MessageSquareText size={20} strokeWidth={1.8} className={cn('shrink-0', health.iconColor)} aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold text-foreground">
             {loading ? 'Loading…' : `${credits.remaining} SMS Credits Remaining`}
@@ -223,7 +223,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-start gap-3 min-w-0 flex-1">
           <div className={cn('p-2 rounded-xl bg-background/70 border border-border/60', health.iconColor)}>
-            <MessageSquare className="h-5 w-5" />
+            <MessageSquareText size={20} strokeWidth={1.8} aria-hidden="true" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -281,7 +281,10 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
               Starting checkout…
             </span>
           ) : (
-            `Top Up Credits +${SMS_TOPUP.credits}`
+            <span className="inline-flex items-center gap-1.5">
+              <CreditCard size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+              {`Top Up Credits +${SMS_TOPUP.credits}`}
+            </span>
           )}
         </Button>
       </div>
