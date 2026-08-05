@@ -505,7 +505,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   return <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <QrCodeIcon className="h-5 w-5 text-[#856A4C]" />
+          <QrCodeIcon strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" />
           QR Code Generator
         </CardTitle>
       </CardHeader>
@@ -533,8 +533,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* COLOR Section */}
               <AccordionItem value="color" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-[#856A4C]" />
+                  <div className="flex items-center gap-[7px]">
+                    <Palette strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Color</span>
                   </div>
                 </AccordionTrigger>
@@ -566,8 +566,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* SHAPE Section */}
               <AccordionItem value="shape" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <Square className="h-4 w-4 text-[#856A4C]" />
+                  <div className="flex items-center gap-[7px]">
+                    <Shapes strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Shape & Form</span>
                   </div>
                 </AccordionTrigger>
@@ -646,8 +646,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               {/* LOGO Section */}
               <AccordionItem value="logo" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-[#856A4C]" />
+                  <div className="flex items-center gap-[7px]">
+                    <ImagePlus strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Logo</span>
                   </div>
                 </AccordionTrigger>
@@ -668,8 +668,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         />
                         <div className="flex justify-between items-center">
                           <span className="text-xs text-muted-foreground">{qrLogo.size}%</span>
-                          <Button size="sm" variant="ghost" onClick={handleRemoveLogo} className="h-6 px-2 text-xs text-destructive">
-                            <Trash2 className="h-3 w-3" />
+                          <Button size="sm" variant="ghost" onClick={handleRemoveLogo} className="h-6 px-2 text-xs text-destructive" aria-label="Remove logo" title="Remove logo">
+                            <Trash2 strokeWidth={1.8} className="h-[18px] w-[18px]" aria-hidden="true" /><span className="sr-only">Remove logo</span>
                           </Button>
                         </div>
                       </div>
@@ -689,9 +689,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       }}
                     >
                       {isUploadingLogo ? (
-                        <Loader2 className="h-5 w-5 mx-auto animate-spin text-[#856A4C]" />
+                        <LoaderCircle strokeWidth={1.8} className="h-[18px] w-[18px] mx-auto animate-spin text-[#856A4C]" />
                       ) : (
-                        <Upload className="h-5 w-5 mx-auto text-muted-foreground" />
+                        <Upload strokeWidth={1.8} className="h-[18px] w-[18px] mx-auto text-muted-foreground" />
                       )}
                       <p className="text-xs mt-1">{isUploadingLogo ? 'Uploading...' : 'Upload Logo'}</p>
                     </div>
@@ -704,6 +704,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <div className="flex-grow" />
             <div className="pt-4 border-t border-border">
               <Button variant="destructive" onClick={handleResetAll} className="lv-premium-shade w-full rounded-full">
+                <RotateCcw strokeWidth={1.8} className="h-[17px] w-[17px] mr-[7px]" aria-hidden="true" />
                 Reset to Default
               </Button>
             </div>
@@ -713,25 +714,25 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
             {/* Open Live View - Full Width */}
             <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="lv-premium-shade w-full bg-green-500 hover:bg-green-600 text-white border-0">
-              <ExternalLink className="h-4 w-4 mr-2" />
+              <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
               Open Live View App
             </Button>
             
             {/* Copy Link - Full Width */}
             <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="lv-premium-shade border-[#C4A882] w-full">
-              <Link className="h-4 w-4 mr-2" />
+              {copiedLink ? <Check strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" /> : <Copy strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               Copy Link
             </Button>
             
             {/* PNG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadPNG} className="lv-premium-shade border-[#C4A882] w-full">
-              <FileDown className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="default" onClick={handleDownloadPNG} disabled={downloading === 'png'} className="lv-premium-shade border-[#C4A882] w-full">
+              {downloading === 'png' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <FileImage strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               PNG
             </Button>
             
             {/* JPG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadJPG} className="lv-premium-shade border-[#C4A882] w-full">
-              <ImageIcon className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={downloading === 'jpg'} className="lv-premium-shade border-[#C4A882] w-full">
+              {downloading === 'jpg' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <ImageDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               JPG
             </Button>
             
@@ -741,6 +742,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
             <div className="pt-4 border-t border-border">
               <Button variant="destructive" onClick={handleResetQR} className="lv-premium-shade w-full rounded-full">
+                <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
                 Reset to Default
               </Button>
             </div>
@@ -750,7 +752,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
           <CardHeader className="pb-3">
-            <CardTitle className="text-2xl font-bold text-foreground">Guest Live View Configuration</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground"><SlidersHorizontal strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" aria-hidden="true" />Guest Live View Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
