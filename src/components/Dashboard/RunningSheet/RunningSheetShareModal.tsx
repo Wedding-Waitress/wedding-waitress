@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
-import { Copy, Check, Trash2, ExternalLink, Users, Lock, Unlock } from 'lucide-react';
+import { Copy, CircleCheck, Trash2, ExternalLink, Lock, Unlock, LoaderCircle, Share2 } from 'lucide-react';
 import { RunningSheetShareToken } from '@/types/runningSheet';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -106,7 +106,7 @@ export function RunningSheetShareModal({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
+            <Share2 size={18} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
             Share Run Sheet
           </DialogTitle>
           <DialogDescription>
@@ -159,9 +159,9 @@ export function RunningSheetShareModal({
 
             <Button onClick={handleGenerate} disabled={generating} className="w-full">
               {generating ? (
-                <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
+                <LoaderCircle size={18} strokeWidth={1.8} className="animate-spin mr-2" aria-hidden="true" />
               ) : (
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
               )}
               Generate & Copy Link
             </Button>
@@ -198,11 +198,12 @@ export function RunningSheetShareModal({
                               size="icon"
                               className="h-8 w-8"
                               onClick={() => toggleTokenPermission(token.id, token.permission)}
+                              aria-label="Toggle link permission"
                             >
                               {token.permission === 'can_edit' ? (
-                                <Unlock className="h-4 w-4 text-green-500" />
+                                <Unlock size={18} strokeWidth={1.8} className="text-green-500" aria-hidden="true" />
                               ) : (
-                                <Lock className="h-4 w-4 text-red-500" />
+                                <Lock size={18} strokeWidth={1.8} className="text-red-500" aria-hidden="true" />
                               )}
                             </Button>
                           </TooltipTrigger>
@@ -212,8 +213,8 @@ export function RunningSheetShareModal({
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(token.token)}>
-                              {copiedId === token.token ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(token.token)} aria-label="Copy link">
+                              {copiedId === token.token ? <CircleCheck size={18} strokeWidth={1.8} className="text-green-600" aria-hidden="true" /> : <Copy size={18} strokeWidth={1.8} aria-hidden="true" />}
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Copy Link</TooltipContent>
@@ -221,8 +222,8 @@ export function RunningSheetShareModal({
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                              <a href={buildRunningSheetUrl(token.token, eventSlug)} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4" />
+                              <a href={buildRunningSheetUrl(token.token, eventSlug)} target="_blank" rel="noopener noreferrer" aria-label="Open link">
+                                <ExternalLink size={18} strokeWidth={1.8} aria-hidden="true" />
                               </a>
                             </Button>
                           </TooltipTrigger>
@@ -230,8 +231,8 @@ export function RunningSheetShareModal({
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDeleteToken(token.id)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onDeleteToken(token.id)} aria-label="Delete link">
+                              <Trash2 size={18} strokeWidth={1.8} className="text-destructive" aria-hidden="true" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Delete Link</TooltipContent>

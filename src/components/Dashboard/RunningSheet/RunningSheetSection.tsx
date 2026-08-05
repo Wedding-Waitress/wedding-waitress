@@ -50,7 +50,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Trash, Download, Eraser } from 'lucide-react';
+import {
+  ChevronDown, ChevronUp, Plus, EllipsisVertical, RotateCcw, MessageSquareText,
+  Trash2, Eraser, ListChecks, NotebookPen, Clock3, ListTodo, UsersRound,
+} from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { RunningSheetRow } from './RunningSheetRow';
 
@@ -163,10 +167,20 @@ export function RunningSheetSection({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1">
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    title={isCollapsed ? 'Expand section' : 'Collapse section'}
+                    aria-label={isCollapsed ? 'Expand section' : 'Collapse section'}
+                  >
+                    {isCollapsed
+                      ? <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+                      : <ChevronUp size={16} strokeWidth={1.8} aria-hidden="true" />}
                   </Button>
                 </CollapsibleTrigger>
+
+                <ListChecks size={20} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
 
                 {editingLabel ? (
                   <Input
@@ -187,40 +201,58 @@ export function RunningSheetSection({
                 )}
               </div>
 
+              <TooltipProvider>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowNotes(!showNotes)} title="Notes">
-                  <MessageSquare className={`h-4 w-4 ${notes ? 'text-primary' : 'text-muted-foreground'}`} />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowNotes(!showNotes)} title="Notes" aria-label="Toggle notes">
+                      <MessageSquareText size={16} strokeWidth={1.8} className={notes ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Notes</TooltipContent>
+                </Tooltip>
 
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More actions">
+                          <EllipsisVertical size={16} strokeWidth={1.8} aria-hidden="true" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>More actions</TooltipContent>
+                  </Tooltip>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
-                      <Eraser className="h-4 w-4 mr-2" />
+                      <Eraser size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Clear All Fields
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
-                      <RotateCcw className="h-4 w-4 mr-2" />
+                      <RotateCcw size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Reset to Default
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowDeleteAllDialog(true)} className="text-destructive">
-                      <Trash className="h-4 w-4 mr-2" />
+                      <Trash2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Delete All Rows
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
               </div>
+              </TooltipProvider>
             </div>
+
+
 
             {showNotes && (
               <div className="mt-3">
                 <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
-                  <div className="text-sm font-medium text-primary mb-1">Notes</div>
+                  <div className="text-sm font-medium text-primary mb-1 flex items-center gap-2">
+                    <NotebookPen size={17} strokeWidth={1.8} aria-hidden="true" />
+                    Notes
+                  </div>
+
                   <Textarea
                     value={notes || ''}
                     onChange={(e) => onNotesChange(e.target.value || null)}
@@ -242,9 +274,19 @@ export function RunningSheetSection({
                   {/* Column headers */}
                   <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
                     <div className="w-6 shrink-0" />
-                    <div className="basis-1/5 min-w-0">Time</div>
-                    <div className="flex-1 min-w-0">Event</div>
-                    <div className="basis-1/5 min-w-0">Who</div>
+                    <div className="basis-1/5 min-w-0 flex items-center gap-1.5">
+                      <Clock3 size={16} strokeWidth={1.8} aria-hidden="true" />
+                      Time
+                    </div>
+                    <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                      <ListTodo size={16} strokeWidth={1.8} aria-hidden="true" />
+                      Event
+                    </div>
+                    <div className="basis-1/5 min-w-0 flex items-center gap-1.5">
+                      <UsersRound size={16} strokeWidth={1.8} aria-hidden="true" />
+                      Who
+                    </div>
+
                     <div className="w-16 shrink-0" />
                   </div>
 
@@ -272,9 +314,10 @@ export function RunningSheetSection({
                   {/* Add Row */}
                   {!disabled && (
                     <div className="mt-3 flex justify-center">
-                      <Button variant="outline" size="sm" onClick={onAddItem} className="gap-2">
-                        <Plus className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={onAddItem} className="gap-1.5" aria-label="Add row">
+                        <Plus size={16} strokeWidth={1.8} aria-hidden="true" />
                         Add Row
+
                       </Button>
                     </div>
                   )}
