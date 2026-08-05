@@ -25,7 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { PlaceCardSettings } from "@/hooks/usePlaceCardSettings";
 import { Guest } from "@/hooks/useGuests";
-import { Palette, Type, Image, MessageSquare, Sparkles, Grid3X3, Trash2, Upload, Images, QrCode } from "lucide-react";
+import { Palette, Type, Image, MessageSquare, MessageSquareText, Sparkles, Grid3X3, Trash2, Upload, Images, QrCode, Move, UserRound, Armchair, RotateCcw } from "lucide-react";
 import { PlaceCardGalleryModal } from "./PlaceCardGalleryModal";
 import { PlaceCardFontPicker } from "./PlaceCardFontPicker";
 import { supabase } from "@/integrations/supabase/client";
@@ -268,25 +268,41 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
-            <Palette className="h-5 w-5 text-foreground" />
+            <Palette size={22} strokeWidth={1.8} className="text-foreground shrink-0" aria-hidden="true" />
             Custom Name Place Cards Design
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="design" className="space-y-4">
             <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-5">
-              <TabsTrigger value="design">Design</TabsTrigger>
-              <TabsTrigger value="position">Text Position</TabsTrigger>
-              <TabsTrigger value="background">Background</TabsTrigger>
-              <TabsTrigger value="qr-code">Add QR Code</TabsTrigger>
-              <TabsTrigger value="messages">Messages</TabsTrigger>
+              <TabsTrigger value="design" className="gap-1.5">
+                <Palette size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                Design
+              </TabsTrigger>
+              <TabsTrigger value="position" className="gap-1.5">
+                <Move size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                Text Position
+              </TabsTrigger>
+              <TabsTrigger value="background" className="gap-1.5">
+                <Image size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                Background
+              </TabsTrigger>
+              <TabsTrigger value="qr-code" className="gap-1.5">
+                <QrCode size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                Add QR Code
+              </TabsTrigger>
+              <TabsTrigger value="messages" className="gap-1.5">
+                <MessageSquareText size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                Messages
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="design" className="space-y-4">
               <div className="space-y-4">
                 {/* Box 1 — Guest Name */}
                 <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-3">
-                  <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">
+                  <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
+                    <UserRound size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                     Guest Name
                   </span>
 
@@ -362,7 +378,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
 
                 {/* Box 2 — Table & Seat */}
                 <div className="border-[1.5px] border-primary rounded-xl bg-white p-4 space-y-3">
-                  <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">
+                  <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
+                    <Armchair size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                     Table & Seat
                   </span>
 
@@ -442,6 +459,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
@@ -455,7 +473,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
-                        <Type className="h-4 w-4" />
+                        <Move size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         Text Edit Mode
                       </span>
                     </div>
@@ -494,6 +512,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
@@ -504,7 +523,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="space-y-4">
                 <div>
                   <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold mb-3">
-                    <Image className="h-4 w-4" />
+                    <Image size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                     Background Image
                   </span>
                   <RadioGroup
@@ -593,7 +612,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           disabled={uploading}
                           className="w-full rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
-                          <Upload className="h-4 w-4" />
+                          <Upload size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                           {uploading ? "Uploading..." : "Choose File"}
                         </Button>
 
@@ -604,7 +623,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           onClick={() => setGalleryModalOpen(true)}
                           className="w-full rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
-                          <Images className="h-4 w-4" />
+                          <Images size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                           Image Gallery
                         </Button>
 
@@ -745,6 +764,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
@@ -754,7 +774,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
             <TabsContent value="qr-code" className="space-y-4">
               <div className="p-6 border-2 border-dashed border-[#967A59]/40 rounded-xl bg-[#FAF7F2] text-center space-y-3">
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#967A59]/10">
-                  <QrCode className="h-6 w-6 text-[#967A59]" />
+                  <QrCode size={24} strokeWidth={1.8} className="text-[#967A59]" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-semibold text-foreground">Coming Soon</h3>
                 <p className="text-sm text-muted-foreground max-w-md mx-auto">
@@ -770,7 +790,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
               <div className="space-y-4">
                 <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
                   <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
-                    <MessageSquare className="h-4 w-4" />
+                    <MessageSquareText size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                     Mass Message (applies to all cards)
                   </span>
                   <Textarea
@@ -845,6 +865,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     variant="outline"
                     className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
+                    <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
                   </Button>
                 </div>
