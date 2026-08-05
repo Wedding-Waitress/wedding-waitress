@@ -307,7 +307,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       <span className="text-muted-foreground">Single Side (front or back):</span>
                       <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
                     </div>
-                    <p className="text-xs text-muted-foreground pt-1">
+                    <p className="text-xs text-muted-foreground pt-1 flex items-center gap-1.5">
+                      <FoldHorizontal size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Fold line at 49.5mm from top edge
                     </p>
                   </div>
