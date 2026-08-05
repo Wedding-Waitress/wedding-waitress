@@ -330,7 +330,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       events.map((event) => (
                         <SelectItem key={event.id} value={event.id}>
                           <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarDays className="w-4 h-4" strokeWidth={1.8} />
                             <span>{event.name}</span>
                           </div>
                         </SelectItem>
