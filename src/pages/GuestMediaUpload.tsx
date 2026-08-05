@@ -17,10 +17,10 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
-import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png';
 import galleryHeaderLogo from '@/assets/gallery-header-logo.png';
 import guestbookHeaderLogo from '@/assets/guestbook-header-logo.png';
+import photoBoothHeaderLogo from '@/assets/photo-booth-header-logo.png';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 // The dynamic import retries once before failing so a single flaky chunk request on first
