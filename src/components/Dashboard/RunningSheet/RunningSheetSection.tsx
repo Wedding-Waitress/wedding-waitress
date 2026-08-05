@@ -314,9 +314,10 @@ export function RunningSheetSection({
                   {/* Add Row */}
                   {!disabled && (
                     <div className="mt-3 flex justify-center">
-                      <Button variant="outline" size="sm" onClick={onAddItem} className="gap-2">
-                        <Plus className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={onAddItem} className="gap-1.5" aria-label="Add row">
+                        <Plus size={16} strokeWidth={1.8} aria-hidden="true" />
                         Add Row
+
                       </Button>
                     </div>
                   )}
