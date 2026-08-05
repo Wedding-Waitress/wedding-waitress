@@ -305,6 +305,24 @@ export const Landing = () => {
     { id: "floor-plan", key: "floorPlan", img: featureFloorplan },
   ];
 
+  // Semantic Lucide outline icon for each alternating feature heading.
+  const alternatingIcons: Record<string, React.ComponentType<any>> = {
+    guestList: ClipboardList,
+    tables: TableProperties,
+    qr: UserRoundCheck,
+    runningSheet: CalendarRange,
+    invitations: MailCheck,
+    myEvents: LayoutTemplate,
+    placeCards: ContactRound,
+    tableCharts: PanelsTopLeft,
+    dietary: UtensilsCrossed,
+    seatingChart: ClipboardCheck,
+    kiosk: MonitorSmartphone,
+    djmc: Music2,
+    floorPlan: LayoutGrid,
+    photoSharing: Camera,
+  };
+
   const extraFeatureKeys = [
     { icon: Music, key: "djmc" },
     { icon: UtensilsCrossed, key: "dietary" },
