@@ -125,10 +125,16 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         {/* Display Options */}
         <div className="space-y-4">
-          <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
+          <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold">
+            <Eye className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            Display Options
+          </span>
           
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-names">Show Guest Names</Label>
+            <Label htmlFor="show-names" className="flex items-center gap-[7px]">
+              <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Guest Names
+            </Label>
             <Switch
               id="show-names"
               checked={settings.includeNames}
@@ -139,7 +145,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-seat-numbers">Show Seat Numbers</Label>
+            <Label htmlFor="show-seat-numbers" className="flex items-center gap-[7px]">
+              <Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Seat Numbers
+            </Label>
             <Switch
               id="show-seat-numbers"
               checked={settings.showSeatNumbers}
@@ -150,7 +159,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-guest-list">Show Guest List</Label>
+            <Label htmlFor="show-guest-list" className="flex items-center gap-[7px]">
+              <ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Guest List
+            </Label>
             <Switch
               id="show-guest-list"
               checked={settings.includeGuestList}
@@ -161,7 +173,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-dietary">Show Dietary Requirements</Label>
+            <Label htmlFor="show-dietary" className="flex items-center gap-[7px]">
+              <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Dietary Requirements
+            </Label>
             <Switch
               id="show-dietary"
               checked={settings.includeDietary}
@@ -172,7 +187,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-relation">Show Relationship</Label>
+            <Label htmlFor="show-relation" className="flex items-center gap-[7px]">
+              <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Relationship
+            </Label>
             <Switch
               id="show-relation"
               checked={settings.includeRelation}
@@ -181,6 +199,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               }
             />
           </div>
+
 
         </div>
 
