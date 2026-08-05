@@ -440,7 +440,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           <div className="lg:col-span-3">
             <Card className="ww-box p-8 text-center">
               <div className="text-amber-600 mb-4">
-                <AlertTriangle className="w-16 h-16 mx-auto" />
+                <TriangleAlert className="w-16 h-16 mx-auto" strokeWidth={1.8} aria-hidden="true" />
               </div>
               <CardTitle className="mb-2 text-amber-600">Table Has Too Many Guests</CardTitle>
               <CardDescription className="text-base">
