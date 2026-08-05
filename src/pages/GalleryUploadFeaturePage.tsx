@@ -14,7 +14,7 @@ import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/Galle
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
 import { Card } from '@/components/ui/card';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { LoaderCircle, TriangleAlert } from 'lucide-react';
 
 export const GalleryUploadFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
-        <Loader2 className="h-6 w-6 animate-spin text-white" />
+        <LoaderCircle className="h-6 w-6 animate-spin text-white" />
       </div>
     );
   }
@@ -74,12 +74,12 @@ export const GalleryUploadFeaturePage: React.FC = () => {
       >
         {loading && !meta ? (
           <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" />
             <p className="text-sm text-muted-foreground">Loading gallery…</p>
           </Card>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <TriangleAlert className="h-8 w-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage photo & video sharing.'}
             </p>

@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Progress } from '@/components/ui/progress';
-import { Download, Loader2, FileArchive, AlertTriangle } from 'lucide-react';
+import { Download, LoaderCircle, FolderDown, TriangleAlert } from 'lucide-react';
 import JSZip from 'jszip';
 import { cn } from '@/lib/utils';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
@@ -207,7 +207,7 @@ export const GalleryDownloadsCard: React.FC<{
   return (
     <Card className={cn('p-4 space-y-4 overflow-hidden h-full flex flex-col', className)}>
       <div className="flex items-start gap-2">
-        <FileArchive className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
+        <FolderDown className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
           <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>{title || 'Download as ZIP'}</h3>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
@@ -229,7 +229,7 @@ export const GalleryDownloadsCard: React.FC<{
               title={count === 0 ? 'No items available' : undefined}
             >
               <span className="flex items-center">
-                {isBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
+                {isBusy ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
                 <span className="whitespace-nowrap">{labelFor(scope)}</span>
               </span>
               <span className="text-xs text-muted-foreground shrink-0">{count}</span>
@@ -260,7 +260,7 @@ export const GalleryDownloadsCard: React.FC<{
 
       {!busy && counts.all === 0 && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <AlertTriangle className="h-3.5 w-3.5" />
+          <TriangleAlert className="h-3.5 w-3.5" />
           {emptyText || 'No uploaded media yet — ZIP downloads will activate once guests upload.'}
         </div>
       )}

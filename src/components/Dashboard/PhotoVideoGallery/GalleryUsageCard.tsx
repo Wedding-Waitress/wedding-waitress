@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, AlertCircle, Image as ImageIcon, Video, HardDrive, Users, BarChart3 } from 'lucide-react';
+import { TriangleAlert, AlertCircle, Image as ImageIcon, Video, HardDrive, UsersRound, BarChart3 } from 'lucide-react';
 import { formatBytes } from '@/lib/mediaValidation';
 import type { GalleryMeta, GalleryItem } from '@/hooks/useEventMediaGallery';
 
@@ -63,7 +63,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
       )}
       {!anyFull && storageWarn && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+          <TriangleAlert className="h-4 w-4 mt-0.5 shrink-0" />
           <div>
             <div className="font-medium">Storage over 80%</div>
             <div className="text-xs mt-0.5">You have {formatBytes(remainingBytes)} remaining. Consider raising the storage limit or deleting items.</div>
@@ -97,7 +97,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
         />
         <div className="flex items-center justify-between pt-1 border-t border-border text-sm">
           <span className="flex items-center gap-2 font-medium text-foreground">
-            <Users className="h-4 w-4 text-[#967A59]" /> Guests who uploaded
+            <UsersRound className="h-4 w-4 text-[#967A59]" /> Guests who uploaded
           </span>
           <span className="text-foreground font-medium tabular-nums">{usage.guests}</span>
         </div>
