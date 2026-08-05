@@ -13,7 +13,7 @@ import React, { useRef, useCallback, useState } from 'react';
 import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
-import { Minus, Plus } from 'lucide-react';
+import { ZoomIn, ZoomOut } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
 interface InvitationCardPreviewProps {
@@ -328,9 +328,9 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
             onClick={() => handleZoomChange(zoom + 10)}
             disabled={zoom >= 100}
-            aria-label="Zoom in"
+            aria-label="Zoom in" title="Zoom in"
           >
-            <Plus className="h-4 w-4" />
+            <ZoomIn className="h-[17px] w-[17px]" strokeWidth={1.8} aria-hidden="true" />
           </button>
           <Slider
             value={[zoom]}
@@ -346,9 +346,9 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
             onClick={() => handleZoomChange(zoom - 10)}
             disabled={zoom <= 25}
-            aria-label="Zoom out"
+            aria-label="Zoom out" title="Zoom out"
           >
-            <Minus className="h-4 w-4" />
+            <ZoomOut className="h-[17px] w-[17px]" strokeWidth={1.8} aria-hidden="true" />
           </button>
           <span className="text-xs font-medium text-muted-foreground tabular-nums">
             {zoom}%
