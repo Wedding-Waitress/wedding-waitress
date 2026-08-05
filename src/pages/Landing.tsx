@@ -480,7 +480,10 @@ export const Landing = () => {
       <section id="faq" className="py-16 md:py-20 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('faq.title')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <CircleHelp size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('faq.title')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('faq.subtitle')}
