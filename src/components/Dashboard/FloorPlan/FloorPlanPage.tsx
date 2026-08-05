@@ -13,7 +13,7 @@ import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, FileText, LayoutGrid } from 'lucide-react';
+import { LayoutGrid, CalendarDays, LayoutTemplate, UsersRound, HeartHandshake, PartyPopper, Printer, Download, LoaderCircle } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
