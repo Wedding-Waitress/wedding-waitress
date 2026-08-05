@@ -350,7 +350,10 @@ export function DJMCQuestionnaireSection({
             {showNotes && (
               <div className="mt-3">
                 <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
-                  <div className="text-sm font-medium text-primary mb-1">Notes for DJ-MC</div>
+                  <div className="text-sm font-medium text-primary mb-1 flex items-center gap-2">
+                    <NotebookPen size={17} strokeWidth={1.8} aria-hidden="true" />
+                    Notes for DJ-MC
+                  </div>
                   <Textarea
                     value={section.notes || ''}
                     onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
@@ -526,7 +529,7 @@ export function DJMCQuestionnaireSection({
                 onClick={onAddItem}
                 disabled={disabled}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus size={15} strokeWidth={1.8} className="mr-[5px]" aria-hidden="true" />
                 Add Row
               </Button>
               </div>
