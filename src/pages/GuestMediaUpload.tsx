@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Images, BookOpen, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
