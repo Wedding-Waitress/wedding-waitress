@@ -23,7 +23,7 @@ import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
-import { Loader2, Users, Settings, FileText, Printer, Calendar, Ruler } from 'lucide-react';
+import { Loader2, LoaderCircle, Users, FileText, Printer, CalendarDays, Table2, Ruler, ContactRound, BadgeCheck, FoldHorizontal, FileDown, Files } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
