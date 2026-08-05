@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
 import type { LucideIcon } from 'lucide-react';
-import { Palette, Type, Image, MessageSquare, MessageSquareText, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode, ListPlus, Heart, CalendarHeart, CalendarDays, MapPin, PartyPopper, CaseSensitive, Scaling, AlignCenter, CaseUpper, Move, ImagePlus, RotateCcw, Save } from 'lucide-react';
+import { MailOpen, HeartHandshake, Shirt, CalendarClock, HandHeart, Palette, Type, Image, MessageSquare, MessageSquareText, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode, ListPlus, Heart, CalendarHeart, CalendarDays, MapPin, PartyPopper, CaseSensitive, Scaling, AlignCenter, CaseUpper, Move, ImagePlus, RotateCcw, Save } from 'lucide-react';
 
 const PRESET_ZONE_ICONS: Record<string, LucideIcon> = {
   couple_names: Heart,
@@ -21,6 +21,13 @@ const PRESET_ZONE_ICONS: Record<string, LucideIcon> = {
   welcome_message: MessageSquareText,
   welcome_to_our_wedding: PartyPopper,
   qr_instructions: QrCode,
+  you_are_invited: MailOpen,
+  ceremony_info: HeartHandshake,
+  reception_info: PartyPopper,
+  dress_code: Shirt,
+  rsvp_deadline: CalendarClock,
+  save_the_date: CalendarHeart,
+  thank_you: HandHeart,
 };
 import canvaEditBanner from '@/assets/canva-design-button.png';
 import canvaLogo from '@/assets/canva-logo.png';
