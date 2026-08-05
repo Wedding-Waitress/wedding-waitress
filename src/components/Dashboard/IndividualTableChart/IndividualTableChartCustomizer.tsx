@@ -24,7 +24,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Type, Bold, Italic, Underline, ChevronDown, Check } from 'lucide-react';
+import {
+  Settings2,
+  Type,
+  Bold,
+  Italic,
+  Underline,
+  ChevronDown,
+  Check,
+  TableProperties,
+  Shapes,
+  TriangleAlert,
+  Eye,
+  UserRound,
+  Armchair,
+  ListOrdered,
+  UtensilsCrossed,
+  HeartHandshake,
+  Scaling,
+  CaseSensitive,
+} from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 
 interface IndividualTableChartCustomizerProps {
