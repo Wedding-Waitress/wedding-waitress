@@ -185,7 +185,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 flex-wrap max-sm:gap-1">
             <div className="flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-primary" />
+              <ImageIcon size={18} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
               Place Cards Image Gallery
             </div>
             <span className="text-primary font-medium">{images.length} Total Designs</span>
@@ -215,7 +215,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                 className="ml-auto mr-12 lv-premium-shade"
                 onClick={() => setShowUpload((s) => !s)}
               >
-                <Upload className="h-4 w-4 mr-1" />
+                <Upload size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 {showUpload ? 'Close Upload' : 'Admin Upload'}
               </Button>
             )}
@@ -231,7 +231,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                 onClick={() => setUploadMode('bulk')}
                 className="lv-premium-shade"
               >
-                <Layers className="h-4 w-4 mr-1" />
+                <Layers size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 Bulk Upload
               </Button>
               <Button
@@ -240,7 +240,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                 onClick={() => setUploadMode('single')}
                 className="lv-premium-shade"
               >
-                <Upload className="h-4 w-4 mr-1" />
+                <Upload size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 Single Upload
               </Button>
 
@@ -255,7 +255,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                   onClick={() => bulkDropRef.current?.click()}
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
-                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <FolderOpen size={18} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                   <p className="text-xs font-medium">Drag & drop or click to select PNG / JPG (≤500 MB)</p>
                   <input
                     ref={bulkDropRef}
@@ -274,7 +274,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                   className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
                 >
-                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
+                  <FolderOpen size={18} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                   <p className="text-xs font-medium truncate">
                     {uploadFile ? uploadFile.name : 'Click to select a single PNG / JPG (≤500 MB)'}
                   </p>
@@ -311,7 +311,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                   {uploading ? (
                     <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
                   ) : (
-                    <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
+                    <><Upload size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />Optimize & Upload</>
                   )}
                 </Button>
                 {uploading && uploadProgress && (
@@ -336,7 +336,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
           <div className="flex-1 flex flex-col min-h-0">
             <div className="flex items-center gap-3 mb-2">
               <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)} className="lv-premium-shade">
-                <ArrowLeft className="h-4 w-4 mr-1" />
+                <ArrowLeft size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 Back to Gallery
               </Button>
               <div className="flex-1 min-w-0">
@@ -346,7 +346,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
             </div>
             <div className="flex justify-center mb-4">
               <Button className="bg-green-500 hover:bg-green-600 text-white lv-premium-shade" onClick={() => handleSelectImage(previewImage)}>
-                <Check className="h-4 w-4 mr-1" />
+                <Check size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 Use This Image
               </Button>
             </div>
@@ -568,7 +568,7 @@ export const PlaceCardGalleryModal: React.FC<PlaceCardGalleryModalProps> = ({
                   disabled={deleting}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90 lv-premium-shade"
                 >
-                  {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 className="h-4 w-4 mr-1" />Delete</>}
+                  {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Deleting…</> : <><Trash2 size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />Delete</>}
                 </Button>
               </div>
             </div>
