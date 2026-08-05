@@ -15,7 +15,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, FileText, AlertTriangle } from 'lucide-react';
+import { Users, TriangleAlert, TableProperties, CalendarDays, Table2, Printer, FileDown, Files, LoaderCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogContent,
