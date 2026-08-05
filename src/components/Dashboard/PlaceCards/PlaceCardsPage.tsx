@@ -23,7 +23,7 @@ import { usePlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { PlaceCardCustomizer } from './PlaceCardCustomizer';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import { PlaceCardExporter } from './PlaceCardExporter';
-import { Loader2, Users, Settings, FileText, Printer, Calendar, Ruler } from 'lucide-react';
+import { Loader2, LoaderCircle, Users, FileText, Printer, CalendarDays, Table2, Ruler, ContactRound, BadgeCheck, FoldHorizontal, FileDown, Files } from 'lucide-react';
 import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
@@ -41,6 +41,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [exportTarget, setExportTarget] = useState<'single' | 'all' | null>(null);
   const [textEditMode, setTextEditMode] = useState(false);
   const [textOverflowing, setTextOverflowing] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
@@ -93,6 +94,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   };
 
   const handleDownloadPdfPage = async () => {
+    setExportTarget('single');
     setIsProcessing(true);
     setIsExporting(true);
     
@@ -116,12 +118,14 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         variant: 'destructive',
       });
     } finally {
+      setExportTarget(null);
       setIsProcessing(false);
       setIsExporting(false);
     }
   };
 
   const handleDownloadPdfAll = async () => {
+    setExportTarget('all');
     setIsProcessing(true);
     setIsExporting(true);
     
@@ -145,6 +149,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         variant: 'destructive',
       });
     } finally {
+      setExportTarget(null);
       setIsProcessing(false);
       setIsExporting(false);
     }
@@ -257,11 +262,15 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         <CardContent className="space-y-4 pt-6">
           {/* Title & Subtitle - Full Width */}
           <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground">Table Name Place Cards</h1>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <ContactRound size={24} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
+              Table Name Place Cards
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create professional foldable place cards for your guests
             </p>
           </div>
+
 
           {/* Stats + Card Dimensions Row - Side by Side */}
           {selectedEvent && assignedGuests.length > 0 && (
@@ -269,9 +278,12 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               {/* Left: Statistics Box */}
               <div className="w-full lg:flex-1 min-w-0 border border-primary rounded-xl p-4 text-sm space-y-2">
                 {/* Main stats line */}
-                <p className="font-medium text-green-600">
-                  {selectedTable ? `${selectedTable.name || `Table ${selectedTable.table_no}`} - ` : ''}
-                  {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
+                <p className="font-medium text-green-600 flex items-start gap-2">
+                  <BadgeCheck size={18} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>
+                    {selectedTable ? `${selectedTable.name || `Table ${selectedTable.table_no}`} - ` : ''}
+                    {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
+                  </span>
                 </p>
                 
                 {/* Quality information */}
@@ -288,7 +300,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               {!guestsLoading && !settingsLoading && (
                 <div className="w-full lg:w-auto border border-primary rounded-xl p-4 space-y-2">
                   <div className="flex items-center gap-2">
-                    <Ruler className="w-4 h-4 text-primary" />
+                    <Ruler size={19} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                     <h3 className="text-sm font-medium">Card Dimensions</h3>
                   </div>
                   <div className="space-y-1 text-sm">
@@ -300,7 +312,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       <span className="text-muted-foreground">Single Side (front or back):</span>
                       <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
                     </div>
-                    <p className="text-xs text-muted-foreground pt-1">
+                    <p className="text-xs text-muted-foreground pt-1 flex items-center gap-1.5">
+                      <FoldHorizontal size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Fold line at 49.5mm from top edge
                     </p>
                   </div>
@@ -318,7 +331,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
             <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8 lg:flex-nowrap w-full lg:w-auto">
               {/* Choose Event */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
-                <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                <label className="text-sm font-medium text-foreground whitespace-nowrap flex items-center gap-[7px]">
+                  <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                   Choose Event:
                 </label>
                 <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
@@ -330,7 +344,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                       events.map((event) => (
                         <SelectItem key={event.id} value={event.id}>
                           <div className="flex items-center space-x-2">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarDays className="w-4 h-4" strokeWidth={1.8} />
                             <span>{event.name}</span>
                           </div>
                         </SelectItem>
@@ -347,7 +361,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               {/* Table Selection (only when event is selected) */}
               {selectedEventId && (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap flex items-center gap-[7px]">
+                    <Table2 size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                     Table:
                   </label>
                   <Select 
@@ -379,25 +394,38 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
             {/* Right side: Export Controls */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
               <div className="w-full lg:w-auto border border-primary rounded-xl p-3 flex flex-col gap-2">
-                <div className="text-sm">
+                <div className="text-sm flex items-center gap-1.5 flex-wrap">
+                  <Printer size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                   <span className="font-medium">Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your place cards as PDF ready for printing.</span>
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <button 
                     onClick={handleDownloadPdfPage}
-                    disabled={isProcessing}
-                    className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto"
+                    disabled={exportTarget !== null}
+                    aria-label="Download Single Page PDF"
+                    title="Download Single Page PDF"
+                    className="inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                   >
-                    <FileText className="w-3 h-3" />
+                    {exportTarget === 'single' ? (
+                      <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin shrink-0" aria-hidden="true" />
+                    ) : (
+                      <FileDown size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                    )}
                     Download Single Page PDF
                   </button>
                   <button 
                     onClick={handleDownloadPdfAll}
-                    disabled={isProcessing}
-                    className="inline-flex items-center justify-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto"
+                    disabled={exportTarget !== null}
+                    aria-label="Download All Pages PDF"
+                    title="Download All Pages PDF"
+                    className="inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                   >
-                    <FileText className="w-3 h-3" />
+                    {exportTarget === 'all' ? (
+                      <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin shrink-0" aria-hidden="true" />
+                    ) : (
+                      <Files size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                    )}
                     Download All Pages PDF
                   </button>
                 </div>

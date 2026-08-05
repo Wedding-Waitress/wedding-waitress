@@ -22,7 +22,7 @@ import React, { forwardRef, useState, useRef, useCallback, useEffect } from 'rea
 import { Button } from '@/components/ui/button';
 import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, FoldHorizontal, ArrowRight } from 'lucide-react';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { useToast } from '@/hooks/use-toast';
 
@@ -709,9 +709,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 text-xs leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30"
                 style={{ maxWidth: '220px' }}
               >
-                This is the &quot;Master Card&quot;.
-                <br />
-                Customise this to sync with all other cards.
+                <span className="flex items-start gap-1.5">
+                  <Info size={15} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>
+                    This is the &quot;Master Card&quot;.
+                    <br />
+                    Customise this to sync with all other cards.
+                  </span>
+                </span>
               </div>
               <Button
                 variant="outline"
@@ -719,7 +724,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <ChevronLeft size={16} strokeWidth={1.8} className="mr-1 shrink-0" aria-hidden="true" />
                 Previous
               </Button>
               <span className="text-sm font-medium">
@@ -732,7 +737,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 disabled={currentPage === totalPages}
               >
                 Next
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <ChevronRight size={16} strokeWidth={1.8} className="ml-1 shrink-0" aria-hidden="true" />
               </Button>
             </div>
 
@@ -750,15 +755,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 >
                   <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0 }}>
                     <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
-                    <span className="text-muted-foreground text-xl font-bold">→</span>
+                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
                   </div>
                   <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Fold</span>
-                    <span className="text-muted-foreground text-xl font-bold">→</span>
+                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border inline-flex items-center gap-1"><FoldHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />Fold</span>
+                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
                   </div>
                   <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0 }}>
                     <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
-                    <span className="text-muted-foreground text-xl font-bold">→</span>
+                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
                   </div>
                 </div>
               )}
@@ -836,7 +841,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 onClick={handlePreviousPage}
                 disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <ChevronLeft size={16} strokeWidth={1.8} className="mr-1 shrink-0" aria-hidden="true" />
                 Previous
               </Button>
               <span className="text-sm font-medium">
@@ -849,7 +854,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                 disabled={currentPage === totalPages}
               >
                 Next
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <ChevronRight size={16} strokeWidth={1.8} className="ml-1 shrink-0" aria-hidden="true" />
               </Button>
             </div>
           </div>
