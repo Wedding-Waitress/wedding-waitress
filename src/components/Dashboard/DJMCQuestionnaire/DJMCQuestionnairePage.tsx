@@ -10,7 +10,10 @@
  * Last locked: 2026-02-19
  */
 import React, { useState } from 'react';
-import { Music, Download, Loader2, FileText, Share2 } from 'lucide-react';
+import {
+  Music2, Mic2, Printer, Share2, FileDown, LoaderCircle,
+  CalendarDays, HeartHandshake, PartyPopper, Clock3, MapPin,
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { Button } from '@/components/ui/button';
@@ -133,8 +136,9 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Music className="h-6 w-6 text-primary" />
+          <div className="p-2 bg-primary/10 rounded-lg flex items-center gap-1.5">
+            <Music2 size={25} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
+            <Mic2 size={18} strokeWidth={1.8} className="text-primary/70" aria-hidden="true" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">DJ & MC Questionnaire</h1>
@@ -146,7 +150,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
 
         {saving && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" />
             Saving...
           </div>
         )}
@@ -156,7 +160,8 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap max-lg:flex-col max-lg:items-stretch">
-            <div className="flex-shrink-0 max-lg:w-full">
+            <div className="flex-shrink-0 max-lg:w-full flex items-center gap-2">
+              <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
               <StandardEventSelector
                 events={events}
                 selectedEventId={selectedEventId}
@@ -167,26 +172,30 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
             {selectedEventId && questionnaire && (
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 max-lg:w-full">
                 <div className="text-sm">
-                  <span className="font-medium">Export Controls</span>
+                  <span className="font-medium inline-flex items-center gap-1.5">
+                    <Printer size={16} strokeWidth={1.8} aria-hidden="true" />
+                    Export Controls
+                  </span>
                   <span className="text-muted-foreground ml-2">Download your run sheet and share it with your DJ & MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-lg:gap-2 max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm"
+                    className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm"
                   >
-                    <Share2 className="w-3 h-3 max-sm:w-4 max-sm:h-4" />
+                    <Share2 size={16} strokeWidth={1.8} aria-hidden="true" />
                     Share with DJ/MC
                   </button>
                   <button
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm"
+                    aria-busy={downloadingPDF}
+                    className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm"
                   >
                     {downloadingPDF ? (
-                      <Loader2 className="w-3 h-3 animate-spin max-sm:w-4 max-sm:h-4" />
+                      <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
                     ) : (
-                      <FileText className="w-3 h-3 max-sm:w-4 max-sm:h-4" />
+                      <FileDown size={16} strokeWidth={1.8} aria-hidden="true" />
                     )}
                     Download entire questionnaire PDF
                   </button>
@@ -201,14 +210,14 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
       {!selectedEventId ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
-            <Music className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <Music2 size={48} strokeWidth={1.8} className="mx-auto mb-4 opacity-50" aria-hidden="true" />
             <p>Select an event to start planning your music and entertainment</p>
           </CardContent>
         </Card>
       ) : loading ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary" />
+            <LoaderCircle size={32} strokeWidth={1.8} className="mx-auto animate-spin text-primary" aria-hidden="true" />
             <p className="mt-4 text-muted-foreground">Loading questionnaire...</p>
           </CardContent>
         </Card>
@@ -226,17 +235,21 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                 {/* Ceremony Section */}
                 {selectedEvent.ceremony_enabled && (
                   <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full max-sm:text-center">
-                    <div>
+                    <div className="flex items-center gap-1.5 max-sm:justify-center">
+                      <HeartHandshake size={16} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                       <span className="font-semibold text-primary">Ceremony:</span>
-                      <span className="ml-2 text-muted-foreground">
+                      <span className="text-muted-foreground inline-flex items-center gap-1">
+                        <CalendarDays size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         {formatFullDate(selectedEvent.ceremony_date)}
                       </span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5 max-sm:justify-center">
+                      <Clock3 size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Start: {formatTimeDisplay(selectedEvent.ceremony_start_time)} — Finish: {formatTimeDisplay(selectedEvent.ceremony_finish_time)}
                     </div>
                     {selectedEvent.ceremony_venue && (
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground flex items-center gap-1.5 max-sm:justify-center">
+                        <MapPin size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         {selectedEvent.ceremony_venue}
                       </div>
                     )}
@@ -246,17 +259,21 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect }: DJMCQu
                 {/* Reception Section */}
                 {selectedEvent.reception_enabled !== false && (
                   <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full max-sm:text-center">
-                    <div>
+                    <div className="flex items-center gap-1.5 max-sm:justify-center">
+                      <PartyPopper size={16} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                       <span className="font-semibold text-primary">Reception:</span>
-                      <span className="ml-2 text-muted-foreground">
+                      <span className="text-muted-foreground inline-flex items-center gap-1">
+                        <CalendarDays size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         {formatFullDate(selectedEvent.date)}
                       </span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5 max-sm:justify-center">
+                      <Clock3 size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Start: {formatTimeDisplay(selectedEvent.start_time)} — Finish: {formatTimeDisplay(selectedEvent.finish_time)}
                     </div>
                     {selectedEvent.venue && (
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground flex items-center gap-1.5 max-sm:justify-center">
+                        <MapPin size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         {selectedEvent.venue}
                       </div>
                     )}
