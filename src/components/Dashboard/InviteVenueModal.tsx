@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Send, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { ReferralEventLite } from '@/hooks/useFirstEventReferral';
@@ -126,16 +127,18 @@ export const InviteVenueModal: React.FC<InviteVenueModalProps> = ({ open, onOpen
           <Button
             onClick={handleSend}
             disabled={!validEmail || sending}
-            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white"
+            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white inline-flex items-center justify-center gap-[6px]"
           >
+            <Send size={18} strokeWidth={1.8} aria-hidden />
             {sending ? 'Sending…' : 'Send Invitation'}
           </Button>
           <Button
             variant="destructive"
             onClick={() => onOpenChange(false)}
             disabled={sending}
-            className="lv-premium-shade flex-1 h-11 rounded-full"
+            className="lv-premium-shade flex-1 h-11 rounded-full inline-flex items-center justify-center gap-[6px]"
           >
+            <X size={18} strokeWidth={1.8} aria-hidden />
             Cancel
           </Button>
         </div>
