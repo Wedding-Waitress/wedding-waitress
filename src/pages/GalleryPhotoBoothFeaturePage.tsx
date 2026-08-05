@@ -16,7 +16,7 @@ import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGri
 import { PhotoBoothDownloadAllButton } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothDownloadAllButton';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
-import { Loader2, AlertTriangle, Camera } from 'lucide-react';
+import { LoaderCircle, TriangleAlert, Camera } from 'lucide-react';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 
 export const GalleryPhotoBoothFeaturePage: React.FC = () => {
@@ -64,7 +64,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
-        <Loader2 className="h-6 w-6 animate-spin text-white" />
+        <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
       </div>
     );
   }
@@ -98,12 +98,12 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
       >
         {loading && !meta ? (
           <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground">Loading Digital Photo Booth…</p>
           </Card>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <TriangleAlert className="h-8 w-8 text-muted-foreground" strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage the Digital Photo Booth.'}
             </p>

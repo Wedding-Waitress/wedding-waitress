@@ -2,7 +2,7 @@
 // Read-only: values come from the saved gallery settings; no new settings are introduced here.
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Settings2, Timer, HardDrive, Mic } from 'lucide-react';
+import { Settings2, Timer, HardDrive, Mic2 } from 'lucide-react';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 function mb(bytes: number) {
@@ -25,7 +25,7 @@ export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta
       hint: 'Recordings larger than this are rejected before upload.',
     },
     {
-      icon: Mic,
+      icon: Mic2,
       label: 'Guest recording',
       value: meta.voice_guestbook_enabled ? 'Available to guests' : 'Turned off for guests',
       hint: 'Controlled by the toggle at the top of this workspace.',
@@ -36,7 +36,7 @@ export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta
     <Card className="p-5 sm:p-6 space-y-5 overflow-hidden">
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <Settings2 className="h-5 w-5 text-[#967A59] shrink-0" /> Audio & Video Message Settings
+          <Settings2 className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> Audio & Video Message Settings
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           The saved recording settings currently used by your guest recorder.
@@ -47,7 +47,7 @@ export const GalleryVoiceSettingsCard: React.FC<{ meta: GalleryMeta }> = ({ meta
         {rows.map(r => (
           <div key={r.label} className="rounded-xl border border-border p-4 min-w-0">
             <div className="flex items-center gap-2">
-              <r.icon className="h-4 w-4 text-[#967A59] shrink-0" />
+              <r.icon className="h-4 w-4 text-[#967A59] shrink-0" strokeWidth={1.8} />
               <p className="text-xs uppercase tracking-wide text-[#6E6E73] break-words">{r.label}</p>
             </div>
             <p className="text-lg font-semibold text-[#1D1D1F] mt-2 break-words">{r.value}</p>

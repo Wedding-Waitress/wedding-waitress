@@ -1,6 +1,6 @@
 // Live preview of the current Photo Booth template (default or uploaded artwork).
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import {
   composeSingle,
   composeStrip,
@@ -51,7 +51,7 @@ export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrai
   return (
     <div className="flex items-center justify-center min-h-[280px] py-3 px-1.5">
       {busy && !url ? (
-        <Loader2 className="h-5 w-5 animate-spin text-[#967A59]" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-[#967A59]" strokeWidth={1.8} />
       ) : failed ? (
         <p className="text-xs text-muted-foreground">Preview unavailable</p>
       ) : url ? (

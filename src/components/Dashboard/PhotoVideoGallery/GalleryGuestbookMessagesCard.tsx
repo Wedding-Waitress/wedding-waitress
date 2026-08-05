@@ -11,8 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  MessageCircle, Mic, Video, Play, Search, Eye, EyeOff, Download, RefreshCw,
-  Loader2, AlertTriangle, ImagePlus, ImageMinus,
+  MessageSquareText, Mic2, Video, Play, Search, CircleCheck, EyeOff, Download, RotateCcw,
+  LoaderCircle, TriangleAlert, ImagePlus, ImageMinus,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -288,7 +288,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             <video src={item.signed_url} muted playsInline preload="metadata" className="absolute inset-0 w-full h-full object-cover bg-black" />
           ) : (
             <span className="absolute inset-0 flex items-center justify-center">
-              <Mic className="h-8 w-8 text-[#967A59]" />
+              <Mic2 className="h-8 w-8 text-[#967A59]" strokeWidth={1.8} />
             </span>
           )}
           <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors">
@@ -335,15 +335,15 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           <div className="flex gap-1 pt-1 mt-auto">
             {shared ? (
               <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleShare(item, false)}>
-                <ImageMinus className="h-3.5 w-3.5 mr-1" /> Remove
+                <ImageMinus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Remove
               </Button>
             ) : (
               <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleShare(item, true)}>
-                <ImagePlus className="h-3.5 w-3.5 mr-1" /> Add to Gallery
+                <ImagePlus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Add to Gallery
               </Button>
             )}
-            <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
-              <Download className="h-3.5 w-3.5" />
+            <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download" aria-label="Download recording" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
+              <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
             </Button>
           </div>
         </div>
@@ -359,7 +359,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <MessageCircle className="h-5 w-5 text-[#967A59] shrink-0" />
+            <MessageSquareText className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} />
             <span className="min-w-0 break-words">Guestbook Messages ({allWritten.length + recordings.length})</span>
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
@@ -368,7 +368,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => load()} disabled={textLoading}>
-            <RefreshCw className={`h-4 w-4 mr-1 ${textLoading ? 'animate-spin' : ''}`} /> Refresh
+            {textLoading ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
           </Button>
           <Button
             variant="outline"
@@ -426,7 +426,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         </Select>
         {tab === 'written' && (
           <Button variant="outline" className="lv-premium-shade h-11" onClick={exportCsv} disabled={writtenRows.length === 0}>
-            <Download className="h-4 w-4 mr-1" /> Export CSV
+            <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Export CSV
           </Button>
         )}
       </div>
@@ -445,19 +445,19 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             {tab === 'written' ? (
               <>
                 <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('approved')}>
-                  {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />} Approve
+                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <CircleCheck className="h-4 w-4 mr-1" strokeWidth={1.8} />} Approve
                 </Button>
                 <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('hidden')}>
-                  {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <EyeOff className="h-4 w-4 mr-1" />} Hide
+                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <EyeOff className="h-4 w-4 mr-1" strokeWidth={1.8} />} Hide
                 </Button>
               </>
             ) : (
               <>
                 <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleShareBulk(true)}>
-                  {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <ImagePlus className="h-4 w-4 mr-1" />} Add to Gallery
+                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <ImagePlus className="h-4 w-4 mr-1" strokeWidth={1.8} />} Add to Gallery
                 </Button>
                 <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleShareBulk(false)}>
-                  {busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <ImageMinus className="h-4 w-4 mr-1" />} Remove from Gallery
+                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <ImageMinus className="h-4 w-4 mr-1" strokeWidth={1.8} />} Remove from Gallery
                 </Button>
               </>
             )}
@@ -467,7 +467,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
       {(error || textError) && (
         <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
-          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+          <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
           <p className="text-sm text-destructive break-words">{error || textError}</p>
         </div>
       )}
@@ -475,14 +475,14 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
       {/* Content */}
       {(tab === 'written' ? textLoading && allWritten.length === 0 : loading && recordings.length === 0) ? (
         <div className="py-12 flex flex-col items-center gap-3">
-          <Loader2 className="h-6 w-6 animate-spin text-[#967A59]" />
+          <LoaderCircle className="h-6 w-6 animate-spin text-[#967A59]" strokeWidth={1.8} />
           <p className="text-sm text-muted-foreground">Loading messages…</p>
         </div>
       ) : visibleCount === 0 ? (
         <div className="py-12 text-center">
-          {tab === 'written' ? <MessageCircle className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-            : tab === 'audio' ? <Mic className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-            : <Video className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />}
+          {tab === 'written' ? <MessageSquareText className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />
+            : tab === 'audio' ? <Mic2 className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />
+            : <Video className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />}
           <p className="text-sm text-muted-foreground break-words">
             {totalForTab === 0
               ? 'No messages here yet — share the QR code or link with your guests.'
@@ -530,16 +530,16 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                   <div className="flex gap-1 pt-1 mt-auto">
                     {r.status === 'approved' ? (
                       <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleWrittenSingle(r, 'hidden')}>
-                        <EyeOff className="h-3.5 w-3.5 mr-1" /> Hide
+                        <EyeOff className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Hide
                       </Button>
                     ) : (
                       <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleWrittenSingle(r, 'approved')}>
-                        <Eye className="h-3.5 w-3.5 mr-1" /> Show
+                        <CircleCheck className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Show
                       </Button>
                     )}
                     {r.source === 'text' && (
                       <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download message" onClick={() => downloadTxt(r)}>
-                        <Download className="h-3.5 w-3.5" />
+                        <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
                       </Button>
                     )}
                   </div>

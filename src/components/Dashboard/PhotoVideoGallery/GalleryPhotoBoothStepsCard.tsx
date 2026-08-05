@@ -1,12 +1,12 @@
 // How the Digital Photo Booth works — 3 simple visual steps.
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { QrCode, Camera, CheckCircle2, HelpCircle } from 'lucide-react';
+import { QrCode, Camera, CircleCheck, HelpCircle } from 'lucide-react';
 
 const STEPS = [
   { icon: QrCode, title: 'Scan or open the link', text: 'Guests scan the QR code or open the Digital Photo Booth link on their phone or tablet.' },
   { icon: Camera, title: 'Take the photo', text: 'They allow camera access and take their photo with the on-screen countdown.' },
-  { icon: CheckCircle2, title: 'Review & approve', text: 'Their submitted photo appears here for review and gallery approval.' },
+  { icon: CircleCheck, title: 'Review & approve', text: 'Their submitted photo appears here for review and gallery approval.' },
 ];
 
 export const GalleryPhotoBoothStepsCard: React.FC = () => (

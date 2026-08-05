@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, Maximize, Minimize, MonitorPlay } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, RotateCcw, Maximize, Minimize, Presentation } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { guestVisibleItems } from '@/lib/mediaPrivacy';
 import { applySlideshowSettings, type SlideshowSettings } from '@/lib/slideshowSettings';
@@ -77,7 +77,7 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <MonitorPlay className="h-5 w-5 text-[#967A59] shrink-0" /> Slideshow Preview
+            <Presentation size={22} strokeWidth={1.8} className="text-[#967A59] shrink-0" /> Slideshow Preview
           </h2>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
             Exactly what your guests will see on the big screen.
@@ -137,19 +137,19 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
 
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => setIndex(i => (eligible.length ? (i - 1 + eligible.length) % eligible.length : 0))} disabled={!eligible.length}>
-          <SkipBack className="h-4 w-4 mr-1" /> Previous
+          <SkipBack size={16} strokeWidth={1.8} className="mr-1.5" /> Previous
         </Button>
         <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => setPaused(p => !p)} disabled={!eligible.length}>
-          {paused ? <><Play className="h-4 w-4 mr-1" /> Play</> : <><Pause className="h-4 w-4 mr-1" /> Pause</>}
+          {paused ? <><Play size={16} strokeWidth={1.8} className="mr-1.5" /> Play</> : <><Pause size={16} strokeWidth={1.8} className="mr-1.5" /> Pause</>}
         </Button>
         <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => setIndex(i => (eligible.length ? (i + 1) % eligible.length : 0))} disabled={!eligible.length}>
-          <SkipForward className="h-4 w-4 mr-1" /> Next
+          <SkipForward size={16} strokeWidth={1.8} className="mr-1.5" /> Next
         </Button>
         <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => { setIndex(0); setPaused(false); }} disabled={!eligible.length}>
-          <RotateCcw className="h-4 w-4 mr-1" /> Restart
+          <RotateCcw size={16} strokeWidth={1.8} className="mr-1.5" /> Restart
         </Button>
         <Button variant="outline" size="sm" className="lv-premium-shade" onClick={toggleFullscreen} disabled={!eligible.length}>
-          {isFs ? <><Minimize className="h-4 w-4 mr-1" /> Exit fullscreen</> : <><Maximize className="h-4 w-4 mr-1" /> Fullscreen</>}
+          {isFs ? <><Minimize size={16} strokeWidth={1.8} className="mr-1.5" /> Exit fullscreen</> : <><Maximize size={16} strokeWidth={1.8} className="mr-1.5" /> Fullscreen</>}
         </Button>
       </div>
     </Card>

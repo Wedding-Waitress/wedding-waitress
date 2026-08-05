@@ -14,7 +14,7 @@ export const GalleryTextGuestbookStepsCard: React.FC = () => (
   <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
     <div className="min-w-0">
       <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-        <HelpCircle className="h-5 w-5 text-[#967A59] shrink-0" /> How the Digital Guestbook Works
+        <HelpCircle className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> How the Digital Guestbook Works
       </h2>
       <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
         Four simple steps from your guest's phone straight into your Digital Guestbook.
@@ -25,7 +25,7 @@ export const GalleryTextGuestbookStepsCard: React.FC = () => (
       {STEPS.map((s, i) => (
         <li key={s.title} className="flex items-start gap-4 rounded-xl border border-border bg-muted/30 p-4">
           <div className="w-11 h-11 rounded-full bg-[#967A59]/10 flex items-center justify-center shrink-0">
-            <s.icon className="h-5 w-5 text-[#967A59]" />
+            <s.icon className="h-5 w-5 text-[#967A59]" strokeWidth={1.8} />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-[#1D1D1F] break-words">

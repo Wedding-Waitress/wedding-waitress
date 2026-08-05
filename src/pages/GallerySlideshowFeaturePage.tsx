@@ -15,7 +15,7 @@ import { GallerySlideshowPreviewCard } from '@/components/Dashboard/PhotoVideoGa
 import { slideshowSettingsFromRow, type SlideshowSettings } from '@/lib/slideshowSettings';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
-import { Loader2, AlertTriangle, MonitorPlay } from 'lucide-react';
+import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
 
 export const GallerySlideshowFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
   if (!authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
-        <Loader2 className="h-6 w-6 animate-spin text-white" />
+        <LoaderCircle size={24} strokeWidth={1.8} className="animate-spin text-white" />
       </div>
     );
   }
@@ -89,18 +89,18 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
             disabled={!liveUrl}
             onClick={() => liveUrl && window.open(liveUrl, '_blank', 'noopener,noreferrer')}
           >
-            <MonitorPlay className="h-4 w-4 mr-1" /> Launch Live Slideshow
+            <ExternalLink size={16} strokeWidth={1.8} className="mr-1.5" /> Launch Live Slideshow
           </Button>
         }
       >
         {loading && !meta ? (
           <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <Loader2 className="animate-spin h-6 w-6 text-[#967A59]" />
+            <LoaderCircle size={24} strokeWidth={1.8} className="animate-spin text-[#967A59]" />
             <p className="text-sm text-muted-foreground">Loading Live Slideshow…</p>
           </Card>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            <TriangleAlert size={28} strokeWidth={1.8} className="text-muted-foreground" />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage the Live Slideshow.'}
             </p>

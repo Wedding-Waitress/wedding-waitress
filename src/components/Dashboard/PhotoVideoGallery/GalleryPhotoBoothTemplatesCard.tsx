@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image as ImageIcon, Upload, X, Save, Loader2, RotateCcw, Palette, Type as TypeIcon, Download, Info } from 'lucide-react';
+import { ImagePlus, Upload, X, Save, LoaderCircle, RotateCcw, Palette, Type as TypeIcon, Download, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, PhotoBoothTemplateSettings } from '@/hooks/useEventMediaGallery';
@@ -259,7 +259,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         disabled={!dirty || saving || !!uploading}
         onClick={handleSave}
       >
-        {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+        {saving ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <Save className="h-4 w-4 mr-1" />}
         Save template
       </Button>
     </div>
@@ -325,7 +325,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                   <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" className="w-full h-full object-contain" />
                 ) : (
                   <>
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <ImagePlus className="h-5 w-5 text-muted-foreground" strokeWidth={1.8} />
                     <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
                   </>
                 )}
@@ -373,7 +373,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                   </>
                 ) : (
                   <>
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <ImagePlus className="h-5 w-5 text-muted-foreground" strokeWidth={1.8} />
                     <span className="text-xs text-muted-foreground mt-1">No Template Selected</span>
                   </>
                 )}
@@ -387,7 +387,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 disabled={uploading === 'template'}
               >
                 {uploading === 'template'
-                  ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</>
+                  ? <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Uploading…</>
                   : <><Upload className="h-4 w-4 mr-1" /> Choose File</>}
               </Button>
               {customTpl && bgMode !== 'custom' && (
@@ -629,14 +629,14 @@ const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, in
         </div>
       ) : (
         <div className="h-32 flex flex-col items-center justify-center text-muted-foreground">
-          <ImageIcon className="h-6 w-6 mb-1" />
+          <ImagePlus className="h-6 w-6 mb-1" strokeWidth={1.8} />
           <span className="text-xs">No image</span>
         </div>
       )}
     </div>
     <div className="mt-2 flex gap-2 flex-wrap">
       <Button type="button" variant="outline" size="sm" className="lv-premium-shade flex-1 min-w-[140px]" onClick={() => inputRef.current?.click()} disabled={uploading}>
-        {uploading ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? (replaceLabel || 'Replace') : 'Choose file'}</>}
+        {uploading ? <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? (replaceLabel || 'Replace') : 'Choose file'}</>}
       </Button>
       {url && (
         <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={onClear}>
