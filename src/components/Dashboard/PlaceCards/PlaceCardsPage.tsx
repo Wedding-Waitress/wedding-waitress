@@ -257,11 +257,15 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         <CardContent className="space-y-4 pt-6">
           {/* Title & Subtitle - Full Width */}
           <div className="text-left">
-            <h1 className="text-2xl font-bold text-foreground">Table Name Place Cards</h1>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <ContactRound size={24} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
+              Table Name Place Cards
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create professional foldable place cards for your guests
             </p>
           </div>
+
 
           {/* Stats + Card Dimensions Row - Side by Side */}
           {selectedEvent && assignedGuests.length > 0 && (
