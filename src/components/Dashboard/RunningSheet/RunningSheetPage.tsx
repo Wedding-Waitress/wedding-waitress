@@ -10,7 +10,18 @@
  * Last locked: 2026-04-02
  */
 import React, { useState, useCallback } from 'react';
-import { ClipboardList, Loader2, FileText, Share2 } from 'lucide-react';
+import {
+  ClipboardList,
+  LoaderCircle,
+  FileDown,
+  Share2,
+  Printer,
+  CalendarDays,
+  HeartHandshake,
+  PartyPopper,
+  Clock3,
+  MapPin,
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportRunningSheetPDF, exportRunningSheetSectionPDF } from '@/lib/runningSheetPdfExporter';
 import { Button } from '@/components/ui/button';
