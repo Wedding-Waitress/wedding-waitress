@@ -217,6 +217,7 @@ export function DJMCQuestionnaireSection({
 
   const isMusicSection = MUSIC_SECTION_TYPES.includes(section.section_type);
   const isSpeechesSection = section.section_type === 'speeches';
+  const SectionIcon = SECTION_ICONS[section.section_type];
 
   return (
     <>
