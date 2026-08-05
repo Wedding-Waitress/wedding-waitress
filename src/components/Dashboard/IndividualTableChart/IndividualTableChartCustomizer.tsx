@@ -59,7 +59,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] bg-white mt-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <Settings className="w-5 h-5 text-foreground" />
+          <Settings2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
           Chart Settings
         </CardTitle>
       </CardHeader>
@@ -67,12 +67,18 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {/* Table Settings */}
         <div className="space-y-4">
           <div className="mt-2">
-            <h3 className="font-semibold text-sm">Table Settings</h3>
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <TableProperties className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Table Settings
+            </h3>
             <p className="text-xs text-muted-foreground mt-1">Customise how each table with who is on each table and other info.</p>
           </div>
           
           <div className="space-y-2">
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Table Shape</span>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold">
+              <Shapes className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Table Shape
+            </span>
             <Select
               value={settings.tableShape}
               onValueChange={(value: 'round' | 'square' | 'long') => 
@@ -89,19 +95,22 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               </SelectContent>
             </Select>
             {settings.tableShape === 'round' && (
-              <p className="text-xs text-red-600 font-medium mt-2">
-                ⚠️ Maximum: 20 guests per ROUND TABLE
+              <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5">
+                <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Maximum: 20 guests per ROUND TABLE
               </p>
             )}
             {settings.tableShape === 'square' && (
-              <p className="text-xs text-red-600 font-medium mt-2">
-                ⚠️ Maximum: 20 guests per SQUARE TABLE
+              <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5">
+                <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Maximum: 20 guests per SQUARE TABLE
               </p>
             )}
             {settings.tableShape === 'long' && (
               <>
-                <p className="text-xs text-red-600 font-medium mt-2">
-                  ⚠️ Maximum: 42 guests per LONG TABLE
+                <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5">
+                  <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  Maximum: 42 guests per LONG TABLE
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Long tables use auto-scaling fonts. (20 per side + 1 at each end)
@@ -110,6 +119,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             )}
           </div>
         </div>
+
 
         <Separator />
 
