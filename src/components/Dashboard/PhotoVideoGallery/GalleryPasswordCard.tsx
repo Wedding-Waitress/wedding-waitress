@@ -5,7 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Lock, Loader2, Save, Eye, EyeOff } from 'lucide-react';
+import { LockKeyhole, LoaderCircle, Save, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Props {
@@ -57,7 +57,7 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
   return (
     <Card className="dashboard-card p-4 sm:p-5 space-y-4 overflow-hidden">
       <div className="flex items-start gap-3">
-        <Lock className="h-5 w-5 text-[#967A59] mt-0.5 shrink-0" />
+        <LockKeyhole className="h-5 w-5 text-[#967A59] mt-0.5 shrink-0" strokeWidth={1.8} />
         <div className="flex-1 min-w-0">
           <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Password Protection</h3>
           <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
@@ -100,7 +100,7 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
               aria-label={showPw ? 'Hide password' : 'Show password'}
             >
-              {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPw ? <EyeOff className="h-4 w-4" strokeWidth={1.8} /> : <Eye className="h-4 w-4" strokeWidth={1.8} />}
             </button>
           </div>
           {hasPassword && !needsNewPassword && (
@@ -116,7 +116,7 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
           disabled={saving || !canSave}
           className="lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white"
         >
-          {saving ? <><Loader2 className="animate-spin h-4 w-4 mr-2" /> Saving…</> : <><Save className="h-4 w-4 mr-2" /> Save</>}
+          {saving ? <><LoaderCircle className="animate-spin h-4 w-4 mr-2" strokeWidth={1.8} /> Saving…</> : <><Save className="h-4 w-4 mr-2" strokeWidth={1.8} /> Save</>}
         </Button>
       </div>
     </Card>

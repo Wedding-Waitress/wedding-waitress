@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Copy, Images, AlertTriangle, ExternalLink, Download } from 'lucide-react';
+import { Copy, Images, TriangleAlert, ExternalLink, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
@@ -38,7 +38,7 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
     <Card className="h-full p-5 sm:p-6 space-y-5 overflow-hidden">
       <div className="min-w-0">
         <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <Images className="h-5 w-5 text-[#967A59] shrink-0" /> Guest Gallery Access
+          <Images className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> Guest Gallery Access
         </h2>
         <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
           Share this link so guests can browse the photos and videos from your event.
@@ -47,7 +47,7 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
 
       {!meta.primary_token ? (
         <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
-          <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+          <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
           <p className="text-sm text-destructive">Gallery link not ready — please retry.</p>
         </div>
       ) : (
@@ -63,7 +63,7 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
           <Label className="text-sm">Public gallery link</Label>
           <Input value={guestUrl} readOnly className="h-11 text-sm w-full" />
           <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={copy}>
-            <Copy className="h-4 w-4 mr-1" /> Copy Gallery Link
+            <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy Gallery Link
           </Button>
           <Button
             variant="outline"
@@ -71,7 +71,7 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
             onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
             disabled={!guestUrl}
           >
-            <ExternalLink className="h-4 w-4 mr-1" /> Open Gallery
+            <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Open Gallery
           </Button>
           <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl}>
             <Download className="h-4 w-4 mr-1" /> Download QR code
