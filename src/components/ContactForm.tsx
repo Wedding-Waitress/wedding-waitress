@@ -7,7 +7,7 @@
  * Wired to send-transactional-email → support@weddingwaitress.com.au.
  */
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, UserRound, Mail, PartyPopper, MessageSquareText, LoaderCircle, CircleCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -86,7 +86,8 @@ export const ContactForm = () => {
     >
       <div className="space-y-5">
         <div>
-          <label htmlFor="contact-fullname" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="contact-fullname" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+            <UserRound size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
             {t("contact.fullName")}
           </label>
           <input
@@ -104,7 +105,8 @@ export const ContactForm = () => {
           {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName}</p>}
         </div>
         <div>
-          <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="contact-email" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+            <Mail size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
             {t("contact.email")}
           </label>
           <input
@@ -122,7 +124,8 @@ export const ContactForm = () => {
           {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
         </div>
         <div>
-          <label htmlFor="contact-event-type" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="contact-event-type" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+            <PartyPopper size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
             {t("contact.eventType")}
           </label>
           <input
@@ -140,7 +143,8 @@ export const ContactForm = () => {
           {errors.eventType && <p className="text-xs text-destructive mt-1">{errors.eventType}</p>}
         </div>
         <div>
-          <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="contact-message" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
+            <MessageSquareText size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
             {t("contact.message")}
           </label>
           <textarea
@@ -162,10 +166,20 @@ export const ContactForm = () => {
           disabled={submitting}
           className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
         >
-          {submitting ? t("contact.sending") : sent ? t("contact.sent") : (
+          {submitting ? (
+            <>
+              <LoaderCircle size={17} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
+              {t("contact.sending")}
+            </>
+          ) : sent ? (
+            <>
+              <CircleCheck size={17} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />
+              {t("contact.sent")}
+            </>
+          ) : (
             <>
               {t("contact.sendButton")}
-              <Send className="w-4 h-4 ml-2" />
+              <Send size={17} strokeWidth={1.8} aria-hidden="true" className="ml-2 shrink-0" />
             </>
           )}
         </Button>
