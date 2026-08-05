@@ -24,7 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, ArrowUpDown, FileText, Type, Bold, Italic, Underline, ChevronDown, Check } from 'lucide-react';
+import { Settings2, ArrowUpDown, Eye, Type, Bold, Italic, Underline, ChevronDown, Check, ListFilter, Smartphone, HeartHandshake, Armchair, CaseSensitive } from 'lucide-react';
 import { DietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 
 interface DietaryChartCustomizerProps {
@@ -48,7 +48,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-primary" />
+          <Settings2 className="w-[22px] h-[22px] text-primary" strokeWidth={1.8} aria-hidden="true" />
           <CardTitle className="text-2xl font-bold text-foreground">Chart Settings</CardTitle>
         </div>
         <CardDescription className="mb-4">Customise how your dietary requirements chart is displayed and exported</CardDescription>
@@ -57,11 +57,12 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         {/* Sort Order */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-4 h-4 text-primary" />
+            <ArrowUpDown className="w-[18px] h-[18px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
           </div>
           <div>
-            <Label htmlFor="sort-by" className="text-xs text-muted-foreground">
+            <Label htmlFor="sort-by" className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+              <ListFilter className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Sort Guests By
             </Label>
             <Select value={settings.sortBy} onValueChange={value => onSettingsChange({
@@ -85,12 +86,12 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         {/* Display Options */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-primary" />
+            <Eye className="w-[18px] h-[18px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-mobile" className="text-xs text-muted-foreground">Show Mobile</Label>
+              <Label htmlFor="show-mobile" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]"><Smartphone className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Mobile</Label>
               <Switch
                 id="show-mobile"
                 checked={settings.showMobile}
@@ -99,7 +100,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-relation" className="text-xs text-muted-foreground">Show Relationship</Label>
+              <Label htmlFor="show-relation" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]"><HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Relationship</Label>
               <Switch
                 id="show-relation"
                 checked={settings.showRelation}
@@ -108,7 +109,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-seat-no" className="text-xs text-muted-foreground">Show Seat Number</Label>
+              <Label htmlFor="show-seat-no" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]"><Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Seat Number</Label>
               <Switch
                 id="show-seat-no"
                 checked={settings.showSeatNo}
@@ -124,11 +125,12 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         {/* Typography */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Type className="w-4 h-4 text-primary" />
+            <Type className="w-[18px] h-[18px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
           </div>
           <div>
-            <Label className="text-xs text-muted-foreground">
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+              <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Text Style
             </Label>
             <DropdownMenu>
@@ -138,7 +140,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                   className="w-full justify-between border-primary focus:ring-primary mt-1"
                 >
                   <span className="text-sm">{getTextStyleLabel()}</span>
-                  <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
+                  <ChevronDown className="w-4 h-4 ml-2 opacity-50" strokeWidth={1.8} aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
@@ -147,30 +149,30 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                   onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                 >
                   <div className="flex items-center gap-2">
-                    <Bold className="w-4 h-4" />
+                    <Bold className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                     <span>Bold</span>
                   </div>
-                  {settings.isBold && <Check className="w-4 h-4" />}
+                  {settings.isBold && <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
                   onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                 >
                   <div className="flex items-center gap-2">
-                    <Italic className="w-4 h-4" />
+                    <Italic className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                     <span>Italic</span>
                   </div>
-                  {settings.isItalic && <Check className="w-4 h-4" />}
+                  {settings.isItalic && <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
                   onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                 >
                   <div className="flex items-center gap-2">
-                    <Underline className="w-4 h-4" />
+                    <Underline className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                     <span>Underline</span>
                   </div>
-                  {settings.isUnderline && <Check className="w-4 h-4" />}
+                  {settings.isUnderline && <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
