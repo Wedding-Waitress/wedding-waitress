@@ -548,7 +548,8 @@ export const Landing = () => {
                     )}
                   </Link>
                   <div className="p-6 flex flex-col flex-1">
-                    <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
+                    <div className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
+                      <Clock3 size={15} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                       {post.readingTime}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-3 leading-snug">
