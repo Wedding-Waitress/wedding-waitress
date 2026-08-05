@@ -521,25 +521,18 @@ export const GuestMediaUpload: React.FC = () => {
                 }}
               />
             ) : activeTab === 'gallery' ? (
-              <div className="relative w-full h-full">
-                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-                <img
-                  src={galleryHeroDefault}
-                  alt=""
-                  className="absolute inset-0 m-auto"
-                  style={{
-                    zIndex: 10,
-                    width: '86%',
-                    height: '86%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    opacity: 1,
-                    visibility: 'visible',
-                    filter: 'none',
-                    mixBlendMode: 'normal',
-                  }}
-                />
-              </div>
+              <img
+                src={galleryHeaderLogo}
+                alt="See Tonight Through Your Guests' Eyes"
+                className="w-full h-full object-contain object-center block"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  display: 'block',
+                }}
+              />
             ) : theme.logoImageUrl ? (
               <img src={theme.logoImageUrl} alt="" className="w-full h-full object-contain p-3" />
             ) : (
