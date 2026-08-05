@@ -564,9 +564,10 @@ export const Landing = () => {
                     <Link
                       to={`/blog/${post.slug}`}
                       onClick={() => window.scrollTo(0, 0)}
-                      className="mt-5 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
+                      className="mt-5 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
                     >
                       {t('blog.readMore')}
+                      <ArrowRight size={15} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                     </Link>
                   </div>
                 </article>
