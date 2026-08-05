@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Trash2 } from 'lucide-react';
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Trash2, Pencil, UserRound, Phone, Mail, ClipboardCheck, Table2, StickyNote, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
@@ -1053,7 +1053,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
       >
         <SheetHeader className="px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12">
-          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center">
+          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center inline-flex items-center gap-2 max-lg:justify-center">
+            {isEdit
+              ? <Pencil size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+              : <UserPlus size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />}
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
           </SheetTitle>
         </SheetHeader>
@@ -1122,7 +1125,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name *</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />First Name *</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Enter first name" 
@@ -1140,7 +1143,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name *</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Last Name *</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Enter last name" 
@@ -1161,7 +1164,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5"><Phone size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Mobile</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Enter mobile number" 
@@ -1179,7 +1182,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5"><Mail size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Email</FormLabel>
                     <FormControl>
                       <Input 
                         placeholder="Enter email address" 
@@ -1200,7 +1203,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   name={"mailing_address" as any}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mailing Address</FormLabel>
+                      <FormLabel className="flex items-center gap-1.5"><MapPin size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Mailing Address</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Street address"
@@ -1280,7 +1283,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                      <Table2 size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Table *
                     </FormLabel>
                     <Select onValueChange={(value) => {
@@ -1313,7 +1316,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 name="seat_no"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Seat Number *</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5"><Users size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Seat Number *</FormLabel>
                     <Select
                       onValueChange={(value) => { field.onChange(!value || value === "none" ? undefined : Number(value)); form.clearErrors('seat_no'); }}
                       value={field.value?.toString() || "none"}
@@ -1480,7 +1483,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
+                      <ClipboardCheck size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       RSVP Status
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
@@ -1506,7 +1509,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      <Utensils className="w-4 h-4" />
+                      <Utensils size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Dietary Requirements
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
@@ -1686,7 +1689,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
                 return (
                   <FormItem>
-                    <FormLabel>Notes</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5"><StickyNote size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Notes</FormLabel>
                     <FormControl>
                       <div className="space-y-0">
                         {alertSection && (
@@ -1732,7 +1735,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
-            <UserPlus className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <Save size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
           </Button>
           <Button
@@ -1743,7 +1746,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             onClick={handleClose}
             disabled={loading}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
             Cancel
           </Button>
         </div>
