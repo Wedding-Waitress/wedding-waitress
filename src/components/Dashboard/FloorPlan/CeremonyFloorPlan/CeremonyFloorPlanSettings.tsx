@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SlidersHorizontal, HeartHandshake, ArrowLeftRight, Heart, UserRound, UsersRound, Tags, AlignLeft, AlignRight, Eye, Rows3, Armchair, Columns3 } from 'lucide-react';
 import { CeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 
 interface CeremonyFloorPlanSettingsProps {
@@ -42,17 +43,18 @@ export const CeremonyFloorPlanSettings = ({
   return (
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
       <CardHeader className="pb-4">
-        <CardTitle className="text-2xl font-bold text-foreground">
+        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <SlidersHorizontal className="w-[22px] h-[22px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
           Layout Settings
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Couple Side Arrangement */}
         <div className="space-y-4">
-          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Couple Arrangement</span>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><HeartHandshake className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Couple Arrangement</span>
           
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Which side is the Groom on?</Label>
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-1.5"><ArrowLeftRight className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Which side is the Groom on?</Label>
             <Select
               value={floorPlan.couple_side_arrangement}
               onValueChange={(value) => handleChange('couple_side_arrangement', value)}
@@ -71,11 +73,12 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Couple Names Section */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Couple Names</span>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><Heart className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Couple Names</span>
           <p className="text-xs text-muted-foreground">These names appear beside the celebrant at the altar</p>
           
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+              <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               {floorPlan.couple_side_arrangement === 'groom_left' ? 'Left (Groom)' : 'Left (Bride)'}
             </Label>
             <Input
@@ -87,7 +90,8 @@ export const CeremonyFloorPlanSettings = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+              <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               {floorPlan.couple_side_arrangement === 'groom_left' ? 'Right (Bride)' : 'Right (Groom)'}
             </Label>
             <Input
@@ -101,11 +105,12 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Bridal Party Section */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Bridal Party (Altar Area)</span>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><UsersRound className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Bridal Party (Altar Area)</span>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">
+              <Label className="text-sm inline-flex items-center gap-1.5">
+                <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 {floorPlan.couple_side_arrangement === 'groom_left' ? 'Groomsmen' : 'Bridesmaids'} Count (Left)
               </Label>
               <span className="text-sm font-medium text-primary">{Math.min(10, floorPlan.bridal_party_count_left)}</span>
@@ -123,7 +128,8 @@ export const CeremonyFloorPlanSettings = ({
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm">
+              <Label className="text-sm inline-flex items-center gap-1.5">
+                <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 {floorPlan.couple_side_arrangement === 'groom_left' ? 'Bridesmaids' : 'Groomsmen'} Count (Right)
               </Label>
               <span className="text-sm font-medium text-primary">{Math.min(10, floorPlan.bridal_party_count_right)}</span>
@@ -142,10 +148,10 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Side Labels */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Labels</span>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><Tags className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Labels</span>
           
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Left Side</Label>
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-1.5"><AlignLeft className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Left Side</Label>
             <Input
               value={floorPlan.left_side_label}
               onChange={(e) => handleChange('left_side_label', e.target.value)}
@@ -155,7 +161,7 @@ export const CeremonyFloorPlanSettings = ({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Right Side</Label>
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-1.5"><AlignRight className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Right Side</Label>
             <Input
               value={floorPlan.right_side_label}
               onChange={(e) => handleChange('right_side_label', e.target.value)}
@@ -168,10 +174,10 @@ export const CeremonyFloorPlanSettings = ({
 
         {/* Display Options */}
         <div className="space-y-4 pt-2 border-t border-border">
-          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-block">Display Options</span>
+          <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><Eye className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Display Options</span>
           
           <div className="flex items-center justify-between">
-            <Label className="text-sm">Show Row Numbers</Label>
+            <Label className="text-sm inline-flex items-center gap-1.5"><Rows3 className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Row Numbers</Label>
             <Switch
               className="data-[state=unchecked]:border data-[state=unchecked]:border-[#7C5C3E]"
               checked={floorPlan.show_row_numbers}
@@ -180,7 +186,7 @@ export const CeremonyFloorPlanSettings = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <Label className="text-sm">Show Seat Numbers</Label>
+            <Label className="text-sm inline-flex items-center gap-1.5"><Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Seat Numbers</Label>
             <Switch
               className="data-[state=unchecked]:border data-[state=unchecked]:border-[#7C5C3E]"
               checked={floorPlan.show_seat_numbers}
@@ -192,7 +198,7 @@ export const CeremonyFloorPlanSettings = ({
         {/* Chairs Per Row */}
         <div className="space-y-3 pt-2 border-t border-border">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Chairs Per Row</span>
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><Columns3 className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Chairs Per Row</span>
             <span className="text-sm font-medium text-primary">{floorPlan.chairs_per_row}</span>
           </div>
           <Slider
@@ -209,7 +215,7 @@ export const CeremonyFloorPlanSettings = ({
         {/* Total Rows */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Total Rows</span>
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><Rows3 className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Total Rows</span>
             <span className="text-sm font-medium text-primary">{floorPlan.total_rows}</span>
           </div>
           <Slider
@@ -226,7 +232,7 @@ export const CeremonyFloorPlanSettings = ({
         {/* Assigned Rows (for family) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary">Family Rows (Assigned)</span>
+            <span className="text-sm font-medium px-3 py-1 rounded-full border border-primary text-primary inline-flex items-center gap-2"><UsersRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Family Rows (Assigned)</span>
             <span className="text-sm font-medium text-primary">{floorPlan.assigned_rows}</span>
           </div>
           <Slider
