@@ -671,7 +671,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                             }}
                             className="w-full rounded-full flex items-center justify-center gap-2 bg-destructive/85 hover:bg-destructive/95"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                             Remove Image
                           </Button>
                         </div>
