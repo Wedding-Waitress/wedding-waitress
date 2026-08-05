@@ -36,7 +36,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Users, CircleCheck, AlertTriangle } from "lucide-react";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { Guest } from '@/hooks/useGuests';
 import { TableGuestList } from './Tables/TableGuestList';
@@ -217,7 +217,7 @@ export const TableCard: React.FC<TableCardProps> = ({
                         aria-label={`Table Full — ${table.guest_count} guests`}
                       >
                         <span className="text-white font-bold text-sm text-center flex items-center gap-2">
-                          <span className="text-base">✓</span>
+                          <CircleCheck size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                           Full Table — {table.guest_count}
                         </span>
                       </div>
@@ -288,7 +288,10 @@ export const TableCard: React.FC<TableCardProps> = ({
 
           {/* Guest Chips - Using Sortable Components */}
           <div className="mb-3 lg:mx-0 max-lg:-mx-3">
-            <div className="text-xs text-muted-foreground mb-2 text-left max-lg:px-1">Guests:</div>
+            <div className="text-xs text-muted-foreground mb-2 text-left max-lg:px-1 flex items-center gap-1.5">
+              <Users size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+              Guests:
+            </div>
             <TableGuestList 
               tableId={table.id} 
               guests={sortedGuests} 
@@ -300,16 +303,20 @@ export const TableCard: React.FC<TableCardProps> = ({
         <div className="flex justify-center items-center gap-2 mt-4">
           <Button
             onClick={() => onEdit(table)}
-            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-7 px-4 text-xs flex items-center gap-1"
+            title="Edit table"
+            aria-label="Edit table"
+            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-7 px-4 text-xs flex items-center gap-[5px]"
           >
-            <Edit className="!h-3 !w-3 text-white" />
+            <Pencil size={15} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
             <span className="text-white font-medium">Edit</span>
           </Button>
           <Button
             onClick={() => setShowDeleteDialog(true)}
-            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-7 px-4 text-xs flex items-center gap-1"
+            title="Delete table"
+            aria-label="Delete table"
+            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-7 px-4 text-xs flex items-center gap-[5px]"
           >
-            <Trash2 className="!h-3 !w-3 text-white" />
+            <Trash2 size={15} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
             <span className="text-white font-medium">Delete</span>
           </Button>
         </div>
@@ -320,7 +327,10 @@ export const TableCard: React.FC<TableCardProps> = ({
       <AlertDialog open={showDeleteDialog} onOpenChange={handleDeleteDialogClose}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Table</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
+              Delete Table
+            </AlertDialogTitle>
             <AlertDialogDescription>
               You are deleting this table. Once it's gone you can't bring it back.
               <br />
@@ -343,6 +353,7 @@ export const TableCard: React.FC<TableCardProps> = ({
               disabled={deleteConfirmText !== 'DELETE' || isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
+              <Trash2 size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
