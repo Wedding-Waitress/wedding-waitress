@@ -12,7 +12,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link, Play, Copy, X, Music, Loader2 } from 'lucide-react';
+import { Link2, Play, Copy, X, Music2, LoaderCircle, ExternalLink } from 'lucide-react';
 import { detectMusicPlatform, extractYouTubeId, extractSpotifyId } from '@/lib/djMCQuestionnaireTemplates';
 import { useToast } from '@/hooks/use-toast';
 import { fetchSongMetadata } from '@/lib/musicMetadataFetcher';
@@ -95,23 +95,23 @@ export function DJMCMusicUrlField({
       case 'youtube':
         return (
           <div className="w-5 h-5 rounded bg-red-600 flex items-center justify-center">
-            <Play className="h-3 w-3 text-white fill-white" />
+            <Play size={12} strokeWidth={1.8} className="text-white" />
           </div>
         );
       case 'spotify':
         return (
           <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-            <Music className="h-3 w-3 text-white" />
+            <Music2 size={12} strokeWidth={1.8} className="text-white" />
           </div>
         );
       case 'apple':
         return (
           <div className="w-5 h-5 rounded bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center">
-            <Music className="h-3 w-3 text-white" />
+            <Music2 size={12} strokeWidth={1.8} className="text-white" />
           </div>
         );
       default:
-        return <Link className="h-4 w-4 text-muted-foreground" />;
+        return <Link2 size={16} strokeWidth={1.8} className="text-muted-foreground" />;
     }
   };
 
@@ -136,6 +136,7 @@ export function DJMCMusicUrlField({
         >
           {renderPlatformIcon()}
           {getPlatformLabel()}
+          <ExternalLink size={15} strokeWidth={1.8} aria-hidden="true" />
         </button>
       </div>
     );
@@ -181,7 +182,8 @@ export function DJMCMusicUrlField({
           Preview not available for this platform
         </p>
         <Button asChild variant="outline">
-          <a href={value} target="_blank" rel="noopener noreferrer">
+          <a href={value} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5">
+            <ExternalLink size={16} strokeWidth={1.8} aria-hidden="true" />
             Open in new tab
           </a>
         </Button>
@@ -194,7 +196,7 @@ export function DJMCMusicUrlField({
       <div className="relative flex items-center gap-2">
         <div className="absolute left-3 flex items-center pointer-events-none">
           {isFetchingMetadata ? (
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin text-primary" />
           ) : (
             renderPlatformIcon()
           )}
@@ -216,9 +218,9 @@ export function DJMCMusicUrlField({
                 size="icon"
                 className="h-7 w-7"
                 onClick={() => setShowPreview(true)}
-                title="Preview"
+                title="Preview" aria-label="Preview music link"
               >
-                <Play className="h-4 w-4 text-primary" />
+                <Play size={16} strokeWidth={1.8} className="text-primary" />
               </Button>
               <Button
                 type="button"
@@ -226,9 +228,9 @@ export function DJMCMusicUrlField({
                 size="icon"
                 className="h-7 w-7"
                 onClick={copyUrl}
-                title="Copy Link"
+                title="Copy Link" aria-label="Copy music link"
               >
-                <Copy className="h-4 w-4 text-muted-foreground" />
+                <Copy size={16} strokeWidth={1.8} className="text-muted-foreground" />
               </Button>
               <Button
                 type="button"
@@ -236,9 +238,9 @@ export function DJMCMusicUrlField({
                 size="icon"
                 className="h-7 w-7"
                 onClick={clearUrl}
-                title="Clear"
+                title="Clear" aria-label="Clear music link"
               >
-                <X className="h-4 w-4 text-muted-foreground" />
+                <X size={16} strokeWidth={1.8} className="text-muted-foreground" />
               </Button>
             </>
           )}

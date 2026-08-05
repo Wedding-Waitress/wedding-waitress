@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Music, Trash2, ExternalLink, Download } from 'lucide-react';
+import { ListMusic, Trash2, ExternalLink, FileDown, LoaderCircle, Clock3, CircleCheck, CircleX } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,14 +62,14 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
-            <Music className="h-5 w-5 text-[#856A4C]" />
+            <ListMusic size={19} strokeWidth={1.8} className="text-[#856A4C]" aria-hidden="true" />
             Guest Song Requests
           </CardTitle>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="border-primary/40">Total {counts.total}</Badge>
-            <Badge className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100">Pending {counts.pending}</Badge>
-            <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100">Approved {counts.approved}</Badge>
-            <Badge className="bg-red-100 text-red-700 border-red-300 hover:bg-red-100">Rejected {counts.rejected}</Badge>
+            <Badge className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 inline-flex items-center gap-1.5"><Clock3 size={15} strokeWidth={1.8} aria-hidden="true" />Pending {counts.pending}</Badge>
+            <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100 inline-flex items-center gap-1.5"><CircleCheck size={15} strokeWidth={1.8} aria-hidden="true" />Approved {counts.approved}</Badge>
+            <Badge className="bg-red-100 text-red-700 border-red-300 hover:bg-red-100 inline-flex items-center gap-1.5"><CircleX size={15} strokeWidth={1.8} aria-hidden="true" />Rejected {counts.rejected}</Badge>
             <Button
               size="sm"
               variant="outline"
@@ -77,7 +77,11 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
               disabled={exporting || rows.length === 0}
               className="lv-premium-shade"
             >
-              <Download className="h-4 w-4 mr-1" />
+              {exporting ? (
+                <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" aria-hidden="true" />
+              ) : (
+                <FileDown size={16} strokeWidth={1.8} className="mr-1.5" aria-hidden="true" />
+              )}
               {exporting ? 'Generating…' : 'Download PDF'}
             </Button>
           </div>
@@ -141,7 +145,7 @@ const RequestRow: React.FC<{
             rel="noopener noreferrer"
             className="text-xs text-primary inline-flex items-center gap-1 hover:underline break-all"
           >
-            <ExternalLink className="h-3 w-3" /> {row.music_link}
+            <ExternalLink size={14} strokeWidth={1.8} /> {row.music_link}
           </a>
         )}
         {row.note && (
@@ -161,8 +165,8 @@ const RequestRow: React.FC<{
         </Select>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:text-destructive">
-              <Trash2 className="h-4 w-4" />
+            <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:text-destructive" title="Delete request" aria-label="Delete song request">
+              <Trash2 size={16} strokeWidth={1.8} />
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
