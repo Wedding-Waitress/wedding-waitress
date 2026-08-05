@@ -227,7 +227,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
       ) : loading ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary" />
+            <LoaderCircle size={32} strokeWidth={1.8} className="mx-auto animate-spin text-primary" aria-hidden="true" />
             <p className="mt-4 text-muted-foreground">Loading run sheet...</p>
           </CardContent>
         </Card>
