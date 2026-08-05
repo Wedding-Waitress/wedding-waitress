@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { LoaderCircle, UserPlus, UserRound, Mail, Phone, KeyRound, Send, LogIn, RotateCcw, TriangleAlert } from 'lucide-react';
 import { SignInModal } from './SignInModal';
 
 interface SignUpModalProps {
@@ -253,7 +253,12 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
       <DialogContent className="sm:max-w-[420px] p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-center">
-            {step === 'form' ? 'Create your free account' : 'Enter the 6-digit code'}
+            <span className="inline-flex items-center justify-center gap-2">
+              {step === 'form'
+                ? <UserPlus size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
+                : <KeyRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />}
+              {step === 'form' ? 'Create your free account' : 'Enter the 6-digit code'}
+            </span>
           </DialogTitle>
           {step === 'form' && (
             <p className="text-sm text-muted-foreground text-center mt-2">
@@ -271,7 +276,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
           <form onSubmit={handleSubmit} className="space-y-4 mt-4">
             <div className="space-y-3">
               <div>
-                <Label htmlFor="first_name" className="text-sm font-medium">
+                <Label htmlFor="first_name" className="flex items-center gap-2 text-sm font-medium">
+                  <UserRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
                   First name *
                 </Label>
                 <Input
@@ -285,7 +291,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
               </div>
 
               <div>
-                <Label htmlFor="last_name" className="text-sm font-medium">
+                <Label htmlFor="last_name" className="flex items-center gap-2 text-sm font-medium">
+                  <UserRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
                   Last name *
                 </Label>
                 <Input
@@ -299,7 +306,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
               </div>
 
               <div>
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
+                  <Mail size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
                   Email *
                 </Label>
                 <Input
@@ -313,7 +321,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
               </div>
 
               <div>
-                <Label htmlFor="mobile" className="text-sm font-medium">
+                <Label htmlFor="mobile" className="flex items-center gap-2 text-sm font-medium">
+                  <Phone size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
                   Mobile *
                 </Label>
                 <Input
@@ -329,7 +338,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
             </div>
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded">
+                <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
                 {error}
               </div>
             )}
@@ -340,7 +350,9 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
                 className="w-full" 
                 disabled={loading}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading
+                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
+                  : <Send size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
                 Send verification code
               </Button>
 
@@ -388,7 +400,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
             </div>
 
             {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded text-center">
+              <div className="flex items-start justify-center gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded text-center">
+                <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
                 {error}
               </div>
             )}
@@ -399,7 +412,9 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
                 className="w-full" 
                 disabled={loading || verificationCode.join('').length !== 6}
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading
+                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
+                  : <LogIn size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
                 Verify Code
               </Button>
 
@@ -408,8 +423,9 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
                   type="button"
                   onClick={handleResend}
                   disabled={resendTimer > 0 || loading}
-                  className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
+                  <RotateCcw size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                   {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend code'}
                 </button>
               </div>
