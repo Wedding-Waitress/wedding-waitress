@@ -455,7 +455,10 @@ export const Landing = () => {
         <div className="max-w-7xl mx-auto">
           <p className="text-sm text-primary font-medium text-center mb-4">{t('testimonials.intro')}</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
-            {t('testimonials.title')}
+            <span className="inline-flex items-center justify-center gap-2 flex-wrap">
+              <Quote size={24} strokeWidth={1.8} aria-hidden="true" className="shrink-0" style={{ color: '#967A59' }} />
+              {t('testimonials.title')}
+            </span>
           </h2>
           <p className="text-lg text-gray-600 text-center mb-16 max-w-xl mx-auto">
             {t('testimonials.subtitle')}
@@ -463,9 +466,9 @@ export const Landing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.isArray(testimonialItems) && testimonialItems.map((item, i) => (
               <div key={i} className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-all duration-300">
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-4" role="img" aria-label="5 out of 5 stars">
                   {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star key={j} size={16} strokeWidth={1.8} aria-hidden="true" className="fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
                 <p className="text-gray-600 leading-relaxed mb-4">"{item.text}"</p>
