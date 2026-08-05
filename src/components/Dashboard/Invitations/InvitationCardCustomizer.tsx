@@ -10,9 +10,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { InvitationCardSettings, TextZone, DEFAULT_QR_CONFIG } from '@/hooks/useInvitationCardSettings';
+import type { LucideIcon } from 'lucide-react';
 import { Palette, Type, Image, MessageSquare, MessageSquareText, Layers, Upload, Images, Trash2, Plus, GripVertical, QrCode, ListPlus, Heart, CalendarHeart, CalendarDays, MapPin, PartyPopper, CaseSensitive, Scaling, AlignCenter, CaseUpper, Move, ImagePlus, RotateCcw, Save } from 'lucide-react';
 
-const PRESET_ZONE_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const PRESET_ZONE_ICONS: Record<string, LucideIcon> = {
   couple_names: Heart,
   event_name: CalendarHeart,
   date: CalendarDays,

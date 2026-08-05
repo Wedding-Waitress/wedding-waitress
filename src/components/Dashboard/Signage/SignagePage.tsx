@@ -12,6 +12,7 @@ import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit, useOptimizedPreview } from '@/lib/imagePipeline';
 import { exportSignagePDF } from '@/lib/signagePdfExporter';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
+import type { LucideIcon } from 'lucide-react';
 import { Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
@@ -60,7 +61,7 @@ const PRINT_SIZES: ReadonlyArray<{
   dims: string;
   best: string;
   recommended?: boolean;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
 }> = [
   
   { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: FileText },
