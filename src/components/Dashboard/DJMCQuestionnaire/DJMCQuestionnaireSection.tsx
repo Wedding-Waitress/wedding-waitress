@@ -50,12 +50,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash, Download, Eraser } from 'lucide-react';
+import {
+  ChevronDown, ChevronUp, Plus, EllipsisVertical, RotateCcw, MessageSquareText,
+  Copy, Trash2, Download, Eraser, NotebookPen, ListMusic, Mic2,
+  HeartHandshake, Martini, UsersRound, Disc3, UtensilsCrossed, AudioLines,
+  Globe2, Ban, type LucideIcon,
+} from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
 
 const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'introductions', 'main_event', 'dinner', 'dance', 'traditional', 'do_not_play'];
+
+const SECTION_ICONS: Record<string, LucideIcon> = {
+  ceremony: HeartHandshake,
+  cocktail: Martini,
+  introductions: UsersRound,
+  speeches: Mic2,
+  main_event: Disc3,
+  dinner: UtensilsCrossed,
+  dance: AudioLines,
+  traditional: Globe2,
+  do_not_play: Ban,
+};
 
 interface DJMCQuestionnaireSectionProps {
   section: DJMCSection;
