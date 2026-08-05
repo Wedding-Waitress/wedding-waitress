@@ -50,7 +50,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Trash, Download, Eraser } from 'lucide-react';
+import {
+  ChevronDown, ChevronUp, Plus, EllipsisVertical, RotateCcw, MessageSquareText,
+  Trash2, Eraser, ListChecks, NotebookPen, Clock3, ListTodo, UsersRound,
+} from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { RunningSheetRow } from './RunningSheetRow';
 
