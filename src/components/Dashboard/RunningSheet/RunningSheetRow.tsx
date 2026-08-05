@@ -148,9 +148,12 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         {...listeners}
         className="w-6 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground mt-2"
         tabIndex={-1}
+        title="Drag to reorder row"
+        aria-label="Drag to reorder row"
       >
-        <GripVertical className="h-4 w-4" />
+        <GripVertical size={16} strokeWidth={1.8} aria-hidden="true" />
       </button>
+
 
       {/* TIME */}
       <textarea
