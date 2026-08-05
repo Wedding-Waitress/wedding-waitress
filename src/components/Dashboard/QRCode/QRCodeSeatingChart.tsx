@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar, QrCode, Download, Settings, Eye, ExternalLink, Copy } from 'lucide-react';
+import { CalendarDays, QrCode, MapPin, Clock3, CircleCheck, ExternalLink } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
