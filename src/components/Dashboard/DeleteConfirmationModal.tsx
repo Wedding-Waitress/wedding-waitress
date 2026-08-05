@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trash2, X } from "lucide-react";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -61,7 +61,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
             <DialogTitle>You are deleting this event</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
@@ -87,14 +87,17 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
         </div>
 
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+          <Button variant="outline" onClick={handleClose} disabled={isLoading} className="inline-flex items-center gap-1.5">
+            <X size={18} strokeWidth={1.8} aria-hidden="true" />
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             disabled={!isConfirmValid || isLoading}
+            className="inline-flex items-center gap-1.5"
           >
+            <Trash2 size={18} strokeWidth={1.8} aria-hidden="true" />
             {isLoading ? 'Deleting...' : 'Delete Event'}
           </Button>
         </DialogFooter>

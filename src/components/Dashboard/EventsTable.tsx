@@ -20,7 +20,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Edit, Trash2, Plus, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Pencil, Trash2, Plus, CalendarDays, CalendarCheck2, CircleDot, ChevronDown, ChevronUp } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Tooltip,
@@ -239,8 +239,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         <div className="px-4 sm:px-6 py-4 border-b-2 border-primary bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-lg:items-center max-lg:text-center">
             <div className="flex-1 min-w-0 max-lg:w-full max-lg:flex max-lg:flex-col max-lg:items-center max-lg:text-center">
-              <h3 className="text-2xl font-extrabold text-foreground truncate tracking-tight max-lg:font-bold max-lg:tracking-normal">
-                My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}
+              <h3 className="text-2xl font-extrabold text-foreground truncate tracking-tight max-lg:font-bold max-lg:tracking-normal flex items-center gap-2 max-lg:justify-center">
+                <CalendarDays size={22} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                <span className="truncate">My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}</span>
               </h3>
               <div className="flex items-start gap-2 mt-4 max-lg:justify-center">
                 <p className="text-xs sm:text-sm text-muted-foreground/80 max-lg:text-center">
@@ -267,12 +268,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             <div className="flex items-center gap-2 flex-shrink-0 max-lg:w-full max-lg:justify-center">
               {!isMobile && (
                 <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
-                  <Calendar className="w-4 h-4 mr-1.5" />
+                  <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                   {events.length} Event{events.length !== 1 ? 's' : ''} Created
                 </Badge>
               )}
               <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
-                <Plus className="w-4 h-4" />
+                <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
             </div>
@@ -345,7 +346,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
                           className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
                         >
-                          <Edit className="w-4 h-4 text-white" />
+                          <Pencil size={17} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
                           <span>Edit Event</span>
                         </Button>
                         <Button 
@@ -353,7 +354,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           onClick={(e) => { e.stopPropagation(); handleDeleteClick(event); }} 
                           className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
                         >
-                          <Trash2 className="w-4 h-4 text-white" />
+                          <Trash2 size={17} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
                           <span>Cancel</span>
                         </Button>
                       </div>
@@ -402,7 +403,15 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       `}>
                       <TableCell className="text-center w-20">
                         <div className="flex items-center justify-center">
-                          <RadioGroupItem value={event.id} id={`countdown-${event.id}`} className="data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" onClick={() => handleEventSelect(event.id)} />
+                          <RadioGroupItem value={event.id} id={`countdown-${event.id}`} aria-label={`Show countdown for ${event.name}`} className="sr-only" onClick={() => handleEventSelect(event.id)} />
+                          <label htmlFor={`countdown-${event.id}`} className="cursor-pointer inline-flex items-center justify-center p-1">
+                            <CircleDot
+                              size={20}
+                              strokeWidth={1.8}
+                              aria-hidden="true"
+                              className={isSelected ? 'text-green-500' : 'text-muted-foreground/50'}
+                            />
+                          </label>
                         </div>
                       </TableCell>
                       <TableCell className="w-24">
@@ -467,13 +476,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   variant="ghost" 
                                   size="sm" 
                                   onClick={() => handleEdit(event)} 
+                                  aria-label="Edit event"
                                   className="text-green-500 hover:text-green-500"
                                 >
-                                  <Edit className="w-4 h-4" />
+                                  <Pencil size={17} strokeWidth={1.8} aria-hidden="true" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Edit</p>
+                                <p>Edit event</p>
                               </TooltipContent>
                             </Tooltip>
                             
@@ -483,13 +493,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   variant="ghost" 
                                   size="sm" 
                                   onClick={() => handleDeleteClick(event)} 
+                                  aria-label="Delete event"
                                   className="text-red-500 hover:text-red-600"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 size={17} strokeWidth={1.8} aria-hidden="true" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>Delete</p>
+                                <p>Delete event</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>

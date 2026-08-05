@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarCheck, AlertTriangle } from 'lucide-react';
+import { CalendarRange, AlertTriangle } from 'lucide-react';
 import { useEventLimits } from '@/hooks/useEventLimits';
 
 export const EventUsagePill: React.FC = () => {
@@ -18,7 +18,7 @@ export const EventUsagePill: React.FC = () => {
       }
     >
       <span className="inline-flex items-center gap-1.5 font-medium">
-        {nearLimit ? <AlertTriangle className="w-3.5 h-3.5" /> : <CalendarCheck className="w-3.5 h-3.5" />}
+        {nearLimit ? <AlertTriangle size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" /> : <CalendarRange size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />}
         {currentEvents} of {totalAllowed} events used
       </span>
       {additionalPurchased > 0 && (
