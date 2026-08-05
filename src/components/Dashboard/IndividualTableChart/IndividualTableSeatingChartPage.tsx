@@ -309,7 +309,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4" />
+                          <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>
