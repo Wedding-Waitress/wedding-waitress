@@ -150,9 +150,9 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="p-2 bg-primary/10 rounded-lg">
-            <ClipboardList className="h-6 w-6 text-primary" />
+            <ClipboardList size={25} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Run Sheet</h1>
@@ -163,7 +163,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
         </div>
         {saving && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
             Saving...
           </div>
         )}
@@ -173,30 +173,39 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap max-sm:flex-col max-sm:items-stretch">
-            <div className="flex-shrink-0 max-sm:w-full">
+            <div className="flex-shrink-0 max-sm:w-full flex items-center gap-2">
+              <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
               <StandardEventSelector events={events} selectedEventId={selectedEventId} onEventSelect={onEventSelect} />
             </div>
 
             {selectedEventId && sheet && (
               <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full">
                 <div className="text-sm">
-                  <span className="font-medium">Export Controls</span>
+                  <span className="font-medium inline-flex items-center gap-1.5 align-middle">
+                    <Printer size={16} strokeWidth={1.8} aria-hidden="true" />
+                    Export Controls
+                  </span>
                   <span className="text-muted-foreground ml-2">Download your run sheet and share it with your DJ-MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className="inline-flex items-center justify-center gap-2 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors max-sm:w-full max-sm:text-sm"
+                    disabled={downloadingPDF}
+                    aria-label="Share run sheet"
+                    className="inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 max-sm:w-full max-sm:text-sm"
                   >
-                    <Share2 className="h-3 w-3" />
+                    <Share2 size={16} strokeWidth={1.8} aria-hidden="true" />
                     Share
                   </button>
                   <button
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
-                    className="inline-flex items-center justify-center gap-2 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 max-sm:w-full max-sm:text-sm"
+                    aria-label="Download run sheet PDF"
+                    className="inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 max-sm:w-full max-sm:text-sm"
                   >
-                    {downloadingPDF ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+                    {downloadingPDF
+                      ? <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
+                      : <FileDown size={16} strokeWidth={1.8} aria-hidden="true" />}
                     Download PDF
                   </button>
                 </div>
@@ -205,6 +214,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
           </div>
         </CardContent>
       </Card>
+
 
       {/* Content */}
       {!selectedEventId ? (
