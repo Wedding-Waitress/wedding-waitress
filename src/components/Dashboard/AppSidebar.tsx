@@ -177,9 +177,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => handleItemClick(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-1 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`flex items-center gap-2 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
                   >
-                    <Icon className={isMobile ? "w-6 h-6" : "w-5 h-5"} style={isGreenItem ? { color: '#967A59' } : undefined} />
+                    <Icon size={18} strokeWidth={1.8} className="shrink-0" style={isGreenItem ? { color: '#967A59' } : undefined} />
                     <span className={`${isActive ? 'font-bold' : 'font-normal'} text-base`} style={isGreenItem ? { color: '#967A59' } : undefined}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
