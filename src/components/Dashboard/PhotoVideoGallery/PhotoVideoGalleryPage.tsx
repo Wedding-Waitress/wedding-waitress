@@ -8,7 +8,7 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
-import { Camera, Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Camera, LoaderCircle, TriangleAlert, RotateCcw, CalendarDays } from 'lucide-react';
 
 interface Props {
   selectedEventId: string | null;
