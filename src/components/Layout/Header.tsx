@@ -244,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className="ww-small-pill"
                         style={{ minWidth: '100px' }}
                       >
-                        <LogIn size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
+                        <LogIn size={14} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                         {t('nav.signIn')}
                       </button>
                       <SignUpModal>
@@ -253,7 +253,7 @@ export const Header: React.FC<HeaderProps> = ({
                           className="ww-small-pill"
                           style={{ minWidth: '100px' }}
                         >
-                          <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
+                          <UserPlus size={14} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                           {t('nav.signUp')}
                         </button>
                       </SignUpModal>
