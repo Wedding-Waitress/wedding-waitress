@@ -243,7 +243,7 @@ export function RunningSheetSection({
               </TooltipProvider>
             </div>
 
-            </div>
+
 
             {showNotes && (
               <div className="mt-3">
