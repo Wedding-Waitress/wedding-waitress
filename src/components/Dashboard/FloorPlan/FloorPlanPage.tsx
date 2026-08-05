@@ -13,7 +13,7 @@ import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, FileText, LayoutGrid } from 'lucide-react';
+import { LayoutGrid, CalendarDays, LayoutTemplate, UsersRound, HeartHandshake, PartyPopper, Printer, Download, LoaderCircle } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanVisual } from './CeremonyFloorPlan/CeremonyFloorPlanVisual';
@@ -141,7 +141,8 @@ export const FloorPlanPage = ({
         <CardContent className="pt-4 sm:pt-6 space-y-4">
           {/* Title and Description */}
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <LayoutGrid className="w-6 h-6 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Floor Plan
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
@@ -153,7 +154,8 @@ export const FloorPlanPage = ({
           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 sm:gap-8">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Event:
               </label>
               <Select
@@ -172,7 +174,7 @@ export const FloorPlanPage = ({
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4" />
+                          <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>
@@ -188,7 +190,8 @@ export const FloorPlanPage = ({
 
             {/* Floor Plan Type Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                <LayoutTemplate className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Floor Plan Type:
               </label>
               <Select 
@@ -201,13 +204,13 @@ export const FloorPlanPage = ({
                 <SelectContent className="bg-popover border-border z-50">
                   <SelectItem value="ceremony">
                     <div className="flex items-center space-x-2">
-                      <LayoutGrid className="w-4 h-4" />
+                      <HeartHandshake className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                       <span>Ceremony</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="reception">
                     <div className="flex items-center space-x-2">
-                      <LayoutGrid className="w-4 h-4" />
+                      <PartyPopper className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                       <span>Reception</span>
                     </div>
                   </SelectItem>
@@ -218,7 +221,8 @@ export const FloorPlanPage = ({
             {/* Total Attending Ceremony */}
             {floorPlan && floorPlanType === 'ceremony' && (
               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 sm:ml-4 mt-2 sm:mt-0">
-                <span className="text-sm font-medium text-primary">
+                <span className="text-sm font-medium text-primary inline-flex items-center gap-[7px]">
+                  <UsersRound className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Total Attending: <span className="font-bold">
                     {3 + (floorPlan.bridal_party_count_left || 0) + (floorPlan.bridal_party_count_right || 0) + (floorPlan.total_rows * floorPlan.chairs_per_row * 2)}
                   </span>
@@ -233,16 +237,21 @@ export const FloorPlanPage = ({
           {/* Export Controls */}
           {isDataReady && floorPlanType === 'ceremony' && (
             <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-sm">
-                <span className="font-bold">Export Controls</span>
-                {' '}Download your floor plan for venue staff.
+              <p className="text-sm inline-flex items-center gap-1.5">
+                <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                <span><span className="font-bold">Export Controls</span>{' '}Download your floor plan for venue staff.</span>
               </p>
               <button 
                 onClick={handleDownloadPdf}
                 disabled={isExporting}
-                className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none shrink-0"
+                aria-label="Download floor plan PDF"
+                className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
               >
-                <FileText className="w-3 h-3" />
+                {isExporting ? (
+                  <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                ) : (
+                  <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                )}
                 {isExporting ? 'Exporting...' : 'Download PDF'}
               </button>
             </div>
