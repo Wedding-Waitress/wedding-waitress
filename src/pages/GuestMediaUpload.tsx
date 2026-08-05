@@ -22,6 +22,7 @@ import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.pn
 import uploadHeroDefault from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
 import galleryHeroDefault from '@/assets/Wedding-Waitress-Gallery-Hero-Default.png';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png.asset.json';
+import galleryHeaderLogo from '@/assets/gallery-header-logo.png.asset.json';
 
 // Immersive Digital Photo Booth — reused as-is, opened full screen from the Photo Booth tab.
 // The dynamic import retries once before failing so a single flaky chunk request on first
