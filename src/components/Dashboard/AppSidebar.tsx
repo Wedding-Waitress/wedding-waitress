@@ -3,10 +3,8 @@ import {
   Home, 
   Calendar, 
   Users, 
-  MapPin, 
   QrCode, 
   CreditCard,
-  ChefHat,
   Monitor,
   LayoutGrid,
   FileText,
@@ -20,9 +18,13 @@ import {
   Sparkles,
   LifeBuoy,
   Gift,
-  Printer,
-  Camera
+  Camera,
+  Table,
+  Table2,
+  Signpost,
+  UtensilsCrossed
 } from 'lucide-react';
+
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import {
