@@ -18,7 +18,6 @@ import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/Gue
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import photoBoothHeroGold from '@/assets/Wedding-Waitress-Photo-Booth-Hero-Gold.png';
-import guestBookHeroGold from '@/assets/Wedding-Waitress-Guest-Book-Hero-Gold.png';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png';
 import galleryHeaderLogo from '@/assets/gallery-header-logo.png';
 import guestbookHeaderLogo from '@/assets/guestbook-header-logo.png';
