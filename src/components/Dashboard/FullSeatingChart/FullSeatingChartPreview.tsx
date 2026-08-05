@@ -464,7 +464,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
               Previous
             </Button>
             <div className="text-sm font-medium">
@@ -477,7 +477,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               disabled={currentPage === totalPages}
             >
               Next
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
             </Button>
           </div>
         )}
@@ -617,7 +617,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
               Previous
             </Button>
             <div className="text-sm font-medium">
@@ -630,7 +630,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               disabled={currentPage === totalPages}
             >
               Next
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
             </Button>
           </div>
         )}
