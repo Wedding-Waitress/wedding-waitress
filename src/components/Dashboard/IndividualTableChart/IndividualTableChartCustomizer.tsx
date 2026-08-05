@@ -24,7 +24,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings, Type, Bold, Italic, Underline, ChevronDown, Check } from 'lucide-react';
+import {
+  Settings2,
+  Type,
+  Bold,
+  Italic,
+  Underline,
+  ChevronDown,
+  Check,
+  TableProperties,
+  Shapes,
+  TriangleAlert,
+  Eye,
+  UserRound,
+  Armchair,
+  ListOrdered,
+  UtensilsCrossed,
+  HeartHandshake,
+  Scaling,
+  CaseSensitive,
+} from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 
 interface IndividualTableChartCustomizerProps {
@@ -40,7 +59,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] bg-white mt-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <Settings className="w-5 h-5 text-foreground" />
+          <Settings2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
           Chart Settings
         </CardTitle>
       </CardHeader>
@@ -48,12 +67,18 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {/* Table Settings */}
         <div className="space-y-4">
           <div className="mt-2">
-            <h3 className="font-semibold text-sm">Table Settings</h3>
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <TableProperties className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Table Settings
+            </h3>
             <p className="text-xs text-muted-foreground mt-1">Customise how each table with who is on each table and other info.</p>
           </div>
           
           <div className="space-y-2">
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Table Shape</span>
+            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold">
+              <Shapes className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Table Shape
+            </span>
             <Select
               value={settings.tableShape}
               onValueChange={(value: 'round' | 'square' | 'long') => 
@@ -70,19 +95,22 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               </SelectContent>
             </Select>
             {settings.tableShape === 'round' && (
-              <p className="text-xs text-red-600 font-medium mt-2">
-                ⚠️ Maximum: 20 guests per ROUND TABLE
+              <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5">
+                <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Maximum: 20 guests per ROUND TABLE
               </p>
             )}
             {settings.tableShape === 'square' && (
-              <p className="text-xs text-red-600 font-medium mt-2">
-                ⚠️ Maximum: 20 guests per SQUARE TABLE
+              <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5">
+                <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Maximum: 20 guests per SQUARE TABLE
               </p>
             )}
             {settings.tableShape === 'long' && (
               <>
-                <p className="text-xs text-red-600 font-medium mt-2">
-                  ⚠️ Maximum: 42 guests per LONG TABLE
+                <p className="text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5">
+                  <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  Maximum: 42 guests per LONG TABLE
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Long tables use auto-scaling fonts. (20 per side + 1 at each end)
@@ -92,14 +120,21 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
         </div>
 
+
         <Separator />
 
         {/* Display Options */}
         <div className="space-y-4">
-          <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
+          <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold">
+            <Eye className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            Display Options
+          </span>
           
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-names">Show Guest Names</Label>
+            <Label htmlFor="show-names" className="flex items-center gap-[7px]">
+              <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Guest Names
+            </Label>
             <Switch
               id="show-names"
               checked={settings.includeNames}
@@ -110,7 +145,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-seat-numbers">Show Seat Numbers</Label>
+            <Label htmlFor="show-seat-numbers" className="flex items-center gap-[7px]">
+              <Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Seat Numbers
+            </Label>
             <Switch
               id="show-seat-numbers"
               checked={settings.showSeatNumbers}
@@ -121,7 +159,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-guest-list">Show Guest List</Label>
+            <Label htmlFor="show-guest-list" className="flex items-center gap-[7px]">
+              <ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Guest List
+            </Label>
             <Switch
               id="show-guest-list"
               checked={settings.includeGuestList}
@@ -132,7 +173,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-dietary">Show Dietary Requirements</Label>
+            <Label htmlFor="show-dietary" className="flex items-center gap-[7px]">
+              <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Dietary Requirements
+            </Label>
             <Switch
               id="show-dietary"
               checked={settings.includeDietary}
@@ -143,7 +187,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-relation">Show Relationship</Label>
+            <Label htmlFor="show-relation" className="flex items-center gap-[7px]">
+              <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Show Relationship
+            </Label>
             <Switch
               id="show-relation"
               checked={settings.includeRelation}
@@ -153,6 +200,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
+
         </div>
 
         <Separator />
@@ -161,12 +209,15 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {settings.tableShape !== 'long' && (
           <div className="space-y-4">
            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
-              <Type className="w-4 h-4" />
+              <Type className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Typography
             </span>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="larger-table-names" className="text-sm font-medium text-foreground">Guest Table Names Larger</Label>
+              <Label htmlFor="larger-table-names" className="text-sm font-medium text-foreground flex items-center gap-[7px]">
+                <Scaling className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Guest Table Names Larger
+              </Label>
               <Switch
                 id="larger-table-names"
                 checked={settings.largerTableNames}
@@ -178,7 +229,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Text Style</Label>
+              <Label className="text-xs text-muted-foreground flex items-center gap-[7px]">
+                <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Text Style
+              </Label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 

@@ -15,7 +15,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, FileText, AlertTriangle } from 'lucide-react';
+import { Users, TriangleAlert, TableProperties, CalendarDays, Table2, Printer, FileDown, Files, LoaderCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -255,7 +255,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-amber-600 flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
+              <TriangleAlert className="w-[18px] h-[18px]" strokeWidth={1.8} />
               Table Has Too Many Guests
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -274,7 +274,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <CardHeader className="space-y-4">
           {/* Title and Description */}
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <TableProperties className="w-6 h-6 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Individual Table Seating Chart
             </h1>
             <p className="text-muted-foreground">
@@ -286,7 +287,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Event:
               </label>
               <Select
@@ -307,7 +309,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
-                          <Users className="w-4 h-4" />
+                          <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                           <span>{event.name}</span>
                         </div>
                       </SelectItem>
@@ -323,7 +325,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
             {/* Table Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                <Table2 className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Table:
               </label>
               <Select 
@@ -348,28 +351,34 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           {/* Export Controls */}
           {isDataReady && (
             <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-sm">
-                <span className="font-bold">Export Controls</span>
-                {' '}Download & share your individual table charts with your venue.
+              <p className="text-sm flex items-center gap-1.5">
+                <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                <span><span className="font-bold">Export Controls</span>
+                {' '}Download &amp; share your individual table charts with your venue.</span>
               </p>
               <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                 <button 
                   onClick={handleDownloadPdf}
                   disabled={isExporting || isExportingAll}
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 >
-                  <FileText className="w-3 h-3" />
+                  {isExporting
+                    ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                    : <FileDown className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                   Download single page PDF
                 </button>
                 <button 
                   onClick={handleDownloadAllPdf}
                   disabled={isExporting || isExportingAll}
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 >
-                  <FileText className="w-3 h-3" />
+                  {isExportingAll
+                    ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                    : <Files className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                   {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
                 </button>
               </div>
+
             </div>
           )}
         </CardHeader>
@@ -434,7 +443,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           <div className="lg:col-span-3">
             <Card className="ww-box p-8 text-center">
               <div className="text-amber-600 mb-4">
-                <AlertTriangle className="w-16 h-16 mx-auto" />
+                <TriangleAlert className="w-16 h-16 mx-auto" strokeWidth={1.8} aria-hidden="true" />
               </div>
               <CardTitle className="mb-2 text-amber-600">Table Has Too Many Guests</CardTitle>
               <CardDescription className="text-base">
