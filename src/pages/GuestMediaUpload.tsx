@@ -460,9 +460,9 @@ export const GuestMediaUpload: React.FC = () => {
           <div
             className={[
               "w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px] max-w-[520px] max-h-[520px] rounded-full overflow-hidden flex items-center justify-center",
-              (activeTab !== 'upload' && activeTab !== 'gallery' && activeTab !== 'guestbook') ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
+              (activeTab !== 'upload' && activeTab !== 'gallery' && activeTab !== 'guestbook' && activeTab !== 'booth') ? "border-[3px] shadow-2xl bg-white/10 backdrop-blur-sm" : ""
             ].join(' ')}
-            style={(activeTab !== 'upload' && activeTab !== 'gallery' && activeTab !== 'guestbook') ? { borderColor: accent } : undefined}
+            style={(activeTab !== 'upload' && activeTab !== 'gallery' && activeTab !== 'guestbook' && activeTab !== 'booth') ? { borderColor: accent } : undefined}
           >
             {activeTab === 'guestbook' ? (
               <img
@@ -478,25 +478,18 @@ export const GuestMediaUpload: React.FC = () => {
                 }}
               />
             ) : activeTab === 'booth' ? (
-              <div className="relative w-full h-full">
-                <img src={DEFAULT_HERO_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" />
-                <img
-                  src={photoBoothHeroGold}
-                  alt=""
-                  className="absolute inset-0 m-auto"
-                  style={{
-                    zIndex: 10,
-                    width: '86%',
-                    height: '86%',
-                    objectFit: 'contain',
-                    objectPosition: 'center',
-                    opacity: 1,
-                    visibility: 'visible',
-                    filter: 'none',
-                    mixBlendMode: 'normal',
-                  }}
-                />
-              </div>
+              <img
+                src={photoBoothHeaderLogo}
+                alt="Photo Booth"
+                className="w-full h-full object-contain object-center block"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'center',
+                  display: 'block',
+                }}
+              />
             ) : heroBg ? (
               <img src={heroBg} alt="" className="w-full h-full object-cover" />
             ) : activeTab === 'upload' ? (
