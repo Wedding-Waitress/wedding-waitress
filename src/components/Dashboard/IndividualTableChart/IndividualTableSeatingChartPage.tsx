@@ -348,28 +348,34 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           {/* Export Controls */}
           {isDataReady && (
             <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-sm">
-                <span className="font-bold">Export Controls</span>
-                {' '}Download & share your individual table charts with your venue.
+              <p className="text-sm flex items-center gap-1.5">
+                <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                <span><span className="font-bold">Export Controls</span>
+                {' '}Download &amp; share your individual table charts with your venue.</span>
               </p>
               <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                 <button 
                   onClick={handleDownloadPdf}
                   disabled={isExporting || isExportingAll}
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 >
-                  <FileText className="w-3 h-3" />
+                  {isExporting
+                    ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                    : <FileDown className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                   Download single page PDF
                 </button>
                 <button 
                   onClick={handleDownloadAllPdf}
                   disabled={isExporting || isExportingAll}
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
                 >
-                  <FileText className="w-3 h-3" />
+                  {isExportingAll
+                    ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                    : <Files className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                   {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
                 </button>
               </div>
+
             </div>
           )}
         </CardHeader>
