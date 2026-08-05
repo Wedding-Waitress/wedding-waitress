@@ -50,12 +50,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ChevronDown, ChevronRight, Plus, MoreVertical, RotateCcw, MessageSquare, Copy, Trash, Download, Eraser } from 'lucide-react';
+import {
+  ChevronDown, ChevronUp, Plus, EllipsisVertical, RotateCcw, MessageSquareText,
+  Copy, Trash2, Download, Eraser, NotebookPen, ListMusic, Mic2,
+  HeartHandshake, Martini, UsersRound, Disc3, UtensilsCrossed, AudioLines,
+  Globe2, Ban, type LucideIcon,
+} from 'lucide-react';
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
 
 const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'introductions', 'main_event', 'dinner', 'dance', 'traditional', 'do_not_play'];
+
+const SECTION_ICONS: Record<string, LucideIcon> = {
+  ceremony: HeartHandshake,
+  cocktail: Martini,
+  introductions: UsersRound,
+  speeches: Mic2,
+  main_event: Disc3,
+  dinner: UtensilsCrossed,
+  dance: AudioLines,
+  traditional: Globe2,
+  do_not_play: Ban,
+};
 
 interface DJMCQuestionnaireSectionProps {
   section: DJMCSection;
@@ -200,6 +217,7 @@ export function DJMCQuestionnaireSection({
 
   const isMusicSection = MUSIC_SECTION_TYPES.includes(section.section_type);
   const isSpeechesSection = section.section_type === 'speeches';
+  const SectionIcon = SECTION_ICONS[section.section_type];
 
   return (
     <>
@@ -209,11 +227,17 @@ export function DJMCQuestionnaireSection({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 flex-1">
                 <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    title={section.is_collapsed ? 'Expand section' : 'Collapse section'}
+                    aria-label={section.is_collapsed ? 'Expand section' : 'Collapse section'}
+                  >
                     {section.is_collapsed ? (
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronDown size={16} strokeWidth={1.8} />
                     ) : (
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronUp size={16} strokeWidth={1.8} />
                     )}
                   </Button>
                 </CollapsibleTrigger>
@@ -231,15 +255,19 @@ export function DJMCQuestionnaireSection({
                   <div className="flex items-center gap-3 max-lg:flex-wrap">
                     <h3
                       onClick={handleLabelClick}
-                      className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                      className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors inline-flex items-center gap-2"
                     >
+                      {SectionIcon && (
+                        <SectionIcon size={19} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                      )}
                       {section.section_label}
                     </h3>
                     {isMusicSection && (
                       <Badge 
                         variant="outline" 
-                        className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium"
+                        className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium inline-flex items-center gap-1.5"
                       >
+                        <ListMusic size={14} strokeWidth={1.8} aria-hidden="true" />
                         Total Song Count: {songCount}
                       </Badge>
                     )}
@@ -247,8 +275,9 @@ export function DJMCQuestionnaireSection({
                       <>
                         <Badge 
                           variant="outline" 
-                          className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium"
+                          className="bg-background text-primary border border-primary px-3 py-1 text-xs font-medium inline-flex items-center gap-1.5"
                         >
+                          <Mic2 size={14} strokeWidth={1.8} aria-hidden="true" />
                           Total Speakers: {speakerCount}
                         </Badge>
                         <Badge 
@@ -269,35 +298,36 @@ export function DJMCQuestionnaireSection({
                   size="icon"
                   className="h-8 w-8"
                   onClick={() => setShowNotes(!showNotes)}
-                  title="Notes for DJ"
+                  title="Notes for DJ/MC"
+                  aria-label="Notes for DJ/MC"
                 >
-                  <MessageSquare className={`h-4 w-4 ${section.notes ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <MessageSquareText size={16} strokeWidth={1.8} className={section.notes ? 'text-primary' : 'text-muted-foreground'} />
                 </Button>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More section actions">
+                      <EllipsisVertical size={16} strokeWidth={1.8} />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={onDuplicateSection}>
-                      <Copy className="h-4 w-4 mr-2" />
+                      <Copy size={18} strokeWidth={1.8} className="mr-2" />
                       Duplicate Section
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setShowClearSectionDialog(true)}>
-                      <Eraser className="h-4 w-4 mr-2" />
+                      <Eraser size={18} strokeWidth={1.8} className="mr-2" />
                       Clear Section
                     </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
-                    <RotateCcw className="h-4 w-4 mr-2" />
+                    <RotateCcw size={18} strokeWidth={1.8} className="mr-2" />
                     Reset to Default
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => setShowDeleteDialog(true)}
                     className="text-destructive focus:text-destructive"
                   >
-                    <Trash className="h-4 w-4 mr-2" />
+                    <Trash2 size={18} strokeWidth={1.8} className="mr-2" />
                     Delete Section
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -309,8 +339,9 @@ export function DJMCQuestionnaireSection({
                   className="h-8 w-8"
                   onClick={() => onDownloadSectionPDF?.()}
                   title="Download Section PDF"
+                  aria-label="Download Section PDF"
                 >
-                  <Download className="h-4 w-4 text-muted-foreground" />
+                  <Download size={16} strokeWidth={1.8} className="text-muted-foreground" />
                 </Button>
               </div>
             </div>
@@ -319,7 +350,10 @@ export function DJMCQuestionnaireSection({
             {showNotes && (
               <div className="mt-3">
                 <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
-                  <div className="text-sm font-medium text-primary mb-1">Notes for DJ-MC</div>
+                  <div className="text-sm font-medium text-primary mb-1 flex items-center gap-2">
+                    <NotebookPen size={17} strokeWidth={1.8} aria-hidden="true" />
+                    Notes for DJ-MC
+                  </div>
                   <Textarea
                     value={section.notes || ''}
                     onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
@@ -495,7 +529,7 @@ export function DJMCQuestionnaireSection({
                 onClick={onAddItem}
                 disabled={disabled}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus size={15} strokeWidth={1.8} className="mr-[5px]" aria-hidden="true" />
                 Add Row
               </Button>
               </div>

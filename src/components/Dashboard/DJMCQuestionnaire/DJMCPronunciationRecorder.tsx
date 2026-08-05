@@ -11,7 +11,7 @@
  */
 import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, Square, Play, Trash2 } from 'lucide-react';
+import { Mic, Square, Play, Trash2, LoaderCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -151,11 +151,12 @@ export function DJMCPronunciationRecorder({
           onClick={playRecording}
           disabled={disabled}
           title={isPlaying ? 'Stop' : 'Play'}
+          aria-label={isPlaying ? 'Stop playback' : 'Play recording'}
         >
           {isPlaying ? (
-            <Square className="h-4 w-4 text-primary fill-primary" />
+            <Square size={17} strokeWidth={1.8} className="text-primary" />
           ) : (
-            <Play className="h-4 w-4 text-primary" />
+            <Play size={17} strokeWidth={1.8} className="text-primary" />
           )}
         </Button>
         <Button
@@ -166,8 +167,9 @@ export function DJMCPronunciationRecorder({
           onClick={deleteRecording}
           disabled={disabled}
           title="Delete recording"
+          aria-label="Delete recording"
         >
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 size={17} strokeWidth={1.8} className="text-destructive" />
         </Button>
       </div>
     );
@@ -182,13 +184,14 @@ export function DJMCPronunciationRecorder({
       onClick={isRecording ? stopRecording : startRecording}
       disabled={disabled || uploading}
       title={isRecording ? 'Stop recording' : 'Record pronunciation'}
+      aria-label={isRecording ? 'Stop recording' : 'Record pronunciation'}
     >
       {isRecording ? (
-        <Square className="h-4 w-4 fill-current animate-pulse" />
+        <Square size={17} strokeWidth={1.8} className="animate-pulse" />
       ) : uploading ? (
-        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <LoaderCircle size={17} strokeWidth={1.8} className="text-primary animate-spin" />
       ) : (
-        <Mic className="h-4 w-4 text-muted-foreground hover:text-primary" />
+        <Mic size={17} strokeWidth={1.8} className="text-muted-foreground hover:text-primary" />
       )}
     </Button>
   );

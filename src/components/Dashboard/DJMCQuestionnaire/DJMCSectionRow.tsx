@@ -15,8 +15,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
-  GripVertical, Copy, Eraser, Highlighter, MoreVertical,
-  Bold, Italic, Underline, Trash,
+  GripVertical, Copy, Eraser, Highlighter, EllipsisVertical,
+  Bold, Italic, Underline, Trash2,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -188,9 +188,9 @@ export function DJMCSectionRow({
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded" title="Drag to reorder" aria-label="Drag to reorder"
         >
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+          <GripVertical size={16} strokeWidth={1.8} className="text-muted-foreground" />
         </div>
 
         {/* Column 1: Song Number (1/3 width) - displays row_label */}
@@ -242,43 +242,43 @@ export function DJMCSectionRow({
           <div className="shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <MoreVertical className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="More actions" aria-label="More row actions">
+                  <EllipsisVertical size={16} strokeWidth={1.8} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
-                  <Highlighter className="h-4 w-4 mr-2" />
+                  <Highlighter size={18} strokeWidth={1.8} className="mr-2" />
                   Highlight Row
                   {item.is_section_header && <span className="ml-auto text-xs text-destructive">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onDuplicate}>
-                  <Copy className="h-4 w-4 mr-2" />
+                  <Copy size={18} strokeWidth={1.8} className="mr-2" />
                   Duplicate
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
-                  <Eraser className="h-4 w-4 mr-2" />
+                  <Eraser size={18} strokeWidth={1.8} className="mr-2" />
                   Clear Text
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onUpdate({ is_bold: !item.is_bold })}>
-                  <Bold className="h-4 w-4 mr-2" />
+                  <Bold size={18} strokeWidth={1.8} className="mr-2" />
                   Bold
                   {item.is_bold && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onUpdate({ is_italic: !item.is_italic })}>
-                  <Italic className="h-4 w-4 mr-2" />
+                  <Italic size={18} strokeWidth={1.8} className="mr-2" />
                   Italic
                   {item.is_italic && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onUpdate({ is_underline: !item.is_underline })}>
-                  <Underline className="h-4 w-4 mr-2" />
+                  <Underline size={18} strokeWidth={1.8} className="mr-2" />
                   Underline
                   {item.is_underline && <span className="ml-auto text-xs">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive" onClick={() => setShowDeleteDialog(true)}>
-                  <Trash className="h-4 w-4 mr-2" />
+                  <Trash2 size={18} strokeWidth={1.8} className="mr-2" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -326,9 +326,9 @@ export function DJMCSectionRow({
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded" title="Drag to reorder" aria-label="Drag to reorder"
       >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <GripVertical size={16} strokeWidth={1.8} className="text-muted-foreground" />
       </div>
 
       {/* COLUMN 1: Speaker Status for speeches (narrower to align Speaker Name with other sections) */}
@@ -694,43 +694,43 @@ export function DJMCSectionRow({
         <div className="shrink-0 mt-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <MoreVertical className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-7 w-7" title="More actions" aria-label="More row actions">
+                <EllipsisVertical size={16} strokeWidth={1.8} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
-                <Highlighter className="h-4 w-4 mr-2" />
+                <Highlighter size={18} strokeWidth={1.8} className="mr-2" />
                 Highlight Row
                 {item.is_section_header && <span className="ml-auto text-xs text-destructive">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onDuplicate}>
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy size={18} strokeWidth={1.8} className="mr-2" />
                 Duplicate
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
-                <Eraser className="h-4 w-4 mr-2" />
+                <Eraser size={18} strokeWidth={1.8} className="mr-2" />
                 Clear Text
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onUpdate({ is_bold: !item.is_bold })}>
-                <Bold className="h-4 w-4 mr-2" />
+                <Bold size={18} strokeWidth={1.8} className="mr-2" />
                 Bold
                 {item.is_bold && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onUpdate({ is_italic: !item.is_italic })}>
-                <Italic className="h-4 w-4 mr-2" />
+                <Italic size={18} strokeWidth={1.8} className="mr-2" />
                 Italic
                 {item.is_italic && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onUpdate({ is_underline: !item.is_underline })}>
-                <Underline className="h-4 w-4 mr-2" />
+                <Underline size={18} strokeWidth={1.8} className="mr-2" />
                 Underline
                 {item.is_underline && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive" onClick={() => setShowDeleteDialog(true)}>
-                <Trash className="h-4 w-4 mr-2" />
+                <Trash2 size={18} strokeWidth={1.8} className="mr-2" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
