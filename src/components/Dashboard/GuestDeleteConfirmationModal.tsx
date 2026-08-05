@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trash2, X } from "lucide-react";
 
 interface GuestDeleteConfirmationModalProps {
   isOpen: boolean;
@@ -61,7 +61,7 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
             <DialogTitle className="text-primary">You are deleting this guest</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
@@ -94,6 +94,7 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
             onClick={handleConfirm}
             disabled={!isConfirmValid || isLoading}
           >
+            <Trash2 size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
             {isLoading ? 'Deleting...' : 'Delete Guest'}
           </Button>
           <Button 
@@ -103,6 +104,7 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
             onClick={handleClose} 
             disabled={isLoading}
           >
+            <X size={18} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
             Cancel
           </Button>
         </DialogFooter>

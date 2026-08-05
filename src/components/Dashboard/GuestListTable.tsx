@@ -2736,7 +2736,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                        <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
                          <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="py-2 px-0">
                            <div className="flex items-center gap-2 pl-[7%]">
-                            <Users className="w-4 h-4 text-white" />
+                            {group.type === 'couple'
+                              ? <Heart size={15} strokeWidth={1.8} className="text-white" aria-hidden="true" />
+                              : <UsersRound size={15} strokeWidth={1.8} className="text-white" aria-hidden="true" />}
                             <span className="font-semibold text-sm text-white">
                               {group.groupName}
                             </span>
@@ -2958,11 +2960,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                       size="sm"
                                       className="h-8 w-8 p-0"
                                       onClick={() => handleEditGuest(guest)}
+                                      aria-label="Edit guest"
+                                      title="Edit guest"
                                     >
-                                      <Edit className="w-4 h-4 text-green-500" />
+                                      <Pencil size={16} strokeWidth={1.8} className="text-green-500" aria-hidden="true" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top"><p>Edit</p></TooltipContent>
+                                  <TooltipContent side="top"><p>Edit guest</p></TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                               <TooltipProvider>
@@ -2973,11 +2977,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                       size="sm"
                                       className="h-8 w-8 p-0"
                                       onClick={() => handleDeleteGuest(guest)}
+                                      aria-label="Delete guest"
+                                      title="Delete guest"
                                     >
-                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                      <Trash2 size={16} strokeWidth={1.8} className="text-red-500" aria-hidden="true" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top"><p>Delete</p></TooltipContent>
+                                  <TooltipContent side="top"><p>Delete guest</p></TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             </span>
