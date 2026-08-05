@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, ChefHat, AlertCircle, ChevronLeft, ChevronRight, Users, Calendar, Layout } from 'lucide-react';
+import { ChefHat, ChevronLeft, ChevronRight, CalendarDays, UtensilsCrossed, CircleCheck, Printer, FileDown, Files, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
@@ -61,6 +61,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const { tables, loading: tablesLoading } = useTables(eventId);
   const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(eventId);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportTarget, setExportTarget] = useState<'single' | 'all' | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
@@ -472,8 +473,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             {/* Top row: Icon, Title, and Event Name */}
             <div className="flex items-center justify-between">
               {/* Header Icon & Info */}
-              <div className="flex items-center gap-4">
-                <ChefHat className="w-12 h-12 text-primary" />
+              <div className="flex items-center gap-2">
+                <ChefHat className="w-[25px] h-[25px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 <div>
                   <CardTitle className="text-left text-2xl font-bold text-foreground">Kitchen Dietary Requirements</CardTitle>
                   <CardDescription className="text-left">
@@ -488,7 +489,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             <div className="flex items-center justify-between pt-2 border-t max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
               <div className="flex items-center gap-4 max-lg:flex-col max-lg:items-stretch max-lg:gap-3 max-lg:w-full">
                 <div className="flex items-center space-x-4 max-lg:flex-col max-lg:items-stretch max-lg:space-x-0 max-lg:gap-2 max-lg:w-full">
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
+                  <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                    <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                     Choose Event:
                   </label>
                   <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
@@ -500,7 +502,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         events.map(event => (
                           <SelectItem key={event.id} value={event.id}>
                             <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
+                              <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                               <span>{event.name}</span>
                             </div>
                           </SelectItem>
@@ -519,7 +521,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       variant="outline"
                       className="ml-4 bg-white border-primary text-primary rounded-full"
                     >
-                      🍽️
+                      <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       <span className="ml-1.5">
                         {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
                       </span>
@@ -528,6 +530,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       variant="outline"
                       className="bg-white border-primary text-primary rounded-full"
                     >
+                      {isDataReady ? (
+                        <CircleCheck className="w-[15px] h-[15px] shrink-0 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
+                      ) : (
+                        <LoaderCircle className="w-[15px] h-[15px] shrink-0 mr-1.5 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                      )}
                       {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
                     </Badge>
                   </>
@@ -538,26 +545,39 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               {currentEvent && dietaryGuests.length > 0 && (
                 <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-lg:w-full">
                   <div className="flex items-center max-lg:flex-col max-lg:items-start max-lg:gap-1">
-                    <span className="font-bold text-sm">Export Controls</span>
+                    <span className="font-bold text-sm inline-flex items-center gap-1.5">
+                      <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                      Export Controls
+                    </span>
                     <span className="text-muted-foreground ml-2 max-lg:ml-0 text-sm">
                       Download & share your dietary requirement guests with your venue / Kitchen.
                     </span>
                   </div>
                   <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
                     <button 
-                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdf}
                       disabled={isExporting || paginatedGuests.length === 0}
+                      aria-label="Download single page PDF"
                     >
-                      <FileText className="w-3 h-3" />
+                      {exportTarget === 'single' ? (
+                        <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                      ) : (
+                        <FileDown className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                      )}
                       Download single page PDF
                     </button>
                     <button 
-                      className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                       onClick={handleDownloadPdfAll}
                       disabled={isExporting || dietaryGuests.length === 0}
+                      aria-label="Download all pages PDF"
                     >
-                      <FileText className="w-3 h-3" />
+                      {exportTarget === 'all' ? (
+                        <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                      ) : (
+                        <Files className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                      )}
                       Download all pages PDF
                     </button>
                   </div>
@@ -571,7 +591,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         {!currentEvent && (
           <Card className="ww-box print:hidden">
             <CardContent className="p-8 text-center">
-              <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
               <CardTitle className="mb-2">Select an Event</CardTitle>
               <CardDescription>
                 Choose an event from the dropdown above to view dietary requirements
@@ -607,7 +627,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               <Card className="ww-box">
                 <CardContent className="p-6">
                   <div className="text-center py-8">
-                    <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <TriangleAlert className="w-12 h-12 mx-auto mb-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
                     <p className="text-muted-foreground font-medium">No dietary requirements</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       All guests have selected "None" or "NA" for dietary requirements
@@ -626,7 +646,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                     >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                       Previous
                     </Button>
                     <span className="text-sm text-muted-foreground">
@@ -639,7 +659,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       disabled={currentPage === totalPages}
                     >
                       Next
-                      <ChevronRight className="w-4 h-4 ml-1" />
+                      <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
                     </Button>
                   </div>
                 )}
@@ -817,7 +837,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                     >
-                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                       Previous
                     </Button>
                     <span className="text-sm text-muted-foreground">
@@ -830,7 +850,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       disabled={currentPage === totalPages}
                     >
                       Next
-                      <ChevronRight className="w-4 h-4 ml-1" />
+                      <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
                     </Button>
                   </div>
                 )}
