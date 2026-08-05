@@ -41,6 +41,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [exportTarget, setExportTarget] = useState<'single' | 'all' | null>(null);
   const [textEditMode, setTextEditMode] = useState(false);
   const [textOverflowing, setTextOverflowing] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
