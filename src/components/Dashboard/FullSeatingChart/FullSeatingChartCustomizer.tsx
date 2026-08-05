@@ -15,8 +15,12 @@ import { Button } from '@/components/ui/button';
 import { 
   ArrowUpDown,
   Type,
-  FileText,
-  Settings,
+  Settings2,
+  Eye,
+  ListFilter,
+  CaseSensitive,
+  UtensilsCrossed,
+  HeartHandshake,
   Bold,
   Italic,
   Underline,
@@ -46,7 +50,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
     <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-primary" />
+          <Settings2 className="w-[22px] h-[22px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
           <CardTitle className="text-2xl font-bold text-foreground">Chart Settings</CardTitle>
         </div>
         <CardDescription>
@@ -58,12 +62,13 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         {/* Sort Settings */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-4 h-4 text-primary" />
+            <ArrowUpDown className="w-[18px] h-[18px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
           </div>
           
           <div>
-            <Label htmlFor="sort-by" className="text-xs text-muted-foreground">
+            <Label htmlFor="sort-by" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+              <ListFilter className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Sort Guests By
             </Label>
             <Select
@@ -89,13 +94,14 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         {/* Display Options */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-primary" />
+            <Eye className="w-[18px] h-[18px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           </div>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-dietary" className="text-xs text-muted-foreground">
+              <Label htmlFor="show-dietary" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+                <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Show Dietary Requirements
               </Label>
               <Switch
@@ -107,7 +113,8 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-relation" className="text-xs text-muted-foreground">
+              <Label htmlFor="show-relation" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+                <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Show Relationship
               </Label>
               <Switch
@@ -125,12 +132,13 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         {/* Typography */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Type className="w-4 h-4 text-primary" />
+            <Type className="w-[18px] h-[18px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
           </div>
           
           <div>
-            <Label className="text-xs text-muted-foreground">
+            <Label className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+              <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Text Style
             </Label>
             <DropdownMenu>
