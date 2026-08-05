@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Copy, Check, Trash2, ExternalLink, Users, Lock, Unlock } from 'lucide-react';
+import { Copy, CircleCheck, Trash2, ExternalLink, UsersRound, Lock, Unlock, Share2 } from 'lucide-react';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { DJMCShareToken } from '@/types/djMCQuestionnaire';
 import { useToast } from '@/hooks/use-toast';
@@ -176,7 +176,7 @@ export function DJMCShareModal({
               {generating ? (
                 <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
               ) : (
-                <Copy className="h-4 w-4 mr-2" />
+                <Copy size={18} strokeWidth={1.8} className=" mr-2" />
               )}
               Generate & Copy Link
             </Button>
@@ -224,9 +224,9 @@ export function DJMCShareModal({
                               onClick={() => toggleTokenPermission(token.id, token.permission)}
                             >
                               {token.permission === 'can_edit' ? (
-                                <Unlock className="h-4 w-4 text-green-500" />
+                                <Unlock size={18} strokeWidth={1.8} className=" text-green-500" />
                               ) : (
-                                <Lock className="h-4 w-4 text-red-500" />
+                                <Lock size={18} strokeWidth={1.8} className=" text-red-500" />
                               )}
                             </Button>
                           </TooltipTrigger>
@@ -243,9 +243,9 @@ export function DJMCShareModal({
                               onClick={() => copyLink(token.token)}
                             >
                               {copiedId === token.token ? (
-                                <Check className="h-4 w-4 text-green-600" />
+                                <CircleCheck size={18} strokeWidth={1.8} className=" text-green-600" />
                               ) : (
-                                <Copy className="h-4 w-4" />
+                                <Copy size={18} strokeWidth={1.8} className="" />
                               )}
                             </Button>
                           </TooltipTrigger>
@@ -264,7 +264,7 @@ export function DJMCShareModal({
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                <ExternalLink className="h-4 w-4" />
+                                <ExternalLink size={18} strokeWidth={1.8} className="" />
                               </a>
                             </Button>
                           </TooltipTrigger>
@@ -278,7 +278,7 @@ export function DJMCShareModal({
                               className="h-8 w-8"
                               onClick={() => onDeleteToken(token.id)}
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 size={18} strokeWidth={1.8} className=" text-destructive" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>Delete Link</TooltipContent>
