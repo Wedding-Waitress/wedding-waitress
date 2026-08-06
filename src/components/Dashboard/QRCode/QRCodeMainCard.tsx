@@ -539,7 +539,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* Accordions for Color, Shape, Logo */}
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}
-              <AccordionItem value="color" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
+              <AccordionItem value="color" className="rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-[7px]">
                     <Palette strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
@@ -572,7 +572,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* SHAPE Section */}
-              <AccordionItem value="shape" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
+              <AccordionItem value="shape" className="rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-[7px]">
                     <Shapes strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
@@ -652,7 +652,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </AccordionItem>
 
               {/* LOGO Section */}
-              <AccordionItem value="logo" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
+              <AccordionItem value="logo" className="rounded-lg bg-[#F5F0EB]/30">
                 <AccordionTrigger className="px-3 py-2 hover:no-underline">
                   <div className="flex items-center gap-[7px]">
                     <ImagePlus strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
