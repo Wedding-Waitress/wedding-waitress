@@ -215,7 +215,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                   {enabled && (
                     <Accordion type="single" collapsible className="w-full mt-auto">
                       <AccordionItem value={`${tile.visKey}-cfg`} className="border-0">
-                        <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                        <AccordionTrigger className="text-sm py-2 px-4 rounded-full border border-[#472c1d] hover:no-underline">
                           <span className="text-[#856A4C] inline-flex items-center gap-[7px]">
                             <Settings2 className="w-[15px] h-[15px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                             Configure {tile.title} Settings
@@ -287,7 +287,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 </div>
                 <Accordion type="single" collapsible className="w-full mt-auto">
                   <AccordionItem value="hero-cfg" className="border-0">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                    <AccordionTrigger className="text-sm py-2 px-4 rounded-full border border-[#472c1d] hover:no-underline">
                       <span className="text-[#856A4C] inline-flex items-center gap-[7px]">
                         <Settings2 className="w-[15px] h-[15px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                         Configure Hero Background
