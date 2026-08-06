@@ -476,7 +476,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   return (
     <div className="space-y-6">
       {/* Combined Header Box — mirrors Invitations exactly */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className="ww-signage-brown border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
             <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><LayoutTemplate className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Wedding Waitress Signs Studio</h1>
@@ -679,7 +679,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       {/* Editor + Preview — sibling clone of InvitationsPage */}
       {selectedEventId && settings && !settingsLoading && editorSettings && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="lg:col-span-2">
+          <div className="ww-signage-brown lg:col-span-2">
             <InvitationCardCustomizer
               settings={editorSettings}
               onSettingsChange={handleSettingsChange}
