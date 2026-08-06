@@ -14,7 +14,7 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
 
   return (
     <>
-      <div className="dashboard-card relative overflow-hidden">
+      <div className="dashboard-card relative overflow-hidden p-5">
         <button
           type="button"
           aria-label="Dismiss"
@@ -24,7 +24,7 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
           <div className="w-12 h-12 rounded-2xl bg-[#967A59]/10 flex items-center justify-center shrink-0">
             <Building2 size={22} strokeWidth={1.8} className="text-[#967A59]" />
           </div>
@@ -38,12 +38,12 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
               Wedding Waitress can also help your venue streamline future weddings and events.
               Invite your venue to explore the platform and help create a more seamless planning experience.
             </p>
-            <p className="text-xs text-muted-foreground/80 mt-2 italic">
+            <p className="text-xs text-muted-foreground/80 mt-1 italic">
               Built for couples, planners, and venues coordinating events together.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full lg:w-auto shrink-0">
+          <div className="flex flex-col gap-2.5 w-full lg:w-auto shrink-0">
             <Button
               onClick={() => setOpen(true)}
               className="lv-premium-shade h-11 rounded-full bg-[#967A59] hover:bg-[#7d6549] text-white w-full lg:w-auto px-6 inline-flex items-center justify-center gap-[6px]"
@@ -54,7 +54,10 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
             <Button
               variant="ghost"
               onClick={() => onDismiss(event.id, 14)}
-              className="h-11 rounded-full text-muted-foreground hover:text-foreground w-full lg:w-auto"
+              className="h-11 rounded-full text-foreground hover:bg-[#E8E1D6] w-full lg:w-auto px-4 border border-[#472c1d] bg-[#F0EBE3]"
+              style={{
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65), 0 1px 0 rgba(255,255,255,0.35)',
+              }}
             >
               Not now
             </Button>
