@@ -67,7 +67,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
           </div>
           
           <div>
-            <Label htmlFor="sort-by" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+            <Label htmlFor="sort-by" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
               <ListFilter className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Sort Guests By
             </Label>
@@ -100,7 +100,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-dietary" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+              <Label htmlFor="show-dietary" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
                 <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Show Dietary Requirements
               </Label>
@@ -113,7 +113,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-relation" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+              <Label htmlFor="show-relation" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
                 <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Show Relationship
               </Label>
@@ -137,7 +137,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
           </div>
           
           <div>
-            <Label className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+            <Label className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
               <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Text Style
             </Label>
