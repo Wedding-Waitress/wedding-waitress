@@ -1501,7 +1501,7 @@ img { content-visibility: auto; }
   border-color: #472c1d !important;
 }
 /* table shape selection boxes */
-.ww-table-panel .grid > button[type="button"] {
+.ww-table-panel .grid-cols-3 > button[type="button"] {
   border-width: 1px !important;
   border-style: solid !important;
   border-color: #472c1d !important;
