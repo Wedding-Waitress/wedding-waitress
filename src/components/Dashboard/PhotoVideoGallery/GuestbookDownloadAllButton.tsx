@@ -86,7 +86,7 @@ export const GuestbookDownloadAllButton: React.FC<{
   return (
     <Button
       variant="outline"
-      className={`lv-premium-shade h-11 gap-2 border-2 border-[#472c1d] ${className || ''}`}
+      className={`lv-premium-shade h-11 gap-2 border border-[#472c1d] ${className || ''}`}
       onClick={run}
       disabled={busy || list.length === 0}
     >
