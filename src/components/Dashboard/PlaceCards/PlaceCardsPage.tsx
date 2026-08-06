@@ -256,7 +256,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 place-cards-page">
+    <div className="space-y-6 place-cards-page ww-placecards-brown">
       {/* Combined Header Box */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
@@ -494,7 +494,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="lg:col-span-7 min-w-0">
+          <div className="ww-placecards-preview lg:col-span-7 min-w-0">
             <PlaceCardPreview
               settings={settings}
               guests={assignedGuests}
