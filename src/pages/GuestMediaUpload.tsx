@@ -327,8 +327,17 @@ export const GuestMediaUpload: React.FC = () => {
     );
   }
 
-  const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
   const displayTitle = resolveGalleryTitle(gallery);
+  // Couple names must always follow the current event. Prefer the event/gallery title
+  // (e.g. "Jason & Linda's Wedding" -> "Jason & Linda"), fall back to stored partner names.
+  const titleCouple = (() => {
+    const t = (gallery.event_name || displayTitle || '').trim();
+    if (!t) return '';
+    const stripped = t.replace(/[''`]s\s+.*$/i, '').trim();
+    return stripped.includes('&') || stripped.toLowerCase().includes(' and ') ? stripped : '';
+  })();
+  const couple = titleCouple || [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
+
   const displayWelcome = gallery.welcome_message?.trim() || 'Share your favourite photos and videos from today.';
   const showDate = gallery.show_event_date !== false && !!gallery.event_date;
 
@@ -361,7 +370,7 @@ export const GuestMediaUpload: React.FC = () => {
           </p>
 
           {success > 0 && (
-            <div className={`mt-5 rounded-xl border p-3.5 flex items-center justify-center gap-2 text-sm ${theme.isDark ? 'border-white/15 bg-white/5 text-white/80' : 'border-[#E0D3B8] bg-[#FBF7EE] text-[#7A5E3A]'}`}>
+            <div className={`mt-5 rounded-xl border-2 p-3.5 flex items-center justify-center gap-2 text-sm ${theme.isDark ? 'border-white/15 bg-white/5 text-white/80' : 'border-[#967A59] bg-[#FBF7EE] text-[#7A5E3A]'}`}>
               <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
               <span><span className="font-semibold">{success}</span> {fileWord(success)} uploaded successfully</span>
             </div>
@@ -386,10 +395,7 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="mt-6 space-y-2.5">
             <Button
-              className="lv-premium-shade w-full h-12 text-white text-base"
-              style={{ backgroundColor: accent }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
+              className="lv-premium-shade w-full h-12 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all bg-green-500 hover:bg-green-600"
               onClick={handleShareMore}
             >
               <Camera className="h-4 w-4 mr-2" />
@@ -398,7 +404,8 @@ export const GuestMediaUpload: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              className="lv-premium-shade w-full h-12 text-base"
+              className="lv-premium-shade w-full h-12 text-base border-2 border-[#967A59]"
+
               onClick={handleBackToStart}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
