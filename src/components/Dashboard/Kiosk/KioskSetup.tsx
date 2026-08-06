@@ -99,30 +99,22 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
     }
   };
 
-  const generateQRCode = async () => {
-    if (!kioskUrl) return;
-    
-    setIsGeneratingQR(true);
-    try {
-      const qrDataUrl = await QRCode.toDataURL(kioskUrl, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-      setQrCodeDataUrl(qrDataUrl);
-    } catch (error) {
-      toast({
-        title: "QR Code Generation Failed",
-        description: "Failed to generate QR code",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingQR(false);
+  // Auto-generate the QR code whenever the selected event (and thus URL) changes.
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!kioskUrl) {
+      setQrCodeDataUrl('');
+      return;
     }
-  };
+    QRCode.toDataURL(kioskUrl, {
+      width: 200,
+      margin: 2,
+      color: { dark: '#000000', light: '#FFFFFF' },
+    })
+      .then((url) => { if (!cancelled) setQrCodeDataUrl(url); })
+      .catch(() => { if (!cancelled) setQrCodeDataUrl(''); });
+    return () => { cancelled = true; };
+  }, [kioskUrl]);
 
   return (
     <div className="space-y-6 md:max-lg:space-y-8 md:max-lg:px-2">
