@@ -44,7 +44,6 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   const { events, loading: eventsLoading } = useEvents();
   const { toast } = useToast();
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
-  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isOpeningKiosk, setIsOpeningKiosk] = useState(false);
 
@@ -100,30 +99,22 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
     }
   };
 
-  const generateQRCode = async () => {
-    if (!kioskUrl) return;
-    
-    setIsGeneratingQR(true);
-    try {
-      const qrDataUrl = await QRCode.toDataURL(kioskUrl, {
-        width: 200,
-        margin: 2,
-        color: {
-          dark: '#000000',
-          light: '#FFFFFF'
-        }
-      });
-      setQrCodeDataUrl(qrDataUrl);
-    } catch (error) {
-      toast({
-        title: "QR Code Generation Failed",
-        description: "Failed to generate QR code",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingQR(false);
+  // Auto-generate the QR code whenever the selected event (and thus URL) changes.
+  React.useEffect(() => {
+    let cancelled = false;
+    if (!kioskUrl) {
+      setQrCodeDataUrl('');
+      return;
     }
-  };
+    QRCode.toDataURL(kioskUrl, {
+      width: 200,
+      margin: 2,
+      color: { dark: '#000000', light: '#FFFFFF' },
+    })
+      .then((url) => { if (!cancelled) setQrCodeDataUrl(url); })
+      .catch(() => { if (!cancelled) setQrCodeDataUrl(''); });
+    return () => { cancelled = true; };
+  }, [kioskUrl]);
 
   return (
     <div className="space-y-6 md:max-lg:space-y-8 md:max-lg:px-2">
@@ -143,150 +134,121 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             </div>
           </div>
 
-          {/* Event Selection heading + description on one row */}
-          <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3 pt-5">
-            <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-              <CalendarDays className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
-              Event Selection
-            </CardTitle>
-            <CardDescription className="shrink-0">
-              Choose which event to display on the kiosk
-            </CardDescription>
-          </div>
         </CardHeader>
 
-        <CardContent className="pt-2">
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 xl:gap-8 items-start">
-            {/* LEFT: event controls */}
-            <div className="xl:col-span-7 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
-                  <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                  Choose Event:
-                </label>
-                <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
-                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
-                    <SelectValue placeholder="Choose Event" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
-                    {events.length > 0 ? (
-                      events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center space-x-2">
-                            <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
-                            <span>{event.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-events" disabled>
-                        {eventsLoading ? "Loading events..." : "No events found"}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+        <CardContent className="pt-2 space-y-6">
+          {/* Choose Event row */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+              <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Choose Event:
+            </label>
+            <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
+              <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
+                <SelectValue placeholder="Choose Event" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-border z-50">
+                {events.length > 0 ? (
+                  events.map((event) => (
+                    <SelectItem key={event.id} value={event.id}>
+                      <div className="flex items-center space-x-2">
+                        <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
+                        <span>{event.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-events" disabled>
+                    {eventsLoading ? "Loading events..." : "No events found"}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Full-width divider */}
+          <hr className="w-full border-t border-[#472c1d]" />
+
+          {selectedEvent && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="flex items-center gap-2 text-[20px] font-bold text-[#472c1d]">
+                  <Link2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  Kiosk URL &amp; Controls
+                </h3>
+                <CardDescription className="mt-1">
+                  Use this URL to set up your kiosk device
+                </CardDescription>
               </div>
 
-              {selectedEvent && (
-                <div className="flex items-center gap-2 mt-4">
-                  <CircleCheck className="w-4 h-4 text-green-500 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                  <span className="font-medium text-green-500">
-                    Selected: {selectedEvent.name}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT: Kiosk URL & Controls */}
-            {selectedEvent && (
-              <div className="xl:col-span-5 space-y-6">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-                    <Link2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                    Kiosk URL & Controls
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Use this URL to set up your kiosk device
-                  </CardDescription>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+                {/* LEFT: QR code (always shown) */}
+                <div className="lg:col-span-5">
+                  {qrCodeDataUrl && (
+                    <div className="text-center p-6 bg-white rounded-lg border">
+                      <h4 className="font-semibold mb-4 inline-flex items-center justify-center gap-2">
+                        <QrCode className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
+                        QR Code for Kiosk Setup
+                      </h4>
+                      <img
+                        src={qrCodeDataUrl}
+                        alt="Kiosk QR Code"
+                        className="mx-auto mb-4"
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Scan this QR code to quickly open the kiosk on a tablet or mobile device
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {/* URL Display */}
-                <div className="p-4 bg-muted rounded-lg">
-                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
-                    <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
+                {/* RIGHT: URL + controls */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
+                      <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
+                      <button
+                        onClick={handleCopyUrl}
+                        className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0 w-full lg:w-auto"
+                        aria-label="Copy kiosk URL"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                        ) : (
+                          <Copy className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                        )}
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
                     <button
-                      onClick={handleCopyUrl}
-                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0 w-full lg:w-auto"
-                      aria-label="Copy kiosk URL"
+                      onClick={handleOpenKiosk}
+                      disabled={isOpeningKiosk}
+                      aria-label="Open kiosk in a new tab"
+                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
                     >
-                      {copied ? (
-                        <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                      {isOpeningKiosk ? (
+                        <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
                       ) : (
-                        <Copy className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                        <ExternalLink className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                       )}
-                      Copy
+                      Open Kiosk
+                    </button>
+
+                    <button
+                      onClick={handleFullscreen}
+                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full"
+                    >
+                      <Maximize className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                      Launch Fullscreen
                     </button>
                   </div>
                 </div>
-
-                {/* Action Buttons: stacked vertically full-width */}
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={generateQRCode}
-                    disabled={isGeneratingQR}
-                    className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full text-white bg-[#472c1d] hover:bg-[#3a2317] transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
-                  >
-                    {isGeneratingQR ? (
-                      <LoaderCircle className="w-4 h-4 text-white animate-spin" strokeWidth={1.8} aria-hidden="true" />
-                    ) : (
-                      <QrCode className="w-4 h-4 text-white" strokeWidth={1.8} aria-hidden="true" />
-                    )}
-                    {isGeneratingQR ? 'Generating...' : 'Generate QR Code'}
-                  </button>
-
-                  <button
-                    onClick={handleOpenKiosk}
-                    disabled={isOpeningKiosk}
-                    aria-label="Open kiosk in a new tab"
-                    className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
-                  >
-                    {isOpeningKiosk ? (
-                      <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
-                    ) : (
-                      <ExternalLink className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
-                    )}
-                    Open Kiosk
-                  </button>
-
-                  <button
-                    onClick={handleFullscreen}
-                    className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full"
-                  >
-                    <Maximize className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
-                    Launch Fullscreen
-                  </button>
-                </div>
-
-                {/* QR Code Display */}
-                {qrCodeDataUrl && (
-                  <div className="text-center p-6 bg-white rounded-lg border">
-                    <h4 className="font-semibold mb-4 inline-flex items-center justify-center gap-2">
-                      <QrCode className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
-                      QR Code for Kiosk Setup
-                    </h4>
-                    <img
-                      src={qrCodeDataUrl}
-                      alt="Kiosk QR Code"
-                      className="mx-auto mb-4"
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Scan this QR code to quickly open the kiosk on a tablet or mobile device
-                    </p>
-                  </div>
-                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
