@@ -318,7 +318,19 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* THIRD: 7-Day Auto-Protection */}
+            <div className="h-full rounded-lg border border-[#472c1d] p-4 md:col-span-2 xl:col-span-1">
+              {selectedEvent ? (
+                <KioskAutoProtection eventId={selectedEvent.id} />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Choose an event above to configure 7-Day Auto-Protection.
+                </p>
+              )}
+            </div>
           </div>
+
         </CardContent>
       </Card>
 
