@@ -1850,3 +1850,47 @@ img { content-visibility: auto; }
 .ww-placecards-brown.ww-placecards-brown.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg[fill]:not([fill="none"]) {
   fill: currentColor !important;
 }
+
+/* ============================================================
+   Individual Table Charts — dark brown interface theme
+   Scoped to .ww-itc-brown; chart preview (.ww-itc-preview) untouched.
+   ============================================================ */
+.ww-itc-brown h1:not(.ww-itc-preview *),
+.ww-itc-brown h2:not(.ww-itc-preview *),
+.ww-itc-brown h3:not(.ww-itc-preview *),
+.ww-itc-brown h4:not(.ww-itc-preview *),
+.ww-itc-brown label:not(.ww-itc-preview *),
+.ww-itc-brown .text-primary:not(.ww-itc-preview *),
+.ww-itc-brown .text-foreground:not(.ww-itc-preview *),
+.ww-itc-brown .text-muted-foreground:not(.ww-itc-preview *),
+.ww-itc-brown [class*="text-[#967A59]"]:not(.ww-itc-preview *) {
+  color: #472c1d !important;
+}
+.ww-itc-brown svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-destructive"]):not([class*="text-white"]):not(.ww-itc-preview *) {
+  color: #472c1d !important;
+}
+.ww-itc-brown input:not(.ww-itc-preview *),
+.ww-itc-brown textarea:not(.ww-itc-preview *),
+.ww-itc-brown select:not(.ww-itc-preview *),
+.ww-itc-brown [role="combobox"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-primary"]:not([class*="border-green"]):not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-border"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-input"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-muted"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-[#967A59]"]:not(.ww-itc-preview *) {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #472c1d !important;
+}
+.ww-itc-brown [class*="border-green"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-red"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-amber"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-destructive"]:not(.ww-itc-preview *) {
+  border-color: inherit;
+}
+.ww-itc-brown .text-amber-600:not(.ww-itc-preview *),
+.ww-itc-brown .text-destructive:not(.ww-itc-preview *),
+.ww-itc-brown [class*="text-green"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="text-red"]:not(.ww-itc-preview *) {
+  color: inherit;
+}
