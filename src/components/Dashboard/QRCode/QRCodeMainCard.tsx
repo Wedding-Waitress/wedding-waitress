@@ -532,8 +532,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 2: Customization Panel */}
-          <div className="bg-muted/30 rounded-lg border border-primary p-3 space-y-3 overflow-y-auto min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-            <div className="lv-premium-shade bg-primary text-primary-foreground text-center py-2 px-3 rounded-md -mx-3 -mt-3">
+          <div className="rounded-lg p-3 space-y-3 overflow-y-auto min-h-[320px]">
+            <div className="lv-premium-shade bg-primary text-white text-center py-2 px-3 rounded-md -mx-3 -mt-3">
               <h3 className="text-base font-semibold">Design Your QR Code</h3>
             </div>
             {/* Accordions for Color, Shape, Logo */}
@@ -710,7 +710,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             
             {/* Reset to Default - at bottom of Design panel */}
             <div className="flex-grow" />
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4">
               <Button variant="destructive" onClick={handleResetAll} className="lv-premium-shade w-full rounded-full">
                 <RotateCcw strokeWidth={1.8} className="h-[17px] w-[17px] mr-[7px]" aria-hidden="true" />
                 Reset to Default
@@ -748,7 +748,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <div className="flex-grow" />
             
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4">
               <Button variant="destructive" onClick={handleResetQR} className="lv-premium-shade w-full rounded-full">
                 <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
                 Reset to Default
