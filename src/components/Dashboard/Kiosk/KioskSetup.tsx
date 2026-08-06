@@ -169,10 +169,10 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
           {/* Full-width divider */}
           <hr className="w-full border-t border-[#472c1d]" />
 
-          {/* Two equal boxes: Kiosk URL & Controls | Setup Instructions */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          {/* Three equal boxes: Kiosk URL & Controls | Setup Instructions | 7-Day Auto-Protection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
             {/* LEFT: Kiosk URL & Controls */}
-            <div className="h-full rounded-lg border border-[#472c1d] p-5 space-y-5">
+            <div className="h-full rounded-lg border border-[#472c1d] p-4 space-y-3">
               <div>
                 <h3 className="flex items-center gap-2 text-[20px] font-bold text-[#472c1d]">
                   <Link2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -188,52 +188,50 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                   Choose an event above to generate your kiosk link and QR code.
                 </p>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
-                  {/* QR Code */}
-                  <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-[#472c1d] text-center">
-                    <h4 className="font-semibold mb-3 inline-flex items-center justify-center gap-2">
-                      <QrCode className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  {/* QR Code — compact */}
+                  <div className="flex flex-col items-center text-center shrink-0 w-full sm:w-auto">
+                    <h4 className="text-sm font-semibold mb-2 inline-flex items-center justify-center gap-2">
+                      <QrCode className="w-[16px] h-[16px]" strokeWidth={1.8} aria-hidden="true" />
                       QR Code for Kiosk Setup
                     </h4>
                     {qrCodeDataUrl ? (
                       <img
                         src={qrCodeDataUrl}
                         alt="Kiosk QR Code"
-                        className="mx-auto mb-3 max-w-full h-auto"
+                        className="w-[132px] h-[132px] rounded-md border border-[#472c1d] bg-white"
                       />
                     ) : (
-                      <div className="w-full aspect-square max-w-[200px] flex items-center justify-center text-sm text-muted-foreground mb-3">
-                        Generating QR code...
+                      <div className="w-[132px] h-[132px] rounded-md border border-[#472c1d] flex items-center justify-center text-xs text-muted-foreground">
+                        Generating…
                       </div>
                     )}
-                    <p className="text-sm text-muted-foreground">
-                      Scan this QR code to quickly open the kiosk on a tablet or mobile device
+                    <p className="text-xs text-muted-foreground mt-2 max-w-[150px] leading-snug">
+                      Scan to open the kiosk on a tablet or mobile
                     </p>
                   </div>
 
-                  {/* URL + Actions */}
-                  <div className="flex flex-col gap-3 justify-center">
-                    <div className="p-4 bg-muted rounded-lg flex flex-col gap-3">
-                      <code className="text-sm break-all block">{kioskUrl}</code>
-                      <button
-                        onClick={handleCopyUrl}
-                        className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full"
-                        aria-label="Copy kiosk URL"
-                      >
-                        {copied ? (
-                          <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
-                        ) : (
-                          <Copy className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
-                        )}
-                        Copy
-                      </button>
-                    </div>
+                  {/* URL + Actions — compact */}
+                  <div className="flex flex-col gap-2 flex-1 min-w-0 w-full">
+                    <code className="text-xs break-all block p-2 bg-muted rounded-md">{kioskUrl}</code>
+                    <button
+                      onClick={handleCopyUrl}
+                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full"
+                      aria-label="Copy kiosk URL"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                      ) : (
+                        <Copy className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                      )}
+                      Copy
+                    </button>
 
                     <button
                       onClick={handleOpenKiosk}
                       disabled={isOpeningKiosk}
                       aria-label="Open kiosk in a new tab"
-                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
+                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
                     >
                       {isOpeningKiosk ? (
                         <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
@@ -245,7 +243,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
                     <button
                       onClick={handleFullscreen}
-                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full"
+                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full"
                     >
                       <Maximize className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                       Launch Fullscreen
@@ -254,6 +252,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
               )}
             </div>
+
 
             {/* RIGHT: Setup Instructions */}
             <div className="h-full rounded-lg border border-[#472c1d] p-5 space-y-4">
