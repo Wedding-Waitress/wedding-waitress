@@ -628,7 +628,7 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
         )}
         {tabs.length > 1 && (
-        <div className="mb-6 flex flex-nowrap w-full gap-1 rounded-full p-1 bg-black border border-white/25 overflow-hidden">
+        <div className="mb-6 flex flex-nowrap w-full gap-1 rounded-full p-1 bg-black border-2 border-white/25 overflow-hidden">
 
           {tabs.map(tab => {
             const active = current === tab;
