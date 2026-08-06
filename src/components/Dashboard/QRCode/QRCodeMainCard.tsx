@@ -797,7 +797,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 {visibilitySettings?.show_rsvp_invite && (
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="rsvp-config" className="border-0">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                         <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure RSVP Invite Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -1015,7 +1015,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 {visibilitySettings?.show_welcome_video && (
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="video-config" className="border-0">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                         <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Welcome Video Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -1153,7 +1153,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 {visibilitySettings?.show_floor_plan && (
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="floorplan-config" className="border-0">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                         <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Ceremony Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -1373,7 +1373,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 {visibilitySettings?.show_reception_floor_plan && (
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="reception-floorplan-config" className="border-0">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                         <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Reception Floor Plan Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -1599,7 +1599,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 {visibilitySettings?.show_menu && (
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="menu-config" className="border-0">
-                      <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                      <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                         <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Menu Settings</span>
                       </AccordionTrigger>
                       <AccordionContent>
@@ -1740,7 +1740,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
                 <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="hero-image-config" className="border-0">
-                    <AccordionTrigger className="text-sm py-2 hover:no-underline">
+                    <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                       <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Hero Background</span>
                     </AccordionTrigger>
                     <AccordionContent>
