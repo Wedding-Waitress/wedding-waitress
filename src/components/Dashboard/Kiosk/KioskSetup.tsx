@@ -126,12 +126,13 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             <div className="p-2 bg-primary/10 rounded-lg w-fit">
               <MonitorCog className="w-[25px] h-[25px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             </div>
-            <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3">
-              <CardTitle className="ww-kiosk-main-heading text-2xl font-bold text-foreground">Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars</CardTitle>
+            <div className="flex flex-col gap-1">
+              <CardTitle className="ww-kiosk-main-heading text-2xl font-bold text-foreground">Kiosk Live View Setup</CardTitle>
               <CardDescription className="shrink-0">
-                Configure a self-service guest lookup kiosk for your event entrance
+                Check-ins at corporate events, workshops and seminars.
               </CardDescription>
             </div>
+
           </div>
 
         </CardHeader>
