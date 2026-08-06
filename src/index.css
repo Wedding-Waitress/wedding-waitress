@@ -1978,10 +1978,7 @@ img { content-visibility: auto; }
 .ww-dietary-brown :is(input, textarea, [role="combobox"]):not(.dietary-a4-preview *) {
   border-width: 1px !important;
 }
-.ww-dietary-brown svg:not(.dietary-a4-preview *):not([class*="green"]):not([class*="text-white"]) {
+.ww-dietary-brown svg:not(.dietary-a4-preview *):not([class*="green"]):not([class*="text-white"]):not([class*="text-green"] *):not(button[class*="green"] *) {
   color: #472c1d;
 }
-.ww-dietary-brown :is(button, a) [class*="text-green"],
-.ww-dietary-brown [class*="text-green"] {
-  color: inherit;
-}
+
