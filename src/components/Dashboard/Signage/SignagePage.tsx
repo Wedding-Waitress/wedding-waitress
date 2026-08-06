@@ -476,7 +476,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   return (
     <div className="space-y-6">
       {/* Combined Header Box — mirrors Invitations exactly */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className="ww-signage-brown border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
             <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><LayoutTemplate className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Wedding Waitress Signs Studio</h1>
@@ -532,7 +532,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] gap-6">
                   <div>
-                    <p className="flex items-center gap-2 font-semibold text-primary text-base">
+                    <p className="ww-signage-guidelines-title flex items-center gap-2 font-semibold text-primary text-base">
                       <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Professional Wedding Print Guidelines
                     </p>
@@ -679,7 +679,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       {/* Editor + Preview — sibling clone of InvitationsPage */}
       {selectedEventId && settings && !settingsLoading && editorSettings && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="lg:col-span-2">
+          <div className="ww-signage-brown lg:col-span-2">
             <InvitationCardCustomizer
               settings={editorSettings}
               onSettingsChange={handleSettingsChange}
