@@ -1537,3 +1537,28 @@ img { content-visibility: auto; }
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 2px rgba(0, 0, 0, 0.12) !important;
 }
 .ww-guest-action-btn svg { color: #ffffff !important; }
+
+/* ── Edit Guest slide-out panel: brown heading, labels + 1px brown borders ── */
+.ww-edit-guest-panel :is(h2, [data-radix-dialog-title]) {
+  font-family: Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #472c1d;
+}
+.ww-edit-guest-panel :is(label, .text-sm.font-medium) {
+  color: #472c1d !important;
+}
+.ww-edit-guest-panel input,
+.ww-edit-guest-panel textarea,
+.ww-edit-guest-panel select,
+.ww-edit-guest-panel [role="combobox"],
+.ww-edit-guest-panel .border-2:not([role="switch"]),
+.ww-edit-guest-panel button:not([role="switch"]):not(.lv-premium-shade):not(.ww-emboss-green):not(.ww-emboss-red):not([data-slot="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]) {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #472c1d !important;
+}
+.ww-edit-guest-panel [role="switch"],
+.ww-edit-guest-panel [role="switch"] * {
+  border-color: transparent !important;
+}

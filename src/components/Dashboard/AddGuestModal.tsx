@@ -1050,7 +1050,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     <Sheet open={isOpen} onOpenChange={(o) => { if (!o) handleClose(); }}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+        className={cn("w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden", isEdit && "ww-edit-guest-panel")}
       >
         <SheetHeader className="px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12">
           <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center inline-flex items-center gap-2 max-lg:justify-center">
