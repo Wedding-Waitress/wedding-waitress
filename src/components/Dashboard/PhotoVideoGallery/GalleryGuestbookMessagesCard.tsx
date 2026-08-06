@@ -382,25 +382,9 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-border pb-3">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => switchTab(t.key)}
-            className={`h-10 px-4 rounded-lg text-sm font-semibold transition-colors ${
-              tab === t.key ? 'bg-[#967A59] text-white' : 'bg-muted/50 text-[#1D1D1F] hover:bg-muted'
-            }`}
-          >
-            {t.label} ({t.count})
-          </button>
-        ))}
-      </div>
-
-      {/* Shared filters */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:items-center">
-        <div className="relative flex-1 min-w-[200px]">
+      {/* Unified toolbar: search · message types · sort · status · export */}
+      <div className="flex flex-wrap items-center gap-3 py-2">
+        <div className="relative flex-1 min-w-[180px] sm:max-w-[260px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
@@ -409,15 +393,30 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             className="h-11 pl-9 text-base"
           />
         </div>
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => switchTab(t.key)}
+            aria-pressed={tab === t.key}
+            className={`h-11 px-4 rounded-md text-sm font-semibold text-white bg-[#967A59] transition-shadow ${
+              tab === t.key
+                ? 'shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)]'
+                : 'shadow-sm hover:shadow-md'
+            }`}
+          >
+            {t.label} ({t.count})
+          </button>
+        ))}
         <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-          <SelectTrigger className="h-11 w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
@@ -425,11 +424,12 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </SelectContent>
         </Select>
         {tab === 'written' && (
-          <Button variant="outline" className="lv-premium-shade h-11" onClick={exportCsv} disabled={writtenRows.length === 0}>
-            <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Export CSV
+          <Button className="ww-emboss-green h-11 text-white border-0" onClick={exportCsv} disabled={writtenRows.length === 0}>
+            <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
           </Button>
         )}
       </div>
+
 
       {selectMode && (
         <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-3">
