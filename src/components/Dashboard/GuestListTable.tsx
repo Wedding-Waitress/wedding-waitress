@@ -1947,7 +1947,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         "overflow-hidden transition-all duration-300 ease-in-out",
                         relationsHidden ? "max-h-0 opacity-0" : "max-h-[400px] opacity-100"
                       )}>
-                        <div className="flex flex-col gap-2 pt-2 border-t border-border/50">
+                        <div className="flex flex-col gap-2 pt-2 border-0 bg-transparent shadow-none">
                           {/* Option 1: Default names */}
                           <label
                             className={cn(

@@ -1079,8 +1079,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     className={cn(
                       "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
                       guestType === 'individual'
-                        ? "bg-[#ff1493] text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "bg-[#ff1493] !text-white shadow-sm"
+                        : "!text-[#472c1d] hover:opacity-80"
                     )}
                   >
                     Individual
@@ -1096,8 +1096,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     className={cn(
                       "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
                       guestType === 'couple'
-                        ? "bg-[#FF5F1F] text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "bg-[#FF5F1F] !text-white shadow-sm"
+                        : "!text-[#472c1d] hover:opacity-80"
                     )}
                   >
                     Couple
@@ -1108,8 +1108,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     className={cn(
                       "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
                       guestType === 'family'
-                        ? "bg-[#0000FF] text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "bg-[#0000FF] !text-white shadow-sm"
+                        : "!text-[#472c1d] hover:opacity-80"
                     )}
                   >
                     Family
