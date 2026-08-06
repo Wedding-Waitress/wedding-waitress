@@ -126,12 +126,13 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             <div className="p-2 bg-primary/10 rounded-lg w-fit">
               <MonitorCog className="w-[25px] h-[25px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             </div>
-            <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3">
-              <CardTitle className="ww-kiosk-main-heading text-2xl font-bold text-foreground">Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars</CardTitle>
+            <div className="flex flex-col gap-1">
+              <CardTitle className="ww-kiosk-main-heading text-2xl font-bold text-foreground">Kiosk Live View Setup</CardTitle>
               <CardDescription className="shrink-0">
-                Configure a self-service guest lookup kiosk for your event entrance
+                Check-ins at corporate events, workshops and seminars.
               </CardDescription>
             </div>
+
           </div>
 
         </CardHeader>
@@ -169,8 +170,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
           {/* Full-width divider */}
           <hr className="w-full border-t border-[#472c1d]" />
 
-          {selectedEvent && (
-            <div className="space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* LEFT BOX: Kiosk URL & Controls */}
+            <div className="h-full rounded-xl border border-[#472c1d] p-6 space-y-5">
               <div>
                 <h3 className="flex items-center gap-2 text-[20px] font-bold text-[#472c1d]">
                   <Link2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -181,9 +183,8 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </CardDescription>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-                {/* LEFT: QR code (always shown) */}
-                <div className="lg:col-span-5">
+              {selectedEvent ? (
+                <div className="space-y-6">
                   {qrCodeDataUrl && (
                     <div className="text-center p-6 bg-white rounded-lg border">
                       <h4 className="font-semibold mb-4 inline-flex items-center justify-center gap-2">
@@ -200,10 +201,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                       </p>
                     </div>
                   )}
-                </div>
 
-                {/* RIGHT: URL + controls */}
-                <div className="lg:col-span-7 space-y-6">
                   <div className="p-4 bg-muted rounded-lg">
                     <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
                       <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
@@ -246,82 +244,81 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                     </button>
                   </div>
                 </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Choose an event above to generate your kiosk link and QR code.</p>
+              )}
+            </div>
+
+            {/* RIGHT BOX: Setup Instructions */}
+            <div className="h-full rounded-xl border border-[#472c1d] p-6 space-y-5">
+              <h3 className="flex items-center gap-2 text-[20px] font-bold text-[#472c1d]">
+                <TabletSmartphone className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Setup Instructions
+              </h3>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="mt-1">1</Badge>
+                  <MonitorSmartphone className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                  <p className="text-sm">
+                    <strong>Choose your device:</strong> Use a tablet, laptop, or desktop computer for the kiosk
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="mt-1">2</Badge>
+                  <Link2 className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                  <p className="text-sm">
+                    <strong>Open the kiosk URL:</strong> Navigate to the kiosk URL on your chosen device
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="mt-1">3</Badge>
+                  <Maximize className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                  <p className="text-sm">
+                    <strong>Go fullscreen:</strong> Use the "Launch Fullscreen" button or press F11 on desktop
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="mt-1">4</Badge>
+                  <MapPin className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                  <p className="text-sm">
+                    <strong>Position the device:</strong> Place the device at your event entrance where guests can easily access it
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Badge variant="outline" className="mt-1">5</Badge>
+                  <SearchCheck className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
+                  <p className="text-sm">
+                    <strong>Test the interface:</strong> Try searching for a few guest names to ensure everything works properly
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-[#FAF6F0] rounded-lg border border-primary/30">
+                <div className="flex items-start gap-2">
+                  <Info className="w-[18px] h-[18px] text-primary mt-0.5 flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-1">Pro Tips:</p>
+                    <ul className="text-sm text-foreground/80 space-y-1">
+                      <li>• The kiosk automatically clears searches after 30 seconds of inactivity</li>
+                      <li>• Use landscape orientation for tablets for the best experience</li>
+                      <li>• Ensure the device has a stable internet connection</li>
+                      <li>• Consider adding a sign explaining how to use the kiosk</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
       {/* Guest Live View Configuration */}
       {selectedEvent && <KioskLiveViewConfig eventId={selectedEvent.id} />}
-
-      {/* Setup Instructions */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-            <TabletSmartphone className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            Setup Instructions
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <Badge variant="outline" className="mt-1">1</Badge>
-              <MonitorSmartphone className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
-              <p className="text-sm">
-                <strong>Choose your device:</strong> Use a tablet, laptop, or desktop computer for the kiosk
-              </p>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <Badge variant="outline" className="mt-1">2</Badge>
-              <Link2 className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
-              <p className="text-sm">
-                <strong>Open the kiosk URL:</strong> Navigate to the kiosk URL on your chosen device
-              </p>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <Badge variant="outline" className="mt-1">3</Badge>
-              <Maximize className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
-              <p className="text-sm">
-                <strong>Go fullscreen:</strong> Use the "Launch Fullscreen" button or press F11 on desktop
-              </p>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <Badge variant="outline" className="mt-1">4</Badge>
-              <MapPin className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
-              <p className="text-sm">
-                <strong>Position the device:</strong> Place the device at your event entrance where guests can easily access it
-              </p>
-            </div>
-            
-            <div className="flex items-start gap-3">
-              <Badge variant="outline" className="mt-1">5</Badge>
-              <SearchCheck className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
-              <p className="text-sm">
-                <strong>Test the interface:</strong> Try searching for a few guest names to ensure everything works properly
-              </p>
-            </div>
-          </div>
-
-          <div className="p-4 bg-[#FAF6F0] rounded-lg border border-primary/30">
-            <div className="flex items-start gap-2">
-              <Info className="w-[18px] h-[18px] text-primary mt-0.5 flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
-              <div>
-                <p className="text-sm font-medium text-foreground mb-1">Pro Tips:</p>
-                <ul className="text-sm text-foreground/80 space-y-1">
-                  <li>• The kiosk automatically clears searches after 30 seconds of inactivity</li>
-                  <li>• Use landscape orientation for tablets for the best experience</li>
-                  <li>• Ensure the device has a stable internet connection</li>
-                  <li>• Consider adding a sign explaining how to use the kiosk</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
