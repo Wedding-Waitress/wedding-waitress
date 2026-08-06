@@ -748,7 +748,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <div className="flex-grow" />
             
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
-            <div className="pt-4 border-t border-border">
+            <div className="pt-4">
               <Button variant="destructive" onClick={handleResetQR} className="lv-premium-shade w-full rounded-full">
                 <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
                 Reset to Default
