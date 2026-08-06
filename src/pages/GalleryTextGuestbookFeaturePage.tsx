@@ -110,23 +110,8 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
               <GalleryTextGuestbookAccessCard meta={meta} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GalleryDownloadsCard
-                privacyScope="guestbook"
-                items={recordings}
-                eventName={(selectedEvent as any)?.name}
-                galleryTitle={meta.gallery_title}
-                scopes={['all', 'approved']}
-                labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
-                title="Download Guestbook Messages"
-                description="Save your guests' original recordings as a ZIP archive."
-                filePrefix="voice-messages"
-                emptyText="No recordings to download yet."
-                layout="vertical"
-                className="h-auto"
-              />
-              <GalleryVoiceSettingsCard meta={meta} />
-            </div>
+
+
 
             <GalleryGuestbookMessagesCard
               eventId={selectedEventId}
