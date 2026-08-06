@@ -274,7 +274,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="design" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 h-auto gap-1 p-1 lg:grid-cols-5">
+            <TabsList className="ww-seg-tabs w-full">
               <TabsTrigger value="design" className="gap-1.5">
                 <Palette size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 Design
