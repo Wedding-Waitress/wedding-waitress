@@ -954,6 +954,27 @@ html {
   background: #84684B;
 }
 
+/* SMS Credits Remaining — Top-Up Credits statistic pill (Guest List) */
+.ww-sms-topup-stat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  background-color: #967A59;
+  color: #ffffff;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  border: none;
+  box-shadow: none;
+}
+
+
 /* Place card boundary warning pulse */
 @keyframes boundary-pulse {
   0%, 100% { box-shadow: 0 0 4px 1px hsla(0, 84%, 60%, 0.4); }
