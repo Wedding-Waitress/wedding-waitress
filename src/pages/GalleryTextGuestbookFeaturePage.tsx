@@ -1,5 +1,5 @@
 // Feature workspace: Digital Guestbook (unified — written, audio and video messages)
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents } from '@/hooks/useEvents';
@@ -11,9 +11,6 @@ import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery
 import { GalleryTextGuestbookAccessCard, buildTextGuestbookUrl } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookAccessCard';
 import { GalleryTextGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookStepsCard';
 import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
-import { GalleryVoiceSettingsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceSettingsCard';
-import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
-import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
@@ -41,8 +38,6 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
   const guestUrl = buildTextGuestbookUrl(meta?.primary_token ?? null);
 
-  // Recordings only — text-only guestbook messages are never included in downloads.
-  const recordings = useMemo(() => guestbookRecordings(items), [items]);
 
   const handleToggle = async (v: boolean) => {
     setSaving(true);
@@ -110,23 +105,8 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
               <GalleryTextGuestbookAccessCard meta={meta} />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GalleryDownloadsCard
-                privacyScope="guestbook"
-                items={recordings}
-                eventName={(selectedEvent as any)?.name}
-                galleryTitle={meta.gallery_title}
-                scopes={['all', 'approved']}
-                labels={{ all: 'Download All Guestbook Messages', approved: 'Download Approved Guestbook Messages' }}
-                title="Download Guestbook Messages"
-                description="Save your guests' original recordings as a ZIP archive."
-                filePrefix="voice-messages"
-                emptyText="No recordings to download yet."
-                layout="vertical"
-                className="h-auto"
-              />
-              <GalleryVoiceSettingsCard meta={meta} />
-            </div>
+
+
 
             <GalleryGuestbookMessagesCard
               eventId={selectedEventId}

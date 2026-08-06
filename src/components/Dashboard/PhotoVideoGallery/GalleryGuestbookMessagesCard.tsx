@@ -18,6 +18,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
+import { GuestbookDownloadAllButton } from './GuestbookDownloadAllButton';
+
 import { guestbookCsvFilename, guestbookMessageFilename, guestbookMessageTxt, guestbookSeqLabel } from '@/lib/guestbookFilename';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 
@@ -382,9 +384,9 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Unified toolbar: search · message types · sort · status · export */}
-      <div className="flex flex-wrap items-center gap-3 py-2">
-        <div className="relative flex-1 min-w-[180px] sm:max-w-[260px]">
+      {/* Row 1: search (left) · downloads + export (right) */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[220px] lg:max-w-[520px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
@@ -393,6 +395,18 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             className="h-11 pl-9 text-base"
           />
         </div>
+        <div className="flex flex-wrap items-center gap-3 lg:ml-auto">
+          <GuestbookDownloadAllButton items={recordings} eventName={eventName} />
+          {tab === 'written' && (
+            <Button className="ww-emboss-green ww-emboss-green-soft h-11 text-white border-0" onClick={exportCsv} disabled={writtenRows.length === 0}>
+              <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Row 2: message types (left) · sort + status (right) */}
+      <div className="flex flex-wrap items-center gap-3">
         {TABS.map(t => (
           <button
             key={t.key}
@@ -401,34 +415,32 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             aria-pressed={tab === t.key}
             className={`h-11 px-4 rounded-md text-sm font-semibold text-white bg-[#967A59] transition-shadow ${
               tab === t.key
-                ? 'shadow-[inset_0_2px_4px_rgba(0,0,0,0.35)]'
-                : 'shadow-sm hover:shadow-md'
+                ? 'shadow-[inset_0_2px_5px_rgba(0,0,0,0.28)]'
+                : 'shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]'
             }`}
           >
             {t.label} ({t.count})
           </button>
         ))}
-        <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-          <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest first</SelectItem>
-            <SelectItem value="oldest">Oldest first</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-          <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="hidden">Hidden</SelectItem>
-          </SelectContent>
-        </Select>
-        {tab === 'written' && (
-          <Button className="ww-emboss-green h-11 text-white border-0" onClick={exportCsv} disabled={writtenRows.length === 0}>
-            <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-3 lg:ml-auto">
+          <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
+            <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest first</SelectItem>
+              <SelectItem value="oldest">Oldest first</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
+            <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="hidden">Hidden</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+
 
 
       {selectMode && (
