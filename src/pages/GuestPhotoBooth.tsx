@@ -793,7 +793,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   <Button
                     type="button"
                     variant="outline"
-                    className="lv-premium-shade flex-1 h-11 text-base"
+                    className="lv-premium-shade flex-1 h-11 text-base border-2 border-[#967A59] text-foreground"
                     onClick={retake}
                     disabled={phase === 'saving'}
                   >
@@ -802,7 +802,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   <Button
                     type="button"
                     variant="ghost"
-                    className="flex-1 h-11 text-base"
+                    className="ww-emboss-red flex-1 h-11 text-base text-white hover:text-white"
                     onClick={cancel}
                     disabled={phase === 'saving'}
                   >
