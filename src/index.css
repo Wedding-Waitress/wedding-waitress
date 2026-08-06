@@ -1653,3 +1653,20 @@ img { content-visibility: auto; }
   border: 1px solid #472c1d !important;
 }
 .ww-signage-brown .ww-signage-preset-zones button svg { color: #472c1d !important; }
+
+/* Delete Text Zone buttons (Seating Chart Signs + Invitations & Cards) */
+.ww-zone-delete-btn,
+.ww-signage-brown .ww-zone-delete-btn {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: hsl(var(--destructive)) !important;
+}
+.ww-zone-delete-btn:hover,
+.ww-signage-brown .ww-zone-delete-btn:hover {
+  background-color: hsl(var(--destructive) / 0.9) !important;
+}
+.ww-zone-delete-btn svg,
+.ww-signage-brown .ww-zone-delete-btn svg {
+  color: #ffffff !important;
+}
