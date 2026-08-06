@@ -477,9 +477,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   size="sm" 
                                   onClick={() => handleEdit(event)} 
                                   aria-label="Edit event"
-                                  className="text-green-500 hover:text-green-500"
+                                  className="ww-emboss-green ww-emboss-green-soft !border-0 text-white hover:text-white"
                                 >
-                                  <Pencil size={17} strokeWidth={1.8} aria-hidden="true" />
+                                  <Pencil size={17} strokeWidth={1.8} className="text-white" aria-hidden="true" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -494,10 +494,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   size="sm" 
                                   onClick={() => handleDeleteClick(event)} 
                                   aria-label="Delete event"
-                                  className="text-red-500 hover:text-red-600"
+                                  className="ww-emboss-red !border-0 text-white hover:text-white"
                                 >
-                                  <Trash2 size={17} strokeWidth={1.8} aria-hidden="true" />
+                                  <Trash2 size={17} strokeWidth={1.8} className="text-white" aria-hidden="true" />
                                 </Button>
+
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>Delete event</p>
