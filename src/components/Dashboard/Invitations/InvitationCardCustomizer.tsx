@@ -333,11 +333,11 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="text-zones" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4 max-sm:grid-cols-2 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
-              <TabsTrigger value="text-zones" className="max-sm:w-full gap-1.5"><Type className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Text Zones</TabsTrigger>
-              <TabsTrigger value="background" className="max-sm:w-full gap-1.5"><Image className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Background</TabsTrigger>
-              <TabsTrigger value="qr-code" className="max-sm:w-full gap-1.5"><QrCode className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Add QR Code</TabsTrigger>
-              <TabsTrigger value="messages" className="max-sm:w-full gap-1.5"><MessageSquareText className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Messages</TabsTrigger>
+            <TabsList className="ww-seg-tabs w-full">
+              <TabsTrigger value="text-zones"><Type className="shrink-0" strokeWidth={1.8} aria-hidden="true" />Text Zones</TabsTrigger>
+              <TabsTrigger value="background"><Image className="shrink-0" strokeWidth={1.8} aria-hidden="true" />Background</TabsTrigger>
+              <TabsTrigger value="qr-code"><QrCode className="shrink-0" strokeWidth={1.8} aria-hidden="true" />Add QR Code</TabsTrigger>
+              <TabsTrigger value="messages"><MessageSquareText className="shrink-0" strokeWidth={1.8} aria-hidden="true" />Messages</TabsTrigger>
             </TabsList>
 
             {/* TEXT ZONES TAB */}
