@@ -1352,3 +1352,43 @@ img { content-visibility: auto; }
 .ww-brown-outline-core svg {
   border-color: transparent !important;
 }
+
+/* ---------------------------------------------------------------
+   Solid black supporting text on core organiser pages.
+   Applied via .ww-solid-text (see Dashboard.tsx). Turns faded grey
+   subheadings / descriptions / helper text into solid black, while
+   leaving placeholders, disabled controls, badges, status colours
+   and light-on-dark text untouched.
+   --------------------------------------------------------------- */
+.ww-solid-text
+  :is(
+    [class*="text-muted-foreground"],
+    [class*="text-gray-400"],
+    [class*="text-gray-500"],
+    [class*="text-gray-600"],
+    [class*="text-slate-400"],
+    [class*="text-slate-500"],
+    [class*="text-slate-600"],
+    [class*="text-neutral-400"],
+    [class*="text-neutral-500"],
+    [class*="6E6E73"],
+    [class*="8E8E93"]
+  ):not(:disabled):not([aria-disabled="true"]):not([data-disabled]):not([class*="badge"]):not(time):not([class*="text-white"]):not(
+    [class*="bg-[#472c1d]"] *
+  ):not(
+    [class*="bg-[#967A59]"] *
+  ):not(
+    [disabled] *
+  ):not(
+    [aria-disabled="true"] *
+  ):not(
+    [data-disabled] *
+  ) {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+.ww-solid-text ::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 1;
+}
