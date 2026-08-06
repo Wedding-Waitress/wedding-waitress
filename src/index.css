@@ -1982,3 +1982,63 @@ img { content-visibility: auto; }
   color: #472c1d;
 }
 
+
+/* ============================================================
+   Kiosk Live View page — dark brown (#472c1d) theme.
+   Scoped via .ww-kiosk-brown (see Dashboard.tsx). Green buttons,
+   green toggles and status colours are untouched.
+   ============================================================ */
+.ww-kiosk-brown .ww-kiosk-main-heading {
+  font-size: 24px !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+  color: #472c1d !important;
+}
+
+/* Headings, feature titles, labels, icons and brown accents */
+.ww-kiosk-brown :is(h1, h2, h3, h4, label, strong, code),
+.ww-kiosk-brown [class*="text-[#856A4C]"],
+.ww-kiosk-brown [class*="text-[#967A59]"],
+.ww-kiosk-brown [class*="text-primary"]:not([class*="text-primary-foreground"]):not([class*="bg-"]) {
+  color: #472c1d !important;
+}
+.ww-kiosk-brown :is([class*="text-[#856A4C]"], [class*="text-[#967A59]"], [class*="text-primary"]:not([class*="bg-"])) svg,
+.ww-kiosk-brown :is(h1, h2, h3, h4, label) svg {
+  color: #472c1d !important;
+}
+
+/* Neutral / light-brown borders → 1px solid #472c1d */
+.ww-kiosk-brown [class*="border-primary"],
+.ww-kiosk-brown [class*="border-[#856A4C]"],
+.ww-kiosk-brown [class*="border-[#967A59]"]:not([role="switch"]):not([data-state]),
+.ww-kiosk-brown [class*="border-border"],
+.ww-kiosk-brown [class*="border-muted"] {
+  border-color: #472c1d !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+.ww-kiosk-brown [class*="border-dashed"] {
+  border-style: dashed !important;
+}
+/* Keep green-outlined and green/red status controls exactly as-is */
+.ww-kiosk-brown [class*="border-green"],
+.ww-kiosk-brown [class*="bg-green"],
+.ww-kiosk-brown [role="switch"],
+.ww-kiosk-brown [role="switch"] * {
+  border-color: initial;
+}
+.ww-kiosk-brown [class*="border-green"] {
+  border-color: rgb(34 197 94) !important;
+  border-width: 2px !important;
+}
+.ww-kiosk-brown :is([class*="text-green"], [class*="text-red"], [class*="text-white"]),
+.ww-kiosk-brown :is([class*="text-green"], [class*="text-red"], [class*="text-white"]) svg,
+.ww-kiosk-brown [class*="bg-green"] :is(svg, span),
+.ww-kiosk-brown [class*="bg-[#472c1d]"] :is(svg, span, strong) {
+  color: inherit !important;
+}
+.ww-kiosk-brown [class*="text-green-500"] { color: rgb(34 197 94) !important; }
+.ww-kiosk-brown [class*="text-green-600"] { color: rgb(22 163 74) !important; }
+.ww-kiosk-brown [class*="text-red-500"] { color: rgb(239 68 68) !important; }
+.ww-kiosk-brown [class*="text-white"], .ww-kiosk-brown [class*="text-white"] svg { color: #ffffff !important; }
+.ww-kiosk-brown .bg-\[\#472c1d\] { color: #ffffff !important; }

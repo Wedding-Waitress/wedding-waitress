@@ -135,7 +135,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               <MonitorCog className="w-[25px] h-[25px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-foreground">Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars</CardTitle>
+              <CardTitle className="ww-kiosk-main-heading text-2xl font-bold text-foreground">Kiosk Live View Setup - This is for check-ins at corporate events, workshops, and seminars</CardTitle>
               <CardDescription>
                 Configure a self-service guest lookup kiosk for your event entrance
               </CardDescription>
@@ -239,7 +239,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 <button
                   onClick={generateQRCode}
                   disabled={isGeneratingQR}
-                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full text-white bg-[#967A59] hover:bg-[#856A4C] transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
+                  className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-4 text-base font-medium rounded-full text-white bg-[#472c1d] hover:bg-[#3a2317] transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
                 >
                   {isGeneratingQR ? (
                     <LoaderCircle className="w-4 h-4 text-white animate-spin" strokeWidth={1.8} aria-hidden="true" />
