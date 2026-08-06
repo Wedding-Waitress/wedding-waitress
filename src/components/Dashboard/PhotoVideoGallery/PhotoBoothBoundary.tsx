@@ -21,7 +21,7 @@ interface State {
   hasError: boolean;
 }
 
-class PhotoBoothErrorBoundaryInner extends React.Component<Props & { onRetry: () => void }, State> {
+class PhotoBoothErrorBoundaryInner extends React.Component<{ accent: string; children: React.ReactNode; onRetry: () => void }, State> {
   state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
