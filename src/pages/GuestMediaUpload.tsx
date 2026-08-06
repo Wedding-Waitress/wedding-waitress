@@ -370,7 +370,7 @@ export const GuestMediaUpload: React.FC = () => {
           </p>
 
           {success > 0 && (
-            <div className={`mt-5 rounded-xl border p-3.5 flex items-center justify-center gap-2 text-sm ${theme.isDark ? 'border-white/15 bg-white/5 text-white/80' : 'border-[#E0D3B8] bg-[#FBF7EE] text-[#7A5E3A]'}`}>
+            <div className={`mt-5 rounded-xl border-2 p-3.5 flex items-center justify-center gap-2 text-sm ${theme.isDark ? 'border-white/15 bg-white/5 text-white/80' : 'border-[#967A59] bg-[#FBF7EE] text-[#7A5E3A]'}`}>
               <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
               <span><span className="font-semibold">{success}</span> {fileWord(success)} uploaded successfully</span>
             </div>
