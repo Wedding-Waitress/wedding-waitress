@@ -397,7 +397,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           onClick={() => removeZone(zone.id)}
                           aria-label="Delete text zone"
                           title="Delete text zone"
-                          className="!border-0 !outline-none !shadow-none !ring-0 bg-destructive hover:bg-destructive/90"
+                          className="ww-zone-delete-btn !border-0 !outline-none !shadow-none !ring-0 bg-destructive hover:bg-destructive/90"
                         >
                           <Trash2 className="h-4 w-4 !text-white" strokeWidth={1.8} aria-hidden="true" />
                         </Button>
