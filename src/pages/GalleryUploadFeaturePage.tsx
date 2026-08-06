@@ -87,7 +87,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
           </Card>
         ) : (
           <div className="space-y-6 sm:space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[3fr_3fr_2fr] gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr] gap-6 items-stretch">
             <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
             <GalleryUsageCard meta={meta} items={publicItems} />
             <GalleryDownloadsCard

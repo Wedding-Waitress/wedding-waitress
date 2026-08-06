@@ -95,11 +95,12 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items }) => {
           warn={storageWarn}
           sub={`${formatBytes(remainingBytes)} remaining`}
         />
-        <div className="flex items-center justify-between pt-1 border-t border-border text-sm">
-          <span className="flex items-center gap-2 font-medium text-foreground">
-            <UsersRound className="h-4 w-4 text-[#967A59]" /> Guests who uploaded
-          </span>
-          <span className="text-foreground font-medium tabular-nums">{usage.guests}</span>
+        <div className="flex justify-center pt-1 border-t border-border">
+          <div className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#472c1d] bg-white px-4 py-2.5 text-sm select-none" aria-label={`${usage.guests} guests uploaded`}>
+            <UsersRound className="h-4 w-4 text-[#967A59] shrink-0" aria-hidden="true" />
+            <span className="font-medium text-foreground">Guests who uploaded</span>
+            <span className="text-foreground font-medium tabular-nums">{usage.guests}</span>
+          </div>
         </div>
       </div>
     </Card>
