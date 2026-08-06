@@ -617,7 +617,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           </div>
 
           {/* A4 Page Display (Right - 3 columns) */}
-          <div className="lg:col-span-3 print:hidden">
+          <div className="lg:col-span-3 print:hidden dietary-a4-preview">
             {(guestsLoading || tablesLoading || settingsLoading) ? (
               <Card className="ww-box">
                 <CardContent className="p-6">
