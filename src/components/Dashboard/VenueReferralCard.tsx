@@ -52,9 +52,9 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
               Invite My Venue
             </Button>
             <Button
-              variant="ghost"
+              variant="secondary"
               onClick={() => onDismiss(event.id, 14)}
-              className="h-11 rounded-full text-foreground hover:bg-[#E8E1D6] w-full lg:w-auto px-4 border border-[#472c1d] bg-[#F0EBE3]"
+              className="h-11 rounded-full text-secondary-foreground hover:bg-[#E8E1D6] w-full lg:w-auto px-4 border border-[#472c1d]"
               style={{
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65), 0 1px 0 rgba(255,255,255,0.35)',
               }}
