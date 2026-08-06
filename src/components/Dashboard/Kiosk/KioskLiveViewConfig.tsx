@@ -176,7 +176,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
           Configure which modules your guests can access on the kiosk live view.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch auto-rows-fr">
           {(() => {
             const renderTile = (tile: ModuleTile) => {
               const enabled = !!(visibility as any)?.[tile.visKey];
