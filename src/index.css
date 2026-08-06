@@ -1780,3 +1780,57 @@ img { content-visibility: auto; }
 .ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg {
   color: #ffffff !important;
 }
+
+/* ===== Apple-style segmented designer tabs (Signage / Invitations / Place Cards) ===== */
+.ww-seg-tabs[role="tablist"] {
+  display: flex !important;
+  width: 100%;
+  gap: 4px;
+  padding: 4px;
+  height: auto !important;
+  background-color: #FBF7F0 !important;
+  border: 1px solid #472c1d !important;
+  border-radius: 9999px !important;
+  overflow: hidden;
+}
+.ww-seg-tabs[role="tablist"] > [role="tab"] {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 8px 4px !important;
+  border-radius: 9999px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  color: #472c1d !important;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  transition: background-color 220ms ease, color 220ms ease, transform 220ms ease;
+}
+.ww-seg-tabs[role="tablist"] > [role="tab"] svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 1.8 !important;
+  color: #472c1d !important;
+}
+.ww-seg-tabs[role="tablist"] > [role="tab"]:hover {
+  background-color: rgba(71, 44, 29, 0.07) !important;
+}
+.ww-seg-tabs[role="tablist"] > [role="tab"][data-state="active"] {
+  background-color: #472c1d !important;
+  color: #ffffff !important;
+}
+.ww-seg-tabs[role="tablist"] > [role="tab"][data-state="active"] svg {
+  color: #ffffff !important;
+}
+@media (max-width: 480px) {
+  .ww-seg-tabs[role="tablist"] > [role="tab"] { font-size: 10.5px; padding: 8px 2px !important; }
+  .ww-seg-tabs[role="tablist"] > [role="tab"] svg { width: 16px !important; height: 16px !important; }
+}
