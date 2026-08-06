@@ -688,7 +688,10 @@ export const GuestMediaUpload: React.FC = () => {
 
         {current === 'booth' && token && (
           <PhotoBoothBoundary accent={accent}>
-            <GuestPhotoBooth tokenProp={token} embedded onSaved={() => setGalleryRefresh(n => n + 1)} />
+            {(attempt) => {
+              const LazyPhotoBooth = getPhotoBoothLazy(attempt);
+              return <LazyPhotoBooth tokenProp={token} embedded onSaved={() => setGalleryRefresh(n => n + 1)} />;
+            }}
           </PhotoBoothBoundary>
         )}
 
