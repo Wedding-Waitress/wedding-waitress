@@ -18,6 +18,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
+import { GuestbookDownloadAllButton } from './GuestbookDownloadAllButton';
+
 import { guestbookCsvFilename, guestbookMessageFilename, guestbookMessageTxt, guestbookSeqLabel } from '@/lib/guestbookFilename';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 
