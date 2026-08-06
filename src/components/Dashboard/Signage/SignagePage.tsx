@@ -156,16 +156,6 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     (settings as any)?.background_image_preview_url ?? null,
   );
 
-  useEffect(() => {
-    if (!lightweightBgUrl) return;
-    fetch(lightweightBgUrl, { method: 'HEAD' })
-      .then((res) => {
-        const size = res.headers.get('content-length');
-        console.log(`Editor preview image size: ${size} bytes`);
-      })
-      .catch(() => {});
-  }, [lightweightBgUrl]);
-
   // Editor-facing settings: identical to asInvitationSettings but with the
   // background image swapped for the lightweight version.
   const editorSettings = useMemo(() => {
