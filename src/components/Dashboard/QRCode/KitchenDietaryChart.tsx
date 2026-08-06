@@ -470,17 +470,17 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         }
       `}</style>
       
-      <div className="space-y-6 kitchen-dietary-chart">
+      <div className="space-y-6 kitchen-dietary-chart ww-dietary-brown">
         {/* Header Card - Matching Full Seating Chart layout */}
-        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
+        <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
           <CardHeader className="space-y-4">
             {/* Top row: Icon, Title, and Event Name */}
             <div className="flex items-center justify-between">
               {/* Header Icon & Info */}
               <div className="flex items-center gap-2">
-                <ChefHat className="w-[25px] h-[25px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                <ChefHat className="w-[25px] h-[25px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 <div>
-                  <CardTitle className="text-left text-2xl font-bold text-foreground">Kitchen Dietary Requirements</CardTitle>
+                  <CardTitle className="dietary-main-heading text-left text-2xl font-bold text-[#472c1d]">Kitchen Dietary Requirements</CardTitle>
                   <CardDescription className="text-left">
                     Staff reference sheet for guests with dietary requirements and allergies
                   </CardDescription>
