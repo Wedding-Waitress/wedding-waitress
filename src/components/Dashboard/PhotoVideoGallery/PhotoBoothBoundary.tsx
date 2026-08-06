@@ -12,7 +12,9 @@ import { Button } from '@/components/ui/button';
  */
 interface Props {
   accent: string;
-  children: React.ReactNode;
+  /** Either static children, or a render function receiving the current retry attempt so the
+   *  caller can rebuild a fresh React.lazy() (React caches rejected lazy promises forever). */
+  children: React.ReactNode | ((attempt: number) => React.ReactNode);
 }
 
 interface State {
