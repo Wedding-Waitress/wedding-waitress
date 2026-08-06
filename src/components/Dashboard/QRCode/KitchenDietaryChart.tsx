@@ -498,7 +498,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     Choose Event:
                   </label>
                   <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-full sm:w-[300px] max-lg:w-full border-primary focus:ring-primary font-bold text-[#967A59]">
+                    <SelectTrigger className="w-full sm:w-[300px] max-lg:w-full border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]">
                       <SelectValue placeholder="Choose Event" />
                     </SelectTrigger>
                     <SelectContent className="bg-popover border-border z-50">
@@ -523,7 +523,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   <>
                     <Badge 
                       variant="outline"
-                      className="ml-4 bg-white border-primary text-primary rounded-full"
+                      className="ml-4 bg-white border border-[#472c1d] text-[#472c1d] rounded-full"
                     >
                       <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       <span className="ml-1.5">
@@ -532,7 +532,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     </Badge>
                     <Badge 
                       variant="outline"
-                      className="bg-white border-primary text-primary rounded-full"
+                      className="bg-white border border-[#472c1d] text-[#472c1d] rounded-full"
                     >
                       {isDataReady ? (
                         <CircleCheck className="w-[15px] h-[15px] shrink-0 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
@@ -547,7 +547,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
               {/* Export Controls */}
               {currentEvent && dietaryGuests.length > 0 && (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-lg:w-full">
+                <div className="border border-[#472c1d] rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-lg:w-full">
+
                   <div className="flex items-center max-lg:flex-col max-lg:items-start max-lg:gap-1">
                     <span className="font-bold text-sm inline-flex items-center gap-1.5">
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -617,7 +618,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           </div>
 
           {/* A4 Page Display (Right - 3 columns) */}
-          <div className="lg:col-span-3 print:hidden">
+          <div className="lg:col-span-3 print:hidden dietary-a4-preview">
             {(guestsLoading || tablesLoading || settingsLoading) ? (
               <Card className="ww-box">
                 <CardContent className="p-6">

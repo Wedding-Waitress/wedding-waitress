@@ -1952,3 +1952,33 @@ img { content-visibility: auto; }
 .ww-floorplan-brown [data-orientation="horizontal"] > span:first-child > span {
   background-color: #472c1d !important;
 }
+
+/* ===== Dietary Requirements page — dark brown theme (scoped) ===== */
+.ww-dietary-brown .dietary-main-heading {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: #472c1d !important;
+}
+.ww-dietary-brown :is(h1, h2, h3, h4, label, .dashboard-section-title):not(.dietary-a4-preview *) {
+  color: #472c1d !important;
+}
+.ww-dietary-brown p:not(.dietary-a4-preview *),
+.ww-dietary-brown span:not(.dietary-a4-preview *):not([class*="green"]) {
+  color: inherit;
+}
+.ww-dietary-brown [data-slot="card-description"]:not(.dietary-a4-preview *),
+.ww-dietary-brown .text-muted-foreground:not(.dietary-a4-preview *) {
+  color: #472c1d !important;
+}
+/* Neutral borders -> 1px solid brown, excluding preview and green controls */
+.ww-dietary-brown :is([class*="border"], input, textarea, [role="combobox"], button[role="combobox"]):not(.dietary-a4-preview *):not([class*="green"]):not([class*="border-green"]):not([data-state="checked"]) {
+  border-color: #472c1d !important;
+}
+.ww-dietary-brown :is(input, textarea, [role="combobox"]):not(.dietary-a4-preview *) {
+  border-width: 1px !important;
+}
+.ww-dietary-brown svg:not(.dietary-a4-preview *):not([class*="green"]):not([class*="text-white"]):not([class*="text-green"] *):not(button[class*="green"] *) {
+  color: #472c1d;
+}
+
