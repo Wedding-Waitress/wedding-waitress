@@ -266,27 +266,13 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
             </div>
           </div>
         </div>
-        <Button
-          size="sm"
-          onClick={() => startTopup(eventId)}
-          disabled={ctaDisabled || health.state === 'unactivated'}
-          className={cn(
-            'lv-premium-shade rounded-full h-9 px-4 text-xs',
-            ctaDisabled && 'pointer-events-none opacity-80',
-          )}
+        <div
+          className="inline-flex items-center gap-1.5 h-9 px-4 text-xs font-medium rounded-full border-none shadow-none ww-sms-topup-stat"
+          aria-label={`Top-Up Credits +${SMS_TOPUP.credits}`}
         >
-          {ctaDisabled ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Starting checkout…
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5">
-              <CreditCard size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-              {`Top Up Credits +${SMS_TOPUP.credits}`}
-            </span>
-          )}
-        </Button>
+          <CreditCard size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+          {`Top-Up Credits +${SMS_TOPUP.credits}`}
+        </div>
       </div>
     </Card>
   );
