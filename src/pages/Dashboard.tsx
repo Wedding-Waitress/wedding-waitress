@@ -81,6 +81,26 @@ import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 
+/* Organiser pages that use the standardised 1px #472c1d neutral border pass.
+   Photo & Video Sharing and its workspaces are intentionally excluded. */
+const BROWN_OUTLINE_TABS = new Set([
+  'dashboard',
+  'my-events',
+  'table-list',
+  'guest-list',
+  'qr-code',
+  'signage',
+  'invitations',
+  'place-cards',
+  'individual-table-chart',
+  'floor-plan',
+  'dietary-chart',
+  'full-seating-chart',
+  'kiosk-live-view',
+  'dj-mc-questionnaire',
+  'running-sheet',
+]);
+
 export const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<Session | null>(null);
@@ -730,7 +750,7 @@ export const Dashboard = () => {
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main className="flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden">
+        <main className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core' : ''}`}>
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className="print:hidden">
