@@ -510,7 +510,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   if (isMobile) {
     if (!isOpen) return null;
     return ReactDOM.createPortal(
-      <div role="dialog" aria-modal="true" style={{
+      <div role="dialog" aria-modal="true" className="ww-create-event-panel" style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         width: '100%', height: '100dvh', zIndex: 9999,
         background: 'white', display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -563,7 +563,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+        className="ww-create-event-panel w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
       >
         <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 px-6 pt-6">
           <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</SheetTitle>
