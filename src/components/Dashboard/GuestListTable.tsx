@@ -2586,21 +2586,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => { acknowledgePlusOneOptimistic(guest); handleEditGuest(guest); }}
-                              className="h-9 w-9 p-0"
+                              className="h-9 w-9 p-0 border-0 bg-green-500 hover:bg-green-600 text-white ww-guest-action-btn"
                               aria-label="Edit guest"
                               title="Edit guest"
                             >
-                              <Pencil size={16} strokeWidth={1.8} className="text-green-500" aria-hidden="true" />
+                              <Pencil size={16} strokeWidth={1.8} className="text-white" aria-hidden="true" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteGuest(guest)}
-                              className="h-9 w-9 p-0"
+                              className="h-9 w-9 p-0 border-0 bg-red-500 hover:bg-red-600 text-white ww-guest-action-btn"
                               aria-label="Delete guest"
                               title="Delete guest"
                             >
-                              <Trash2 size={16} strokeWidth={1.8} className="text-red-500" aria-hidden="true" />
+                              <Trash2 size={16} strokeWidth={1.8} className="text-white" aria-hidden="true" />
                             </Button>
                           </div>
                         </div>
