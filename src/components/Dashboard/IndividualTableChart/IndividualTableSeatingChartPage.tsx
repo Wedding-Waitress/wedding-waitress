@@ -406,9 +406,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       )}
 
       {isDataReady && !isTableTooLargeForShape && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-transparent">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,3fr)] gap-6 bg-transparent">
           {/* Customizer */}
-          <div className="lg:col-span-1">
+          <div className="min-w-0">
             <IndividualTableChartCustomizer
               settings={settings}
               onSettingsChange={handleSettingsChange}
@@ -416,7 +416,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           </div>
 
           {/* Preview */}
-          <div className="lg:col-span-3 ww-itc-preview">
+          <div className="min-w-0 ww-itc-preview">
             <IndividualTableChartPreview
               settings={settings}
               table={selectedTable}
