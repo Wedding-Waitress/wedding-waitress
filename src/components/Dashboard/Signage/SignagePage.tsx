@@ -697,7 +697,6 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             <div className="max-sm:w-max md:max-lg:w-[210mm] lg:h-full lg:flex lg:flex-col">
               <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto lg:h-full lg:flex-1 lg:min-h-0">
                 <PinchZoomContainer className="h-full" naturalWidth={orientation === 'portrait' ? 794 : 1123}>
-                  {(() => { console.log('Editor URL:', lightweightBgUrl); console.log('Master URL:', editorMasterUrl); return null; })()}
                   <InvitationCardPreview
                     fitToContainer
                     settings={editorSettings}
