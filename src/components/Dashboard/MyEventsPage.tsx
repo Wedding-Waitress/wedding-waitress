@@ -385,7 +385,7 @@ export const MyEventsPage: React.FC = () => {
             {/* Base ring */}
             <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
             {/* Progress ring */}
-            <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--primary))" strokeWidth="6" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className="transition-all duration-300 ease-out" strokeLinecap="round" />
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#472c1d" strokeWidth="6" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className="transition-all duration-300 ease-out" strokeLinecap="round" />
           </svg>
           
           {/* Content */}
