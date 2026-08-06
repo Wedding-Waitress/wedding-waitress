@@ -327,8 +327,17 @@ export const GuestMediaUpload: React.FC = () => {
     );
   }
 
-  const couple = [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
   const displayTitle = resolveGalleryTitle(gallery);
+  // Couple names must always follow the current event. Prefer the event/gallery title
+  // (e.g. "Jason & Linda's Wedding" -> "Jason & Linda"), fall back to stored partner names.
+  const titleCouple = (() => {
+    const t = (gallery.event_name || displayTitle || '').trim();
+    if (!t) return '';
+    const stripped = t.replace(/[''`]s\s+.*$/i, '').trim();
+    return stripped.includes('&') || stripped.toLowerCase().includes(' and ') ? stripped : '';
+  })();
+  const couple = titleCouple || [gallery.partner1_name, gallery.partner2_name].filter(Boolean).join(' & ');
+
   const displayWelcome = gallery.welcome_message?.trim() || 'Share your favourite photos and videos from today.';
   const showDate = gallery.show_event_date !== false && !!gallery.event_date;
 
