@@ -1,5 +1,5 @@
 // Feature workspace: Digital Guestbook (unified — written, audio and video messages)
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents } from '@/hooks/useEvents';
@@ -38,8 +38,6 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
   const guestUrl = buildTextGuestbookUrl(meta?.primary_token ?? null);
 
-  // Recordings only — text-only guestbook messages are never included in downloads.
-  const recordings = useMemo(() => guestbookRecordings(items), [items]);
 
   const handleToggle = async (v: boolean) => {
     setSaving(true);
