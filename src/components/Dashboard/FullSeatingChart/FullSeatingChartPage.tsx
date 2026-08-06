@@ -234,15 +234,15 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   return (
     <div className="space-y-6 full-seating-chart-dark-purple max-md:px-4">
       {/* Header */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
+      <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
         <CardHeader className="space-y-4">
           {/* Top row: Icon, Title, and Event Name */}
           <div className="flex items-center justify-between">
             {/* Header Icon & Info */}
             <div className="flex items-center gap-2">
-              <ClipboardList className="w-[25px] h-[25px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              <ClipboardList className="w-[25px] h-[25px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               <div>
-                <CardTitle className="text-left text-2xl font-bold text-foreground">Full Seating Chart</CardTitle>
+                <CardTitle className="text-left font-bold text-[#472c1d]" style={{ fontSize: 24 }}>Full Seating Chart</CardTitle>
                 <CardDescription className="text-left">
                   Complete guest list with check-off boxes
                 </CardDescription>
@@ -250,7 +250,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <span className="hidden lg:inline text-lg font-normal text-[#967A59]">
+              <span className="hidden lg:inline text-lg font-normal text-[#472c1d]">
                 Full Seating Chart for {selectedEvent.name}
               </span>
             )}
@@ -265,7 +265,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   Choose Event:
                 </label>
                 <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
+                  <SelectTrigger className="w-full sm:w-[300px] border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]">
                     <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
@@ -290,14 +290,14 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 <div className="flex flex-wrap items-center gap-2 max-md:w-full">
                   <Badge 
                     variant="outline"
-                    className="lg:ml-4 bg-white border-primary text-primary rounded-full"
+                    className="lg:ml-4 bg-white border-[#472c1d] text-[#472c1d] rounded-full"
                   >
                     <UsersRound className="w-4 h-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     {guestsLoading ? "Loading..." : `${guests.length} guests`}
                   </Badge>
                   <Badge 
                     variant="outline"
-                    className="bg-white border-primary text-primary rounded-full"
+                    className="bg-white border-[#472c1d] text-[#472c1d] rounded-full"
                   >
                     {isDataReady && hasGuests ? (
                       <CircleCheck className="w-[15px] h-[15px] shrink-0 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
@@ -314,7 +314,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
               {/* Export Controls */}
               {isDataReady && hasGuests && (
-                <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 w-full lg:w-auto">
+                <div className="border border-[#472c1d] rounded-xl p-3 flex flex-col gap-3 w-full lg:w-auto">
                   <div className="flex flex-wrap items-center">
                     <span className="font-bold text-sm inline-flex items-center gap-1.5">
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
