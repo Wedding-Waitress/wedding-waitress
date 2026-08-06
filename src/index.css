@@ -1837,16 +1837,16 @@ img { content-visibility: auto; }
 
 /* Selected designer tab icons must be pure white (Invitations & Cards / Name Place Cards).
    Higher specificity than the page-wide neutral brown svg rules. */
-.ww-invitations-brown [role="tablist"] [role="tab"][data-state="active"] svg,
-.ww-invitations-brown [role="tablist"] [role="tab"][data-state="active"] svg *,
-.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg,
-.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg *,
+.ww-invitations-brown.ww-invitations-brown.ww-invitations-brown [role="tablist"] [role="tab"][data-state="active"] svg,
+.ww-invitations-brown.ww-invitations-brown.ww-invitations-brown [role="tablist"] [role="tab"][data-state="active"] svg *,
+.ww-placecards-brown.ww-placecards-brown.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg,
+.ww-placecards-brown.ww-placecards-brown.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg *,
 .ww-seg-tabs[role="tablist"] > [role="tab"][data-state="active"] svg,
 .ww-seg-tabs[role="tablist"] > [role="tab"][data-state="active"] svg * {
   color: #ffffff !important;
   stroke: currentColor !important;
 }
-.ww-invitations-brown [role="tablist"] [role="tab"][data-state="active"] svg[fill]:not([fill="none"]),
-.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg[fill]:not([fill="none"]) {
+.ww-invitations-brown.ww-invitations-brown.ww-invitations-brown [role="tablist"] [role="tab"][data-state="active"] svg[fill]:not([fill="none"]),
+.ww-placecards-brown.ww-placecards-brown.ww-placecards-brown [role="tablist"] [role="tab"][data-state="active"] svg[fill]:not([fill="none"]) {
   fill: currentColor !important;
 }
