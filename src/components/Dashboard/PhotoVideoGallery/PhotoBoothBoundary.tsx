@@ -68,9 +68,10 @@ export const PhotoBoothPreparing: React.FC<{ accent: string }> = ({ accent }) =>
 
 export const PhotoBoothBoundary: React.FC<Props> = ({ accent, children }) => {
   const [attempt, setAttempt] = React.useState(0);
+  const content = typeof children === 'function' ? children(attempt) : children;
   return (
     <PhotoBoothErrorBoundaryInner key={attempt} accent={accent} onRetry={() => setAttempt(n => n + 1)}>
-      <React.Suspense fallback={<PhotoBoothPreparing accent={accent} />}>{children}</React.Suspense>
+      <React.Suspense fallback={<PhotoBoothPreparing accent={accent} />}>{content}</React.Suspense>
     </PhotoBoothErrorBoundaryInner>
   );
 };
