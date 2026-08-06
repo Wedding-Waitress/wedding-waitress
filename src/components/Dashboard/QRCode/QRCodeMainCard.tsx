@@ -540,7 +540,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <Accordion type="multiple" className="w-full space-y-2">
               {/* COLOR Section */}
               <AccordionItem value="color" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
-                <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                <AccordionTrigger className="px-3 py-2 hover:no-underline !border-0 !outline-none !shadow-none !ring-0">
                   <div className="flex items-center gap-[7px]">
                     <Palette strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Color</span>
@@ -573,7 +573,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* SHAPE Section */}
               <AccordionItem value="shape" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
-                <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                <AccordionTrigger className="px-3 py-2 hover:no-underline !border-0 !outline-none !shadow-none !ring-0">
                   <div className="flex items-center gap-[7px]">
                     <Shapes strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Shape & Form</span>
@@ -653,7 +653,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* LOGO Section */}
               <AccordionItem value="logo" className="border border-primary rounded-lg bg-[#F5F0EB]/30">
-                <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                <AccordionTrigger className="px-3 py-2 hover:no-underline !border-0 !outline-none !shadow-none !ring-0">
                   <div className="flex items-center gap-[7px]">
                     <ImagePlus strokeWidth={1.8} className="h-[17px] w-[17px] text-[#856A4C]" />
                     <span className="text-sm font-medium">Logo</span>
