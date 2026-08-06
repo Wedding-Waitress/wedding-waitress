@@ -1457,7 +1457,7 @@ img { content-visibility: auto; }
 .ww-create-event-panel select,
 .ww-create-event-panel [role="combobox"],
 .ww-create-event-panel .border-2:not([role="switch"]),
-.ww-create-event-panel button:not([role="switch"]):not(.lv-premium-shade):not(.ww-emboss-green):not(.ww-emboss-red):not([data-slot="switch"]) {
+.ww-create-event-panel button:not([role="switch"]):not(.lv-premium-shade):not(.ww-emboss-green):not(.ww-emboss-red):not([data-slot="switch"]):not([class*="bg-green"]):not([class*="bg-destructive"]) {
   border-width: 1px !important;
   border-style: solid !important;
   border-color: #472c1d !important;
