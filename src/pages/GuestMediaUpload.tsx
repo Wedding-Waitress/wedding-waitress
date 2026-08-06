@@ -142,6 +142,14 @@ export const GuestMediaUpload: React.FC = () => {
 
   const nameStorageKey = token ? `gallery-uploader-name:${token}` : '';
 
+  // Warm the Photo Booth chunk in the background so the first tap on the tab opens instantly.
+  useEffect(() => {
+    const id = window.setTimeout(() => { importPhotoBooth().catch(() => {}); }, 1200);
+    return () => window.clearTimeout(id);
+  }, []);
+
+
+
   useEffect(() => {
     if (!token) return;
     try {
