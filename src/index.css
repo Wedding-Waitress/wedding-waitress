@@ -1307,3 +1307,13 @@ img { content-visibility: auto; }
 .ww-brown-outline canvas {
   border-color: transparent;
 }
+
+/* Neutral/soft-brown 1px boxes inside the Photo Booth workspace. */
+.ww-brown-outline.pb-page .ww-box,
+.ww-brown-outline .pb-page .ww-box,
+.ww-brown-outline .pb-page [class*="border-border"],
+.ww-brown-outline .pb-page [class*="border-[#967A59]"],
+.ww-brown-outline .pb-page [class*="border-[#E8E1D6]"] {
+  border: 2px solid #472c1d !important;
+}
+
