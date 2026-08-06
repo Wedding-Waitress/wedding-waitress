@@ -352,7 +352,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
           </Label>
           <Input
             id="gb-name"
-            className="h-12 text-base mt-2 bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
+            className="h-12 text-base mt-2 bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-2 border-[#967A59]"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Enter your full name"
@@ -369,7 +369,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             </div>
             <Textarea
               id="gb-text"
-              className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
+              className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-2 border-[#967A59]"
               value={message}
               onChange={e => setMessage(e.target.value)}
               maxLength={2000}
