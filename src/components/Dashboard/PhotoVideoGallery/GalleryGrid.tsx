@@ -551,7 +551,7 @@ export const GalleryGrid: React.FC<{
                 key={it.id}
                 className={`relative group rounded-lg overflow-hidden bg-white flex flex-col ${
                   boothSetOrder
-                    ? 'border-2 border-[#472c1d] w-[calc((100%-0.5rem)/2)] sm:w-[calc((100%-1.25rem)/3)] md:w-[calc((100%-1.875rem)/4)] lg:w-[calc((100%-2.5rem)/5)] xl:w-[calc((100%-3.125rem)/6)]'
+                    ? 'border border-[#472c1d] w-[calc((100%-0.5rem)/2)] sm:w-[calc((100%-1.25rem)/3)] md:w-[calc((100%-1.875rem)/4)] lg:w-[calc((100%-2.5rem)/5)] xl:w-[calc((100%-3.125rem)/6)]'
                     : 'border border-black'
                 } ${
                   isSelected ? 'ring-2 ring-[#967A59]' : ''
