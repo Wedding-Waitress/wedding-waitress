@@ -318,8 +318,8 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   );
 
 
-  const cardClass = `rounded-2xl border p-4 sm:p-6 ${theme.surfaceClass}`;
-  const optionClass = 'rounded-xl border p-3 sm:p-4 space-y-3';
+  const cardClass = `rounded-2xl border-2 border-[#967A59] p-4 sm:p-6 ${theme.surfaceClass}`;
+  const optionClass = 'rounded-xl border-2 p-3 sm:p-4 space-y-3';
   const badge = (letter: string) => (
     <span
       className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
