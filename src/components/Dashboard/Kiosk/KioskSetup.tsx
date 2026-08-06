@@ -44,7 +44,6 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   const { events, loading: eventsLoading } = useEvents();
   const { toast } = useToast();
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
-  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isOpeningKiosk, setIsOpeningKiosk] = useState(false);
 
