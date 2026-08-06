@@ -84,6 +84,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
         toggleDisabled={saving || loading || !meta}
         onToggle={handleToggle}
         onBack={goBack}
+        brownOutline
         disabledNotice="This feature is currently turned off for your guests. You can still manage and preview the Digital Photo Booth."
         headerAction={
           <Button
