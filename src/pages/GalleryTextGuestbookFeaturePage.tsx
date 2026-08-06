@@ -11,9 +11,6 @@ import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery
 import { GalleryTextGuestbookAccessCard, buildTextGuestbookUrl } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookAccessCard';
 import { GalleryTextGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookStepsCard';
 import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
-import { GalleryVoiceSettingsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryVoiceSettingsCard';
-import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
-import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
