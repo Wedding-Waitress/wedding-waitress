@@ -763,8 +763,8 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
               <div className="space-y-2.5">
                 <Button
                   type="button"
-                  className="lv-premium-shade w-full h-12 text-white text-base"
-                  style={{ backgroundColor: accent }}
+                  variant="ghost"
+                  className="w-full h-12 text-white text-base bg-green-500 hover:bg-green-600 shadow-none"
                   onClick={downloadAndSave}
                   disabled={uploading || phase === 'saving' || !capturedBlob}
                 >
