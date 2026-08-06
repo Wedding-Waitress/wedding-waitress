@@ -9,7 +9,7 @@
  * Last locked: 2026-03-18
  */
 
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
@@ -29,7 +29,10 @@ interface InvitationCardPreviewProps {
   onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
   /** Render a white plate behind the QR (matches print-ready PDF). Used by Seating Chart Signs. */
   qrWhitePlate?: boolean;
+  /** When true, the preview canvas is sized to fit the parent container height while preserving aspect ratio. */
+  fitToContainer?: boolean;
 }
+
 
 const getTextTransform = (textCase: string): React.CSSProperties['textTransform'] => {
   switch (textCase) {
@@ -52,12 +55,15 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   qrDataUrl,
   onQrConfigUpdate,
   qrWhitePlate = false,
+  fitToContainer = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
   const [zoom, setZoom] = useState(100);
 
   const handleZoomChange = useCallback((value: number) => {
+
     setZoom(Math.max(25, Math.min(100, value)));
   }, []);
 
@@ -84,6 +90,36 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   const dims = SIZE_MAP[currentSettings.card_size] || SIZE_MAP.A5;
   const previewWidth = isLandscape ? `${dims.h}mm` : `${dims.w}mm`;
   const previewHeight = isLandscape ? `${dims.w}mm` : `${dims.h}mm`;
+
+  useEffect(() => {
+    if (!fitToContainer || !canvasAreaRef.current) return;
+
+    const MM_TO_PX = 3.7795275591;
+    const naturalWidthPx = (isLandscape ? dims.h : dims.w) * MM_TO_PX;
+    const naturalHeightPx = (isLandscape ? dims.w : dims.h) * MM_TO_PX;
+
+    const area = canvasAreaRef.current;
+    const compute = () => {
+      // Only apply fit-to-container scaling on desktop (lg breakpoint and above).
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        setZoom(100);
+        return;
+      }
+      const rect = area.getBoundingClientRect();
+      const scaleX = rect.width / naturalWidthPx;
+      const scaleY = rect.height / naturalHeightPx;
+      const scale = Math.min(scaleX, scaleY);
+      const newZoom = Math.max(25, Math.min(100, Math.round(scale * 100)));
+      setZoom(newZoom);
+    };
+
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(area);
+    return () => ro.disconnect();
+  }, [fitToContainer, dims, isLandscape]);
+
+
 
   const textZones = currentSettings.text_zones || [];
 
@@ -177,10 +213,14 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   });
 
   return (
-    <div className="print:hidden">
-      <div className="flex items-start gap-3">
+    <div className={`print:hidden ${fitToContainer ? 'lg:h-full' : ''}`}>
+      <div className={`flex items-start gap-3 ${fitToContainer ? 'lg:h-full' : ''}`}>
         {/* Canvas area */}
-        <div className="flex-1 flex justify-center items-center" style={{ minHeight: '70vh' }}>
+        <div
+          ref={canvasAreaRef}
+          className={`flex-1 flex justify-center items-center ${fitToContainer ? 'lg:!h-full lg:!min-h-0' : ''}`}
+          style={{ minHeight: '70vh' }}
+        >
           <div
             style={{
               transform: `scale(${zoom / 100})`,
