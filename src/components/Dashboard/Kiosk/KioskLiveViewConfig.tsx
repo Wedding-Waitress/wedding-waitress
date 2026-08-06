@@ -176,7 +176,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
           Configure which modules your guests can access on the kiosk live view.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch auto-rows-fr">
           {(() => {
             const renderTile = (tile: ModuleTile) => {
               const enabled = !!(visibility as any)?.[tile.visKey];
@@ -399,7 +399,9 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               </div>
             );
 
-            // Row order: RSVP+Menu | Welcome+Hero | Floor Plan+Toggles
+            // Desktop: 3 columns
+            // Row 1: Add Your Photo or Logo | RSVP Invite | Welcome Video
+            // Row 2: Menu | Reception Floor Plan | Kiosk Display Toggles
             const rsvp = tiles[0];
             const welcome = tiles[1];
             const floorPlan = tiles[2];
@@ -407,10 +409,10 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
 
             return (
               <>
-                {renderTile(rsvp)}
-                {renderTile(menu)}
-                {renderTile(welcome)}
                 {heroTile}
+                {renderTile(rsvp)}
+                {renderTile(welcome)}
+                {renderTile(menu)}
                 {renderTile(floorPlan)}
                 {togglesTile}
               </>

@@ -189,9 +189,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                   Choose an event above to generate your kiosk link and QR code.
                 </p>
               ) : (
-                <div className="flex flex-col sm:flex-row gap-4 items-start">
-                  {/* QR Code — compact */}
-                  <div className="flex flex-col items-center text-center shrink-0 w-full sm:w-auto">
+                <div className="flex flex-col items-center gap-4">
+                  {/* QR Code — centred and enlarged */}
+                  <div className="flex flex-col items-center text-center w-full">
                     <h4 className="text-sm font-semibold mb-2 inline-flex items-center justify-center gap-2">
                       <QrCode className="w-[16px] h-[16px]" strokeWidth={1.8} aria-hidden="true" />
                       QR Code for Kiosk Setup
@@ -200,20 +200,20 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                       <img
                         src={qrCodeDataUrl}
                         alt="Kiosk QR Code"
-                        className="w-[132px] h-[132px] rounded-md border border-[#472c1d] bg-white"
+                        className="w-[180px] h-[180px] rounded-md border border-[#472c1d] bg-white"
                       />
                     ) : (
-                      <div className="w-[132px] h-[132px] rounded-md border border-[#472c1d] flex items-center justify-center text-xs text-muted-foreground">
+                      <div className="w-[180px] h-[180px] rounded-md border border-[#472c1d] flex items-center justify-center text-xs text-muted-foreground">
                         Generating…
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground mt-2 max-w-[150px] leading-snug">
-                      Scan to open the kiosk on a tablet or mobile
+                    <p className="text-xs text-muted-foreground mt-2 max-w-[220px] leading-snug">
+                      Scan to open the kiosk on a tablet or mobile device
                     </p>
                   </div>
 
-                  {/* URL + Actions — compact */}
-                  <div className="flex flex-col gap-2 flex-1 min-w-0 w-full">
+                  {/* URL + Actions — stacked full-width */}
+                  <div className="flex flex-col gap-2 w-full">
                     <code className="text-xs break-all block p-2 bg-muted rounded-md">{kioskUrl}</code>
                     <button
                       onClick={handleCopyUrl}
