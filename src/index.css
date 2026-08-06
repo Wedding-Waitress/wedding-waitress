@@ -1562,3 +1562,8 @@ img { content-visibility: auto; }
 .ww-edit-guest-panel [role="switch"] * {
   border-color: transparent !important;
 }
+
+/* Guest Category pill selector: keep its own colours, no added borders */
+.ww-edit-guest-panel .ww-guest-category button {
+  border: 0 !important;
+}
