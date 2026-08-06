@@ -71,6 +71,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         noIndex
       />
       <FeatureWorkspaceLayout
+        brownOutline
         title="Digital Guestbook"
         description="Read and manage private written, audio and video messages and well wishes from your guests."
         eventName={(selectedEvent as any)?.name}

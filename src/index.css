@@ -1268,3 +1268,30 @@ img { content-visibility: auto; }
   transform: translateY(1px);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.18);
 }
+
+/* ---------------------------------------------------------------
+   Brown 2px outline pass — scoped to the four Photo & Video Sharing
+   organiser workspaces (Sharing/Upload, Gallery View, Digital
+   Guestbook, Live Slideshow). Only replaces faint grey outlines.
+   --------------------------------------------------------------- */
+.ww-brown-outline .ww-box,
+.ww-brown-outline [class*="border-border"],
+.ww-brown-outline [class*="bg-muted"]:not([role="progressbar"]):not([data-state]),
+.ww-brown-outline [class*="bg-secondary"]:not([role="progressbar"]):not([data-state]) {
+  border: 2px solid #472c1d !important;
+}
+
+.ww-brown-outline input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.ww-brown-outline textarea,
+.ww-brown-outline select,
+.ww-brown-outline [role="combobox"],
+.ww-brown-outline button:not([role="switch"]):not([data-state="checked"]):not([data-state="active"]):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-destructive"]):not([class*="967A59"]):not([class*="472c1d"]):not([class*="bg-primary"]):not([class*="emboss-green"]):not([class*="emboss-red"]):not([class*="bg-transparent"]) {
+  border: 2px solid #472c1d !important;
+}
+
+/* Never outline media or QR artwork itself. */
+.ww-brown-outline img,
+.ww-brown-outline video,
+.ww-brown-outline canvas {
+  border-color: transparent;
+}
