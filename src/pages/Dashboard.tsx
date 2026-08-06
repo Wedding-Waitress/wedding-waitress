@@ -81,6 +81,26 @@ import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 
+/* Organiser pages that use the standardised 1px #472c1d neutral border pass.
+   Photo & Video Sharing and its workspaces are intentionally excluded. */
+const BROWN_OUTLINE_TABS = new Set([
+  'dashboard',
+  'my-events',
+  'table-list',
+  'guest-list',
+  'qr-code',
+  'signage',
+  'invitations',
+  'place-cards',
+  'individual-table-chart',
+  'floor-plan',
+  'dietary-chart',
+  'full-seating-chart',
+  'kiosk-live-view',
+  'dj-mc-questionnaire',
+  'running-sheet',
+]);
+
 export const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [session, setSession] = useState<Session | null>(null);
