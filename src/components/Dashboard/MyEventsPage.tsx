@@ -438,7 +438,7 @@ export const MyEventsPage: React.FC = () => {
 
           {/* C) Event Name binding */}
           {selectedEvent && <div className="space-y-4 transition-opacity duration-300 ease-in-out">
-                <p className="text-2xl font-medium text-[#967A59]">
+                <p className="text-2xl font-medium text-[#472c1d]">
                   {selectedEvent.name}
                 </p>
                 
