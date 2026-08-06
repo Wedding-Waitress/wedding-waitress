@@ -123,18 +123,29 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     setLoading(true);
     setLoadError(null);
     setNotFound(false);
+    setGallery(null);
     (async () => {
-      try {
-        const { data, error } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
-        if (cancelled) return;
-        if (error) { setLoadError('We could not load the Photo Booth. Please check your connection and try again.'); return; }
-        const row = Array.isArray(data) ? data[0] : data;
-        if (!row) setNotFound(true);
-        else setGallery(row as GalleryPublic);
-      } catch {
-        if (!cancelled) setLoadError('We could not load the Photo Booth. Please check your connection and try again.');
-      } finally {
-        if (!cancelled) setLoading(false);
+      // One silent automatic retry: a single flaky request must not surface as an error.
+      for (let attemptNo = 0; attemptNo < 2; attemptNo++) {
+        try {
+          const { data, error } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
+          if (cancelled) return;
+          if (error) throw error;
+          const row = Array.isArray(data) ? data[0] : data;
+          if (!row) setNotFound(true);
+          else setGallery(row as GalleryPublic);
+          if (!cancelled) { setLoadError(null); setLoading(false); }
+          return;
+        } catch {
+          if (cancelled) return;
+          if (attemptNo === 0) {
+            await new Promise(r => setTimeout(r, 700));
+            if (cancelled) return;
+            continue;
+          }
+          setLoadError('We could not load the Photo Booth. Please check your connection and try again.');
+          setLoading(false);
+        }
       }
     })();
     return () => { cancelled = true; };

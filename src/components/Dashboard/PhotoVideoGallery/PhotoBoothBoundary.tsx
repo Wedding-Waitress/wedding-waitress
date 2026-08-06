@@ -12,14 +12,16 @@ import { Button } from '@/components/ui/button';
  */
 interface Props {
   accent: string;
-  children: React.ReactNode;
+  /** Either static children, or a render function receiving the current retry attempt so the
+   *  caller can rebuild a fresh React.lazy() (React caches rejected lazy promises forever). */
+  children: React.ReactNode | ((attempt: number) => React.ReactNode);
 }
 
 interface State {
   hasError: boolean;
 }
 
-class PhotoBoothErrorBoundaryInner extends React.Component<Props & { onRetry: () => void }, State> {
+class PhotoBoothErrorBoundaryInner extends React.Component<{ accent: string; children: React.ReactNode; onRetry: () => void }, State> {
   state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
@@ -66,9 +68,10 @@ export const PhotoBoothPreparing: React.FC<{ accent: string }> = ({ accent }) =>
 
 export const PhotoBoothBoundary: React.FC<Props> = ({ accent, children }) => {
   const [attempt, setAttempt] = React.useState(0);
+  const content = typeof children === 'function' ? children(attempt) : children;
   return (
     <PhotoBoothErrorBoundaryInner key={attempt} accent={accent} onRetry={() => setAttempt(n => n + 1)}>
-      <React.Suspense fallback={<PhotoBoothPreparing accent={accent} />}>{children}</React.Suspense>
+      <React.Suspense fallback={<PhotoBoothPreparing accent={accent} />}>{content}</React.Suspense>
     </PhotoBoothErrorBoundaryInner>
   );
 };

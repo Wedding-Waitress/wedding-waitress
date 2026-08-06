@@ -27,12 +27,35 @@ import photoBoothHeaderLogo from '@/assets/photo-booth-header-logo.png';
 // open no longer forces the guest to refresh the whole page.
 import { PhotoBoothBoundary } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothBoundary';
 
-const importPhotoBooth = () =>
-  import('./GuestPhotoBooth').catch(() => new Promise<typeof import('./GuestPhotoBooth')>((resolve, reject) => {
-    setTimeout(() => { import('./GuestPhotoBooth').then(resolve, reject); }, 600);
-  }));
+type PhotoBoothModule = typeof import('./GuestPhotoBooth');
 
-const GuestPhotoBooth = React.lazy(importPhotoBooth);
+/** Loads the Photo Booth chunk with a few spaced retries so one flaky request never fails the tab. */
+const importPhotoBooth = async (): Promise<PhotoBoothModule> => {
+  let lastError: unknown;
+  for (let i = 0; i < 3; i++) {
+    try {
+      return await import('./GuestPhotoBooth');
+    } catch (e) {
+      lastError = e;
+      await new Promise(r => setTimeout(r, 400 * (i + 1)));
+    }
+  }
+  throw lastError;
+};
+
+/**
+ * React.lazy permanently caches a rejected import, so Retry needs a *fresh* lazy component.
+ * One lazy instance is memoised per boundary attempt.
+ */
+const photoBoothLazyCache = new Map<number, React.LazyExoticComponent<PhotoBoothModule['GuestPhotoBooth']>>();
+const getPhotoBoothLazy = (attempt: number) => {
+  let cached = photoBoothLazyCache.get(attempt);
+  if (!cached) {
+    cached = React.lazy(async () => ({ default: (await importPhotoBooth()).GuestPhotoBooth }));
+    photoBoothLazyCache.set(attempt, cached);
+  }
+  return cached;
+};
 
 /** Default hero background used when the event has no cover image. */
 const DEFAULT_HERO_BG = '/default-hero-bg.png';
@@ -118,6 +141,14 @@ export const GuestMediaUpload: React.FC = () => {
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
 
   const nameStorageKey = token ? `gallery-uploader-name:${token}` : '';
+
+  // Warm the Photo Booth chunk in the background so the first tap on the tab opens instantly.
+  useEffect(() => {
+    const id = window.setTimeout(() => { importPhotoBooth().catch(() => {}); }, 1200);
+    return () => window.clearTimeout(id);
+  }, []);
+
+
 
   useEffect(() => {
     if (!token) return;
@@ -665,7 +696,10 @@ export const GuestMediaUpload: React.FC = () => {
 
         {current === 'booth' && token && (
           <PhotoBoothBoundary accent={accent}>
-            <GuestPhotoBooth tokenProp={token} embedded onSaved={() => setGalleryRefresh(n => n + 1)} />
+            {(attempt) => {
+              const LazyPhotoBooth = getPhotoBoothLazy(attempt);
+              return <LazyPhotoBooth tokenProp={token} embedded onSaved={() => setGalleryRefresh(n => n + 1)} />;
+            }}
           </PhotoBoothBoundary>
         )}
 
