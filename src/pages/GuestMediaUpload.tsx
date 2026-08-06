@@ -395,10 +395,7 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="mt-6 space-y-2.5">
             <Button
-              className="lv-premium-shade w-full h-12 text-white text-base"
-              style={{ backgroundColor: accent }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
+              className="lv-premium-shade w-full h-12 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all bg-green-500 hover:bg-green-600"
               onClick={handleShareMore}
             >
               <Camera className="h-4 w-4 mr-2" />
@@ -407,7 +404,8 @@ export const GuestMediaUpload: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              className="lv-premium-shade w-full h-12 text-base"
+              className="lv-premium-shade w-full h-12 text-base border-2 border-[#967A59]"
+
               onClick={handleBackToStart}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
