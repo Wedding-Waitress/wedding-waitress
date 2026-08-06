@@ -1466,3 +1466,43 @@ img { content-visibility: auto; }
 .ww-create-event-panel [role="switch"] * {
   border-color: transparent !important;
 }
+
+/* ---- Tables page: stats bar solid brown ---- */
+.ww-tables-stats :is(p, svg, .text-primary) {
+  color: #472c1d !important;
+}
+.ww-tables-stats svg {
+  stroke: #472c1d !important;
+}
+
+/* ---- Create / Edit Table slide-out panels ---- */
+.ww-table-panel [data-radix-dialog-title],
+.ww-table-panel h2 {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 24px !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+  color: #472c1d !important;
+}
+.ww-table-panel h2 svg {
+  color: #472c1d !important;
+  stroke: #472c1d !important;
+}
+.ww-table-panel label,
+.ww-table-panel label svg {
+  color: #472c1d !important;
+}
+.ww-table-panel label svg {
+  stroke: #472c1d !important;
+}
+.ww-table-panel :is(input, textarea, select, button[role="combobox"], [data-radix-select-trigger]):not([disabled]) {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #472c1d !important;
+}
+/* table shape selection boxes */
+.ww-table-panel .grid-cols-3 > button[type="button"] {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #472c1d !important;
+}

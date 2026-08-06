@@ -301,7 +301,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+        className="ww-table-panel w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
       >
         <SheetHeader className="px-6 pt-6 max-lg:pt-6 lg:pr-12">
           <SheetTitle className="text-xl sm:text-2xl font-medium text-primary flex items-center gap-2">
