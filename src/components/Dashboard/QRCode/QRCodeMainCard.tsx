@@ -1911,7 +1911,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       value={String(songRequestSettings?.max_requests_per_guest ?? 2)}
                       onValueChange={(v) => updateSongRequestSettings({ max_requests_per_guest: parseInt(v, 10) })}
                     >
-                      <SongReqSelectTrigger className="w-full lv-premium-shade border-primary">
+                      <SongReqSelectTrigger className="w-full lv-premium-shade border-0">
                         <SongReqSelectValue />
                       </SongReqSelectTrigger>
                       <SongReqSelectContent>
