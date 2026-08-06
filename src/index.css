@@ -1913,3 +1913,42 @@ img { content-visibility: auto; }
   border: 1px solid #d1d5db !important;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.15) !important;
 }
+
+/* ============================================================
+   Floor Plan page — solid dark brown (#472c1d) pass.
+   Scoped via .ww-floorplan-brown (see Dashboard.tsx).
+   Green toggles/buttons, seating data and PDF output untouched.
+   ============================================================ */
+
+/* Headings, pill labels, values, icons and chart section labels */
+.ww-floorplan-brown [class*="text-primary"]:not([class*="bg-"]):not([class*="text-primary-foreground"]) {
+  color: #472c1d !important;
+}
+.ww-floorplan-brown [class*="text-primary"] svg {
+  color: #472c1d !important;
+}
+
+/* Neutral brown borders (Export Controls, pills, altar circles, cards) */
+.ww-floorplan-brown [class*="border-primary"]:not([class*="border-green"]):not([class*="bg-green"]):not([role="switch"]) {
+  border-color: #472c1d !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+/* Remove the square outer boxes around Layout Settings sections */
+.ww-floorplan-brown [class*="border-t"][class*="border-border"] {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Range sliders: track, active range, handle */
+.ww-floorplan-brown [role="slider"] {
+  border-color: #472c1d !important;
+  background-color: #ffffff !important;
+}
+.ww-floorplan-brown [data-orientation="horizontal"] > span:first-child {
+  background-color: rgba(71, 44, 29, 0.2) !important;
+}
+.ww-floorplan-brown [data-orientation="horizontal"] > span:first-child > span {
+  background-color: #472c1d !important;
+}
