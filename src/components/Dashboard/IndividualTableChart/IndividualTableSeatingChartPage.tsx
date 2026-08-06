@@ -249,7 +249,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ww-itc-brown">
       {/* Guest Limit Warning Dialog */}
       <AlertDialog open={showGuestLimitWarning} onOpenChange={setShowGuestLimitWarning}>
         <AlertDialogContent>
@@ -416,7 +416,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           </div>
 
           {/* Preview */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 ww-itc-preview">
             <IndividualTableChartPreview
               settings={settings}
               table={selectedTable}
