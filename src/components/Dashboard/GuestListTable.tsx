@@ -1837,7 +1837,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 items-stretch">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[1fr_1.3fr_1fr_1fr_0.7fr] gap-4 items-stretch">
                 {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><CalendarDays size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 1: Set Up Your Event</h3>
