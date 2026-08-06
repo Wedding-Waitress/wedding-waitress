@@ -74,6 +74,7 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
         noIndex
       />
       <FeatureWorkspaceLayout
+        brownOutline
         title="Live Slideshow"
         description="Display approved guest photos and videos in a beautiful, continuously updating slideshow."
         eventName={(selectedEvent as any)?.name}

@@ -64,6 +64,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
     <>
       <SeoHead title="Photo & Video Sharing | Wedding Waitress" description="Manage the photos and videos shared by your guests." noIndex />
       <FeatureWorkspaceLayout
+        brownOutline
         title="Photo & Video Sharing"
         description="Manage the photos and videos shared by your guests."
         eventName={(selectedEvent as any)?.name}

@@ -18,6 +18,8 @@ export interface FeatureWorkspaceLayoutProps {
   headerAction?: React.ReactNode;
   /** Optional override for the "feature is off" notice. */
   disabledNotice?: string;
+  /** Adds the 2px brown outline pass to neutral cards, panels, inputs and grey buttons. */
+  brownOutline?: boolean;
   children?: React.ReactNode;
 }
 
@@ -32,6 +34,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   backLabel = 'Back to Photo & Video Sharing',
   headerAction,
   disabledNotice,
+  brownOutline,
   children,
 }) => {
   return (
@@ -105,7 +108,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
       </header>
 
 
-      <main className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12">
+      <main className={`mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12${brownOutline ? ' ww-brown-outline' : ''}`}>
         {children}
       </main>
     </div>

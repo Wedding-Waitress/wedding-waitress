@@ -64,6 +64,7 @@ export const GalleryViewFeaturePage: React.FC = () => {
     <>
       <SeoHead title="Photo & Video Gallery View | Wedding Waitress" description="Control how guests access, view and experience your shared gallery." noIndex />
       <FeatureWorkspaceLayout
+        brownOutline
         title="Photo & Video Gallery View"
         description="Control how guests access, view and experience your shared gallery."
         eventName={(selectedEvent as any)?.name}
