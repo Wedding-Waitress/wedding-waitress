@@ -30,6 +30,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildKioskUrl } from '@/lib/urlUtils';
 import { KioskLiveViewConfig } from './KioskLiveViewConfig';
+import { KioskAutoProtection } from './KioskAutoProtection';
 import QRCode from 'qrcode';
 
 interface KioskSetupProps {
