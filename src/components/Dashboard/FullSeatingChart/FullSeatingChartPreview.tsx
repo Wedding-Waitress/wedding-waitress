@@ -461,6 +461,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <Button
               variant="outline"
               size="sm"
+              className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
@@ -473,6 +474,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <Button
               variant="outline"
               size="sm"
+              className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
@@ -614,6 +616,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <Button
               variant="outline"
               size="sm"
+              className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
@@ -626,6 +629,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             <Button
               variant="outline"
               size="sm"
+              className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
