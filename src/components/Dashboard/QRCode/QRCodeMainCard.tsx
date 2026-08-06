@@ -770,7 +770,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             {/* 2x2 Grid for all modules */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* RSVP Invite Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3">
                     <MailCheck strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
@@ -991,7 +991,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Welcome Video Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <Video strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
@@ -1129,7 +1129,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Ceremony Floor Plan Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <MapPinned strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
@@ -1349,7 +1349,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Reception Floor Plan Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <Building2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
@@ -1575,7 +1575,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Menu Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <UtensilsCrossed strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
@@ -1728,7 +1728,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Hero Image / Logo Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center gap-3">
                   <ImagePlus strokeWidth={1.8} className="h-5 w-5 text-[#856A4C]" />
                   <div>
@@ -1880,7 +1880,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               </div>
 
               {/* Guest Song Requests Module */}
-              <div className="space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                   <div className="flex items-center gap-3">
                     <Music2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
