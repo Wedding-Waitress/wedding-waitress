@@ -1317,3 +1317,38 @@ img { content-visibility: auto; }
   border: 1px solid #472c1d !important;
 }
 
+
+/* ---------------------------------------------------------------
+   Neutral border standardisation — 1px solid #472c1d.
+   Scoped to the 15 core organiser dashboard pages via
+   .ww-brown-outline-core (see BROWN_OUTLINE_TABS in Dashboard.tsx).
+   Photo & Video Sharing workspaces use .ww-brown-outline and are
+   deliberately NOT affected by these rules.
+   --------------------------------------------------------------- */
+.ww-brown-outline-core .ww-box,
+.ww-brown-outline-core .dashboard-card,
+.ww-brown-outline-core [class*="border-border"],
+.ww-brown-outline-core [class*="border-[#E8E1D6]"],
+.ww-brown-outline-core [class*="border-input"] {
+  border-color: #472c1d !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.ww-brown-outline-core input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.ww-brown-outline-core textarea,
+.ww-brown-outline-core select,
+.ww-brown-outline-core [role="combobox"],
+.ww-brown-outline-core button:not([role="switch"]):not([data-state="checked"]):not([data-state="active"]):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-destructive"]):not([class*="967A59"]):not([class*="472c1d"]):not([class*="bg-primary"]):not([class*="emboss-green"]):not([class*="emboss-red"]):not([class*="bg-transparent"]):not([class*="border-0"]):not([class*="border-none"]) {
+  border-color: #472c1d !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+/* Never outline media, QR artwork or chart canvases. */
+.ww-brown-outline-core img,
+.ww-brown-outline-core video,
+.ww-brown-outline-core canvas,
+.ww-brown-outline-core svg {
+  border-color: transparent !important;
+}
