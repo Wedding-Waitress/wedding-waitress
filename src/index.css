@@ -1392,3 +1392,42 @@ img { content-visibility: auto; }
   color: hsl(var(--muted-foreground)) !important;
   opacity: 1;
 }
+
+/* ============================================================
+   Organiser heading typography system
+   Applied via .ww-heading-system (see BROWN_OUTLINE_TABS in
+   Dashboard.tsx). Photo & Video Sharing pages are excluded.
+   - Main page headings (directly over page background): 24px
+   - Section / card headings (inside boxes): 20px
+   Both: Inter, 700, solid #472c1d.
+   ============================================================ */
+
+.ww-heading-system :is(h1, h2, h3, h4, .dashboard-section-title):not(
+    [id*="print"] *
+  ):not(
+    [class*="print"] *
+  ):not(
+    [class*="preview"] *
+  ):not(
+    [data-export] *
+  ) {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 20px !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  color: #472c1d !important;
+}
+
+/* Main page heading: top-level heading not inside a card/box */
+.ww-heading-system :is(h1, h2):not(.ww-box *):not(.dashboard-card *):not(
+    [id*="print"] *
+  ):not(
+    [class*="print"] *
+  ):not(
+    [class*="preview"] *
+  ):not(
+    [data-export] *
+  ) {
+  font-size: 24px !important;
+  line-height: 1.25 !important;
+}
