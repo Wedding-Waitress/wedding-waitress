@@ -532,7 +532,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] gap-6">
                   <div>
-                    <p className="flex items-center gap-2 font-semibold text-primary text-base">
+                    <p className="ww-signage-guidelines-title flex items-center gap-2 font-semibold text-primary text-base">
                       <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Professional Wedding Print Guidelines
                     </p>

@@ -348,7 +348,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 </p>
 
                 {/* Add Preset Zone buttons */}
-                <div className="space-y-2">
+                <div className="ww-signage-preset-zones space-y-2">
                   <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold"><ListPlus className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Add Preset Zone</span>
                   <div className="flex flex-wrap gap-2 max-w-fit">
                     {activePresetZones.map(pz => {
@@ -373,7 +373,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 <Button
                   onClick={addCustomZone}
-                  className="w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="ww-signage-add-custom-zone w-full rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Plus className="h-4 w-4 mr-2" strokeWidth={1.8} aria-hidden="true" />
                   Add Custom Text Zone
