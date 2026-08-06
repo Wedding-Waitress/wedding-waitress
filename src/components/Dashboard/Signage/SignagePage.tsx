@@ -156,16 +156,6 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     (settings as any)?.background_image_preview_url ?? null,
   );
 
-  useEffect(() => {
-    if (!lightweightBgUrl) return;
-    fetch(lightweightBgUrl, { method: 'HEAD' })
-      .then((res) => {
-        const size = res.headers.get('content-length');
-        console.log(`Editor preview image size: ${size} bytes`);
-      })
-      .catch(() => {});
-  }, [lightweightBgUrl]);
-
   // Editor-facing settings: identical to asInvitationSettings but with the
   // background image swapped for the lightweight version.
   const editorSettings = useMemo(() => {
@@ -678,8 +668,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
       {selectedEventId && settings && !settingsLoading && editorSettings && (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="ww-signage-brown lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start lg:items-stretch">
+          <div className="ww-signage-brown lg:col-span-2 h-full">
             <InvitationCardCustomizer
               settings={editorSettings}
               onSettingsChange={handleSettingsChange}
@@ -701,26 +691,26 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
-          <div className={`lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
+          <div className={`lg:col-span-3 lg:h-full lg:flex lg:flex-col w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
             orientation === 'landscape' ? 'px-4 lg:px-8' : ''
           }`}>
-            <div className="max-sm:w-max md:max-lg:w-[210mm]">
-              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
-                <PinchZoomContainer naturalWidth={orientation === 'portrait' ? 794 : 1123}>
-                {(() => { console.log('Editor URL:', lightweightBgUrl); console.log('Master URL:', editorMasterUrl); return null; })()}
-                <InvitationCardPreview
-                  settings={editorSettings}
-                  eventData={eventData}
-                  selectedZoneId={selectedZoneId}
-                  onSelectZone={setSelectedZoneId}
-                  onZoneUpdate={handleZoneUpdate}
-                  onZoneDelete={handleZoneDelete}
-                  onZoneReset={handleZoneReset}
-                  onZoneDuplicate={handleZoneDuplicate}
-                  qrDataUrl={qrDataUrl}
-                  onQrConfigUpdate={handleQrConfigUpdate}
-                  qrWhitePlate
-                />
+            <div className="max-sm:w-max md:max-lg:w-[210mm] lg:h-full lg:flex lg:flex-col">
+              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto lg:h-full lg:flex-1 lg:min-h-0">
+                <PinchZoomContainer className="h-full" naturalWidth={orientation === 'portrait' ? 794 : 1123}>
+                  <InvitationCardPreview
+                    fitToContainer
+                    settings={editorSettings}
+                    eventData={eventData}
+                    selectedZoneId={selectedZoneId}
+                    onSelectZone={setSelectedZoneId}
+                    onZoneUpdate={handleZoneUpdate}
+                    onZoneDelete={handleZoneDelete}
+                    onZoneReset={handleZoneReset}
+                    onZoneDuplicate={handleZoneDuplicate}
+                    qrDataUrl={qrDataUrl}
+                    onQrConfigUpdate={handleQrConfigUpdate}
+                    qrWhitePlate
+                  />
                 </PinchZoomContainer>
               </div>
             </div>
