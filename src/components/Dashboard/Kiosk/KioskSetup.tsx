@@ -136,7 +136,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
         </CardHeader>
 
-        <CardContent className="pt-2 space-y-6">
+        <CardContent className="pt-6 space-y-6">
           {/* Choose Event row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
@@ -188,30 +188,36 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                   Choose an event above to generate your kiosk link and QR code.
                 </p>
               ) : (
-                <div className="space-y-6">
-                  {qrCodeDataUrl && (
-                    <div className="text-center p-6 bg-white rounded-lg border border-[#472c1d]">
-                      <h4 className="font-semibold mb-4 inline-flex items-center justify-center gap-2">
-                        <QrCode className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
-                        QR Code for Kiosk Setup
-                      </h4>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+                  {/* QR Code */}
+                  <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-[#472c1d] text-center">
+                    <h4 className="font-semibold mb-3 inline-flex items-center justify-center gap-2">
+                      <QrCode className="w-[18px] h-[18px]" strokeWidth={1.8} aria-hidden="true" />
+                      QR Code for Kiosk Setup
+                    </h4>
+                    {qrCodeDataUrl ? (
                       <img
                         src={qrCodeDataUrl}
                         alt="Kiosk QR Code"
-                        className="mx-auto mb-4"
+                        className="mx-auto mb-3 max-w-full h-auto"
                       />
-                      <p className="text-sm text-muted-foreground">
-                        Scan this QR code to quickly open the kiosk on a tablet or mobile device
-                      </p>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full aspect-square max-w-[200px] flex items-center justify-center text-sm text-muted-foreground mb-3">
+                        Generating QR code...
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      Scan this QR code to quickly open the kiosk on a tablet or mobile device
+                    </p>
+                  </div>
 
-                  <div className="p-4 bg-muted rounded-lg">
-                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 lg:gap-4 lg:justify-between">
-                      <code className="text-sm break-all flex-1 min-w-0">{kioskUrl}</code>
+                  {/* URL + Actions */}
+                  <div className="flex flex-col gap-3 justify-center">
+                    <div className="p-4 bg-muted rounded-lg flex flex-col gap-3">
+                      <code className="text-sm break-all block">{kioskUrl}</code>
                       <button
                         onClick={handleCopyUrl}
-                        className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors flex-shrink-0 w-full lg:w-auto"
+                        className="lv-premium-shade inline-flex items-center justify-center gap-2 h-12 px-5 text-base font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full"
                         aria-label="Copy kiosk URL"
                       >
                         {copied ? (
@@ -222,9 +228,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                         Copy
                       </button>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col gap-3">
                     <button
                       onClick={handleOpenKiosk}
                       disabled={isOpeningKiosk}
