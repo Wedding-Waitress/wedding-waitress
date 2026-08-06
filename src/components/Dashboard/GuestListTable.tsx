@@ -1908,8 +1908,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                   {selectedEventId ? (
                     <div className={cn(
-                      "border rounded-lg p-3 transition-all duration-300",
-                      relationsHidden ? "border-border bg-muted/30" : "border-primary/40 bg-primary/5"
+                      "rounded-lg p-3 transition-all duration-300",
+                      relationsHidden ? "bg-muted/30" : "bg-primary/5"
                     )}>
                       <div className="flex items-center justify-between mb-1">
                         <Label className="text-sm font-medium text-foreground flex items-center gap-1.5">
