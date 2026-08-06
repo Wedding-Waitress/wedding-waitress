@@ -1352,3 +1352,53 @@ img { content-visibility: auto; }
 .ww-brown-outline-core svg {
   border-color: transparent !important;
 }
+
+/* ---------------------------------------------------------------
+   Solid black supporting text on core organiser pages.
+   Applied via .ww-solid-text (see Dashboard.tsx). Turns faded grey
+   subheadings / descriptions / helper text into solid black, while
+   leaving placeholders, disabled controls, badges, status colours
+   and light-on-dark text untouched.
+   --------------------------------------------------------------- */
+.ww-solid-text [class*="text-muted-foreground"],
+.ww-solid-text [class*="text-gray-400"],
+.ww-solid-text [class*="text-gray-500"],
+.ww-solid-text [class*="text-gray-600"],
+.ww-solid-text [class*="text-slate-400"],
+.ww-solid-text [class*="text-slate-500"],
+.ww-solid-text [class*="text-slate-600"],
+.ww-solid-text [class*="text-neutral-400"],
+.ww-solid-text [class*="text-neutral-500"],
+.ww-solid-text [class*="6E6E73"],
+.ww-solid-text [class*="8E8E93"] {
+  color: #000000 !important;
+  opacity: 1 !important;
+}
+
+/* Never touch these. */
+.ww-solid-text ::placeholder,
+.ww-solid-text [disabled],
+.ww-solid-text [disabled] *,
+.ww-solid-text [aria-disabled="true"],
+.ww-solid-text [aria-disabled="true"] *,
+.ww-solid-text [data-disabled],
+.ww-solid-text [data-disabled] *,
+.ww-solid-text [class*="badge"],
+.ww-solid-text [class*="badge"] *,
+.ww-solid-text time,
+.ww-solid-text [class*="text-green"],
+.ww-solid-text [class*="text-emerald"],
+.ww-solid-text [class*="text-red"],
+.ww-solid-text [class*="text-rose"],
+.ww-solid-text [class*="text-destructive"],
+.ww-solid-text [class*="text-white"],
+.ww-solid-text [class*="text-white"] *,
+.ww-solid-text [class*="bg-[#472c1d]"] [class*="text-muted-foreground"],
+.ww-solid-text [class*="bg-[#967A59]"] [class*="text-muted-foreground"] {
+  color: inherit;
+}
+
+.ww-solid-text ::placeholder {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 1;
+}
