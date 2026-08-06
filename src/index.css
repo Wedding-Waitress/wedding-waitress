@@ -1437,3 +1437,32 @@ img { content-visibility: auto; }
 .ww-myevents-brown header .text-primary {
   color: #472c1d;
 }
+
+/* ── Create Event slide-out panel: brown outline + heading system ───────── */
+.ww-create-event-panel :is(h2, [data-radix-dialog-title]) {
+  font-family: Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #472c1d;
+}
+.ww-create-event-panel h3 {
+  font-family: Inter, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #472c1d;
+}
+/* Event name field + section outer boxes + all form controls */
+.ww-create-event-panel input,
+.ww-create-event-panel textarea,
+.ww-create-event-panel select,
+.ww-create-event-panel [role="combobox"],
+.ww-create-event-panel .border-2:not([role="switch"]),
+.ww-create-event-panel button:not([role="switch"]):not(.lv-premium-shade):not(.ww-emboss-green):not(.ww-emboss-red):not([data-slot="switch"]) {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #472c1d !important;
+}
+.ww-create-event-panel [role="switch"],
+.ww-create-event-panel [role="switch"] * {
+  border-color: transparent !important;
+}
