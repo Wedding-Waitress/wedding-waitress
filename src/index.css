@@ -1431,3 +1431,9 @@ img { content-visibility: auto; }
   font-size: 24px !important;
   line-height: 1.25 !important;
 }
+
+/* My Events page: header greeting + sparkle icon in Wedding Waitress brown */
+.ww-myevents-brown header h2.text-primary,
+.ww-myevents-brown header .text-primary {
+  color: #472c1d;
+}
