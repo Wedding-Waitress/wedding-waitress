@@ -47,11 +47,11 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
   };
 
   return (
-    <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
+    <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
-          <Settings2 className="w-[22px] h-[22px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
-          <CardTitle className="text-2xl font-bold text-foreground">Chart Settings</CardTitle>
+          <Settings2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+          <CardTitle className="font-bold text-[#472c1d]" style={{ fontSize: 20 }}>Chart Settings</CardTitle>
         </div>
         <CardDescription>
           Customize your full seating chart layout and appearance
@@ -62,12 +62,12 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         {/* Sort Settings */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-[18px] h-[18px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
+            <ArrowUpDown className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
           </div>
           
           <div>
-            <Label htmlFor="sort-by" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+            <Label htmlFor="sort-by" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
               <ListFilter className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Sort Guests By
             </Label>
@@ -77,7 +77,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 onSettingsChange({ sortBy: value })
               }
             >
-              <SelectTrigger id="sort-by" className="border-primary focus:ring-primary">
+              <SelectTrigger id="sort-by" className="border-[#472c1d] focus:ring-[#472c1d]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
@@ -94,13 +94,13 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         {/* Display Options */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Eye className="w-[18px] h-[18px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
+            <Eye className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           </div>
           
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-dietary" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+              <Label htmlFor="show-dietary" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
                 <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Show Dietary Requirements
               </Label>
@@ -113,7 +113,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="show-relation" className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+              <Label htmlFor="show-relation" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
                 <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Show Relationship
               </Label>
@@ -132,12 +132,12 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         {/* Typography */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Type className="w-[18px] h-[18px] text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
+            <Type className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
           </div>
           
           <div>
-            <Label className="text-xs text-muted-foreground inline-flex items-center gap-[7px]">
+            <Label className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]">
               <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Text Style
             </Label>
@@ -145,7 +145,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-between border-primary focus:ring-primary mt-1"
+                  className="w-full justify-between border-[#472c1d] focus:ring-[#472c1d] mt-1"
                 >
                   <span className="text-sm">{getTextStyleLabel()}</span>
                   <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
@@ -153,7 +153,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
                 <DropdownMenuItem 
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
                   onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                 >
                   <div className="flex items-center gap-2">
@@ -163,7 +163,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                   {settings.isBold && <Check className="w-4 h-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
                   onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                 >
                   <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                   {settings.isItalic && <Check className="w-4 h-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-primary text-foreground"
+                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
                   onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                 >
                   <div className="flex items-center gap-2">
