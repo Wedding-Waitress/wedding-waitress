@@ -318,8 +318,8 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   );
 
 
-  const cardClass = `rounded-2xl border p-4 sm:p-6 ${theme.surfaceClass}`;
-  const optionClass = 'rounded-xl border p-3 sm:p-4 space-y-3';
+  const cardClass = `rounded-2xl border-2 border-[#967A59] p-4 sm:p-6 ${theme.surfaceClass}`;
+  const optionClass = 'rounded-xl border-2 p-3 sm:p-4 space-y-3';
   const badge = (letter: string) => (
     <span
       className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
@@ -352,7 +352,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
           </Label>
           <Input
             id="gb-name"
-            className="h-12 text-base mt-2 bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
+            className="h-12 text-base mt-2 bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-2 border-[#967A59]"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Enter your full name"
@@ -362,14 +362,14 @@ export const GuestGuestbookTab: React.FC<Props> = ({
 
         {/* Option A — written message */}
         {textEnabled && (
-          <div className={optionClass} style={{ borderColor: `${accent}55` }}>
+          <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
               {badge('A')}
               <h3 className="text-base font-semibold text-black">Leave a Digital Guestbook Message</h3>
             </div>
             <Textarea
               id="gb-text"
-              className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-neutral-300"
+              className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-2 border-[#967A59]"
               value={message}
               onChange={e => setMessage(e.target.value)}
               maxLength={2000}
@@ -393,7 +393,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                 </Button>
                 <Button
                   type="button"
-                  className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                  className="ww-emboss-red h-11 flex-1 text-base text-white"
                   disabled={savingText || removingKind === 'text'}
                   onClick={removeText}
                 >
@@ -409,7 +409,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
 
         {/* Option B — audio message */}
         {voiceEnabled && (
-          <div className={optionClass} style={{ borderColor: `${accent}55` }}>
+          <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
               {badge('B')}
               <h3 className="text-base font-semibold text-black">Leave an Audio Guestbook Message</h3>
@@ -476,7 +476,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                   </Button>
                   <Button
                     type="button"
-                    className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                    className="ww-emboss-red h-11 flex-1 text-base text-white"
                     disabled={savingKind === 'audio' || removingKind === 'audio'}
                     onClick={() => removeRecording('audio')}
                   >
@@ -493,7 +493,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
 
         {/* Option C — video message */}
         {voiceEnabled && (
-          <div className={optionClass} style={{ borderColor: `${accent}55` }}>
+          <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
               {badge('C')}
               <h3 className="text-base font-semibold text-black">Leave a Video Guestbook Message</h3>
@@ -566,7 +566,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                   </Button>
                   <Button
                     type="button"
-                    className="ww-emboss-red h-11 flex-1 text-base text-white bg-red-600 hover:bg-red-700"
+                    className="ww-emboss-red h-11 flex-1 text-base text-white"
                     disabled={savingKind === 'video' || removingKind === 'video'}
                     onClick={() => removeRecording('video')}
                   >
