@@ -101,11 +101,12 @@ export const PhotoBoothDownloadAllButton: React.FC<{
       className={`lv-premium-shade h-11 gap-2 justify-between w-full sm:w-auto ${className || ''}`}
       onClick={run}
       disabled={busy || total === 0}
+      aria-label="Download all Photo Booth photos and videos"
       title={total === 0 ? 'No captures available' : undefined}
     >
       <span className="flex items-center">
         {busy ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin shrink-0" strokeWidth={1.8} /> : <FolderDown className="h-4 w-4 mr-2 shrink-0" strokeWidth={1.8} />}
-        <span className="whitespace-nowrap">Download All Digital Photo Booth Photos</span>
+        <span className="whitespace-nowrap">Download All</span>
       </span>
       <span className="text-xs text-muted-foreground shrink-0">{busy && done > 0 ? `${done}/${total}` : total}</span>
     </Button>
