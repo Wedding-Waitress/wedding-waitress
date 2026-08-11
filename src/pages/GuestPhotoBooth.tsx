@@ -117,6 +117,13 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
+  const isTransientLoadError = (error: unknown) => {
+    const message = String((error as any)?.message || error || '').toLowerCase();
+    if (/timeout|timed out|failed to fetch|network|connection refused|service unavailable|502|503|504|5\d\d/.test(message)) return true;
+    if (typeof (error as any)?.status === 'number' && ((error as any).status >= 500 || (error as any).status === 429)) return true;
+    return false;
+  };
+
   useEffect(() => {
     if (!token) { setLoading(false); setNotFound(true); return; }
     let cancelled = false;
@@ -124,30 +131,54 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     setLoadError(null);
     setNotFound(false);
     setGallery(null);
-    (async () => {
-      // One silent automatic retry: a single flaky request must not surface as an error.
-      for (let attemptNo = 0; attemptNo < 2; attemptNo++) {
+
+    const loadGallery = async () => {
+      const maxAttempts = 2;
+      const retryDelayMs = 700;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        if (cancelled) return;
+        if (attempt > 0) {
+          await new Promise(resolve => setTimeout(resolve, retryDelayMs));
+          if (cancelled) return;
+        }
+
         try {
           const { data, error } = await (supabase as any).rpc('get_event_media_gallery_public', { _token: token });
           if (cancelled) return;
-          if (error) throw error;
+
           const row = Array.isArray(data) ? data[0] : data;
-          if (!row) setNotFound(true);
-          else setGallery(row as GalleryPublic);
-          if (!cancelled) { setLoadError(null); setLoading(false); }
+          if (row) {
+            setGallery(row as GalleryPublic);
+            if (!cancelled) { setLoadError(null); setLoading(false); }
+            return;
+          }
+
+          if (error) {
+            if (isTransientLoadError(error) && attempt < maxAttempts - 1) {
+              continue;
+            }
+            setLoadError('We could not load the Photo Booth. Please check your connection and try again.');
+            setLoading(false);
+            return;
+          }
+
+          setNotFound(true);
+          if (!cancelled) { setLoading(false); }
           return;
-        } catch {
+        } catch (error) {
           if (cancelled) return;
-          if (attemptNo === 0) {
-            await new Promise(r => setTimeout(r, 700));
-            if (cancelled) return;
+          if (isTransientLoadError(error) && attempt < maxAttempts - 1) {
             continue;
           }
           setLoadError('We could not load the Photo Booth. Please check your connection and try again.');
           setLoading(false);
+          return;
         }
       }
-    })();
+    };
+
+    loadGallery();
     return () => { cancelled = true; };
   }, [token, loadAttempt]);
 

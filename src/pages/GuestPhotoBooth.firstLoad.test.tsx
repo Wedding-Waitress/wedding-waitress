@@ -11,8 +11,8 @@ import { MemoryRouter } from 'react-router-dom';
  * after a full page refresh.
  */
 
-let rpcResolve: (v: any) => void;
-const rpc = vi.fn(() => new Promise(res => { rpcResolve = res; }));
+let rpcResolves: Array<(v: any) => void>;
+const rpc = vi.fn(() => new Promise(res => { rpcResolves.push(res); }));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: { rpc: (...args: any[]) => rpc(...(args as [])) },
@@ -48,6 +48,7 @@ const GALLERY_ROW = {
 
 describe('GuestPhotoBooth first-load initialisation', () => {
   beforeEach(() => {
+    rpcResolves = [];
     rpc.mockClear();
     getUserMedia.mockReset();
     getUserMedia.mockResolvedValue({ getTracks: () => [] });
@@ -71,13 +72,13 @@ describe('GuestPhotoBooth first-load initialisation', () => {
     expect(screen.getByText('Opening Photo Booth…')).toBeTruthy();
     expect(getUserMedia).not.toHaveBeenCalled();
 
-    rpcResolve({ data: [GALLERY_ROW], error: null });
+    rpcResolves[0]({ data: [GALLERY_ROW], error: null });
 
     await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1));
     expect(screen.queryByText('Opening Photo Booth…')).toBeNull();
   });
 
-  it('shows a retry action instead of crashing when the config request fails', async () => {
+  it('shows a retry action after two failed startup attempts', async () => {
     const { GuestPhotoBooth } = await import('@/pages/GuestPhotoBooth');
 
     render(
@@ -86,10 +87,30 @@ describe('GuestPhotoBooth first-load initialisation', () => {
       </MemoryRouter>,
     );
 
-    rpcResolve({ data: null, error: { message: 'network' } });
+    rpcResolves[0]({ data: null, error: { message: 'network failure' } });
+    await waitFor(() => expect(rpc).toHaveBeenCalledTimes(2));
+    rpcResolves[1]({ data: null, error: { message: 'network failure' } });
 
     await waitFor(() => expect(screen.getByText('We couldn’t open the Photo Booth')).toBeTruthy());
     expect(screen.getByRole('button', { name: /retry/i })).toBeTruthy();
     expect(getUserMedia).not.toHaveBeenCalled();
+  });
+
+  it('automatically retries once and succeeds after a temporary failure', async () => {
+    const { GuestPhotoBooth } = await import('@/pages/GuestPhotoBooth');
+
+    render(
+      <MemoryRouter>
+        <GuestPhotoBooth tokenProp="tok-123" embedded />
+      </MemoryRouter>,
+    );
+
+    rpcResolves[0]({ data: null, error: { message: 'network failure' } });
+    await waitFor(() => expect(rpc).toHaveBeenCalledTimes(2));
+    rpcResolves[1]({ data: [GALLERY_ROW], error: null });
+
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText('Opening Photo Booth…')).toBeNull();
+    expect(screen.queryByText('We couldn’t open the Photo Booth')).toBeNull();
   });
 });
