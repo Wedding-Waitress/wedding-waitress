@@ -46,6 +46,9 @@ export interface IndividualChartSettings {
   isItalic: boolean;
   isUnderline: boolean;
   largerTableNames: boolean;
+  guestTextSize?: 'small' | 'standard' | 'large';
+  dietaryColor?: '#000000' | '#C62828' | '#1565C0' | '#2E7D32' | null;
+  relationshipColor?: '#000000' | '#C62828' | '#1565C0' | '#2E7D32' | null;
   paperSize: 'A4';
   title: string;
   showLogo: boolean;
@@ -73,6 +76,9 @@ const defaultSettings: IndividualChartSettings = {
   isItalic: false,
   isUnderline: false,
   largerTableNames: false,
+  guestTextSize: 'standard',
+  dietaryColor: null,
+  relationshipColor: null,
   paperSize: 'A4',
   title: '',
   showLogo: true,
@@ -91,7 +97,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     const stored = sessionStorage.getItem('ww:individual_table_chart_settings');
     if (stored) {
       try {
-        return { ...defaultSettings, ...JSON.parse(stored) };
+        const parsed = JSON.parse(stored);
+        const guestTextSize = ['small', 'standard', 'large'].includes(parsed.guestTextSize)
+          ? parsed.guestTextSize
+          : 'standard';
+        const accentColors = ['#000000', '#C62828', '#1565C0', '#2E7D32'];
+        const dietaryColor = accentColors.includes(parsed.dietaryColor) ? parsed.dietaryColor : null;
+        const relationshipColor = accentColors.includes(parsed.relationshipColor) ? parsed.relationshipColor : null;
+        return { ...defaultSettings, ...parsed, guestTextSize, dietaryColor, relationshipColor };
       } catch {
         return defaultSettings;
       }
@@ -193,7 +206,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         settings,
         selectedTable,
         guests,
-        selectedEvent
+        selectedEvent,
+        tables.findIndex((table) => table.id === selectedTableId) + 1,
+        tables.length
       );
       
       const eventName = selectedEvent.name.replace(/[<>:"/\\|?*]/g, '');
@@ -271,9 +286,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       </AlertDialog>
       {/* Event and Table Selection */}
       <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-        <CardHeader className="space-y-4">
-          {/* Title and Description */}
-          <div>
+        <CardHeader className="space-y-0">
+          <div
+            data-individual-chart-top-layout="true"
+            className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] xl:gap-6 xl:items-stretch"
+          >
+            <div data-individual-chart-existing-controls="true" className="space-y-4 min-w-0">
+              {/* Title and Description */}
+              <div>
             <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
               <TableProperties className="w-6 h-6 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Individual Table Seating Chart
@@ -281,10 +301,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             <p className="text-muted-foreground">
               Generate detailed seating charts for individual tables
             </p>
-          </div>
+              </div>
 
-          {/* Choose Event + Table dropdowns */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
+              {/* Choose Event + Table dropdowns */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
@@ -346,41 +366,49 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 </SelectContent>
               </Select>
             </div>
-          </div>
+              </div>
+            </div>
 
-          {/* Export Controls */}
-          {isDataReady && (
-            <div className="border border-primary rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-sm flex items-center gap-1.5">
-                <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                <span><span className="font-bold">Export Controls</span>
-                {' '}Download &amp; share your individual table charts with your venue.</span>
-              </p>
-              <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+            {/* Export Controls */}
+            {isDataReady && (
+              <div
+                data-export-controls-card="true"
+                className="bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0"
+              >
+                <div className="text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="font-bold inline-flex items-center gap-1.5">
+                    <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                    Export Controls
+                  </span>
+                  <span className="text-muted-foreground">Download &amp; share your individual table charts with your venue.</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
                 <button 
                   onClick={handleDownloadPdf}
                   disabled={isExporting || isExportingAll}
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                  aria-label="Download single page PDF"
+                  className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                 >
                   {isExporting
-                    ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
-                    : <FileDown className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
+                    ? <LoaderCircle className="w-4 h-4 animate-spin text-green-600" strokeWidth={1.8} aria-hidden="true" />
+                    : <FileDown className="w-4 h-4 text-green-600" strokeWidth={1.8} aria-hidden="true" />}
                   Download single page PDF
                 </button>
                 <button 
                   onClick={handleDownloadAllPdf}
                   disabled={isExporting || isExportingAll}
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                  aria-label="Download all pages PDF"
+                  className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                 >
                   {isExportingAll
-                    ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
-                    : <Files className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
-                  {isExportingAll ? `Exporting ${tables.length} tables...` : 'Download all pages PDF'}
+                    ? <LoaderCircle className="w-4 h-4 animate-spin text-green-600" strokeWidth={1.8} aria-hidden="true" />
+                    : <Files className="w-4 h-4 text-green-600" strokeWidth={1.8} aria-hidden="true" />}
+                  Download all pages PDF
                 </button>
+                </div>
               </div>
-
-            </div>
-          )}
+            )}
+          </div>
         </CardHeader>
       </Card>
 
