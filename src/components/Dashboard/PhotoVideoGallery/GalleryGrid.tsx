@@ -57,7 +57,9 @@ export const GalleryGrid: React.FC<{
   /** Optional controls rendered at the far right of the header row. */
   headerRight?: React.ReactNode;
   toolbarRight?: React.ReactNode;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight }) => {
+  /** Hide album filtering and per-item album actions (Photo Booth workspace). */
+  hideAlbumFeature?: boolean;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -71,6 +73,7 @@ export const GalleryGrid: React.FC<{
   const [bulkBusy, setBulkBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
+  const showAlbumControls = !hideAlbumFeature;
 
   // Apply search + media type + album first; moderation counts reflect this subset.
   const searchedTyped = useMemo(() => {
@@ -78,7 +81,7 @@ export const GalleryGrid: React.FC<{
     return items.filter(i => {
       if (mediaType === 'photos' && i.kind !== 'photo') return false;
       if (mediaType === 'videos' && i.kind !== 'video') return false;
-      if (albumFilter !== 'all') {
+      if (showAlbumControls && albumFilter !== 'all') {
         if (albumFilter === 'Other') {
           if (i.album !== null && i.album !== 'Other') return false;
         } else if (i.album !== albumFilter) {
@@ -423,24 +426,28 @@ export const GalleryGrid: React.FC<{
 
       {/* Album + moderation filter pills in one row */}
       <div className="flex gap-2 flex-wrap mb-5 items-center">
-        <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
-        <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
-        {ALBUM_FILTERS.map(a => {
-          const active = albumFilter === a.value;
-          return (
-            <button
-              key={a.value}
-              type="button"
-              onClick={() => setAlbumFilter(a.value)}
-              className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
-                active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
-              }`}
-            >
-              {a.label}
-            </button>
-          );
-        })}
-        <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
+        {showAlbumControls && (
+          <>
+            <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
+            <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
+            {ALBUM_FILTERS.map(a => {
+              const active = albumFilter === a.value;
+              return (
+                <button
+                  key={a.value}
+                  type="button"
+                  onClick={() => setAlbumFilter(a.value)}
+                  className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
+                    active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+                  }`}
+                >
+                  {a.label}
+                </button>
+              );
+            })}
+            <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
+          </>
+        )}
         <FilterBtn value="all" label="All Statuses" count={counts.all} />
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
@@ -483,24 +490,26 @@ export const GalleryGrid: React.FC<{
             >
               <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
             </Button>
-            <Select
-              disabled={bulkBusy || visibleSelectedCount === 0}
-              value=""
-              onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
-            >
-              <SelectTrigger className="lv-premium-shade h-9 w-full sm:w-[170px] bg-white">
-                <span className="flex items-center text-sm min-w-0">
-                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59] shrink-0" /> <span className="truncate">Move to album…</span>
-                </span>
-              </SelectTrigger>
+            {showAlbumControls && (
+              <Select
+                disabled={bulkBusy || visibleSelectedCount === 0}
+                value=""
+                onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
+              >
+                <SelectTrigger className="lv-premium-shade h-9 w-full sm:w-[170px] bg-white">
+                  <span className="flex items-center text-sm min-w-0">
+                    <FolderOpen className="h-4 w-4 mr-1 text-[#967A59] shrink-0" /> <span className="truncate">Move to album…</span>
+                  </span>
+                </SelectTrigger>
 
-              <SelectContent>
-                {GALLERY_ALBUMS.map(a => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
-                ))}
-                <SelectItem value="__none__">No album</SelectItem>
-              </SelectContent>
-            </Select>
+                <SelectContent>
+                  {GALLERY_ALBUMS.map(a => (
+                    <SelectItem key={a} value={a}>{a}</SelectItem>
+                  ))}
+                  <SelectItem value="__none__">No album</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
 
             <Button
               className="lv-premium-shade"
@@ -649,25 +658,6 @@ export const GalleryGrid: React.FC<{
                   {it.caption && (
                     <div className="text-muted-foreground truncate" title={it.caption}>{it.caption}</div>
                   )}
-                  <div className="mt-1">
-                    <Select
-                      value={it.album ?? '__none__'}
-                      onValueChange={(v) => moveSingleToAlbum(it.id, v === '__none__' ? null : (v as GalleryAlbum))}
-                    >
-                      <SelectTrigger className="h-7 text-[10px] px-1.5 bg-white" onClick={(e) => e.stopPropagation()}>
-                        <span className="flex items-center gap-1 truncate">
-                          <FolderOpen className="h-3 w-3 text-[#967A59] shrink-0" />
-                          <span className="truncate">{it.album ?? 'No album'}</span>
-                        </span>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">No album</SelectItem>
-                        {GALLERY_ALBUMS.map(a => (
-                          <SelectItem key={a} value={a}>{a}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </div>
             );
@@ -682,6 +672,7 @@ export const GalleryGrid: React.FC<{
           index={lightboxIndex}
           onIndexChange={(i) => setLightboxId(lightboxItems[i]?.id ?? null)}
           onClose={() => setLightboxId(null)}
+          showAlbumInfo={showAlbumControls}
         />
       )}
 

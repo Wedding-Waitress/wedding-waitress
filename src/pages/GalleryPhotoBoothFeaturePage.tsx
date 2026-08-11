@@ -134,6 +134,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
               onSetAlbum={setAlbum}
               onBulkSetAlbum={bulkSetAlbum}
               boothSetOrder
+              hideAlbumFeature
               eventName={(selectedEvent as any)?.name}
               title="Digital Photo Booth Captures"
               description="Review, organise, approve, hide and download photos taken in your Digital Photo Booth."

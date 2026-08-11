@@ -12,6 +12,7 @@ interface Props {
   index: number;
   onIndexChange: (i: number) => void;
   onClose: () => void;
+  showAlbumInfo?: boolean;
 }
 
 const fmtDate = (iso: string | null) => {
@@ -180,7 +181,9 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
             <div className="flex justify-between gap-4"><span className="text-white/60">Uploader</span><span className="text-white text-right">{item.uploader_name || 'Anonymous guest'}</span></div>
             <div className="flex justify-between gap-4"><span className="text-white/60">Uploaded</span><span className="text-white text-right">{fmtDate(item.uploaded_at)}</span></div>
             <div className="flex justify-between gap-4"><span className="text-white/60">Guest hearts</span><span className="text-white text-right">{item.like_count ?? 0}</span></div>
-            <div className="flex justify-between gap-4"><span className="text-white/60">Album</span><span className="text-white text-right">{item.album || 'No album'}</span></div>
+            {showAlbumInfo ? (
+              <div className="flex justify-between gap-4"><span className="text-white/60">Album</span><span className="text-white text-right">{item.album || 'No album'}</span></div>
+            ) : null}
             <div className="flex justify-between gap-4"><span className="text-white/60">Type</span>
               <span className="text-right">
                 <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded bg-white/20 text-white">{typeBadge}</span>
