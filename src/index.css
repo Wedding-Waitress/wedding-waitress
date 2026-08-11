@@ -1882,7 +1882,7 @@ img { content-visibility: auto; }
   border-style: solid !important;
   border-color: #472c1d !important;
 }
-.ww-itc-brown [class*="border-green"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="border-green"]:not(.ww-itc-export-button):not(.ww-itc-preview *),
 .ww-itc-brown [class*="border-red"]:not(.ww-itc-preview *),
 .ww-itc-brown [class*="border-amber"]:not(.ww-itc-preview *),
 .ww-itc-brown [class*="border-destructive"]:not(.ww-itc-preview *) {
@@ -1890,7 +1890,7 @@ img { content-visibility: auto; }
 }
 .ww-itc-brown .text-amber-600:not(.ww-itc-preview *),
 .ww-itc-brown .text-destructive:not(.ww-itc-preview *),
-.ww-itc-brown [class*="text-green"]:not(.ww-itc-preview *),
+.ww-itc-brown [class*="text-green"]:not(.ww-itc-export-button):not(.ww-itc-preview *),
 .ww-itc-brown [class*="text-red"]:not(.ww-itc-preview *) {
   color: inherit;
 }

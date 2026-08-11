@@ -57,7 +57,9 @@ export const GalleryGrid: React.FC<{
   /** Optional controls rendered at the far right of the header row. */
   headerRight?: React.ReactNode;
   toolbarRight?: React.ReactNode;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight }) => {
+  /** Hide album filtering and per-item album actions (Photo Booth workspace). */
+  hideAlbumFeature?: boolean;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -71,6 +73,7 @@ export const GalleryGrid: React.FC<{
   const [bulkBusy, setBulkBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
+  const showAlbumControls = !hideAlbumFeature;
 
   // Apply search + media type + album first; moderation counts reflect this subset.
   const searchedTyped = useMemo(() => {
@@ -78,7 +81,7 @@ export const GalleryGrid: React.FC<{
     return items.filter(i => {
       if (mediaType === 'photos' && i.kind !== 'photo') return false;
       if (mediaType === 'videos' && i.kind !== 'video') return false;
-      if (albumFilter !== 'all') {
+      if (showAlbumControls && albumFilter !== 'all') {
         if (albumFilter === 'Other') {
           if (i.album !== null && i.album !== 'Other') return false;
         } else if (i.album !== albumFilter) {
@@ -381,9 +384,9 @@ export const GalleryGrid: React.FC<{
       </div>
 
 
-      {/* Search + type + sort + select */}
-      <div className="flex flex-wrap items-center gap-2 mb-3">
-        <div className="relative flex-1 min-w-[200px]">
+      {/* Search + status + type + sort + select */}
+      <div data-testid="gallery-toolbar" className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="relative flex-1 min-w-[15rem] max-w-[38rem]">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <Input
             value={search}
@@ -402,6 +405,9 @@ export const GalleryGrid: React.FC<{
             </button>
           )}
         </div>
+        <FilterBtn value="all" label="All Statuses" count={counts.all} />
+        <FilterBtn value="approved" label="Approved" count={counts.approved} />
+        <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
           <SelectTrigger className="h-9 w-full sm:w-[140px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -418,33 +424,31 @@ export const GalleryGrid: React.FC<{
           </SelectContent>
         </Select>
         <div className="shrink-0">{selectControls}</div>
-        {toolbarRight && <div className="shrink-0 w-full sm:w-auto sm:ml-auto">{toolbarRight}</div>}
+        {toolbarRight && <div className="shrink-0 w-full sm:w-auto">{toolbarRight}</div>}
       </div>
 
-      {/* Album + moderation filter pills in one row */}
-      <div className="flex gap-2 flex-wrap mb-5 items-center">
-        <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
-        <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
-        {ALBUM_FILTERS.map(a => {
-          const active = albumFilter === a.value;
-          return (
-            <button
-              key={a.value}
-              type="button"
-              onClick={() => setAlbumFilter(a.value)}
-              className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
-                active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
-              }`}
-            >
-              {a.label}
-            </button>
-          );
-        })}
-        <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
-        <FilterBtn value="all" label="All Statuses" count={counts.all} />
-        <FilterBtn value="approved" label="Approved" count={counts.approved} />
-        <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
-      </div>
+      {showAlbumControls && (
+        <div className="flex gap-2 flex-wrap mb-5 items-center">
+          <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
+          <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
+          {ALBUM_FILTERS.map(a => {
+            const active = albumFilter === a.value;
+            return (
+              <button
+                key={a.value}
+                type="button"
+                onClick={() => setAlbumFilter(a.value)}
+                className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
+                  active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+                }`}
+              >
+                {a.label}
+              </button>
+            );
+          })}
+          <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
+        </div>
+      )}
 
 
 
@@ -483,24 +487,26 @@ export const GalleryGrid: React.FC<{
             >
               <EyeOff className="h-4 w-4 mr-1 text-amber-600" /> Hide
             </Button>
-            <Select
-              disabled={bulkBusy || visibleSelectedCount === 0}
-              value=""
-              onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
-            >
-              <SelectTrigger className="lv-premium-shade h-9 w-full sm:w-[170px] bg-white">
-                <span className="flex items-center text-sm min-w-0">
-                  <FolderOpen className="h-4 w-4 mr-1 text-[#967A59] shrink-0" /> <span className="truncate">Move to album…</span>
-                </span>
-              </SelectTrigger>
+            {showAlbumControls && (
+              <Select
+                disabled={bulkBusy || visibleSelectedCount === 0}
+                value=""
+                onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
+              >
+                <SelectTrigger className="lv-premium-shade h-9 w-full sm:w-[170px] bg-white">
+                  <span className="flex items-center text-sm min-w-0">
+                    <FolderOpen className="h-4 w-4 mr-1 text-[#967A59] shrink-0" /> <span className="truncate">Move to album…</span>
+                  </span>
+                </SelectTrigger>
 
-              <SelectContent>
-                {GALLERY_ALBUMS.map(a => (
-                  <SelectItem key={a} value={a}>{a}</SelectItem>
-                ))}
-                <SelectItem value="__none__">No album</SelectItem>
-              </SelectContent>
-            </Select>
+                <SelectContent>
+                  {GALLERY_ALBUMS.map(a => (
+                    <SelectItem key={a} value={a}>{a}</SelectItem>
+                  ))}
+                  <SelectItem value="__none__">No album</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
 
             <Button
               className="lv-premium-shade"
@@ -539,17 +545,10 @@ export const GalleryGrid: React.FC<{
           {filtered.map(it => {
             const isHidden = it.moderation_status === 'hidden';
             const isSelected = selected.has(it.id);
-            const boothBadge = it.is_photo_booth_strip
-              ? 'Strip'
-              : it.is_photo_booth
-                ? 'Booth'
-                : it.is_guestbook
-                  ? (it.kind === 'audio' ? 'Voice' : 'Video')
-                  : null;
             return (
               <div
                 key={it.id}
-                className={`relative group rounded-lg overflow-hidden bg-white flex flex-col ${
+                className={`relative group overflow-hidden bg-white flex flex-col ${
                   boothSetOrder
                     ? 'border border-[#472c1d] w-[calc((100%-0.5rem)/2)] sm:w-[calc((100%-1.25rem)/3)] md:w-[calc((100%-1.875rem)/4)] lg:w-[calc((100%-2.5rem)/5)] xl:w-[calc((100%-3.125rem)/6)]'
                     : 'border border-black'
@@ -580,18 +579,13 @@ export const GalleryGrid: React.FC<{
                     </button>
                   )}
 
-                  {/* Status / type badges */}
+                  {/* Status badge */}
                   <div className="absolute top-1 left-1 z-10 flex flex-col items-start gap-1 pointer-events-none">
                     <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide ${
                       isHidden ? 'bg-black/70 text-white' : 'bg-green-600/85 text-white'
                     }`}>
                       {isHidden ? 'Hidden' : 'Approved'}
                     </span>
-                    {boothBadge && (
-                      <span className="text-[9px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide bg-[#967A59]/90 text-white">
-                        {boothBadge}
-                      </span>
-                    )}
                   </div>
 
                   {!selectMode && !hideCardActions && (
@@ -649,25 +643,6 @@ export const GalleryGrid: React.FC<{
                   {it.caption && (
                     <div className="text-muted-foreground truncate" title={it.caption}>{it.caption}</div>
                   )}
-                  <div className="mt-1">
-                    <Select
-                      value={it.album ?? '__none__'}
-                      onValueChange={(v) => moveSingleToAlbum(it.id, v === '__none__' ? null : (v as GalleryAlbum))}
-                    >
-                      <SelectTrigger className="h-7 text-[10px] px-1.5 bg-white" onClick={(e) => e.stopPropagation()}>
-                        <span className="flex items-center gap-1 truncate">
-                          <FolderOpen className="h-3 w-3 text-[#967A59] shrink-0" />
-                          <span className="truncate">{it.album ?? 'No album'}</span>
-                        </span>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__none__">No album</SelectItem>
-                        {GALLERY_ALBUMS.map(a => (
-                          <SelectItem key={a} value={a}>{a}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </div>
             );
@@ -682,6 +657,7 @@ export const GalleryGrid: React.FC<{
           index={lightboxIndex}
           onIndexChange={(i) => setLightboxId(lightboxItems[i]?.id ?? null)}
           onClose={() => setLightboxId(null)}
+          showAlbumInfo={showAlbumControls}
         />
       )}
 

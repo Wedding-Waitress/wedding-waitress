@@ -41,7 +41,6 @@ import {
   ListOrdered,
   UtensilsCrossed,
   HeartHandshake,
-  Scaling,
   CaseSensitive,
 } from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
@@ -50,6 +49,40 @@ interface IndividualTableChartCustomizerProps {
   settings: IndividualChartSettings;
   onSettingsChange: (settings: Partial<IndividualChartSettings>) => void;
 }
+
+export type AccentColor = NonNullable<IndividualChartSettings['dietaryColor']>;
+export const toggleAccentColor = (selected: AccentColor | null | undefined, clicked: AccentColor) =>
+  selected === clicked ? null : clicked;
+const ACCENT_COLORS: Array<{ value: AccentColor; label: string }> = [
+  { value: '#000000', label: 'black' },
+  { value: '#C62828', label: 'red' },
+  { value: '#1565C0', label: 'blue' },
+  { value: '#2E7D32', label: 'green' },
+];
+
+const ColorSwatches = ({ name, selected, onChange }: {
+  name: string;
+  selected: AccentColor | null | undefined;
+  onChange: (color: AccentColor | null) => void;
+}) => (
+  <div className="flex items-center gap-1.5 shrink-0" role="group" aria-label={`${name} colour`}>
+    {ACCENT_COLORS.map(({ value, label }) => {
+      const isSelected = (selected || '#000000') === value;
+      return (
+        <button
+          key={value}
+          type="button"
+          aria-label={`${isSelected ? 'Clear' : 'Use'} ${label} for ${name}`}
+          title={`${isSelected ? 'Clear' : 'Use'} ${label} for ${name}`}
+          aria-pressed={isSelected}
+          onClick={() => onChange(toggleAccentColor(selected || '#000000', value))}
+          className={`h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
+          style={{ backgroundColor: value }}
+        />
+      );
+    })}
+  </div>
+);
 
 export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustomizerProps> = ({
   settings,
@@ -118,6 +151,36 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               </>
             )}
           </div>
+
+          {settings.tableShape === 'long' && (
+            <>
+              <div className="space-y-4">
+                <h3 className="font-semibold text-sm">End Seats</h3>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="enable-end-seats">Add Top/Bottom Seats</Label>
+                  <Switch
+                    id="enable-end-seats"
+                    checked={settings.enableEndSeats}
+                    onCheckedChange={(checked) => onSettingsChange({ enableEndSeats: checked })}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Add seats at the top and bottom ends of the long table for special guests.
+                </p>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="font-semibold text-sm">Long Table Info</h3>
+                <p className="text-xs text-muted-foreground">
+                  Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
+                </p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>• 20-30 guests: Normal font</p>
+                  <p>• 31-42 guests: Smaller font</p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
 
@@ -172,11 +235,16 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-dietary" className="flex items-center gap-[7px]">
+          <div className="flex items-center gap-3">
+            <Label htmlFor="show-dietary" className="flex flex-1 items-center gap-[7px]">
               <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Dietary Requirements
             </Label>
+            <ColorSwatches
+              name="dietary requirements"
+              selected={settings.dietaryColor}
+              onChange={(dietaryColor) => onSettingsChange({ dietaryColor })}
+            />
             <Switch
               id="show-dietary"
               checked={settings.includeDietary}
@@ -186,11 +254,16 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-relation" className="flex items-center gap-[7px]">
+          <div className="flex items-center gap-3">
+            <Label htmlFor="show-relation" className="flex flex-1 items-center gap-[7px]">
               <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Relationship
             </Label>
+            <ColorSwatches
+              name="relationships"
+              selected={settings.relationshipColor}
+              onChange={(relationshipColor) => onSettingsChange({ relationshipColor })}
+            />
             <Switch
               id="show-relation"
               checked={settings.includeRelation}
@@ -205,27 +278,32 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         <Separator />
 
-        {/* Typography - Hidden for Long Table (auto-scaling) */}
-        {settings.tableShape !== 'long' && (
+        {/* Typography */}
+        {
           <div className="space-y-4">
            <span className="text-primary border border-primary rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold">
               <Type className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Typography
             </span>
             
-            <div className="flex items-center justify-between">
-              <Label htmlFor="larger-table-names" className="text-sm font-medium text-foreground flex items-center gap-[7px]">
-                <Scaling className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                Guest Table Names Larger
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground flex items-center gap-[7px]">
+                <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                Guest Text Size
               </Label>
-              <Switch
-                id="larger-table-names"
-                checked={settings.largerTableNames}
-                onCheckedChange={(checked) => 
-                  onSettingsChange({ largerTableNames: checked })
-                }
-                className="data-[state=checked]:bg-success"
-              />
+              <Select
+                value={settings.guestTextSize || 'standard'}
+                onValueChange={(value: 'small' | 'standard' | 'large') => onSettingsChange({ guestTextSize: value })}
+              >
+                <SelectTrigger className="w-full border-primary focus:ring-primary">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="small">Small — 8 pt</SelectItem>
+                  <SelectItem value="standard">Standard — 10 pt</SelectItem>
+                  <SelectItem value="large">Large — 12 pt</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -244,7 +322,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                       if (settings.isBold) active.push('Bold');
                       if (settings.isItalic) active.push('Italic');
                       if (settings.isUnderline) active.push('Underline');
-                      return active.length > 0 ? active.join(', ') : 'None';
+                      return active.length > 0 ? active.join(', ') : 'Select styles';
                     })()}</span>
                     <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
                   </Button>
@@ -285,46 +363,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             </div>
 
           </div>
-        )}
+        }
         
-        {settings.tableShape === 'long' && (
-          <>
-            <Separator />
-            <div className="space-y-4">
-              <h3 className="font-semibold text-sm">End Seats</h3>
-              
-              {/* Master Toggle */}
-              <div className="flex items-center justify-between">
-                <Label htmlFor="enable-end-seats">Add Top/Bottom Seats</Label>
-                <Switch
-                  id="enable-end-seats"
-                  checked={settings.enableEndSeats}
-                  onCheckedChange={(checked) => 
-                    onSettingsChange({ enableEndSeats: checked })
-                  }
-                  
-                />
-              </div>
-
-              <p className="text-xs text-muted-foreground">
-                Add seats at the top and bottom ends of the long table for special guests.
-              </p>
-            </div>
-
-            <Separator />
-            
-            <div className="space-y-4">
-              <h3 className="font-semibold text-sm">Long Table Info</h3>
-              <p className="text-xs text-muted-foreground">
-                Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
-              </p>
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>• 20-30 guests: Normal font</p>
-                <p>• 31-42 guests: Smaller font</p>
-              </div>
-            </div>
-          </>
-        )}
       </CardContent>
     </Card>
   );

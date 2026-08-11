@@ -11,62 +11,96 @@
  * Last completed: 2025-10-04
  */
 
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
+import { IndividualTableChartPrintPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableChartPrintPage';
+import { A4_MM, A4_PAGE_STYLE, A4_PX } from './a4';
 import { format } from 'date-fns';
 import { escapeHtml } from './security/escapeHtml';
 const weddingWaitressLogoFull = '/wedding-waitress-logo-brown.png';
 
-// Paper size constants (in mm)
-const PAPER_SIZES = {
-  A4: { width: 210, height: 297 },
-  A3: { width: 297, height: 420 },
+const createPrintPageContainer = (): HTMLDivElement => {
+  const container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = A4_PAGE_STYLE.width;
+  container.style.height = A4_PAGE_STYLE.height;
+  container.style.overflow = 'hidden';
+  container.style.zIndex = '-1';
+  container.style.backgroundColor = '#ffffff';
+  container.style.fontFamily = 'inherit';
+  container.style.padding = '0';
+  container.style.margin = '0';
+  document.body.appendChild(container);
+  return container;
 };
 
-/**
- * Generate PDF for individual table seating chart
- */
-export const generateIndividualTableChartPDF = async (
+const waitForImagesToLoad = async (container: HTMLElement): Promise<void> => {
+  const images = Array.from(container.querySelectorAll('img')) as HTMLImageElement[];
+  await Promise.all(images.map((img) => {
+    if (img.complete) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      const cleanup = () => {
+        img.removeEventListener('load', cleanup);
+        img.removeEventListener('error', cleanup);
+        resolve();
+      };
+      img.addEventListener('load', cleanup);
+      img.addEventListener('error', cleanup);
+    });
+  }));
+};
+
+const renderPrintPageToCanvas = async (
   settings: IndividualChartSettings,
   table: TableWithGuestCount,
   guests: Guest[],
-  event: any
-): Promise<Blob> => {
-  const svgContent = generateIndividualTableSVG(settings, table, guests, event);
-  
-  // Create a temporary container for rendering
-  const container = document.createElement('div');
-  container.innerHTML = svgContent;
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
-  container.style.width = '794px'; // A4 width in pixels at 96 DPI
-  container.style.height = '1123px'; // A4 height in pixels at 96 DPI
-  document.body.appendChild(container);
+  event: any,
+  currentTableIndex = 1,
+  totalTables = 1
+): Promise<HTMLCanvasElement> => {
+  const container = createPrintPageContainer();
+  const root = createRoot(container);
 
   try {
-    // Wait for fonts to load before capturing
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    root.render(
+      React.createElement(IndividualTableChartPrintPage, {
+        settings: { ...settings, totalTables, currentTableIndex },
+        table,
+        guests,
+        event,
+        totalTables,
+        currentTableIndex,
+      })
+    );
+
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
     }
 
-    // Convert to canvas with improved settings
+    await waitForImagesToLoad(container);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
     const canvas = await html2canvas(container, {
-      width: 794,
-      height: 1123,
-      scale: 3, // Higher quality for better text
+      width: A4_PX.width,
+      height: A4_PX.height,
+      scale: 3,
       useCORS: true,
       backgroundColor: '#ffffff',
-      // Critical settings for text rendering
       foreignObjectRendering: false,
       allowTaint: false,
-      removeContainer: true,
+      removeContainer: false,
       imageTimeout: 30000,
       logging: false,
-      // Force better text quality
       onclone: (clonedDoc) => {
         const style = clonedDoc.createElement('style');
         style.textContent = `
@@ -78,25 +112,41 @@ export const generateIndividualTableChartPDF = async (
           }
         `;
         clonedDoc.head.appendChild(style);
-      }
+      },
     });
 
-    // Create PDF
-    const { width, height } = PAPER_SIZES[settings.paperSize];
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: [width, height]
-    });
-
-    // Add the canvas as image to PDF
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-
-    return pdf.output('blob');
+    return canvas;
   } finally {
-    document.body.removeChild(container);
+    root.unmount();
+    if (container.parentElement) {
+      container.parentElement.removeChild(container);
+    }
   }
+};
+
+/**
+ * Generate PDF for individual table seating chart
+ */
+export const generateIndividualTableChartPDF = async (
+  settings: IndividualChartSettings,
+  table: TableWithGuestCount,
+  guests: Guest[],
+  event: any,
+  currentTableIndex = 1,
+  totalTables = 1
+): Promise<Blob> => {
+  const canvas = await renderPrintPageToCanvas(settings, table, guests, event, currentTableIndex, totalTables);
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [A4_MM.width, A4_MM.height],
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+  pdf.addImage(imgData, 'PNG', 0, 0, A4_MM.width, A4_MM.height);
+
+  return pdf.output('blob');
 };
 
 /**
@@ -109,59 +159,13 @@ export const generateIndividualTableChartImage = async (
   event: any,
   format: 'png' | 'jpg'
 ): Promise<Blob> => {
-  const svgContent = generateIndividualTableSVG(settings, table, guests, event);
-  
-  // Create a temporary container for rendering
-  const container = document.createElement('div');
-  container.innerHTML = svgContent;
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
-  container.style.width = '794px';
-  container.style.height = '1123px';
-  document.body.appendChild(container);
+  const canvas = await renderPrintPageToCanvas(settings, table, guests, event, 1, 1);
 
-  try {
-    // Wait for fonts to load before capturing
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (document.fonts && document.fonts.ready) {
-      await document.fonts.ready;
-    }
-
-    const canvas = await html2canvas(container, {
-      width: 794,
-      height: 1123,
-      scale: 3, // Higher quality for better text
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      // Critical settings for text rendering
-      foreignObjectRendering: false,
-      allowTaint: false,
-      removeContainer: true,
-      imageTimeout: 30000,
-      logging: false,
-      // Force better text quality
-      onclone: (clonedDoc) => {
-        const style = clonedDoc.createElement('style');
-        style.textContent = `
-          * {
-            -webkit-font-smoothing: antialiased !important;
-            -moz-osx-font-smoothing: grayscale !important;
-            text-rendering: optimizeLegibility !important;
-            font-display: swap !important;
-          }
-        `;
-        clonedDoc.head.appendChild(style);
-      }
-    });
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(blob!);
-      }, format === 'jpg' ? 'image/jpeg' : 'image/png', 0.95);
-    });
-  } finally {
-    document.body.removeChild(container);
-  }
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob!);
+    }, format === 'jpg' ? 'image/jpeg' : 'image/png', 0.95);
+  });
 };
 
 /**
@@ -177,81 +181,30 @@ export const generateAllTablesChartPDF = async (
     throw new Error('No tables to export');
   }
 
-  const { width, height } = PAPER_SIZES[settings.paperSize];
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: [width, height]
+    format: [A4_MM.width, A4_MM.height],
   });
 
-  // Process each table
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
-    const tableGuests = guests.filter(guest => guest.table_id === table.id);
+    const tableGuests = guests.filter((guest) => guest.table_id === table.id);
     const tableSettings = {
       ...settings,
       title: `TABLE ${table.table_no ?? table.name}`,
       totalTables: tables.length,
-      currentTableIndex: i + 1
+      currentTableIndex: i + 1,
     };
-    
-    const svgContent = generateIndividualTableSVG(tableSettings, table, tableGuests, event);
-    
-    // Create temporary container
-    const container = document.createElement('div');
-    container.innerHTML = svgContent;
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.width = '794px';
-    container.style.height = '1123px';
-    document.body.appendChild(container);
 
-    try {
-      // Wait for fonts to load before capturing
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      if (document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
+    const canvas = await renderPrintPageToCanvas(tableSettings, table, tableGuests, event, i + 1, tables.length);
 
-      // Convert to canvas with improved settings
-      const canvas = await html2canvas(container, {
-        width: 794,
-        height: 1123,
-        scale: 3, // Higher quality for better text
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        // Critical settings for text rendering
-        foreignObjectRendering: false,
-        allowTaint: false,
-        removeContainer: true,
-        imageTimeout: 30000,
-        logging: false,
-        // Force better text quality
-        onclone: (clonedDoc) => {
-          const style = clonedDoc.createElement('style');
-          style.textContent = `
-            * {
-              -webkit-font-smoothing: antialiased !important;
-              -moz-osx-font-smoothing: grayscale !important;
-              text-rendering: optimizeLegibility !important;
-              font-display: swap !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
-        }
-      });
-
-      // Add new page for each table (except the first one)
-      if (i > 0) {
-        pdf.addPage();
-      }
-
-      // Add the canvas as image to PDF
-      const imgData = canvas.toDataURL('image/png');
-      pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-    } finally {
-      document.body.removeChild(container);
+    if (i > 0) {
+      pdf.addPage();
     }
+
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, 0, A4_MM.width, A4_MM.height);
   }
 
   return pdf.output('blob');
