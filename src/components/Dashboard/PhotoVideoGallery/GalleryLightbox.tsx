@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight, Download, Share2, Info } from 'lucide-rea
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { useToast } from '@/hooks/use-toast';
+import { normaliseGalleryAlbum } from '@/lib/galleryAlbumOptions';
 
 interface Props {
   items: GalleryItem[];      // navigable list (approved only)
@@ -13,6 +14,8 @@ interface Props {
   onIndexChange: (i: number) => void;
   onClose: () => void;
   showAlbumInfo?: boolean;
+  /** Simplified management view: render legacy/missing albums as Other. */
+  normaliseAlbumInfo?: boolean;
 }
 
 const fmtDate = (iso: string | null) => {
@@ -22,7 +25,7 @@ const fmtDate = (iso: string | null) => {
   return d.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIndexChange, onClose }) => {
+export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIndexChange, onClose, showAlbumInfo, normaliseAlbumInfo = false }) => {
   const [showInfo, setShowInfo] = useState(false);
   const { toast } = useToast();
   const item = items[index];
@@ -182,7 +185,7 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
             <div className="flex justify-between gap-4"><span className="text-white/60">Uploaded</span><span className="text-white text-right">{fmtDate(item.uploaded_at)}</span></div>
             <div className="flex justify-between gap-4"><span className="text-white/60">Guest hearts</span><span className="text-white text-right">{item.like_count ?? 0}</span></div>
             {showAlbumInfo ? (
-              <div className="flex justify-between gap-4"><span className="text-white/60">Album</span><span className="text-white text-right">{item.album || 'No album'}</span></div>
+              <div className="flex justify-between gap-4"><span className="text-white/60">Album</span><span className="text-white text-right">{normaliseAlbumInfo ? normaliseGalleryAlbum(item.album) : (item.album || 'No album')}</span></div>
             ) : null}
             <div className="flex justify-between gap-4"><span className="text-white/60">Type</span>
               <span className="text-right">

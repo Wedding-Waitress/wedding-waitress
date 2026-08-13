@@ -5022,6 +5022,7 @@ export type Database = {
       }
       register_event_media_upload: {
         Args: {
+          _album?: string
           _byte_size: number
           _caption: string
           _duration_sec: number

@@ -3,14 +3,20 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Download, Trash2, Camera, TriangleAlert, ExternalLink, EyeOff, Check, CircleCheck, Circle, X, Search, FolderOpen, Images } from 'lucide-react';
-import { publicGalleryItems } from '@/lib/mediaPrivacy';
+import { categoryOf, publicGalleryItems } from '@/lib/mediaPrivacy';
 import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
 import type { GalleryItem, GalleryAlbum } from '@/hooks/useEventMediaGallery';
 import { GALLERY_ALBUMS } from '@/hooks/useEventMediaGallery';
+import {
+  MANAGEABLE_GALLERY_ALBUMS,
+  normaliseGalleryAlbum,
+  type ManageableGalleryAlbum,
+} from '@/lib/galleryAlbumOptions';
 import { useToast } from '@/hooks/use-toast';
 import { MediaThumb } from './MediaThumb';
 import { GalleryLightbox } from './GalleryLightbox';
 import { downloadSignedUrl, filenameFor } from './galleryFile';
+import managementStyles from './photoVideoSharingManagement.module.css';
 import {
   Dialog,
   DialogContent,
@@ -21,7 +27,7 @@ import {
 } from '@/components/ui/dialog';
 
 type Filter = 'all' | 'approved' | 'hidden';
-type MediaTypeFilter = 'all' | 'photos' | 'videos';
+type MediaTypeFilter = 'all' | 'photos' | 'videos' | 'photo-booth';
 type SortMode = 'newest' | 'oldest';
 type AlbumFilter = 'all' | GalleryAlbum;
 
@@ -45,6 +51,8 @@ export const GalleryGrid: React.FC<{
   emptyText?: string;
   /** Black gallery surface (Photo & Video Sharing workspace). */
   dark?: boolean;
+  /** Route-scoped smoked-glass treatment for the Photo & Video Sharing workspace. */
+  appearance?: 'default' | 'espresso-glass';
   /** Event name used for customer-friendly shared-photo download filenames. */
   eventName?: string | null;
   /**
@@ -59,7 +67,7 @@ export const GalleryGrid: React.FC<{
   toolbarRight?: React.ReactNode;
   /** Hide album filtering and per-item album actions (Photo Booth workspace). */
   hideAlbumFeature?: boolean;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature }) => {
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, appearance = 'default', eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -74,6 +82,7 @@ export const GalleryGrid: React.FC<{
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
   const showAlbumControls = !hideAlbumFeature;
+  const isEspressoGallery = appearance === 'espresso-glass';
 
   // Apply search + media type + album first; moderation counts reflect this subset.
   const searchedTyped = useMemo(() => {
@@ -81,8 +90,11 @@ export const GalleryGrid: React.FC<{
     return items.filter(i => {
       if (mediaType === 'photos' && i.kind !== 'photo') return false;
       if (mediaType === 'videos' && i.kind !== 'video') return false;
+      if (mediaType === 'photo-booth' && categoryOf(i) !== 'photo_booth') return false;
       if (showAlbumControls && albumFilter !== 'all') {
-        if (albumFilter === 'Other') {
+        if (isEspressoGallery) {
+          if (normaliseGalleryAlbum(i.album) !== albumFilter) return false;
+        } else if (albumFilter === 'Other') {
           if (i.album !== null && i.album !== 'Other') return false;
         } else if (i.album !== albumFilter) {
           return false;
@@ -94,7 +106,7 @@ export const GalleryGrid: React.FC<{
       }
       return true;
     });
-  }, [items, mediaType, search, albumFilter]);
+  }, [items, mediaType, search, albumFilter, isEspressoGallery, showAlbumControls]);
 
   const counts = useMemo(() => {
     const approved = searchedTyped.filter(i => i.moderation_status === 'approved').length;
@@ -304,7 +316,10 @@ export const GalleryGrid: React.FC<{
 
   if (items.length === 0) {
     return (
-      <div className={`p-12 text-center rounded-2xl border ${dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}>
+      <div
+        data-appearance={isEspressoGallery ? 'espresso-glass' : undefined}
+        className={`p-12 text-center rounded-2xl border ${isEspressoGallery ? managementStyles.galleryPanel : dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}
+      >
         <Camera className={`h-12 w-12 mx-auto mb-3 ${dark ? 'text-white/80' : 'text-muted-foreground'}`} />
         <p className={dark ? 'text-white/80' : 'text-muted-foreground'}>{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
       </div>
@@ -315,9 +330,11 @@ export const GalleryGrid: React.FC<{
     <button
       onClick={() => setFilter(value)}
       className={`lv-premium-shade px-3 h-9 rounded-md text-sm border transition-colors ${
-        filter === value
-          ? 'bg-[#967A59] text-white border-[#967A59]'
-          : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+        isEspressoGallery
+          ? `bg-transparent ${managementStyles.galleryControl} ${filter === value ? managementStyles.galleryControlActive : ''}`
+          : filter === value
+            ? 'bg-[#967A59] text-white border-[#967A59]'
+            : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
       }`}
       type="button"
     >
@@ -329,7 +346,7 @@ export const GalleryGrid: React.FC<{
     <div className="flex gap-2 flex-wrap items-center">
       {!selectMode ? (
         <Button
-          className="lv-premium-shade"
+          className={`lv-premium-shade ${isEspressoGallery ? `bg-transparent ${managementStyles.galleryControl}` : ''}`}
           variant="outline"
           size="sm"
           onClick={() => setSelectMode(true)}
@@ -372,11 +389,14 @@ export const GalleryGrid: React.FC<{
   );
 
   return (
-    <div className={`p-4 sm:p-5 overflow-hidden rounded-2xl border ${dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}>
+    <div
+      data-appearance={isEspressoGallery ? 'espresso-glass' : undefined}
+      className={`p-4 sm:p-5 overflow-hidden rounded-2xl border ${isEspressoGallery ? managementStyles.galleryPanel : dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}
+    >
       <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div className="min-w-0">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className="h-5 w-5 text-[#967A59] shrink-0" /> {title || 'Guest Uploads'} ({items.length})</h2>
-          <p className="text-sm mt-1 break-words" style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
+          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className={`h-5 w-5 text-[#967A59] shrink-0 ${isEspressoGallery ? managementStyles.galleryWarmIcon : ''}`} /> {title || 'Guest Uploads'} ({items.length})</h2>
+          <p className={`text-sm mt-1 break-words ${isEspressoGallery ? managementStyles.gallerySecondaryText : ''}`} style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
         {headerRight && (
           <div className="w-full lg:w-auto lg:ml-auto shrink-0">{headerRight}</div>
@@ -387,19 +407,19 @@ export const GalleryGrid: React.FC<{
       {/* Search + status + type + sort + select */}
       <div data-testid="gallery-toolbar" className="flex flex-wrap items-center gap-2 mb-3">
         <div className="relative flex-1 min-w-[15rem] max-w-[38rem]">
-          <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Search className={`h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none ${isEspressoGallery ? managementStyles.galleryWarmIcon : ''}`} />
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search uploader, caption or message…"
-            className="h-9 pl-9 bg-white text-[#1D1D1F]"
+            className={`h-9 pl-9 bg-white text-[#1D1D1F] ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
           />
           {search && (
             <button
               type="button"
               aria-label="Clear search"
               onClick={() => setSearch('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+              className={`absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground ${isEspressoGallery ? `bg-transparent border-transparent ${managementStyles.galleryClearControl}` : ''}`}
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -409,28 +429,47 @@ export const GalleryGrid: React.FC<{
         <FilterBtn value="approved" label="Approved" count={counts.approved} />
         <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
-          <SelectTrigger className="h-9 w-full sm:w-[140px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All media</SelectItem>
-            <SelectItem value="photos">Photos</SelectItem>
-            <SelectItem value="videos">Videos</SelectItem>
+          <SelectTrigger aria-label="Filter by media type" className={`h-9 w-full sm:w-[140px] shrink-0 bg-white text-[#1D1D1F] ${isEspressoGallery ? `bg-transparent ${managementStyles.galleryControl}` : ''}`}><SelectValue /></SelectTrigger>
+          <SelectContent className={isEspressoGallery ? managementStyles.gallerySelectContent : undefined}>
+            <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} value="all">{isEspressoGallery ? 'All Media' : 'All media'}</SelectItem>
+            <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} value="photos">Photos</SelectItem>
+            <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} value="videos">Videos</SelectItem>
+            {isEspressoGallery && (
+              <SelectItem className={managementStyles.gallerySelectItem} value="photo-booth">Photo Booth</SelectItem>
+            )}
           </SelectContent>
         </Select>
+        {showAlbumControls && isEspressoGallery && (
+          <Select value={albumFilter} onValueChange={(v) => setAlbumFilter(v as AlbumFilter)}>
+            <SelectTrigger
+              aria-label="Filter by album"
+              className={`h-9 w-full sm:w-[140px] shrink-0 bg-transparent ${managementStyles.galleryControl}`}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className={managementStyles.gallerySelectContent}>
+              <SelectItem className={managementStyles.gallerySelectItem} value="all">All Albums</SelectItem>
+              {MANAGEABLE_GALLERY_ALBUMS.map(album => (
+                <SelectItem className={managementStyles.gallerySelectItem} key={album} value={album}>{album}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="h-9 w-full sm:w-[150px] shrink-0 bg-white text-[#1D1D1F]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest first</SelectItem>
-            <SelectItem value="oldest">Oldest first</SelectItem>
+          <SelectTrigger aria-label="Sort media" className={`h-9 w-full sm:w-[150px] shrink-0 bg-white text-[#1D1D1F] ${isEspressoGallery ? `bg-transparent ${managementStyles.galleryControl}` : ''}`}><SelectValue /></SelectTrigger>
+          <SelectContent className={isEspressoGallery ? managementStyles.gallerySelectContent : undefined}>
+            <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} value="newest">Newest first</SelectItem>
+            <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
         <div className="shrink-0">{selectControls}</div>
         {toolbarRight && <div className="shrink-0 w-full sm:w-auto">{toolbarRight}</div>}
       </div>
 
-      {showAlbumControls && (
+      {showAlbumControls && !isEspressoGallery && (
         <div className="flex gap-2 flex-wrap mb-5 items-center">
-          <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'}`} />
-          <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'}`}>Album:</span>
+          <FolderOpen className={`h-4 w-4 ${dark ? 'text-white' : 'text-[#6E6E73]'} ${isEspressoGallery ? managementStyles.galleryWarmIcon : ''}`} />
+          <span className={`text-xs mr-1 ${dark ? 'text-white' : 'text-[#6E6E73]'} ${isEspressoGallery ? managementStyles.gallerySecondaryText : ''}`}>Album:</span>
           {ALBUM_FILTERS.map(a => {
             const active = albumFilter === a.value;
             return (
@@ -439,14 +478,16 @@ export const GalleryGrid: React.FC<{
                 type="button"
                 onClick={() => setAlbumFilter(a.value)}
                 className={`lv-premium-shade px-3 h-8 rounded-md text-xs border transition-colors ${
-                  active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
+                  isEspressoGallery
+                    ? `bg-transparent ${managementStyles.galleryControl} ${active ? managementStyles.galleryControlActive : ''}`
+                    : active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-white text-[#1D1D1F] border-border hover:bg-muted'
                 }`}
               >
                 {a.label}
               </button>
             );
           })}
-          <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'}`} />
+          <div className={`w-px h-5 mx-1 ${dark ? 'bg-white/30' : 'bg-border'} ${isEspressoGallery ? managementStyles.galleryDivider : ''}`} />
         </div>
       )}
 
@@ -491,19 +532,23 @@ export const GalleryGrid: React.FC<{
               <Select
                 disabled={bulkBusy || visibleSelectedCount === 0}
                 value=""
-                onValueChange={(v) => bulkMoveToAlbum(v === '__none__' ? null : (v as GalleryAlbum))}
+                onValueChange={(v) => bulkMoveToAlbum(
+                  isEspressoGallery
+                    ? (v as ManageableGalleryAlbum)
+                    : v === '__none__' ? null : (v as GalleryAlbum),
+                )}
               >
-                <SelectTrigger className="lv-premium-shade h-9 w-full sm:w-[170px] bg-white">
+                <SelectTrigger className={`lv-premium-shade h-9 w-full sm:w-[170px] bg-white ${isEspressoGallery ? `bg-transparent ${managementStyles.galleryControl}` : ''}`}>
                   <span className="flex items-center text-sm min-w-0">
                     <FolderOpen className="h-4 w-4 mr-1 text-[#967A59] shrink-0" /> <span className="truncate">Move to album…</span>
                   </span>
                 </SelectTrigger>
 
-                <SelectContent>
-                  {GALLERY_ALBUMS.map(a => (
-                    <SelectItem key={a} value={a}>{a}</SelectItem>
+                <SelectContent className={isEspressoGallery ? managementStyles.gallerySelectContent : undefined}>
+                  {(isEspressoGallery ? MANAGEABLE_GALLERY_ALBUMS : GALLERY_ALBUMS).map(a => (
+                    <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} key={a} value={a}>{a}</SelectItem>
                   ))}
-                  <SelectItem value="__none__">No album</SelectItem>
+                  {!isEspressoGallery && <SelectItem value="__none__">No album</SelectItem>}
                 </SelectContent>
               </Select>
             )}
@@ -545,10 +590,16 @@ export const GalleryGrid: React.FC<{
           {filtered.map(it => {
             const isHidden = it.moderation_status === 'hidden';
             const isSelected = selected.has(it.id);
+            const uploaderLabel = it.uploader_name || 'Anonymous guest';
+            const footerMessages = Array.from(new Set(
+              [it.caption, it.guestbook_message]
+                .filter((message): message is string => typeof message === 'string' && message.trim().length > 0)
+                .map(message => message.trim()),
+            ));
             return (
               <div
                 key={it.id}
-                className={`relative group overflow-hidden bg-white flex flex-col ${
+                className={`relative group overflow-hidden bg-white flex flex-col ${isEspressoGallery ? managementStyles.galleryMediaTile : ''} ${
                   boothSetOrder
                     ? 'border border-[#472c1d] w-[calc((100%-0.5rem)/2)] sm:w-[calc((100%-1.25rem)/3)] md:w-[calc((100%-1.875rem)/4)] lg:w-[calc((100%-2.5rem)/5)] xl:w-[calc((100%-3.125rem)/6)]'
                     : 'border border-black'
@@ -636,14 +687,45 @@ export const GalleryGrid: React.FC<{
 
 
                 {/* Meta strip */}
-                <div className="px-1.5 py-1.5 border-t border-border text-[11px]">
-                  <div className="font-medium text-[#1D1D1F] truncate" title={it.uploader_name || 'Anonymous guest'}>
-                    {it.uploader_name || 'Anonymous guest'}
+                {isEspressoGallery ? (
+                  <div className={managementStyles.galleryMediaFooter}>
+                    <div className={managementStyles.galleryMediaFooterRow}>
+                      <div className={managementStyles.galleryMediaFooterName} title={uploaderLabel}>
+                        {uploaderLabel}
+                      </div>
+                      {showAlbumControls && (
+                        <Select
+                          value={normaliseGalleryAlbum(it.album)}
+                          onValueChange={(value) => moveSingleToAlbum(it.id, value as ManageableGalleryAlbum)}
+                        >
+                          <SelectTrigger
+                            aria-label={`Change album for ${uploaderLabel}`}
+                            className={`h-7 w-[6.75rem] shrink-0 bg-transparent px-2 text-[10px] ${managementStyles.galleryControl} ${managementStyles.galleryFooterSelect}`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className={managementStyles.gallerySelectContent}>
+                            {MANAGEABLE_GALLERY_ALBUMS.map(album => (
+                              <SelectItem className={managementStyles.gallerySelectItem} key={album} value={album}>{album}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+                    {footerMessages.map(message => (
+                      <div className={managementStyles.galleryMediaFooterMessage} key={message} title={message}>{message}</div>
+                    ))}
                   </div>
-                  {it.caption && (
-                    <div className="text-muted-foreground truncate" title={it.caption}>{it.caption}</div>
-                  )}
-                </div>
+                ) : (
+                  <div className="px-1.5 py-1.5 border-t border-border text-[11px]">
+                    <div className="font-medium text-[#1D1D1F] truncate" title={uploaderLabel}>
+                      {uploaderLabel}
+                    </div>
+                    {it.caption && (
+                      <div className="text-muted-foreground truncate" title={it.caption}>{it.caption}</div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -658,6 +740,7 @@ export const GalleryGrid: React.FC<{
           onIndexChange={(i) => setLightboxId(lightboxItems[i]?.id ?? null)}
           onClose={() => setLightboxId(null)}
           showAlbumInfo={showAlbumControls}
+          normaliseAlbumInfo={isEspressoGallery}
         />
       )}
 

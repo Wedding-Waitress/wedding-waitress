@@ -1,5 +1,8 @@
 // Feature workspace: Photo & Video Sharing (stage 1 — layout foundation).
 import React, { useEffect, useMemo, useState } from 'react';
+import '@fontsource/manrope/latin-400.css';
+import '@fontsource/manrope/latin-500.css';
+import '@fontsource/manrope/latin-600.css';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useEvents } from '@/hooks/useEvents';
@@ -15,6 +18,7 @@ import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGri
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle, TriangleAlert } from 'lucide-react';
+import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryUploadFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +58,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
+      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
         <LoaderCircle className="h-6 w-6 animate-spin text-white" />
       </div>
     );
@@ -65,6 +69,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
       <SeoHead title="Photo & Video Sharing | Wedding Waitress" description="Manage the photos and videos shared by your guests." noIndex />
       <FeatureWorkspaceLayout
         brownOutline
+        appearance="photo-video-sharing"
         title="Photo & Video Sharing"
         description="Manage the photos and videos shared by your guests."
         eventName={(selectedEvent as any)?.name}
@@ -88,13 +93,14 @@ export const GalleryUploadFeaturePage: React.FC = () => {
         ) : (
           <div className="space-y-6 sm:space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr] gap-6 items-stretch">
-            <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} />
-            <GalleryUsageCard meta={meta} items={publicItems} />
+            <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} appearance="espresso-glass" />
+            <GalleryUsageCard meta={meta} items={publicItems} appearance="espresso-glass" />
             <GalleryDownloadsCard
               items={publicItems}
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
               layout="vertical"
+              appearance="espresso-glass"
             />
           </div>
 
@@ -110,6 +116,7 @@ export const GalleryUploadFeaturePage: React.FC = () => {
             description="Review, organise, approve, hide and download guest photos and videos."
             hideCardActions
             dark
+            appearance="espresso-glass"
           />
         </div>
         )}

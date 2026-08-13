@@ -12,14 +12,18 @@ import { Copy, Download, QrCode, TriangleAlert, ExternalLink } from 'lucide-reac
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 export const GalleryUploadAccessCard: React.FC<{
   meta: GalleryMeta;
   onToggleOpen: (open: boolean) => void;
-}> = ({ meta, onToggleOpen }) => {
+  appearance?: 'default' | 'espresso-glass';
+}> = ({ meta, onToggleOpen, appearance = 'default' }) => {
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const guestUrl = meta.primary_token ? buildGalleryUploadUrl(meta.primary_token) : '';
+  const isGlass = appearance === 'espresso-glass';
 
   useEffect(() => {
     if (!guestUrl) return;
@@ -42,18 +46,18 @@ export const GalleryUploadAccessCard: React.FC<{
   };
 
   return (
-    <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
+    <Card className={cn('h-full p-5 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="min-w-0">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
+          <h2 className={cn('text-xl flex items-center gap-2', isGlass ? 'font-semibold tracking-[-0.012em] leading-tight text-white' : 'font-bold')} style={isGlass ? undefined : { color: '#000000' }}>
             <QrCode className="h-5 w-5 text-[#967A59] shrink-0" /> Photo & Video Sharing Access
           </h2>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+          <p className={cn('text-sm mt-1 break-words', isGlass && 'font-normal text-[#e8ddd2]')} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Share the QR code or link your guests use to share photos and videos.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <Label htmlFor="open-toggle" className="text-sm">Accepting Guest Uploads</Label>
+          <Label htmlFor="open-toggle" className={cn('text-sm', isGlass && 'font-medium text-white')}>Accepting Guest Uploads</Label>
           <Switch id="open-toggle" checked={meta.is_open} onCheckedChange={onToggleOpen} />
         </div>
       </div>
@@ -74,10 +78,10 @@ export const GalleryUploadAccessCard: React.FC<{
             </div>
           ) : (
             <div>
-              <Label className="text-sm">Public sharing link</Label>
+              <Label className={cn('text-sm', isGlass && 'font-medium text-white')}>Public sharing link</Label>
               <div className="flex flex-wrap gap-2 mt-1.5">
-                <Input value={guestUrl} readOnly className="h-11 text-sm min-w-0 flex-1" />
-                <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
+                <Input value={guestUrl} readOnly className={cn('h-11 text-sm min-w-0 flex-1', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
+                <Button variant="outline" className={cn('lv-premium-shade h-11 shrink-0', isGlass && 'border-[#967A59]', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)} onClick={copy}>
                   <Copy className="h-4 w-4 mr-1" /> Copy
                 </Button>
               </div>
@@ -87,18 +91,18 @@ export const GalleryUploadAccessCard: React.FC<{
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
-              className="lv-premium-shade"
+              className={cn('lv-premium-shade', isGlass && 'border-[#967A59]', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
               onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
               disabled={!guestUrl}
               title="Open the sharing page in a new tab"
             >
               <ExternalLink className="h-4 w-4 mr-1" /> Open sharing page
             </Button>
-            <Button variant="outline" className="lv-premium-shade" onClick={downloadQr} disabled={!qrDataUrl}>
+            <Button variant="outline" className={cn('lv-premium-shade', isGlass && 'border-[#967A59]', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)} onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" /> Download QR code
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className={cn('text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
             This link does not expire. Switch <strong>Accepting Guest Uploads</strong> off to stop new uploads.
           </p>
         </div>

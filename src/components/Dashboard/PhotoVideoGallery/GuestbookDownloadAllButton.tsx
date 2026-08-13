@@ -1,6 +1,5 @@
 // Compact "Download All Guestbook Messages" ZIP button used inside the Guestbook Messages toolbar.
 import React, { useMemo, useState } from 'react';
-import JSZip from 'jszip';
 import { Button } from '@/components/ui/enhanced-button';
 import { Download, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -35,10 +34,12 @@ export const GuestbookDownloadAllButton: React.FC<{
       return;
     }
     setBusy(true);
-    const zip = new JSZip();
-    const used = new Set<string>();
-    let failures = 0;
     try {
+      const { default: JSZip } = await import('jszip');
+      const zip = new JSZip();
+      const used = new Set<string>();
+      let failures = 0;
+
       for (const item of list) {
         try {
           const res = await fetch(item.signed_url!);

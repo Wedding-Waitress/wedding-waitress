@@ -17,6 +17,12 @@ import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
+import {
+  MANAGEABLE_GALLERY_ALBUMS,
+  normaliseGalleryAlbum,
+  type ManageableGalleryAlbum,
+} from '@/lib/galleryAlbumOptions';
+import publicUploadStyles from './guestMediaUpload.module.css';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png';
 import galleryHeaderLogo from '@/assets/gallery-header-logo.png';
 import guestbookHeaderLogo from '@/assets/guestbook-header-logo.png';
@@ -134,6 +140,7 @@ export const GuestMediaUpload: React.FC = () => {
   const [awaitingPicker, setAwaitingPicker] = useState(false);
   const [pickerHint, setPickerHint] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [album, setAlbum] = useState<ManageableGalleryAlbum>('Other');
   const [showThanks, setShowThanks] = useState(false);
   const [thanksSummary, setThanksSummary] = useState<{ success: number; failures: { name: string; reason: string }[] } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -251,7 +258,7 @@ export const GuestMediaUpload: React.FC = () => {
           file: arr[i], fileName: arr[i].name, kind: null, mime: arr[i].type || '',
           mimeInferred: !arr[i].type, size: arr[i].size, duration: null,
           durationUnknown: false, ok: false,
-          reason: 'file_unreadable', reasonText: 'File could not be loaded from device/iCloud',
+          reason: 'file_unreadable', reasonText: 'Photo or video could not be loaded from device/iCloud',
         };
       }
       setItems(prev => prev.map((it, j) => j === idx ? result : it));
@@ -273,6 +280,7 @@ export const GuestMediaUpload: React.FC = () => {
       uploaderName: name.trim(),
       caption: '',
       guestbookMessage: '',
+      album,
       limits: gallery,
     });
   };
@@ -303,6 +311,7 @@ export const GuestMediaUpload: React.FC = () => {
     setThanksSummary(null);
     setItems([]);
     setStages({});
+    setAlbum('Other');
     reset();
   };
 
@@ -377,47 +386,47 @@ export const GuestMediaUpload: React.FC = () => {
     const { success, failures } = summary;
     const firstName = name.trim().split(/\s+/)[0];
     const greeting = firstName ? `Thank you, ${firstName}!` : 'Thank you!';
-    const fileWord = (n: number) => (n === 1 ? 'file' : 'files');
+    const mediaWord = (n: number) => (n === 1 ? 'photo or video' : 'photos or videos');
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden" style={LEATHER_STYLE}>
         <SeoHead title={`${gallery.event_name} — Thank you for sharing`} description="Your memories have been shared with the couple." />
-        <Card className={`p-7 sm:p-8 max-w-md w-full text-center backdrop-blur-sm ${theme.isDark ? 'bg-white/5 border-white/10' : 'bg-white/90 border-[#E8E1D6]'} ${theme.textClass}`}>
+        <Card className={`p-7 sm:p-8 max-w-md w-full text-center ${publicUploadStyles.successPanel}`} data-public-upload-surface="success">
           {theme.logoImageUrl && (
             <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-12 mb-4 object-contain" />
           )}
           <div className="relative inline-flex items-center justify-center mb-5">
             <div className="absolute inset-0 -m-3 rounded-full blur-xl" aria-hidden="true" style={{ backgroundColor: accentSoftBg }} />
-            <div className={`relative w-20 h-20 rounded-full flex items-center justify-center border ${theme.isDark ? 'bg-white/10 border-white/20' : 'bg-gradient-to-br from-[#F4EEE4] to-[#E8D9BF] border-[#E8E1D6]'}`}>
+            <div className={`relative w-20 h-20 rounded-full flex items-center justify-center border ${publicUploadStyles.successIconCircle}`}>
               <Heart className="h-10 w-10" style={{ color: accent }} fill={accent} />
               <Sparkles className="absolute -top-1 -right-1 h-5 w-5" style={{ color: accent }} />
             </div>
           </div>
 
-          <h1 className="text-3xl font-semibold tracking-tight">{greeting}</h1>
-          <p className={`text-base mt-3 leading-relaxed ${theme.mutedClass}`}>
+          <h1 className={`text-3xl font-semibold tracking-tight ${publicUploadStyles.successHeading}`}>{greeting}</h1>
+          <p className={`text-base mt-3 leading-relaxed ${publicUploadStyles.successCopy}`}>
             {success > 0
-              ? <>You just shared <span className={`font-medium ${theme.textClass}`}>{success} {fileWord(success)}</span> with {couple || 'the couple'}. These memories mean the world. 💛</>
+              ? <>You just shared <span className={`font-medium ${publicUploadStyles.successEmphasis}`}>{success} {mediaWord(success)}</span> with {couple || 'the couple'}. These memories mean the world. 💛</>
               : <>Your message has been received by {couple || 'the couple'}.</>}
           </p>
 
           {success > 0 && (
-            <div className={`mt-5 rounded-xl border-2 p-3.5 flex items-center justify-center gap-2 text-sm ${theme.isDark ? 'border-white/15 bg-white/5 text-white/80' : 'border-[#967A59] bg-[#FBF7EE] text-[#7A5E3A]'}`}>
-              <CheckCircle2 className="h-4 w-4 text-[#6B8E5A]" />
-              <span><span className="font-semibold">{success}</span> {fileWord(success)} uploaded successfully</span>
+            <div className={`mt-5 rounded-xl border-2 p-3.5 flex items-center justify-center gap-2 text-sm ${publicUploadStyles.successStatus}`}>
+              <CheckCircle2 className={`h-4 w-4 ${publicUploadStyles.statusSuccess}`} />
+              <span><span className="font-semibold">{success}</span> {mediaWord(success)} uploaded successfully</span>
             </div>
           )}
 
           {failures.length > 0 && (
-            <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-left">
-              <div className="flex items-center gap-2 text-sm font-medium text-amber-900">
+            <div className={`mt-3 rounded-xl border p-3.5 text-left ${publicUploadStyles.failureNotice}`}>
+              <div className="flex items-center gap-2 text-sm font-medium">
                 <AlertTriangle className="h-4 w-4" />
-                {failures.length} {fileWord(failures.length)} couldn't be shared
+                {failures.length} {mediaWord(failures.length)} couldn't be shared
               </div>
               <ul className="mt-2 space-y-1.5 max-h-40 overflow-y-auto">
                 {failures.map((f, i) => (
-                  <li key={i} className="text-xs text-amber-900/90">
-                    <div className="font-medium truncate">{f.name}</div>
-                    <div className="text-amber-800/80">{f.reason}</div>
+                  <li key={i} className="text-xs text-[#ffd7d3]">
+                    <div className="font-medium truncate" title={f.name}>{f.name}</div>
+                    <div className="text-[#f0bab4]">{f.reason}</div>
                   </li>
                 ))}
               </ul>
@@ -426,16 +435,16 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="mt-6 space-y-2.5">
             <Button
-              className="lv-premium-shade w-full h-12 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all bg-green-500 hover:bg-green-600"
+              className={`w-full h-12 text-base font-semibold rounded-xl px-3 ${publicUploadStyles.successPrimaryAction}`}
               onClick={handleShareMore}
             >
               <Camera className="h-4 w-4 mr-2" />
-              Share more photos &amp; videos
+              Share More Photos or Videos
             </Button>
             <Button
               type="button"
               variant="outline"
-              className="lv-premium-shade w-full h-12 text-base border-2 border-[#967A59]"
+              className={`w-full h-12 text-base ${publicUploadStyles.successSecondaryAction}`}
 
               onClick={handleBackToStart}
             >
@@ -444,10 +453,10 @@ export const GuestMediaUpload: React.FC = () => {
             </Button>
           </div>
 
-          <p className={`mt-5 text-xs italic ${theme.mutedClass}`}>
+          <p className={`mt-5 text-xs italic ${publicUploadStyles.successLove}`}>
             With love from {couple || displayTitle} 🤍
           </p>
-          {theme.showBranding && <GalleryFooterLogo className="mt-3" tone="brown" />}
+          {theme.showBranding && <GalleryFooterLogo className={`mt-3 ${publicUploadStyles.successLogo}`} tone="brown" />}
         </Card>
       </div>
     );
@@ -659,18 +668,19 @@ export const GuestMediaUpload: React.FC = () => {
           </div>
         )}
         {tabs.length > 1 && (
-        <div className="mb-6 flex flex-nowrap w-full gap-1 rounded-full p-1 bg-black border-2 border-white/25 overflow-hidden">
+        <div className={`mb-6 flex flex-nowrap w-full gap-1 rounded-full p-1 overflow-hidden ${publicUploadStyles.navigationShell}`} data-public-upload-navigation>
 
           {tabs.map(tab => {
             const active = current === tab;
             const TabIcon = tab === 'upload' ? Upload : tab === 'gallery' ? Images : tab === 'guestbook' ? BookOpen : Camera;
-            const cls = `flex-1 basis-0 min-w-0 min-h-[56px] py-2 flex flex-col items-center justify-center gap-1 text-center rounded-full font-medium transition-colors duration-150 px-1 sm:px-3 text-[11px] sm:text-sm whitespace-nowrap leading-none ${active ? 'text-[#1C1410] bg-[#E8CFA3] shadow-md' : 'text-white/80 hover:text-white'}`;
+            const cls = `flex-1 basis-0 min-w-0 min-h-[56px] py-2 flex flex-col items-center justify-center gap-1 text-center rounded-full font-medium px-1 sm:px-3 text-[11px] sm:text-sm whitespace-nowrap leading-none ${publicUploadStyles.navigationTab} ${active ? publicUploadStyles.navigationTabActive : publicUploadStyles.navigationTabInactive}`;
             return (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
                 className={cls}
+                aria-current={active ? 'page' : undefined}
               >
                 <TabIcon className="h-[21px] w-[21px] shrink-0" strokeWidth={2} aria-hidden="true" />
                 <span className="truncate">{labels[tab]}</span>
@@ -711,14 +721,31 @@ export const GuestMediaUpload: React.FC = () => {
 
 
         {current === 'upload' && (
-        <Card className="p-6 sm:p-7 space-y-7 border-2 border-[#967A59] shadow-[0_8px_30px_rgba(150,122,89,0.10)] bg-white/95">
+        <section className={`p-6 sm:p-7 space-y-7 rounded-2xl ${publicUploadStyles.uploadPanel}`} data-public-upload-surface="form">
 
           <div className="space-y-3">
-            <Label htmlFor="g-name" className="text-lg font-bold text-[#1D1D1F] block">
-              Your full name <span className="text-red-500" aria-hidden="true">*</span>
+            <Label htmlFor="g-name" className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>
+              Your full name <span className={publicUploadStyles.requiredMark} aria-hidden="true">*</span>
             </Label>
-            <p className="text-sm text-[#6E6E73]">So the couple knows who shared these memories</p>
-            <Input id="g-name" className="h-14 text-base mt-1 border-[#967A59]/50 focus:border-[#967A59] focus:ring-[#967A59]/20 rounded-xl px-4" value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
+            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>So the couple knows who shared these memories</p>
+            <Input id="g-name" className={`h-14 text-base mt-1 rounded-xl px-4 ${publicUploadStyles.field}`} value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="g-album" className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>
+              Album <span className={`text-sm font-normal ${publicUploadStyles.secondaryText}`}>(optional)</span>
+            </Label>
+            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>Help the couple organise these memories</p>
+            <select
+              id="g-album"
+              value={album}
+              onChange={event => setAlbum(normaliseGalleryAlbum(event.target.value))}
+              className={`h-14 w-full rounded-xl border px-4 text-base outline-none ${publicUploadStyles.field}`}
+            >
+              {MANAGEABLE_GALLERY_ALBUMS.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
           </div>
 
           {(() => {
@@ -732,22 +759,22 @@ export const GuestMediaUpload: React.FC = () => {
             if (storageFull) fullParts.push('storage');
             return (
           <div className="space-y-3">
-            <Label className="text-lg font-bold text-[#1D1D1F] block">Upload Photos and Videos</Label>
+            <Label className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>Upload Photos and Videos</Label>
 
-            <div className="mt-1 mb-4 bg-[#FBF7F0] rounded-xl p-4 border border-[#E8E1D6] space-y-2.5">
-              <p className="text-sm font-semibold text-[#1D1D1F]">Upload limits</p>
-              <div className="flex items-start gap-2 text-sm text-[#6E6E73]">
-                <ImageIcon className="h-4 w-4 text-[#967A59] mt-0.5 shrink-0" />
+            <div className={`mt-1 mb-4 rounded-xl p-4 border space-y-2.5 ${publicUploadStyles.innerPanel}`}>
+              <p className={`text-sm font-semibold ${publicUploadStyles.sectionHeading}`}>Upload limits</p>
+              <div className={`flex items-start gap-2 text-sm ${publicUploadStyles.secondaryText}`}>
+                <ImageIcon className={`h-4 w-4 mt-0.5 shrink-0 ${publicUploadStyles.innerPanelIcon}`} />
                 <span>Photos: JPG, PNG, WebP up to {formatBytes(gallery.max_photo_bytes)}</span>
               </div>
-              <div className="flex items-start gap-2 text-sm text-[#6E6E73]">
-                <Video className="h-4 w-4 text-[#967A59] mt-0.5 shrink-0" />
+              <div className={`flex items-start gap-2 text-sm ${publicUploadStyles.secondaryText}`}>
+                <Video className={`h-4 w-4 mt-0.5 shrink-0 ${publicUploadStyles.innerPanelIcon}`} />
                 <span>Videos: MP4, MOV up to {formatBytes(gallery.max_video_bytes)} and {Math.floor(gallery.max_video_duration_sec / 60)} minutes</span>
               </div>
             </div>
 
             {anyFull && (
-              <div className="mb-4 flex items-start gap-2 rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+              <div className={`mb-4 flex items-start gap-2 rounded-xl border p-4 text-sm ${publicUploadStyles.capacityNotice}`}>
                 <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                 <div>
                   <div className="font-medium">The gallery is full</div>
@@ -768,28 +795,28 @@ export const GuestMediaUpload: React.FC = () => {
             />
             <Button
               type="button"
-              className="lv-premium-shade w-full h-14 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all bg-green-500 hover:bg-green-600"
+              className={`w-full h-14 text-base font-semibold rounded-xl px-3 ${publicUploadStyles.secondaryAction}`}
               onClick={openPicker}
               disabled={uploading || validating || awaitingPicker || anyFull}
             >
               {awaitingPicker
                 ? <><Loader2 className="animate-spin h-5 w-5 mr-2" /> Waiting for picker…</>
                 : validating
-                  ? <><Loader2 className="animate-spin h-5 w-5 mr-2" /> Preparing selected files…</>
+                  ? <><Loader2 className="animate-spin h-5 w-5 mr-2" /> Preparing selected media…</>
                   : anyFull
                     ? <><AlertCircle className="h-5 w-5 mr-2" /> Gallery full</>
-                    : <><Upload className="h-5 w-5 mr-2" /> Choose files</>}
+                    : <><Upload className="h-5 w-5 mr-2" /> Choose Photos or Videos</>}
             </Button>
 
             {(awaitingPicker || validating) && (
-              <div className="mt-2 text-sm text-[#6E6E73] flex items-center gap-1.5">
+              <div className={`mt-2 text-sm flex items-center gap-1.5 ${publicUploadStyles.secondaryText}`}>
                 <Loader2 className="animate-spin h-3.5 w-3.5" />
-                {awaitingPicker ? 'Waiting for your selection…' : 'Preparing selected files…'}
+                {awaitingPicker ? 'Waiting for your selection…' : 'Preparing selected media…'}
               </div>
             )}
 
             {pickerHint && (
-              <div className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+              <div className={`mt-2 text-sm border rounded-lg p-3 flex items-start gap-2 ${publicUploadStyles.pickerNotice}`}>
                 <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <span>{pickerHint}</span>
               </div>
@@ -809,11 +836,11 @@ export const GuestMediaUpload: React.FC = () => {
                       ? (it.durationUnknown ? 'duration unknown' : `${it.duration ?? '?'}s`)
                       : null;
                   return (
-                    <li key={i} className="text-sm border border-[#E8E1D6] rounded-xl p-3 bg-white">
+                    <li key={i} className={`text-sm border rounded-xl p-3 ${publicUploadStyles.fileCard}`}>
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">{it.fileName}</div>
-                          <div className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                          <div className={`font-medium truncate ${publicUploadStyles.fileName}`} title={it.fileName}>{it.fileName}</div>
+                          <div className={`text-[11px] mt-0.5 leading-snug ${publicUploadStyles.metadata}`}>
                             {it.mime || 'unknown type'}{it.mimeInferred && it.mime ? ' (inferred)' : ''} • {formatBytes(it.size)}
                             {durationText ? ` • ${durationText}` : ''}
                           </div>
@@ -821,9 +848,9 @@ export const GuestMediaUpload: React.FC = () => {
                         {!uploading && status !== 'done' && !stillValidating && (
                           <button
                             type="button"
-                            aria-label="Remove"
+                            aria-label={`Remove ${it.fileName}`}
                             onClick={() => removeItem(i)}
-                            className="text-muted-foreground hover:text-foreground p-1 -m-1"
+                            className={`p-1 -m-1 ${publicUploadStyles.removeControl}`}
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -833,37 +860,37 @@ export const GuestMediaUpload: React.FC = () => {
                       {/* Validation / progress badge */}
                       <div className="mt-1.5">
                         {stillValidating ? (
-                          <span className="text-xs text-[#967A59] flex items-center gap-1">
+                          <span className={`text-xs flex items-center gap-1 ${publicUploadStyles.statusPreparing}`}>
                             <Loader2 className="h-3 w-3 animate-spin" />
                             {isVideo
-                              ? (stage === 'preparing' ? 'Preparing file…' : 'Checking video…')
-                              : 'Preparing file…'}
+                              ? (stage === 'preparing' ? 'Preparing media…' : 'Checking video…')
+                              : 'Preparing media…'}
                           </span>
                         ) : !it.ok ? (
-                          <span className="text-xs text-red-600 flex items-center gap-1">
+                          <span className={`text-xs flex items-center gap-1 ${publicUploadStyles.statusError}`}>
                             <AlertCircle className="h-3 w-3" /> {it.reasonText}
                           </span>
                         ) : status === 'error' ? (
-                          <span className="text-xs text-red-600 flex items-center gap-1">
+                          <span className={`text-xs flex items-center gap-1 ${publicUploadStyles.statusError}`}>
                             <AlertCircle className="h-3 w-3" /> {errMsg}
                           </span>
                         ) : status === 'done' ? (
-                          <span className="text-xs text-green-600 flex items-center gap-1">
+                          <span className={`text-xs flex items-center gap-1 ${publicUploadStyles.statusSuccess}`}>
                             <CheckCircle2 className="h-3 w-3" /> Uploaded
                           </span>
                         ) : status === 'uploading' ? (
                           <div>
-                            <div className="text-[11px] text-[#6E6E73] mb-1">Uploading {p?.percent ?? 0}%</div>
+                            <div className={`text-[11px] mb-1 ${publicUploadStyles.progressLabel}`}>Uploading {p?.percent ?? 0}%</div>
                             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div className="h-full bg-[#967A59] transition-all" style={{ width: `${p?.percent ?? 0}%` }} />
+                              <div className={`h-full ${publicUploadStyles.progressFill}`} role="progressbar" aria-label={`Uploading ${it.fileName}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p?.percent ?? 0} style={{ width: `${p?.percent ?? 0}%` }} />
                             </div>
                           </div>
                         ) : it.durationUnknown ? (
-                          <span className="text-xs text-amber-600 flex items-center gap-1">
+                          <span className={`text-xs flex items-center gap-1 ${publicUploadStyles.statusWarning}`}>
                             <AlertTriangle className="h-3 w-3" /> Duration unknown — will still upload
                           </span>
                         ) : (
-                          <span className="text-xs text-green-600 flex items-center gap-1">
+                          <span className={`text-xs flex items-center gap-1 ${publicUploadStyles.statusSuccess}`}>
                             <CheckCircle2 className="h-3 w-3" /> Ready to upload
                           </span>
                         )}
@@ -880,31 +907,32 @@ export const GuestMediaUpload: React.FC = () => {
 
           <div className="pt-1">
             <Button
-              className="lv-premium-shade w-full h-14 text-white text-base font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
-              style={{ backgroundColor: accent }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
+              className={`w-full h-14 text-base font-semibold rounded-xl px-3 leading-tight ${publicUploadStyles.primaryAction}`}
               disabled={uploading || validating || validCount === 0 || !name.trim()}
               onClick={onSubmit}
             >
               {uploading
                 ? (<><Loader2 className="animate-spin h-5 w-5 mr-2" /> Uploading…</>)
-                : `Share ${validCount || ''} file${validCount === 1 ? '' : 's'}`}
+                : validCount === 0
+                  ? 'Share Photos or Videos'
+                  : validCount === 1
+                    ? 'Share 1 Photo or Video'
+                    : `Share ${validCount} Photos or Videos`}
             </Button>
 
             {!uploading && !validating && (
-              <div className={`mt-3 text-sm text-center min-h-[1.25rem] ${theme.mutedClass}`}>
+              <div className={`mt-3 text-sm text-center min-h-[1.25rem] ${publicUploadStyles.helperText}`}>
                 {!name.trim() && items.length > 0
                   ? 'Enter your full name above to share these memories'
                   : name.trim() && validCount === 0 && items.length > 0
-                    ? 'Remove invalid files or choose new ones to share'
+                    ? 'Remove invalid media or choose new photos or videos to share'
                     : name.trim() && items.length === 0
                       ? 'Choose at least one photo or video to share'
                       : ''}
               </div>
             )}
           </div>
-        </Card>
+        </section>
         )}
 
         {theme.showBranding && <GalleryFooterLogo className="mt-6" />}

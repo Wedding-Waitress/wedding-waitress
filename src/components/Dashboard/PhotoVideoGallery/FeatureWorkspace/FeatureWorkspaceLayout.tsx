@@ -4,6 +4,8 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
+import { cn } from '@/lib/utils';
+import managementStyles from '../photoVideoSharingManagement.module.css';
 
 export interface FeatureWorkspaceLayoutProps {
   title: string;
@@ -20,6 +22,8 @@ export interface FeatureWorkspaceLayoutProps {
   disabledNotice?: string;
   /** Adds the 2px brown outline pass to neutral cards, panels, inputs and grey buttons. */
   brownOutline?: boolean;
+  /** Opt-in visual treatment for the Photo & Video Sharing management workspace only. */
+  appearance?: 'default' | 'photo-video-sharing';
   children?: React.ReactNode;
 }
 
@@ -35,12 +39,19 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   headerAction,
   disabledNotice,
   brownOutline,
+  appearance = 'default',
   children,
 }) => {
+  const isPhotoVideoSharing = appearance === 'photo-video-sharing';
+
   return (
-    <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#472c1d' }}>
+    <div
+      className={cn('min-h-screen w-full overflow-x-hidden', isPhotoVideoSharing && managementStyles.photoVideoSharingSurface)}
+      style={isPhotoVideoSharing ? undefined : { backgroundColor: '#472c1d' }}
+      data-appearance={isPhotoVideoSharing ? appearance : undefined}
+    >
       {/* Slim header */}
-      <header className="w-full">
+      <header className={cn('w-full', isPhotoVideoSharing && managementStyles.manropeTypography)}>
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-4 sm:pt-5 pb-6">
           {/* Level 1 — Logo */}
           <div className="flex justify-center lg:justify-start">
@@ -54,8 +65,13 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
 
           {/* Level 2 — Centred page identity */}
           <div className="mt-6 sm:mt-8 text-center">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words">{title}</h1>
-            <p className="text-sm text-white/80 mt-1 break-words">{description}</p>
+            <h1 className={cn(
+              'text-xl sm:text-2xl text-white break-words',
+              isPhotoVideoSharing
+                ? 'font-semibold tracking-[-0.012em] leading-tight'
+                : 'lg:text-3xl font-bold',
+            )}>{title}</h1>
+            <p className={cn('text-sm text-white/80 mt-1 break-words', isPhotoVideoSharing && 'font-normal')}>{description}</p>
           </div>
 
           {/* Level 3 — Navigation and controls */}
@@ -63,7 +79,12 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/40 px-3 py-1.5 min-h-[40px] text-xs sm:text-sm font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#967A59] active:translate-y-[1px]"
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 min-h-[40px] text-xs sm:text-sm text-white transition-all duration-200 active:translate-y-[1px]',
+                isPhotoVideoSharing
+                  ? `font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e4b97e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#28140e] ${managementStyles.glassAction}`
+                  : 'border-white/40 font-semibold hover:bg-white hover:text-[#967A59]',
+              )}
             >
               <ArrowLeft size={16} strokeWidth={1.8} className="shrink-0" />
               <span className="truncate">{backLabel}</span>
@@ -71,15 +92,29 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
 
             <div className="flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end sm:gap-5">
               {headerAction && <div className="shrink-0">{headerAction}</div>}
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              <div className={cn(
+                'flex flex-wrap items-center justify-center gap-3 sm:gap-4',
+                isPhotoVideoSharing && `px-4 py-2.5 ${managementStyles.glassStatus}`,
+              )}>
                 {eventName && (
                   <div className="min-w-0 text-center sm:text-left">
-                    <p className="text-[11px] uppercase tracking-wide text-white/60">Selected event</p>
-                    <p className="text-sm sm:text-base font-semibold text-white truncate max-w-[220px]">{eventName}</p>
+                    <p className={cn(
+                      'text-[11px] uppercase tracking-wide text-white/60',
+                      isPhotoVideoSharing && `font-medium ${managementStyles.selectedEventLabel}`,
+                    )}>Selected event</p>
+                    <p className={cn(
+                      'text-white truncate max-w-[220px]',
+                      isPhotoVideoSharing
+                        ? `text-sm font-medium ${managementStyles.selectedEventName}`
+                        : 'text-sm sm:text-base font-semibold',
+                    )}>{eventName}</p>
                   </div>
                 )}
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-sm sm:text-base font-bold text-white">{enabled ? 'On' : 'Off'}</span>
+                  <span className={cn(
+                    'text-white',
+                    isPhotoVideoSharing ? 'text-sm font-medium text-white/85' : 'text-sm sm:text-base font-bold',
+                  )}>{enabled ? 'On' : 'Off'}</span>
                   <Switch
                     checked={enabled}
                     disabled={toggleDisabled}

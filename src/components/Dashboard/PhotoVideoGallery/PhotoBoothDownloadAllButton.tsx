@@ -2,7 +2,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { FolderDown, LoaderCircle } from 'lucide-react';
-import JSZip from 'jszip';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { groupPhotoBoothSessions, boothSetPrefix } from '@/lib/photoBoothSessions';
@@ -38,11 +37,12 @@ export const PhotoBoothDownloadAllButton: React.FC<{
     if (busy || total === 0) return;
     setBusy(true);
     setDone(0);
-    const zip = new JSZip();
-    let failures = 0;
-    let count = 0;
-
     try {
+      const { default: JSZip } = await import('jszip');
+      const zip = new JSZip();
+      let failures = 0;
+      let count = 0;
+
       for (const session of sessions) {
         const folder = `set-${String(session.index).padStart(3, '0')}`;
         let individual = 0;

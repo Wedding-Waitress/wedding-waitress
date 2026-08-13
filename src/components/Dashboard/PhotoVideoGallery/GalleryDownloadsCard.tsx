@@ -4,7 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Progress } from '@/components/ui/progress';
 import { Download, LoaderCircle, FolderDown, TriangleAlert } from 'lucide-react';
-import JSZip from 'jszip';
 import { cn } from '@/lib/utils';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +11,7 @@ import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { guestbookRecordingFilename } from '@/lib/audioGuestbookFilename';
 import { photoBoothFilename } from '@/lib/photoBoothFilename';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 type ZipScope = 'all' | 'approved' | 'photos' | 'videos';
 
@@ -110,8 +110,10 @@ export const GalleryDownloadsCard: React.FC<{
   layout?: 'grid' | 'vertical';
   /** Optional className for the outer card. */
   className?: string;
-}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid', className }) => {
+  appearance?: 'default' | 'espresso-glass';
+}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid', className, appearance = 'default' }) => {
   const { toast } = useToast();
+  const isGlass = appearance === 'espresso-glass';
   const items = useMemo(
     () => (privacyScope === 'guestbook' ? itemsProp : publicGalleryItems(itemsProp)),
     [itemsProp, privacyScope],
@@ -146,11 +148,12 @@ export const GalleryDownloadsCard: React.FC<{
     setProgress({ done: 0, total: list.length });
     setZipPct(0);
 
-    const zip = new JSZip();
-    const used = new Set<string>();
-    let failures = 0;
-
     try {
+      const { default: JSZip } = await import('jszip');
+      const zip = new JSZip();
+      const used = new Set<string>();
+      let failures = 0;
+
       for (let i = 0; i < list.length; i++) {
         const item = list[i];
         try {
@@ -205,12 +208,12 @@ export const GalleryDownloadsCard: React.FC<{
   const scopes: ZipScope[] = scopesProp ?? ['all', 'approved', 'photos', 'videos'];
 
   return (
-    <Card className={cn('p-4 space-y-4 overflow-hidden h-full flex flex-col', className)}>
+    <Card className={cn('p-4 space-y-4 overflow-hidden h-full flex flex-col', isGlass && managementStyles.glassCard, className)} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex items-start gap-2">
         <FolderDown className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
-          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>{title || 'Download as ZIP'}</h3>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
+          <h3 className={cn('text-xl', isGlass ? 'font-semibold tracking-[-0.012em] leading-tight text-white' : 'font-bold text-black')} style={isGlass ? undefined : { color: '#000000' }}>{title || 'Download as ZIP'}</h3>
+          <p className={cn('text-sm mt-1 break-words', isGlass && 'font-normal text-[#e8ddd2]')} style={isGlass ? undefined : { color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
         </div>
       </div>
 
@@ -223,7 +226,7 @@ export const GalleryDownloadsCard: React.FC<{
             <Button
               key={scope}
               variant="outline"
-              className="lv-premium-shade justify-between h-11 w-full gap-2"
+              className={cn('lv-premium-shade justify-between h-11 w-full gap-2', isGlass && 'border-[#967A59]', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
               onClick={() => buildZip(scope)}
               disabled={disabled}
               title={count === 0 ? 'No items available' : undefined}
@@ -241,7 +244,7 @@ export const GalleryDownloadsCard: React.FC<{
 
       {busy && (
         <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className={cn('flex items-center justify-between text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
             <span>
               Preparing {labelFor(busy).replace('Download ', '').toLowerCase()} ZIP…
               {progress.total > 0 && ` (${progress.done}/${progress.total} files)`}
@@ -259,7 +262,7 @@ export const GalleryDownloadsCard: React.FC<{
       )}
 
       {!busy && counts.all === 0 && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className={cn('flex items-center gap-2 text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
           <TriangleAlert className="h-3.5 w-3.5" />
           {emptyText || 'No uploaded media yet — ZIP downloads will activate once guests upload.'}
         </div>

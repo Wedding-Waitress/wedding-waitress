@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import * as tus from 'tus-js-client';
 import { supabase } from '@/integrations/supabase/client';
 import { ValidationResult, MediaLimits } from '@/lib/mediaValidation';
+import { normaliseGalleryAlbum, type ManageableGalleryAlbum } from '@/lib/galleryAlbumOptions';
 
 const SUPABASE_URL =
   (import.meta as any).env?.VITE_SUPABASE_URL ?? 'https://xytxkidpourwdbzzwcdp.supabase.co';
@@ -21,6 +22,7 @@ export interface UploadOptions {
   uploaderName: string;
   caption?: string;
   guestbookMessage?: string;
+  album?: ManageableGalleryAlbum | null;
   limits: MediaLimits;
 }
 
@@ -41,6 +43,7 @@ async function uploadOne(
     _caption: opts.caption || null,
     _guestbook_message: opts.guestbookMessage || null,
     _filename: vf.file.name,
+    _album: normaliseGalleryAlbum(opts.album),
   });
   if (error) throw new Error(error.message || 'Could not register upload');
   const row = Array.isArray(data) ? data[0] : data;
