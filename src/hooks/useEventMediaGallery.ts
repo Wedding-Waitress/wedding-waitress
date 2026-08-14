@@ -1,9 +1,10 @@
 // Host-side gallery hook
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type SetStateAction } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
 import type { PhotoBoothStripStyle } from '@/lib/photoBoothTemplate';
+import { registerCache } from '@/lib/cacheRegistry';
 
 export interface GalleryMeta {
   gallery_id: string;
@@ -127,12 +128,39 @@ export interface GalleryItem {
 // Module-level cache: event IDs known to have a gallery row in this session.
 // Lets us skip the ensure_event_media_gallery probe on warm re-selects.
 const ensuredGalleries = new Set<string>();
+const galleryMetaCache = new Map<string, GalleryMeta>();
+const galleryItemsCache = new Map<string, GalleryItem[]>();
+registerCache(() => {
+  ensuredGalleries.clear();
+  galleryMetaCache.clear();
+  galleryItemsCache.clear();
+});
 
 export function useEventMediaGallery(eventId: string | null) {
-  const [meta, setMeta] = useState<GalleryMeta | null>(null);
-  const [items, setItems] = useState<GalleryItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [meta, setMetaState] = useState<GalleryMeta | null>(() => eventId ? galleryMetaCache.get(eventId) ?? null : null);
+  const [items, setItemsState] = useState<GalleryItem[]>(() => eventId ? galleryItemsCache.get(eventId) ?? [] : []);
+  const [loading, setLoading] = useState(() => Boolean(eventId && !galleryMetaCache.has(eventId)));
   const [error, setError] = useState<string | null>(null);
+
+  const setMeta = useCallback((update: SetStateAction<GalleryMeta | null>) => {
+    setMetaState((previous) => {
+      const next = typeof update === 'function'
+        ? (update as (value: GalleryMeta | null) => GalleryMeta | null)(previous)
+        : update;
+      if (eventId && next) galleryMetaCache.set(eventId, next);
+      return next;
+    });
+  }, [eventId]);
+
+  const setItems = useCallback((update: SetStateAction<GalleryItem[]>) => {
+    setItemsState((previous) => {
+      const next = typeof update === 'function'
+        ? (update as (value: GalleryItem[]) => GalleryItem[])(previous)
+        : update;
+      if (eventId) galleryItemsCache.set(eventId, next);
+      return next;
+    });
+  }, [eventId]);
 
   const ensureGallery = useCallback(async (eid: string) => {
     const { error: err } = await (supabase as any).rpc('ensure_event_media_gallery', { _event_id: eid });
@@ -153,7 +181,7 @@ export function useEventMediaGallery(eventId: string | null) {
     const row = await fetchMeta(eid);
     if (!row) throw new Error('Gallery not found for this event');
     setMeta(row);
-  }, [fetchMeta]);
+  }, [fetchMeta, setMeta]);
 
   const loadItems = useCallback(async (eid: string) => {
     const { data, error: err } = await (supabase as any).rpc('get_event_media_items_host', { _event_id: eid });
@@ -180,7 +208,7 @@ export function useEventMediaGallery(eventId: string | null) {
       }
     }
     setItems(rows.map(r => ({ ...r, signed_url: map.get(r.id) })));
-  }, []);
+  }, [setItems]);
 
   const refresh = useCallback(async () => {
     if (!eventId) return;
@@ -230,6 +258,8 @@ export function useEventMediaGallery(eventId: string | null) {
 
   useEffect(() => {
     if (!eventId) { setMeta(null); setItems([]); setError(null); return; }
+    setMeta(galleryMetaCache.get(eventId) ?? null);
+    setItems(galleryItemsCache.get(eventId) ?? []);
     refresh();
     const channel = supabase
       .channel(`event-media:${eventId}`)
@@ -237,7 +267,7 @@ export function useEventMediaGallery(eventId: string | null) {
         () => { loadItems(eventId).catch(() => {}); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [eventId, refresh, loadItems]);
+  }, [eventId, refresh, loadItems, setItems, setMeta]);
 
   const setOpen = useCallback(async (open: boolean) => {
     if (!eventId) return;

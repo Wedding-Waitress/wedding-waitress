@@ -63,6 +63,42 @@ describe('useSelectedEvent', () => {
     const { result } = renderHook(() => useSelectedEvent([]));
     await act(async () => { await Promise.resolve(); });
     expect(result.current.selectedEventId).toBeNull();
+    expect(result.current.status).toBe('empty');
+  });
+
+  it('preserves the last selected event while the event list is loading or revalidating', async () => {
+    localStorage.setItem(STORAGE_KEY, 'A');
+    const { useSelectedEvent } = await freshImport();
+    const { result, rerender } = renderHook(
+      ({ events, loading }) => useSelectedEvent(events, { loading }),
+      { initialProps: { events: [{ id: 'A', name: 'Jason & Linda' }], loading: false } },
+    );
+
+    expect(result.current.selectedEvent).toEqual({ id: 'A', name: 'Jason & Linda' });
+    rerender({ events: [], loading: true });
+
+    expect(result.current.selectedEventId).toBe('A');
+    expect(result.current.selectedEvent).toEqual({ id: 'A', name: 'Jason & Linda' });
+    expect(result.current.status).toBe('selected');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('A');
+  });
+
+  it('does not clear a stored selection during initial loading, then confirms a genuine empty state', async () => {
+    localStorage.setItem(STORAGE_KEY, 'A');
+    const { useSelectedEvent } = await freshImport();
+    const { result, rerender } = renderHook(
+      ({ loading }) => useSelectedEvent([], { loading }),
+      { initialProps: { loading: true } },
+    );
+
+    expect(result.current.selectedEventId).toBe('A');
+    expect(result.current.status).toBe('loading');
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('A');
+
+    rerender({ loading: false });
+    await act(async () => { await Promise.resolve(); });
+    expect(result.current.selectedEventId).toBeNull();
+    expect(result.current.status).toBe('empty');
   });
 
   it('responds to ww:selected-event-set, ww:selected-event-cleared and ww:auth-cleared', async () => {

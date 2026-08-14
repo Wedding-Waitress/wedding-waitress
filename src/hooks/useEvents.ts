@@ -55,14 +55,15 @@ registerCache(() => { eventsCache = null; });
 export const useEvents = () => {
   const [events, setEvents] = useState<Event[]>(eventsCache ?? []);
   const [loading, setLoading] = useState(!eventsCache);
+  const [loaded, setLoaded] = useState(eventsCache !== null);
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const { toast } = useToast();
   const { profile, updateDisplayCountdownEvent } = useProfile();
 
   // Keep cache in sync
   useEffect(() => {
-    if (events.length > 0) eventsCache = events;
-  }, [events]);
+    if (loaded) eventsCache = events;
+  }, [events, loaded]);
 
   const setActiveEventIdWithPersistence = async (eventId: string | null) => {
     setActiveEventId(eventId);
@@ -100,7 +101,7 @@ export const useEvents = () => {
       // Build a map of additional event data
       const eventDataMap = new Map((fullEvents || []).map((e: any) => [e.id, e]));
 
-      setEvents((data || []).map((event: any) => {
+      const nextEvents = (data || []).map((event: any) => {
         const extraData = eventDataMap.get(event.id) || {};
         return {
           ...event,
@@ -126,7 +127,13 @@ export const useEvents = () => {
           allow_guest_plus_ones: extraData.allow_guest_plus_ones ?? false,
           collect_guest_addresses: extraData.collect_guest_addresses ?? false,
         };
-      }));
+      });
+      // Publish the resolved collection to the shared cache before React mounts
+      // another feature route. This prevents a new route from observing the
+      // temporary `[]` loading value as a genuine no-events result.
+      eventsCache = nextEvents;
+      setEvents(nextEvents);
+      setLoaded(true);
     } catch (error) {
       console.error('Error fetching events:', error);
       toast({
@@ -349,6 +356,7 @@ export const useEvents = () => {
         setEvents([]);
         setActiveEventId(null);
         setLoading(false);
+        setLoaded(false);
         return;
       }
 
@@ -428,6 +436,7 @@ export const useEvents = () => {
   return {
     events,
     loading,
+    loaded,
     activeEventId,
     setActiveEventId: setActiveEventIdWithPersistence,
     createEvent,

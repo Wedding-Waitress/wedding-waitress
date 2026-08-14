@@ -5,7 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import type { GalleryItem, GalleryMeta } from '@/hooks/useEventMediaGallery';
-import { PB_STRIP_COUNT, PB_STRIP_PRINT, PB_STRIP_SINGLE, FOOTER_PANEL_HEIGHT, FOOTER_PANEL_WIDTH } from '@/lib/photoBoothTemplate';
+import { PB_STRIP_COUNT, PB_STRIP_PRINT, PB_STRIP_SINGLE, PB_STRIP_CUT_X, FOOTER_PANEL_HEIGHT, FOOTER_PANEL_WIDTH } from '@/lib/photoBoothTemplate';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 import { GalleryPhotoBoothFeaturePage } from './GalleryPhotoBoothFeaturePage';
 
@@ -88,6 +88,12 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-kind', 'strip');
     expect(screen.getByText('Background Colour').parentElement?.parentElement).toHaveClass(managementStyles.galleryViewInsetPanel);
     expect(screen.getByText('Custom Footer Text').parentElement).toHaveClass(managementStyles.galleryViewInsetPanel);
+    expect(screen.getByRole('heading', { name: 'Photo Booth Customisation' })).toBeInTheDocument();
+    expect(screen.getByText('2. Take four photos')).toBeInTheDocument();
+    expect(screen.getByText('The on-screen countdown guides guests through four photo captures.')).toBeInTheDocument();
+    expect(screen.getByText('The completed photo strip and four individual photos appear below for review, approval and download.')).toBeInTheDocument();
+    expect(screen.getByText('Choose one background for the complete 1200 × 1800 print. The four photo positions in each strip and the footer remain layered above it.')).toBeInTheDocument();
+    expect(screen.getByText('Review, organise, approve, hide and download completed photo strips and individual photos captured in your Digital Photo Booth.')).toBeInTheDocument();
 
     const captures = screen.getByRole('heading', { name: 'Digital Photo Booth Captures (1)' }).closest('[data-appearance="espresso-glass"]');
     expect(captures).toHaveClass(managementStyles.galleryPanel);
@@ -116,11 +122,12 @@ describe('Digital Photo Booth premium appearance', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download QR code' }));
     expect(anchorClick).toHaveBeenCalled();
 
-    expect(PB_STRIP_PRINT).toEqual({ w: 1440, h: 2000 });
-    expect(PB_STRIP_SINGLE).toEqual({ w: 720, h: 2000 });
+    expect(PB_STRIP_PRINT).toEqual({ w: 1200, h: 1800 });
+    expect(PB_STRIP_SINGLE).toEqual({ w: 600, h: 1800 });
+    expect(PB_STRIP_CUT_X).toBe(600);
     expect(PB_STRIP_COUNT).toBe(4);
-    expect(FOOTER_PANEL_WIDTH).toBe(720);
-    expect(FOOTER_PANEL_HEIGHT).toBe(216);
+    expect(FOOTER_PANEL_WIDTH).toBe(600);
+    expect(FOOTER_PANEL_HEIGHT).toBe(256);
   });
 
   it('styles portal controls and includes touch and reduced-motion support', async () => {
@@ -165,9 +172,13 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(backgroundSections[0].parentElement?.parentElement).toHaveClass('lg:col-span-2');
     expect(backgroundSections[1].parentElement?.parentElement?.parentElement).toBe(backgroundSections[2].parentElement?.parentElement?.parentElement);
 
+    expect(screen.getByText(/Exact required size:/)).toHaveTextContent('1200 × 1800 px');
+    expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('JPG or JPEG, portrait orientation, 4 × 6 inches at 300 DPI');
+    expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('both 2 × 6 inch strips');
+
     expect(screen.getByTestId('photo-booth-preview').parentElement).toHaveClass('w-full', 'max-w-[420px]');
-    expect(PB_STRIP_PRINT).toEqual({ w: 1440, h: 2000 });
-    expect(PB_STRIP_SINGLE).toEqual({ w: 720, h: 2000 });
+    expect(PB_STRIP_PRINT).toEqual({ w: 1200, h: 1800 });
+    expect(PB_STRIP_SINGLE).toEqual({ w: 600, h: 1800 });
     expect(PB_STRIP_COUNT).toBe(4);
   });
 
@@ -175,7 +186,7 @@ describe('Digital Photo Booth premium appearance', () => {
     render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
 
     const footerHeading = await screen.findByRole('heading', { name: 'Photo Strip Footer' });
-    const footerDescription = screen.getByText('Everything that appears in the footer band under the four photos.');
+    const footerDescription = screen.getByText('Everything that appears in the footer band beneath the four photos in each strip.');
     expect(footerHeading.parentElement).toBe(footerDescription.parentElement);
     expect(footerHeading.parentElement).toHaveClass('sm:flex-row', 'sm:items-baseline', 'sm:justify-between');
 

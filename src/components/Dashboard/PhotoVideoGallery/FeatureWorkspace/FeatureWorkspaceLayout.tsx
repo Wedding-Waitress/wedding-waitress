@@ -29,6 +29,7 @@ export interface FeatureWorkspaceLayoutProps {
   /** Reuses only the approved management header controls without changing typography. */
   controlsAppearance?: 'default' | 'photo-video-sharing';
   toggleClassName?: string;
+  selectionStatus?: 'loading' | 'empty' | 'selected';
   children?: React.ReactNode;
 }
 
@@ -48,6 +49,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   backgroundAppearance = 'default',
   controlsAppearance = 'default',
   toggleClassName,
+  selectionStatus = 'selected',
   children,
 }) => {
   const isPhotoVideoSharing = appearance === 'photo-video-sharing';
@@ -124,7 +126,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
                   <span className={cn(
                     'text-white',
                     usesPhotoVideoSharingControls ? 'text-sm font-medium text-white/85' : 'text-sm sm:text-base font-bold',
-                  )}>{enabled ? 'On' : 'Off'}</span>
+                  )}>{selectionStatus === 'loading' ? 'Loading…' : selectionStatus === 'empty' ? 'No event' : enabled ? 'On' : 'Off'}</span>
                   <Switch
                     checked={enabled}
                     disabled={toggleDisabled}
@@ -141,7 +143,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
         {/* Level 4 — Separator */}
         <div className="border-b border-white/15" />
 
-        {!enabled && (
+        {selectionStatus === 'selected' && !enabled && (
           <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
             <div className="mt-4 rounded-xl border border-white/25 bg-white/10 px-4 py-3">
               <p className="text-sm text-white break-words">

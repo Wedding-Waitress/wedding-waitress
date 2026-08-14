@@ -94,9 +94,10 @@ export const GuestbookDownloadAllButton: React.FC<{
       className={cn('lv-premium-shade h-11 gap-2 border border-[#472c1d]', className, isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
       onClick={run}
       disabled={busy || list.length === 0}
+      aria-label="Download all guestbook messages"
     >
       {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.8} /> : <Download className="h-4 w-4" strokeWidth={1.8} />}
-      <span>Download All Guestbook Messages</span>
+      <span>Download All</span>
       <span className="text-xs text-muted-foreground">{list.length}</span>
     </Button>
   );

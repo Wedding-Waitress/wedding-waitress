@@ -7,8 +7,8 @@ import managementStyles from './photoVideoSharingManagement.module.css';
 
 const STEPS = [
   { icon: QrCode, title: 'Scan or open the link', text: 'Guests scan the QR code or open the Digital Photo Booth link on their phone or tablet.' },
-  { icon: Camera, title: 'Take the photo', text: 'They allow camera access and take their photo with the on-screen countdown.' },
-  { icon: CircleCheck, title: 'Review & approve', text: 'Their submitted photo appears here for review and gallery approval.' },
+  { icon: Camera, title: 'Take four photos', text: 'The on-screen countdown guides guests through four photo captures.' },
+  { icon: CircleCheck, title: 'Review & approve', text: 'The completed photo strip and four individual photos appear below for review, approval and download.' },
 ];
 
 export const GalleryPhotoBoothStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass' }> = ({ appearance = 'default' }) => {

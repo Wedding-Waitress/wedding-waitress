@@ -48,43 +48,44 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-4xl w-[calc(100vw-2rem)] p-0 overflow-hidden', isGlass && managementStyles.guestbookDialog)}>
+      <DialogContent className={cn('max-w-4xl w-[calc(100vw-2rem)] p-0 overflow-hidden', isGlass && managementStyles.guestbookDialog, isGlass && managementStyles.templateLibraryDialog)}>
         <DialogHeader className="px-5 pt-5 pb-3 text-left">
           <DialogTitle className={cn('text-lg font-bold text-[#1D1D1F]', isGlass && managementStyles.galleryViewHeading)}>Template Library</DialogTitle>
-          <DialogDescription className="text-sm">
+          <DialogDescription className={cn('text-sm', isGlass && managementStyles.gallerySecondaryText)}>
             Choose a Wedding Waitress photo-strip background. The guest photos and footer always stay on top.
           </DialogDescription>
         </DialogHeader>
 
         <div className="px-5 pb-3 grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground', isGlass && managementStyles.templateLibrarySearchIcon)} />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search templates by name"
               placeholder="Search templates by name"
-              className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)}
+              className={cn('h-11 pl-9 text-base', isGlass && managementStyles.templateLibraryControl)}
             />
           </div>
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className={cn('h-11 sm:w-40', isGlass && managementStyles.galleryControl)}><SelectValue placeholder="Category" /></SelectTrigger>
-            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+            <SelectTrigger aria-label="Filter templates by category" className={cn('h-11 sm:w-40', isGlass && managementStyles.templateLibraryControl)}><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent, isGlass && managementStyles.templateLibrarySelectContent)}>
               <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All categories</SelectItem>
               {PHOTO_BOOTH_TEMPLATE_CATEGORIES.map((c) => <SelectItem key={c} value={c} className={cn(isGlass && managementStyles.gallerySelectItem)}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={colour} onValueChange={setColour}>
-            <SelectTrigger className={cn('h-11 sm:w-40', isGlass && managementStyles.galleryControl)}><SelectValue placeholder="Colour" /></SelectTrigger>
-            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+            <SelectTrigger aria-label="Filter templates by colour" className={cn('h-11 sm:w-40', isGlass && managementStyles.templateLibraryControl)}><SelectValue placeholder="Colour" /></SelectTrigger>
+            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent, isGlass && managementStyles.templateLibrarySelectContent)}>
               <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All colours</SelectItem>
               {PHOTO_BOOTH_TEMPLATE_COLOURS.map((c) => <SelectItem key={c} value={c} className={cn(isGlass && managementStyles.gallerySelectItem)}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="px-5 pb-2 max-h-[55vh] overflow-y-auto">
+        <div className={cn('px-5 pb-2 max-h-[55vh] overflow-y-auto', isGlass && managementStyles.templateLibraryScrollArea)}>
           {results.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted-foreground">No templates match your search.</p>
+            <p className={cn('py-10 text-center text-sm text-muted-foreground', isGlass && managementStyles.templateLibraryState)}>No templates match your search.</p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {results.map((t) => {
@@ -95,7 +96,7 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
                     type="button"
                     onClick={() => setPending(t.url)}
                     aria-pressed={active}
-                    className={cn(`relative rounded-lg overflow-hidden border-2 text-left transition-shadow ${active ? 'border-[#C8A97E] shadow-md' : 'border-border hover:border-[#967A59]/50'}`, isGlass && managementStyles.guestbookMessageCard)}
+                    className={cn(`relative rounded-lg overflow-hidden border-2 text-left transition-shadow ${active ? 'border-[#C8A97E] shadow-md' : 'border-border hover:border-[#967A59]/50'}`, isGlass && managementStyles.templateLibraryCard, isGlass && active && managementStyles.templateLibraryCardSelected)}
                   >
                     <img
                       src={t.thumbUrl}
@@ -118,8 +119,8 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
           )}
         </div>
 
-        <DialogFooter className="px-5 py-4 border-t bg-muted/30 gap-2 sm:gap-2">
-          <Button type="button" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => onOpenChange(false)}>
+        <DialogFooter className={cn('px-5 py-4 border-t bg-muted/30 gap-2 sm:gap-2', isGlass && managementStyles.templateLibraryFooter)}>
+          <Button type="button" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.templateLibrarySecondaryAction)} onClick={() => onOpenChange(false)}>
             Close
           </Button>
           <Button

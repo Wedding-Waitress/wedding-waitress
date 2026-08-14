@@ -26,6 +26,7 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 import { useEventMediaGallery } from './useEventMediaGallery';
+import { clearAllCaches } from '@/lib/cacheRegistry';
 
 const storedItem = () => ({
   id: 'media-1',
@@ -48,6 +49,7 @@ const storedItem = () => ({
 
 describe('useEventMediaGallery album persistence', () => {
   beforeEach(() => {
+    clearAllCaches();
     backend.album = 'Ceremony';
     backend.rpc.mockReset();
     backend.createSignedUrls.mockReset();
@@ -68,6 +70,17 @@ describe('useEventMediaGallery album persistence', () => {
       }
       return { data: null, error: null };
     });
+  });
+
+  it('hydrates a remounted feature route from the last validated gallery metadata', async () => {
+    const first = renderHook(() => useEventMediaGallery('event-1'));
+    await waitFor(() => expect(first.result.current.meta?.gallery_id).toBe('gallery-1'));
+    first.unmount();
+
+    const next = renderHook(() => useEventMediaGallery('event-1'));
+    expect(next.result.current.meta?.gallery_id).toBe('gallery-1');
+    expect(next.result.current.items).toHaveLength(1);
+    next.unmount();
   });
 
   it('saves through the existing RPC and reloads the changed album after a fresh mount', async () => {

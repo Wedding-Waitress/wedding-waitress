@@ -99,8 +99,34 @@ describe('Digital Guestbook premium appearance', () => {
     expect(screen.getByPlaceholderText(/Search by guest name or message/)).toHaveClass(managementStyles.galleryControl);
     expect(screen.getByRole('button', { name: 'Refresh' })).toHaveClass(managementStyles.galleryControl);
     expect(screen.getByRole('button', { name: 'Select' })).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: /Download All Guestbook Messages/ })).toHaveClass(managementStyles.galleryControl);
+    const downloadAll = screen.getByRole('button', { name: 'Download all guestbook messages' });
+    expect(downloadAll).toHaveClass(managementStyles.galleryControl);
+    expect(downloadAll).toHaveTextContent('Download All');
+    expect(downloadAll).toHaveTextContent('1');
     expect(screen.getByRole('button', { name: 'Export CSV' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
+
+    const actions = messagesPanel?.querySelector('[data-guestbook-toolbar="actions"]');
+    expect(actions).toHaveClass('grid-cols-2', 'lg:flex-nowrap');
+    expect(within(actions as HTMLElement).getAllByRole('button')).toEqual([
+      screen.getByRole('button', { name: 'Refresh' }),
+      screen.getByRole('button', { name: 'Select' }),
+      downloadAll,
+      screen.getByRole('button', { name: 'Export CSV' }),
+    ]);
+
+    const filters = messagesPanel?.querySelector('[data-guestbook-toolbar="filters"]');
+    expect(filters).toHaveClass('grid-cols-2', 'xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]');
+    const filterControls = within(filters as HTMLElement);
+    const controlsInOrder = [
+      filterControls.getByPlaceholderText(/Search by guest name or message/),
+      filterControls.getByRole('button', { name: 'Written Messages (2)' }),
+      filterControls.getByRole('button', { name: 'Audio Messages (1)' }),
+      filterControls.getByRole('button', { name: 'Video Messages (0)' }),
+      ...filterControls.getAllByRole('combobox'),
+    ];
+    controlsInOrder.slice(1).forEach((control, index) => {
+      expect(controlsInOrder[index].compareDocumentPosition(control) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
 
     const writtenTab = screen.getByRole('button', { name: 'Written Messages (2)' });
     const audioTab = screen.getByRole('button', { name: 'Audio Messages (1)' });

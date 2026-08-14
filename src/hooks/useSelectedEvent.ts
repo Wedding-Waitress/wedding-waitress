@@ -10,7 +10,7 @@
  *   window events for cross-component propagation.
  */
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 const STORAGE_KEY = 'ww:selected_event_id';
 const LEGACY_SESSION_KEY = 'ww:session_selected_event';
@@ -34,6 +34,7 @@ function readInitial(): string | null {
 }
 
 let current: string | null = readInitial();
+let lastSelectedEvent: { id: string } | null = null;
 
 function emit() {
   listeners.forEach((l) => l());
@@ -53,6 +54,7 @@ function getSnapshot() {
 export function setSelectedEventId(id: string | null): void {
   if (current === id) return;
   current = id;
+  if (!id || lastSelectedEvent?.id !== id) lastSelectedEvent = null;
   if (typeof window !== 'undefined') {
     if (id) window.localStorage.setItem(STORAGE_KEY, id);
     else window.localStorage.removeItem(STORAGE_KEY);
@@ -90,7 +92,13 @@ if (typeof window !== 'undefined') {
 export interface UseSelectedEventResult<T extends { id: string }> {
   selectedEventId: string | null;
   selectedEvent: T | null;
+  status: 'loading' | 'empty' | 'selected';
   setSelectedEventId: (id: string | null) => void;
+}
+
+export interface UseSelectedEventOptions {
+  /** True while the supplied event collection is being loaded or revalidated. */
+  loading?: boolean;
 }
 
 /**
@@ -98,29 +106,43 @@ export interface UseSelectedEventResult<T extends { id: string }> {
  */
 export function useSelectedEvent<T extends { id: string }>(
   events?: T[],
+  options: UseSelectedEventOptions = {},
 ): UseSelectedEventResult<T> {
   const id = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  const [, force] = useState(0);
+  const loading = options.loading ?? false;
+  const matchingEvent = events && id ? events.find((event) => event.id === id) ?? null : null;
+  const fallbackEvent = !loading && events?.length && !matchingEvent ? events[0] : null;
+  const resolvedEvent = matchingEvent ?? fallbackEvent;
+
+  if (resolvedEvent) lastSelectedEvent = resolvedEvent;
 
   // Auto-recover invalid IDs once events arrive.
   useEffect(() => {
-    if (!events) return;
+    if (!events || loading) return;
     if (events.length === 0) {
       if (id !== null) setSelectedEventId(null);
       return;
     }
-    if (id && !events.find((e) => e.id === id)) {
+    if (!id || !events.find((e) => e.id === id)) {
       setSelectedEventId(events[0].id);
-      force((n) => n + 1);
     }
-  }, [events, id]);
+  }, [events, id, loading]);
 
-  const selectedEvent =
-    events && id ? events.find((e) => e.id === id) ?? null : null;
+  const selectedEvent = (resolvedEvent
+    ?? (loading && id && lastSelectedEvent?.id === id ? lastSelectedEvent : null)) as T | null;
+  const selectedEventId = resolvedEvent?.id ?? id;
+  const status: UseSelectedEventResult<T>['status'] = selectedEvent
+    ? 'selected'
+    : loading
+      ? 'loading'
+      : selectedEventId
+        ? 'loading'
+        : 'empty';
 
   return {
-    selectedEventId: id,
+    selectedEventId,
     selectedEvent,
+    status,
     setSelectedEventId,
   };
 }

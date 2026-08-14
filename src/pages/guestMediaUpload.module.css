@@ -278,6 +278,197 @@
   color: #fff;
 }
 
+/* Public Digital Guestbook: reuse the approved Upload glass family without
+   changing the shared hero, segmented navigation, or any organiser surface. */
+.guestbookPanel {
+  width: 100%;
+  max-width: 100%;
+}
+
+.guestbookOption {
+  color: #fff;
+  overflow: hidden;
+}
+
+.guestbookBadge {
+  color: #fff;
+  background: linear-gradient(180deg, #b99160 0%, #89643e 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 232, 0.28),
+    0 3px 8px rgba(3, 1, 1, 0.24);
+}
+
+.guestbookTextarea {
+  width: 100%;
+  max-width: 100%;
+  resize: vertical;
+}
+
+.guestbookTimer,
+.guestbookSaved {
+  color: #e8ddd2 !important;
+}
+
+.guestbookSaved {
+  color: #74e6a0 !important;
+}
+
+.guestbookAudio {
+  display: block;
+  color-scheme: dark;
+  accent-color: #22c55e;
+}
+
+.guestbookMediaPreview {
+  display: block;
+  overflow: hidden;
+  border: 1px solid rgba(211, 161, 101, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.1),
+    0 5px 14px rgba(0, 0, 0, 0.3);
+}
+
+.guestbookDangerAction {
+  color: #fff !important;
+  border: 1px solid rgba(255, 151, 143, 0.48) !important;
+  background-color: #b91c1c !important;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.14)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 237, 235, 0.22),
+    0 4px 12px rgba(85, 8, 8, 0.3) !important;
+  filter: none !important;
+  transform: none !important;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease !important;
+}
+
+.guestbookDangerAction:disabled {
+  color: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(255, 151, 143, 0.26) !important;
+  background-color: #7f1d1d !important;
+  opacity: 0.72 !important;
+}
+
+.guestbookDangerAction:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(255, 164, 156, 0.82),
+    0 0 0 4px rgba(13, 7, 5, 0.94) !important;
+}
+
+.guestbookError,
+.guestbookSuccess {
+  overflow-wrap: anywhere;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+}
+
+.guestbookError {
+  color: #ffd7d3 !important;
+  border-color: rgba(255, 146, 137, 0.48) !important;
+  background: linear-gradient(180deg, rgba(91, 31, 28, 0.64), rgba(43, 16, 14, 0.82)) !important;
+}
+
+.guestbookSuccess {
+  color: #d9ffe5 !important;
+  border-color: rgba(117, 224, 154, 0.44) !important;
+  background: linear-gradient(180deg, rgba(24, 87, 48, 0.44), rgba(12, 47, 26, 0.58)) !important;
+}
+
+/* Public Photo Booth: scoped to GuestPhotoBooth so the shared public hero,
+   navigation, gallery, and organiser Photo Booth remain untouched. */
+.photoBoothPanel,
+.photoBoothStatePanel {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  color: #fff !important;
+}
+
+.photoBoothStatePanel {
+  border-color: rgba(201, 151, 93, 0.38) !important;
+}
+
+.photoBoothCameraFrame {
+  max-width: 100%;
+  border-color: rgba(211, 161, 101, 0.48) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    inset 0 0 18px rgba(75, 39, 25, 0.2),
+    0 6px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.photoBoothCapturedPreview {
+  max-width: 100%;
+  border: 1px solid rgba(211, 161, 101, 0.42);
+  background: linear-gradient(180deg, rgba(34, 19, 14, 0.86), rgba(10, 6, 5, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.1),
+    0 5px 14px rgba(0, 0, 0, 0.28);
+}
+
+.photoBoothCameraLoading,
+.photoBoothCountdownOverlay {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(42, 23, 17, 0.68), rgba(4, 2, 2, 0.58));
+}
+
+.photoBoothProgressPill {
+  color: #fff;
+  border: 1px solid rgba(216, 173, 121, 0.46);
+  background: linear-gradient(180deg, rgba(77, 43, 31, 0.84), rgba(18, 10, 8, 0.9));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 3px 8px rgba(0, 0, 0, 0.24);
+}
+
+.photoBoothSlot {
+  overflow: hidden;
+  border-color: rgba(211, 161, 101, 0.4) !important;
+  background: linear-gradient(180deg, rgba(48, 27, 20, 0.78), rgba(14, 8, 6, 0.9)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.1),
+    inset 0 0 9px rgba(0, 0, 0, 0.2),
+    0 3px 8px rgba(0, 0, 0, 0.22);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.photoBoothSlotComplete {
+  color: #edc994;
+  border-color: rgba(229, 183, 124, 0.66) !important;
+  background: linear-gradient(180deg, rgba(94, 53, 36, 0.84), rgba(37, 19, 13, 0.94)) !important;
+}
+
+.photoBoothSlotActive {
+  border-color: rgba(116, 230, 160, 0.8) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(224, 255, 235, 0.16),
+    inset 0 0 12px rgba(34, 197, 94, 0.12),
+    0 0 0 2px rgba(34, 197, 94, 0.22),
+    0 4px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+.photoBoothWarning {
+  color: #ffe0ab !important;
+  border-color: rgba(231, 177, 103, 0.46) !important;
+  background: linear-gradient(180deg, rgba(92, 59, 24, 0.62), rgba(42, 25, 11, 0.84)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+  overflow-wrap: anywhere;
+}
+
+.photoBoothNoBlackBorder {
+  border-color: rgba(216, 173, 121, 0.55) !important;
+}
+
+.guestbookDangerAction.photoBoothNoBlackBorder {
+  border-color: rgba(255, 151, 143, 0.48) !important;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .navigationTabInactive:hover {
     color: #fff;
@@ -319,6 +510,15 @@
       0 7px 17px rgba(7, 83, 38, 0.34) !important;
     filter: brightness(1.025) !important;
   }
+
+  .guestbookDangerAction:hover:not(:disabled) {
+    background-color: #991b1b !important;
+    border-color: rgba(255, 177, 170, 0.66) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 237, 235, 0.25),
+      0 6px 15px rgba(85, 8, 8, 0.34) !important;
+    filter: brightness(1.025) !important;
+  }
 }
 
 .navigationTab:active,
@@ -327,6 +527,7 @@
 .heroUploadAction:active:not(:disabled),
 .primaryAction:active:not(:disabled),
 .successPrimaryAction:active:not(:disabled),
+.guestbookDangerAction:active:not(:disabled),
 .removeControl:active {
   filter: brightness(0.97) !important;
 }
@@ -362,6 +563,16 @@
   .primaryAction,
   .successPrimaryAction,
   .progressFill {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .guestbookDangerAction,
+  .guestbookMediaPreview,
+  .photoBoothSlot,
+  .photoBoothCameraFrame,
+  .photoBoothCapturedPreview {
     animation: none !important;
     transition: none !important;
     transform: none !important;

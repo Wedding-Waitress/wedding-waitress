@@ -13,8 +13,8 @@ describe('footer panel dimensions', () => {
   it('matches the strip renderer geometry exactly', () => {
     expect(FOOTER_PANEL_WIDTH).toBe(PB_STRIP_SINGLE.w);
     expect(FOOTER_PANEL_HEIGHT).toBe(Math.round(PB_STRIP_PRINT.h * PB_STRIP_FOOTER_RATIO));
-    expect(FOOTER_PANEL_WIDTH).toBe(720);
-    expect(FOOTER_PANEL_HEIGHT).toBe(216);
+    expect(FOOTER_PANEL_WIDTH).toBe(600);
+    expect(FOOTER_PANEL_HEIGHT).toBe(256);
   });
 
   it('is exactly half the print canvas width', () => {
@@ -23,8 +23,8 @@ describe('footer panel dimensions', () => {
 
   it('reports 300 DPI millimetres', () => {
     const mm = footerPanelMm();
-    expect(mm.w).toBeCloseTo(61, 0);
-    expect(mm.h).toBeCloseTo(18.3, 1);
+    expect(mm.w).toBeCloseTo(50.8, 1);
+    expect(mm.h).toBeCloseTo(21.7, 1);
   });
 });
 

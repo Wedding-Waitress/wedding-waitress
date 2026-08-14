@@ -183,11 +183,11 @@ describe('Photo & Video Sharing management appearance', () => {
     const { container } = renderPage();
 
     const panel = await waitFor(() => {
-      const element = container.querySelector('[data-photo-video-loading-panel]');
+      const element = container.querySelector('[data-workspace-state="loading"]');
       expect(element).toBeInTheDocument();
       return element as HTMLElement;
     });
-    expect(panel).toHaveClass(managementStyles.loadingGlassPanel, 'p-12', 'rounded-xl');
+    expect(panel).toHaveClass(managementStyles.loadingGlassPanel, 'p-8', 'sm:p-10', 'rounded-xl');
     expect(panel).not.toHaveClass('bg-white', 'ww-box');
     expect(within(panel).getByText('Loading gallery…')).toHaveClass(managementStyles.loadingGlassText);
     expect(panel.querySelector('svg')).toHaveClass(managementStyles.loadingGlassSpinner, 'animate-spin');

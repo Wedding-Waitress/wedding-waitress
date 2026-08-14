@@ -2,27 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useEvents } from '@/hooks/useEvents';
-import { useSelectedEvent } from '@/hooks/useSelectedEvent';
-import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
+import { usePhotoVideoFeatureWorkspace } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
+import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
 import { GalleryTextGuestbookAccessCard, buildTextGuestbookUrl } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookAccessCard';
 import { GalleryTextGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookStepsCard';
 import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
 import { Button } from '@/components/ui/enhanced-button';
-import { Card } from '@/components/ui/card';
-import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
+import { LoaderCircle, ExternalLink } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [authChecked, setAuthChecked] = useState(false);
-  const { events } = useEvents();
-  const { selectedEventId, selectedEvent } = useSelectedEvent(events);
-  const { meta, items, loading, error, setModeration, setGuestbookEnabled, setGuestbookShare } = useEventMediaGallery(selectedEventId);
+  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setModeration, setGuestbookEnabled, setGuestbookShare } = usePhotoVideoFeatureWorkspace();
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -73,8 +69,9 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         title="Digital Guestbook"
         description="Read and manage private written, audio and video messages and well wishes from your guests."
         eventName={(selectedEvent as any)?.name}
+        selectionStatus={selectionStatus}
         enabled={!!meta?.guestbook_text_enabled || !!meta?.voice_guestbook_enabled}
-        toggleDisabled={saving || loading || !meta}
+        toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
         disabledNotice="This feature is currently turned off for your guests. You can still manage existing messages and preview the Digital Guestbook."
@@ -89,18 +86,13 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
           </Button>
         }
       >
-        {loading && !meta ? (
-          <Card className={`p-12 flex flex-col items-center justify-center gap-3 ${managementStyles.loadingGlassPanel}`}>
-            <LoaderCircle className={`animate-spin h-6 w-6 text-[#967A59] ${managementStyles.loadingGlassSpinner}`} strokeWidth={1.8} />
-            <p className="text-sm text-muted-foreground">Loading Digital Guestbook…</p>
-          </Card>
-        ) : !meta ? (
-          <Card className={`p-10 flex flex-col items-center text-center gap-3 ${managementStyles.loadingGlassPanel}`}>
-            <TriangleAlert className={`h-8 w-8 text-muted-foreground ${managementStyles.loadingGlassSpinner}`} strokeWidth={1.8} />
-            <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Sharing page to manage the Digital Guestbook.'}
-            </p>
-          </Card>
+        {selectionStatus !== 'selected' || !meta ? (
+          <FeatureWorkspaceStatePanel
+            state={selectionStatus === 'loading' ? 'loading' : selectionStatus === 'empty' ? 'empty' : 'error'}
+            loadingLabel="Loading Digital Guestbook…"
+            emptyLabel="Select an event on the Photo & Video Sharing page to manage the Digital Guestbook."
+            error={error}
+          />
         ) : (
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">

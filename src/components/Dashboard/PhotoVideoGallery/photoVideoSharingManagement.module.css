@@ -513,6 +513,143 @@
   color: #edc994;
 }
 
+.templateLibraryDialog.templateLibraryDialog {
+  display: flex;
+  max-height: min(88vh, 56rem);
+  flex-direction: column;
+  gap: 0;
+}
+
+.templateLibraryControl.templateLibraryControl.templateLibraryControl {
+  color: #fff !important;
+  border: 1px solid rgba(211, 161, 101, 0.5) !important;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.72) 0%, rgba(18, 10, 8, 0.9) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.13),
+    0 3px 9px rgba(0, 0, 0, 0.24) !important;
+  caret-color: #edc994;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+}
+
+.templateLibraryControl::placeholder {
+  color: #cbbcaf !important;
+  opacity: 1;
+}
+
+.templateLibraryControl :global(svg) {
+  color: #d9b77f !important;
+}
+
+.templateLibraryControl.templateLibraryControl.templateLibraryControl:focus-visible {
+  outline: none !important;
+  border-color: rgba(235, 193, 140, 0.88) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.16),
+    0 0 0 2px rgba(229, 183, 124, 0.76),
+    0 0 0 4px rgba(13, 7, 5, 0.94) !important;
+}
+
+.templateLibrarySearchIcon {
+  color: #d9b77f !important;
+  pointer-events: none;
+}
+
+.templateLibrarySelectContent.templateLibrarySelectContent {
+  z-index: 70 !important;
+}
+
+.templateLibraryScrollArea {
+  min-height: 0;
+  flex: 1 1 auto;
+  scrollbar-color: rgba(190, 137, 79, 0.58) rgba(17, 9, 7, 0.74);
+  scrollbar-width: thin;
+}
+
+.templateLibraryScrollArea::-webkit-scrollbar {
+  width: 0.65rem;
+}
+
+.templateLibraryScrollArea::-webkit-scrollbar-track {
+  background: rgba(17, 9, 7, 0.74);
+}
+
+.templateLibraryScrollArea::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(17, 9, 7, 0.74);
+  border-radius: 999px;
+  background: rgba(190, 137, 79, 0.58);
+}
+
+.templateLibraryState {
+  color: #e8ddd2 !important;
+}
+
+.templateLibraryCard.templateLibraryCard {
+  color: #fff;
+  border-color: rgba(211, 161, 101, 0.42) !important;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.74) 0%, rgba(18, 10, 8, 0.92) 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
+  transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+}
+
+.templateLibraryCardSelected.templateLibraryCardSelected {
+  border-color: rgba(134, 239, 172, 0.76) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.16),
+    0 0 0 2px rgba(34, 197, 94, 0.34),
+    0 8px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+.templateLibraryFooter.templateLibraryFooter {
+  border-color: rgba(211, 161, 101, 0.32) !important;
+  background: linear-gradient(180deg, rgba(35, 19, 14, 0.96) 0%, rgba(12, 7, 5, 0.98) 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.11);
+}
+
+.templateLibrarySecondaryAction.templateLibrarySecondaryAction.templateLibrarySecondaryAction {
+  color: #fff !important;
+  border: 1px solid rgba(216, 173, 121, 0.58) !important;
+  background: linear-gradient(180deg, rgba(77, 43, 31, 0.82) 0%, rgba(18, 10, 8, 0.94) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.26) !important;
+  filter: none !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+}
+
+.templateLibrarySecondaryAction.templateLibrarySecondaryAction.templateLibrarySecondaryAction:focus-visible {
+  outline: none !important;
+  border-color: rgba(235, 193, 140, 0.88) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.16),
+    0 0 0 2px rgba(229, 183, 124, 0.78),
+    0 0 0 4px rgba(13, 7, 5, 0.94) !important;
+}
+
+.templateLibraryDialog :global(button[title='Exit']) {
+  color: #d9b77f !important;
+  border: 1px solid rgba(216, 173, 121, 0.62) !important;
+  background: linear-gradient(180deg, rgba(77, 43, 31, 0.88) 0%, rgba(18, 10, 8, 0.96) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.16),
+    0 4px 10px rgba(0, 0, 0, 0.3) !important;
+  transition: border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+}
+
+.templateLibraryDialog :global(button[title='Exit'] svg) {
+  color: currentColor !important;
+}
+
+.templateLibraryDialog :global(button[title='Exit']:focus-visible) {
+  color: #fff !important;
+  outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.16),
+    0 0 0 2px rgba(229, 183, 124, 0.78),
+    0 0 0 4px rgba(13, 7, 5, 0.94) !important;
+}
+
 .galleryWarmIcon {
   color: #d9b77f !important;
 }
@@ -590,6 +727,37 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .templateLibraryControl.templateLibraryControl.templateLibraryControl:hover:not(:focus-visible) {
+    border-color: rgba(231, 185, 129, 0.7) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.16),
+      inset 0 0 12px rgba(191, 105, 45, 0.09),
+      0 4px 11px rgba(0, 0, 0, 0.26) !important;
+    filter: brightness(1.035) !important;
+  }
+
+  .templateLibrarySecondaryAction.templateLibrarySecondaryAction.templateLibrarySecondaryAction:hover:not(:active) {
+    border-color: rgba(231, 185, 129, 0.72) !important;
+    filter: brightness(1.04) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.18),
+      inset 0 0 12px rgba(191, 105, 45, 0.08),
+      0 5px 12px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  .templateLibraryDialog :global(button[title='Exit']:hover) {
+    color: #fff !important;
+    border-color: rgba(231, 185, 129, 0.74) !important;
+    filter: brightness(1.04);
+  }
+
+  .templateLibraryCard:hover:not(:active) {
+    border-color: rgba(231, 185, 129, 0.68) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.15),
+      0 8px 18px rgba(0, 0, 0, 0.3);
+  }
+
   .galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:hover:not(:disabled) {
     border-color: rgba(187, 247, 208, 0.62) !important;
     filter: brightness(1.04) !important;
@@ -632,6 +800,20 @@
 }
 
 @media (hover: none), (pointer: coarse) {
+  .templateLibraryControl.templateLibraryControl.templateLibraryControl:active,
+  .templateLibrarySecondaryAction.templateLibrarySecondaryAction.templateLibrarySecondaryAction:active,
+  .templateLibraryDialog :global(button[title='Exit']:active) {
+    border-color: rgba(222, 173, 115, 0.64) !important;
+    filter: brightness(0.97) !important;
+  }
+
+  .templateLibraryCard:active {
+    border-color: rgba(222, 173, 115, 0.62) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.09),
+      0 3px 8px rgba(0, 0, 0, 0.24);
+  }
+
   .galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:active:not(:disabled) {
     filter: brightness(0.96) !important;
   }
@@ -660,6 +842,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .templateLibraryControl,
+  .templateLibrarySecondaryAction,
+  .templateLibraryCard,
+  .templateLibraryDialog :global(button[title='Exit']) {
+    transition: none !important;
+    animation: none !important;
+  }
+
   .glassAction,
   .galleryControl,
   .galleryClearControl,
@@ -690,5 +880,11 @@
   .galleryClearControl,
   .galleryMediaTile {
     transform: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .templateLibraryDialog.templateLibraryDialog {
+    max-height: 100dvh;
   }
 }

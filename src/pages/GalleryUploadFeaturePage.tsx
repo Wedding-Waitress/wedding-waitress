@@ -5,28 +5,24 @@ import '@fontsource/manrope/latin-500.css';
 import '@fontsource/manrope/latin-600.css';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useEvents } from '@/hooks/useEvents';
-import { useSelectedEvent } from '@/hooks/useSelectedEvent';
-import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
+import { usePhotoVideoFeatureWorkspace } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
+import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
 import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
 import { publicGalleryItems } from '@/lib/mediaPrivacy';
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
-import { Card } from '@/components/ui/card';
-import { LoaderCircle, TriangleAlert } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryUploadFeaturePage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [authChecked, setAuthChecked] = useState(false);
-  const { events } = useEvents();
-  const { selectedEventId, selectedEvent } = useSelectedEvent(events);
-  const { meta, items, loading, error, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { selectedEventId, selectedEvent, selectionStatus, meta, items, error, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = usePhotoVideoFeatureWorkspace();
   const [saving, setSaving] = useState(false);
 
   // Public gallery media only — private Guestbook recordings never appear here.
@@ -73,23 +69,19 @@ export const GalleryUploadFeaturePage: React.FC = () => {
         title="Photo & Video Sharing"
         description="Manage the photos and videos shared by your guests."
         eventName={(selectedEvent as any)?.name}
+        selectionStatus={selectionStatus}
         enabled={!!meta?.guest_upload_enabled}
-        toggleDisabled={saving || loading || !meta}
+        toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
       >
-        {loading && !meta ? (
-          <section className={`p-12 flex flex-col items-center justify-center gap-3 rounded-xl ${managementStyles.loadingGlassPanel}`} data-photo-video-loading-panel>
-            <LoaderCircle className={`animate-spin h-6 w-6 ${managementStyles.loadingGlassSpinner}`} />
-            <p className={`text-sm ${managementStyles.loadingGlassText}`}>Loading gallery…</p>
-          </section>
-        ) : !meta ? (
-          <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <TriangleAlert className="h-8 w-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Sharing page to manage photo & video sharing.'}
-            </p>
-          </Card>
+        {selectionStatus !== 'selected' || !meta ? (
+          <FeatureWorkspaceStatePanel
+            state={selectionStatus === 'loading' ? 'loading' : selectionStatus === 'empty' ? 'empty' : 'error'}
+            loadingLabel="Loading gallery…"
+            emptyLabel="Select an event on the Photo & Video Sharing page to manage photo & video sharing."
+            error={error}
+          />
         ) : (
           <div className="space-y-6 sm:space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr] gap-6 items-stretch">

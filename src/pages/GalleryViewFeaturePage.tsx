@@ -2,28 +2,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useEvents } from '@/hooks/useEvents';
-import { useSelectedEvent } from '@/hooks/useSelectedEvent';
-import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
+import { usePhotoVideoFeatureWorkspace } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
+import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
 import { GalleryViewAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryViewAccessCard';
 import { GalleryPasswordCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordCard';
 import { GalleryBrandingCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryBrandingCard';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
-import { LoaderCircle, TriangleAlert, Eye } from 'lucide-react';
+import { LoaderCircle, Eye } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryViewFeaturePage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [authChecked, setAuthChecked] = useState(false);
-  const { events } = useEvents();
-  const { selectedEventId, selectedEvent } = useSelectedEvent(events);
-  const { meta, loading, error, setPassword, updateBranding, setGuestFeature } = useEventMediaGallery(selectedEventId);
+  const { selectedEventId, selectedEvent, selectionStatus, meta, error, setPassword, updateBranding, setGuestFeature } = usePhotoVideoFeatureWorkspace();
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -71,8 +67,9 @@ export const GalleryViewFeaturePage: React.FC = () => {
         title="Photo & Video Gallery View"
         description="Control how guests access, view and experience your shared gallery."
         eventName={(selectedEvent as any)?.name}
+        selectionStatus={selectionStatus}
         enabled={!!meta?.gallery_view_enabled}
-        toggleDisabled={saving || loading || !meta}
+        toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
         disabledNotice="This feature is currently turned off for your guests. You can still manage its settings and preview the gallery."
@@ -87,19 +84,13 @@ export const GalleryViewFeaturePage: React.FC = () => {
           </button>
         }
       >
-        {loading && !meta ? (
-          <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" strokeWidth={1.8} />
-            <p className="text-sm text-muted-foreground">Loading gallery…</p>
-          </Card>
-        ) : !meta ? (
-          <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <TriangleAlert className="h-8 w-8 text-muted-foreground" strokeWidth={1.8} />
-            <p className="text-sm text-muted-foreground break-words">
-              {error || 'Select an event on the Photo & Video Sharing page to manage the gallery view.'}
-            </p>
-            <Button variant="outline" className="lv-premium-shade" onClick={goBack}>Back to Photo &amp; Video Sharing</Button>
-          </Card>
+        {selectionStatus !== 'selected' || !meta ? (
+          <FeatureWorkspaceStatePanel
+            state={selectionStatus === 'loading' ? 'loading' : selectionStatus === 'empty' ? 'empty' : 'error'}
+            loadingLabel="Loading gallery…"
+            emptyLabel="Select an event on the Photo & Video Sharing page to manage the gallery view."
+            error={error}
+          />
         ) : (
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">

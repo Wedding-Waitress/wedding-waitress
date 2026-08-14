@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
+import publicUploadStyles from '@/pages/guestMediaUpload.module.css';
 
 interface Props {
   token: string;
@@ -145,7 +146,7 @@ function useRecorder(kind: 'audio' | 'video', onError: (m: string) => void) {
 }
 
 export const GuestGuestbookTab: React.FC<Props> = ({
-  token, theme, accent, refreshKey: _refreshKey = 0, voiceEnabled = true, textEnabled = true,
+  token, theme, accent: _accent, refreshKey: _refreshKey = 0, voiceEnabled = true, textEnabled = true,
 }) => {
   const [name, setName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -312,25 +313,24 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   };
 
   const savedBadge = (
-    <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
+    <div className={`flex items-center gap-2 text-sm font-semibold ${publicUploadStyles.guestbookSaved}`}>
       <CheckCircle2 className="h-4 w-4 shrink-0" /> Saved
     </div>
   );
 
 
   const cardClass = `rounded-2xl border-2 border-[#967A59] p-4 sm:p-6 ${theme.surfaceClass}`;
-  const optionClass = 'rounded-xl border-2 p-3 sm:p-4 space-y-3';
+  const optionClass = `rounded-xl border-2 p-3 sm:p-4 space-y-3 min-w-0 ${publicUploadStyles.innerPanel} ${publicUploadStyles.guestbookOption}`;
   const badge = (letter: string) => (
     <span
-      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-      style={{ backgroundColor: accent }}
+      className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${publicUploadStyles.guestbookBadge}`}
     >{letter}</span>
   );
 
   const timer = (secs: number, recording: boolean) => (
-    <div className="flex items-center justify-center gap-2 text-sm">
-      {recording && <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />}
-      <span className={`font-medium tabular-nums ${theme.textClass}`}>
+    <div className={`flex items-center justify-center gap-2 text-sm ${publicUploadStyles.guestbookTimer}`}>
+      {recording && <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse motion-reduce:animate-none" />}
+      <span className="font-medium tabular-nums">
         {String(secs).padStart(2, '0')}s / {MAX_SECONDS}s
       </span>
     </div>
@@ -338,21 +338,21 @@ export const GuestGuestbookTab: React.FC<Props> = ({
 
   return (
     <div className="space-y-6">
-      <div className={`${cardClass} space-y-6 overflow-hidden`}>
+      <div className={`${cardClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.guestbookPanel} space-y-6 overflow-hidden min-w-0`}>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-black">Sign the Guestbook</h2>
-          <p className="text-sm mt-1 text-black">
+          <h2 className={`text-xl font-bold ${publicUploadStyles.sectionHeading}`}>Sign the Guestbook</h2>
+          <p className={`text-sm mt-1 ${publicUploadStyles.secondaryText}`}>
             Leave a written, audio or video message—or any combination.
           </p>
         </div>
 
         <div>
-          <Label htmlFor="gb-name" className="text-base font-semibold text-black">
-            Your full name <span className="text-red-500">*</span>
+          <Label htmlFor="gb-name" className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>
+            Your full name <span className={publicUploadStyles.requiredMark}>*</span>
           </Label>
           <Input
             id="gb-name"
-            className="h-12 text-base mt-2 bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-2 border-[#967A59]"
+            className={`h-12 text-base mt-2 border-2 ${publicUploadStyles.field}`}
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Enter your full name"
@@ -365,40 +365,40 @@ export const GuestGuestbookTab: React.FC<Props> = ({
           <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
               {badge('A')}
-              <h3 className="text-base font-semibold text-black">Leave a Digital Guestbook Message</h3>
+              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>Leave a Digital Guestbook Message</h3>
             </div>
             <Textarea
               id="gb-text"
-              className="min-h-[110px] text-base bg-white text-[#1D1D1F] placeholder:text-[#6E6E73] border-2 border-[#967A59]"
+              className={`min-h-[110px] text-base border-2 ${publicUploadStyles.field} ${publicUploadStyles.guestbookTextarea}`}
               value={message}
               onChange={e => setMessage(e.target.value)}
               maxLength={2000}
               placeholder="Write your message for the couple…"
             />
-            <p className={`text-xs ${theme.mutedClass}`}>{message.trim().length}/2000</p>
+            <p className={`text-xs ${publicUploadStyles.secondaryText}`}>{message.trim().length}/2000</p>
             {savedTextId && !textDirty && savedBadge}
             {showTextActions && (
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button
                   type="button"
-                  className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                  className={`ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base ${publicUploadStyles.primaryAction}`}
                   disabled={savingText || removingKind === 'text' || (!!savedTextId && !textDirty)}
                   onClick={saveText}
                 >
                   {savingText
-                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</>
+                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Saving…</>
                     : (savedTextId && !textDirty)
                       ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</>
                       : 'Save'}
                 </Button>
                 <Button
                   type="button"
-                  className="ww-emboss-red h-11 flex-1 text-base text-white"
+                  className={`ww-emboss-red h-11 flex-1 text-base text-white ${publicUploadStyles.guestbookDangerAction}`}
                   disabled={savingText || removingKind === 'text'}
                   onClick={removeText}
                 >
                   {removingKind === 'text'
-                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                    ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Removing…</>
                     : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
                 </Button>
               </div>
@@ -412,14 +412,14 @@ export const GuestGuestbookTab: React.FC<Props> = ({
           <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
               {badge('B')}
-              <h3 className="text-base font-semibold text-black">Leave an Audio Guestbook Message</h3>
+              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>Leave an Audio Guestbook Message</h3>
             </div>
-            <p className="text-xs text-black">Record an audio message of up to 60 seconds.</p>
+            <p className={`text-xs ${publicUploadStyles.secondaryText}`}>Record an audio message of up to 60 seconds.</p>
 
             {audio.phase === 'idle' && (
               <Button
                 type="button"
-                className="ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base"
+                className={`ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base ${publicUploadStyles.primaryAction}`}
                 onClick={audio.start}
               >
                 <Mic className="h-5 w-5 mr-2 text-white" /> Start Audio Message
@@ -431,19 +431,19 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                 {timer(audio.seconds, audio.phase === 'recording')}
                 <div className="flex flex-col sm:flex-row gap-2">
                   {audio.phase === 'preview' ? (
-                    <Button type="button" className="ww-emboss-green flex-1 h-12 text-base" onClick={audio.record}>
+                    <Button type="button" className={`ww-emboss-green flex-1 h-12 text-base ${publicUploadStyles.primaryAction}`} onClick={audio.record}>
                       <Mic className="h-5 w-5 mr-2 text-white" /> Start recording
                     </Button>
                   ) : (
                     <Button
                       type="button"
-                      className="flex-1 h-12 text-base text-white bg-red-600 hover:bg-red-700 rounded-full"
+                      className={`flex-1 h-12 text-base text-white bg-red-600 rounded-full ${publicUploadStyles.guestbookDangerAction}`}
                       onClick={audio.stop}
                     >
                       <Square className="h-5 w-5 mr-2" fill="currentColor" /> Stop
                     </Button>
                   )}
-                  <Button type="button" variant="outline" className="h-12 sm:w-auto w-full" onClick={audio.discard}>
+                  <Button type="button" variant="outline" className={`h-12 sm:w-auto w-full ${publicUploadStyles.secondaryAction}`} onClick={audio.discard}>
                     Cancel
                   </Button>
                 </div>
@@ -452,23 +452,23 @@ export const GuestGuestbookTab: React.FC<Props> = ({
 
             {audio.phase === 'review' && audio.url && (
               <div className="space-y-3">
-                <audio src={audio.url} controls className="w-full" />
+                <audio src={audio.url} controls className={`w-full max-w-full ${publicUploadStyles.guestbookAudio}`} />
                 {savedAudioId && savedBadge}
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     type="button"
-                    className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                    className={`ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base ${publicUploadStyles.primaryAction}`}
                     disabled={savingKind === 'audio' || removingKind === 'audio' || !!savedAudioId}
                     onClick={() => saveRecording('audio')}
                   >
                     {savingKind === 'audio'
-                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving{uploading ? ` ${progress}%` : ''}…</>
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Saving{uploading ? ` ${progress}%` : ''}…</>
                       : savedAudioId ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</> : 'Save'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-11 flex-1"
+                    className={`h-11 flex-1 ${publicUploadStyles.secondaryAction}`}
                     disabled={savingKind === 'audio' || removingKind === 'audio'}
                     onClick={() => recordAgain('audio')}
                   >
@@ -476,12 +476,12 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                   </Button>
                   <Button
                     type="button"
-                    className="ww-emboss-red h-11 flex-1 text-base text-white"
+                    className={`ww-emboss-red h-11 flex-1 text-base text-white ${publicUploadStyles.guestbookDangerAction}`}
                     disabled={savingKind === 'audio' || removingKind === 'audio'}
                     onClick={() => removeRecording('audio')}
                   >
                     {removingKind === 'audio'
-                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Removing…</>
                       : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
                   </Button>
                 </div>
@@ -496,14 +496,14 @@ export const GuestGuestbookTab: React.FC<Props> = ({
           <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
               {badge('C')}
-              <h3 className="text-base font-semibold text-black">Leave a Video Guestbook Message</h3>
+              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>Leave a Video Guestbook Message</h3>
             </div>
-            <p className="text-xs text-black">Record a video message of up to 60 seconds.</p>
+            <p className={`text-xs ${publicUploadStyles.secondaryText}`}>Record a video message of up to 60 seconds.</p>
 
             {video.phase === 'idle' && (
               <Button
                 type="button"
-                className="ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base"
+                className={`ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base ${publicUploadStyles.primaryAction}`}
                 onClick={video.start}
               >
                 <VideoIcon className="h-5 w-5 mr-2 text-white" /> Start Video Message
@@ -516,24 +516,24 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                   ref={videoPreviewRef}
                   muted
                   playsInline
-                  className="w-full aspect-video rounded-lg bg-black object-cover"
+                  className={`w-full max-w-full aspect-video rounded-lg bg-black object-cover ${publicUploadStyles.guestbookMediaPreview}`}
                 />
                 {timer(video.seconds, video.phase === 'recording')}
                 <div className="flex flex-col sm:flex-row gap-2">
                   {video.phase === 'preview' ? (
-                    <Button type="button" className="ww-emboss-green flex-1 h-12 text-base" onClick={video.record}>
+                    <Button type="button" className={`ww-emboss-green flex-1 h-12 text-base ${publicUploadStyles.primaryAction}`} onClick={video.record}>
                       <VideoIcon className="h-5 w-5 mr-2 text-white" /> Start recording
                     </Button>
                   ) : (
                     <Button
                       type="button"
-                      className="flex-1 h-12 text-base text-white bg-red-600 hover:bg-red-700 rounded-full"
+                      className={`flex-1 h-12 text-base text-white bg-red-600 rounded-full ${publicUploadStyles.guestbookDangerAction}`}
                       onClick={video.stop}
                     >
                       <Square className="h-5 w-5 mr-2" fill="currentColor" /> Stop
                     </Button>
                   )}
-                  <Button type="button" variant="outline" className="h-12 sm:w-auto w-full" onClick={video.discard}>
+                  <Button type="button" variant="outline" className={`h-12 sm:w-auto w-full ${publicUploadStyles.secondaryAction}`} onClick={video.discard}>
                     Cancel
                   </Button>
                 </div>
@@ -542,23 +542,23 @@ export const GuestGuestbookTab: React.FC<Props> = ({
 
             {video.phase === 'review' && video.url && (
               <div className="space-y-3">
-                <video src={video.url} controls playsInline className="w-full aspect-video rounded-lg bg-black" />
+                <video src={video.url} controls playsInline className={`w-full max-w-full aspect-video rounded-lg bg-black ${publicUploadStyles.guestbookMediaPreview}`} />
                 {savedVideoId && savedBadge}
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     type="button"
-                    className="ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base"
+                    className={`ww-emboss-green ww-emboss-green-no-drop h-11 flex-1 text-base ${publicUploadStyles.primaryAction}`}
                     disabled={savingKind === 'video' || removingKind === 'video' || !!savedVideoId}
                     onClick={() => saveRecording('video')}
                   >
                     {savingKind === 'video'
-                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving{uploading ? ` ${progress}%` : ''}…</>
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Saving{uploading ? ` ${progress}%` : ''}…</>
                       : savedVideoId ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Saved</> : 'Save'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-11 flex-1"
+                    className={`h-11 flex-1 ${publicUploadStyles.secondaryAction}`}
                     disabled={savingKind === 'video' || removingKind === 'video'}
                     onClick={() => recordAgain('video')}
                   >
@@ -566,12 +566,12 @@ export const GuestGuestbookTab: React.FC<Props> = ({
                   </Button>
                   <Button
                     type="button"
-                    className="ww-emboss-red h-11 flex-1 text-base text-white"
+                    className={`ww-emboss-red h-11 flex-1 text-base text-white ${publicUploadStyles.guestbookDangerAction}`}
                     disabled={savingKind === 'video' || removingKind === 'video'}
                     onClick={() => removeRecording('video')}
                   >
                     {removingKind === 'video'
-                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Removing…</>
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Removing…</>
                       : <><Trash2 className="h-4 w-4 mr-2" /> Remove</>}
                   </Button>
                 </div>
@@ -582,12 +582,12 @@ export const GuestGuestbookTab: React.FC<Props> = ({
         )}
 
         {formError && (
-          <div className="rounded-md border border-red-300 bg-red-50 text-red-900 text-sm p-3 flex items-start gap-2">
+          <div className={`rounded-md border text-sm p-3 flex items-start gap-2 ${publicUploadStyles.guestbookError}`} role="alert">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span className="break-words">{formError}</span>
           </div>
         )}
         {done && (
-          <div className="rounded-md border border-green-300 bg-green-50 text-green-900 text-sm p-3 flex items-start gap-2">
+          <div className={`rounded-md border text-sm p-3 flex items-start gap-2 ${publicUploadStyles.guestbookSuccess}`} role="status">
             <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{done}</span>
           </div>
         )}

@@ -8,6 +8,8 @@ import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 import { GalleryUploadFeaturePage } from './GalleryUploadFeaturePage';
 import { GalleryTextGuestbookFeaturePage } from './GalleryTextGuestbookFeaturePage';
 import { GalleryPhotoBoothFeaturePage } from './GalleryPhotoBoothFeaturePage';
+import { GalleryViewFeaturePage } from './GalleryViewFeaturePage';
+import { GallerySlideshowFeaturePage } from './GallerySlideshowFeaturePage';
 
 const hooks = vi.hoisted(() => ({
   events: vi.fn(),
@@ -83,6 +85,16 @@ const affectedRoutes = [
     path: '/dashboard/photo-video-gallery/digital-photo-booth',
     Page: GalleryPhotoBoothFeaturePage,
     title: 'Digital Photo Booth',
+  },
+  {
+    path: '/dashboard/photo-video-gallery/gallery-view',
+    Page: GalleryViewFeaturePage,
+    title: 'Photo & Video Gallery View',
+  },
+  {
+    path: '/dashboard/photo-video-gallery/live-slideshow',
+    Page: GallerySlideshowFeaturePage,
+    title: 'Live Slideshow',
   },
 ] as const;
 

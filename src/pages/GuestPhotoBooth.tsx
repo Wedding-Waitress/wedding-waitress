@@ -15,6 +15,7 @@ import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { usePhotoBoothUpload } from '@/hooks/usePhotoBoothUpload';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
+import publicUploadStyles from './guestMediaUpload.module.css';
 import {
   
   composeStripBlob,
@@ -537,9 +538,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
   if (loading) {
     const preparing = (
-      <div className="flex flex-col items-center justify-center gap-3 py-12" role="status" aria-live="polite">
-        <Loader2 className="animate-spin h-8 w-8" style={{ color: accent }} />
-        <p className={`text-base font-medium ${embedded ? 'text-white' : theme.textClass}`}>Opening Photo Booth…</p>
+      <div className={`flex flex-col items-center justify-center gap-3 py-12 ${embedded ? publicUploadStyles.photoBoothStatePanel : ''}`} role="status" aria-live="polite">
+        <Loader2 className="animate-spin motion-reduce:animate-none h-8 w-8" style={{ color: accent }} />
+        <p className={`text-base font-medium ${embedded ? publicUploadStyles.sectionHeading : theme.textClass}`}>Opening Photo Booth…</p>
       </div>
     );
     return embedded
@@ -548,11 +549,11 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   }
   if (loadError) {
     const errorCard = (
-      <Card className={`p-8 max-w-md mx-auto text-center ${theme.surfaceClass} ${theme.textClass}`}>
+      <Card className={`p-8 max-w-md mx-auto text-center ${theme.surfaceClass} ${theme.textClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.photoBoothStatePanel}`}>
         <AlertCircle className="h-10 w-10 mx-auto mb-4 text-red-500" />
         <h2 className="text-lg font-semibold mb-2">We couldn’t open the Photo Booth</h2>
-        <p className={`text-sm ${theme.mutedClass}`}>{loadError}</p>
-        <Button type="button" className="lv-premium-shade mt-5 h-11 w-full text-white" style={{ backgroundColor: accent }} onClick={retryLoad}>
+        <p className={`text-sm ${publicUploadStyles.secondaryText}`}>{loadError}</p>
+        <Button type="button" className={`lv-premium-shade mt-5 h-11 w-full text-white ${publicUploadStyles.primaryAction}`} onClick={retryLoad}>
           <RotateCcw className="h-4 w-4 mr-2" /> Retry
         </Button>
       </Card>
@@ -564,10 +565,10 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   if (notFound || !gallery) {
     return (
       <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
-        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
+        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.photoBoothStatePanel}`}>
           <AlertCircle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h1 className="text-xl font-semibold mb-2">Photo Booth link not found</h1>
-          <p className={`text-sm ${theme.mutedClass}`}>This link is invalid or has been closed by the host.</p>
+          <p className={`text-sm ${publicUploadStyles.secondaryText}`}>This link is invalid or has been closed by the host.</p>
         </Card>
       </div>
     );
@@ -579,10 +580,10 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   if (!gallery.is_open || !gallery.photo_booth_enabled) {
     return (
       <div className={`min-h-screen flex items-center justify-center px-4 ${theme.bgClass}`} style={theme.pageStyle}>
-        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass}`}>
+        <Card className={`p-8 max-w-md text-center ${theme.surfaceClass} ${theme.textClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.photoBoothStatePanel}`}>
           <Camera className="h-12 w-12 mx-auto mb-4" style={{ color: accent }} />
           <h1 className="text-xl font-semibold mb-2">{gallery.event_name}</h1>
-          <p className={`text-sm ${theme.mutedClass}`}>
+          <p className={`text-sm ${publicUploadStyles.secondaryText}`}>
             {!gallery.is_open ? 'The host has closed this gallery.' : 'The Photo Booth is not enabled for this event.'}
           </p>
         </Card>
@@ -625,57 +626,55 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
         )}
 
         {phase === 'saved' ? (
-          <Card className={`p-7 text-center ${theme.surfaceClass} ${theme.textClass}`}>
-            <div className="inline-flex w-16 h-16 rounded-full items-center justify-center mb-4" style={{ backgroundColor: accentSoftBg }}>
+          <Card className={`p-7 text-center ${theme.surfaceClass} ${theme.textClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.photoBoothStatePanel}`} data-public-photo-booth-surface="success">
+            <div className={`inline-flex w-16 h-16 rounded-full items-center justify-center mb-4 ${publicUploadStyles.successIconCircle}`}>
               <Heart className="h-8 w-8" style={{ color: accent }} fill={accent} />
             </div>
             <h2 className="text-xl font-semibold">Thanks{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ''}!</h2>
-            <p className={`text-sm mt-2 ${theme.mutedClass}`}>
+            <p className={`text-sm mt-2 ${publicUploadStyles.secondaryText}`}>
               {mode === 'strip' ? 'Your photo strip has been added to the gallery.' : 'Your photo has been added to the gallery.'}
             </p>
             <div className="mt-6 space-y-2">
               <Button
-                className="lv-premium-shade w-full h-11 text-white"
-                style={{ backgroundColor: accent }}
+                className={`lv-premium-shade w-full h-11 text-white ${publicUploadStyles.primaryAction}`}
                 onClick={() => { setPhase('preview'); }}
               >
                 {mode === 'strip' ? 'Make another strip' : 'Take another photo'}
               </Button>
               {onExit && (
-                <Button type="button" variant="ghost" className="w-full h-11 text-base" onClick={() => { stopStream(); onExit(); }}>
+                <Button type="button" variant="ghost" className={`w-full h-11 text-base ${publicUploadStyles.secondaryAction}`} onClick={() => { stopStream(); onExit(); }}>
                   <X className="h-4 w-4 mr-2" /> Close Photo Booth
                 </Button>
               )}
             </div>
           </Card>
         ) : (
-          <Card className={`p-5 space-y-5 border border-[#472c1d] ${theme.surfaceClass} ${theme.textClass}`}>
+          <Card className={`p-5 space-y-5 border ${theme.surfaceClass} ${theme.textClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.photoBoothPanel}`} data-public-photo-booth-surface="form">
             <div>
-              <Label htmlFor="pb-name" className="text-base font-medium">Your Full Name <span className="text-red-500">*</span></Label>
-              <Input id="pb-name" className="h-12 text-base mt-2 border border-[#472c1d]" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
+              <Label htmlFor="pb-name" className={`text-base font-medium ${publicUploadStyles.sectionHeading}`}>Your Full Name <span className={publicUploadStyles.requiredMark}>*</span></Label>
+              <Input id="pb-name" className={`h-12 text-base mt-2 border ${publicUploadStyles.field}`} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
             </div>
 
             {!isCameraSupported && (
-              <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3">
+              <div className={`rounded-md border text-sm p-3 ${publicUploadStyles.photoBoothWarning}`}>
                 Camera isn't supported in this browser. Try the latest Chrome, Safari, or Firefox.
               </div>
             )}
 
             {isCameraSupported && cameraError && (
-              <div className="rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm p-3 space-y-3" role="alert">
+              <div className={`rounded-md border text-sm p-3 space-y-3 ${publicUploadStyles.photoBoothWarning}`} role="alert">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{cameraError.message}</span>
                 </div>
                 {cameraError.kind !== 'unavailable' && (
                   <Button
                     type="button"
-                    className="lv-premium-shade w-full h-10 text-white"
-                    style={{ backgroundColor: accent }}
+                    className={`lv-premium-shade w-full h-10 text-white ${publicUploadStyles.primaryAction}`}
                     onClick={retryCamera}
                     disabled={cameraStarting}
                   >
                     {cameraStarting
-                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Retrying…</>
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin motion-reduce:animate-none" /> Retrying…</>
                       : <><RotateCcw className="h-4 w-4 mr-2" /> Retry</>}
                   </Button>
                 )}
@@ -684,13 +683,13 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
 
             {errorMsg && (
-              <div className="rounded-md border border-red-300 bg-red-50 text-red-900 text-sm p-3 flex items-start gap-2">
+              <div className={`rounded-md border text-sm p-3 flex items-start gap-2 ${publicUploadStyles.guestbookError}`} role="alert">
                 <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span>{errorMsg}</span>
               </div>
             )}
 
             {phase === 'captured' && capturedUrl ? (
-              <div className="rounded-lg overflow-hidden bg-[#FBF7F0] flex items-center justify-center p-3">
+              <div className={`rounded-lg overflow-hidden flex items-center justify-center p-3 ${publicUploadStyles.photoBoothCapturedPreview}`}>
                 <img
                   src={capturedUrl}
                   alt={mode === 'strip' ? 'Photo strip preview' : 'Captured photo'}
@@ -698,7 +697,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                 />
               </div>
             ) : (
-              <div className="rounded-lg overflow-hidden bg-black aspect-[3/4] relative border border-[#472c1d]">
+              <div className={`rounded-lg overflow-hidden bg-black aspect-[3/4] relative border ${publicUploadStyles.photoBoothCameraFrame}`}>
                 <video
                   ref={videoRef}
                   className="w-full h-full object-cover"
@@ -706,20 +705,20 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   playsInline muted autoPlay
                 />
                 {phase === 'preview' && !streamReady && !cameraError && isCameraSupported && countdown === null && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-sm">
-                    <Loader2 className="animate-spin h-6 w-6 mr-2" /> Starting camera…
+                  <div className={`absolute inset-0 flex items-center justify-center text-sm ${publicUploadStyles.photoBoothCameraLoading}`}>
+                    <Loader2 className="animate-spin motion-reduce:animate-none h-6 w-6 mr-2" /> Starting camera…
                   </div>
                 )}
                 {mode === 'strip' && stripBusy && (
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/55 text-white text-xs px-3 py-1 rounded-full">
+                  <div className={`absolute top-2 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-full ${publicUploadStyles.photoBoothProgressPill}`}>
                     Photo {Math.min(stripProgress + 1, STRIP_COUNT)} of {STRIP_COUNT}
                   </div>
                 )}
                 {countdown !== null && countdown > 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 pointer-events-none">
+                  <div className={`absolute inset-0 flex items-center justify-center pointer-events-none ${publicUploadStyles.photoBoothCountdownOverlay}`}>
                     <span
                       key={countdown}
-                      className="text-white font-bold drop-shadow-lg animate-scale-in"
+                      className="text-white font-bold drop-shadow-lg animate-scale-in motion-reduce:animate-none"
                       style={{ fontSize: 'clamp(96px, 40vw, 200px)', lineHeight: 1 }}
                     >
                       {countdown}
@@ -738,7 +737,8 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                 {Array.from({ length: STRIP_COUNT }).map((_, i) => (
                   <div
                     key={i}
-                    className={`w-12 h-16 rounded border border-[#472c1d] ${i < stripProgress ? 'bg-[#967A59]/15' : 'bg-muted/40'}`}
+                    className={`w-12 h-16 rounded border ${publicUploadStyles.photoBoothSlot} ${i < stripProgress ? publicUploadStyles.photoBoothSlotComplete : ''} ${i === stripProgress && stripBusy ? publicUploadStyles.photoBoothSlotActive : ''}`}
+                    data-photo-booth-slot={i + 1}
                   >
                     {i < stripProgress && (
                       <div className="w-full h-full flex items-center justify-center text-[#967A59] text-xs font-semibold">{i + 1}</div>
@@ -753,7 +753,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                 <Button
                   type="button"
                   variant="ghost"
-                  className="w-full h-12 text-white text-base bg-green-500 hover:bg-green-600 shadow-none"
+                  className={`w-full h-12 text-white text-base shadow-none ${publicUploadStyles.primaryAction}`}
                   disabled={!isCameraSupported || !streamReady || countdown !== null || stripActive}
                   onClick={startCountdown}
                 >
@@ -764,7 +764,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   <Button
                     type="button"
                     variant="ghost"
-                    className="flex-1 h-11 text-base bg-[#967A59] text-white hover:bg-[#7d6649] border border-[#472c1d] shadow-none"
+                    className={`flex-1 h-11 text-base text-white shadow-none ${publicUploadStyles.secondaryAction} ${publicUploadStyles.photoBoothNoBlackBorder}`}
                     onClick={flipCamera}
                     disabled={!isCameraSupported || countdown !== null || stripActive}
                   >
@@ -773,7 +773,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   <Button
                     type="button"
                     variant="ghost"
-                    className="flex-1 h-11 text-base bg-red-500 text-white hover:bg-red-600 border border-[#472c1d] shadow-none"
+                    className={`flex-1 h-11 text-base text-white shadow-none ${publicUploadStyles.guestbookDangerAction} ${publicUploadStyles.photoBoothNoBlackBorder}`}
                     onClick={() => {
                       if (countdown !== null || stripActive) {
                         setCountdown(null);
@@ -795,12 +795,12 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                 <Button
                   type="button"
                   variant="ghost"
-                  className="w-full h-12 text-white text-base bg-green-500 hover:bg-green-600 shadow-none"
+                  className={`w-full h-12 text-white text-base shadow-none ${publicUploadStyles.primaryAction}`}
                   onClick={downloadAndSave}
                   disabled={uploading || phase === 'saving' || !capturedBlob}
                 >
                   {uploading || phase === 'saving' ? (
-                    <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Saving…</>
+                    <><Loader2 className="h-5 w-5 mr-2 animate-spin motion-reduce:animate-none" /> Saving…</>
                   ) : (
                     <><Download className="h-5 w-5 mr-2" /> Download and Save</>
                   )}
@@ -812,7 +812,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                         key={l.name}
                         href={l.url}
                         download={l.name}
-                        className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
+                        className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm ${publicUploadStyles.secondaryAction}`}
                       >
                         <Download className="h-4 w-4 shrink-0" /> <span className="truncate">{l.name}</span>
                       </a>
@@ -824,7 +824,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   <Button
                     type="button"
                     variant="outline"
-                    className="lv-premium-shade flex-1 h-11 text-base border-2 border-[#967A59] text-foreground"
+                    className={`lv-premium-shade flex-1 h-11 text-base border-2 ${publicUploadStyles.secondaryAction}`}
                     onClick={retake}
                     disabled={phase === 'saving'}
                   >
@@ -833,7 +833,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                   <Button
                     type="button"
                     variant="ghost"
-                    className="ww-emboss-red flex-1 h-11 text-base text-white hover:text-white"
+                    className={`ww-emboss-red flex-1 h-11 text-base text-white ${publicUploadStyles.guestbookDangerAction} ${publicUploadStyles.photoBoothNoBlackBorder}`}
                     onClick={cancel}
                     disabled={phase === 'saving'}
                   >

@@ -1,6 +1,7 @@
 // Built-in Wedding Waitress photo-strip background templates.
-// Each template is a full 1440 x 2000 px vertical JPEG canvas that becomes the
-// complete background of the generated photo strip. Add new entries here — the
+// Legacy source artwork is preserved at its native dimensions and fitted without
+// distortion into the shared 1200 × 1800 printer-ready master at render time.
+// Add new entries here — the
 // Photo Booth Customisation UI and the Template Library gallery render the
 // collection automatically, so no interface changes are needed to grow it.
 
@@ -11,7 +12,7 @@ export interface PhotoBoothBackgroundTemplate {
   category: string;
   /** Dominant colour family used by the Template Library filters */
   colour: string;
-  /** Full-size 1440 x 2000 JPEG used for composition */
+  /** Full-master JPEG used for composition */
   url: string;
   /** Small preview image used in the picker */
   thumbUrl: string;

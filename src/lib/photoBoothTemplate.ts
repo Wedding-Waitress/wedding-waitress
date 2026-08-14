@@ -17,9 +17,52 @@ export const PB_CREDIT = '#8C8C8C';
 
 export const PB_SINGLE_PORTRAIT = { w: 1080, h: 1800 };
 export const PB_SINGLE_LANDSCAPE = { w: 1800, h: 1080 };
-export const PB_STRIP_PRINT = { w: 1440, h: 2000 };   // full two-strip print canvas
-export const PB_STRIP_SINGLE = { w: 720, h: 2000 };   // one half of the print canvas
+/** Printer-ready 4 × 6 inch master at 300 DPI. */
+export const PB_PRINT_DPI = 300;
+export const PB_PRINT_INCHES = { w: 4, h: 6 } as const;
+export const PB_STRIP_PRINT = { w: 1200, h: 1800 } as const;
+export const PB_STRIP_SINGLE = { w: 600, h: 1800 } as const;
+export const PB_STRIP_CUT_X = PB_STRIP_SINGLE.w;
 export const PB_STRIP_COUNT = 4;
+
+/**
+ * Exact print geometry shared by the organiser preview and exported bitmap.
+ * It is normalised from the supplied real-world 2-up 2 × 6 strip reference.
+ */
+export const PB_STRIP_LAYOUT = Object.freeze({
+  headerHeight: 52,
+  horizontalInset: 36,
+  photoGap: 24,
+  photoWidth: 528,
+  photoHeight: 355,
+  footerHeight: 256,
+});
+
+export interface PixelRect { x: number; y: number; w: number; h: number }
+
+export const photoBoothStripRects = () => {
+  const photos = Array.from({ length: 2 }, (_, half) =>
+    Array.from({ length: PB_STRIP_COUNT }, (_, index): PixelRect => ({
+      x: half * PB_STRIP_SINGLE.w + PB_STRIP_LAYOUT.horizontalInset,
+      y: PB_STRIP_LAYOUT.headerHeight + index * (PB_STRIP_LAYOUT.photoHeight + PB_STRIP_LAYOUT.photoGap),
+      w: PB_STRIP_LAYOUT.photoWidth,
+      h: PB_STRIP_LAYOUT.photoHeight,
+    })),
+  );
+  const footers = Array.from({ length: 2 }, (_, half): PixelRect => ({
+    x: half * PB_STRIP_SINGLE.w,
+    y: PB_STRIP_PRINT.h - PB_STRIP_LAYOUT.footerHeight,
+    w: PB_STRIP_SINGLE.w,
+    h: PB_STRIP_LAYOUT.footerHeight,
+  }));
+  const headers = Array.from({ length: 2 }, (_, half): PixelRect => ({
+    x: half * PB_STRIP_SINGLE.w,
+    y: 0,
+    w: PB_STRIP_SINGLE.w,
+    h: PB_STRIP_LAYOUT.headerHeight,
+  }));
+  return { master: { x: 0, y: 0, w: PB_STRIP_PRINT.w, h: PB_STRIP_PRINT.h }, cutX: PB_STRIP_CUT_X, headers, photos, footers };
+};
 
 /**
  * Footer panel geometry — the SINGLE source of truth shared by the renderer,
@@ -27,11 +70,11 @@ export const PB_STRIP_COUNT = 4;
  * Derived directly from the strip renderer: one column is PB_STRIP_SINGLE.w
  * wide and the footer band is round(canvasHeight * 0.108) tall.
  */
-export const PB_STRIP_FOOTER_RATIO = 0.108;
-export const FOOTER_PANEL_WIDTH = PB_STRIP_SINGLE.w;                                  // 720
-export const FOOTER_PANEL_HEIGHT = Math.round(PB_STRIP_PRINT.h * PB_STRIP_FOOTER_RATIO); // 216
+export const PB_STRIP_FOOTER_RATIO = PB_STRIP_LAYOUT.footerHeight / PB_STRIP_PRINT.h;
+export const FOOTER_PANEL_WIDTH = PB_STRIP_SINGLE.w;
+export const FOOTER_PANEL_HEIGHT = PB_STRIP_LAYOUT.footerHeight;
 /** Recommended safe area inset (px) for text/logos inside the footer panel. */
-export const FOOTER_PANEL_SAFE_INSET = 24;
+export const FOOTER_PANEL_SAFE_INSET = 20;
 
 /** Physical size of the footer panel at 300 DPI, in millimetres. */
 export const footerPanelMm = () => ({
@@ -56,6 +99,26 @@ export function validateFooterPanelSize(width: number, height: number): FooterPa
     width,
     height,
     message: `This image is ${width} × ${height} px. Your footer design must be exactly ${FOOTER_PANEL_WIDTH} × ${FOOTER_PANEL_HEIGHT} px. Please resize it or use the blank footer template.`,
+  };
+}
+
+export interface MasterTemplateValidation {
+  ok: boolean;
+  width: number;
+  height: number;
+  message?: string;
+}
+
+/** Strict dimension check for newly uploaded full-master background artwork. */
+export function validateMasterTemplateSize(width: number, height: number): MasterTemplateValidation {
+  if (width === PB_STRIP_PRINT.w && height === PB_STRIP_PRINT.h) {
+    return { ok: true, width, height };
+  }
+  return {
+    ok: false,
+    width,
+    height,
+    message: `This image is ${width} × ${height} px. A ${PB_STRIP_PRINT.w} × ${PB_STRIP_PRINT.h} px portrait template is required for the complete 4 × 6 inch master print containing both 2 × 6 inch strips.`,
   };
 }
 
@@ -139,6 +202,21 @@ export const drawCover = (
   if (ir > tr) { sw = ih * tr; sx = (iw - sw) / 2; }
   else { sh = iw / tr; sy = (ih - sh) / 2; }
   ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+};
+
+/** Preserves all source artwork without stretching or cropping. */
+export const drawContain = (
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement | HTMLCanvasElement,
+  dx: number, dy: number, dw: number, dh: number,
+) => {
+  const iw = (img as HTMLImageElement).naturalWidth || img.width;
+  const ih = (img as HTMLImageElement).naturalHeight || img.height;
+  if (!iw || !ih) return;
+  const scale = Math.min(dw / iw, dh / ih);
+  const w = iw * scale;
+  const h = ih * scale;
+  ctx.drawImage(img, dx + (dw - w) / 2, dy + (dh - h) / 2, w, h);
 };
 
 const wrapLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
@@ -400,10 +478,10 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
 }
 
 /**
- * Photo strip composer — renders ONE complete 1440 × 2000 canvas.
+ * Photo strip composer — renders one printer-ready 1200 × 1800 canvas.
  *
  * The background (solid colour, library template or custom uploaded JPEG) is
- * drawn exactly once across the whole canvas at 0,0,1440,2000. The eight photo
+ * drawn exactly once across the whole canvas at 0,0,1200,1800. The eight photo
  * positions (4 left + 4 right) and the footer content are then drawn on top of
  * that single continuous background. The background is never repeated, tiled,
  * mirrored or split per strip.
@@ -412,15 +490,8 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   const style = resolveStripStyle(opts.style);
   const { w: W, h: H } = PB_STRIP_PRINT;
   const HALF = PB_STRIP_SINGLE.w;
-
-  const padding = 22;
-  const gap = 16;
-  const headerH = 68;                        // WEDDINGWAITRESS.COM.AU band
-  const footerH = FOOTER_PANEL_HEIGHT;       // footer under the photos (shared constant)
-  const photoAreaTop = headerH;
-  const photoAreaH = H - headerH - footerH;
-  const photoW = HALF - padding * 2;
-  const photoH = Math.round((photoAreaH - padding - gap * (PB_STRIP_COUNT - 1)) / PB_STRIP_COUNT);
+  const geometry = photoBoothStripRects();
+  const footerH = FOOTER_PANEL_HEIGHT;
 
   const out = document.createElement('canvas');
   out.width = W; out.height = H;
@@ -440,11 +511,13 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 
 
   // ── Single, continuous background across the entire canvas ────────────────
+  ctx.fillStyle = style.bgColor;
+  ctx.fillRect(0, 0, W, H);
   if (templateImg) {
-    drawCover(ctx, templateImg, 0, 0, W, H);
-  } else {
-    ctx.fillStyle = style.bgColor;
-    ctx.fillRect(0, 0, W, H);
+    const templateW = templateImg.naturalWidth || templateImg.width;
+    const templateH = templateImg.naturalHeight || templateImg.height;
+    if (templateW === W && templateH === H) ctx.drawImage(templateImg, 0, 0, W, H);
+    else drawContain(ctx, templateImg, 0, 0, W, H);
   }
 
   // Resolve the photos once and reuse them for both halves.
@@ -460,26 +533,31 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 
     {
       // Website label — colour auto-adapts to the background right behind it.
+      const header = geometry.headers[half];
       const labelInk = templateImg
-        ? autoInkForRegion(ctx, offX + HALF * 0.1, 6, HALF * 0.8, headerH - 12, autoInkForHex(style.bgColor))
+        ? autoInkForRegion(ctx, offX + HALF * 0.1, 4, HALF * 0.8, header.h - 8, autoInkForHex(style.bgColor))
         : autoInkForHex(style.bgColor);
       ctx.fillStyle = labelInk;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `600 34px ${cssFont(style.fontFamily)}`;
-      ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, headerH / 2 + 4);
+      ctx.font = `600 25px ${cssFont(style.fontFamily)}`;
+      ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, header.h / 2 + 2);
     }
 
 
     for (let i = 0; i < PB_STRIP_COUNT; i++) {
       const img = resolved[i];
       if (!img) continue;
-      drawCover(ctx, img, offX + padding, photoAreaTop + i * (photoH + gap), photoW, photoH);
+      const rect = geometry.photos[half][i];
+      drawCover(ctx, img, rect.x, rect.y, rect.w, rect.h);
     }
 
     // ── Custom footer design overrides ALL footer text ────────────────────
     if (footerPanelImg) {
-      ctx.drawImage(footerPanelImg, offX, H - footerH, HALF, footerH);
+      const sourceW = footerPanelImg.naturalWidth || footerPanelImg.width;
+      const sourceH = footerPanelImg.naturalHeight || footerPanelImg.height;
+      if (sourceW === HALF && sourceH === footerH) ctx.drawImage(footerPanelImg, offX, H - footerH, HALF, footerH);
+      else drawContain(ctx, footerPanelImg, offX, H - footerH, HALF, footerH);
       continue;
     }
 
@@ -539,15 +617,26 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 }
 
 
-export const canvasToJpegBlob = (canvas: HTMLCanvasElement, quality = 0.92): Promise<Blob> =>
+export const canvasToJpegBlob = (canvas: HTMLCanvasElement, quality = 0.98): Promise<Blob> =>
   new Promise((res, rej) => canvas.toBlob(b => (b ? res(b) : rej(new Error('Could not render image'))), 'image/jpeg', quality));
+
+export function assertStripBitmapDimensions(width: number, height: number): void {
+  if (width !== PB_STRIP_PRINT.w || height !== PB_STRIP_PRINT.h) {
+    throw new Error(`Generated photo strip is ${width} × ${height} px; expected ${PB_STRIP_PRINT.w} × ${PB_STRIP_PRINT.h} px.`);
+  }
+}
 
 export async function composeSingleBlob(photo: PhotoSource, opts: ComposeOpts): Promise<Blob> {
   return canvasToJpegBlob(await composeSingle(photo, opts));
 }
 
 export async function composeStripBlob(photos: PhotoSource[], opts: ComposeOpts): Promise<Blob> {
-  return canvasToJpegBlob(await composeStrip(photos, opts));
+  const blob = await canvasToJpegBlob(await composeStrip(photos, opts), 0.98);
+  const decoded = await loadBlobImage(blob);
+  const width = decoded.naturalWidth || decoded.width;
+  const height = decoded.naturalHeight || decoded.height;
+  assertStripBitmapDimensions(width, height);
+  return blob;
 }
 
 /** Placeholder photo used for dashboard live previews. */

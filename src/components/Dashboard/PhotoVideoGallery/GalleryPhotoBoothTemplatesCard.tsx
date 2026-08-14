@@ -17,7 +17,7 @@ import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
   FOOTER_PANEL_WIDTH, FOOTER_PANEL_HEIGHT, footerPanelMm,
-  validateFooterPanelSize, makeBlankFooterTemplate,
+  PB_STRIP_PRINT, validateFooterPanelSize, validateMasterTemplateSize, makeBlankFooterTemplate,
 } from '@/lib/photoBoothTemplate';
 import { isLibraryTemplateUrl, findLibraryTemplate } from '@/lib/photoBoothBackgroundTemplates';
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
@@ -193,6 +193,20 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         toast({ title: 'Could not read image', description: 'Try a different PNG, JPG or WebP file.', variant: 'destructive' });
         return;
       }
+    } else {
+      try {
+        const { width, height } = await readImageSize(file);
+        const check = validateMasterTemplateSize(width, height);
+        if (!check.ok) {
+          toast({ title: 'Wrong template size', description: check.message, variant: 'destructive' });
+          if (tplInput.current) tplInput.current.value = '';
+          return;
+        }
+      } catch {
+        toast({ title: 'Could not read image', description: 'Try a different JPG or JPEG file.', variant: 'destructive' });
+        if (tplInput.current) tplInput.current.value = '';
+        return;
+      }
     }
 
 
@@ -273,7 +287,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     <div className={cn('space-y-6', isGlass && managementStyles.photoBoothTemplates)} data-appearance={isGlass ? appearance : undefined}>
       {/* Page-level heading, directly on the brown page background */}
       <div className="text-center px-2 py-2 sm:py-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white">Custom Photo Booth Customisation</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">Photo Booth Customisation</h2>
         <p className="text-sm text-white/85 mt-2 max-w-3xl mx-auto break-words">
           Customise the final photo strip only — background, footer logo, fonts and footer text. Individual photos are always saved as original raw photos.
         </p>
@@ -287,7 +301,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <Palette className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Photo Strip Background
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Choose one background for the whole photo strip. The four photo positions and the footer stay on top.
+            Choose one background for the complete 1200 × 1800 print. The four photo positions in each strip and the footer remain layered above it.
           </p>
         </div>
 
@@ -354,7 +368,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
             </div>
             <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> JPEG (.jpg / .jpeg), vertical, approx. 122 × 169 mm at 300 DPI. It becomes the complete background of the final two-strip image.
+              <span className="font-medium text-[#1D1D1F]">Exact required size: {PB_STRIP_PRINT.w} × {PB_STRIP_PRINT.h} px.</span>{' '}
+              JPG or JPEG, portrait orientation, 4 × 6 inches at 300 DPI. The image must be the full master print containing both 2 × 6 inch strips.
             </p>
             <div className="mt-auto space-y-2">
               <input
@@ -442,7 +457,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <TypeIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Photo Strip Footer
           </h3>
           <p className="text-xs text-muted-foreground sm:text-right">
-            Everything that appears in the footer band under the four photos.
+            Everything that appears in the footer band beneath the four photos in each strip.
           </p>
         </div>
 

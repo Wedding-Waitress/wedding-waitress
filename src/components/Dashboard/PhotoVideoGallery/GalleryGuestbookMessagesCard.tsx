@@ -362,7 +362,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
   return (
     <Card className={cn('p-5 sm:p-6 space-y-5', isGlass && managementStyles.galleryPanel, isGlass && managementStyles.guestbookMessagesPanel)} data-appearance={isGlass ? appearance : undefined}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
             <MessageSquareText className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} />
@@ -372,25 +372,31 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             Written, audio and video messages your guests have left — private unless you add them to the gallery.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => load()} disabled={textLoading}>
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center lg:flex-nowrap lg:justify-end" data-guestbook-toolbar="actions">
+          <Button variant="outline" size="sm" className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)} onClick={() => load()} disabled={textLoading}>
             {textLoading ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)}
+            className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)}
             onClick={() => { setSelectMode(s => !s); resetSelection(); }}
             disabled={visibleCount === 0}
           >
             {selectMode ? 'Cancel' : 'Select'}
           </Button>
+          <GuestbookDownloadAllButton className="!h-10 min-w-0" items={recordings} eventName={eventName} appearance={appearance} />
+          <Button className={cn('ww-emboss-green ww-emboss-green-soft h-10 min-w-0 text-white border-0', isGlass && managementStyles.galleryViewPrimaryAction)} onClick={exportCsv} disabled={writtenRows.length === 0}>
+            <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
+          </Button>
         </div>
       </div>
 
-      {/* Row 1: search (left) · downloads + export (right) */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[220px] lg:max-w-[520px]">
+      <div
+        className="grid grid-cols-2 items-center gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]"
+        data-guestbook-toolbar="filters"
+      >
+        <div className="relative col-span-2 min-w-0 xl:col-span-1">
           <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground', isGlass && managementStyles.galleryWarmIcon)} />
           <Input
             value={search}
@@ -399,53 +405,41 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-3 lg:ml-auto">
-          <GuestbookDownloadAllButton items={recordings} eventName={eventName} appearance={appearance} />
-          {tab === 'written' && (
-            <Button className={cn('ww-emboss-green ww-emboss-green-soft h-11 text-white border-0', isGlass && managementStyles.galleryViewPrimaryAction)} onClick={exportCsv} disabled={writtenRows.length === 0}>
-              <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
-            </Button>
-          )}
+        <div className="col-span-2 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 xl:contents">
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => switchTab(t.key)}
+              aria-pressed={tab === t.key}
+              className={cn(
+                'min-h-11 min-w-0 rounded-md px-3 py-2 text-sm font-semibold leading-tight text-white bg-[#967A59] transition-shadow',
+                tab === t.key
+                  ? 'shadow-[inset_0_2px_5px_rgba(0,0,0,0.28)]'
+                  : 'shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]',
+                isGlass && managementStyles.galleryControl,
+                isGlass && tab === t.key && managementStyles.galleryControlActive,
+              )}
+            >
+              {t.label} ({t.count})
+            </button>
+          ))}
         </div>
-      </div>
-
-      {/* Row 2: message types (left) · sort + status (right) */}
-      <div className="flex flex-wrap items-center gap-3">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => switchTab(t.key)}
-            aria-pressed={tab === t.key}
-            className={cn(
-              'h-11 px-4 rounded-md text-sm font-semibold text-white bg-[#967A59] transition-shadow',
-              tab === t.key
-                ? 'shadow-[inset_0_2px_5px_rgba(0,0,0,0.28)]'
-                : 'shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]',
-              isGlass && managementStyles.galleryControl,
-              isGlass && tab === t.key && managementStyles.galleryControlActive,
-            )}
-          >
-            {t.label} ({t.count})
-          </button>
-        ))}
-        <div className="flex flex-wrap items-center gap-3 lg:ml-auto">
-          <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-            <SelectTrigger className={cn('h-11 w-full sm:w-[150px]', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
-            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
-              <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest first</SelectItem>
-              <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest first</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-            <SelectTrigger className={cn('h-11 w-full sm:w-[150px]', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
-            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
-              <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All statuses</SelectItem>
-              <SelectItem value="approved" className={cn(isGlass && managementStyles.gallerySelectItem)}>Approved</SelectItem>
-              <SelectItem value="hidden" className={cn(isGlass && managementStyles.gallerySelectItem)}>Hidden</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
+          <SelectTrigger className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+          <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+            <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest first</SelectItem>
+            <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest first</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
+          <SelectTrigger className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+          <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+            <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All statuses</SelectItem>
+            <SelectItem value="approved" className={cn(isGlass && managementStyles.gallerySelectItem)}>Approved</SelectItem>
+            <SelectItem value="hidden" className={cn(isGlass && managementStyles.gallerySelectItem)}>Hidden</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
 

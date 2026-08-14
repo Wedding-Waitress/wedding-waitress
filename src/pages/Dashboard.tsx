@@ -138,6 +138,7 @@ export const Dashboard = () => {
   const {
     events,
     loading: eventsLoading,
+    loaded: eventsLoaded,
     activeEventId: eventsActiveEventId,
     setActiveEventId: setEventsActiveEventId,
     refetch: refetchEvents
@@ -148,7 +149,7 @@ export const Dashboard = () => {
     selectedEventId,
     selectedEvent,
     setSelectedEventId,
-  } = useSelectedEvent(events);
+  } = useSelectedEvent(events, { loading: eventsLoading || !eventsLoaded });
   // Backward-compat aliases — both names now refer to the same value.
   const globalSelectedEventId = selectedEventId;
   const setGlobalSelectedEventId = setSelectedEventId;
