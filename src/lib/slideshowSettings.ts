@@ -1,6 +1,8 @@
 // Shared Live Slideshow settings — used by the host workspace preview and the public Live View.
 // Only approved, non-hidden, uploaded media ever reaches these helpers (enforced server-side).
 
+import { normaliseGalleryAlbum } from '@/lib/galleryAlbumOptions';
+
 export type SlideshowOrder = 'newest' | 'oldest' | 'shuffle';
 export type SlideshowTransition = 'fade' | 'slide' | 'none';
 
@@ -47,7 +49,9 @@ export function slideshowSettingsFromRow(row: any): SlideshowSettings {
   return {
     include_photos: includePhotos || !includeVideos, // never both off
     include_videos: includeVideos,
-    albums: Array.isArray(row.slideshow_albums) ? row.slideshow_albums.filter((a: any) => typeof a === 'string') : [],
+    albums: Array.isArray(row.slideshow_albums)
+      ? [...new Set(row.slideshow_albums.filter((a: any) => typeof a === 'string').map(normaliseGalleryAlbum))]
+      : [],
     order,
     slide_duration_sec: Math.max(3, Math.min(60, Number(duration) || 5)),
     transition,
@@ -80,8 +84,8 @@ export function applySlideshowSettings<T extends SlideshowEligible>(items: T[], 
     if (i.kind === 'video' && !s.include_videos) return false;
     if (i.kind !== 'photo' && i.kind !== 'video') return false;
     if (s.albums.length > 0) {
-      const album = i.album || 'Other';
-      if (!s.albums.includes(album)) return false;
+      const selectedAlbums = new Set(s.albums.map(normaliseGalleryAlbum));
+      if (!selectedAlbums.has(normaliseGalleryAlbum(i.album))) return false;
     }
     return true;
   });

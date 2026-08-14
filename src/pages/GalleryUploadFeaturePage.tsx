@@ -79,10 +79,10 @@ export const GalleryUploadFeaturePage: React.FC = () => {
         onBack={goBack}
       >
         {loading && !meta ? (
-          <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" />
-            <p className="text-sm text-muted-foreground">Loading gallery…</p>
-          </Card>
+          <section className={`p-12 flex flex-col items-center justify-center gap-3 rounded-xl ${managementStyles.loadingGlassPanel}`} data-photo-video-loading-panel>
+            <LoaderCircle className={`animate-spin h-6 w-6 ${managementStyles.loadingGlassSpinner}`} />
+            <p className={`text-sm ${managementStyles.loadingGlassText}`}>Loading gallery…</p>
+          </section>
         ) : !meta ? (
           <Card className="p-10 flex flex-col items-center text-center gap-3">
             <TriangleAlert className="h-8 w-8 text-muted-foreground" />

@@ -24,6 +24,11 @@ export interface FeatureWorkspaceLayoutProps {
   brownOutline?: boolean;
   /** Opt-in visual treatment for the Photo & Video Sharing management workspace only. */
   appearance?: 'default' | 'photo-video-sharing';
+  /** Reuses the approved Photo & Video Sharing page background without changing child styling. */
+  backgroundAppearance?: 'default' | 'photo-video-sharing';
+  /** Reuses only the approved management header controls without changing typography. */
+  controlsAppearance?: 'default' | 'photo-video-sharing';
+  toggleClassName?: string;
   children?: React.ReactNode;
 }
 
@@ -40,14 +45,19 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   disabledNotice,
   brownOutline,
   appearance = 'default',
+  backgroundAppearance = 'default',
+  controlsAppearance = 'default',
+  toggleClassName,
   children,
 }) => {
   const isPhotoVideoSharing = appearance === 'photo-video-sharing';
+  const usesPhotoVideoSharingBackground = isPhotoVideoSharing || backgroundAppearance === 'photo-video-sharing';
+  const usesPhotoVideoSharingControls = isPhotoVideoSharing || controlsAppearance === 'photo-video-sharing';
 
   return (
     <div
-      className={cn('min-h-screen w-full overflow-x-hidden', isPhotoVideoSharing && managementStyles.photoVideoSharingSurface)}
-      style={isPhotoVideoSharing ? undefined : { backgroundColor: '#472c1d' }}
+      className={cn('min-h-screen w-full overflow-x-hidden', usesPhotoVideoSharingBackground && managementStyles.photoVideoSharingSurface)}
+      style={usesPhotoVideoSharingBackground ? undefined : { backgroundColor: '#472c1d' }}
       data-appearance={isPhotoVideoSharing ? appearance : undefined}
     >
       {/* Slim header */}
@@ -81,7 +91,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
               onClick={onBack}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 min-h-[40px] text-xs sm:text-sm text-white transition-all duration-200 active:translate-y-[1px]',
-                isPhotoVideoSharing
+                usesPhotoVideoSharingControls
                   ? `font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e4b97e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#28140e] ${managementStyles.glassAction}`
                   : 'border-white/40 font-semibold hover:bg-white hover:text-[#967A59]',
               )}
@@ -94,17 +104,17 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
               {headerAction && <div className="shrink-0">{headerAction}</div>}
               <div className={cn(
                 'flex flex-wrap items-center justify-center gap-3 sm:gap-4',
-                isPhotoVideoSharing && `px-4 py-2.5 ${managementStyles.glassStatus}`,
+                usesPhotoVideoSharingControls && `px-4 py-2.5 ${managementStyles.glassStatus}`,
               )}>
                 {eventName && (
                   <div className="min-w-0 text-center sm:text-left">
                     <p className={cn(
                       'text-[11px] uppercase tracking-wide text-white/60',
-                      isPhotoVideoSharing && `font-medium ${managementStyles.selectedEventLabel}`,
+                      usesPhotoVideoSharingControls && `font-medium ${managementStyles.selectedEventLabel}`,
                     )}>Selected event</p>
                     <p className={cn(
                       'text-white truncate max-w-[220px]',
-                      isPhotoVideoSharing
+                      usesPhotoVideoSharingControls
                         ? `text-sm font-medium ${managementStyles.selectedEventName}`
                         : 'text-sm sm:text-base font-semibold',
                     )}>{eventName}</p>
@@ -113,14 +123,14 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
                 <div className="flex items-center gap-3 shrink-0">
                   <span className={cn(
                     'text-white',
-                    isPhotoVideoSharing ? 'text-sm font-medium text-white/85' : 'text-sm sm:text-base font-bold',
+                    usesPhotoVideoSharingControls ? 'text-sm font-medium text-white/85' : 'text-sm sm:text-base font-bold',
                   )}>{enabled ? 'On' : 'Off'}</span>
                   <Switch
                     checked={enabled}
                     disabled={toggleDisabled}
                     onCheckedChange={onToggle}
                     aria-label={`${title} enabled`}
-                    className="shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                    className={cn('shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500', toggleClassName)}
                   />
                 </div>
               </div>

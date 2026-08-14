@@ -11,6 +11,8 @@ import {
   PHOTO_BOOTH_TEMPLATE_CATEGORIES,
   PHOTO_BOOTH_TEMPLATE_COLOURS,
 } from '@/lib/photoBoothBackgroundTemplates';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 interface Props {
   open: boolean;
@@ -18,9 +20,11 @@ interface Props {
   /** Currently applied template URL (may be a custom upload — then nothing is preselected) */
   selectedUrl: string | null;
   onSelect: (url: string) => void;
+  appearance?: 'default' | 'espresso-glass';
 }
 
-export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenChange, selectedUrl, onSelect }) => {
+export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenChange, selectedUrl, onSelect, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [colour, setColour] = useState('all');
@@ -44,9 +48,9 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] p-0 overflow-hidden">
+      <DialogContent className={cn('max-w-4xl w-[calc(100vw-2rem)] p-0 overflow-hidden', isGlass && managementStyles.guestbookDialog)}>
         <DialogHeader className="px-5 pt-5 pb-3 text-left">
-          <DialogTitle className="text-lg font-bold text-[#1D1D1F]">Template Library</DialogTitle>
+          <DialogTitle className={cn('text-lg font-bold text-[#1D1D1F]', isGlass && managementStyles.galleryViewHeading)}>Template Library</DialogTitle>
           <DialogDescription className="text-sm">
             Choose a Wedding Waitress photo-strip background. The guest photos and footer always stay on top.
           </DialogDescription>
@@ -59,21 +63,21 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search templates by name"
-              className="h-11 pl-9 text-base"
+              className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)}
             />
           </div>
           <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="h-11 sm:w-40"><SelectValue placeholder="Category" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
-              {PHOTO_BOOTH_TEMPLATE_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            <SelectTrigger className={cn('h-11 sm:w-40', isGlass && managementStyles.galleryControl)}><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+              <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All categories</SelectItem>
+              {PHOTO_BOOTH_TEMPLATE_CATEGORIES.map((c) => <SelectItem key={c} value={c} className={cn(isGlass && managementStyles.gallerySelectItem)}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={colour} onValueChange={setColour}>
-            <SelectTrigger className="h-11 sm:w-40"><SelectValue placeholder="Colour" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All colours</SelectItem>
-              {PHOTO_BOOTH_TEMPLATE_COLOURS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            <SelectTrigger className={cn('h-11 sm:w-40', isGlass && managementStyles.galleryControl)}><SelectValue placeholder="Colour" /></SelectTrigger>
+            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+              <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All colours</SelectItem>
+              {PHOTO_BOOTH_TEMPLATE_COLOURS.map((c) => <SelectItem key={c} value={c} className={cn(isGlass && managementStyles.gallerySelectItem)}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -91,7 +95,7 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
                     type="button"
                     onClick={() => setPending(t.url)}
                     aria-pressed={active}
-                    className={`relative rounded-lg overflow-hidden border-2 text-left transition-shadow ${active ? 'border-[#C8A97E] shadow-md' : 'border-border hover:border-[#967A59]/50'}`}
+                    className={cn(`relative rounded-lg overflow-hidden border-2 text-left transition-shadow ${active ? 'border-[#C8A97E] shadow-md' : 'border-border hover:border-[#967A59]/50'}`, isGlass && managementStyles.guestbookMessageCard)}
                   >
                     <img
                       src={t.thumbUrl}
@@ -106,7 +110,7 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
                         <Check className="h-3.5 w-3.5 text-white" />
                       </span>
                     )}
-                    <span className="block px-2 py-1.5 text-xs font-medium text-[#1D1D1F] truncate">{t.name}</span>
+                    <span className={cn('block px-2 py-1.5 text-xs font-medium text-[#1D1D1F] truncate', isGlass && managementStyles.galleryViewHeading)}>{t.name}</span>
                   </button>
                 );
               })}
@@ -115,12 +119,12 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
         </div>
 
         <DialogFooter className="px-5 py-4 border-t bg-muted/30 gap-2 sm:gap-2">
-          <Button type="button" variant="outline" className="lv-premium-shade" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => onOpenChange(false)}>
             Close
           </Button>
           <Button
             type="button"
-            className="lv-premium-shade bg-[#16A34A] hover:bg-[#15803D] text-white"
+            className={cn('lv-premium-shade bg-[#16A34A] hover:bg-[#15803D] text-white', isGlass && managementStyles.galleryViewPrimaryAction)}
             disabled={!pending}
             onClick={() => { if (pending) { onSelect(pending); onOpenChange(false); } }}
           >

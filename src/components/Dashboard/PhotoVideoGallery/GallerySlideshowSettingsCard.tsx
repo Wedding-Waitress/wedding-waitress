@@ -7,7 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings2, LoaderCircle, Check, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { GALLERY_ALBUMS, type GalleryMeta } from '@/hooks/useEventMediaGallery';
+import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+import { MANAGEABLE_GALLERY_ALBUMS, normaliseGalleryAlbum } from '@/lib/galleryAlbumOptions';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 import {
   slideshowSettingsFromRow,
   SLIDE_DURATION_OPTIONS,
@@ -19,9 +22,11 @@ interface Props {
   value: SlideshowSettings;
   onChange: (s: SlideshowSettings) => void;
   onSave: (s: SlideshowSettings) => Promise<void>;
+  appearance?: 'default' | 'espresso-glass';
 }
 
-export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onChange, onSave }) => {
+export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onChange, onSave, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const saved = useMemo(() => slideshowSettingsFromRow(meta), [meta]);
@@ -43,8 +48,8 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
   };
 
   const toggleAlbum = (album: string) => {
-    const has = value.albums.includes(album);
-    set('albums', has ? value.albums.filter(a => a !== album) : [...value.albums, album]);
+    const has = value.albums.some(a => normaliseGalleryAlbum(a) === album);
+    set('albums', has ? value.albums.filter(a => normaliseGalleryAlbum(a) !== album) : [...value.albums, album]);
   };
 
   const save = async () => {
@@ -60,13 +65,13 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
   };
 
   return (
-    <Card className="p-5 sm:p-6 space-y-6 overflow-hidden">
+    <Card className={cn('p-5 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard, isGlass && managementStyles.slideshowWorkspace)} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <Settings2 size={22} strokeWidth={1.8} className="text-[#967A59] shrink-0" /> Slideshow Settings
+          <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+            <Settings2 size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Slideshow Settings
           </h2>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Choose what appears on screen and how it plays. Colours and logo come from your Branding &amp; Theme settings.
           </p>
         </div>
@@ -76,40 +81,40 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="rounded-xl border border-border p-4 space-y-4">
+        <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)}>
           <p className="text-sm font-semibold text-[#1D1D1F]">Media types</p>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-photos" className="text-sm">Include Photos</Label>
-            <Switch id="ss-photos" checked={value.include_photos} onCheckedChange={(v) => toggleKind('include_photos', v)} />
+            <Switch id="ss-photos" checked={value.include_photos} onCheckedChange={(v) => toggleKind('include_photos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-videos" className="text-sm">Include Videos</Label>
-            <Switch id="ss-videos" checked={value.include_videos} onCheckedChange={(v) => toggleKind('include_videos', v)} />
+            <Switch id="ss-videos" checked={value.include_videos} onCheckedChange={(v) => toggleKind('include_videos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <p className="text-xs text-muted-foreground">At least one media type must always remain enabled.</p>
         </div>
 
-        <div className="rounded-xl border border-border p-4 space-y-4">
+        <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)}>
           <p className="text-sm font-semibold text-[#1D1D1F]">Playback</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Display order</Label>
               <Select value={value.order} onValueChange={(v) => set('order', v as SlideshowSettings['order'])}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="oldest">Oldest First</SelectItem>
-                  <SelectItem value="shuffle">Shuffle</SelectItem>
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+                  <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest First</SelectItem>
+                  <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest First</SelectItem>
+                  <SelectItem value="shuffle" className={cn(isGlass && managementStyles.gallerySelectItem)}>Shuffle</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Slide duration</Label>
               <Select value={String(value.slide_duration_sec)} onValueChange={(v) => set('slide_duration_sec', Number(v))}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   {SLIDE_DURATION_OPTIONS.map(s => (
-                    <SelectItem key={s} value={String(s)}>{s} seconds</SelectItem>
+                    <SelectItem key={s} value={String(s)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{s} seconds</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -117,44 +122,52 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Transition</Label>
               <Select value={value.transition} onValueChange={(v) => set('transition', v as SlideshowSettings['transition'])}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fade">Fade</SelectItem>
-                  <SelectItem value="slide">Slide</SelectItem>
-                  <SelectItem value="none">None</SelectItem>
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+                  <SelectItem value="fade" className={cn(isGlass && managementStyles.gallerySelectItem)}>Fade</SelectItem>
+                  <SelectItem value="slide" className={cn(isGlass && managementStyles.gallerySelectItem)}>Slide</SelectItem>
+                  <SelectItem value="none" className={cn(isGlass && managementStyles.gallerySelectItem)}>None</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-caption" className="text-sm">Show guest name / caption</Label>
-            <Switch id="ss-caption" checked={value.show_caption} onCheckedChange={(v) => set('show_caption', v)} />
+            <Switch id="ss-caption" checked={value.show_caption} onCheckedChange={(v) => set('show_caption', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-loop" className="text-sm">Loop continuously</Label>
-            <Switch id="ss-loop" checked={value.loop} onCheckedChange={(v) => set('loop', v)} />
+            <Switch id="ss-loop" checked={value.loop} onCheckedChange={(v) => set('loop', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-border p-4 space-y-3">
+      <div className={cn('rounded-xl border border-border p-4 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)}>
         <p className="text-sm font-semibold text-[#1D1D1F]">Albums</p>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => set('albums', [])}
-            className={`h-9 px-3 rounded-full text-sm border transition-colors ${value.albums.length === 0 ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`}
+            className={cn(
+              `h-9 px-3 rounded-full text-sm border transition-colors ${value.albums.length === 0 ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
+              isGlass && managementStyles.galleryControl,
+              isGlass && value.albums.length === 0 && managementStyles.galleryControlActive,
+            )}
           >
             {value.albums.length === 0 && <Check className="h-3.5 w-3.5 mr-1 inline" />}All Albums
           </button>
-          {GALLERY_ALBUMS.map(a => {
-            const active = value.albums.includes(a);
+          {MANAGEABLE_GALLERY_ALBUMS.map(a => {
+            const active = value.albums.some(selected => normaliseGalleryAlbum(selected) === a);
             return (
               <button
                 key={a}
                 type="button"
                 onClick={() => toggleAlbum(a)}
-                className={`h-9 px-3 rounded-full text-sm border transition-colors ${active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`}
+                className={cn(
+                  `h-9 px-3 rounded-full text-sm border transition-colors ${active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
+                  isGlass && managementStyles.galleryControl,
+                  isGlass && active && managementStyles.galleryControlActive,
+                )}
               >
                 {active && <Check className="h-3.5 w-3.5 mr-1 inline" />}{a}
               </button>
@@ -165,11 +178,11 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button className="lv-premium-shade h-11" onClick={save} disabled={saving || !dirty}>
+        <Button className={cn('lv-premium-shade h-11', isGlass && managementStyles.galleryViewPrimaryAction)} onClick={save} disabled={saving || !dirty}>
           {saving ? <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" /> : <Save size={16} strokeWidth={1.8} className="mr-1.5" />} Save Settings
         </Button>
         {dirty && (
-          <Button variant="outline" className="lv-premium-shade h-11" onClick={() => onChange(saved)} disabled={saving}>
+          <Button variant="outline" className={cn('lv-premium-shade h-11', isGlass && managementStyles.galleryControl)} onClick={() => onChange(saved)} disabled={saving}>
             Discard changes
           </Button>
         )}

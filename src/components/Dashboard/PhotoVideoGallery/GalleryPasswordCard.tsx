@@ -7,14 +7,18 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LockKeyhole, LoaderCircle, Save, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 interface Props {
   passwordEnabled: boolean;
   hasPassword: boolean;
   onSave: (args: { enabled: boolean; password: string | null }) => Promise<void>;
+  appearance?: 'default' | 'espresso-glass';
 }
 
-export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassword, onSave }) => {
+export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassword, onSave, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [enabled, setEnabled] = useState<boolean>(passwordEnabled);
   const [pw, setPw] = useState('');
@@ -55,12 +59,12 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
   };
 
   return (
-    <Card className="dashboard-card p-4 sm:p-5 space-y-4 overflow-hidden">
+    <Card className={cn('dashboard-card p-4 sm:p-5 space-y-4 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex items-start gap-3">
-        <LockKeyhole className="h-5 w-5 text-[#967A59] mt-0.5 shrink-0" strokeWidth={1.8} />
+        <LockKeyhole className={cn('h-5 w-5 text-[#967A59] mt-0.5 shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} />
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl font-bold text-black" style={{ color: '#000000' }}>Password Protection</h3>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+          <h3 className={cn('text-xl font-bold text-black', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>Password Protection</h3>
+          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Add a password to control who can upload or view the gallery.
           </p>
         </div>
@@ -68,20 +72,20 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
 
 
       <div className="flex items-center justify-between gap-3 pt-1">
-        <Label htmlFor="pw-enabled" className="text-sm font-medium">
+        <Label htmlFor="pw-enabled" className={cn('text-sm font-medium', isGlass && managementStyles.galleryViewHeading)}>
           {enabled ? 'Password is on' : 'Password is off'}
         </Label>
         <Switch
           id="pw-enabled"
           checked={enabled}
           onCheckedChange={setEnabled}
-          className="w-12 h-6 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300"
+          className={cn('w-12 h-6 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300', isGlass && managementStyles.galleryViewToggle)}
         />
       </div>
 
       {enabled && (
         <div className="space-y-2">
-          <Label htmlFor="pw-input" className="text-sm font-medium">
+          <Label htmlFor="pw-input" className={cn('text-sm font-medium', isGlass && managementStyles.galleryViewHeading)}>
             {hasPassword ? 'Change password (leave empty to keep current)' : 'Set a password'}
           </Label>
           <div className="relative">
@@ -91,20 +95,20 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
               value={pw}
               onChange={(e) => setPw(e.target.value)}
               placeholder={hasPassword ? '••••••' : 'At least 4 characters'}
-              className="h-11 text-base pr-10"
+              className={cn('h-11 text-base pr-10', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)}
               autoComplete="new-password"
             />
             <button
               type="button"
               onClick={() => setShowPw((v) => !v)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+              className={cn('absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1', isGlass && managementStyles.galleryViewIconButton)}
               aria-label={showPw ? 'Hide password' : 'Show password'}
             >
               {showPw ? <EyeOff className="h-4 w-4" strokeWidth={1.8} /> : <Eye className="h-4 w-4" strokeWidth={1.8} />}
             </button>
           </div>
           {hasPassword && !needsNewPassword && (
-            <p className="text-xs text-muted-foreground">A password is already saved. Type a new one to replace it.</p>
+            <p className={cn('text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>A password is already saved. Type a new one to replace it.</p>
           )}
         </div>
       )}
@@ -114,7 +118,7 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
           type="button"
           onClick={submit}
           disabled={saving || !canSave}
-          className="lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white"
+          className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && managementStyles.galleryViewPrimaryAction)}
         >
           {saving ? <><LoaderCircle className="animate-spin h-4 w-4 mr-2" strokeWidth={1.8} /> Saving…</> : <><Save className="h-4 w-4 mr-2" strokeWidth={1.8} /> Save</>}
         </Button>

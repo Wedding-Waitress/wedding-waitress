@@ -6,6 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { groupPhotoBoothSessions, boothSetPrefix } from '@/lib/photoBoothSessions';
 import { photoBoothFilename } from '@/lib/photoBoothFilename';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 function slugify(s: string | null | undefined, fallback = 'photo-booth'): string {
   const v = (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -22,7 +24,9 @@ export const PhotoBoothDownloadAllButton: React.FC<{
   eventName?: string | null;
   galleryTitle?: string | null;
   className?: string;
-}> = ({ items, eventName, galleryTitle, className }) => {
+  appearance?: 'default' | 'espresso-glass';
+}> = ({ items, eventName, galleryTitle, className, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);
@@ -98,7 +102,7 @@ export const PhotoBoothDownloadAllButton: React.FC<{
   return (
     <Button
       variant="outline"
-      className={`lv-premium-shade h-11 gap-2 justify-between w-full sm:w-auto ${className || ''}`}
+      className={cn('lv-premium-shade h-11 gap-2 justify-between w-full sm:w-auto', className, isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
       onClick={run}
       disabled={busy || total === 0}
       aria-label="Download all Photo Booth photos and videos"

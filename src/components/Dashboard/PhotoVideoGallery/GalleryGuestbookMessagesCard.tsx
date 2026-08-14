@@ -22,6 +22,8 @@ import { GuestbookDownloadAllButton } from './GuestbookDownloadAllButton';
 
 import { guestbookCsvFilename, guestbookMessageFilename, guestbookMessageTxt, guestbookSeqLabel } from '@/lib/guestbookFilename';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 type Status = 'approved' | 'hidden';
 type TabKey = 'written' | 'audio' | 'video';
@@ -46,6 +48,7 @@ interface Props {
   error?: string | null;
   onSetItemModeration: (id: string, status: Status) => Promise<void>;
   onSetGuestbookShare: (id: string, shared: boolean) => Promise<void>;
+  appearance?: 'default' | 'espresso-glass';
 }
 
 function fmtDate(at: string | null) {
@@ -67,8 +70,9 @@ function csvCell(v: string) {
 const GRID = 'grid gap-3 grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8';
 
 export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
-  eventId, items, eventName, loading, error, onSetItemModeration, onSetGuestbookShare,
+  eventId, items, eventName, loading, error, onSetItemModeration, onSetGuestbookShare, appearance = 'default',
 }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [tab, setTab] = useState<TabKey>('written');
   const [textRows, setTextRows] = useState<TextRow[]>([]);
@@ -279,11 +283,11 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   const renderRecordingCard = (item: GalleryItem) => {
     const shared = item.shared_to_gallery === true;
     return (
-      <li key={item.id} className="rounded-xl border border-border bg-[#FBF8F3] overflow-hidden min-w-0 flex flex-col">
+      <li key={item.id} className={cn('rounded-xl border border-border bg-[#FBF8F3] overflow-hidden min-w-0 flex flex-col', isGlass && managementStyles.guestbookMessageCard, selected.has(item.id) && isGlass && managementStyles.guestbookMessageCardSelected)}>
         <button
           type="button"
           onClick={() => setPreview(item)}
-          className="relative block w-full aspect-square bg-[#EFE7DA] group"
+          className={cn('relative block w-full aspect-square bg-[#EFE7DA] group', isGlass && managementStyles.guestbookMessagePreview)}
           aria-label={`Play recording from ${item.uploader_name || 'Anonymous guest'}`}
         >
           {item.kind === 'video' && item.signed_url ? (
@@ -323,28 +327,28 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           )}
         </button>
 
-        <div className="p-2 space-y-1 flex-1 flex flex-col min-w-0">
-          <p className="text-xs font-semibold text-[#1D1D1F] break-words leading-tight">{item.uploader_name || 'Anonymous guest'}</p>
-          <p className="text-[11px] text-[#6E6E73] break-words leading-tight">{fmtDate(item.uploaded_at)}</p>
-          <p className="text-[11px] text-[#6E6E73] leading-tight">{fmtDuration(item.duration_sec)}</p>
+        <div className={cn('p-2 space-y-1 flex-1 flex flex-col min-w-0', isGlass && managementStyles.guestbookMessageBody)}>
+          <p className={cn('text-xs font-semibold text-[#1D1D1F] break-words leading-tight', isGlass && managementStyles.galleryViewHeading)}>{item.uploader_name || 'Anonymous guest'}</p>
+          <p className={cn('text-[11px] text-[#6E6E73] break-words leading-tight', isGlass && managementStyles.gallerySecondaryText)}>{fmtDate(item.uploaded_at)}</p>
+          <p className={cn('text-[11px] text-[#6E6E73] leading-tight', isGlass && managementStyles.gallerySecondaryText)}>{fmtDuration(item.duration_sec)}</p>
           {item.guestbook_message && (
-            <p className="text-[11px] text-[#1D1D1F] break-words line-clamp-2" title={item.guestbook_message}>“{item.guestbook_message}”</p>
+            <p className={cn('text-[11px] text-[#1D1D1F] break-words line-clamp-2', isGlass && managementStyles.galleryViewHeading)} title={item.guestbook_message}>“{item.guestbook_message}”</p>
           )}
           {item.kind !== 'video' && item.signed_url && (
             <audio src={item.signed_url} controls preload="none" className="w-full h-8 mt-1" />
           )}
-          {!item.signed_url && <p className="text-[11px] text-muted-foreground">Still processing.</p>}
+          {!item.signed_url && <p className={cn('text-[11px] text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>Still processing.</p>}
           <div className="flex gap-1 pt-1 mt-auto">
             {shared ? (
-              <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleShare(item, false)}>
+              <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleShare(item, false)}>
                 <ImageMinus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Remove
               </Button>
             ) : (
-              <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleShare(item, true)}>
+              <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleShare(item, true)}>
                 <ImagePlus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Add to Gallery
               </Button>
             )}
-            <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download" aria-label="Download recording" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
+            <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} title="Download" aria-label="Download recording" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
               <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
             </Button>
           </div>
@@ -357,25 +361,25 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   const totalForTab = tab === 'written' ? allWritten.length : (tab === 'audio' ? allAudio.length : allVideo.length);
 
   return (
-    <Card className="p-5 sm:p-6 space-y-5">
+    <Card className={cn('p-5 sm:p-6 space-y-5', isGlass && managementStyles.galleryPanel, isGlass && managementStyles.guestbookMessagesPanel)} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <MessageSquareText className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} />
+          <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+            <MessageSquareText className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} />
             <span className="min-w-0 break-words">Guestbook Messages ({allWritten.length + recordings.length})</span>
           </h2>
-          <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Written, audio and video messages your guests have left — private unless you add them to the gallery.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className="lv-premium-shade" onClick={() => load()} disabled={textLoading}>
+          <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => load()} disabled={textLoading}>
             {textLoading ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="lv-premium-shade"
+            className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)}
             onClick={() => { setSelectMode(s => !s); resetSelection(); }}
             disabled={visibleCount === 0}
           >
@@ -387,18 +391,18 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
       {/* Row 1: search (left) · downloads + export (right) */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[220px] lg:max-w-[520px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground', isGlass && managementStyles.galleryWarmIcon)} />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by guest name or message…"
-            className="h-11 pl-9 text-base"
+            className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)}
           />
         </div>
         <div className="flex flex-wrap items-center gap-3 lg:ml-auto">
-          <GuestbookDownloadAllButton items={recordings} eventName={eventName} />
+          <GuestbookDownloadAllButton items={recordings} eventName={eventName} appearance={appearance} />
           {tab === 'written' && (
-            <Button className="ww-emboss-green ww-emboss-green-soft h-11 text-white border-0" onClick={exportCsv} disabled={writtenRows.length === 0}>
+            <Button className={cn('ww-emboss-green ww-emboss-green-soft h-11 text-white border-0', isGlass && managementStyles.galleryViewPrimaryAction)} onClick={exportCsv} disabled={writtenRows.length === 0}>
               <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
             </Button>
           )}
@@ -413,29 +417,32 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             type="button"
             onClick={() => switchTab(t.key)}
             aria-pressed={tab === t.key}
-            className={`h-11 px-4 rounded-md text-sm font-semibold text-white bg-[#967A59] transition-shadow ${
+            className={cn(
+              'h-11 px-4 rounded-md text-sm font-semibold text-white bg-[#967A59] transition-shadow',
               tab === t.key
                 ? 'shadow-[inset_0_2px_5px_rgba(0,0,0,0.28)]'
-                : 'shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]'
-            }`}
+                : 'shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]',
+              isGlass && managementStyles.galleryControl,
+              isGlass && tab === t.key && managementStyles.galleryControlActive,
+            )}
           >
             {t.label} ({t.count})
           </button>
         ))}
         <div className="flex flex-wrap items-center gap-3 lg:ml-auto">
           <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-            <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest first</SelectItem>
-              <SelectItem value="oldest">Oldest first</SelectItem>
+            <SelectTrigger className={cn('h-11 w-full sm:w-[150px]', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+              <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest first</SelectItem>
+              <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest first</SelectItem>
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-            <SelectTrigger className="h-11 w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="hidden">Hidden</SelectItem>
+            <SelectTrigger className={cn('h-11 w-full sm:w-[150px]', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+            <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+              <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All statuses</SelectItem>
+              <SelectItem value="approved" className={cn(isGlass && managementStyles.gallerySelectItem)}>Approved</SelectItem>
+              <SelectItem value="hidden" className={cn(isGlass && managementStyles.gallerySelectItem)}>Hidden</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -444,31 +451,31 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
 
       {selectMode && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-3">
-          <label className="flex items-center gap-2 text-sm text-[#1D1D1F]">
+        <div className={cn('flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-3', isGlass && managementStyles.galleryViewInsetPanel)}>
+          <label className={cn('flex items-center gap-2 text-sm text-[#1D1D1F]', isGlass && managementStyles.galleryViewHeading)}>
             <Checkbox
               checked={allSelected}
               onCheckedChange={(c) => setSelected(c ? new Set(visibleKeys) : new Set())}
             />
             Select all ({visibleCount})
           </label>
-          <span className="text-sm text-[#6E6E73]">{selected.size} selected</span>
+          <span className={cn('text-sm text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>{selected.size} selected</span>
           <div className="flex flex-wrap gap-2 ml-auto">
             {tab === 'written' ? (
               <>
-                <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('approved')}>
+                <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('approved')}>
                   {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <CircleCheck className="h-4 w-4 mr-1" strokeWidth={1.8} />} Approve
                 </Button>
-                <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('hidden')}>
+                <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('hidden')}>
                   {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <EyeOff className="h-4 w-4 mr-1" strokeWidth={1.8} />} Hide
                 </Button>
               </>
             ) : (
               <>
-                <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleShareBulk(true)}>
+                <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleShareBulk(true)}>
                   {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <ImagePlus className="h-4 w-4 mr-1" strokeWidth={1.8} />} Add to Gallery
                 </Button>
-                <Button size="sm" variant="outline" className="lv-premium-shade" disabled={busy || selected.size === 0} onClick={() => handleShareBulk(false)}>
+                <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleShareBulk(false)}>
                   {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <ImageMinus className="h-4 w-4 mr-1" strokeWidth={1.8} />} Remove from Gallery
                 </Button>
               </>
@@ -478,7 +485,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
       )}
 
       {(error || textError) && (
-        <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
+        <div className={cn('flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5', isGlass && managementStyles.guestbookStatePanel)}>
           <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
           <p className="text-sm text-destructive break-words">{error || textError}</p>
         </div>
@@ -486,12 +493,12 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
       {/* Content */}
       {(tab === 'written' ? textLoading && allWritten.length === 0 : loading && recordings.length === 0) ? (
-        <div className="py-12 flex flex-col items-center gap-3">
+        <div className={cn('py-12 flex flex-col items-center gap-3', isGlass && managementStyles.guestbookStatePanel)}>
           <LoaderCircle className="h-6 w-6 animate-spin text-[#967A59]" strokeWidth={1.8} />
           <p className="text-sm text-muted-foreground">Loading messages…</p>
         </div>
       ) : visibleCount === 0 ? (
-        <div className="py-12 text-center">
+        <div className={cn('py-12 text-center', isGlass && managementStyles.guestbookStatePanel)}>
           {tab === 'written' ? <MessageSquareText className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />
             : tab === 'audio' ? <Mic2 className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />
             : <Video className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />}
@@ -506,14 +513,14 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           {writtenRows.map(r => {
             const k = key(r);
             return (
-              <li key={k} className="rounded-xl border border-border bg-[#FBF8F3] overflow-hidden min-w-0 flex flex-col">
+              <li key={k} className={cn('rounded-xl border border-border bg-[#FBF8F3] overflow-hidden min-w-0 flex flex-col', isGlass && managementStyles.guestbookMessageCard, selected.has(k) && isGlass && managementStyles.guestbookMessageCardSelected)}>
                 <button
                   type="button"
                   onClick={() => setOpenText(r)}
-                  className="relative block w-full aspect-square bg-[#EFE7DA] p-2 text-left"
+                  className={cn('relative block w-full aspect-square bg-[#EFE7DA] p-2 text-left', isGlass && managementStyles.guestbookMessagePreview)}
                   aria-label={`Read message from ${r.name || 'Anonymous guest'}`}
                 >
-                  <span className="block text-[11px] text-[#1D1D1F] leading-snug line-clamp-6 break-words">{r.message}</span>
+                  <span className={cn('block text-[11px] text-[#1D1D1F] leading-snug line-clamp-6 break-words', isGlass && managementStyles.galleryViewHeading)}>{r.message}</span>
                   <span className={`absolute bottom-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-white/90 text-[#6E6E73]' : 'bg-green-100 text-green-800'}`}>
                     {r.status === 'hidden' ? 'Hidden' : 'Approved'}
                   </span>
@@ -533,24 +540,24 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                     </span>
                   )}
                 </button>
-                <div className="p-2 space-y-1 flex-1 flex flex-col min-w-0">
-                  <p className="text-xs font-semibold text-[#1D1D1F] break-words leading-tight">{r.name || 'Anonymous guest'}</p>
-                  <p className="text-[11px] text-[#6E6E73] break-words leading-tight">{fmtDate(r.at)}</p>
+                <div className={cn('p-2 space-y-1 flex-1 flex flex-col min-w-0', isGlass && managementStyles.guestbookMessageBody)}>
+                  <p className={cn('text-xs font-semibold text-[#1D1D1F] break-words leading-tight', isGlass && managementStyles.galleryViewHeading)}>{r.name || 'Anonymous guest'}</p>
+                  <p className={cn('text-[11px] text-[#6E6E73] break-words leading-tight', isGlass && managementStyles.gallerySecondaryText)}>{fmtDate(r.at)}</p>
                   {r.source === 'recording' && (
                     <p className="text-[10px] font-semibold text-[#967A59]">Note with recording</p>
                   )}
                   <div className="flex gap-1 pt-1 mt-auto">
                     {r.status === 'approved' ? (
-                      <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleWrittenSingle(r, 'hidden')}>
+                      <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleWrittenSingle(r, 'hidden')}>
                         <EyeOff className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Hide
                       </Button>
                     ) : (
-                      <Button size="sm" variant="outline" className="lv-premium-shade flex-1 h-8 px-1 text-[11px]" onClick={() => handleWrittenSingle(r, 'approved')}>
+                      <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleWrittenSingle(r, 'approved')}>
                         <CircleCheck className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Show
                       </Button>
                     )}
                     {r.source === 'text' && (
-                      <Button size="sm" variant="outline" className="lv-premium-shade h-8 px-2" title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
+                      <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
                         <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
                       </Button>
                     )}
@@ -568,14 +575,14 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
       {/* Written message dialog */}
       <Dialog open={!!openText} onOpenChange={(o) => !o && setOpenText(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className={cn('max-w-lg', isGlass && managementStyles.guestbookDialog)}>
           <DialogHeader>
-            <DialogTitle className="break-words text-left">{openText?.name || 'Anonymous guest'}</DialogTitle>
+            <DialogTitle className={cn('break-words text-left', isGlass && managementStyles.galleryViewHeading)}>{openText?.name || 'Anonymous guest'}</DialogTitle>
           </DialogHeader>
           {openText && (
             <div className="space-y-3">
-              <p className="text-xs text-[#6E6E73]">{fmtDate(openText.at)}</p>
-              <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words">{openText.message}</p>
+              <p className={cn('text-xs text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>{fmtDate(openText.at)}</p>
+              <p className={cn('text-sm text-[#1D1D1F] whitespace-pre-wrap break-words', isGlass && managementStyles.galleryViewHeading)}>{openText.message}</p>
             </div>
           )}
         </DialogContent>
@@ -583,13 +590,13 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
       {/* Recording dialog */}
       <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className={cn('max-w-2xl', isGlass && managementStyles.guestbookDialog)}>
           <DialogHeader>
-            <DialogTitle className="break-words text-left">{preview?.uploader_name || 'Anonymous guest'}</DialogTitle>
+            <DialogTitle className={cn('break-words text-left', isGlass && managementStyles.galleryViewHeading)}>{preview?.uploader_name || 'Anonymous guest'}</DialogTitle>
           </DialogHeader>
           {preview && (
             <div className="space-y-3">
-              <p className="text-xs text-[#6E6E73]">
+              <p className={cn('text-xs text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>
                 {fmtDate(preview.uploaded_at)} · {fmtDuration(preview.duration_sec)} · {preview.kind === 'video' ? 'Video message' : 'Voice message'}
               </p>
               {preview.signed_url ? (
@@ -602,9 +609,9 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                 <p className="text-sm text-muted-foreground">Recording is still processing.</p>
               )}
               {preview.guestbook_message && (
-                <div className="rounded-lg bg-muted/40 p-3">
-                  <p className="text-xs uppercase tracking-wide text-[#6E6E73]">Written note</p>
-                  <p className="text-sm text-[#1D1D1F] mt-1 break-words whitespace-pre-wrap">{preview.guestbook_message}</p>
+                <div className={cn('rounded-lg bg-muted/40 p-3', isGlass && managementStyles.galleryViewInsetPanel)}>
+                  <p className={cn('text-xs uppercase tracking-wide text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>Written note</p>
+                  <p className={cn('text-sm text-[#1D1D1F] mt-1 break-words whitespace-pre-wrap', isGlass && managementStyles.galleryViewHeading)}>{preview.guestbook_message}</p>
                 </div>
               )}
             </div>

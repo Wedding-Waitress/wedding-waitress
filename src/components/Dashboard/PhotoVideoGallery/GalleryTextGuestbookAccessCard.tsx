@@ -10,12 +10,15 @@ import { Copy, Download, QrCode as QrIcon, TriangleAlert, ExternalLink } from 'l
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 export function buildTextGuestbookUrl(token: string | null): string {
   return buildGalleryGuestAppUrl(token);
 }
 
-export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
+export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta; appearance?: 'default' | 'espresso-glass' }> = ({ meta, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const url = buildTextGuestbookUrl(meta.primary_token);
@@ -44,12 +47,12 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = (
   const open = () => { if (url) window.open(url, '_blank', 'noopener,noreferrer'); };
 
   return (
-    <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
+    <Card className={cn('h-full p-5 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="min-w-0">
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> Digital Guestbook Access
+        <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+          <QrIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Digital Guestbook Access
         </h2>
-        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Share the QR code or link your guests use to write a message in your Digital Guestbook.
         </p>
       </div>
@@ -63,33 +66,35 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta }> = (
         ) : (
           <>
             <div className="flex justify-center">
-              {qrDataUrl ? (
-                <img src={qrDataUrl} alt="Digital Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
-              ) : (
-                <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
-              )}
+              <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
+                {qrDataUrl ? (
+                  <img src={qrDataUrl} alt="Digital Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+                ) : (
+                  <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
+                )}
+              </div>
             </div>
 
             <div>
-              <Label className="text-sm">Public Digital Guestbook link</Label>
+              <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>Public Digital Guestbook link</Label>
               <div className="flex flex-wrap gap-2 mt-1.5">
-                <Input value={url} readOnly className="h-11 text-sm min-w-0 flex-1" />
-                <Button variant="outline" className="lv-premium-shade h-11 shrink-0" onClick={copy}>
+                <Input value={url} readOnly className={cn('h-11 text-sm min-w-0 flex-1', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
+                <Button variant="outline" className={cn('lv-premium-shade h-11 shrink-0', isGlass && managementStyles.galleryControl)} onClick={copy}>
                   <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy
                 </Button>
               </div>
             </div>
 
-            <Button variant="outline" className="lv-premium-shade w-full" onClick={open} disabled={!url}>
+            <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={open} disabled={!url}>
               <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Open Digital Guestbook
             </Button>
-            <Button variant="outline" className="lv-premium-shade w-full" onClick={downloadQr} disabled={!qrDataUrl}>
+            <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl}>
               <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Download QR code
             </Button>
           </>
         )}
 
-        <p className="text-xs text-muted-foreground">
+        <p className={cn('text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
           This uses your existing event gallery link — no separate token or guest page is created.
         </p>
       </div>

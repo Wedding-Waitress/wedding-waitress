@@ -9,31 +9,33 @@
 }
 
 .navigationTab {
-  border: 1px solid transparent;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   transition:
     color 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
     filter 160ms ease;
 }
 
 .navigationTabActive {
-  color: #1c1410;
-  border-color: rgba(255, 239, 218, 0.58);
-  background: linear-gradient(180deg, #efd7aa 0%, #d6b47d 100%);
+  color: #fff;
+  background: linear-gradient(180deg, rgba(105, 59, 42, 0.94) 0%, rgba(39, 20, 14, 0.98) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 12px rgba(0, 0, 0, 0.24);
+    inset 0 1px 0 rgba(255, 239, 218, 0.2),
+    inset 0 0 12px rgba(190, 105, 45, 0.08),
+    inset 0 0 0 1px rgba(231, 185, 129, 0.48),
+    0 4px 12px rgba(0, 0, 0, 0.28);
 }
 
 .navigationTabInactive {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.88);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .navigationTab:focus-visible {
   outline: none;
-  border-color: rgba(237, 201, 148, 0.9);
   box-shadow:
     0 0 0 2px rgba(229, 183, 124, 0.78),
     0 0 0 4px rgba(5, 3, 2, 0.92);
@@ -189,6 +191,7 @@
 
 .secondaryAction:focus-visible,
 .successSecondaryAction:focus-visible,
+.heroUploadAction:focus-visible,
 .primaryAction:focus-visible,
 .successPrimaryAction:focus-visible {
   outline: none;
@@ -204,6 +207,28 @@
   background-image: linear-gradient(180deg, rgba(38, 22, 17, 0.66), rgba(15, 8, 6, 0.82)) !important;
   box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.07) !important;
   opacity: 1 !important;
+}
+
+.heroUploadAction.heroUploadAction {
+  color: #fff !important;
+  border: 1px solid rgba(216, 173, 121, 0.55) !important;
+  background-color: rgba(18, 10, 8, 0.9) !important;
+  background-image: linear-gradient(180deg, rgba(77, 43, 31, 0.92) 0%, rgba(18, 10, 8, 0.96) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
+    0 7px 18px rgba(2, 1, 1, 0.34) !important;
+  filter: none !important;
+  transform: none !important;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease !important;
+}
+
+.heroUploadAction svg {
+  color: #fff !important;
 }
 
 .primaryAction,
@@ -227,11 +252,12 @@
 }
 
 .primaryAction:disabled {
-  color: rgba(233, 245, 237, 0.72) !important;
-  border-color: rgba(110, 183, 135, 0.24) !important;
-  background-color: rgba(22, 101, 52, 0.5) !important;
-  background-image: linear-gradient(180deg, rgba(44, 119, 71, 0.34), rgba(16, 56, 31, 0.46)) !important;
-  box-shadow: inset 0 1px 0 rgba(232, 255, 239, 0.08) !important;
+  color: #fff !important;
+  border-color: rgba(135, 242, 173, 0.28) !important;
+  background-color: #22c55e !important;
+  background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  filter: saturate(0.78) !important;
   opacity: 1 !important;
 }
 
@@ -255,8 +281,7 @@
 @media (hover: hover) and (pointer: fine) {
   .navigationTabInactive:hover {
     color: #fff;
-    border-color: rgba(216, 173, 121, 0.32);
-    background-color: rgba(108, 62, 42, 0.28);
+    background: rgba(255, 239, 218, 0.045);
   }
 
   .removeControl:hover {
@@ -275,6 +300,16 @@
     filter: brightness(1.035) !important;
   }
 
+  .heroUploadAction:hover:not(:disabled) {
+    border-color: rgba(231, 185, 129, 0.76) !important;
+    background-image: linear-gradient(180deg, rgba(91, 50, 35, 0.94), rgba(22, 12, 9, 0.98)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.21),
+      inset 0 0 13px rgba(191, 105, 45, 0.1),
+      0 8px 20px rgba(0, 0, 0, 0.36) !important;
+    filter: brightness(1.035) !important;
+  }
+
   .primaryAction:hover:not(:disabled),
   .successPrimaryAction:hover:not(:disabled) {
     background-color: #16a34a !important;
@@ -289,6 +324,7 @@
 .navigationTab:active,
 .secondaryAction:active:not(:disabled),
 .successSecondaryAction:active:not(:disabled),
+.heroUploadAction:active:not(:disabled),
 .primaryAction:active:not(:disabled),
 .successPrimaryAction:active:not(:disabled),
 .removeControl:active {
@@ -297,6 +333,7 @@
 
 .secondaryAction:active:not(:disabled),
 .successSecondaryAction:active:not(:disabled),
+.heroUploadAction:active:not(:disabled),
 .primaryAction:active:not(:disabled),
 .successPrimaryAction:active:not(:disabled) {
   box-shadow:
@@ -321,6 +358,7 @@
   .removeControl,
   .secondaryAction,
   .successSecondaryAction,
+  .heroUploadAction,
   .primaryAction,
   .successPrimaryAction,
   .progressFill {

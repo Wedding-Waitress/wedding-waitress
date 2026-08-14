@@ -16,6 +16,7 @@ import { slideshowSettingsFromRow, type SlideshowSettings } from '@/lib/slidesho
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
+import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GallerySlideshowFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -60,8 +61,8 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
-        <LoaderCircle size={24} strokeWidth={1.8} className="animate-spin text-white" />
+      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
+        <LoaderCircle size={24} strokeWidth={1.8} className={`animate-spin text-white ${managementStyles.loadingGlassSpinner}`} />
       </div>
     );
   }
@@ -75,6 +76,9 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
       />
       <FeatureWorkspaceLayout
         brownOutline
+        backgroundAppearance="photo-video-sharing"
+        controlsAppearance="photo-video-sharing"
+        toggleClassName={managementStyles.galleryViewToggle}
         title="Live Slideshow"
         description="Display approved guest photos and videos in a beautiful, continuously updating slideshow."
         eventName={(selectedEvent as any)?.name}
@@ -86,7 +90,7 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
         headerAction={
           <Button
             variant="outline"
-            className="lv-premium-shade bg-white/10 text-white border-white/40 hover:bg-white hover:text-[#967A59]"
+            className={`lv-premium-shade text-white border ${managementStyles.glassAction}`}
             disabled={!liveUrl}
             onClick={() => liveUrl && window.open(liveUrl, '_blank', 'noopener,noreferrer')}
           >
@@ -95,22 +99,22 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
         }
       >
         {loading && !meta ? (
-          <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <LoaderCircle size={24} strokeWidth={1.8} className="animate-spin text-[#967A59]" />
+          <Card className={`p-12 flex flex-col items-center justify-center gap-3 ${managementStyles.loadingGlassPanel}`}>
+            <LoaderCircle size={24} strokeWidth={1.8} className={`animate-spin text-[#967A59] ${managementStyles.loadingGlassSpinner}`} />
             <p className="text-sm text-muted-foreground">Loading Live Slideshow…</p>
           </Card>
         ) : !meta ? (
-          <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <TriangleAlert size={28} strokeWidth={1.8} className="text-muted-foreground" />
+          <Card className={`p-10 flex flex-col items-center text-center gap-3 ${managementStyles.loadingGlassPanel}`}>
+            <TriangleAlert size={28} strokeWidth={1.8} className={`text-muted-foreground ${managementStyles.loadingGlassSpinner}`} />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage the Live Slideshow.'}
             </p>
           </Card>
         ) : (
-          <div className="space-y-6 sm:space-y-8">
+          <div className={`space-y-6 sm:space-y-8 ${managementStyles.slideshowWorkspace}`} data-appearance="espresso-glass">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GallerySlideshowStepsCard />
-              <GallerySlideshowAccessCard meta={meta} />
+              <GallerySlideshowStepsCard appearance="espresso-glass" />
+              <GallerySlideshowAccessCard meta={meta} appearance="espresso-glass" />
             </div>
 
             <GallerySlideshowSettingsCard
@@ -118,9 +122,10 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
               value={effective}
               onChange={setDraft}
               onSave={updateSlideshowSettings}
+              appearance="espresso-glass"
             />
 
-            <GallerySlideshowPreviewCard items={items} settings={effective} loading={loading && items.length === 0} />
+            <GallerySlideshowPreviewCard items={items} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
           </div>
         )}
       </FeatureWorkspaceLayout>

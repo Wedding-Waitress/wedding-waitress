@@ -8,8 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Copy, Images, TriangleAlert, ExternalLink, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
-export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: string }> = ({ meta, guestUrl }) => {
+interface Props {
+  meta: GalleryMeta;
+  guestUrl: string;
+  appearance?: 'default' | 'espresso-glass';
+}
+
+export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
 
@@ -35,12 +44,12 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
   };
 
   return (
-    <Card className="h-full p-5 sm:p-6 space-y-5 overflow-hidden">
+    <Card className={cn('h-full p-5 sm:p-6 space-y-5 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="min-w-0">
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <Images className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> Guest Gallery Access
+        <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+          <Images className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Guest Gallery Access
         </h2>
-        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Share this link so guests can browse the photos and videos from your event.
         </p>
       </div>
@@ -53,33 +62,35 @@ export const GalleryViewAccessCard: React.FC<{ meta: GalleryMeta; guestUrl: stri
       ) : (
         <div className="space-y-3">
           <div className="flex justify-center">
-            {qrDataUrl ? (
-              <img src={qrDataUrl} alt="Guest gallery QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
-            ) : (
-              <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
-            )}
+            <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
+              {qrDataUrl ? (
+                <img src={qrDataUrl} alt="Guest gallery QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+              ) : (
+                <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
+              )}
+            </div>
           </div>
 
-          <Label className="text-sm">Public gallery link</Label>
-          <Input value={guestUrl} readOnly className="h-11 text-sm w-full" />
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={copy}>
+          <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>Public gallery link</Label>
+          <Input value={guestUrl} readOnly className={cn('h-11 text-sm w-full', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
+          <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={copy}>
             <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy Gallery Link
           </Button>
           <Button
             variant="outline"
-            className="lv-premium-shade h-11 w-full"
+            className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)}
             onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
             disabled={!guestUrl}
           >
             <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Open Gallery
           </Button>
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl}>
+          <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl}>
             <Download className="h-4 w-4 mr-1" /> Download QR code
           </Button>
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground break-words">
+      <p className={cn('text-xs text-muted-foreground break-words', isGlass && managementStyles.gallerySecondaryText)}>
         Only approved media appears in the guest gallery. Anything you hide in your media library stays private.
       </p>
     </Card>

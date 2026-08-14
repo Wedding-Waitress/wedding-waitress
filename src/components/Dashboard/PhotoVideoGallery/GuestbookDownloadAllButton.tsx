@@ -5,6 +5,8 @@ import { Download, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { guestbookRecordingFilename } from '@/lib/audioGuestbookFilename';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 function slugify(s: string | null | undefined, fallback = 'guestbook'): string {
   const v = (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -21,7 +23,9 @@ export const GuestbookDownloadAllButton: React.FC<{
   items: GalleryItem[];
   eventName?: string | null;
   className?: string;
-}> = ({ items, eventName, className }) => {
+  appearance?: 'default' | 'espresso-glass';
+}> = ({ items, eventName, className, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
 
@@ -87,7 +91,7 @@ export const GuestbookDownloadAllButton: React.FC<{
   return (
     <Button
       variant="outline"
-      className={`lv-premium-shade h-11 gap-2 border border-[#472c1d] ${className || ''}`}
+      className={cn('lv-premium-shade h-11 gap-2 border border-[#472c1d]', className, isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
       onClick={run}
       disabled={busy || list.length === 0}
     >

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle, TriangleAlert, Camera } from 'lucide-react';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
+import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryPhotoBoothFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
+      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
         <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
       </div>
     );
@@ -77,6 +78,8 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
         noIndex
       />
       <FeatureWorkspaceLayout
+        backgroundAppearance="photo-video-sharing"
+        controlsAppearance="photo-video-sharing"
         title="Digital Photo Booth"
         description="Let guests take photos on their phone or tablet and send them directly to your event gallery."
         eventName={(selectedEvent as any)?.name}
@@ -89,7 +92,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
         headerAction={
           <Button
             variant="outline"
-            className="lv-premium-shade bg-white/10 text-white border-white/40 hover:bg-white hover:text-[#967A59]"
+            className={`lv-premium-shade text-white border ${managementStyles.glassAction}`}
             disabled={!boothUrl}
             onClick={() => boothUrl && window.open(boothUrl, '_blank', 'noopener,noreferrer')}
           >
@@ -98,13 +101,13 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
         }
       >
         {loading && !meta ? (
-          <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" strokeWidth={1.8} />
+          <Card className={`p-12 flex flex-col items-center justify-center gap-3 ${managementStyles.loadingGlassPanel}`}>
+            <LoaderCircle className={`animate-spin h-6 w-6 text-[#967A59] ${managementStyles.loadingGlassSpinner}`} strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground">Loading Digital Photo Booth…</p>
           </Card>
         ) : !meta ? (
-          <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <TriangleAlert className="h-8 w-8 text-muted-foreground" strokeWidth={1.8} />
+          <Card className={`p-10 flex flex-col items-center text-center gap-3 ${managementStyles.loadingGlassPanel}`}>
+            <TriangleAlert className={`h-8 w-8 text-muted-foreground ${managementStyles.loadingGlassSpinner}`} strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage the Digital Photo Booth.'}
             </p>
@@ -112,8 +115,8 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
         ) : (
           <div className="pb-page space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GalleryPhotoBoothStepsCard />
-              <GalleryPhotoBoothAccessCard meta={meta} />
+              <GalleryPhotoBoothStepsCard appearance="espresso-glass" />
+              <GalleryPhotoBoothAccessCard meta={meta} appearance="espresso-glass" />
             </div>
 
             {selectedEventId && (
@@ -123,11 +126,13 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
                 eventName={(selectedEvent as any)?.name}
                 eventDate={(selectedEvent as any)?.date}
                 onSave={updatePhotoBoothTemplate}
+                appearance="espresso-glass"
               />
             )}
 
             <GalleryGrid
               items={boothItems}
+              dark
               onDelete={deleteItem}
               onDeleteMany={deleteItems}
               onSetModeration={setModeration}
@@ -135,6 +140,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
               onBulkSetAlbum={bulkSetAlbum}
               boothSetOrder
               hideAlbumFeature
+              appearance="espresso-glass"
               eventName={(selectedEvent as any)?.name}
               title="Digital Photo Booth Captures"
               description="Review, organise, approve, hide and download photos taken in your Digital Photo Booth."
@@ -145,6 +151,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
                   eventName={(selectedEvent as any)?.name}
                   galleryTitle={meta.gallery_title}
                   className="!h-9"
+                  appearance="espresso-glass"
                 />
               }
             />

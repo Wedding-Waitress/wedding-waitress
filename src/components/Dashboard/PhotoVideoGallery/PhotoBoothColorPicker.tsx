@@ -3,6 +3,8 @@ import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/enhanced-button';
 import { Check, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 export interface ColorFamily {
   name: string;
@@ -26,14 +28,16 @@ export const PHOTO_BOOTH_COLOR_FAMILIES: ColorFamily[] = [
 interface Props {
   value: string;
   onChange: (hex: string) => void;
+  appearance?: 'default' | 'espresso-glass';
 }
 
-export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange }) => {
+export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const [open, setOpen] = React.useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="lv-premium-shade h-11 w-full justify-between font-normal">
+        <Button variant="outline" className={cn('lv-premium-shade h-11 w-full justify-between font-normal', isGlass && managementStyles.galleryControl)}>
           <span className="flex items-center gap-2 min-w-0">
             <span className="h-5 w-5 rounded border border-border shrink-0" style={{ backgroundColor: value }} />
             <span className="truncate">{value.toUpperCase()}</span>
@@ -41,11 +45,11 @@ export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange }) => {
           <ChevronDown className="h-4 w-4 opacity-60 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-[min(92vw,320px)] p-3 max-h-[60vh] overflow-y-auto">
+      <PopoverContent align="start" className={cn('w-[min(92vw,320px)] p-3 max-h-[60vh] overflow-y-auto', isGlass && managementStyles.gallerySelectContent)}>
         <div className="space-y-3">
           {PHOTO_BOOTH_COLOR_FAMILIES.map(fam => (
             <div key={fam.name}>
-              <p className="text-xs font-semibold text-[#1D1D1F] mb-1.5">{fam.name}</p>
+              <p className={cn('text-xs font-semibold text-[#1D1D1F] mb-1.5', isGlass && managementStyles.galleryViewHeading)}>{fam.name}</p>
               <div className="grid grid-cols-8 gap-1.5">
                 {fam.shades.map(hex => (
                   <button
@@ -66,7 +70,7 @@ export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange }) => {
             </div>
           ))}
           <div className="pt-1 border-t border-border">
-            <label className="text-xs font-semibold text-[#1D1D1F]">Custom colour</label>
+            <label className={cn('text-xs font-semibold text-[#1D1D1F]', isGlass && managementStyles.galleryViewHeading)}>Custom colour</label>
             <input
               type="color"
               value={value}

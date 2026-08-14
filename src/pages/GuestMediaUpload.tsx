@@ -325,7 +325,6 @@ export const GuestMediaUpload: React.FC = () => {
 
   const theme = resolveGalleryTheme(gallery);
   const accent = theme.themeColor;
-  const accentHover = theme.themeColorHover;
   const accentSoftBg = `${accent}1A`;
   // Lower page section always sits on the dark leather texture -> force light text.
   const lowerTheme = { ...theme, isDark: true, textClass: 'text-white', mutedClass: 'text-white', borderClass: 'border-white/15' };
@@ -596,10 +595,7 @@ export const GuestMediaUpload: React.FC = () => {
           <Button
             type="button"
             onClick={scrollToTabSection}
-            className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"
-            style={{ backgroundColor: accent }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accentHover; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = accent; }}
+            className={`lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl ${publicUploadStyles.heroUploadAction}`}
           >
             <Upload className="h-5 w-5 mr-2" />
             {heroButtonLabel}

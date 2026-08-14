@@ -12,11 +12,14 @@ import { GalleryBackgroundGalleryModal } from './GalleryBackgroundGalleryModal';
 import { GalleryBackgroundColorPicker } from './GalleryBackgroundColorPicker';
 import { normalizeHexColor } from '@/lib/backgroundColorPalette';
 import canvaLogo from '@/assets/canva-logo.png';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 interface Props {
   eventId: string;
   meta: GalleryMeta;
   onSave: (b: GalleryBrandingSettings) => Promise<void>;
+  appearance?: 'default' | 'espresso-glass';
 }
 
 type BgMode = 'preset' | 'color' | 'image';
@@ -31,7 +34,8 @@ const DEFAULT_BG_COLOR = '#F8F5F0';
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ACCEPT = 'image/jpeg,image/png,image/webp';
 
-export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) => {
+export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [bg, setBg] = useState<'light' | 'dark' | 'cream'>(meta.background_style || 'cream');
   const [bgMode, setBgMode] = useState<BgMode>(meta.background_mode || 'preset');
@@ -148,12 +152,12 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
         : { backgroundColor: BG_OPTIONS.find(o => o.value === bg)?.sample || '#F8F5F0' };
 
   return (
-    <Card className="h-full p-4 sm:p-6 space-y-6 overflow-hidden">
+    <Card className={cn('h-full p-4 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="min-w-0">
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <Palette className="h-5 w-5 text-[#967A59] shrink-0" strokeWidth={1.8} /> Branding &amp; Theme
+        <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+          <Palette className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Branding &amp; Theme
         </h2>
-        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Customise the look of your guest gallery. Buttons and accents always use the Wedding Waitress
           gold ({DEFAULT_THEME_COLOR}).
         </p>
@@ -162,7 +166,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
       <div className="grid grid-cols-1 gap-6 items-start">
         {/* LEFT — Event Branding */}
         <section className="space-y-5 min-w-0">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-[#967A59]">Event Branding</h3>
+          <h3 className={cn('text-sm font-bold uppercase tracking-wide text-[#967A59]', isGlass && managementStyles.galleryViewSectionLabel)}>Event Branding</h3>
 
           <ImagePicker
             label="Cover Image / Logo (optional)"
@@ -172,6 +176,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
             inputRef={coverInput}
             onPick={(f) => uploadImage('cover', f)}
             onClear={() => setCoverUrl(null)}
+            appearance={appearance}
           />
 
           <div className="hidden" aria-hidden="true">
@@ -339,11 +344,11 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave }) 
       </div>
 
       <div className="flex flex-wrap justify-between gap-2 pt-1">
-        <Button variant="outline" className="lv-premium-shade h-11" onClick={handleReset} disabled={saving}>
+        <Button variant="outline" className={cn('lv-premium-shade h-11', isGlass && managementStyles.galleryControl)} onClick={handleReset} disabled={saving}>
           Reset to default
         </Button>
         <Button
-          className="lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white"
+          className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && managementStyles.galleryViewPrimaryAction)}
           variant="default"
           disabled={!dirty || saving || !!uploading}
           onClick={handleSave}
@@ -372,12 +377,15 @@ interface ImagePickerProps {
   onPick: (f: File | null) => void;
   onClear: () => void;
   aspect?: 'cover' | 'contain';
+  appearance?: 'default' | 'espresso-glass';
 }
 
-const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, inputRef, onPick, onClear, aspect = 'cover' }) => (
+const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, inputRef, onPick, onClear, aspect = 'cover', appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
+  return (
   <div>
-    <Label className="text-sm">{label}</Label>
-    <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
+    <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>{label}</Label>
+    <p className={cn('text-xs text-muted-foreground mt-0.5', isGlass && managementStyles.gallerySecondaryText)}>{hint}</p>
     <input
       ref={inputRef}
       type="file"
@@ -385,7 +393,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
       className="hidden"
       onChange={(e) => onPick(e.target.files?.[0] || null)}
     />
-    <div className="mt-2 rounded-md border border-border bg-muted/40 overflow-hidden">
+    <div className={cn('mt-2 rounded-md border border-border bg-muted/40 overflow-hidden', isGlass && managementStyles.galleryViewInsetPanel)}>
       {url ? (
         <div className="relative">
           <img
@@ -403,7 +411,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
           </button>
         </div>
       ) : (
-        <div className="h-32 flex flex-col items-center justify-center text-muted-foreground">
+        <div className={cn('h-32 flex flex-col items-center justify-center text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
           <ImagePlus className="h-6 w-6 mb-1" strokeWidth={1.8} />
           <span className="text-xs">No image</span>
         </div>
@@ -414,7 +422,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
         type="button"
         variant="outline"
         size="sm"
-        className="lv-premium-shade flex-1"
+        className={cn('lv-premium-shade flex-1', isGlass && managementStyles.galleryControl)}
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
       >
@@ -427,6 +435,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, 
       )}
     </div>
   </div>
-);
+  );
+};
 
 export default GalleryBrandingCard;

@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import { LoaderCircle, TriangleAlert, Eye } from 'lucide-react';
+import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryViewFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export const GalleryViewFeaturePage: React.FC = () => {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
+      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
         <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
       </div>
     );
@@ -65,6 +66,8 @@ export const GalleryViewFeaturePage: React.FC = () => {
       <SeoHead title="Photo & Video Gallery View | Wedding Waitress" description="Control how guests access, view and experience your shared gallery." noIndex />
       <FeatureWorkspaceLayout
         brownOutline
+        backgroundAppearance="photo-video-sharing"
+        controlsAppearance="photo-video-sharing"
         title="Photo & Video Gallery View"
         description="Control how guests access, view and experience your shared gallery."
         eventName={(selectedEvent as any)?.name}
@@ -78,7 +81,7 @@ export const GalleryViewFeaturePage: React.FC = () => {
             type="button"
             onClick={() => guestGalleryUrl && window.open(guestGalleryUrl, '_blank', 'noopener,noreferrer')}
             disabled={!guestGalleryUrl}
-            className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-transparent px-4 py-1.5 min-h-[44px] text-sm font-bold text-white transition-all duration-200 hover:bg-white hover:text-[#967A59] active:translate-y-[1px] disabled:opacity-50"
+            className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 min-h-[44px] text-sm font-medium text-white transition-all duration-200 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e4b97e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#28140e] disabled:opacity-50 ${managementStyles.glassAction}`}
           >
             <Eye className="h-4 w-4 shrink-0" strokeWidth={1.8} /> Preview as Guest
           </button>
@@ -101,19 +104,20 @@ export const GalleryViewFeaturePage: React.FC = () => {
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
               <div className="h-full [&>*]:h-full">
-                <GalleryBrandingCard eventId={selectedEventId!} meta={meta} onSave={updateBranding} />
+                <GalleryBrandingCard eventId={selectedEventId!} meta={meta} onSave={updateBranding} appearance="espresso-glass" />
               </div>
-              <GalleryViewAccessCard meta={meta} guestUrl={guestGalleryUrl} />
+              <GalleryViewAccessCard meta={meta} guestUrl={guestGalleryUrl} appearance="espresso-glass" />
               <div className="h-full [&>*]:h-full">
                 <GalleryPasswordCard
                   passwordEnabled={meta.password_enabled}
                   hasPassword={meta.has_password}
                   onSave={setPassword}
+                  appearance="espresso-glass"
                 />
               </div>
             </div>
 
-            <p className="text-sm text-white/80 break-words">
+            <p className={`text-sm break-words ${managementStyles.galleryViewFootnote}`}>
               These appearance settings are shared across your guest-facing gallery experiences.
             </p>
           </div>

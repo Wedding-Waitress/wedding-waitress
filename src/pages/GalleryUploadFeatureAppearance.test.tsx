@@ -178,6 +178,30 @@ describe('Photo & Video Sharing management appearance', () => {
     expect(mediaTile?.querySelector('.aspect-square')).toBeInTheDocument();
   });
 
+  it('uses the management espresso glass treatment while the gallery is loading', async () => {
+    mocks.gallery.mockReturnValue({ ...gallery, meta: null, items: [], loading: true });
+    const { container } = renderPage();
+
+    const panel = await waitFor(() => {
+      const element = container.querySelector('[data-photo-video-loading-panel]');
+      expect(element).toBeInTheDocument();
+      return element as HTMLElement;
+    });
+    expect(panel).toHaveClass(managementStyles.loadingGlassPanel, 'p-12', 'rounded-xl');
+    expect(panel).not.toHaveClass('bg-white', 'ww-box');
+    expect(within(panel).getByText('Loading gallery…')).toHaveClass(managementStyles.loadingGlassText);
+    expect(panel.querySelector('svg')).toHaveClass(managementStyles.loadingGlassSpinner, 'animate-spin');
+
+    const css = fs.readFileSync(
+      path.join(process.cwd(), 'src/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css'),
+      'utf8',
+    );
+    expect(css).toMatch(/\.loadingGlassPanel[\s\S]*border:\s*1px solid rgba\(201, 151, 93, 0\.38\)[\s\S]*linear-gradient\(180deg, rgba\(101, 57, 40, 0\.72\)/);
+    expect(css).toMatch(/\.loadingGlassPanel[\s\S]*inset 0 1px 0 rgba\(255, 239, 218, 0\.14\)/);
+    expect(css).toMatch(/\.loadingGlassSpinner[\s\S]*color:\s*#d9b77f/);
+    expect(css).toMatch(/\.loadingGlassText[\s\S]*color:\s*#f3e9df/);
+  });
+
   it('defines fine-pointer, touch and reduced-motion interaction states without targeting media artwork', () => {
     const css = fs.readFileSync(
       path.join(process.cwd(), 'src/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css'),

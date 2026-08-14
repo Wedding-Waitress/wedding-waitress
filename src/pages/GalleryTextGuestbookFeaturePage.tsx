@@ -14,6 +14,7 @@ import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoG
 import { Button } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { LoaderCircle, TriangleAlert, ExternalLink } from 'lucide-react';
+import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryTextGuestbookFeaturePage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#472c1d' }}>
+      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
         <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
       </div>
     );
@@ -67,6 +68,8 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
       />
       <FeatureWorkspaceLayout
         brownOutline
+        backgroundAppearance="photo-video-sharing"
+        controlsAppearance="photo-video-sharing"
         title="Digital Guestbook"
         description="Read and manage private written, audio and video messages and well wishes from your guests."
         eventName={(selectedEvent as any)?.name}
@@ -78,7 +81,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         headerAction={
           <Button
             variant="outline"
-            className="lv-premium-shade bg-white/10 text-white border-white/40 hover:bg-white hover:text-[#967A59]"
+            className={`lv-premium-shade text-white border ${managementStyles.glassAction}`}
             disabled={!guestUrl}
             onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
           >
@@ -87,13 +90,13 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         }
       >
         {loading && !meta ? (
-          <Card className="p-12 flex flex-col items-center justify-center gap-3">
-            <LoaderCircle className="animate-spin h-6 w-6 text-[#967A59]" strokeWidth={1.8} />
+          <Card className={`p-12 flex flex-col items-center justify-center gap-3 ${managementStyles.loadingGlassPanel}`}>
+            <LoaderCircle className={`animate-spin h-6 w-6 text-[#967A59] ${managementStyles.loadingGlassSpinner}`} strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground">Loading Digital Guestbook…</p>
           </Card>
         ) : !meta ? (
-          <Card className="p-10 flex flex-col items-center text-center gap-3">
-            <TriangleAlert className="h-8 w-8 text-muted-foreground" strokeWidth={1.8} />
+          <Card className={`p-10 flex flex-col items-center text-center gap-3 ${managementStyles.loadingGlassPanel}`}>
+            <TriangleAlert className={`h-8 w-8 text-muted-foreground ${managementStyles.loadingGlassSpinner}`} strokeWidth={1.8} />
             <p className="text-sm text-muted-foreground break-words">
               {error || 'Select an event on the Photo & Video Sharing page to manage the Digital Guestbook.'}
             </p>
@@ -101,8 +104,8 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         ) : (
           <div className="space-y-6 sm:space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GalleryTextGuestbookStepsCard />
-              <GalleryTextGuestbookAccessCard meta={meta} />
+              <GalleryTextGuestbookStepsCard appearance="espresso-glass" />
+              <GalleryTextGuestbookAccessCard meta={meta} appearance="espresso-glass" />
             </div>
 
 
@@ -116,6 +119,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
               error={error}
               onSetItemModeration={setModeration}
               onSetGuestbookShare={setGuestbookShare}
+              appearance="espresso-glass"
             />
           </div>
         )}

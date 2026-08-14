@@ -154,7 +154,12 @@ describe('guest-facing Photo & Video Sharing Upload experience', () => {
       'object-contain',
     );
     expect(screen.getByText('Help us capture every memory from today')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Upload Photos & Videos' })).toHaveClass('mt-5', 'h-14', 'rounded-full');
+    expect(screen.getByRole('button', { name: 'Upload Photos & Videos' })).toHaveClass(
+      'mt-5',
+      'h-14',
+      'rounded-full',
+      publicUploadStyles.heroUploadAction,
+    );
     expect(screen.getByRole('button', { name: 'Scroll to explore' })).toBeInTheDocument();
     expect(container.querySelector('#gallery-explore')).toHaveStyle({ backgroundColor: '#000000' });
 
@@ -165,18 +170,55 @@ describe('guest-facing Photo & Video Sharing Upload experience', () => {
     const activeTab = within(navigation as HTMLElement).getByRole('button', { name: 'Upload' });
     expect(activeTab).toHaveAttribute('aria-current', 'page');
     expect(activeTab).toHaveClass('min-w-0', 'min-h-[56px]', publicUploadStyles.navigationTabActive);
+    ['Gallery', 'Guestbook', 'Photo Booth'].forEach(name => {
+      expect(within(navigation as HTMLElement).getByRole('button', { name })).toHaveClass(
+        publicUploadStyles.navigationTabInactive,
+      );
+    });
 
     const panel = container.querySelector('[data-public-upload-surface="form"]');
     expect(panel).toHaveClass(publicUploadStyles.uploadPanel);
     expect(panel?.tagName).toBe('SECTION');
     expect(panel).not.toHaveClass('ww-box', 'bg-white', 'text-foreground');
     expect(screen.getByRole('button', { name: 'Choose Photos or Videos' })).toHaveClass(publicUploadStyles.secondaryAction);
+    expect(screen.getByRole('button', { name: 'Share Photos or Videos' })).toHaveClass(publicUploadStyles.primaryAction);
     expect(screen.getByRole('button', { name: 'Share Photos or Videos' })).toBeDisabled();
     expect(screen.queryByText('Choose files')).not.toBeInTheDocument();
 
     const album = screen.getByLabelText(/Album/) as HTMLSelectElement;
     expect(album).toHaveValue('Other');
     expect(within(album).getAllByRole('option').map(option => option.textContent)).toEqual(['Ceremony', 'Reception', 'Other']);
+  });
+
+  it('keeps one continuous segmented navigation shell with exactly one moving active capsule', async () => {
+    const { container } = renderPage();
+    await screen.findByRole('heading', { name: gallery.event_name });
+
+    const navigation = container.querySelector('[data-public-upload-navigation]') as HTMLElement;
+    expect(navigation).toHaveClass(publicUploadStyles.navigationShell, 'flex-nowrap', 'overflow-hidden');
+
+    const tabNames = ['Upload', 'Gallery', 'Guestbook', 'Photo Booth'];
+    for (const selectedName of tabNames) {
+      fireEvent.click(within(navigation).getByRole('button', { name: selectedName }));
+      await waitFor(() => {
+        const tabs = tabNames.map(name => within(navigation).getByRole('button', { name }));
+        const activeTabs = tabs.filter(tab => tab.getAttribute('aria-current') === 'page');
+        expect(activeTabs).toHaveLength(1);
+        expect(activeTabs[0]).toHaveAccessibleName(selectedName);
+        expect(activeTabs[0]).toHaveClass(publicUploadStyles.navigationTabActive);
+        tabs.filter(tab => tab !== activeTabs[0]).forEach(tab => {
+          expect(tab).toHaveClass(publicUploadStyles.navigationTabInactive);
+          expect(tab).not.toHaveAttribute('aria-current');
+        });
+      });
+    }
+
+    const css = fs.readFileSync(path.join(process.cwd(), 'src/pages/guestMediaUpload.module.css'), 'utf8');
+    const inactiveBlock = css.match(/\.navigationTabInactive\s*\{([\s\S]*?)\}/)?.[1] ?? '';
+    expect(inactiveBlock).toMatch(/border:\s*0/);
+    expect(inactiveBlock).toMatch(/background:\s*transparent/);
+    expect(inactiveBlock).toMatch(/box-shadow:\s*none/);
+    expect(css).toMatch(/\.navigationTabActive[\s\S]*linear-gradient\(180deg, rgba\(105, 59, 42, 0\.94\)[\s\S]*inset 0 0 0 1px rgba\(231, 185, 129, 0\.48\)/);
   });
 
   it('uses singular and plural photo-or-video wording and preserves album submission and removal', async () => {
@@ -254,13 +296,17 @@ describe('guest-facing Photo & Video Sharing Upload experience', () => {
     expect(css).toContain('border: 1px solid rgba(201, 151, 93, 0.38) !important');
     expect(css).toContain('linear-gradient(180deg, rgba(101, 57, 40, 0.72) 0%, rgba(42, 23, 17, 0.76) 100%)');
     expect(css).toMatch(/\.progressFill[\s\S]*background-color:\s*#22c55e\s*!important/);
+    expect(css).toMatch(/\.heroUploadAction\.heroUploadAction[\s\S]*color:\s*#fff\s*!important[\s\S]*linear-gradient\(180deg, rgba\(77, 43, 31, 0\.92\)/);
+    expect(css).toMatch(/\.navigationTabActive[\s\S]*color:\s*#fff[\s\S]*linear-gradient\(180deg, rgba\(105, 59, 42, 0\.94\)/);
+    expect(css).toMatch(/\.navigationTabInactive[\s\S]*color:\s*rgba\(255, 255, 255, 0\.88\)/);
+    expect(css).toMatch(/\.primaryAction:disabled[\s\S]*background-color:\s*#22c55e\s*!important/);
     expect(css).toMatch(/@media \(hover: hover\) and \(pointer: fine\)[\s\S]*\.secondaryAction:hover[\s\S]*\.primaryAction:hover/);
     expect(css).toMatch(/@media \(hover: none\), \(pointer: coarse\)[\s\S]*\.navigationTab:active/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*\.progressFill[\s\S]*transition:\s*none\s*!important/);
     expect(page).toContain("const DEFAULT_HERO_BG = '/default-hero-bg.png'");
     expect(page).toContain('w-[80vw] h-[80vw] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] lg:w-[460px] lg:h-[460px]');
     expect(page).toContain('className="mt-5 text-4xl sm:text-6xl font-semibold leading-[1.1] tracking-tight text-white"');
-    expect(page).toContain('className="lv-premium-shade mt-5 h-14 px-8 rounded-full text-white text-base font-semibold shadow-xl"');
+    expect(page).toContain('shadow-xl ${publicUploadStyles.heroUploadAction}');
     expect(page).toContain('<div id="gallery-explore" className="px-4 py-10 scroll-mt-4 min-h-screen" style={{ backgroundColor: \'#000000\' }}>');
     expect(page).toContain("reasonText: 'Photo or video could not be loaded from device/iCloud'");
     expect(page).not.toContain("reasonText: 'File could not be loaded from device/iCloud'");

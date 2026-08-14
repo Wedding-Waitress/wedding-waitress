@@ -10,8 +10,11 @@ import { Copy, Download, QrCode as QrIcon, TriangleAlert, Camera, LoaderCircle }
 import { useToast } from '@/hooks/use-toast';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
-export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ meta }) => {
+export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta; appearance?: 'default' | 'espresso-glass' }> = ({ meta, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [busy, setBusy] = useState<null | 'launch' | 'download'>(null);
@@ -76,12 +79,12 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
 
 
   return (
-    <Card className="h-full p-5 sm:p-6 space-y-6 overflow-hidden">
+    <Card className={cn('h-full p-5 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="min-w-0">
-        <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-          <QrIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Digital Photo Booth Access
+        <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+          <QrIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Digital Photo Booth Access
         </h2>
-        <p className="text-sm mt-1 break-words" style={{ color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Share the QR code or link guests use to open the Digital Photo Booth on their phone or tablet.
         </p>
       </div>
@@ -89,9 +92,9 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
       <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
         <div className="flex justify-center">
           {qrDataUrl ? (
-            <img src={qrDataUrl} alt="Digital Photo Booth QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+            <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}><img src={qrDataUrl} alt="Digital Photo Booth QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" /></div>
           ) : (
-            <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border" />
+            <div className={cn('w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border', isGlass && managementStyles.galleryViewInsetPanel)} />
           )}
         </div>
 
@@ -104,23 +107,23 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
           ) : (
             <>
               <div>
-                <Label className="text-sm">Event Digital Photo Booth Link</Label>
-                <Input value={boothUrl} readOnly className="h-11 text-sm mt-1.5 w-full" />
+                <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>Event Digital Photo Booth Link</Label>
+                <Input value={boothUrl} readOnly className={cn('h-11 text-sm mt-1.5 w-full', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
               </div>
-              <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={copy}>
+              <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={copy}>
                 <Copy className="h-4 w-4 mr-1" /> Copy
               </Button>
             </>
           )}
 
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={launch} disabled={!boothUrl || busy !== null}>
+          <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={launch} disabled={!boothUrl || busy !== null}>
             {busy === 'launch' ? (
               <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Launching…</>
             ) : (
               <><Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth</>
             )}
           </Button>
-          <Button variant="outline" className="lv-premium-shade h-11 w-full" onClick={downloadQr} disabled={!qrDataUrl || busy !== null}>
+          <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl || busy !== null}>
             {busy === 'download' ? (
               <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Downloading…</>
             ) : (
@@ -130,7 +133,7 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta }> = ({ m
 
           <p className="sr-only" role="status" aria-live="polite">{liveMessage}</p>
 
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className={cn('text-xs text-muted-foreground mt-1', isGlass && managementStyles.gallerySecondaryText)}>
             This uses your existing event gallery link — no separate token or guest page is created.
           </p>
 

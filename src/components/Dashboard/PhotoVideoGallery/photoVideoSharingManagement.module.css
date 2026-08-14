@@ -65,6 +65,276 @@
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
 
+.galleryViewHeading {
+  color: #fff !important;
+}
+
+.galleryViewSectionLabel {
+  color: #d9b77f !important;
+}
+
+.galleryViewInsetPanel.galleryViewInsetPanel {
+  color: #e8ddd2;
+  border-color: rgba(211, 161, 101, 0.42) !important;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    0 3px 9px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.galleryViewInsetPanel :global(svg) {
+  color: #d9b77f;
+}
+
+.galleryViewQrFrame {
+  display: inline-flex;
+  padding: 0.375rem;
+  border: 1px solid rgba(211, 161, 101, 0.52);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 5px 12px rgba(2, 1, 1, 0.26);
+}
+
+.galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction {
+  color: #fff !important;
+  border: 1px solid rgba(134, 239, 172, 0.42) !important;
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 5px 12px rgba(3, 62, 28, 0.28) !important;
+  filter: none !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease !important;
+}
+
+.galleryViewPrimaryAction :global(svg) {
+  color: #fff !important;
+}
+
+.galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:focus-visible {
+  outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 0 2px rgba(229, 183, 124, 0.82),
+    0 0 0 4px rgba(13, 7, 5, 0.94) !important;
+}
+
+.galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:active {
+  filter: brightness(0.96) !important;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.2),
+    0 2px 5px rgba(3, 62, 28, 0.24) !important;
+}
+
+.galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:disabled {
+  color: rgba(255, 255, 255, 0.76) !important;
+  border-color: rgba(134, 239, 172, 0.24) !important;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.48) 0%, rgba(22, 163, 74, 0.42) 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.galleryViewToggle[data-state='checked'] {
+  background-color: #22c55e !important;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.galleryViewToggle[data-state='unchecked'] {
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.72), rgba(18, 10, 8, 0.88)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+}
+
+.galleryViewIconButton {
+  color: #d9b77f !important;
+  border-radius: 0.375rem;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.galleryViewIconButton:hover {
+  color: #fff !important;
+}
+
+.galleryViewIconButton:focus-visible {
+  color: #fff !important;
+  outline: 2px solid rgba(229, 183, 124, 0.78);
+  outline-offset: 2px;
+}
+
+.galleryViewFootnote {
+  color: #e8ddd2 !important;
+}
+
+.guestbookStepIcon {
+  color: #d9b77f;
+  border: 1px solid rgba(211, 161, 101, 0.42);
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    0 3px 9px rgba(0, 0, 0, 0.22);
+}
+
+.guestbookMessagesPanel {
+  color: #fff;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.guestbookStatePanel {
+  color: #e8ddd2;
+  border: 1px solid rgba(211, 161, 101, 0.42);
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
+}
+
+.guestbookStatePanel :global(.text-muted-foreground),
+.guestbookStatePanel :global(svg:not(.text-destructive)) {
+  color: #d9b77f !important;
+}
+
+.guestbookMessageCard {
+  color: #fff;
+  border-color: rgba(211, 161, 101, 0.42) !important;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    0 5px 12px rgba(2, 1, 1, 0.24);
+  transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.guestbookMessageCardSelected {
+  border-color: rgba(235, 193, 140, 0.72) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 245, 230, 0.18),
+    0 0 0 2px rgba(229, 183, 124, 0.38),
+    0 6px 15px rgba(3, 1, 1, 0.28) !important;
+}
+
+.guestbookMessagePreview {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(77, 43, 31, 0.74) 0%, rgba(18, 10, 8, 0.8) 100%) !important;
+  transition: box-shadow 160ms ease, filter 160ms ease;
+}
+
+.guestbookMessagePreview:focus-visible {
+  z-index: 1;
+  outline: 2px solid rgba(229, 183, 124, 0.72);
+  outline-offset: -3px;
+}
+
+.guestbookMessageBody {
+  color: #fff;
+  border-top: 1px solid rgba(211, 161, 101, 0.18);
+  background: transparent;
+}
+
+.guestbookDialog.guestbookDialog {
+  color: #fff;
+  border: 1px solid rgba(190, 137, 79, 0.3) !important;
+  background-color: rgba(8, 4, 3, 0.94) !important;
+  background-image: linear-gradient(
+    145deg,
+    rgba(57, 28, 18, 0.38) 0%,
+    rgba(24, 12, 9, 0.56) 43%,
+    rgba(9, 5, 4, 0.82) 72%,
+    rgba(5, 3, 2, 0.94) 100%
+  ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    0 20px 46px rgba(2, 1, 1, 0.46) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.guestbookDialog :global(.text-muted-foreground),
+.guestbookDialog :global(.text-\[\#6E6E73\]) {
+  color: #e8ddd2 !important;
+}
+
+.guestbookDialog :global(.bg-muted\/40) {
+  border: 1px solid rgba(211, 161, 101, 0.42);
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%) !important;
+}
+
+.photoBoothTemplates {
+  color: #fff;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.photoBoothTemplates :global(.text-muted-foreground),
+.photoBoothTemplates :global(.text-\[\#6E6E73\]) {
+  color: #e8ddd2 !important;
+}
+
+.photoBoothTemplates :global(.text-\[\#1D1D1F\]) {
+  color: #fff !important;
+}
+
+.photoBoothTemplates :global(.bg-muted\/40) {
+  color: #e8ddd2;
+  border-color: rgba(211, 161, 101, 0.42) !important;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+}
+
+.photoBoothTemplates :global(label),
+.photoBoothTemplates :global(h4) {
+  color: #fff;
+}
+
+.photoBoothTemplates :global(fieldset:disabled) {
+  opacity: 0.68 !important;
+}
+
+.photoBoothTemplates :global(fieldset:disabled) .galleryControl {
+  color: #bfae9f !important;
+}
+
+.slideshowWorkspace {
+  color: #fff;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.slideshowWorkspace :global(.text-muted-foreground),
+.slideshowWorkspace :global(.text-\[\#6E6E73\]) {
+  color: #e8ddd2 !important;
+}
+
+.slideshowWorkspace :global(.text-\[\#1D1D1F\]),
+.slideshowWorkspace :global(label) {
+  color: #fff !important;
+}
+
+.loadingGlassPanel {
+  color: #fff;
+  border: 1px solid rgba(201, 151, 93, 0.38);
+  background: linear-gradient(180deg, rgba(101, 57, 40, 0.72) 0%, rgba(42, 23, 17, 0.76) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 12px 26px rgba(3, 1, 1, 0.32);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.loadingGlassSpinner {
+  color: #d9b77f;
+}
+
+.loadingGlassText {
+  color: #f3e9df;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+}
+
+.loadingGlassPanel :global(.text-muted-foreground) {
+  color: #f3e9df !important;
+}
+
 .upperGlassField.upperGlassField {
   color: #f7f1eb !important;
   -webkit-text-fill-color: #f7f1eb !important;
@@ -320,6 +590,25 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:hover:not(:disabled) {
+    border-color: rgba(187, 247, 208, 0.62) !important;
+    filter: brightness(1.04) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 6px 15px rgba(3, 62, 28, 0.34) !important;
+  }
+
+  .guestbookMessageCard:hover {
+    border-color: rgba(231, 185, 129, 0.66) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.14),
+      0 8px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .guestbookMessagePreview:hover {
+    filter: brightness(1.035);
+  }
+
   .galleryControl.galleryControl.galleryControl.galleryControl:hover:not(:active) {
     border-color: rgba(231, 185, 129, 0.66) !important;
     box-shadow:
@@ -343,6 +632,17 @@
 }
 
 @media (hover: none), (pointer: coarse) {
+  .galleryViewPrimaryAction.galleryViewPrimaryAction.galleryViewPrimaryAction:active:not(:disabled) {
+    filter: brightness(0.96) !important;
+  }
+
+  .guestbookMessageCard:active {
+    border-color: rgba(222, 173, 115, 0.6) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.08),
+      0 3px 8px rgba(0, 0, 0, 0.22);
+  }
+
   .galleryControl.galleryControl.galleryControl.galleryControl:active {
     border-color: rgba(222, 173, 115, 0.6) !important;
   }
@@ -365,6 +665,18 @@
   .galleryClearControl,
   .galleryMediaTile,
   .gallerySelectContent {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .galleryViewPrimaryAction,
+  .galleryViewIconButton {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .guestbookMessageCard,
+  .guestbookMessagePreview {
     transition: none !important;
     animation: none !important;
   }

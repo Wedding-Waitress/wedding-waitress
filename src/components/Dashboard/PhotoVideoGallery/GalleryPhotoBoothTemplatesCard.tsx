@@ -21,6 +21,8 @@ import {
 } from '@/lib/photoBoothTemplate';
 import { isLibraryTemplateUrl, findLibraryTemplate } from '@/lib/photoBoothBackgroundTemplates';
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
+import { cn } from '@/lib/utils';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 
 
@@ -87,9 +89,11 @@ interface Props {
   eventName?: string | null;
   eventDate?: string | null;
   onSave: (kind: 'single' | 'strip', s: PhotoBoothTemplateSettings) => Promise<void>;
+  appearance?: 'default' | 'espresso-glass';
 }
 
-export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta, eventName, eventDate, onSave }) => {
+export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta, eventName, eventDate, onSave, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const dateText = formatEventDate(eventDate || null);
   const eventTitle = (eventName || '').trim();
@@ -251,11 +255,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
   const actionRow = (
     <div className="flex justify-between gap-2 flex-wrap pt-1">
-      <Button variant="outline" className="lv-premium-shade" onClick={handleReset} disabled={saving || !!uploading}>
+      <Button variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={handleReset} disabled={saving || !!uploading}>
         <RotateCcw className="h-4 w-4 mr-1" /> Reset to default
       </Button>
       <Button
-        className="lv-premium-shade font-bold text-white border-0 bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] active:translate-y-px shadow-[0_4px_10px_-2px_rgba(22,163,74,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-all"
+        className={cn('lv-premium-shade font-bold text-white border-0 bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] active:translate-y-px shadow-[0_4px_10px_-2px_rgba(22,163,74,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-all', isGlass && managementStyles.galleryViewPrimaryAction)}
         disabled={!dirty || saving || !!uploading}
         onClick={handleSave}
       >
@@ -266,7 +270,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   );
 
   return (
-    <div className="space-y-6">
+    <div className={cn('space-y-6', isGlass && managementStyles.photoBoothTemplates)} data-appearance={isGlass ? appearance : undefined}>
       {/* Page-level heading, directly on the brown page background */}
       <div className="text-center px-2 py-2 sm:py-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-white">Custom Photo Booth Customisation</h2>
@@ -275,35 +279,37 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </p>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start lg:items-stretch">
       {/* ── Section 1: Photo Strip Background ───────────────────────────── */}
-      <Card className="p-5 space-y-4">
+      <Card className={cn('p-5 space-y-4 lg:p-4 lg:space-y-0 lg:gap-3 lg:h-full lg:flex lg:flex-col', isGlass && managementStyles.glassCard)}>
         <div>
-          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <Palette className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Strip Background
+          <h3 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+            <Palette className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Photo Strip Background
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Choose one background for the whole photo strip. The four photo positions and the footer stay on top.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-3 items-stretch">
           {/* 1. Background colour */}
-          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+          <div className={cn(`rounded-lg border bg-background p-3.5 lg:p-3 lg:col-span-2 flex flex-col gap-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
             <div className="flex items-center justify-between gap-2">
               <h4 className="text-sm font-semibold text-[#1D1D1F]">Background Colour</h4>
               {bgMode === 'colour' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
             </div>
-            <p className="text-xs text-muted-foreground lg:min-h-[72px]">
+            <p className="text-xs text-muted-foreground">
               A single solid colour behind the whole photo strip. Pick a shade or enter an exact colour code.
             </p>
             <div className="mt-auto space-y-2">
-              <div className="w-full h-16 rounded-md border border-border overflow-hidden" style={{ backgroundColor: style.bgColor }} />
+              <div className="w-full h-16 lg:h-12 rounded-md border border-border overflow-hidden" style={{ backgroundColor: style.bgColor }} />
               <PhotoBoothColorPicker
                 value={style.bgColor}
                 onChange={(hex) => { setStyle(s => ({ ...s, bgColor: hex })); setTpl(null); }}
+                appearance={appearance}
               />
               {bgMode !== 'colour' && (
-                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setTpl(null)}>
+                <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)} onClick={() => setTpl(null)}>
                   Use this colour
                 </Button>
               )}
@@ -311,16 +317,16 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
           {/* 2. Template library */}
-          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+          <div className={cn(`rounded-lg border bg-background p-3.5 lg:p-3 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
             <div className="flex items-center justify-between gap-2">
               <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
               {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
             </div>
-            <p className="text-xs text-muted-foreground lg:min-h-[72px]">
+            <p className="text-xs text-muted-foreground">
               Wedding Waitress templates, ready to use. Browse the library to pick one.
             </p>
             <div className="mt-auto space-y-2">
-              <div className="w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+              <div className="w-full h-16 lg:h-12 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
                 {libraryTemplate ? (
                   <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" className="w-full h-full object-contain" />
                 ) : (
@@ -330,11 +336,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                   </>
                 )}
               </div>
-              <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setLibraryOpen(true)}>
+              <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)} onClick={() => setLibraryOpen(true)}>
                 Browse Template Library
               </Button>
               {libraryTemplate && (
-                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9 text-[#B42318]" onClick={() => setTpl(null)}>
+                <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade w-full h-9 text-[#B42318]', isGlass && managementStyles.galleryControl)} onClick={() => setTpl(null)}>
                   Remove Template
                 </Button>
               )}
@@ -342,12 +348,12 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
           {/* 3. Custom template */}
-          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
+          <div className={cn(`rounded-lg border bg-background p-3.5 lg:p-3 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
             <div className="flex items-center justify-between gap-2">
               <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
               {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
             </div>
-            <p className="text-xs text-muted-foreground lg:min-h-[72px]">
+            <p className="text-xs text-muted-foreground">
               <span className="font-medium text-[#1D1D1F]">1440 × 2000 px</span> JPEG (.jpg / .jpeg), vertical, approx. 122 × 169 mm at 300 DPI. It becomes the complete background of the final two-strip image.
             </p>
             <div className="mt-auto space-y-2">
@@ -358,7 +364,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 className="hidden"
                 onChange={(e) => upload('template', e.target.files?.[0] || null)}
               />
-              <div className="relative w-full h-16 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+              <div className="relative w-full h-16 lg:h-12 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
                 {customTpl ? (
                   <>
                     <img src={customTpl} alt="" className="w-full h-full object-contain bg-white" />
@@ -382,7 +388,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 type="button"
                 variant="outline"
                 size="sm"
-                className="lv-premium-shade w-full h-9"
+                className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)}
                 onClick={() => tplInput.current?.click()}
                 disabled={uploading === 'template'}
               >
@@ -391,7 +397,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                   : <><Upload className="h-4 w-4 mr-1" /> Choose File</>}
               </Button>
               {customTpl && bgMode !== 'custom' && (
-                <Button type="button" variant="outline" size="sm" className="lv-premium-shade w-full h-9" onClick={() => setTpl(customTpl)}>
+                <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)} onClick={() => setTpl(customTpl)}>
                   Use my custom template
                 </Button>
               )}
@@ -399,64 +405,72 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
         </div>
 
-        {actionRow}
+        <div className="lg:mt-auto">
+          {actionRow}
+        </div>
 
         <PhotoBoothTemplateLibraryDialog
           open={libraryOpen}
           onOpenChange={setLibraryOpen}
           selectedUrl={tpl}
           onSelect={(url) => setTpl(url)}
+          appearance={appearance}
         />
       </Card>
 
       {/* ── Section 2: Live Preview ─────────────────────────────────────── */}
-      <Card className="p-5">
+      <Card className={cn('p-5', isGlass && managementStyles.glassCard)}>
         <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
-          <h3 className="text-xl font-bold shrink-0" style={{ color: '#000000' }}>Live Photo Strip Preview</h3>
+          <h3 className={cn('text-xl font-bold shrink-0', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>Live Photo Strip Preview</h3>
           <p className="text-xs text-muted-foreground break-words mt-1 sm:mt-0">
             {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
           </p>
         </div>
 
         <div className="mt-4 flex items-center justify-center">
-          <div className="w-full max-w-[560px]">
+          <div className="w-full max-w-[420px]">
             <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
           </div>
         </div>
       </Card>
+      </div>
 
       {/* ── Section 3: Photo Strip Footer ───────────────────────────────── */}
-      <Card className="p-5 space-y-4">
-        <div>
-          <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: '#000000' }}>
-            <TypeIcon className="h-5 w-5 text-[#967A59] shrink-0" /> Photo Strip Footer
+      <Card className={cn('p-5 space-y-4', isGlass && managementStyles.glassCard)}>
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
+          <h3 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+            <TypeIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Photo Strip Footer
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground sm:text-right">
             Everything that appears in the footer band under the four photos.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
-          {/* 1. Complete custom footer design */}
-          <div className={`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`}>
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
-            <p className="text-xs text-muted-foreground">
-              Upload one complete footer design using the exact dimensions below. It will fill the footer beneath one
-              photo column and be duplicated automatically beneath both columns. When active, it replaces the event
-              name, date and all text-footer settings.
-            </p>
-            <p className="text-xs">
+        <div className="text-xs text-muted-foreground space-y-2">
+          <p>
+            Upload one complete footer design using the exact dimensions below. It will fill the footer beneath one
+            photo column and be duplicated automatically beneath both columns. When active, it replaces the event
+            name, date and all text-footer settings.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-6 gap-y-1.5">
+            <p>
               <span className="font-semibold text-[#1D1D1F]">
                 Required size: {FOOTER_PANEL_WIDTH} × {FOOTER_PANEL_HEIGHT} px
               </span>
               <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
             </p>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p><span className="font-semibold text-[#1D1D1F]">JPG/JPEG:</span> fills the complete footer with its own background.</p>
-              <p><span className="font-semibold text-[#1D1D1F]">Transparent PNG:</span> overlays your design while the selected photo-strip background remains visible.</p>
-            </div>
+            <p><span className="font-semibold text-[#1D1D1F]">JPG/JPEG:</span> fills the complete footer with its own background.</p>
+            <p><span className="font-semibold text-[#1D1D1F]">Transparent PNG:</span> overlays your design while the selected photo-strip background remains visible.</p>
+            <p>Keep important text and logos inside the recommended safe area.</p>
+          </div>
+        </div>
 
-            <div className="mt-auto space-y-2">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
+          {/* 1. Complete custom footer design */}
+          <div className={cn(`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
+            <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
+
+            <div className="space-y-2">
               <ImageSlot
                 label=""
                 accept={LOGO_ACCEPT}
@@ -468,19 +482,17 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 aspect="contain"
                 clearLabel="Remove Footer Design"
                 replaceLabel="Replace Footer Design"
+                appearance={appearance}
               />
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="lv-premium-shade w-full h-9"
+                className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)}
                 onClick={downloadBlankFooterTemplate}
               >
                 <Download className="h-4 w-4 mr-1" /> Download Blank Footer Template
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Keep important text and logos inside the recommended safe area.
-              </p>
             </div>
           </div>
 
@@ -501,12 +513,12 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               aria-describedby={footerDesignActive ? 'footer-custom-notice' : undefined}
               className={`grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-0 p-0 m-0 min-w-0 ${footerDesignActive ? 'opacity-50' : ''}`}
             >
-          <div className="rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2">
+          <div className={cn('rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2', isGlass && managementStyles.galleryViewInsetPanel)}>
 
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
 
             <Textarea
-              className="min-h-[88px] text-base"
+              className={cn('min-h-[88px] text-base', isGlass && managementStyles.galleryControl)}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={fallbackText}
@@ -521,17 +533,17 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
 
-          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
+          <div className={cn('rounded-lg border border-border bg-background p-3.5 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
 
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
             <div>
               <Label className="text-sm">Font family</Label>
               <Select value={style.nameFontFamily} onValueChange={(v) => setStyle(s => ({ ...s, nameFontFamily: v }))}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent className="max-h-72">
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
                   {FONT_OPTIONS.map(f => (
-                    <SelectItem key={f} value={f}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
+                    <SelectItem key={f} value={f} className={cn(isGlass && managementStyles.gallerySelectItem)}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -539,30 +551,30 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div>
               <Label className="text-sm">Font colour</Label>
               <div className="mt-1.5">
-                <PhotoBoothColorPicker value={style.nameColor} onChange={(hex) => setStyle(s => ({ ...s, nameColor: hex }))} />
+                <PhotoBoothColorPicker value={style.nameColor} onChange={(hex) => setStyle(s => ({ ...s, nameColor: hex }))} appearance={appearance} />
               </div>
             </div>
             <div>
               <Label className="text-sm">Font size</Label>
               <Select value={String(style.nameSize)} onValueChange={(v) => setStyle(s => ({ ...s, nameSize: Number(v) }))}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent className="max-h-72">
-                  {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)}>{n}px</SelectItem>)}
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
+                  {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{n}px</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="rounded-lg border border-border bg-background p-3.5 space-y-3">
+          <div className={cn('rounded-lg border border-border bg-background p-3.5 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)}>
             <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Date Font</h4>
             <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
             <div>
               <Label className="text-sm">Font family</Label>
               <Select value={style.dateFontFamily} onValueChange={(v) => setStyle(s => ({ ...s, dateFontFamily: v }))}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent className="max-h-72">
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
                   {FONT_OPTIONS.map(f => (
-                    <SelectItem key={f} value={f}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
+                    <SelectItem key={f} value={f} className={cn(isGlass && managementStyles.gallerySelectItem)}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -570,15 +582,15 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div>
               <Label className="text-sm">Font colour</Label>
               <div className="mt-1.5">
-                <PhotoBoothColorPicker value={style.dateColor} onChange={(hex) => setStyle(s => ({ ...s, dateColor: hex }))} />
+                <PhotoBoothColorPicker value={style.dateColor} onChange={(hex) => setStyle(s => ({ ...s, dateColor: hex }))} appearance={appearance} />
               </div>
             </div>
             <div>
               <Label className="text-sm">Font size</Label>
               <Select value={String(style.dateSize)} onValueChange={(v) => setStyle(s => ({ ...s, dateSize: Number(v) }))}>
-                <SelectTrigger className="h-11 mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent className="max-h-72">
-                  {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)}>{n}px</SelectItem>)}
+                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
+                  {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{n}px</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -607,14 +619,17 @@ interface ImageSlotProps {
   aspect: 'cover' | 'contain';
   clearLabel?: string;
   replaceLabel?: string;
+  appearance?: 'default' | 'espresso-glass';
 }
 
-const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, inputRef, onPick, onClear, aspect, clearLabel, replaceLabel }) => (
+const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, inputRef, onPick, onClear, aspect, clearLabel, replaceLabel, appearance = 'default' }) => {
+  const isGlass = appearance === 'espresso-glass';
+  return (
 
   <div>
     {label && <Label className="text-sm">{label}</Label>}
     <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={(e) => onPick(e.target.files?.[0] || null)} />
-    <div className="rounded-md border border-border bg-muted/40 overflow-hidden">
+    <div className={cn('rounded-md border border-border bg-muted/40 overflow-hidden', isGlass && managementStyles.galleryViewInsetPanel)}>
       {url ? (
         <div className="relative">
           <img src={url} alt="" className={`w-full h-32 ${aspect === 'cover' ? 'object-cover' : 'object-contain bg-white'}`} />
@@ -635,16 +650,17 @@ const ImageSlot: React.FC<ImageSlotProps> = ({ label, accept, url, uploading, in
       )}
     </div>
     <div className="mt-2 flex gap-2 flex-wrap">
-      <Button type="button" variant="outline" size="sm" className="lv-premium-shade flex-1 min-w-[140px]" onClick={() => inputRef.current?.click()} disabled={uploading}>
+      <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade flex-1 min-w-[140px]', isGlass && managementStyles.galleryControl)} onClick={() => inputRef.current?.click()} disabled={uploading}>
         {uploading ? <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Uploading…</> : <><Upload className="h-4 w-4 mr-1" /> {url ? (replaceLabel || 'Replace') : 'Choose file'}</>}
       </Button>
       {url && (
-        <Button type="button" variant="outline" size="sm" className="lv-premium-shade" onClick={onClear}>
+        <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={onClear}>
           <X className="h-4 w-4 mr-1" /> {clearLabel || 'Remove'}
         </Button>
       )}
     </div>
   </div>
-);
+  );
+};
 
 export default GalleryPhotoBoothTemplatesCard;
