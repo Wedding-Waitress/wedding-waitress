@@ -122,13 +122,14 @@ export function validateMasterTemplateSize(width: number, height: number): Maste
   };
 }
 
-/** Builds a transparent PNG blank footer template with a removable safe-area guide. */
+/** Builds a JPEG-ready blank footer template with a removable safe-area guide. */
 export function makeBlankFooterTemplate(withGuide = true): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = FOOTER_PANEL_WIDTH;
   c.height = FOOTER_PANEL_HEIGHT;
   const ctx = c.getContext('2d')!;
-  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.fillStyle = PB_CREAM;
+  ctx.fillRect(0, 0, c.width, c.height);
   if (withGuide) {
     ctx.save();
     ctx.strokeStyle = 'rgba(150,122,89,0.55)';
@@ -141,6 +142,94 @@ export function makeBlankFooterTemplate(withGuide = true): HTMLCanvasElement {
     ctx.restore();
   }
   return c;
+}
+
+/**
+ * Builds the pixel-accurate Photoshop guide for the complete 4 × 6 master.
+ * Every marked region is derived from the same geometry used by composeStrip,
+ * so the guide cannot drift away from the organiser preview or final export.
+ */
+export function makePhotoStripDesignTemplate(): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = PB_STRIP_PRINT.w;
+  canvas.height = PB_STRIP_PRINT.h;
+  const ctx = canvas.getContext('2d')!;
+  const geometry = photoBoothStripRects();
+
+  const centeredLabel = (rect: PixelRect, text: string, font: string, color: string, yOffset = 0) => {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, rect.x + rect.w / 2, rect.y + rect.h / 2 + yOffset, Math.max(0, rect.w - 24));
+    ctx.restore();
+  };
+
+  // Uncovered canvas areas are the artwork-safe, visible design areas.
+  ctx.fillStyle = '#F4E8D9';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(150, 122, 89, 0.08)';
+  ctx.fillRect(0, 0, PB_STRIP_SINGLE.w, canvas.height);
+
+  geometry.headers.forEach((rect) => {
+    ctx.fillStyle = 'rgba(58, 31, 22, 0.88)';
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    ctx.strokeStyle = '#C9975D';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2);
+    centeredLabel(rect, 'FIXED BRANDING AREA', '600 17px Arial, sans-serif', '#FFF8EE');
+  });
+
+  geometry.photos.flat().forEach((rect) => {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    ctx.strokeStyle = 'rgba(150, 122, 89, 0.92)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([12, 8]);
+    ctx.strokeRect(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2);
+    ctx.setLineDash([]);
+    centeredLabel(rect, 'GUEST PHOTO – COVERED AREA', '600 22px Arial, sans-serif', '#6E5038');
+  });
+
+  geometry.footers.forEach((rect) => {
+    ctx.fillStyle = 'rgba(201, 151, 93, 0.34)';
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    ctx.strokeStyle = 'rgba(150, 122, 89, 0.95)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2);
+    centeredLabel(rect, 'FOOTER AREA', '700 25px Arial, sans-serif', '#4A2A1B', -38);
+    centeredLabel(rect, 'Design around the covered photo areas.', '500 16px Arial, sans-serif', '#5D402D', 18);
+    centeredLabel(rect, 'Keep important artwork and text inside the visible design areas.', '500 15px Arial, sans-serif', '#5D402D', 43);
+  });
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(94, 62, 42, 0.85)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([16, 12]);
+  ctx.beginPath();
+  ctx.moveTo(geometry.cutX, 0);
+  ctx.lineTo(geometry.cutX, canvas.height);
+  ctx.stroke();
+  ctx.restore();
+
+  const verticalVisibleLabel = (x: number, text: string) => {
+    ctx.save();
+    ctx.translate(x, (PB_STRIP_LAYOUT.headerHeight + geometry.footers[0].y) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = 'rgba(74, 42, 27, 0.72)';
+    ctx.font = '600 11px Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  };
+  verticalVisibleLabel(16, 'VISIBLE OUTER DESIGN AREA');
+  verticalVisibleLabel(PB_STRIP_SINGLE.w - 16, 'VISIBLE CENTRE DESIGN AREA');
+  verticalVisibleLabel(PB_STRIP_SINGLE.w + 16, 'VISIBLE CENTRE DESIGN AREA');
+  verticalVisibleLabel(PB_STRIP_PRINT.w - 16, 'VISIBLE OUTER DESIGN AREA');
+
+  return canvas;
 }
 
 
@@ -165,14 +254,22 @@ export function formatEventDate(iso: string | null | undefined): string {
   }
 }
 
-export const loadImageEl = (src: string, crossOrigin = true) =>
-  new Promise<HTMLImageElement>((res, rej) => {
+export const loadImageEl = async (src: string, crossOrigin = true): Promise<HTMLImageElement> => {
+  const img = await new Promise<HTMLImageElement>((res, rej) => {
     const img = new Image();
     if (crossOrigin) img.crossOrigin = 'anonymous';
     img.onload = () => res(img);
-    img.onerror = (e) => rej(e);
+    img.onerror = () => rej(new Error(`Could not load image: ${src}`));
     img.src = src;
   });
+  if (typeof img.decode === 'function') {
+    await img.decode();
+  }
+  if (!(img.naturalWidth || img.width) || !(img.naturalHeight || img.height)) {
+    throw new Error(`Loaded image has no bitmap data: ${src}`);
+  }
+  return img;
+};
 
 const loadBlobImage = (blob: Blob) =>
   new Promise<HTMLImageElement>((res, rej) => {
@@ -247,6 +344,14 @@ export interface PhotoBoothStripStyle {
   /** Date (event date / subsequent custom lines) */
   dateFontFamily?: string | null;
   dateColor?: string | null;
+  /** Optional canvas-rendered contrast panel behind the generated footer text. */
+  textBackdrop?: 'none' | 'white' | 'black' | null;
+}
+
+/** Template identity stored inside the existing per-event JSON style field. */
+export interface PersistedPhotoBoothStripStyle extends PhotoBoothStripStyle {
+  backgroundMode?: 'colour' | 'template';
+  templateId?: string | null;
 }
 
 export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
@@ -259,6 +364,7 @@ export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
   nameColor: '#FFFFFF',
   dateFontFamily: 'Inter',
   dateColor: '#FFFFFF',
+  textBackdrop: 'none',
 };
 
 export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<PhotoBoothStripStyle> => {
@@ -274,6 +380,7 @@ export const resolveStripStyle = (s?: PhotoBoothStripStyle | null): Required<Pho
     nameColor: s?.nameColor || color,
     dateFontFamily: s?.dateFontFamily || family,
     dateColor: s?.dateColor || color,
+    textBackdrop: s?.textBackdrop === 'white' || s?.textBackdrop === 'black' ? s.textBackdrop : 'none',
   };
 };
 
@@ -293,6 +400,7 @@ export const contrastInk = (hex: string): string => {
 
 /** Website label printed across the top of each photo strip column. */
 export const PB_SITE_LABEL = 'wedding waitress.com.au';
+export const PB_SITE_LABEL_FONT_SIZE = 28;
 export const PB_INK_DARK = '#0B0B0B';
 export const PB_INK_LIGHT = '#FFFFFF';
 
@@ -354,6 +462,12 @@ export interface ComposeOpts {
   logoUrl: string | null;
   /** Host uploaded JPEG artwork; when set it replaces the default background + strip */
   templateUrl: string | null;
+  /** Explicit saved mode; legacy settings infer this from templateUrl. */
+  backgroundMode?: 'colour' | 'template';
+  /** Stable identity for a built-in template. */
+  templateId?: string | null;
+  /** Reports a genuine template load failure before using the safe colour fallback. */
+  onTemplateLoadError?: (error: Error, templateUrl: string) => void;
   showBranding: boolean;
   /** Photo strip styling (colours, fonts) */
   style?: PhotoBoothStripStyle | null;
@@ -449,10 +563,7 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas not available');
 
-  let templateImg: HTMLImageElement | null = null;
-  if (opts.templateUrl) {
-    try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
-  }
+  const templateImg = await loadSavedTemplate(opts);
 
   if (templateImg) {
     drawCover(ctx, templateImg, 0, 0, W, H);
@@ -477,6 +588,149 @@ export async function composeSingle(photo: PhotoSource, opts: ComposeOpts): Prom
   return canvas;
 }
 
+interface FooterTextLine {
+  text: string;
+  y: number;
+  font: string;
+  color: string;
+  lineHeight: number;
+}
+
+const roundedRectPath = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) => {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+};
+
+/** Draws one feathered, borderless canvas backdrop fully inside the footer safe area. */
+const drawFooterTextBackdrop = (
+  ctx: CanvasRenderingContext2D,
+  mode: 'white' | 'black',
+  rect: { x: number; y: number; w: number; h: number },
+) => {
+  const cx = rect.x + rect.w / 2;
+  const cy = rect.y + rect.h / 2;
+  const normalizedRadius = rect.h / 2;
+  const rgb = mode === 'white' ? '255,255,255' : '0,0,0';
+
+  ctx.save();
+  roundedRectPath(ctx, rect.x, rect.y, rect.w, rect.h, Math.min(22, rect.h / 3));
+  ctx.clip();
+  ctx.translate(cx, cy);
+  ctx.scale(rect.w / rect.h, 1);
+  const gradient = ctx.createRadialGradient(0, 0, normalizedRadius * 0.12, 0, 0, normalizedRadius);
+  gradient.addColorStop(0, `rgba(${rgb},${mode === 'white' ? 0.88 : 0.80})`);
+  gradient.addColorStop(0.56, `rgba(${rgb},${mode === 'white' ? 0.82 : 0.74})`);
+  gradient.addColorStop(0.84, `rgba(${rgb},0.42)`);
+  gradient.addColorStop(1, `rgba(${rgb},0)`);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(-rect.h / 2, -rect.h / 2, rect.h, rect.h);
+  ctx.restore();
+};
+
+/**
+ * Draws the generated text footer above either a solid colour or a complete
+ * 1200 x 1800 template. Keeping this as one path prevents background artwork
+ * from bypassing the saved font, colour, size, text and backdrop settings.
+ */
+const drawGeneratedStripFooter = (
+  ctx: CanvasRenderingContext2D,
+  offX: number,
+  opts: ComposeOpts,
+  style: Required<PhotoBoothStripStyle>,
+) => {
+  const halfWidth = PB_STRIP_SINGLE.w;
+  const footerHeight = FOOTER_PANEL_HEIGHT;
+  const footerY = PB_STRIP_PRINT.h - footerHeight;
+  const centerX = offX + halfWidth / 2;
+  const custom = (opts.bottomText || '').replace(/\r/g, '');
+  const hasCustom = !!custom.trim();
+  const nameFont = cssFont(style.nameFontFamily);
+  const dateFont = cssFont(style.dateFontFamily);
+  const nameFontValue = `700 ${style.nameSize}px ${nameFont}`;
+  const dateFontValue = `500 ${style.dateSize}px ${dateFont}`;
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = nameFontValue;
+  const customLines = hasCustom ? custom.split('\n').map(line => line.trim()).filter(Boolean) : [];
+  const headLines = hasCustom
+    ? wrapLines(ctx, customLines[0] || ' ', halfWidth - 56).slice(0, 2)
+    : wrapLines(ctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, halfWidth - 56).slice(0, 2);
+
+  ctx.font = dateFontValue;
+  const subLines = hasCustom
+    ? customLines.slice(1).flatMap(line => wrapLines(ctx, line, halfWidth - 56)).slice(0, 2)
+    : [(opts.dateText || '').trim()].filter(Boolean);
+
+  const nameLineHeight = Math.round(style.nameSize * 1.2);
+  const dateLineHeight = Math.round(style.dateSize * 1.26);
+  const contentHeight = headLines.length * nameLineHeight + subLines.length * dateLineHeight + (subLines.length ? 4 : 0);
+  let cursor = footerY + footerHeight / 2 - contentHeight / 2 + nameLineHeight / 2;
+  const lines: FooterTextLine[] = [];
+
+  for (const text of headLines) {
+    lines.push({ text, y: cursor, font: nameFontValue, color: style.nameColor, lineHeight: nameLineHeight });
+    cursor += nameLineHeight;
+  }
+  if (subLines.length) cursor += 4;
+  for (const text of subLines) {
+    lines.push({ text, y: cursor, font: dateFontValue, color: style.dateColor, lineHeight: dateLineHeight });
+    cursor += dateLineHeight;
+  }
+
+  if (style.textBackdrop !== 'none' && lines.length) {
+    let maxTextWidth = 0;
+    for (const line of lines) {
+      ctx.font = line.font;
+      maxTextWidth = Math.max(maxTextWidth, ctx.measureText(line.text).width);
+    }
+    const safeLeft = offX + FOOTER_PANEL_SAFE_INSET;
+    const safeTop = footerY + FOOTER_PANEL_SAFE_INSET;
+    const safeWidth = halfWidth - FOOTER_PANEL_SAFE_INSET * 2;
+    const safeHeight = footerHeight - FOOTER_PANEL_SAFE_INSET * 2;
+    const desiredWidth = maxTextWidth + 48;
+    const first = lines[0];
+    const last = lines[lines.length - 1];
+    const desiredTop = first.y - first.lineHeight / 2 - 14;
+    const desiredBottom = last.y + last.lineHeight / 2 + 14;
+    const backdropWidth = Math.min(safeWidth, Math.max(120, desiredWidth));
+    const backdropHeight = Math.min(safeHeight, Math.max(58, desiredBottom - desiredTop));
+    const backdropY = Math.min(
+      footerY + footerHeight - FOOTER_PANEL_SAFE_INSET - backdropHeight,
+      Math.max(safeTop, (desiredTop + desiredBottom - backdropHeight) / 2),
+    );
+    drawFooterTextBackdrop(ctx, style.textBackdrop, {
+      x: Math.max(safeLeft, centerX - backdropWidth / 2),
+      y: backdropY,
+      w: backdropWidth,
+      h: backdropHeight,
+    });
+  }
+
+  for (const line of lines) {
+    ctx.fillStyle = line.color;
+    ctx.font = line.font;
+    ctx.fillText(line.text, centerX, line.y);
+  }
+};
+
 /**
  * Photo strip composer — renders one printer-ready 1200 × 1800 canvas.
  *
@@ -498,10 +752,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   const ctx = out.getContext('2d');
   if (!ctx) throw new Error('Canvas not available');
 
-  let templateImg: HTMLImageElement | null = null;
-  if (opts.templateUrl) {
-    try { templateImg = await loadImageEl(opts.templateUrl); } catch { templateImg = null; }
-  }
+  const templateImg = await loadSavedTemplate(opts);
 
   // Custom footer design (one complete footer panel, duplicated under both columns)
   let footerPanelImg: HTMLImageElement | null = null;
@@ -511,13 +762,14 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
 
 
   // ── Single, continuous background across the entire canvas ────────────────
-  ctx.fillStyle = style.bgColor;
-  ctx.fillRect(0, 0, W, H);
   if (templateImg) {
     const templateW = templateImg.naturalWidth || templateImg.width;
     const templateH = templateImg.naturalHeight || templateImg.height;
     if (templateW === W && templateH === H) ctx.drawImage(templateImg, 0, 0, W, H);
     else drawContain(ctx, templateImg, 0, 0, W, H);
+  } else {
+    ctx.fillStyle = style.bgColor;
+    ctx.fillRect(0, 0, W, H);
   }
 
   // Resolve the photos once and reuse them for both halves.
@@ -528,20 +780,33 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   }
 
   // ── Foreground content, drawn per half over the shared background ─────────
+  // Resolve one shared website-label colour from the complete top branding
+  // band. Both strip halves must use the same ink even when template artwork
+  // beneath the left and right labels has different luminance.
+  const brandingInset = HALF * 0.1;
+  const brandingHeader = geometry.headers[0];
+  const siteLabelInk = templateImg
+    ? autoInkForRegion(
+      ctx,
+      brandingInset,
+      4,
+      W - brandingInset * 2,
+      brandingHeader.h - 8,
+      autoInkForHex(style.bgColor),
+    )
+    : autoInkForHex(style.bgColor);
+
   for (let half = 0; half < 2; half++) {
     const offX = half * HALF;
 
     {
-      // Website label — colour auto-adapts to the background right behind it.
+      // Website labels share the combined branding-band contrast decision.
       const header = geometry.headers[half];
-      const labelInk = templateImg
-        ? autoInkForRegion(ctx, offX + HALF * 0.1, 4, HALF * 0.8, header.h - 8, autoInkForHex(style.bgColor))
-        : autoInkForHex(style.bgColor);
-      ctx.fillStyle = labelInk;
+      ctx.fillStyle = siteLabelInk;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.font = `600 25px ${cssFont(style.fontFamily)}`;
-      ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, header.h / 2 + 2);
+      ctx.font = `600 ${PB_SITE_LABEL_FONT_SIZE}px ${cssFont(style.fontFamily)}`;
+      ctx.fillText(PB_SITE_LABEL, offX + HALF / 2, header.h / 2 + 2, HALF - brandingInset * 2);
     }
 
 
@@ -561,56 +826,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
       continue;
     }
 
-    if (templateImg) {
-      await drawBrandingStrip(ctx, {
-        x: offX, y: H - footerH, width: HALF, height: footerH,
-        opts, hasTemplate: true, scale: 0.92,
-      });
-      continue;
-    }
-
-    // Footer with the event name / date (or custom footer text)
-    const fy = H - footerH;
-    const logoH = 0;
-
-
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    const custom = (opts.bottomText || '').replace(/\r/g, '');
-    const hasCustom = !!custom.trim();
-    const nameSize = style.nameSize;
-    const dateSize = style.dateSize;
-    const nameFont = cssFont(style.nameFontFamily);
-    const dateFont = cssFont(style.dateFontFamily);
-
-    ctx.font = `700 ${nameSize}px ${nameFont}`;
-    const customLines = hasCustom ? custom.split('\n').map(l => l.trim()).filter(Boolean) : [];
-    const headLines: string[] = hasCustom
-      ? wrapLines(ctx, customLines[0] || ' ', HALF - 56).slice(0, 2)
-      : wrapLines(ctx, (opts.title || '').trim() || PB_PLACEHOLDER_TEXT, HALF - 56).slice(0, 2);
-
-    ctx.font = `500 ${dateSize}px ${dateFont}`;
-    const subLines: string[] = hasCustom
-      ? customLines.slice(1).flatMap(l => wrapLines(ctx, l, HALF - 56)).slice(0, 2)
-      : [(opts.dateText || '').trim()].filter(Boolean);
-
-    const lineH = Math.round(nameSize * 1.2);
-    const subH = Math.round(dateSize * 1.26);
-    const areaTop = fy + logoH;
-    const areaH = footerH - logoH;
-    let cursor = areaTop + areaH / 2 - (headLines.length * lineH + subLines.length * subH) / 2 + lineH / 2;
-
-    ctx.fillStyle = style.nameColor;
-    ctx.font = `700 ${nameSize}px ${nameFont}`;
-    for (const ln of headLines) { ctx.fillText(ln, offX + HALF / 2, cursor); cursor += lineH; }
-
-    if (subLines.length) {
-      ctx.fillStyle = style.dateColor;
-      ctx.font = `500 ${dateSize}px ${dateFont}`;
-      cursor += 4;
-      for (const ln of subLines) { ctx.fillText(ln, offX + HALF / 2, cursor); cursor += subH; }
-    }
+    drawGeneratedStripFooter(ctx, offX, opts, style);
   }
 
   return out;
@@ -625,6 +841,32 @@ export function assertStripBitmapDimensions(width: number, height: number): void
     throw new Error(`Generated photo strip is ${width} × ${height} px; expected ${PB_STRIP_PRINT.w} × ${PB_STRIP_PRINT.h} px.`);
   }
 }
+
+const reportTemplateLoadFailure = (opts: ComposeOpts, error: unknown) => {
+  const reported = error instanceof Error ? error : new Error(String(error));
+  const templateUrl = opts.templateUrl || '';
+  console.error('[Photo Booth] Saved background template could not be loaded; using the configured colour fallback.', {
+    templateUrl,
+    templateId: opts.templateId || null,
+    error: reported,
+  });
+  opts.onTemplateLoadError?.(reported, templateUrl);
+};
+
+const loadSavedTemplate = async (opts: ComposeOpts): Promise<HTMLImageElement | null> => {
+  const mode = opts.backgroundMode ?? (opts.templateUrl ? 'template' : 'colour');
+  if (mode !== 'template') return null;
+  if (!opts.templateUrl) {
+    reportTemplateLoadFailure(opts, new Error('Template mode is active but no template URL was saved.'));
+    return null;
+  }
+  try {
+    return await loadImageEl(opts.templateUrl);
+  } catch (error) {
+    reportTemplateLoadFailure(opts, error);
+    return null;
+  }
+};
 
 export async function composeSingleBlob(photo: PhotoSource, opts: ComposeOpts): Promise<Blob> {
   return canvasToJpegBlob(await composeSingle(photo, opts));

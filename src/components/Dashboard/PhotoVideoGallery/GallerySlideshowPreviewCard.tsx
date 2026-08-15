@@ -78,12 +78,12 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
 
   return (
     <Card className={cn('p-5 sm:p-6 space-y-5 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2" data-slideshow-preview-header>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
           <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
             <Presentation size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Slideshow Preview
           </h2>
-          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+          <p className={cn('text-sm break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Exactly what your guests will see on the big screen.
           </p>
         </div>
@@ -92,7 +92,25 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
         </div>
       </div>
 
-      <div ref={stageRef} className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center">
+      <div className={cn('flex flex-wrap items-center gap-2', isGlass && `rounded-xl border p-3 ${managementStyles.galleryViewInsetPanel}`)} data-slideshow-preview-controls>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setIndex(i => (eligible.length ? (i - 1 + eligible.length) % eligible.length : 0))} disabled={!eligible.length}>
+          <SkipBack size={16} strokeWidth={1.8} className="mr-1.5" /> Previous
+        </Button>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setPaused(p => !p)} disabled={!eligible.length}>
+          {paused ? <><Play size={16} strokeWidth={1.8} className="mr-1.5" /> Play</> : <><Pause size={16} strokeWidth={1.8} className="mr-1.5" /> Pause</>}
+        </Button>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setIndex(i => (eligible.length ? (i + 1) % eligible.length : 0))} disabled={!eligible.length}>
+          <SkipForward size={16} strokeWidth={1.8} className="mr-1.5" /> Next
+        </Button>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => { setIndex(0); setPaused(false); }} disabled={!eligible.length}>
+          <RotateCcw size={16} strokeWidth={1.8} className="mr-1.5" /> Restart
+        </Button>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={toggleFullscreen} disabled={!eligible.length}>
+          {isFs ? <><Minimize size={16} strokeWidth={1.8} className="mr-1.5" /> Exit fullscreen</> : <><Maximize size={16} strokeWidth={1.8} className="mr-1.5" /> Fullscreen</>}
+        </Button>
+      </div>
+
+      <div ref={stageRef} className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center" data-slideshow-preview-stage>
         {loading ? (
           <p className="text-white/70 text-sm">Loading media…</p>
         ) : !current ? (
@@ -139,23 +157,6 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
         )}
       </div>
 
-      <div className={cn('flex flex-wrap items-center gap-2', isGlass && `rounded-xl border p-3 ${managementStyles.galleryViewInsetPanel}`)}>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setIndex(i => (eligible.length ? (i - 1 + eligible.length) % eligible.length : 0))} disabled={!eligible.length}>
-          <SkipBack size={16} strokeWidth={1.8} className="mr-1.5" /> Previous
-        </Button>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setPaused(p => !p)} disabled={!eligible.length}>
-          {paused ? <><Play size={16} strokeWidth={1.8} className="mr-1.5" /> Play</> : <><Pause size={16} strokeWidth={1.8} className="mr-1.5" /> Pause</>}
-        </Button>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setIndex(i => (eligible.length ? (i + 1) % eligible.length : 0))} disabled={!eligible.length}>
-          <SkipForward size={16} strokeWidth={1.8} className="mr-1.5" /> Next
-        </Button>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => { setIndex(0); setPaused(false); }} disabled={!eligible.length}>
-          <RotateCcw size={16} strokeWidth={1.8} className="mr-1.5" /> Restart
-        </Button>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={toggleFullscreen} disabled={!eligible.length}>
-          {isFs ? <><Minimize size={16} strokeWidth={1.8} className="mr-1.5" /> Exit fullscreen</> : <><Maximize size={16} strokeWidth={1.8} className="mr-1.5" /> Fullscreen</>}
-        </Button>
-      </div>
     </Card>
   );
 };

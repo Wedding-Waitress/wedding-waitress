@@ -79,7 +79,10 @@ describe('Digital Guestbook premium appearance', () => {
 
     expect(await screen.findByRole('heading', { name: 'Digital Guestbook', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back to Photo & Video Sharing' })).toHaveClass(managementStyles.glassAction);
-    expect(screen.getByRole('button', { name: 'Preview as Guest' })).toHaveClass(managementStyles.glassAction);
+    const previewAction = screen.getByRole('button', { name: 'Preview as Guest' });
+    expect(previewAction).toHaveClass(managementStyles.glassAction);
+    expect(previewAction).toHaveClass(managementStyles.workspaceHeaderAction);
+    expect(previewAction).toBeEnabled();
     expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
     expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
     expect(screen.getByRole('switch', { name: 'Digital Guestbook enabled' })).toBeChecked();
@@ -139,6 +142,34 @@ describe('Digital Guestbook premium appearance', () => {
     expect(screen.getByRole('button', { name: 'Download recording' })).toHaveClass(managementStyles.galleryControl);
   });
 
+  it('uses the responsive 45/55 upper-card grid and stacks the Access card before its controls become cramped', async () => {
+    const { container } = render(<MemoryRouter><GalleryTextGuestbookFeaturePage /></MemoryRouter>);
+    await screen.findByRole('heading', { name: 'Digital Guestbook Access' });
+
+    const upperGrid = container.querySelector('[data-guestbook-upper-grid]');
+    expect(upperGrid).toHaveClass(
+      'grid-cols-1',
+      'items-stretch',
+      'md:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]',
+    );
+
+    const accessLayout = container.querySelector('[data-guestbook-access-layout]');
+    expect(accessLayout).toHaveClass(
+      'grid-cols-1',
+      'items-start',
+      'xl:grid-cols-[auto_minmax(0,1fr)]',
+    );
+    expect(container.querySelector('[data-guestbook-access-controls]')).toHaveClass('min-w-0', 'flex-col');
+
+    const qr = await screen.findByRole('img', { name: 'Digital Guestbook QR code' });
+    expect(qr.parentElement?.parentElement).toHaveClass('justify-start');
+    const link = container.querySelector('input[readonly]');
+    expect((link as HTMLInputElement).value).toContain('public-token');
+    expect(link.parentElement).toHaveClass('flex', 'min-w-0');
+    expect(link.parentElement).not.toHaveClass('flex-wrap');
+    expect(screen.getByRole('button', { name: 'Copy' })).toHaveClass('shrink-0');
+  });
+
   it('keeps the QR code black-and-white with its original dimensions and direct actions', async () => {
     const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     const open = vi.spyOn(window, 'open').mockImplementation(() => null);
@@ -177,6 +208,9 @@ describe('Digital Guestbook premium appearance', () => {
     );
     expect(css).toContain('.guestbookMessageCard');
     expect(css).toContain('.guestbookStatePanel');
+    expect(css).toContain('.workspaceHeaderAction');
+    expect(css).toContain('.workspaceHeaderAction.workspaceHeaderAction:disabled');
+    expect(css).toContain('.workspaceHeaderAction.workspaceHeaderAction:focus-visible');
     expect(css).toContain('@media (hover: none), (pointer: coarse)');
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');
   });

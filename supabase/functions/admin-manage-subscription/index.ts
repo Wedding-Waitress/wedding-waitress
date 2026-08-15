@@ -31,22 +31,15 @@ Deno.serve(async (req) => {
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Invalid token' }), { status: 401, headers: corsHeaders })
     }
-    const userId = claimsData.claims.sub as string
+    // Authorize through the canonical backend owner/admin check.
+    const { data: roleData, error: roleError } = await userClient.rpc('is_owner_admin')
 
-    // Use service role to check admin and perform updates
-    const adminClient = createClient(supabaseUrl, serviceRoleKey)
-
-    // Check admin role
-    const { data: roleData } = await adminClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle()
-
-    if (!roleData) {
+    if (roleError || roleData !== true) {
       return new Response(JSON.stringify({ error: 'Admin access required' }), { status: 403, headers: corsHeaders })
     }
+
+    // Create the elevated client only after the caller passes owner/admin authorization.
+    const adminClient = createClient(supabaseUrl, serviceRoleKey)
 
     const { subscription_id, action } = await req.json()
 

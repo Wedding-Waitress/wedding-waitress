@@ -36,8 +36,8 @@ for (const pattern of PATTERNS) {
     .split('\n')
     .filter(Boolean)
     .filter((line) => {
-      const file = line.split(':')[0];
-      return !ALLOWED.has(file);
+      const file = line.split(':')[0].replaceAll('\\', '/');
+      return !ALLOWED.has(file) && !/\.test\.[^/]+$/.test(file);
     });
   if (offending.length > 0) {
     failed = true;

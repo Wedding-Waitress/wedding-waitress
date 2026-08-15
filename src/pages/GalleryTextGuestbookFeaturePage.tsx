@@ -78,7 +78,7 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
         headerAction={
           <Button
             variant="outline"
-            className={`lv-premium-shade text-white border ${managementStyles.glassAction}`}
+            className={`lv-premium-shade text-white border ${managementStyles.glassAction} ${managementStyles.workspaceHeaderAction}`}
             disabled={!guestUrl}
             onClick={() => guestUrl && window.open(guestUrl, '_blank', 'noopener,noreferrer')}
           >
@@ -95,7 +95,10 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
           />
         ) : (
           <div className="space-y-6 sm:space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div
+              className="grid grid-cols-1 gap-6 items-stretch md:grid-cols-[minmax(0,9fr)_minmax(0,11fr)]"
+              data-guestbook-upper-grid
+            >
               <GalleryTextGuestbookStepsCard appearance="espresso-glass" />
               <GalleryTextGuestbookAccessCard meta={meta} appearance="espresso-glass" />
             </div>

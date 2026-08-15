@@ -17,7 +17,7 @@ export function buildLiveSlideshowUrl(token: string | null): string {
   return token ? buildGallerySlideshowUrl(token) : '';
 }
 
-export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta; appearance?: 'default' | 'espresso-glass' }> = ({ meta, appearance = 'default' }) => {
+export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta; appearance?: 'default' | 'espresso-glass'; embedded?: boolean }> = ({ meta, appearance = 'default', embedded = false }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [qrDataUrl, setQrDataUrl] = useState('');
@@ -49,7 +49,11 @@ export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta; appearanc
   const launch = () => { if (slideshowUrl) window.open(slideshowUrl, '_blank', 'noopener,noreferrer'); };
 
   return (
-    <Card className={cn('h-full p-5 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
+    <Card className={cn(
+      'overflow-hidden',
+      embedded ? 'p-4 space-y-4' : 'h-full p-5 sm:p-6 space-y-6',
+      isGlass && managementStyles.glassCard,
+    )} data-appearance={isGlass ? appearance : undefined} data-slideshow-workspace-card={embedded ? 'access' : undefined}>
       <div className="min-w-0">
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <QrCode size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Live Slideshow Access
@@ -59,7 +63,10 @@ export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta; appearanc
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
+      <div className={cn(
+        'grid grid-cols-1 items-start',
+        embedded ? 'gap-4 min-[1440px]:grid-cols-[180px_minmax(0,1fr)]' : 'gap-5 sm:grid-cols-[180px_1fr] sm:gap-6',
+      )} data-slideshow-access-layout={embedded ? true : undefined}>
         <div className="flex justify-center">
           <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
             {qrDataUrl ? (

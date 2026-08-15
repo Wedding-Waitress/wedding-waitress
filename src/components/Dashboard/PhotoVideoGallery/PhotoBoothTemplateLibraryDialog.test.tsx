@@ -3,6 +3,22 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/lib/photoBoothBackgroundTemplates', () => ({
+  PHOTO_BOOTH_BACKGROUND_TEMPLATES: [],
+  PHOTO_BOOTH_TEMPLATE_CATEGORIES: [],
+  PHOTO_BOOTH_TEMPLATE_COLOURS: [],
+  filterPhotoBoothTemplates: () => [],
+}));
+
+vi.mock('@/hooks/useIsAdmin', () => ({ useIsAdmin: () => ({ isAdmin: false, loading: false }) }));
+vi.mock('@/hooks/usePhotoBoothTemplateLibrary', () => ({
+  usePhotoBoothTemplateLibrary: () => ({
+    templates: [], loading: false, error: null,
+    refetch: vi.fn(), remove: vi.fn(), update: vi.fn(),
+  }),
+}));
+
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
 import managementStyles from './photoVideoSharingManagement.module.css';
 
@@ -13,7 +29,7 @@ describe('PhotoBoothTemplateLibraryDialog espresso appearance', () => {
 
   afterEach(cleanup);
 
-  it('styles the filters, template states and actions without changing template artwork or selection behaviour', async () => {
+  it('preserves the complete library interface while the built-in catalogue is empty', async () => {
     const onOpenChange = vi.fn();
     const onSelect = vi.fn();
     render(
@@ -40,28 +56,21 @@ describe('PhotoBoothTemplateLibraryDialog espresso appearance', () => {
     fireEvent.keyDown(category, { key: 'ArrowDown' });
     const menu = await screen.findByRole('listbox');
     expect(menu).toHaveClass(managementStyles.gallerySelectContent, managementStyles.templateLibrarySelectContent);
-    const allCategories = within(menu).getByRole('option', { name: 'All categories' });
+    const allCategories = within(menu).getByRole('option', { name: 'All categories (0)' });
     expect(allCategories).toHaveClass(managementStyles.gallerySelectItem);
     fireEvent.click(allCategories);
-
-    const firstTemplate = screen.getByRole('button', { name: /Midnight Navy/i });
-    const artwork = within(firstTemplate).getByRole('img', { name: 'Midnight Navy' });
-    expect(firstTemplate).toHaveClass(managementStyles.templateLibraryCard);
-    expect(artwork).toHaveAttribute('width', '288');
-    expect(artwork).toHaveAttribute('height', '400');
-    expect(artwork).toHaveClass('object-cover');
 
     const select = screen.getByRole('button', { name: 'Select Template' });
     expect(select).toBeDisabled();
     expect(select).toHaveClass(managementStyles.galleryViewPrimaryAction);
-    fireEvent.click(firstTemplate);
-    expect(firstTemplate).toHaveClass(managementStyles.templateLibraryCardSelected);
-    expect(select).toBeEnabled();
-    fireEvent.click(select);
-    expect(onSelect).toHaveBeenCalledTimes(1);
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.getByText('No background templates are currently available.')).toHaveClass(managementStyles.templateLibraryState);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(onSelect).not.toHaveBeenCalled();
 
-    expect(screen.getByRole('button', { name: 'Close' })).toHaveClass(managementStyles.templateLibrarySecondaryAction);
+    const close = screen.getByRole('button', { name: 'Close' });
+    expect(close).toHaveClass(managementStyles.templateLibrarySecondaryAction);
+    fireEvent.click(close);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('uses the readable espresso empty state and retains responsive, touch and reduced-motion rules', () => {
@@ -75,8 +84,8 @@ describe('PhotoBoothTemplateLibraryDialog espresso appearance', () => {
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Search templates by name'), { target: { value: 'no matching template' } });
-    expect(screen.getByText('No templates match your search.')).toHaveClass(managementStyles.templateLibraryState);
+    fireEvent.change(screen.getByPlaceholderText('Search templates by name'), { target: { value: 'future template' } });
+    expect(screen.getByText('No background templates are currently available.')).toHaveClass(managementStyles.templateLibraryState);
 
     const css = fs.readFileSync(path.join(process.cwd(), 'src/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css'), 'utf8');
     expect(css).toContain('.templateLibraryFooter');

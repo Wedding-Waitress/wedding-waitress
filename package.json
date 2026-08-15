@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:storage": "node scripts/check-event-storage.mjs",
+    "import:photo-strip-templates": "node scripts/import-photo-strip-templates.mjs",
     "pretest": "node scripts/check-event-storage.mjs"
   },
   "dependencies": {

@@ -1,11 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { isOwnerAdminEmail } from "../_shared/owner-admin.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-const ADMIN_EMAIL = 'naderelalfy1977@gmail.com';
 
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
@@ -33,10 +32,15 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const userEmail = (claims.claims.email as string | undefined)?.toLowerCase();
+    const userEmail = claims.claims.email;
     const userId = claims.claims.sub as string;
 
-    if (userEmail !== ADMIN_EMAIL) {
+    if (!isOwnerAdminEmail(userEmail)) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const { data: isAdmin, error: adminError } = await supabase.rpc('is_owner_admin');
+    if (adminError || isAdmin !== true) {
       return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 

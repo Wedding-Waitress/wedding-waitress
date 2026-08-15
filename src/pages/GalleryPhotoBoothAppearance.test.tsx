@@ -21,8 +21,21 @@ vi.mock('@/hooks/useEventMediaGallery', () => ({
 }));
 vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('qrcode', () => ({ default: { toDataURL: mocks.qrToDataUrl } }));
+vi.mock('@/hooks/useIsAdmin', () => ({ useIsAdmin: () => ({ isAdmin: false, loading: false }) }));
+vi.mock('@/hooks/usePhotoBoothTemplateLibrary', () => ({
+  usePhotoBoothTemplateLibrary: () => ({
+    templates: [], loading: false, error: null, refetch: vi.fn(), remove: vi.fn(), update: vi.fn(),
+  }),
+}));
 vi.mock('@/components/Dashboard/PhotoVideoGallery/PhotoBoothTemplatePreview', () => ({
-  PhotoBoothTemplatePreview: ({ kind }: { kind: string }) => <div data-testid="photo-booth-preview" data-kind={kind} />,
+  PhotoBoothTemplatePreview: ({ kind, opts }: { kind: string; opts: { templateUrl?: string | null; style?: { textBackdrop?: string } } }) => (
+    <div
+      data-testid="photo-booth-preview"
+      data-kind={kind}
+      data-template-url={opts.templateUrl ?? ''}
+      data-text-backdrop={opts.style?.textBackdrop ?? ''}
+    />
+  ),
 }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
@@ -74,7 +87,10 @@ describe('Digital Photo Booth premium appearance', () => {
 
     expect(await screen.findByRole('heading', { name: 'Digital Photo Booth', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back to Photo & Video Sharing' })).toHaveClass(managementStyles.glassAction);
-    expect(screen.getAllByRole('button', { name: 'Launch Digital Photo Booth' })[0]).toHaveClass(managementStyles.glassAction);
+    const launchAction = screen.getAllByRole('button', { name: 'Launch Digital Photo Booth' })[0];
+    expect(launchAction).toHaveClass(managementStyles.glassAction);
+    expect(launchAction).toHaveClass(managementStyles.workspaceHeaderAction);
+    expect(launchAction).toBeEnabled();
     expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
     expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
     expect(screen.getByRole('switch', { name: 'Digital Photo Booth enabled' })).toBeChecked();
@@ -173,8 +189,20 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(backgroundSections[1].parentElement?.parentElement?.parentElement).toBe(backgroundSections[2].parentElement?.parentElement?.parentElement);
 
     expect(screen.getByText(/Exact required size:/)).toHaveTextContent('1200 × 1800 px');
-    expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('JPG or JPEG, portrait orientation, 4 × 6 inches at 300 DPI');
+    expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('JPEG only (.jpg or .jpeg), exactly 1200 × 1800 px in portrait orientation (4 × 6 inches at 300 DPI)');
     expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('both 2 × 6 inch strips');
+
+    const customTemplateCard = screen.getByRole('heading', { name: 'Add Your Custom Template' }).parentElement?.parentElement!;
+    const chooseTemplate = within(customTemplateCard).getByRole('button', { name: 'Choose File' });
+    const downloadDesignGuide = within(customTemplateCard).getByRole('button', { name: 'Download Photo Strip Design Template' });
+    expect(downloadDesignGuide).toHaveClass(managementStyles.galleryControl);
+    expect(chooseTemplate.compareDocumentPosition(downloadDesignGuide) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const templatesCardSource = fs.readFileSync(path.join(
+      process.cwd(),
+      'src/components/Dashboard/PhotoVideoGallery/GalleryPhotoBoothTemplatesCard.tsx',
+    ), 'utf8');
+    expect(templatesCardSource).toContain("a.download = 'wedding-waitress-photo-strip-design-template-1200x1800.png'");
+    expect(templatesCardSource).toMatch(/makePhotoStripDesignTemplate\(\)[\s\S]*?canvas\.toBlob\([\s\S]*?'image\/png'\)/);
 
     expect(screen.getByTestId('photo-booth-preview').parentElement).toHaveClass('w-full', 'max-w-[420px]');
     expect(PB_STRIP_PRINT).toEqual({ w: 1200, h: 1800 });
@@ -197,8 +225,8 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(uploadCard).not.toHaveTextContent('Required size:');
     expect(uploadCard).not.toHaveTextContent('recommended safe area');
     expect(screen.getByText(/Required size:/)).toHaveTextContent(`${FOOTER_PANEL_WIDTH} × ${FOOTER_PANEL_HEIGHT} px`);
-    expect(screen.getByText('JPG/JPEG:').closest('p')).toHaveTextContent('fills the complete footer with its own background.');
-    expect(screen.getByText('Transparent PNG:').closest('p')).toHaveTextContent('overlays your design while the selected photo-strip background remains visible.');
+    expect(screen.getByText('JPEG only:').closest('p')).toHaveTextContent('upload a .jpg or .jpeg file.');
+    expect(screen.getByText('Complete background:').closest('p')).toHaveTextContent('the footer JPEG replaces the complete footer background.');
     expect(screen.getByText('Keep important text and logos inside the recommended safe area.')).toBeInTheDocument();
 
     expect(within(uploadCard).getByText('No image')).toBeInTheDocument();
@@ -206,7 +234,73 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(within(uploadCard).getByRole('button', { name: 'Download Blank Footer Template' })).toBeInTheDocument();
     expect(uploadCard.parentElement).toHaveClass('grid', 'grid-cols-1', 'xl:grid-cols-4', 'items-start');
     expect(screen.getByRole('heading', { name: 'Custom Footer Text' })).toBeInTheDocument();
+    const backdrop = screen.getByRole('combobox', { name: 'Text Backdrop' });
+    expect(backdrop).toHaveTextContent('None');
+    expect(backdrop).toBeEnabled();
+    expect(screen.getByText('Improve text visibility over detailed backgrounds.')).toBeInTheDocument();
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-text-backdrop', 'none');
+    fireEvent.keyDown(backdrop, { key: 'ArrowDown' });
+    const backdropMenu = await screen.findByRole('listbox');
+    expect(within(backdropMenu).getAllByRole('option').map(option => option.textContent)).toEqual(['None', 'White', 'Black']);
+    fireEvent.click(within(backdropMenu).getByRole('option', { name: 'White' }));
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-text-backdrop', 'white');
     expect(screen.getByRole('heading', { name: 'Footer Header Font' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Footer Date Font' })).toBeInTheDocument();
+
+    const customisationInputs = Array.from(document.querySelectorAll<HTMLInputElement>('input[type="file"]'));
+    expect(customisationInputs).toHaveLength(2);
+    expect(customisationInputs.every((input) => input.accept === 'image/jpeg,.jpg,.jpeg')).toBe(true);
+  });
+
+  it('disables Text Backdrop while a complete custom footer design is active', async () => {
+    mocks.gallery.mockReturnValue({
+      ...gallery,
+      meta: { ...meta, photo_booth_strip_logo_url: 'https://storage.test/custom-footer.jpg' },
+    });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+
+    expect(await screen.findByRole('combobox', { name: 'Text Backdrop' })).toBeDisabled();
+    expect(document.getElementById('photo-booth-text-backdrop-help')).toHaveTextContent(
+      'Improve text visibility over detailed backgrounds. Available only when generated footer text is used.',
+    );
+  });
+
+  it('shows the existing default background when persisted settings reference a retired library asset', async () => {
+    mocks.gallery.mockReturnValue({
+      ...gallery,
+      meta: { ...meta, photo_booth_strip_template_url: '/photobooth-templates/midnight-navy.jpg' },
+    });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+
+    const backgroundColour = await screen.findByRole('heading', { name: 'Background Colour' });
+    expect(backgroundColour.parentElement).toHaveTextContent('Active');
+    expect(screen.getAllByText('No Template Selected').length).toBeGreaterThan(0);
+  });
+
+  it('falls back to the selected solid colour when persisted settings reference a removed built-in', async () => {
+    mocks.gallery.mockReturnValue({
+      ...gallery,
+      meta: {
+        ...meta,
+        photo_booth_strip_template_url: '/photobooth-templates/Emerald%20Garden.jpg',
+      },
+    });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+
+    expect(await screen.findByTestId('photo-booth-preview')).toHaveAttribute('data-template-url', '');
+    expect(screen.getByRole('heading', { name: 'Background Colour' }).parentElement).toHaveTextContent('Active');
+  });
+
+  it('keeps the Template Library controls available with the approved empty-catalogue state', async () => {
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Browse Template Library' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('textbox', { name: 'Search templates by name' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('combobox', { name: 'Filter templates by category' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('combobox', { name: 'Filter templates by colour' })).toBeInTheDocument();
+    expect(within(dialog).getByText('No background templates are currently available.')).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Select Template' })).toBeDisabled();
+    expect(gallery.updatePhotoBoothTemplate).not.toHaveBeenCalled();
   });
 });

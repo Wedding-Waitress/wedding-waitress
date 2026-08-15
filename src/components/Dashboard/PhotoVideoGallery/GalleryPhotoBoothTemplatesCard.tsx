@@ -16,10 +16,13 @@ import { PhotoBoothColorPicker } from './PhotoBoothColorPicker';
 import {
   defaultBottomText, formatEventDate, PB_DEFAULT_STYLE,
   resolveStripStyle, type ComposeOpts, type PhotoBoothStripStyle,
+  type PersistedPhotoBoothStripStyle,
   FOOTER_PANEL_WIDTH, FOOTER_PANEL_HEIGHT, footerPanelMm,
   PB_STRIP_PRINT, validateFooterPanelSize, validateMasterTemplateSize, makeBlankFooterTemplate,
+  makePhotoStripDesignTemplate,
 } from '@/lib/photoBoothTemplate';
-import { isLibraryTemplateUrl, findLibraryTemplate } from '@/lib/photoBoothBackgroundTemplates';
+import { isLibraryTemplateUrl, findLibraryTemplate, resolvePhotoBoothTemplateSelection } from '@/lib/photoBoothBackgroundTemplates';
+import { isPhotoBoothJpeg, PHOTO_BOOTH_JPEG_ACCEPT, PHOTO_BOOTH_JPEG_ERROR } from '@/lib/photoBoothAssetValidation';
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
 import { cn } from '@/lib/utils';
 import managementStyles from './photoVideoSharingManagement.module.css';
@@ -27,8 +30,8 @@ import managementStyles from './photoVideoSharingManagement.module.css';
 
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
-const LOGO_ACCEPT = 'image/png,image/jpeg,image/webp';
-const TEMPLATE_ACCEPT = 'image/jpeg,.jpg,.jpeg';
+const LOGO_ACCEPT = PHOTO_BOOTH_JPEG_ACCEPT;
+const TEMPLATE_ACCEPT = PHOTO_BOOTH_JPEG_ACCEPT;
 const FOOTER_DISABLED_NOTE = 'Custom footer active. It replaces all footer text—include any names, dates or wording in your uploaded design.';
 
 /** Reads the real pixel dimensions of a picked image file. */
@@ -40,30 +43,6 @@ const readImageSize = (file: File) =>
     img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
     img.src = url;
   });
-
-/** True when a PNG actually contains at least one non-opaque pixel. */
-const readHasTransparency = (file: File) =>
-  new Promise<boolean>((res) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      try {
-        const c = document.createElement('canvas');
-        c.width = img.naturalWidth; c.height = img.naturalHeight;
-        const ctx = c.getContext('2d');
-        if (!ctx) return res(true);
-        ctx.drawImage(img, 0, 0);
-        const d = ctx.getImageData(0, 0, c.width, c.height).data;
-        for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return res(true);
-        res(false);
-      } catch { res(true); }
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); res(true); };
-    img.src = url;
-  });
-
-
 
 const FONT_OPTIONS = [
   'Inter',
@@ -101,12 +80,17 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   const hashtag = meta.gallery_title?.startsWith('#') ? meta.gallery_title : undefined;
 
   const savedStyle = useMemo(() => resolveStripStyle(meta.photo_booth_strip_style), [meta.photo_booth_strip_style]);
+  const persistedStyle = (meta.photo_booth_strip_style || {}) as PersistedPhotoBoothStripStyle;
+  const savedTemplateUrl = useMemo(
+    () => resolvePhotoBoothTemplateSelection(meta.photo_booth_strip_template_url, persistedStyle.templateId),
+    [meta.photo_booth_strip_template_url, persistedStyle.templateId],
+  );
 
   const [text, setText] = useState(meta.photo_booth_strip_bottom_text || '');
   const [logo, setLogo] = useState<string | null>(meta.photo_booth_strip_logo_url);
-  const [tpl, setTpl] = useState<string | null>(meta.photo_booth_strip_template_url);
+  const [tpl, setTpl] = useState<string | null>(savedTemplateUrl);
   const [customTpl, setCustomTpl] = useState<string | null>(
-    isLibraryTemplateUrl(meta.photo_booth_strip_template_url) ? null : meta.photo_booth_strip_template_url,
+    isLibraryTemplateUrl(savedTemplateUrl) ? null : savedTemplateUrl,
   );
   const [style, setStyle] = useState<Required<PhotoBoothStripStyle>>(savedStyle);
   const [saving, setSaving] = useState(false);
@@ -133,7 +117,20 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `wedding-waitress-footer-template-${FOOTER_PANEL_WIDTH}x${FOOTER_PANEL_HEIGHT}.png`;
+      a.download = `wedding-waitress-footer-template-${FOOTER_PANEL_WIDTH}x${FOOTER_PANEL_HEIGHT}.jpg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 1);
+  };
+
+  const downloadPhotoStripDesignTemplate = () => {
+    const canvas = makePhotoStripDesignTemplate();
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wedding-waitress-photo-strip-design-template-1200x1800.png';
       a.click();
       URL.revokeObjectURL(url);
     }, 'image/png');
@@ -145,27 +142,23 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
   useEffect(() => {
     setText(meta.photo_booth_strip_bottom_text || '');
     setLogo(meta.photo_booth_strip_logo_url);
-    setTpl(meta.photo_booth_strip_template_url);
-    setCustomTpl(isLibraryTemplateUrl(meta.photo_booth_strip_template_url) ? null : meta.photo_booth_strip_template_url);
+    setTpl(savedTemplateUrl);
+    setCustomTpl(isLibraryTemplateUrl(savedTemplateUrl) ? null : savedTemplateUrl);
     setStyle(savedStyle);
-  }, [meta.photo_booth_strip_bottom_text, meta.photo_booth_strip_logo_url, meta.photo_booth_strip_template_url, savedStyle]);
+  }, [meta.photo_booth_strip_bottom_text, meta.photo_booth_strip_logo_url, savedTemplateUrl, savedStyle]);
 
   const dirty =
     (text || '') !== (meta.photo_booth_strip_bottom_text || '') ||
     (logo || null) !== (meta.photo_booth_strip_logo_url || null) ||
-    (tpl || null) !== (meta.photo_booth_strip_template_url || null) ||
+    (tpl || null) !== savedTemplateUrl ||
     JSON.stringify(style) !== JSON.stringify(savedStyle);
 
   const upload = async (which: 'logo' | 'template', file: File | null) => {
     if (!file) return;
-    const allowed = (which === 'template' ? TEMPLATE_ACCEPT : LOGO_ACCEPT).split(',');
-    const jpegOk = /\.(jpe?g)$/i.test(file.name) && (file.type === 'image/jpeg' || file.type === '');
-    if (which === 'template' ? !jpegOk : !allowed.includes(file.type)) {
+    if (!isPhotoBoothJpeg(file)) {
       toast({
         title: 'Unsupported file type',
-        description: which === 'template'
-          ? 'Background templates must be a JPEG file (.jpg or .jpeg). PNG, GIF and WebP are not accepted.'
-          : 'Use a high-quality PNG or JPEG.',
+        description: PHOTO_BOOTH_JPEG_ERROR,
         variant: 'destructive',
       });
       return;
@@ -183,14 +176,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           if (logoInput.current) logoInput.current.value = '';
           return;
         }
-        if (file.type === 'image/png' && !(await readHasTransparency(file))) {
-          toast({
-            title: 'No transparency detected',
-            description: 'This PNG has no transparent areas and will cover the footer background like a JPEG.',
-          });
-        }
       } catch {
-        toast({ title: 'Could not read image', description: 'Try a different PNG, JPG or WebP file.', variant: 'destructive' });
+        toast({ title: 'Could not read image', description: 'Try a different JPEG file (.jpg or .jpeg).', variant: 'destructive' });
         return;
       }
     } else {
@@ -217,7 +204,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       if (!uid) throw new Error('Not signed in');
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
       const path = `${uid}/${eventId}/photobooth-strip-${which}-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('event-media-branding').upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+      const { error } = await supabase.storage.from('event-media-branding').upload(path, file, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
       const { data: pub } = supabase.storage.from('event-media-branding').getPublicUrl(path);
       if (which === 'logo') setLogo(pub.publicUrl);
@@ -239,7 +226,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         bottom_text: text.trim() ? text : null,
         logo_url: logo || null,
         template_url: tpl || null,
-        style,
+        style: {
+          ...style,
+          backgroundMode: bgMode === 'colour' ? 'colour' : 'template',
+          templateId: libraryTemplate?.id ?? null,
+        },
       });
       toast({ title: 'Photo Booth customization saved' });
     } catch (e: any) {
@@ -263,6 +254,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     bottomText: text.trim() ? text : null,
     logoUrl: logo,
     templateUrl: tpl,
+    backgroundMode: bgMode === 'colour' ? 'colour' : 'template',
+    templateId: libraryTemplate?.id ?? null,
     showBranding: meta.show_branding,
     style,
   };
@@ -369,7 +362,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
             <p className="text-xs text-muted-foreground">
               <span className="font-medium text-[#1D1D1F]">Exact required size: {PB_STRIP_PRINT.w} × {PB_STRIP_PRINT.h} px.</span>{' '}
-              JPG or JPEG, portrait orientation, 4 × 6 inches at 300 DPI. The image must be the full master print containing both 2 × 6 inch strips.
+              JPEG only (.jpg or .jpeg), exactly 1200 × 1800 px in portrait orientation (4 × 6 inches at 300 DPI). The image must be the full master print containing both 2 × 6 inch strips.
             </p>
             <div className="mt-auto space-y-2">
               <input
@@ -410,6 +403,15 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 {uploading === 'template'
                   ? <><LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> Uploading…</>
                   : <><Upload className="h-4 w-4 mr-1" /> Choose File</>}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)}
+                onClick={downloadPhotoStripDesignTemplate}
+              >
+                <Download className="h-4 w-4 mr-1" /> Download Photo Strip Design Template
               </Button>
               {customTpl && bgMode !== 'custom' && (
                 <Button type="button" variant="outline" size="sm" className={cn('lv-premium-shade w-full h-9', isGlass && managementStyles.galleryControl)} onClick={() => setTpl(customTpl)}>
@@ -474,8 +476,8 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               </span>
               <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
             </p>
-            <p><span className="font-semibold text-[#1D1D1F]">JPG/JPEG:</span> fills the complete footer with its own background.</p>
-            <p><span className="font-semibold text-[#1D1D1F]">Transparent PNG:</span> overlays your design while the selected photo-strip background remains visible.</p>
+            <p><span className="font-semibold text-[#1D1D1F]">JPEG only:</span> upload a .jpg or .jpeg file.</p>
+            <p><span className="font-semibold text-[#1D1D1F]">Complete background:</span> the footer JPEG replaces the complete footer background.</p>
             <p>Keep important text and logos inside the recommended safe area.</p>
           </div>
         </div>
@@ -545,6 +547,31 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               Leave empty to show the event name and date: <span className="font-medium text-[#1D1D1F]">{fallbackText}</span>.
               Custom text fully replaces them; line breaks are preserved. The first line uses the Footer Header Font, later lines use the Footer Date Font.
             </p>
+            <div className="pt-1">
+              <Label htmlFor="photo-booth-text-backdrop" className="text-sm">Text Backdrop</Label>
+              <p id="photo-booth-text-backdrop-help" className="text-xs text-muted-foreground mt-1">
+                Improve text visibility over detailed backgrounds.
+                {footerDesignActive ? ' Available only when generated footer text is used.' : ''}
+              </p>
+              <Select
+                value={style.textBackdrop}
+                onValueChange={(value: 'none' | 'white' | 'black') => setStyle(current => ({ ...current, textBackdrop: value }))}
+                disabled={footerDesignActive}
+              >
+                <SelectTrigger
+                  id="photo-booth-text-backdrop"
+                  aria-describedby="photo-booth-text-backdrop-help"
+                  className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
+                  <SelectItem value="none" className={cn(isGlass && managementStyles.gallerySelectItem)}>None</SelectItem>
+                  <SelectItem value="white" className={cn(isGlass && managementStyles.gallerySelectItem)}>White</SelectItem>
+                  <SelectItem value="black" className={cn(isGlass && managementStyles.gallerySelectItem)}>Black</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
 

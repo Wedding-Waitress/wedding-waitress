@@ -36,7 +36,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { GetHelpModal } from '@/components/Support/GetHelpModal';
 import { UpgradePlanModal } from '@/components/Subscription/UpgradePlanModal';
@@ -105,7 +104,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     if (isMobile) setOpenMobile(false);
   }, [onTabChange, isMobile, setOpenMobile]);
   const { isAdmin } = useIsAdmin();
-  const { isOwnerAdmin } = useIsOwnerAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
@@ -275,7 +273,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   <Gift className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
                   Referral / Affiliate Rewards
                 </DropdownMenuItem>
-                {isOwnerAdmin && (
+                {isAdmin && (
                   <>
                     <DropdownMenuSeparator className="my-1" />
                     <DropdownMenuItem
@@ -300,7 +298,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      {isOwnerAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
+      {isAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
       <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
       <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
       <ReferralRewardsModal open={referralOpen} onOpenChange={setReferralOpen} />

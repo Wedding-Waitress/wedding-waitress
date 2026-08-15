@@ -24,10 +24,16 @@ const useInView = <T extends HTMLElement>(rootMargin = '300px') => {
   return { ref, inView };
 };
 
-export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = ({ item, onOpen }) => {
+export const MediaThumb: React.FC<{
+  item: GalleryItem;
+  onOpen: () => void;
+  photoFit?: 'cover' | 'contain';
+}> = ({ item, onOpen, photoFit = 'cover' }) => {
   const { ref, inView } = useInView<HTMLDivElement>();
   const [status, setStatus] = useState<Status>('idle');
   const [attempt, setAttempt] = useState(0);
+  const containsPhoto = item.kind === 'photo' && photoFit === 'contain';
+  const previewSurfaceClass = containsPhoto ? 'bg-[#0b0604]' : 'bg-muted';
 
   useEffect(() => { setStatus('idle'); setAttempt(0); }, [item.signed_url, item.id]);
 
@@ -45,7 +51,7 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
 
   const Fallback = ({ label, warn }: { label: string; warn?: boolean }) => (
     <div
-      className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-muted text-center p-2 cursor-pointer"
+      className={`absolute inset-0 flex flex-col items-center justify-center gap-1 ${previewSurfaceClass} text-center p-2 cursor-pointer`}
       onClick={onOpen}
     >
       {item.kind === 'video' ? (
@@ -62,7 +68,7 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
   );
 
   return (
-    <div ref={ref} className="absolute inset-0 bg-muted">
+    <div ref={ref} className={`absolute inset-0 ${previewSurfaceClass}`} data-photo-fit={item.kind === 'photo' ? photoFit : undefined}>
       {!item.signed_url ? (
         <Fallback label="Preview unavailable" warn />
       ) : item.kind === 'audio' ? (
@@ -83,7 +89,7 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
               src={src}
               alt={item.caption || item.uploader_name || 'Guest upload'}
               decoding="async"
-              className={`absolute inset-0 w-full h-full object-cover cursor-zoom-in transition-opacity duration-200 ${
+              className={`absolute inset-0 w-full h-full ${containsPhoto ? 'object-contain' : 'object-cover'} cursor-zoom-in transition-opacity duration-200 ${
                 status === 'ready' ? 'opacity-100' : 'opacity-0'
               }`}
               onClick={onOpen}
@@ -93,8 +99,8 @@ export const MediaThumb: React.FC<{ item: GalleryItem; onOpen: () => void }> = (
             />
           )}
           {status !== 'ready' && status !== 'error' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+            <div className={`absolute inset-0 flex items-center justify-center ${previewSurfaceClass}`}>
+              <LoaderCircle className={`h-5 w-5 animate-spin ${containsPhoto ? 'text-[#d9b77f]' : 'text-muted-foreground'}`} />
             </div>
           )}
           {status === 'error' && <Fallback label="Preview unavailable" warn />}

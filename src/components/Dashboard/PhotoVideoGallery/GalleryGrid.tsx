@@ -590,6 +590,7 @@ export const GalleryGrid: React.FC<{
           {filtered.map(it => {
             const isHidden = it.moderation_status === 'hidden';
             const isSelected = selected.has(it.id);
+            const isCompletedPhotoBoothStrip = Boolean(boothSetOrder && it.kind === 'photo' && it.is_photo_booth_strip);
             const uploaderLabel = it.uploader_name || 'Anonymous guest';
             const footerMessages = Array.from(new Set(
               [it.caption, it.guestbook_message]
@@ -599,18 +600,21 @@ export const GalleryGrid: React.FC<{
             return (
               <div
                 key={it.id}
+                data-photo-booth-capture={boothSetOrder ? (isCompletedPhotoBoothStrip ? 'strip' : 'individual') : undefined}
                 className={`relative group overflow-hidden bg-white flex flex-col ${isEspressoGallery ? managementStyles.galleryMediaTile : ''} ${
                   boothSetOrder
-                    ? 'border border-[#472c1d] w-[calc((100%-0.5rem)/2)] sm:w-[calc((100%-1.25rem)/3)] md:w-[calc((100%-1.875rem)/4)] lg:w-[calc((100%-2.5rem)/5)] xl:w-[calc((100%-3.125rem)/6)]'
+                    ? `border border-[#472c1d] w-[calc((100%-0.5rem)/2)] sm:w-[calc((100%-1.25rem)/3)] md:w-[calc((100%-1.875rem)/4)] lg:w-[calc((100%-2.5rem)/5)] xl:w-[calc((100%-3.125rem)/6)] ${managementStyles.boothCaptureTile}`
                     : 'border border-black'
                 } ${
                   isSelected ? 'ring-2 ring-[#967A59]' : ''
                 } ${isHidden ? 'opacity-60' : ''}`}
               >
-                {/* Square 1:1 thumbnail */}
-                <div className="relative w-full aspect-square overflow-hidden">
+                {/* Photo Booth cards retain their original overall height while
+                    transferring space from the compact footer to this preview. */}
+                <div className={`relative w-full overflow-hidden ${boothSetOrder ? managementStyles.boothCapturePreview : 'aspect-square'}`}>
                   <MediaThumb
                     item={it}
+                    photoFit={isCompletedPhotoBoothStrip ? 'contain' : 'cover'}
                     onOpen={() => {
                       if (selectMode) { toggleOne(it.id); return; }
                       if (it.signed_url) setLightboxId(it.id);
@@ -688,7 +692,7 @@ export const GalleryGrid: React.FC<{
 
                 {/* Meta strip */}
                 {isEspressoGallery ? (
-                  <div className={managementStyles.galleryMediaFooter}>
+                  <div className={`${managementStyles.galleryMediaFooter} ${boothSetOrder ? managementStyles.boothCaptureFooter : ''}`}>
                     <div className={managementStyles.galleryMediaFooterRow}>
                       <div className={managementStyles.galleryMediaFooterName} title={uploaderLabel}>
                         {uploaderLabel}
@@ -712,7 +716,7 @@ export const GalleryGrid: React.FC<{
                         </Select>
                       )}
                     </div>
-                    {footerMessages.map(message => (
+                    {!boothSetOrder && footerMessages.map(message => (
                       <div className={managementStyles.galleryMediaFooterMessage} key={message} title={message}>{message}</div>
                     ))}
                   </div>

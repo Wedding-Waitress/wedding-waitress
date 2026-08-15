@@ -89,7 +89,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
         headerAction={
           <Button
             variant="outline"
-            className={`lv-premium-shade text-white border ${managementStyles.glassAction}`}
+            className={`lv-premium-shade text-white border ${managementStyles.glassAction} ${managementStyles.workspaceHeaderAction}`}
             disabled={!boothUrl}
             onClick={() => boothUrl && window.open(boothUrl, '_blank', 'noopener,noreferrer')}
           >

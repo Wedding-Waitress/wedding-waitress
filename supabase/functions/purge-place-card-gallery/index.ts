@@ -24,13 +24,8 @@ Deno.serve(async (req) => {
     const userId = userData?.user?.id;
     if (!userId) return new Response(JSON.stringify({ error: "Unauthenticated" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    const { data: roleRow } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!roleRow) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const { data: isAdmin, error: adminError } = await userClient.rpc("is_owner_admin");
+    if (adminError || isAdmin !== true) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const bucket = "place-card-gallery";
     let totalRemoved = 0;

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, ArrowLeft } from 'lucide-react';
-import { useIsOwnerAdmin } from '@/hooks/useIsOwnerAdmin';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminOverview } from '@/components/Admin/AdminOverview';
 import { AdminUsers } from '@/components/Admin/AdminUsers';
@@ -17,7 +17,7 @@ import { AdminInvitationTemplates } from '@/components/Admin/AdminInvitationTemp
 import { AdminVenueTemplates } from '@/components/Admin/AdminVenueTemplates';
 
 export const Admin = () => {
-  const { isOwnerAdmin, loading: adminLoading } = useIsOwnerAdmin();
+  const { isAdmin, loading: adminLoading } = useIsAdmin();
   const [authLoading, setAuthLoading] = useState(true);
   const [grantValid, setGrantValid] = useState(false);
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export const Admin = () => {
   // Redirect non-admins or unverified admins
   useEffect(() => {
     if (adminLoading || authLoading) return;
-    if (!isOwnerAdmin) {
+    if (!isAdmin) {
       navigate('/dashboard');
       return;
     }
@@ -61,7 +61,7 @@ export const Admin = () => {
       // Admin reached /admin without SMS verification — bounce to dashboard
       navigate('/dashboard');
     }
-  }, [isOwnerAdmin, adminLoading, authLoading, grantValid, navigate]);
+  }, [isAdmin, adminLoading, authLoading, grantValid, navigate]);
 
   if (adminLoading || authLoading) {
     return (
@@ -71,7 +71,7 @@ export const Admin = () => {
     );
   }
 
-  if (!isOwnerAdmin || !grantValid) {
+  if (!isAdmin || !grantValid) {
     return null;
   }
 

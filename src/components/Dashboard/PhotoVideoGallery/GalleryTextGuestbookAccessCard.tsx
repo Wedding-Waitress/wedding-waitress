@@ -57,15 +57,18 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta; appea
         </p>
       </div>
 
-      <div className="space-y-4 min-w-0">
+      <div className="min-w-0">
         {!meta.primary_token ? (
           <div className="flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5">
             <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
             <p className="text-sm text-destructive">Digital Guestbook link not ready — please retry.</p>
           </div>
         ) : (
-          <>
-            <div className="flex justify-center">
+          <div
+            className="grid min-w-0 grid-cols-1 items-start gap-5 xl:grid-cols-[auto_minmax(0,1fr)] xl:gap-6"
+            data-guestbook-access-layout
+          >
+            <div className="flex justify-start">
               <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
                 {qrDataUrl ? (
                   <img src={qrDataUrl} alt="Digital Guestbook QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
@@ -75,28 +78,36 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta; appea
               </div>
             </div>
 
-            <div>
-              <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>Public Digital Guestbook link</Label>
-              <div className="flex flex-wrap gap-2 mt-1.5">
-                <Input value={url} readOnly className={cn('h-11 text-sm min-w-0 flex-1', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
-                <Button variant="outline" className={cn('lv-premium-shade h-11 shrink-0', isGlass && managementStyles.galleryControl)} onClick={copy}>
-                  <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy
-                </Button>
+            <div className="flex min-w-0 flex-col gap-4" data-guestbook-access-controls>
+              <div className="min-w-0">
+                <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>Public Digital Guestbook link</Label>
+                <div className="flex min-w-0 gap-2 mt-1.5">
+                  <Input value={url} readOnly className={cn('h-11 text-sm min-w-0 flex-1', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
+                  <Button variant="outline" className={cn('lv-premium-shade h-11 shrink-0', isGlass && managementStyles.galleryControl)} onClick={copy}>
+                    <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={open} disabled={!url}>
-              <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Open Digital Guestbook
-            </Button>
-            <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl}>
-              <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Download QR code
-            </Button>
-          </>
+              <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={open} disabled={!url}>
+                <ExternalLink className="h-4 w-4 mr-1" strokeWidth={1.8} /> Open Digital Guestbook
+              </Button>
+              <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl}>
+                <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Download QR code
+              </Button>
+
+              <p className={cn('mt-auto text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
+                This uses your existing event gallery link — no separate token or guest page is created.
+              </p>
+            </div>
+          </div>
         )}
 
-        <p className={cn('text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
-          This uses your existing event gallery link — no separate token or guest page is created.
-        </p>
+        {!meta.primary_token && (
+          <p className={cn('mt-4 text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
+            This uses your existing event gallery link — no separate token or guest page is created.
+          </p>
+        )}
       </div>
     </Card>
   );

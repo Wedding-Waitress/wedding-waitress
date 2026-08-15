@@ -35,7 +35,14 @@ vi.mock('@/integrations/supabase/client', () => ({
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
     },
     from: () => ({
-      select: () => ({ eq: () => ({ order: () => Promise.resolve({ data: [], error: null }) }) }),
+      select: () => {
+        const query = {
+          order: () => query,
+          eq: () => query,
+          then: (resolve: (value: { data: never[]; error: null }) => unknown) => resolve({ data: [], error: null }),
+        };
+        return query;
+      },
       update: () => ({ eq: () => Promise.resolve({ error: null }) }),
     }),
   },

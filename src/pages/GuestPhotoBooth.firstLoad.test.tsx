@@ -113,4 +113,60 @@ describe('GuestPhotoBooth first-load initialisation', () => {
     expect(screen.queryByText('Opening Photo Booth…')).toBeNull();
     expect(screen.queryByText('We couldn’t open the Photo Booth')).toBeNull();
   });
+
+  it('maps removed built-ins to solid colour while preserving custom organiser JPEG backgrounds', async () => {
+    const { buildPublicPhotoBoothComposeOpts } = await import('@/pages/GuestPhotoBooth');
+    const builtIn = buildPublicPhotoBoothComposeOpts({
+      ...GALLERY_ROW,
+      photo_booth_strip_template_url: '/photobooth-templates/retired-name.jpg',
+      photo_booth_strip_style: {
+        backgroundMode: 'template',
+        templateId: 'classic-champagne',
+        bgColor: '#967A59',
+      },
+    } as any);
+    expect(builtIn).toMatchObject({ templateUrl: null, templateId: null, backgroundMode: 'colour' });
+
+    const customUrl = 'https://storage.test/event/custom-template.jpg';
+    const custom = buildPublicPhotoBoothComposeOpts({
+      ...GALLERY_ROW,
+      photo_booth_strip_template_url: customUrl,
+      photo_booth_strip_style: { backgroundMode: 'template', templateId: null },
+    } as any);
+    expect(custom).toMatchObject({ templateUrl: customUrl, templateId: null, backgroundMode: 'template' });
+  });
+
+  it('refetches the public event settings when the QR route is reopened', async () => {
+    const { GuestPhotoBooth } = await import('@/pages/GuestPhotoBooth');
+    const removedTemplateRow = {
+      ...GALLERY_ROW,
+      photo_booth_strip_template_url: '/photobooth-templates/Midnight%20Navy%20and%20Gold.jpg',
+      photo_booth_strip_style: {
+        backgroundMode: 'template',
+        templateId: 'midnight-navy-gold',
+        bgColor: '#967A59',
+      },
+    };
+
+    const first = render(
+      <MemoryRouter>
+        <GuestPhotoBooth tokenProp="tok-123" embedded />
+      </MemoryRouter>,
+    );
+    rpcResolves[0]({ data: [removedTemplateRow], error: null });
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(1));
+    first.unmount();
+
+    render(
+      <MemoryRouter>
+        <GuestPhotoBooth tokenProp="tok-123" embedded />
+      </MemoryRouter>,
+    );
+    rpcResolves[1]({ data: [removedTemplateRow], error: null });
+    await waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(2));
+
+    expect(rpc).toHaveBeenCalledTimes(2);
+    expect(rpc).toHaveBeenNthCalledWith(1, 'get_event_media_gallery_public', { _token: 'tok-123' });
+    expect(rpc).toHaveBeenNthCalledWith(2, 'get_event_media_gallery_public', { _token: 'tok-123' });
+  });
 });

@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { vi } from 'vitest';
@@ -144,6 +146,52 @@ describe('GalleryGrid toolbar and badge rendering', () => {
     expect(container.querySelector(`.${managementStyles.galleryPanel}`)).toBeNull();
     expect(container.querySelector(`.${managementStyles.galleryControl}`)).toBeNull();
     expect(container.querySelector(`.${managementStyles.galleryMediaTile}`)).toBeNull();
+  });
+
+  it('gives Photo Booth strips the full-height contained preview and keeps individual captures covered', async () => {
+    const { container } = render(
+      <GalleryGrid
+        items={sampleItems}
+        onDelete={noopAsync}
+        onSetModeration={noopAsync}
+        onSetAlbum={noopAsync}
+        onBulkSetAlbum={async () => 0}
+        onDeleteMany={async () => ({ deletedIds: [], failedIds: [], storageFailedPaths: [] })}
+        boothSetOrder
+        hideAlbumFeature
+        dark
+        appearance="espresso-glass"
+        title="Digital Photo Booth Captures"
+      />,
+    );
+
+    const stripCard = container.querySelector<HTMLElement>('[data-photo-booth-capture="strip"]');
+    const individualCard = container.querySelector<HTMLElement>('[data-photo-booth-capture="individual"]');
+    expect(stripCard).toHaveClass(managementStyles.boothCaptureTile);
+    expect(individualCard).toHaveClass(managementStyles.boothCaptureTile);
+    expect(stripCard?.querySelector(`.${managementStyles.boothCapturePreview}`)).toBeInTheDocument();
+    expect(individualCard?.querySelector(`.${managementStyles.boothCapturePreview}`)).toBeInTheDocument();
+
+    const stripImage = await screen.findByRole('img', { name: 'Strip capture' });
+    const individualImage = await screen.findByRole('img', { name: 'Jane Doe' });
+    expect(stripImage).toHaveClass('object-contain');
+    expect(stripImage).not.toHaveClass('object-cover');
+    expect(stripImage.parentElement).toHaveAttribute('data-photo-fit', 'contain');
+    expect(individualImage).toHaveClass('object-cover');
+    expect(individualImage.parentElement).toHaveAttribute('data-photo-fit', 'cover');
+
+    for (const card of [stripCard, individualCard]) {
+      const footer = card?.querySelector(`.${managementStyles.galleryMediaFooter}`);
+      expect(footer).toHaveClass(managementStyles.boothCaptureFooter);
+      expect(card?.querySelector('span.uppercase')).toHaveClass('bg-green-600/85', 'text-white');
+    }
+
+    const css = fs.readFileSync(
+      path.join(process.cwd(), 'src/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css'),
+      'utf8',
+    );
+    expect(css).toMatch(/\.boothCapturePreview\s*{[\s\S]*height:\s*calc\(100cqw \+ 1rem\)/);
+    expect(css).toMatch(/\.boothCaptureFooter\s*{[\s\S]*height:\s*1\.5rem[\s\S]*min-height:\s*1\.5rem/);
   });
 
   it('keeps filtering, album selection, tile selection and moderation working in the scoped gallery appearance', async () => {

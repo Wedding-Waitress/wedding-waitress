@@ -12,6 +12,7 @@ import {
   PB_STRIP_PRINT,
   PB_STRIP_SINGLE,
   composeStrip,
+  makePhotoStripDesignTemplate,
   photoBoothStripRects,
   assertStripBitmapDimensions,
   validateMasterTemplateSize,
@@ -96,6 +97,64 @@ describe('printer-ready Photo Booth strip geometry', () => {
     expect(invalid.message).toContain('1440 × 2000 px');
     expect(invalid.message).toContain('1200 × 1800 px');
     expect(invalid.message).toContain('both 2 × 6 inch strips');
+  });
+
+  it('builds the downloadable design guide from the exact shared photo, branding and footer rectangles', () => {
+    const fillRect = vi.fn();
+    const strokeRect = vi.fn();
+    const fillText = vi.fn();
+    const context = {
+      fillRect,
+      strokeRect,
+      fillText,
+      save: vi.fn(),
+      restore: vi.fn(),
+      setLineDash: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      translate: vi.fn(),
+      rotate: vi.fn(),
+      textAlign: 'start',
+      textBaseline: 'alphabetic',
+      font: '',
+      fillStyle: '',
+      strokeStyle: '',
+      lineWidth: 1,
+    } as unknown as CanvasRenderingContext2D;
+    const canvas = {
+      width: 0,
+      height: 0,
+      getContext: () => context,
+    } as unknown as HTMLCanvasElement;
+    const originalCreateElement = document.createElement.bind(document);
+    const createElement = vi.spyOn(document, 'createElement').mockImplementation(((tagName: string) => (
+      tagName === 'canvas' ? canvas : originalCreateElement(tagName)
+    )) as typeof document.createElement);
+
+    try {
+      const guide = makePhotoStripDesignTemplate();
+      const geometry = photoBoothStripRects();
+      expect({ width: guide.width, height: guide.height }).toEqual({
+        width: PB_STRIP_PRINT.w,
+        height: PB_STRIP_PRINT.h,
+      });
+      for (const rect of geometry.photos.flat()) {
+        expect(fillRect).toHaveBeenCalledWith(rect.x, rect.y, rect.w, rect.h);
+        expect(strokeRect).toHaveBeenCalledWith(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2);
+      }
+      for (const rect of [...geometry.headers, ...geometry.footers]) {
+        expect(fillRect).toHaveBeenCalledWith(rect.x, rect.y, rect.w, rect.h);
+      }
+      expect(fillText.mock.calls.filter(([text]) => text === 'GUEST PHOTO – COVERED AREA')).toHaveLength(8);
+      expect(fillText.mock.calls.filter(([text]) => text === 'FIXED BRANDING AREA')).toHaveLength(2);
+      expect(fillText.mock.calls.filter(([text]) => text === 'FOOTER AREA')).toHaveLength(2);
+      expect(context.moveTo).toHaveBeenCalledWith(PB_STRIP_CUT_X, 0);
+      expect(context.lineTo).toHaveBeenCalledWith(PB_STRIP_CUT_X, PB_STRIP_PRINT.h);
+    } finally {
+      createElement.mockRestore();
+    }
   });
 
   it('rejects any generated or downloaded bitmap that is not exactly 1200 × 1800', () => {

@@ -27,6 +27,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useUndoStack } from '@/hooks/useUndoStack';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { DashboardLoadingScreen } from '@/components/Dashboard/DashboardLoadingScreen';
 
 // Lazy-loaded tab pages for faster initial load
 const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
@@ -43,34 +44,6 @@ const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQues
 const InvitationsPage = lazy(() => import('@/components/Dashboard/Invitations/InvitationsPage').then(m => ({ default: m.InvitationsPage })));
 const PhotoVideoGalleryPage = lazy(() => import('@/components/Dashboard/PhotoVideoGallery').then(m => ({ default: m.PhotoVideoGalleryPage })));
 const Account = lazy(() => import('@/pages/Account').then(m => ({ default: m.Account })));
-
-// Unified global page loader — used as Suspense fallback for every dashboard tab.
-// Centered, height-stable, neutral Wedding Waitress styling, smooth fade-in.
-const TabLoader = () => (
-  <div
-    className="flex flex-col items-center justify-center w-full animate-in fade-in duration-300"
-    style={{ minHeight: '60vh' }}
-    role="status"
-    aria-live="polite"
-  >
-    <div
-      className="rounded-full border-4 animate-spin"
-      style={{
-        width: 44,
-        height: 44,
-        borderColor: 'rgba(150, 122, 89, 0.2)',
-        borderTopColor: '#967A59',
-      }}
-    />
-    <p
-      className="mt-4 text-sm font-medium"
-      style={{ color: '#6E6E73', letterSpacing: '0.01em' }}
-    >
-      Loading Page...
-    </p>
-  </div>
-);
-
 
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
@@ -708,13 +681,11 @@ export const Dashboard = () => {
 
   // Only block on authentication check — data loads in background with cached UI
   if (authLoading) {
-    return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
-        <Card className="ww-box p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <CardTitle>Loading Dashboard...</CardTitle>
-          <CardDescription>Please wait while we set up your workspace</CardDescription>
-        </Card>
-      </div>;
+    return (
+      <DashboardLoadingScreen
+        appearance={activeTab === 'photo-video-gallery' ? 'photo-video-sharing' : 'neutral'}
+      />
+    );
   }
 
   // Show authentication error or redirect to landing
@@ -763,7 +734,14 @@ export const Dashboard = () => {
             </div>}
             
             {/* Tab Content */}
-            <Suspense fallback={<TabLoader />}>
+            <Suspense
+              fallback={(
+                <DashboardLoadingScreen
+                  contained
+                  appearance={activeTab === 'photo-video-gallery' ? 'photo-video-sharing' : 'neutral'}
+                />
+              )}
+            >
               <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
                 {renderTabContent()}
               </div>

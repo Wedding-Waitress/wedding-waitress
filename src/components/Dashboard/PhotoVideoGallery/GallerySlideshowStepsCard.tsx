@@ -11,10 +11,14 @@ const STEPS = [
   { icon: RotateCcw, title: 'It updates itself', text: 'Newly approved uploads automatically join the slideshow.' },
 ];
 
-export const GallerySlideshowStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass' }> = ({ appearance = 'default' }) => {
+export const GallerySlideshowStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass'; embedded?: boolean }> = ({ appearance = 'default', embedded = false }) => {
   const isGlass = appearance === 'espresso-glass';
   return (
-  <Card className={cn('h-full p-5 sm:p-6 space-y-5 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
+  <Card className={cn(
+    'overflow-hidden',
+    embedded ? 'p-4 space-y-4' : 'h-full p-5 sm:p-6 space-y-5',
+    isGlass && managementStyles.glassCard,
+  )} data-appearance={isGlass ? appearance : undefined} data-slideshow-workspace-card={embedded ? 'steps' : undefined}>
     <div className="min-w-0">
       <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
         <Presentation size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> How the Live Slideshow Works

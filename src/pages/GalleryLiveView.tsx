@@ -55,6 +55,37 @@ const MAX_VIDEO_MS = 15 * 1000;
 const POLL_ITEMS_MS = 15 * 1000;
 // Re-fetch signed URLs before they expire (edge function TTL = 600s).
 const REFRESH_URLS_MS = 8 * 60 * 1000;
+export const LIVE_SLIDESHOW_MANAGEMENT_PATH = '/dashboard/photo-video-gallery/live-slideshow';
+
+type SlideshowExitWindow = Pick<Window, 'close' | 'closed' | 'setTimeout'> & {
+  location: Pick<Location, 'replace'>;
+};
+
+/** Exit a venue slideshow without ever falling back to the public guest gallery. */
+export async function exitLiveSlideshow(
+  targetWindow: SlideshowExitWindow = window,
+  targetDocument: Pick<Document, 'fullscreenElement' | 'exitFullscreen'> = document,
+) {
+  if (targetDocument.fullscreenElement) {
+    try {
+      await targetDocument.exitFullscreen();
+    } catch {
+      // A denied fullscreen exit must not prevent the safe navigation fallback.
+    }
+  }
+
+  try {
+    targetWindow.close();
+  } catch {
+    // Some browsers throw instead of ignoring a disallowed window.close().
+  }
+
+  targetWindow.setTimeout(() => {
+    if (!targetWindow.closed) {
+      targetWindow.location.replace(LIVE_SLIDESHOW_MANAGEMENT_PATH);
+    }
+  }, 100);
+}
 
 const GalleryLiveView: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -113,6 +144,21 @@ const GalleryLiveView: React.FC = () => {
     document.addEventListener('fullscreenchange', handler);
     return () => document.removeEventListener('fullscreenchange', handler);
   }, []);
+
+  const handleExitSlideshow = useCallback(() => {
+    void exitLiveSlideshow();
+  }, []);
+
+  useEffect(() => {
+    if (!isSlideshow) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      handleExitSlideshow();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleExitSlideshow, isSlideshow]);
 
   const loadItems = useCallback(async (t: string) => {
     const body: Record<string, string> = { token: t };
@@ -467,9 +513,22 @@ const GalleryLiveView: React.FC = () => {
         </div>
       ) : null}
       {theme.showBranding && (
-        <div className="absolute bottom-4 right-6 z-20 text-[10px] md:text-xs uppercase tracking-[0.25em] text-white/35 pointer-events-none">
+        <div className={`absolute bottom-4 z-20 text-[10px] md:text-xs uppercase tracking-[0.25em] text-white/35 pointer-events-none ${isSlideshow ? 'right-14' : 'right-6'}`}>
           Wedding Waitress
         </div>
+      )}
+      {isSlideshow && (
+        <button
+          type="button"
+          onClick={handleExitSlideshow}
+          aria-label="Exit live slideshow"
+          title="Exit live slideshow"
+          className="group fixed bottom-1.5 right-1.5 z-30 flex h-11 w-11 items-center justify-center bg-transparent text-[#b8a58d]/30 outline-none transition-colors duration-150 hover:text-[#d6c2a4]/60 focus-visible:text-[#ead7b8]/80 active:text-[#ead7b8]/70 motion-reduce:transition-none"
+        >
+          <span aria-hidden="true" className="text-base font-light leading-none transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110 group-active:scale-95 motion-reduce:transition-none motion-reduce:transform-none">
+            ×
+          </span>
+        </button>
       )}
     </div>
   );

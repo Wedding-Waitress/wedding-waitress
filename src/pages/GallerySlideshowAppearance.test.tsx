@@ -57,14 +57,19 @@ describe('Live Slideshow premium appearance', () => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: vi.fn(async () => undefined) } });
   });
 
-  afterEach(() => { cleanup(); vi.clearAllMocks(); });
+  afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.clearAllMocks(); });
 
   it('applies the route-scoped espresso treatment while protecting the QR and preview stage', async () => {
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
     render(<MemoryRouter><GallerySlideshowFeaturePage /></MemoryRouter>);
 
     expect(await screen.findByRole('heading', { name: 'Live Slideshow', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back to Photo & Video Sharing' })).toHaveClass(managementStyles.glassAction);
-    expect(screen.getAllByRole('button', { name: 'Launch Live Slideshow' })[0]).toHaveClass(managementStyles.glassAction);
+    const launchAction = screen.getAllByRole('button', { name: 'Launch Live Slideshow' })[0];
+    expect(launchAction).toHaveClass(managementStyles.glassAction);
+    expect(launchAction).toHaveClass(managementStyles.workspaceHeaderAction);
+    expect(launchAction).toBeEnabled();
     expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
     expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
     expect(screen.getByRole('switch', { name: 'Live Slideshow enabled' })).toHaveClass(managementStyles.galleryViewToggle);
@@ -83,12 +88,87 @@ describe('Live Slideshow premium appearance', () => {
     expect(qr).toHaveClass('w-40', 'h-40', 'sm:w-44', 'sm:h-44');
     expect(qr).not.toHaveAttribute('style');
     expect(qr.parentElement).toHaveClass(managementStyles.galleryViewQrFrame);
+    fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+    await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('public-token')));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Launch Live Slideshow' })[1]);
+    expect(open).toHaveBeenCalledWith(expect.stringContaining('public-token'), '_blank', 'noopener,noreferrer');
+    fireEvent.click(screen.getByRole('button', { name: 'Download QR code' }));
+    expect(anchorClick).toHaveBeenCalled();
 
     expect(screen.getByText('Shared by Fiona').closest('.aspect-video')).toHaveClass('bg-black');
+    const previewCard = screen.getByRole('heading', { name: 'Slideshow Preview' }).closest('[data-appearance="espresso-glass"]')!;
+    const previewHeader = previewCard.querySelector('[data-slideshow-preview-header]')!;
+    const previewControls = previewCard.querySelector('[data-slideshow-preview-controls]')!;
+    const previewStage = previewCard.querySelector('[data-slideshow-preview-stage]')!;
+    expect(previewHeader).toContainElement(screen.getByRole('heading', { name: 'Slideshow Preview' }));
+    expect(previewHeader).toContainElement(screen.getByText('Exactly what your guests will see on the big screen.'));
+    expect(previewHeader).toHaveClass('flex-wrap', 'justify-between');
+    expect(Array.from(previewControls.querySelectorAll('button')).map((button) => button.textContent?.trim())).toEqual([
+      'Previous',
+      'Pause',
+      'Next',
+      'Restart',
+      'Fullscreen',
+    ]);
+    expect(previewHeader.nextElementSibling).toBe(previewControls);
+    expect(previewControls.nextElementSibling).toBe(previewStage);
+    expect(previewStage.nextElementSibling).toBeNull();
     for (const label of ['Previous', 'Pause', 'Next', 'Restart', 'Fullscreen']) {
       expect(screen.getByRole('button', { name: label })).toHaveClass(managementStyles.galleryControl);
     }
     expect(screen.getByRole('button', { name: 'Save Settings' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
+  });
+
+  it('uses the requested two-row responsive settings layout and route-only width', async () => {
+    const { container } = render(<MemoryRouter><GallerySlideshowFeaturePage /></MemoryRouter>);
+    const settingsHeading = await screen.findByRole('heading', { name: 'Slideshow Settings' });
+    const settingsPanel = settingsHeading.closest('[data-appearance="espresso-glass"]');
+    const primaryGrid = settingsPanel?.querySelector('[data-slideshow-primary-grid]');
+    const secondaryGrid = settingsPanel?.querySelector('[data-slideshow-secondary-grid]');
+
+    expect(container.querySelector('main')).toHaveClass('max-w-[1500px]');
+    expect(primaryGrid).toHaveClass(
+      'grid-cols-1',
+      'md:grid-cols-2',
+      'gap-5',
+      'min-[1440px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.78fr)]',
+    );
+    expect(Array.from(primaryGrid?.children ?? []).map((card) => card.getAttribute('data-slideshow-workspace-card'))).toEqual([
+      'steps',
+      'access',
+      'playback',
+    ]);
+    expect(secondaryGrid).toHaveClass(
+      'grid-cols-1',
+      'md:grid-cols-2',
+      'gap-5',
+      'min-[1440px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.78fr)]',
+    );
+    expect(primaryGrid?.className).toBe(secondaryGrid?.className);
+    expect(Array.from(secondaryGrid?.children ?? []).map((card) => card.getAttribute('data-slideshow-workspace-card'))).toEqual([
+      'albums',
+      'media-types',
+      'save-settings',
+    ]);
+
+    const accessLayout = settingsPanel?.querySelector('[data-slideshow-access-layout]');
+    expect(accessLayout).toHaveClass('grid-cols-1', 'min-[1440px]:grid-cols-[180px_minmax(0,1fr)]');
+    const qr = await screen.findByRole('img', { name: 'Live Slideshow QR code' });
+    expect(qr).toHaveClass('w-40', 'h-40', 'sm:w-44', 'sm:h-44');
+
+    const playback = settingsPanel?.querySelector('[data-slideshow-workspace-card="playback"]') as HTMLElement;
+    const playbackControls = within(playback).getAllByRole('combobox');
+    expect(playbackControls).toHaveLength(3);
+    const playbackText = playback.textContent ?? '';
+    expect(playbackText.indexOf('Display order')).toBeLessThan(playbackText.indexOf('Slide duration'));
+    expect(playbackText.indexOf('Slide duration')).toBeLessThan(playbackText.indexOf('Transition'));
+    expect(playbackText.indexOf('Transition')).toBeLessThan(playbackText.indexOf('Show guest name / caption'));
+    expect(playbackText.indexOf('Show guest name / caption')).toBeLessThan(playbackText.indexOf('Loop continuously'));
+
+    const albums = screen.getByText('Albums').parentElement;
+    expect(settingsPanel?.contains(albums)).toBe(true);
+    expect(settingsPanel?.compareDocumentPosition(albums as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Slideshow Preview' }).closest('[data-appearance="espresso-glass"]')).not.toBe(settingsPanel);
   });
 
   it('shows only the shared album options, normalises legacy selections, and preserves save behaviour', async () => {

@@ -4953,6 +4953,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_owner_admin: { Args: never; Returns: boolean }
       is_account_master: { Args: { _user_id: string }; Returns: boolean }
       is_pending_event_media_path: { Args: { _path: string }; Returns: boolean }
       log_guest_activity: {

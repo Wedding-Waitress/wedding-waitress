@@ -28,6 +28,8 @@ export interface FeatureWorkspaceLayoutProps {
   backgroundAppearance?: 'default' | 'photo-video-sharing';
   /** Reuses only the approved management header controls without changing typography. */
   controlsAppearance?: 'default' | 'photo-video-sharing';
+  /** Allows a single feature workspace to opt into a wider content canvas without changing sibling pages. */
+  contentWidth?: 'default' | 'wide';
   toggleClassName?: string;
   selectionStatus?: 'loading' | 'empty' | 'selected';
   children?: React.ReactNode;
@@ -48,6 +50,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   appearance = 'default',
   backgroundAppearance = 'default',
   controlsAppearance = 'default',
+  contentWidth = 'default',
   toggleClassName,
   selectionStatus = 'selected',
   children,
@@ -155,7 +158,11 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
       </header>
 
 
-      <main className={`mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12${brownOutline ? ' ww-brown-outline' : ''}`}>
+      <main className={cn(
+        'mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12',
+        contentWidth === 'wide' ? 'max-w-[1500px]' : 'max-w-[1400px]',
+        brownOutline && 'ww-brown-outline',
+      )}>
         {children}
       </main>
     </div>

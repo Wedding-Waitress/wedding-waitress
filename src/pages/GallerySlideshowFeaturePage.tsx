@@ -7,8 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
-import { GallerySlideshowAccessCard, buildLiveSlideshowUrl } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowAccessCard';
-import { GallerySlideshowStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowStepsCard';
+import { buildLiveSlideshowUrl } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowAccessCard';
 import { GallerySlideshowSettingsCard } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowSettingsCard';
 import { GallerySlideshowPreviewCard } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowPreviewCard';
 import { slideshowSettingsFromRow, type SlideshowSettings } from '@/lib/slideshowSettings';
@@ -74,6 +73,7 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
         brownOutline
         backgroundAppearance="photo-video-sharing"
         controlsAppearance="photo-video-sharing"
+        contentWidth="wide"
         toggleClassName={managementStyles.galleryViewToggle}
         title="Live Slideshow"
         description="Display approved guest photos and videos in a beautiful, continuously updating slideshow."
@@ -87,7 +87,7 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
         headerAction={
           <Button
             variant="outline"
-            className={`lv-premium-shade text-white border ${managementStyles.glassAction}`}
+            className={`lv-premium-shade text-white border ${managementStyles.glassAction} ${managementStyles.workspaceHeaderAction}`}
             disabled={!liveUrl}
             onClick={() => liveUrl && window.open(liveUrl, '_blank', 'noopener,noreferrer')}
           >
@@ -104,11 +104,6 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
           />
         ) : (
           <div className={`space-y-6 sm:space-y-8 ${managementStyles.slideshowWorkspace}`} data-appearance="espresso-glass">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-              <GallerySlideshowStepsCard appearance="espresso-glass" />
-              <GallerySlideshowAccessCard meta={meta} appearance="espresso-glass" />
-            </div>
-
             <GallerySlideshowSettingsCard
               meta={meta}
               value={effective}

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState, type SetStateAction } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
-import type { PhotoBoothStripStyle } from '@/lib/photoBoothTemplate';
+import type { PersistedPhotoBoothStripStyle } from '@/lib/photoBoothTemplate';
 import { registerCache } from '@/lib/cacheRegistry';
 
 export interface GalleryMeta {
@@ -60,7 +60,7 @@ export interface PhotoBoothTemplateSettings {
   bottom_text: string | null;
   logo_url: string | null;
   template_url: string | null;
-  style?: PhotoBoothStripStyle | null;
+  style?: PersistedPhotoBoothStripStyle | null;
 }
 
 export interface GalleryDisplaySettings {
@@ -485,7 +485,15 @@ export function useEventMediaGallery(eventId: string | null) {
         photo_booth_strip_style: s.style ?? null,
       };
     });
-  }, [eventId]);
+    // Re-read the persisted row so the next feature route and subsequent save
+    // use the same canonical template identity returned by the database.
+    try {
+      const persisted = await fetchMeta(eventId);
+      if (persisted) setMeta(persisted);
+    } catch (error) {
+      console.warn('[Photo Booth] Template saved, but refreshing the persisted settings failed.', error);
+    }
+  }, [eventId, fetchMeta, setMeta]);
 
   const setGuestFeature = useCallback(async (
     feature: 'guest_upload_enabled' | 'gallery_view_enabled' | 'guestbook_text_enabled',

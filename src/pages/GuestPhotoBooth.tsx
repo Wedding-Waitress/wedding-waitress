@@ -22,7 +22,9 @@ import {
   formatEventDate,
   PB_STRIP_COUNT,
   type ComposeOpts,
+  type PersistedPhotoBoothStripStyle,
 } from '@/lib/photoBoothTemplate';
+import { resolvePhotoBoothTemplateSelection } from '@/lib/photoBoothBackgroundTemplates';
 
 const STRIP_COUNT = PB_STRIP_COUNT;
 import photoBoothBgAsset from '@/assets/photo-booth-bg.png.asset.json';
@@ -30,7 +32,7 @@ import photoBoothBgAsset from '@/assets/photo-booth-bg.png.asset.json';
 const PHOTO_BOOTH_BG = photoBoothBgAsset.url;
 const COUNTDOWN_SECONDS = 7;
 
-interface GalleryPublic {
+export interface GalleryPublic {
   gallery_id: string;
   event_id: string;
   event_name: string;
@@ -55,6 +57,40 @@ interface GalleryPublic {
   photo_booth_strip_template_url: string | null;
   photo_booth_strip_style: any | null;
 }
+
+export const buildPublicPhotoBoothComposeOpts = (
+  gallery: GalleryPublic | null,
+  onTemplateLoadError?: ComposeOpts['onTemplateLoadError'],
+): ComposeOpts => {
+  const title = resolveGalleryTitle(gallery);
+  const dateText = formatEventDate(gallery?.event_date || null);
+  const titleRaw = gallery?.gallery_title || '';
+  const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
+  const isStrip = gallery?.photo_booth_mode === 'strip';
+  const persistedStyle = (gallery?.photo_booth_strip_style || {}) as PersistedPhotoBoothStripStyle;
+  const rawTemplateUrl = isStrip
+    ? gallery?.photo_booth_strip_template_url
+    : gallery?.photo_booth_single_template_url;
+  const templateUrl = isStrip
+    ? resolvePhotoBoothTemplateSelection(rawTemplateUrl, persistedStyle.templateId)
+    : rawTemplateUrl || null;
+
+  return {
+    title,
+    dateText,
+    hashtag,
+    bottomText: (isStrip ? gallery?.photo_booth_strip_bottom_text : gallery?.photo_booth_single_bottom_text) || null,
+    logoUrl: (isStrip ? gallery?.photo_booth_strip_logo_url : gallery?.photo_booth_single_logo_url) || null,
+    templateUrl,
+    backgroundMode: templateUrl
+      ? (isStrip ? persistedStyle.backgroundMode ?? 'template' : 'template')
+      : 'colour',
+    templateId: isStrip && templateUrl ? persistedStyle.templateId ?? null : null,
+    onTemplateLoadError,
+    showBranding: !!gallery?.show_branding,
+    style: isStrip ? persistedStyle : null,
+  };
+};
 
 type Phase = 'preview' | 'captured' | 'saving' | 'saved';
 
@@ -296,22 +332,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   };
 
   const buildComposeOpts = (): ComposeOpts => {
-    const couple = [gallery?.partner1_name, gallery?.partner2_name].filter(Boolean).join(' & ');
-    const title = resolveGalleryTitle(gallery);
-    const dateText = formatEventDate(gallery?.event_date || null);
-    const titleRaw = gallery?.gallery_title || '';
-    const hashtag = titleRaw.startsWith('#') ? titleRaw : undefined;
-    const isStrip = (gallery?.photo_booth_mode === 'strip');
-    return {
-      title,
-      dateText,
-      hashtag,
-      bottomText: (isStrip ? gallery?.photo_booth_strip_bottom_text : gallery?.photo_booth_single_bottom_text) || null,
-      logoUrl: (isStrip ? gallery?.photo_booth_strip_logo_url : gallery?.photo_booth_single_logo_url) || null,
-      templateUrl: (isStrip ? gallery?.photo_booth_strip_template_url : gallery?.photo_booth_single_template_url) || null,
-      showBranding: !!gallery?.show_branding,
-      style: isStrip ? (gallery?.photo_booth_strip_style || null) : null,
-    };
+    return buildPublicPhotoBoothComposeOpts(gallery, (error) => {
+      setErrorMsg(`The saved Photo Booth background could not be loaded. A safe colour background was used instead. (${error.message})`);
+    });
   };
 
   const captureSingle = async () => {

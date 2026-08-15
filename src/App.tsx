@@ -65,6 +65,10 @@ const Products = lazy(() => import("./pages/Products").then(m => ({ default: m.P
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 import { PaymentProcessingProvider, usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
 import { PaymentProcessingOverlay } from "@/components/Checkout/PaymentProcessingOverlay";
+import {
+  DashboardLoadingScreen,
+  getDashboardLoadingAppearance,
+} from "@/components/Dashboard/DashboardLoadingScreen";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,16 +82,28 @@ const queryClient = new QueryClient({
 });
 
 // Lightweight skeleton fallback for lazy routes — never a blank screen.
-const RouteFallback = () => (
-  <div className="min-h-screen w-full bg-background animate-pulse" aria-hidden="true">
-    <div className="h-14 w-full bg-muted/40" />
-    <div className="mx-auto mt-8 max-w-5xl space-y-4 px-4">
-      <div className="h-8 w-2/3 rounded bg-muted/50" />
-      <div className="h-4 w-1/2 rounded bg-muted/40" />
-      <div className="h-64 w-full rounded-xl bg-muted/30" />
+const RouteFallback = () => {
+  const { pathname, search } = useLocation();
+
+  if (pathname.startsWith('/dashboard')) {
+    return (
+      <DashboardLoadingScreen
+        appearance={getDashboardLoadingAppearance(pathname, search)}
+      />
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-background animate-pulse" aria-hidden="true">
+      <div className="h-14 w-full bg-muted/40" />
+      <div className="mx-auto mt-8 max-w-5xl space-y-4 px-4">
+        <div className="h-8 w-2/3 rounded bg-muted/50" />
+        <div className="h-4 w-1/2 rounded bg-muted/40" />
+        <div className="h-64 w-full rounded-xl bg-muted/30" />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Single global overlay mount — never unmounts/remounts, animation never resets.
 const GlobalPaymentOverlay = () => {
