@@ -18,23 +18,27 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChefHat, ChevronLeft, ChevronRight, CalendarDays, UtensilsCrossed, CircleCheck, Printer, FileDown, Files, LoaderCircle, TriangleAlert } from 'lucide-react';
+import { ChefHat, ChevronLeft, ChevronRight, CalendarDays, UtensilsCrossed, Printer, FileDown, Files, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
-import { exportDietaryChartToPdf } from '@/lib/dietaryChartPdfExporter';
+import { exportDietaryPreviewToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
 const dietaryLogo = '/wedding-waitress-logo-brown.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
+import type { RelationPartner, RelationRole } from '@/lib/relationUtils';
 import { Event } from '@/hooks/useEvents';
+import { chunkDietaryGuests, DIETARY_GUEST_TEXT_SIZES } from '@/lib/dietaryChartSettings';
+import { DIETARY_A4_LAYOUT, DIETARY_REPORT_TEXT_COLOR } from '@/lib/dietaryChartA4Layout';
 
 interface KitchenDietaryChartProps {
   eventId: string | null;
@@ -51,8 +55,8 @@ interface DietaryGuest {
   table_display: string;
   seat_no: number | null;
   dietary: string;
-  relation_partner: string;
-  relation_role: string;
+  relation_partner: RelationPartner;
+  relation_role: RelationRole;
   mobile: string | null;
 }
 
@@ -142,8 +146,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           table_display: tableDisplay,
           seat_no: guest.seat_no,
           dietary: guest.dietary,
-          relation_partner: guest.relation_partner,
-          relation_role: guest.relation_role,
+          relation_partner: guest.relation_partner as RelationPartner,
+          relation_role: guest.relation_role as RelationRole,
           mobile: guest.mobile
         };
       });
@@ -203,37 +207,60 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
     return counts;
   }, [dietaryGuests]);
 
-  // AUTOFIT: Dynamic guests per page based on font size
-  const guestsPerPage = useMemo(() => {
-    const availableHeight = 228;
-    const rowHeightByFontSize: Record<string, number> = {
-      'small': 9,
-      'medium': 10,
-      'large': 11.5
-    };
-    const rowHeight = rowHeightByFontSize[settings.fontSize] || 10;
-    return Math.floor(availableHeight / rowHeight);
-  }, [settings.fontSize]);
+  const reportHeaderRef = React.useRef<HTMLElement | null>(null);
+  const measurementTableRef = React.useRef<HTMLTableElement | null>(null);
+  const a4PreviewRef = React.useRef<HTMLDivElement | null>(null);
+  const [pagination, setPagination] = useState<{ pages: DietaryGuest[][]; rowHeightsMm: Record<string, number>; exclusionMm: number }>({
+    pages: [],
+    rowHeightsMm: {},
+    exclusionMm: 0,
+  });
 
-  const totalPages = Math.ceil(dietaryGuests.length / guestsPerPage);
-  const paginatedGuests = useMemo(() => {
-    const start = (currentPage - 1) * guestsPerPage;
-    return dietaryGuests.slice(start, start + guestsPerPage);
-  }, [dietaryGuests, currentPage, guestsPerPage]);
+  React.useLayoutEffect(() => {
+    const table = measurementTableRef.current;
+    const header = reportHeaderRef.current;
+    if (!table || !header || dietaryGuests.length === 0) {
+      setPagination({ pages: dietaryGuests.length ? [dietaryGuests] : [], rowHeightsMm: {}, exclusionMm: 0 });
+      return;
+    }
 
-  // Reset to page 1 when event changes
+    const pxPerMm = 96 / 25.4;
+    const rowElements = Array.from(table.querySelectorAll<HTMLTableRowElement>('tbody tr[data-guest-id]'));
+    const rowHeightsPx = new Map(rowElements.map(row => [row.dataset.guestId || '', row.getBoundingClientRect().height]));
+    const completeHeights = Array.from(rowHeightsPx.values()).filter(height => height > 0);
+    if (completeHeights.length === 0) return;
+
+    const exclusionPx = Math.min(...completeHeights);
+    const tableHeaderPx = table.tHead?.getBoundingClientRect().height || 0;
+    const innerPagePx = (DIETARY_A4_LAYOUT.heightMm - DIETARY_A4_LAYOUT.paddingTopMm - DIETARY_A4_LAYOUT.paddingBottomMm) * pxPerMm;
+    const footerPx = DIETARY_A4_LAYOUT.footerMinHeightMm * pxPerMm;
+    const tableTopGapPx = 8; // Existing Tailwind mt-2 spacing.
+    const safeRowsHeightPx = Math.max(0, innerPagePx - header.getBoundingClientRect().height - tableTopGapPx - tableHeaderPx - footerPx - exclusionPx);
+
+    const pages = chunkDietaryGuests(dietaryGuests, 25);
+    setPagination({
+      pages,
+      rowHeightsMm: Object.fromEntries(Array.from(rowHeightsPx, ([id, height]) => [id, height / pxPerMm])),
+      exclusionMm: exclusionPx / pxPerMm,
+    });
+  }, [dietaryGuests, settings.fontSize, settings.isBold, settings.isItalic, settings.isUnderline, settings.showGuestNames, settings.showGuestList, settings.showDietary, settings.showRelation, settings.showSeatNumbers]);
+
+  const totalPages = pagination.pages.length;
+  const paginatedGuests = pagination.pages[Math.min(currentPage - 1, Math.max(0, totalPages - 1))] || [];
+
+  // Reset to page 1 when the event or row height changes.
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [eventId]);
+  }, [eventId, settings.fontSize, settings.isBold, settings.isItalic, settings.isUnderline, settings.sortBy, settings.showGuestNames, settings.showGuestList, settings.showDietary, settings.showRelation, settings.showSeatNumbers]);
 
-  // Font size mapping
-  const getFontSizeClass = () => {
-    switch (settings.fontSize) {
-      case 'small': return 'text-sm';
-      case 'large': return 'text-lg';
-      default: return 'text-base';
-    }
-  };
+  React.useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  const renderPageForExport = React.useCallback(async (pageNumber: number) => {
+    flushSync(() => setCurrentPage(pageNumber));
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  }, []);
 
   // PDF Export functionality - Current page only
   const handleDownloadPdf = async () => {
@@ -247,7 +274,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         description: 'Creating your dietary chart (current page)...',
       });
 
-      await exportDietaryChartToPdf(currentEvent, paginatedGuests, settings, 'single', dietaryGuests.length, dietarySummary);
+      await exportDietaryPreviewToPdf({
+        eventName: currentEvent.name,
+        eventDate: currentEvent.date,
+        mode: 'single',
+        pageNumbers: [currentPage],
+        currentPage,
+        renderPage: renderPageForExport,
+        getPageElement: () => a4PreviewRef.current,
+      });
 
       toast({
         title: 'PDF Downloaded',
@@ -278,7 +313,15 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         description: 'Creating your dietary chart (all pages)...',
       });
 
-      await exportDietaryChartToPdf(currentEvent, dietaryGuests, settings, 'all', dietaryGuests.length, dietarySummary);
+      await exportDietaryPreviewToPdf({
+        eventName: currentEvent.name,
+        eventDate: currentEvent.date,
+        mode: 'all',
+        pageNumbers: pagination.pages.map((_, index) => index + 1),
+        currentPage,
+        renderPage: renderPageForExport,
+        getPageElement: () => a4PreviewRef.current,
+      });
 
       toast({
         title: 'PDF Downloaded',
@@ -296,8 +339,6 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
       setExportTarget(null);
     }
   };
-
-  const isDataReady = eventId && !guestsLoading && dietaryGuests.length >= 0;
 
   if (guestsLoading) {
     return (
@@ -344,10 +385,12 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             position: relative;
             width: 210mm;
             height: 297mm;
-            padding: 1.27cm;
+            padding: ${DIETARY_A4_LAYOUT.paddingTopMm}mm ${DIETARY_A4_LAYOUT.paddingRightMm}mm ${DIETARY_A4_LAYOUT.paddingBottomMm}mm ${DIETARY_A4_LAYOUT.paddingLeftMm}mm;
             display: flex;
             flex-direction: column;
             background-color: white !important;
+            color: ${DIETARY_REPORT_TEXT_COLOR} !important;
+            font-family: Arial, Helvetica, sans-serif;
             box-sizing: border-box;
             page-break-after: always;
             overflow: visible;
@@ -404,27 +447,21 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
             background-color: white !important;
           }
           
-          /* Font size variants for print */
-          .print-font-small {
-            font-size: 10.5pt;
-          }
-          
-          .print-font-medium {
-            font-size: 12pt;
-          }
-          
-          .print-font-large {
-            font-size: 13.5pt;
-          }
+          /* Guest-row font sizes. Structural report text remains fixed. */
+          .print-font-small table tbody { font-size: 8pt; }
+          .print-font-standard table tbody { font-size: 10pt; }
+          .print-font-large table tbody { font-size: 12pt; }
           
           .print-page .print-header {
-            margin-bottom: 1mm;
             break-inside: avoid;
+            color: ${DIETARY_REPORT_TEXT_COLOR};
+            text-align: center;
           }
           /* Normalize header spacing */
           .print-header h1 {
             font-size: 16pt !important;
-            line-height: 1.1 !important;
+            font-weight: 700 !important;
+            line-height: ${DIETARY_A4_LAYOUT.eventNameLineHeight} !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
@@ -432,19 +469,23 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           }
           .print-header h2 {
             margin: 0 !important;
-            line-height: 1.1 !important;
+            font-size: ${DIETARY_A4_LAYOUT.reportTitleFontPt}pt !important;
+            font-weight: 400 !important;
+            line-height: normal !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
           }
-          .print-header > * + * { margin-top: 0.75mm !important; }
-          .print-header .meta-line {
-            font-size: 10pt !important;
+          .print-header h2 { margin-top: ${DIETARY_A4_LAYOUT.reportTitleMarginTopPx}px !important; }
+          .print-header .event-details {
+            font-size: ${DIETARY_A4_LAYOUT.detailsFontPt}pt !important;
+            line-height: ${DIETARY_A4_LAYOUT.detailsLineHeight} !important;
+            margin-top: ${DIETARY_A4_LAYOUT.detailsMarginTopPx}px !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            padding-bottom: 1mm !important;
           }
+          .print-header .header-separator { border-top: ${DIETARY_A4_LAYOUT.separatorWidthPx}px solid #000 !important; margin-top: ${DIETARY_A4_LAYOUT.separatorMarginTopPx}px !important; }
 
           .print-page table {
             margin-top: 0mm;
@@ -454,134 +495,121 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
           .print-page .print-footer {
             position: absolute;
-            bottom: 10mm;
-            left: 10mm;
-            right: 10mm;
-            display: flex;
-            justify-content: center;
+            bottom: ${DIETARY_A4_LAYOUT.paddingBottomMm}mm;
+            left: ${DIETARY_A4_LAYOUT.paddingLeftMm}mm;
+            right: ${DIETARY_A4_LAYOUT.paddingRightMm}mm;
+            min-height: ${DIETARY_A4_LAYOUT.footerMinHeightMm}mm;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            color: #000;
+            font-size: ${DIETARY_A4_LAYOUT.footerFontPt}pt;
+            line-height: 1;
             break-inside: avoid;
           }
           
           .print-page .print-footer img {
-            height: 10.5mm;
-            width: auto;
+            width: ${DIETARY_A4_LAYOUT.logoWidthMm}mm;
+            height: ${DIETARY_A4_LAYOUT.logoHeightMm}mm;
             object-fit: contain;
           }
         }
       `}</style>
       
       <div className="space-y-6 kitchen-dietary-chart ww-dietary-brown">
-        {/* Header Card - Matching Full Seating Chart layout */}
+        {/* Header Card */}
         <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
-          <CardHeader className="space-y-4">
-            {/* Top row: Icon, Title, and Event Name */}
-            <div className="flex items-center justify-between">
-              {/* Header Icon & Info */}
-              <div className="flex items-center gap-2">
-                <ChefHat className="w-[25px] h-[25px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                <div>
-                  <CardTitle className="dietary-main-heading text-left text-2xl font-bold text-[#472c1d]">Kitchen Dietary Requirements</CardTitle>
-                  <CardDescription className="text-left">
-                    Staff reference sheet for guests with dietary requirements and allergies
-                  </CardDescription>
+          <CardHeader className="space-y-0">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] xl:gap-6 xl:items-stretch">
+              <div className="space-y-4 min-w-0">
+                <div className="flex items-start gap-2">
+                  <ChefHat className="w-[25px] h-[25px] mt-0.5 text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  <div className="min-w-0">
+                    <CardTitle className="dietary-main-heading text-left text-2xl font-bold text-[#472c1d]">Kitchen Dietary Requirements</CardTitle>
+                    <CardDescription className="text-left">
+                      Staff reference sheet for guests with dietary requirements and allergies
+                    </CardDescription>
+                  </div>
                 </div>
-              </div>
 
-            </div>
-
-            {/* Bottom row: Choose Event dropdown, badges, and export controls */}
-            <div className="flex items-center justify-between pt-2 border-t max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
-              <div className="flex items-center gap-4 max-lg:flex-col max-lg:items-stretch max-lg:gap-3 max-lg:w-full">
-                <div className="flex items-center space-x-4 max-lg:flex-col max-lg:items-stretch max-lg:space-x-0 max-lg:gap-2 max-lg:w-full">
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
-                    <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                    Choose Event:
-                  </label>
-                  <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                    <SelectTrigger className="w-full sm:w-[300px] max-lg:w-full border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]">
-                      <SelectValue placeholder="Choose Event" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover border-border z-50">
-                      {events.length > 0 ? (
-                        events.map(event => (
-                          <SelectItem key={event.id} value={event.id}>
-                            <div className="flex items-center gap-2">
-                              <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
-                              <span>{event.name}</span>
-                            </div>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                    <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                      <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                      Choose Event:
+                    </label>
+                    <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
+                      <SelectTrigger className="w-full sm:w-[300px] border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]">
+                        <SelectValue placeholder="Choose Event" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border z-50">
+                        {events.length > 0 ? (
+                          events.map(event => (
+                            <SelectItem key={event.id} value={event.id}>
+                              <div className="flex items-center gap-2">
+                                <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
+                                <span>{event.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-events" disabled>
+                            No events found
                           </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-events" disabled>
-                          No events found
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {currentEvent && (
-                  <>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {currentEvent && (
                     <Badge 
                       variant="outline"
-                      className="ml-4 bg-white border border-[#472c1d] text-[#472c1d] rounded-full"
+                      className="w-fit max-w-full h-10 px-3 py-2 bg-white border border-[#472c1d] text-[#472c1d] rounded-md whitespace-normal"
                     >
                       <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       <span className="ml-1.5">
                         {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
                       </span>
                     </Badge>
-                    <Badge 
-                      variant="outline"
-                      className="bg-white border border-[#472c1d] text-[#472c1d] rounded-full"
-                    >
-                      {isDataReady ? (
-                        <CircleCheck className="w-[15px] h-[15px] shrink-0 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
-                      ) : (
-                        <LoaderCircle className="w-[15px] h-[15px] shrink-0 mr-1.5 animate-spin" strokeWidth={1.8} aria-hidden="true" />
-                      )}
-                      {isDataReady ? 'Ready to Generate' : 'Loading Data...'}
-                    </Badge>
-                  </>
-                )}
+                  )}
+                </div>
               </div>
 
               {/* Export Controls */}
               {currentEvent && dietaryGuests.length > 0 && (
-                <div className="border border-[#472c1d] rounded-xl p-3 flex flex-col gap-3 flex-shrink-0 max-lg:w-full">
-
-                  <div className="flex items-center max-lg:flex-col max-lg:items-start max-lg:gap-1">
+                <div className="bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0">
+                  <div className="text-sm space-y-1">
                     <span className="font-bold text-sm inline-flex items-center gap-1.5">
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Export Controls
                     </span>
-                    <span className="text-muted-foreground ml-2 max-lg:ml-0 text-sm">
-                      Download & share your dietary requirement guests with your venue / Kitchen.
-                    </span>
+                    <p className="text-muted-foreground">
+                      Download &amp; share your dietary requirements guests with your venue/kitchen.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
+                  <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
                     <button 
-                      className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                       onClick={handleDownloadPdf}
                       disabled={isExporting || paginatedGuests.length === 0}
                       aria-label="Download single page PDF"
                     >
                       {exportTarget === 'single' ? (
-                        <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                        <LoaderCircle className="w-4 h-4 animate-spin text-green-600" strokeWidth={1.8} aria-hidden="true" />
                       ) : (
-                        <FileDown className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                        <FileDown className="w-4 h-4 text-green-600" strokeWidth={1.8} aria-hidden="true" />
                       )}
                       Download single page PDF
                     </button>
                     <button 
-                      className="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                       onClick={handleDownloadPdfAll}
                       disabled={isExporting || dietaryGuests.length === 0}
                       aria-label="Download all pages PDF"
                     >
                       {exportTarget === 'all' ? (
-                        <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+                        <LoaderCircle className="w-4 h-4 animate-spin text-green-600" strokeWidth={1.8} aria-hidden="true" />
                       ) : (
-                        <Files className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+                        <Files className="w-4 h-4 text-green-600" strokeWidth={1.8} aria-hidden="true" />
                       )}
                       Download all pages PDF
                     </button>
@@ -608,9 +636,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         {/* Main Content Grid: Settings + A4 Display */}
         {currentEvent && (
         <>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,3fr)] gap-6 bg-transparent">
           {/* Settings Panel (Left - 1 column) */}
-          <div className="lg:col-span-1 print:hidden">
+          <div className="min-w-0 print:hidden">
             <DietaryChartCustomizer
               settings={settings}
               onSettingsChange={updateSettings}
@@ -618,7 +646,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           </div>
 
           {/* A4 Page Display (Right - 3 columns) */}
-          <div className="lg:col-span-3 print:hidden dietary-a4-preview">
+          <div className="min-w-0 print:hidden dietary-a4-preview">
             {(guestsLoading || tablesLoading || settingsLoading) ? (
               <Card className="ww-box">
                 <CardContent className="p-6">
@@ -654,7 +682,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                       Previous
                     </Button>
-                    <span className="text-sm text-muted-foreground">
+                    <span data-dietary-pagination="true" data-page-guest-count={paginatedGuests.length} className="text-sm text-muted-foreground">
                       Page {currentPage} of {totalPages}
                     </span>
                     <Button
@@ -672,58 +700,64 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 {/* A4 Page Container - horizontally scrollable on small screens, centered on desktop */}
                 <div className="w-full overflow-x-auto overflow-y-hidden">
                   <div className="mx-auto" style={{ width: 'max-content' }}>
-                  <div 
+                  <div
+                    ref={a4PreviewRef}
+                    data-dietary-a4-preview="true"
                     className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
                     style={{ 
-                      width: '210mm', 
-                      minHeight: '325mm',
-                      minWidth: '210mm',
-                      maxWidth: '210mm'
+                      width: `${DIETARY_A4_LAYOUT.widthMm}mm`,
+                      height: `${DIETARY_A4_LAYOUT.heightMm}mm`,
+                      minWidth: `${DIETARY_A4_LAYOUT.widthMm}mm`,
+                      maxWidth: `${DIETARY_A4_LAYOUT.widthMm}mm`,
+                      color: DIETARY_REPORT_TEXT_COLOR,
+                      fontFamily: 'Arial, Helvetica, sans-serif',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden'
                     }}
                   >
-                    <div style={{ padding: '8mm 1.27cm 1.27cm 1.27cm', minHeight: '325mm' }} className="flex flex-col">
+                    <div style={{ height: '100%', padding: `${DIETARY_A4_LAYOUT.paddingTopMm}mm ${DIETARY_A4_LAYOUT.paddingRightMm}mm ${DIETARY_A4_LAYOUT.paddingBottomMm}mm ${DIETARY_A4_LAYOUT.paddingLeftMm}mm`, boxSizing: 'border-box' }} className="flex flex-col">
                       {/* Header - matching Full Seating Chart style */}
-                      <div className="text-center" style={{ marginBottom: '1mm' }}>
-                        {/* Line 1: Event Name (purple, larger) */}
-                        <h1 className="font-bold" style={{ color: '#967A59', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                      <header ref={reportHeaderRef} className="text-center" style={{ color: DIETARY_REPORT_TEXT_COLOR }}>
+                        {/* Line 1: Event Name */}
+                        <h1 style={{ fontSize: `${DIETARY_A4_LAYOUT.eventNameFontPt}pt`, fontWeight: 700, lineHeight: DIETARY_A4_LAYOUT.eventNameLineHeight, overflowWrap: 'anywhere', margin: 0 }}>
                           {currentEvent.name}
                         </h1>
                         
                         {/* Line 2: Kitchen Dietary Requirements */}
-                        <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                        <p style={{ fontSize: `${DIETARY_A4_LAYOUT.reportTitleFontPt}pt`, margin: 0, marginTop: `${DIETARY_A4_LAYOUT.reportTitleMarginTopPx}px` }}>
                           Kitchen Dietary Requirements
                         </p>
                         
                         
                         {/* Ceremony info line */}
                         {currentEvent.ceremony_date && (
-                          <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                          <p data-pdf-text-nudge="details" style={{ fontSize: `${DIETARY_A4_LAYOUT.detailsFontPt}pt`, lineHeight: DIETARY_A4_LAYOUT.detailsLineHeight, margin: 0, marginTop: `${DIETARY_A4_LAYOUT.detailsMarginTopPx}px`, overflowWrap: 'anywhere' }}>
                             Ceremony: {formatDateWithOrdinal(currentEvent.ceremony_date)} | {currentEvent.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(currentEvent.ceremony_start_time)} – {formatTimeDisplay(currentEvent.ceremony_finish_time)}
                           </p>
                         )}
                         
                         {/* Reception info line */}
-                        <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
+                        <p data-pdf-text-nudge="details" style={{ fontSize: `${DIETARY_A4_LAYOUT.detailsFontPt}pt`, lineHeight: DIETARY_A4_LAYOUT.detailsLineHeight, margin: 0, marginTop: currentEvent.ceremony_date ? 0 : `${DIETARY_A4_LAYOUT.detailsMarginTopPx}px`, overflowWrap: 'anywhere' }}>
                           Reception: {currentEvent.date && formatDateWithOrdinal(currentEvent.date)} | {currentEvent.venue || 'Venue TBD'} | {formatTimeDisplay(currentEvent.start_time)} – {formatTimeDisplay(currentEvent.finish_time)}
                         </p>
                         
-                        {/* Purple divider */}
-                        <div style={{ borderTop: '2px solid #967A59', marginTop: '1.5mm' }}></div>
+                        {/* Header separator */}
+                        <div data-header-separator="true" style={{ borderTop: `${DIETARY_A4_LAYOUT.separatorWidthPx}px solid #000`, marginTop: `${DIETARY_A4_LAYOUT.separatorMarginTopPx}px` }} />
                         
-                        {/* Total Dietary Guest Requirements - between purple line and gray header */}
-                        <p className="text-center" style={{ marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
+                        {/* Total Dietary Guest Requirements */}
+                        <p data-pdf-text-nudge="total" className="text-center" style={{ marginTop: '1mm', marginBottom: '0.5mm', lineHeight: '1.2' }}>
                           Total Dietary Guest Requirements: <strong>{dietaryGuests.length}</strong>
                         </p>
-                      </div>
+                      </header>
 
                       {/* Guest Table */}
-                      <div className={`flex-1 overflow-hidden ${getFontSizeClass()} mt-2`}>
+                      <div className="flex-1 overflow-hidden text-sm mt-2">
                         <table className="w-full border-collapse mt-0">
                           <thead>
                             <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
                               <th colSpan={99} className="py-[3px] px-[4pt]">
                                 {dietarySummary.length > 0 ? (
-                                  <div className="flex flex-col items-center gap-y-0.5">
+                                  <div data-pdf-text-nudge="summary" className="flex flex-col items-center gap-y-0.5">
                                     <div className="flex flex-nowrap justify-center gap-x-3">
                                       {dietarySummary.filter(item => ['Kids Meal','Pescatarian','Vegetarian','Vegan','Seafood Free','Gluten Free'].includes(item.label)).map(item => (
                                         <span key={item.label} style={{ fontWeight: 'normal', whiteSpace: 'nowrap' }}>
@@ -745,24 +779,19 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                               </th>
                             </tr>
                             <tr style={{ backgroundColor: '#f3f3f3', borderTop: '2px solid #ccc', borderBottom: '2px solid #ccc' }}>
-                              <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>First Name</th>
-                              <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Last Name</th>
-                              <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Table</th>
-                              {settings.showSeatNo && (
-                                <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Seat</th>
-                              )}
-                              <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Dietary</th>
-                              {settings.showMobile && (
-                                <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Mobile</th>
-                              )}
-                              {settings.showRelation && (
-                                <th className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Relation</th>
-                              )}
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>First Name</th>
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Last Name</th>
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Table</th>
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Seat</th>
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Dietary</th>
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Mobile</th>
+                              <th data-pdf-text-nudge="column-heading" className="text-left py-[3px] px-[4pt] font-bold" style={{ color: '#000' }}>Relation</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {paginatedGuests.map((guest, index) => {
+                            {settings.showGuestList && paginatedGuests.map((guest, index) => {
                               const textStyle: React.CSSProperties = {
+                                fontSize: `${DIETARY_GUEST_TEXT_SIZES[settings.fontSize]}pt`,
                                 fontWeight: settings.isBold ? 'bold' : undefined,
                                 fontStyle: settings.isItalic ? 'italic' : undefined,
                                 textDecoration: settings.isUnderline ? 'underline' : undefined,
@@ -772,39 +801,33 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                                 key={guest.id}
                                 className={index % 2 === 0 ? 'bg-[#f9fafb]' : 'bg-white'}
                               >
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                  {guest.first_name}
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="first-name" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.guestNameColor }}>
+                                  {settings.showGuestNames ? guest.first_name : ''}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                  {guest.last_name || '-'}
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="last-name" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.guestNameColor }}>
+                                  {settings.showGuestNames ? guest.last_name || '-' : ''}
                                 </td>
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="table" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.guestListColor }}>
                                   {guest.table_display}
                                 </td>
-                                {settings.showSeatNo && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                    {guest.seat_no || '-'}
-                                  </td>
-                                )}
-                                <td className="py-[4pt] px-[4pt] border-b border-gray-200 text-accent-foreground" style={{ fontWeight: settings.isBold ? 'bold' : undefined, fontStyle: settings.isItalic ? 'italic' : undefined, textDecoration: settings.isUnderline ? 'underline' : undefined }}>
-                                  {guest.dietary}
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="seat" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.seatNumberColor }}>
+                                  {settings.showSeatNumbers ? guest.seat_no || '-' : ''}
                                 </td>
-                                {settings.showMobile && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                    {guest.mobile || '-'}
-                                  </td>
-                                )}
-                                {settings.showRelation && (
-                                  <td className="py-[4pt] px-[4pt] border-b border-gray-200" style={textStyle}>
-                                    {computeRelationDisplay(
-                                      guest.relation_partner as any,
-                                      guest.relation_role as any,
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="dietary" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.dietaryColor }}>
+                                  {settings.showDietary ? guest.dietary : ''}
+                                </td>
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="mobile" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.guestListColor }}>
+                                  {guest.mobile || '-'}
+                                </td>
+                                <td data-pdf-text-nudge="guest-cell" data-dietary-field="relationship" className="py-[3.5pt] px-[4pt] border-b border-gray-200" style={{ ...textStyle, color: settings.relationshipColor }}>
+                                  {settings.showRelation ? computeRelationDisplay(
+                                      guest.relation_partner,
+                                      guest.relation_role,
                                       currentEvent?.partner1_name,
                                       currentEvent?.partner2_name,
                                       []
-                                    ) || 'Guest'}
-                                  </td>
-                                )}
+                                    ) || 'Guest' : ''}
+                                </td>
                               </tr>
                               );
                             })}
@@ -812,25 +835,53 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                         </table>
                       </div>
 
-                      {/* Footer - matching Full Seating Chart */}
-                      <div className="flex-shrink-0" style={{ marginTop: 'auto', paddingBottom: '0' }}>
-                        {settings.showLogo && (
-                          <div className="flex justify-center" style={{ paddingTop: '0' }}>
-                            <img 
-                              src={dietaryLogo}
-                              alt="Wedding Waitress" 
-                              style={{ height: '12mm', width: 'auto', objectFit: 'contain' }}
-                            />
-                          </div>
-                        )}
-                        <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
-                          <span>Page {currentPage} of {totalPages}</span>
-                          <span>Generated: {formatGeneratedTimestamp()}</span>
-                        </div>
-                      </div>
+                      <div aria-hidden="true" data-footer-exclusion-zone="true" className="flex-shrink-0" style={{ minHeight: `${pagination.exclusionMm}mm` }} />
+
+                      <footer data-footer-layout="three-column" data-footer-alignment="single-line-centred" className="flex-shrink-0" style={{ marginTop: 'auto', display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', minHeight: `${DIETARY_A4_LAYOUT.footerMinHeightMm}mm`, color: DIETARY_REPORT_TEXT_COLOR, fontSize: `${DIETARY_A4_LAYOUT.footerFontPt}pt`, lineHeight: 1 }}>
+                        <div data-footer-generated="true" style={{ justifySelf: 'start', alignSelf: 'center', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
+                        {settings.showLogo
+                          ? <img src={dietaryLogo} alt="Wedding Waitress" style={{ width: `${DIETARY_A4_LAYOUT.logoWidthMm}mm`, height: `${DIETARY_A4_LAYOUT.logoHeightMm}mm`, alignSelf: 'center', objectFit: 'contain' }} />
+                          : <div style={{ width: `${DIETARY_A4_LAYOUT.logoWidthMm}mm`, height: `${DIETARY_A4_LAYOUT.logoHeightMm}mm` }} />}
+                        <div data-footer-page-number="true" style={{ justifySelf: 'end', alignSelf: 'center', whiteSpace: 'nowrap' }}>Page {currentPage} of {totalPages}</div>
+                      </footer>
                     </div>
                   </div>
                   </div>
+                </div>
+
+                {/* A4-width measurement table: establishes actual wrapped row heights before page packing. */}
+                <div aria-hidden="true" style={{ position: 'fixed', left: '-10000px', top: 0, width: `${DIETARY_A4_LAYOUT.widthMm - DIETARY_A4_LAYOUT.paddingLeftMm - DIETARY_A4_LAYOUT.paddingRightMm}mm`, visibility: 'hidden', pointerEvents: 'none' }}>
+                  <table ref={measurementTableRef} className="w-full border-collapse table-auto" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+                    <colgroup>
+                      <col style={{ width: '30px' }} /><col style={{ width: '30px' }} /><col style={{ width: '25px' }} />
+                      <col style={{ width: '15px' }} />
+                      <col style={{ width: '35px' }} />
+                      <col style={{ width: '30px' }} />
+                      <col style={{ width: '40px' }} />
+                    </colgroup>
+                    <thead>
+                      <tr><th colSpan={99} className="py-[3px] px-[4pt]"><div className="flex flex-col gap-y-0.5"><div>&nbsp;</div><div>&nbsp;</div></div></th></tr>
+                      <tr>
+                        <th className="text-left py-[3px] px-[4pt] font-bold">First Name</th><th className="text-left py-[3px] px-[4pt] font-bold">Last Name</th><th className="text-left py-[3px] px-[4pt] font-bold">Table</th>
+                        <th className="text-left py-[3px] px-[4pt] font-bold">Seat</th>
+                        <th className="text-left py-[3px] px-[4pt] font-bold">Dietary</th>
+                        <th className="text-left py-[3px] px-[4pt] font-bold">Mobile</th>
+                        <th className="text-left py-[3px] px-[4pt] font-bold">Relation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dietaryGuests.map(guest => {
+                        const measureStyle: React.CSSProperties = { fontSize: `${DIETARY_GUEST_TEXT_SIZES[settings.fontSize]}pt`, fontWeight: settings.isBold ? 'bold' : undefined, fontStyle: settings.isItalic ? 'italic' : undefined, textDecoration: settings.isUnderline ? 'underline' : undefined };
+                        return <tr key={guest.id} data-guest-id={guest.id}>
+                          <td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{settings.showGuestNames ? guest.first_name : ''}</td><td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{settings.showGuestNames ? guest.last_name || '-' : ''}</td><td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{guest.table_display}</td>
+                          <td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{settings.showSeatNumbers ? guest.seat_no || '-' : ''}</td>
+                          <td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{settings.showDietary ? guest.dietary : ''}</td>
+                          <td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{guest.mobile || '-'}</td>
+                          <td className="py-[3.5pt] px-[4pt]" style={measureStyle}>{settings.showRelation ? computeRelationDisplay(guest.relation_partner, guest.relation_role, currentEvent?.partner1_name, currentEvent?.partner2_name, []) || 'Guest' : ''}</td>
+                        </tr>;
+                      })}
+                    </tbody>
+                  </table>
                 </div>
 
                 {/* Page Navigation Bottom */}
@@ -866,56 +917,44 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
         {/* Print Version - A4 Pages */}
         <div id="dietary-print-content" className="hidden print:block">
-          {Array.from({ length: totalPages }, (_, pageIndex) => {
-            const pageGuests = dietaryGuests.slice(
-              pageIndex * guestsPerPage,
-              (pageIndex + 1) * guestsPerPage
-            );
-            
-            // Skip empty pages
-            if (pageGuests.length === 0) return null;
-            
+          {pagination.pages.map((pageGuests, pageIndex) => {
             return (
               <div 
                 key={pageIndex} 
                 className="print-page"
               >
                 {/* Header */}
-                <div className="print-header text-center space-y-2">
+                <header className="print-header">
                   {/* Event Name */}
                   {currentEvent && (
                     <>
-                      <h1 className="text-xl font-semibold" style={{ color: '#967A59' }}>
+                      <h1>
                         {currentEvent.name}
                       </h1>
 
                       {/* Chart Title and Date */}
-                      <h2 className={`font-semibold text-foreground ${
-                        settings.fontSize === 'small' ? 'print-font-small' : 
-                        settings.fontSize === 'large' ? 'print-font-large' : 
-                        'print-font-medium'
-                      }`}>
+                      <h2>
                         Kitchen Dietary Requirements
-                        {currentEvent.date && ` - ${formatDateWithOrdinal(currentEvent.date)}`}
                       </h2>
 
-                      {/* Meta Line */}
-                      <div className="meta-line text-sm text-foreground pb-2 border-b border-foreground">
-                        {currentEvent.venue && `${currentEvent.venue} - `}
-                        Total Dietary Guests: {dietaryGuests.length}
-                        {totalPages > 1 && ` - Page ${pageIndex + 1} of ${totalPages}`}
-                        {` - Generated on: ${formatGeneratedTimestamp()}`}
+                      <div className="event-details">
+                        {currentEvent.ceremony_date && <div>Ceremony: {formatDateWithOrdinal(currentEvent.ceremony_date)} | {currentEvent.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(currentEvent.ceremony_start_time)} â€“ {formatTimeDisplay(currentEvent.ceremony_finish_time)}</div>}
+                        <div>Reception: {formatDateWithOrdinal(currentEvent.date)} | {currentEvent.venue || 'Venue TBD'} | {formatTimeDisplay(currentEvent.start_time)} â€“ {formatTimeDisplay(currentEvent.finish_time)}</div>
                       </div>
+                      <div className="header-separator" />
+                      <p style={{ marginTop: '1mm', marginBottom: '0.5mm', lineHeight: 1.2 }}>
+                        Total Dietary Guest Requirements: <strong>{dietaryGuests.length}</strong>
+                      </p>
                     </>
                   )}
-                </div>
+                </header>
 
                 {/* Guest Table */}
                 <div
                   className={`flex-1 overflow-visible ${
-                    settings.fontSize === 'small' ? 'print-font-small' : 
-                    settings.fontSize === 'large' ? 'print-font-large' : 
-                    'print-font-medium'
+                    settings.fontSize === 'small' ? 'print-font-small' :
+                    settings.fontSize === 'large' ? 'print-font-large' :
+                    'print-font-standard'
                   }`}
                   style={{ paddingTop: '4mm', paddingBottom: '12mm' }}
                 >
@@ -923,58 +962,61 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                     <colgroup>
                       <col style={{ width: '16%' }} />
                       <col style={{ width: '14%' }} />
-                      <col style={{ width: settings.showSeatNo ? '7%' : '10%' }} />
-                      {settings.showSeatNo && <col style={{ width: '6%' }} />}
-                      <col style={{ width: (settings.showMobile && settings.showRelation) ? '32%' : (settings.showMobile || settings.showRelation) ? '36%' : '48%' }} />
-                      {settings.showMobile && <col style={{ width: '12%' }} />}
-                      {settings.showRelation && <col style={{ width: '13%' }} />}
+                      <col style={{ width: '7%' }} />
+                      <col style={{ width: '6%' }} />
+                      <col style={{ width: '32%' }} />
+                      <col style={{ width: '12%' }} />
+                      <col style={{ width: '13%' }} />
                     </colgroup>
                     <thead>
                       <tr>
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Table</th>
-                        {settings.showSeatNo && <th>Seat</th>}
+                        <th>Seat</th>
                         <th>Dietary</th>
-                        {settings.showMobile && <th>Mobile</th>}
-                        {settings.showRelation && <th>Relation</th>}
+                        <th>Mobile</th>
+                        <th>Relation</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {pageGuests.map((guest, index) => (
+                      {settings.showGuestList && pageGuests.map(guest => {
+                        const printTextStyle: React.CSSProperties = {
+                          fontWeight: settings.isBold ? 'bold' : undefined,
+                          fontStyle: settings.isItalic ? 'italic' : undefined,
+                          textDecoration: settings.isUnderline ? 'underline' : undefined,
+                        };
+                        return (
                         <tr key={guest.id}>
-                          <td className="font-bold">{guest.first_name}</td>
-                          <td className="font-bold">{guest.last_name || '-'}</td>
-                          <td>{guest.table_no || '-'}</td>
-                          {settings.showSeatNo && <td>{guest.seat_no || '-'}</td>}
-                          <td className="font-semibold text-accent-foreground">{guest.dietary}</td>
-                          {settings.showMobile && <td>{guest.mobile || '-'}</td>}
-                          {settings.showRelation && (
-                            <td>
-                              {computeRelationDisplay(
-                                guest.relation_partner as any,
-                                guest.relation_role as any,
+                          <td style={{ ...printTextStyle, color: settings.guestNameColor }}>{settings.showGuestNames ? guest.first_name : ''}</td>
+                          <td style={{ ...printTextStyle, color: settings.guestNameColor }}>{settings.showGuestNames ? guest.last_name || '-' : ''}</td>
+                          <td style={{ ...printTextStyle, color: settings.guestListColor }}>{guest.table_no || '-'}</td>
+                          <td style={{ ...printTextStyle, color: settings.seatNumberColor }}>{settings.showSeatNumbers ? guest.seat_no || '-' : ''}</td>
+                          <td style={{ ...printTextStyle, color: settings.dietaryColor }}>{settings.showDietary ? guest.dietary : ''}</td>
+                          <td style={{ ...printTextStyle, color: settings.guestListColor }}>{guest.mobile || '-'}</td>
+                          <td style={{ ...printTextStyle, color: settings.relationshipColor }}>
+                              {settings.showRelation ? computeRelationDisplay(
+                                guest.relation_partner,
+                                guest.relation_role,
                                 currentEvent?.partner1_name,
                                 currentEvent?.partner2_name,
                                 []
-                              ) || 'Guest'}
-                            </td>
-                          )}
+                              ) || 'Guest' : ''}
+                          </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
 
-                {/* Footer with Logo */}
-                {settings.showLogo && (
-                  <div className="print-footer">
-                    <img 
-                      src={dietaryLogo} 
-                      alt="Wedding Waitress"
-                    />
-                  </div>
-                )}
+                <footer className="print-footer" data-footer-layout="three-column" data-footer-alignment="single-line-centred">
+                  <div style={{ justifySelf: 'start', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
+                  {settings.showLogo
+                    ? <img src={dietaryLogo} alt="Wedding Waitress" />
+                    : <div style={{ width: `${DIETARY_A4_LAYOUT.logoWidthMm}mm`, height: `${DIETARY_A4_LAYOUT.logoHeightMm}mm` }} />}
+                  <div style={{ justifySelf: 'end', whiteSpace: 'nowrap' }}>Page {pageIndex + 1} of {totalPages}</div>
+                </footer>
               </div>
             );
           })}

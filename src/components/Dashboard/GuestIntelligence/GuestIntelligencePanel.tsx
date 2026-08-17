@@ -44,7 +44,7 @@ export const GuestIntelligencePanel = ({ open, onClose, guests, tables, event }:
       onClick={onClose}
     >
       <aside
-        className="w-full sm:w-[520px] lg:w-[560px] bg-[#FBF8F2] h-full overflow-hidden flex flex-col shadow-2xl border-l border-[#ECE5D8] animate-in slide-in-from-right duration-300 ease-out"
+        className="ww-guest-intelligence-drawer w-full sm:w-[520px] lg:w-[560px] bg-[#FBF8F2] h-full overflow-hidden flex flex-col shadow-2xl border-l border-[#ECE5D8] animate-in slide-in-from-right duration-300 ease-out"
         onClick={e => e.stopPropagation()}
         role="dialog"
         aria-label="Guest Intelligence Centre"

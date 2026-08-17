@@ -1,0 +1,115 @@
+.panel {
+  color: #f3e7d8;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  border-radius: 1rem;
+  background: rgba(33, 19, 15, 0.62) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.21),
+    0 18px 42px rgba(3, 1, 1, 0.42) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.layout {
+  padding-top: 2.25rem;
+}
+
+.iconBadge {
+  border: 1px solid rgba(201, 151, 93, 0.28);
+  background: rgba(75, 42, 30, 0.68);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
+}
+
+.champagneIcon {
+  color: #d9b77f !important;
+}
+
+.heading {
+  color: #ffffff !important;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+}
+
+.description {
+  color: #f3e7d8 !important;
+}
+
+.note {
+  color: rgba(243, 231, 216, 0.76) !important;
+}
+
+.closeButton {
+  color: #ead8bd !important;
+  outline: none;
+}
+
+.closeButton:hover {
+  color: #ffffff !important;
+  background: rgba(255, 239, 218, 0.1) !important;
+}
+
+.closeButton:active {
+  background: rgba(255, 239, 218, 0.16) !important;
+}
+
+.closeButton:focus-visible {
+  box-shadow: 0 0 0 2px rgba(228, 185, 126, 0.72) !important;
+}
+
+.inviteButton.inviteButton {
+  color: #ffffff !important;
+  border: 1px solid rgba(216, 173, 121, 0.55) !important;
+  background: linear-gradient(180deg, rgba(126, 79, 48, 0.96), rgba(73, 40, 28, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.24),
+    0 5px 12px rgba(2, 1, 1, 0.26) !important;
+}
+
+.inviteButton svg {
+  color: #ffffff !important;
+  stroke: currentColor;
+}
+
+.inviteButton:hover:not(:disabled) {
+  border-color: rgba(239, 197, 143, 0.85) !important;
+  background: linear-gradient(180deg, rgba(143, 88, 52, 0.98), rgba(82, 44, 30, 1)) !important;
+}
+
+.inviteButton:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(2, 1, 1, 0.24) !important;
+}
+
+.inviteButton:focus-visible,
+.notNowButton:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(228, 185, 126, 0.76) !important;
+}
+
+.notNowButton.notNowButton {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: linear-gradient(180deg, rgba(57, 31, 23, 0.7), rgba(20, 10, 8, 0.86)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 3px 8px rgba(2, 1, 1, 0.2) !important;
+}
+
+.notNowButton:hover:not(:disabled) {
+  color: #ffffff !important;
+  border-color: rgba(239, 197, 143, 0.72) !important;
+  background: linear-gradient(180deg, rgba(72, 39, 28, 0.78), rgba(26, 13, 10, 0.9)) !important;
+}
+
+.notNowButton:active:not(:disabled) {
+  transform: translateY(1px);
+  background: rgba(20, 10, 8, 0.94) !important;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    padding-top: 0;
+    padding-right: 3rem;
+  }
+}

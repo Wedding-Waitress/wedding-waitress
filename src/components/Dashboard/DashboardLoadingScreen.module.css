@@ -1,0 +1,43 @@
+.coreSurface {
+  background-color: #70452f;
+  background-image: url("../../assets/dashboard-mocha-liquid-glass.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #f3e7d8;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.coreCard {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: rgba(33, 19, 15, 0.68) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.21),
+    0 18px 42px rgba(3, 1, 1, 0.42) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.coreSpinner {
+  border-color: rgba(217, 183, 127, 0.24) !important;
+  border-top-color: #d9b77f !important;
+}
+
+.coreCompactSpinner {
+  border-bottom-color: #d9b77f !important;
+}
+
+.coreTitle {
+  color: #ffffff !important;
+}
+
+.coreDescription {
+  color: #f3e7d8 !important;
+}
+
+@media (max-width: 767px) {
+  .coreSurface {
+    background-position: 48% center;
+  }
+}

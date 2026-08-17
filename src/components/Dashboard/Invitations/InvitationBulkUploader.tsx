@@ -1,314 +1,211 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/enhanced-button';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { CheckCircle2, FolderOpen, Loader2, Upload, XCircle } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
-import { MAX_INVITATION_UPLOAD_BYTES, prettifyInvitationFilename, uploadInvitationGalleryImage } from './invitationUploadUtils';
-import { getReadableUploadError } from '../galleryUploadCore';
+import {
+  MAX_INVITATION_UPLOAD_BYTES,
+  prettifyInvitationFilename,
+  uploadInvitationGalleryImage,
+} from './invitationUploadUtils';
+import styles from './InvitationGalleryModal.module.css';
 
-const CATEGORY_PRESETS = [
-  'Baby Shower',
-  'Birthday',
-  'Celebrations',
-  'Cultural',
-  'Floral',
-  'Glamour',
-  'Islamic',
-  'Religious',
-  'Tropical',
-  'Wedding',
-];
+type UploadStatus = 'waiting' | 'uploading' | 'successful' | 'failed';
 
-const CONCURRENCY = 2;
-const DEFAULT_BULK_CATEGORY = 'Uncategorized';
-
-const CATEGORY_KEYWORDS: Array<{ category: string; patterns: RegExp[] }> = [
-  { category: 'Baby Shower', patterns: [/baby/i, /shower/i, /bear/i, /stork/i] },
-  { category: 'Birthday', patterns: [/birthday/i, /bday/i] },
-  { category: 'Wedding', patterns: [/wedding/i, /bride/i, /groom/i, /marriage/i] },
-  { category: 'Floral', patterns: [/floral/i, /flower/i, /bloom/i, /rose/i, /peony/i, /botanical/i] },
-  { category: 'Tropical', patterns: [/tropical/i, /palm/i, /beach/i] },
-  { category: 'Glamour', patterns: [/glam/i, /luxury/i, /gold/i, /royal/i] },
-  { category: 'Islamic', patterns: [/islam/i, /muslim/i, /nikah/i, /eid/i] },
-  { category: 'Religious', patterns: [/religious/i, /christ/i, /baptism/i, /communion/i] },
-  { category: 'Cultural', patterns: [/cultural/i, /ethnic/i, /traditional/i, /asian/i, /indian/i] },
-  { category: 'Celebrations', patterns: [/celebration/i, /party/i, /anniversary/i, /engagement/i] },
-];
-
-const autoCategorize = (filename: string): string => {
-  for (const { category, patterns } of CATEGORY_KEYWORDS) {
-    if (patterns.some((p) => p.test(filename))) return category;
-  }
-  return DEFAULT_BULK_CATEGORY;
-};
+interface UploadRow {
+  id: string;
+  file: File;
+  status: UploadStatus;
+  error?: string;
+}
 
 export interface InvitationBulkUploaderHandle {
   addFiles: (files: FileList | File[]) => void;
 }
 
-type RowStatus = 'queued' | 'uploading' | 'done' | 'failed';
-
-interface Row {
-  id: string;
-  file: File;
-  previewUrl: string;
-  name: string;
-  category: string;
-  status: RowStatus;
-  error?: string;
-  masterKB?: number;
-  thumbKB?: number;
-}
-
-interface Props {
+interface InvitationBulkUploaderProps {
   defaultCategory?: string;
-  onAllDone?: () => void;
+  onAllDone?: () => void | Promise<void>;
 }
 
-export const InvitationBulkUploader = forwardRef<InvitationBulkUploaderHandle, Props>(({ defaultCategory = '', onAllDone }, ref) => {
-  const { toast } = useToast();
-  const [rows, setRows] = useState<Row[]>([]);
-  const [running, setRunning] = useState(false);
-  const rowsRef = useRef<Row[]>([]);
-  useEffect(() => {
-    rowsRef.current = rows;
-  }, [rows]);
+const isSupportedInvitationImage = (file: File) =>
+  file.type === 'image/png' || file.type === 'image/jpeg' || /\.(png|jpe?g)$/i.test(file.name);
 
-  const stats = useMemo(() => {
-    const total = rows.length;
-    const done = rows.filter((r) => r.status === 'done').length;
-    const failed = rows.filter((r) => r.status === 'failed').length;
-    const queued = rows.filter((r) => r.status === 'queued').length;
-    const uploading = rows.filter((r) => r.status === 'uploading').length;
-    return { total, done, failed, queued, uploading };
-  }, [rows]);
+const makeRow = (file: File): UploadRow => {
+  const invalidType = !isSupportedInvitationImage(file);
+  const tooLarge = file.size > MAX_INVITATION_UPLOAD_BYTES;
 
-  const addFiles = useCallback(
-    (files: FileList | File[]) => {
-      const arr = Array.from(files).filter((f) => /^image\/(png|jpe?g)$/i.test(f.type));
-      if (arr.length === 0) {
-        toast({ title: 'No valid images', description: 'PNG or JPG only.', variant: 'destructive' });
-        return;
-      }
-      const newRows: Row[] = arr.map((file) => ({
-        id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        name: prettifyInvitationFilename(file.name),
-        category: autoCategorize(file.name),
-        status: file.size > MAX_INVITATION_UPLOAD_BYTES ? 'failed' : 'queued',
-        error: file.size > MAX_INVITATION_UPLOAD_BYTES ? `File >500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
-      }));
-      setRows((prev) => [...prev, ...newRows]);
-    },
-    [toast]
-  );
+  return {
+    id: `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`,
+    file,
+    status: invalidType || tooLarge ? 'failed' : 'waiting',
+    error: invalidType
+      ? 'Please choose a PNG or JPG image.'
+      : tooLarge
+        ? 'This image exceeds the 500 MB limit.'
+        : undefined,
+  };
+};
 
-  useImperativeHandle(ref, () => ({ addFiles }), [addFiles]);
+export const InvitationBulkUploader = forwardRef<
+  InvitationBulkUploaderHandle,
+  InvitationBulkUploaderProps
+>(({ defaultCategory = 'General', onAllDone }, ref) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [category, setCategory] = useState(defaultCategory);
+  const [rows, setRows] = useState<UploadRow[]>([]);
+  const [uploading, setUploading] = useState(false);
 
-  const updateRow = (id: string, patch: Partial<Row>) =>
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-
-  const removeRow = (id: string) =>
-    setRows((prev) => {
-      const r = prev.find((x) => x.id === id);
-      if (r) URL.revokeObjectURL(r.previewUrl);
-      return prev.filter((x) => x.id !== id);
-    });
-
-  const clearDone = () =>
-    setRows((prev) => {
-      prev.filter((r) => r.status === 'done').forEach((r) => URL.revokeObjectURL(r.previewUrl));
-      return prev.filter((r) => r.status !== 'done');
-    });
-
-  const uploadOne = async (row: Row) => {
-    if (!row.name.trim() || !row.category.trim()) {
-      updateRow(row.id, { status: 'failed', error: 'Missing name or category' });
-      return;
-    }
-    updateRow(row.id, { status: 'uploading', error: undefined });
-    try {
-      const result = await uploadInvitationGalleryImage(row.file, row.name.trim(), row.category.trim());
-      const masterKB = Math.round(result.masterBytes / 1024);
-      const thumbKB = Math.round(result.thumbBytes / 1024);
-      updateRow(row.id, { status: 'done', masterKB, thumbKB });
-    } catch (err: any) {
-      console.error('Bulk upload row failed', err);
-      updateRow(row.id, { status: 'failed', error: getReadableUploadError(err, 'Upload failed') });
-    }
+  const addFiles = (files: FileList | File[]) => {
+    const incoming = Array.from(files);
+    if (!incoming.length) return;
+    setRows((current) => [...current, ...incoming.map(makeRow)]);
   };
 
-  const startUpload = async () => {
-    if (running) return;
+  useImperativeHandle(ref, () => ({ addFiles }), []);
 
-    const queued = rowsRef.current.filter((r) => r.status === 'queued');
-    if (queued.length === 0) {
-      toast({ title: 'Nothing to upload', description: 'All rows are already processed.' });
-      return;
-    }
+  const uploadRows = async () => {
+    const waiting = rows.filter((row) => row.status === 'waiting');
+    if (!waiting.length || uploading) return;
 
-    const missing = queued.filter((r) => !r.name.trim());
-    if (missing.length > 0) {
-      toast({
-        title: 'Name required',
-        description: `${missing.length} file(s) need a design name before uploading.`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setRunning(true);
-    const pendingIds = queued.map((r) => r.id);
-
+    setUploading(true);
+    const uploadCategory = category.trim() || 'Uncategorized';
     let cursor = 0;
-    const getNext = (): string | null => {
-      if (cursor >= pendingIds.length) return null;
-      return pendingIds[cursor++];
-    };
 
     const worker = async () => {
-      while (true) {
-        const id = getNext();
-        if (!id) return;
-        const current = rowsRef.current.find((r) => r.id === id);
-        if (!current) continue;
-        // eslint-disable-next-line no-await-in-loop
-        await uploadOne(current);
+      while (cursor < waiting.length) {
+        const row = waiting[cursor++];
+        setRows((current) =>
+          current.map((item) => (item.id === row.id ? { ...item, status: 'uploading' } : item)),
+        );
+
+        try {
+          await uploadInvitationGalleryImage(
+            row.file,
+            prettifyInvitationFilename(row.file.name),
+            uploadCategory,
+          );
+          setRows((current) =>
+            current.map((item) =>
+              item.id === row.id ? { ...item, status: 'successful', error: undefined } : item,
+            ),
+          );
+        } catch (error) {
+          setRows((current) =>
+            current.map((item) =>
+              item.id === row.id
+                ? {
+                    ...item,
+                    status: 'failed',
+                    error: error instanceof Error ? error.message : 'Upload failed.',
+                  }
+                : item,
+            ),
+          );
+        }
       }
     };
 
-    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-    setRunning(false);
-    onAllDone?.();
-    toast({
-      title: 'Bulk upload complete',
-      description: `${pendingIds.length} processed.`,
-    });
+    await Promise.all([worker(), worker()]);
+    setUploading(false);
+    await onAllDone?.();
   };
 
-  const retryFailed = () => {
-    setRows((prev) =>
-      prev.map((r) => (r.status === 'failed' && !r.error?.includes('>500 MB') ? { ...r, status: 'queued', error: undefined } : r))
-    );
-  };
+  const counts = rows.reduce(
+    (result, row) => {
+      result[row.status] += 1;
+      return result;
+    },
+    { waiting: 0, uploading: 0, successful: 0, failed: 0 },
+  );
+  const waitingCount = counts.waiting + counts.uploading;
+  const completed = rows.length > 0 && waitingCount === 0;
 
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-2 flex flex-col gap-2">
-      <datalist id="invitation-cat-presets">
-        {CATEGORY_PRESETS.map((c) => (
-          <option key={c} value={c} />
-        ))}
-      </datalist>
+    <section className={styles.uploader} aria-label="Invitation template admin upload">
+      <label className={styles.uploaderLabel} htmlFor="invitation-upload-category">
+        Category for this upload
+      </label>
+      <div className={styles.uploaderControls}>
+        <Input
+          id="invitation-upload-category"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          className={styles.categoryInput}
+        />
+        <input
+          ref={inputRef}
+          className="sr-only"
+          type="file"
+          accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+          multiple
+          onChange={(event) => {
+            if (event.target.files) addFiles(event.target.files);
+            event.target.value = '';
+          }}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          className={styles.secondaryButton}
+          onClick={() => inputRef.current?.click()}
+        >
+          <FolderOpen className="h-4 w-4" aria-hidden="true" />
+          Choose images
+        </Button>
+        <Button
+          type="button"
+          className={styles.primaryButton}
+          disabled={uploading || counts.waiting === 0}
+          onClick={() => void uploadRows()}
+        >
+          {uploading ? (
+            <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          ) : (
+            <Upload className="h-4 w-4" aria-hidden="true" />
+          )}
+          Upload{counts.waiting > 0 ? ` ${counts.waiting}` : ''}
+        </Button>
+      </div>
+
+      <p className={styles.uploadRequirements}>
+        PNG or JPG · maximum 500 MB per image · existing Invitations &amp; Cards validation applies
+      </p>
 
       {rows.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 text-sm">
-          <span className="font-medium">
-            {stats.done} / {stats.total} done
-          </span>
-          {stats.failed > 0 && <span className="text-destructive">· {stats.failed} failed</span>}
-          {stats.uploading > 0 && <span className="text-primary">· {stats.uploading} uploading</span>}
-          <div className="ml-auto flex gap-2">
-            {stats.failed > 0 && !running && (
-              <Button variant="outline" size="sm" onClick={retryFailed} className="lv-premium-shade">
-                <RotateCw className="h-4 w-4 mr-1" />
-                Retry failed
-              </Button>
-            )}
-            {stats.done > 0 && !running && (
-              <Button variant="outline" size="sm" onClick={clearDone} className="lv-premium-shade">
-                Clear done
-              </Button>
-            )}
-            <Button
-              onClick={startUpload}
-              disabled={running || stats.queued === 0}
-              className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
-              size="sm"
-            >
-              {running ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                  Uploading…
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 mr-1" />
-                  Start upload ({stats.queued})
-                </>
-              )}
-            </Button>
+        <>
+          <div className={styles.uploadCounts} aria-live="polite">
+            <span>Total {rows.length}</span>
+            <span>Successful {counts.successful}</span>
+            <span>Failed {counts.failed}</span>
+            <span>Waiting {waitingCount}</span>
           </div>
-        </div>
-      )}
-
-      {rows.length > 0 && (
-        <ScrollArea className="h-[340px] rounded-lg border border-border bg-background">
-          <div className="divide-y divide-border">
+          <div className={styles.uploadRows}>
             {rows.map((row) => (
-              <div key={row.id} className="flex items-start gap-3 p-2">
-                <img
-                  src={row.previewUrl}
-                  alt=""
-                  className="w-12 h-12 object-cover rounded border border-border flex-shrink-0 mt-0.5"
-                />
-                <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-start gap-2">
-                  <Input
-                    value={row.name}
-                    onChange={(e) => updateRow(row.id, { name: e.target.value })}
-                    disabled={running || row.status === 'uploading' || row.status === 'done'}
-                    className="h-8 text-sm flex-1 min-w-0"
-                    placeholder="Name"
-                  />
-                  <Input
-                    value={row.category}
-                    onChange={(e) => updateRow(row.id, { category: e.target.value })}
-                    disabled={running || row.status === 'uploading' || row.status === 'done'}
-                    className="h-8 text-sm w-full sm:w-32 flex-shrink-0"
-                    placeholder="Category"
-                    list="invitation-cat-presets"
-                  />
-                </div>
-                <div className="w-72 text-xs flex items-start gap-1.5 flex-shrink-0 pt-1.5">
-                  {row.status === 'queued' && <span className="text-muted-foreground">Queued</span>}
+              <div className={styles.uploadRow} key={row.id}>
+                <span className={styles.uploadFileName} title={row.file.name}>
+                  {row.status === 'successful' && <CheckCircle2 aria-hidden="true" />}
+                  {row.status === 'failed' && <XCircle aria-hidden="true" />}
                   {row.status === 'uploading' && (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-primary">Optimizing…</span>
-                    </>
+                    <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
                   )}
-                  {row.status === 'done' && (
-                    <>
-                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-green-700">
-                        {row.masterKB}KB / {row.thumbKB}KB
-                      </span>
-                    </>
-                  )}
-                  {row.status === 'failed' && (
-                    <>
-                      <XCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0 mt-0.5" />
-                      <span className="text-destructive break-words whitespace-normal leading-snug" title={row.error}>
-                        {row.error || 'Failed'}
-                      </span>
-                    </>
-                  )}
-                </div>
-                <button
-                  onClick={() => removeRow(row.id)}
-                  disabled={row.status === 'uploading'}
-                  className="text-muted-foreground hover:text-destructive p-1 disabled:opacity-30 flex-shrink-0 mt-1.5"
-                  aria-label="Remove"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                  {row.file.name}
+                </span>
+                <span className={row.status === 'failed' ? styles.failedStatus : undefined}>
+                  {row.error || row.status}
+                </span>
               </div>
             ))}
           </div>
-        </ScrollArea>
+          {completed && (
+            <p className={styles.uploadSummary} role="status">
+              Complete: {counts.successful} uploaded, {counts.failed} rejected or failed.
+            </p>
+          )}
+        </>
       )}
-    </div>
+    </section>
   );
 });
+
 InvitationBulkUploader.displayName = 'InvitationBulkUploader';

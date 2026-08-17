@@ -230,7 +230,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
               <span className="text-base font-semibold text-foreground">
                 {loading ? 'Loading credits…' : `${credits.remaining} SMS Credits Remaining`}
               </span>
-              <Badge variant="outline" className={cn('text-[10px] font-semibold', stateBadgeClasses[health.state])}>
+              <Badge variant="outline" className={cn('ww-sms-credit-status text-[10px] font-semibold', stateBadgeClasses[health.state])}>
                 {stateBadgeLabel[health.state]}
               </Badge>
             </div>

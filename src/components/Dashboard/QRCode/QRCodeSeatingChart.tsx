@@ -22,6 +22,7 @@ import { QRCodeMainCard } from './QRCodeMainCard';
 import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
 import { format, parse } from 'date-fns';
 import { formatDisplayTime } from '@/lib/utils';
+import styles from './QRCodeSeatingChart.module.css';
 interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
   onEventSelect?: (eventId: string) => void;
@@ -84,9 +85,9 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       return dateString;
     }
   };
-  return <div className="space-y-8">
+  return <div className={`space-y-8 ${styles.page}`}>
       {/* Header Section */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${styles.eventPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-primary/10">
@@ -104,13 +105,13 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
                 Choose Event:
               </label>
               <Select value={currentEventId || "no-event"} onValueChange={handleEventSelect}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
+                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
                   <div className="flex items-center gap-[7px] min-w-0">
                     <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                     <SelectValue placeholder="Choose Event" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
+                <SelectContent className="ww-qr-select-menu bg-popover border-border z-50">
                   {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
                           <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} />

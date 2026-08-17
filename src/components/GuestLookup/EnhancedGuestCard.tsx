@@ -409,7 +409,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         </div>
       </CardContent>
       <AlertDialog open={pendingRsvp !== null} onOpenChange={(open) => { if (!open) setPendingRsvp(null); }}>
-        <AlertDialogContent>
+        <AlertDialogContent className="ww-public-live-dialog">
           <AlertDialogHeader>
             <AlertDialogTitle>RSVP Already Submitted</AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">

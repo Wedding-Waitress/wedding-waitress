@@ -415,51 +415,81 @@ export type Database = {
       dietary_chart_settings: {
         Row: {
           created_at: string
+          dietary_color: string
           event_id: string
           font_size: string
+          guest_list_color: string
+          guest_name_color: string
           id: string
           is_bold: boolean
           is_italic: boolean
           is_underline: boolean
+          mobile_color: string
           paper_size: string
+          relationship_color: string
+          seat_number_color: string
+          show_dietary: boolean
+          show_guest_list: boolean
+          show_guest_names: boolean
           show_logo: boolean
           show_mobile: boolean
           show_relation: boolean
           show_seat_no: boolean
+          show_seat_numbers: boolean
           sort_by: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          dietary_color?: string
           event_id: string
           font_size?: string
+          guest_list_color?: string
+          guest_name_color?: string
           id?: string
           is_bold?: boolean
           is_italic?: boolean
           is_underline?: boolean
+          mobile_color?: string
           paper_size?: string
+          relationship_color?: string
+          seat_number_color?: string
+          show_dietary?: boolean
+          show_guest_list?: boolean
+          show_guest_names?: boolean
           show_logo?: boolean
           show_mobile?: boolean
           show_relation?: boolean
           show_seat_no?: boolean
+          show_seat_numbers?: boolean
           sort_by?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          dietary_color?: string
           event_id?: string
           font_size?: string
+          guest_list_color?: string
+          guest_name_color?: string
           id?: string
           is_bold?: boolean
           is_italic?: boolean
           is_underline?: boolean
+          mobile_color?: string
           paper_size?: string
+          relationship_color?: string
+          seat_number_color?: string
+          show_dietary?: boolean
+          show_guest_list?: boolean
+          show_guest_names?: boolean
           show_logo?: boolean
           show_mobile?: boolean
           show_relation?: boolean
           show_seat_no?: boolean
+          show_seat_numbers?: boolean
           sort_by?: string
           updated_at?: string
           user_id?: string
@@ -1633,51 +1663,75 @@ export type Database = {
       full_seating_chart_settings: {
         Row: {
           created_at: string
+          dietary_color: string
           event_id: string
           font_size: string
+          guest_list_color: string
+          guest_name_color: string
           id: string
           is_bold: boolean
           is_italic: boolean
           is_underline: boolean
           paper_size: string
+          relationship_color: string
+          seat_number_color: string
           show_dietary: boolean
+          show_guest_list: boolean
+          show_guest_names: boolean
           show_logo: boolean | null
           show_relation: boolean
           show_rsvp: boolean
+          show_seat_numbers: boolean
           sort_by: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          dietary_color?: string
           event_id: string
           font_size?: string
+          guest_list_color?: string
+          guest_name_color?: string
           id?: string
           is_bold?: boolean
           is_italic?: boolean
           is_underline?: boolean
           paper_size?: string
+          relationship_color?: string
+          seat_number_color?: string
           show_dietary?: boolean
+          show_guest_list?: boolean
+          show_guest_names?: boolean
           show_logo?: boolean | null
           show_relation?: boolean
           show_rsvp?: boolean
+          show_seat_numbers?: boolean
           sort_by?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          dietary_color?: string
           event_id?: string
           font_size?: string
+          guest_list_color?: string
+          guest_name_color?: string
           id?: string
           is_bold?: boolean
           is_italic?: boolean
           is_underline?: boolean
           paper_size?: string
+          relationship_color?: string
+          seat_number_color?: string
           show_dietary?: boolean
+          show_guest_list?: boolean
+          show_guest_names?: boolean
           show_logo?: boolean | null
           show_relation?: boolean
           show_rsvp?: boolean
+          show_seat_numbers?: boolean
           sort_by?: string
           updated_at?: string
           user_id?: string

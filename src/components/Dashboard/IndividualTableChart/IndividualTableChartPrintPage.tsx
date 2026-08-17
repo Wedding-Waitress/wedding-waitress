@@ -99,18 +99,18 @@ const GuestLabel = ({ guest, settings, align = 'left', fontSizePt }: {
       data-guest-label="true"
       style={{ color: '#000', fontSize: `${fontSizePt}pt`, lineHeight: 1.2, textAlign: align, overflowWrap: 'anywhere', ...getTextStyle(settings) }}
     >
-      {settings.includeNames && <div>{guest.first_name} {guest.last_name}</div>}
+      {settings.includeNames && <div data-guest-name-text="true" style={{ color: settings.guestNameColor }}>{guest.first_name} {guest.last_name}</div>}
       {hasDetails && <div><GuestDetails guest={guest} settings={settings} /></div>}
     </div>
   );
 };
 
-const Seat = ({ number, show, size = 30 }: { number: number; show: boolean; size?: number }) => (
+const Seat = ({ number, show, color, size = 30 }: { number: number; show: boolean; color: string; size?: number }) => (
   <div
     data-seat="true"
     style={{
       width: `${size}px`, height: `${size}px`, border: '1px solid #000', borderRadius: '50%',
-      background: '#fff', color: '#000', boxSizing: 'border-box', display: 'flex', alignItems: 'center',
+      background: '#fff', color, boxSizing: 'border-box', display: 'flex', alignItems: 'center',
       justifyContent: 'center', flex: '0 0 auto', fontSize: '8pt', lineHeight: 1,
     }}
   >
@@ -192,7 +192,7 @@ const RadialTable = ({ settings, table, guests }: { settings: IndividualChartSet
         return (
           <React.Fragment key={guest.id}>
             <div style={{ position: 'absolute', left: `${position.seatX}px`, top: `${position.seatY}px`, transform: 'translate(-50%, -50%)' }}>
-              <Seat number={guest.seat_no || index + 1} show={settings.showSeatNumbers} />
+              <Seat number={guest.seat_no || index + 1} show={settings.showSeatNumbers} color={settings.seatNumberColor} />
             </div>
             <div style={{ position: 'absolute', left: `${position.labelX}px`, top: `${position.labelY}px`, width: `${position.width}px`, transform: position.transform }}>
               <GuestLabel guest={guest} settings={settings} align={position.align} fontSizePt={fontSizePt} />
@@ -220,7 +220,7 @@ const LongTable = ({ settings, table, guests }: { settings: IndividualChartSetti
       {items.map((guest, index) => (
         <div key={guest.id} style={{ display: 'flex', alignItems: 'center', justifyContent: isLeft ? 'flex-end' : 'flex-start', gap: '7px', minHeight: `${seatSize}px` }}>
           {isLeft && <div style={{ width: '205px' }}><GuestLabel guest={guest} settings={settings} align="right" fontSizePt={fontSizePt} /></div>}
-          <Seat number={guest.seat_no || (isLeft ? index + 1 : half + index + 1)} show={settings.showSeatNumbers} size={seatSize} />
+          <Seat number={guest.seat_no || (isLeft ? index + 1 : half + index + 1)} show={settings.showSeatNumbers} color={settings.seatNumberColor} size={seatSize} />
           {!isLeft && <div style={{ width: '205px' }}><GuestLabel guest={guest} settings={settings} fontSizePt={fontSizePt} /></div>}
         </div>
       ))}
@@ -233,8 +233,8 @@ const LongTable = ({ settings, table, guests }: { settings: IndividualChartSetti
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', fontWeight: 700, fontSize: '16pt' }}>TABLE&nbsp;&nbsp;{table.table_no ?? table.name}</div>
         </div>
-        {endGuests[0] && <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translate(-50%, -100%)', width: '180px', textAlign: 'center' }}><GuestLabel guest={endGuests[0]} settings={settings} align="center" fontSizePt={fontSizePt} /><div style={{ display: 'flex', justifyContent: 'center', marginTop: '5px' }}><Seat number={endGuests[0].seat_no || sideGuests.length + 1} show={settings.showSeatNumbers} size={seatSize} /></div></div>}
-        {endGuests[1] && <div style={{ position: 'absolute', left: '50%', bottom: '-6px', transform: 'translate(-50%, 100%)', width: '180px', textAlign: 'center' }}><div style={{ display: 'flex', justifyContent: 'center', marginBottom: '5px' }}><Seat number={endGuests[1].seat_no || sideGuests.length + 2} show={settings.showSeatNumbers} size={seatSize} /></div><GuestLabel guest={endGuests[1]} settings={settings} align="center" fontSizePt={fontSizePt} /></div>}
+        {endGuests[0] && <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translate(-50%, -100%)', width: '180px', textAlign: 'center' }}><GuestLabel guest={endGuests[0]} settings={settings} align="center" fontSizePt={fontSizePt} /><div style={{ display: 'flex', justifyContent: 'center', marginTop: '5px' }}><Seat number={endGuests[0].seat_no || sideGuests.length + 1} show={settings.showSeatNumbers} color={settings.seatNumberColor} size={seatSize} /></div></div>}
+        {endGuests[1] && <div style={{ position: 'absolute', left: '50%', bottom: '-6px', transform: 'translate(-50%, 100%)', width: '180px', textAlign: 'center' }}><div style={{ display: 'flex', justifyContent: 'center', marginBottom: '5px' }}><Seat number={endGuests[1].seat_no || sideGuests.length + 2} show={settings.showSeatNumbers} color={settings.seatNumberColor} size={seatSize} /></div><GuestLabel guest={endGuests[1]} settings={settings} align="center" fontSizePt={fontSizePt} /></div>}
       </div>
       {side(right, false)}
     </div>
@@ -249,9 +249,9 @@ const GuestList = ({ guests, settings }: { guests: Guest[]; settings: Individual
     const hasDetails = Boolean(getDietaryText(guest, settings) || getRelationshipText(guest, settings));
     return (
       <div key={guest.id} style={{ display: 'grid', gridTemplateColumns: '20px 1fr', gap: '5px', marginBottom: '4px', breakInside: 'avoid' }}>
-        <span>{actualIndex + 1}.</span>
-        <span style={getTextStyle(settings)}>
-          <span>{guest.first_name} {guest.last_name}</span>
+        <span style={{ color: settings.guestListColor }}>{actualIndex + 1}.</span>
+        <span style={{ ...getTextStyle(settings), color: settings.guestListColor }}>
+          <span data-guest-list-text="true">{guest.first_name} {guest.last_name}</span>
           {hasDetails && <><span style={{ color: '#000' }}> — </span><GuestDetails guest={guest} settings={settings} /></>}
         </span>
       </div>
@@ -259,7 +259,7 @@ const GuestList = ({ guests, settings }: { guests: Guest[]; settings: Individual
   };
   const pairs = Array.from({ length: Math.ceil(guests.length / 2) }, (_, rowIndex) => guests.slice(rowIndex * 2, rowIndex * 2 + 2));
   return (
-    <div data-guest-list="true" data-layout="paired-rows" style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: '#000', fontSize: `${fontSizePt}pt`, lineHeight: 1.25, width: '100%' }}>
+    <div data-guest-list="true" data-layout="paired-rows" style={{ display: 'flex', flexDirection: 'column', gap: '4px', color: settings.guestListColor, fontSize: `${fontSizePt}pt`, lineHeight: 1.25, width: '100%' }}>
       {pairs.map((pair, rowIndex) => (
         <div key={pair[0].id} data-guest-pair={`${rowIndex * 2 + 1}-${rowIndex * 2 + 2}`} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: '20px', alignItems: 'start' }}>
           {entry(pair[0])}

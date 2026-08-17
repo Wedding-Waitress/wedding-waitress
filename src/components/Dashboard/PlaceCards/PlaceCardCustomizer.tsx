@@ -616,7 +616,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           {uploading ? "Uploading..." : "Choose File"}
                         </Button>
 
-                        {/* Purple "Image Gallery" button */}
+                        {/* Template Library button */}
                         <Button
                           type="button"
                           size="sm"
@@ -624,7 +624,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           className="w-full rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                           <Images size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-                          Image Gallery
+                          Template Library
                         </Button>
 
                         {/* Design with Canva button */}
@@ -879,6 +879,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       <PlaceCardGalleryModal
         open={galleryModalOpen}
         onOpenChange={setGalleryModalOpen}
+        selectedImageUrl={settings.background_image_url || null}
         onSelectImage={async (imageUrl) => {
           await handleSettingChange("background_image_url", imageUrl);
           toast({

@@ -8,6 +8,7 @@ interface ColorPickerPopoverProps {
   value: string;
   onChange: (color: string) => void;
   className?: string;
+  contentClassName?: string;
 }
 
 const STANDARD_COLORS = [
@@ -43,7 +44,7 @@ const STANDARD_COLORS = [
   ['#A0A0A0', '#C0C0C0', '#E0E0E0', '#F0F0F0', '#FFFFFF'],
 ];
 
-export function ColorPickerPopover({ value, onChange, className }: ColorPickerPopoverProps) {
+export function ColorPickerPopover({ value, onChange, className, contentClassName }: ColorPickerPopoverProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [hoveredColor, setHoveredColor] = React.useState<string | null>(null);
   const colorInputRef = React.useRef<HTMLInputElement>(null);
@@ -70,7 +71,7 @@ export function ColorPickerPopover({ value, onChange, className }: ColorPickerPo
           <span className="flex-1 text-left">{value.toUpperCase()}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[280px] p-3" align="start">
+      <PopoverContent className={cn("w-[280px] p-3", contentClassName)} align="start">
         <div className="space-y-3">
           {/* Standard Colors */}
           <div>

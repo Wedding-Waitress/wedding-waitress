@@ -5,7 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import type { GalleryItem, GalleryMeta } from '@/hooks/useEventMediaGallery';
-import { PB_STRIP_COUNT, PB_STRIP_PRINT, PB_STRIP_SINGLE, PB_STRIP_CUT_X, FOOTER_PANEL_HEIGHT, FOOTER_PANEL_WIDTH } from '@/lib/photoBoothTemplate';
+import { PB_DEFAULT_STYLE, PB_STRIP_COUNT, PB_STRIP_PRINT, PB_STRIP_SINGLE, PB_STRIP_CUT_X, FOOTER_PANEL_HEIGHT, FOOTER_PANEL_WIDTH } from '@/lib/photoBoothTemplate';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 import { GalleryPhotoBoothFeaturePage } from './GalleryPhotoBoothFeaturePage';
 
@@ -28,11 +28,16 @@ vi.mock('@/hooks/usePhotoBoothTemplateLibrary', () => ({
   }),
 }));
 vi.mock('@/components/Dashboard/PhotoVideoGallery/PhotoBoothTemplatePreview', () => ({
-  PhotoBoothTemplatePreview: ({ kind, opts }: { kind: string; opts: { templateUrl?: string | null; style?: { textBackdrop?: string } } }) => (
+  PhotoBoothTemplatePreview: ({ kind, opts }: { kind: string; opts: { templateUrl?: string | null; logoUrl?: string | null; bottomText?: string | null; style?: { bgColor?: string; nameColor?: string; dateColor?: string; textBackdrop?: string } } }) => (
     <div
       data-testid="photo-booth-preview"
       data-kind={kind}
       data-template-url={opts.templateUrl ?? ''}
+      data-logo-url={opts.logoUrl ?? ''}
+      data-bottom-text={opts.bottomText ?? ''}
+      data-background-colour={opts.style?.bgColor ?? ''}
+      data-name-colour={opts.style?.nameColor ?? ''}
+      data-date-colour={opts.style?.dateColor ?? ''}
       data-text-backdrop={opts.style?.textBackdrop ?? ''}
     />
   ),
@@ -71,6 +76,7 @@ const gallery = {
 
 describe('Digital Photo Booth premium appearance', () => {
   beforeEach(() => {
+    gallery.updatePhotoBoothTemplate.mockReset().mockResolvedValue(undefined);
     mocks.events.mockReturnValue({ events: [event], loading: false });
     mocks.selectedEvent.mockReturnValue({ selectedEventId: event.id, selectedEvent: event });
     mocks.gallery.mockReturnValue(gallery);
@@ -263,6 +269,146 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(document.getElementById('photo-booth-text-backdrop-help')).toHaveTextContent(
       'Improve text visibility over detailed backgrounds. Available only when generated footer text is used.',
     );
+  });
+
+  it('resets and immediately persists only the Photo Strip Background, including stale custom-template state', async () => {
+    const initialMeta = {
+      ...meta,
+      photo_booth_strip_bottom_text: 'Keep this footer',
+      photo_booth_strip_logo_url: 'https://storage.test/custom-footer.jpg',
+      photo_booth_strip_template_url: 'https://storage.test/custom-background.jpg',
+      photo_booth_strip_style: {
+        bgColor: '#123456',
+        nameFontFamily: 'Playfair Display',
+        nameColor: '#ABCDEF',
+        nameSize: 54,
+        dateFontFamily: 'Manrope',
+        dateColor: '#FEDCBA',
+        dateSize: 36,
+        textBackdrop: 'black',
+        backgroundMode: 'template',
+        templateId: null,
+      },
+    } as unknown as GalleryMeta;
+    mocks.gallery.mockReturnValue({ ...gallery, meta: initialMeta });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+
+    const backgroundCard = (await screen.findByRole('heading', { name: 'Photo Strip Background' })).closest(`.${managementStyles.glassCard}`)!;
+    fireEvent.click(within(backgroundCard).getByRole('button', { name: 'Reset to default' }));
+
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-template-url', '');
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-background-colour', '#967A59');
+    expect(screen.getAllByText('No Template Selected')).toHaveLength(2);
+    expect(screen.getByRole('heading', { name: 'Background Colour' }).parentElement).toHaveTextContent('Active');
+
+    await waitFor(() => expect(gallery.updatePhotoBoothTemplate).toHaveBeenCalledTimes(1));
+    const saved = gallery.updatePhotoBoothTemplate.mock.calls[0][1];
+    expect(gallery.updatePhotoBoothTemplate).toHaveBeenCalledWith('strip', {
+      bottom_text: 'Keep this footer',
+      logo_url: 'https://storage.test/custom-footer.jpg',
+      template_url: null,
+      style: expect.objectContaining({
+        bgColor: '#967A59',
+        backgroundMode: 'colour',
+        templateId: null,
+        nameFontFamily: 'Playfair Display',
+        nameColor: '#ABCDEF',
+        dateFontFamily: 'Manrope',
+        dateColor: '#FEDCBA',
+        textBackdrop: 'black',
+      }),
+    });
+
+    cleanup();
+    mocks.gallery.mockReturnValue({
+      ...gallery,
+      meta: {
+        ...initialMeta,
+        photo_booth_strip_bottom_text: saved.bottom_text,
+        photo_booth_strip_logo_url: saved.logo_url,
+        photo_booth_strip_template_url: saved.template_url,
+        photo_booth_strip_style: saved.style,
+      },
+    });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+    expect(await screen.findByTestId('photo-booth-preview')).toHaveAttribute('data-template-url', '');
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-background-colour', '#967A59');
+    expect(screen.getAllByText('No Template Selected')).toHaveLength(2);
+  });
+
+  it('resets and immediately persists only the Photo Strip Footer defaults across a fresh render', async () => {
+    const initialMeta = {
+      ...meta,
+      photo_booth_strip_bottom_text: 'Custom footer copy',
+      photo_booth_strip_logo_url: 'https://storage.test/custom-footer.jpg',
+      photo_booth_strip_template_url: 'https://storage.test/custom-background.jpg',
+      photo_booth_strip_style: {
+        bgColor: '#123456',
+        nameFontFamily: 'Playfair Display',
+        nameColor: '#111111',
+        nameSize: 60,
+        dateFontFamily: 'Manrope',
+        dateColor: '#222222',
+        dateSize: 38,
+        textBackdrop: 'white',
+        backgroundMode: 'template',
+        templateId: 'remote-template-id',
+      },
+    } as unknown as GalleryMeta;
+    mocks.gallery.mockReturnValue({ ...gallery, meta: initialMeta });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+
+    const footerCard = (await screen.findByRole('heading', { name: 'Photo Strip Footer' })).closest(`.${managementStyles.glassCard}`)!;
+    fireEvent.click(within(footerCard).getByRole('button', { name: 'Reset to default' }));
+
+    const preview = screen.getByTestId('photo-booth-preview');
+    expect(preview).toHaveAttribute('data-template-url', 'https://storage.test/custom-background.jpg');
+    expect(preview).toHaveAttribute('data-background-colour', '#123456');
+    expect(preview).toHaveAttribute('data-logo-url', '');
+    expect(preview).toHaveAttribute('data-bottom-text', '');
+    expect(preview).toHaveAttribute('data-name-colour', '#FFFFFF');
+    expect(preview).toHaveAttribute('data-date-colour', '#FFFFFF');
+    expect(preview).toHaveAttribute('data-text-backdrop', 'none');
+    expect(within(footerCard).getByText('No image')).toBeInTheDocument();
+
+    await waitFor(() => expect(gallery.updatePhotoBoothTemplate).toHaveBeenCalledTimes(1));
+    const saved = gallery.updatePhotoBoothTemplate.mock.calls[0][1];
+    expect(gallery.updatePhotoBoothTemplate).toHaveBeenCalledWith('strip', {
+      bottom_text: null,
+      logo_url: null,
+      template_url: 'https://storage.test/custom-background.jpg',
+      style: {
+        bgColor: '#123456',
+        fontFamily: PB_DEFAULT_STYLE.fontFamily,
+        fontColor: '#FFFFFF',
+        nameSize: PB_DEFAULT_STYLE.nameSize,
+        dateSize: PB_DEFAULT_STYLE.dateSize,
+        nameFontFamily: PB_DEFAULT_STYLE.nameFontFamily,
+        nameColor: '#FFFFFF',
+        dateFontFamily: PB_DEFAULT_STYLE.dateFontFamily,
+        dateColor: '#FFFFFF',
+        textBackdrop: 'none',
+        backgroundMode: 'template',
+        templateId: 'remote-template-id',
+      },
+    });
+
+    cleanup();
+    mocks.gallery.mockReturnValue({
+      ...gallery,
+      meta: {
+        ...initialMeta,
+        photo_booth_strip_bottom_text: saved.bottom_text,
+        photo_booth_strip_logo_url: saved.logo_url,
+        photo_booth_strip_template_url: saved.template_url,
+        photo_booth_strip_style: saved.style,
+      },
+    });
+    render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
+    expect(await screen.findByTestId('photo-booth-preview')).toHaveAttribute('data-template-url', 'https://storage.test/custom-background.jpg');
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-logo-url', '');
+    expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-text-backdrop', 'none');
+    expect(within(screen.getByRole('heading', { name: 'Photo Strip Footer' }).closest(`.${managementStyles.glassCard}`)!).getByText('No image')).toBeInTheDocument();
   });
 
   it('shows the existing default background when persisted settings reference a retired library asset', async () => {

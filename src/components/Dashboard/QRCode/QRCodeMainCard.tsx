@@ -39,6 +39,7 @@ import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
 import jsPDF from 'jspdf';
+import styles from './QRCodeSeatingChart.module.css';
 interface QRCodeMainCardProps {
   eventId: string;
 }
@@ -510,7 +511,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const updateShapes = (updates: Partial<QRShapeSettings>) => {
     setQrShapes(prev => ({ ...prev, ...updates }));
   };
-  return <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full">
+  return <Card className={`${styles.generatorPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full`}>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
           <QrCodeIcon strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" />
@@ -521,8 +522,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
-          <div className="bg-white rounded-lg border border-primary p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-            <div id="qr-preview" className="w-full max-w-[280px] aspect-square flex items-center justify-center">
+          <div className={`${styles.qrFrame} bg-white rounded-lg border border-primary p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
+            <div id="qr-preview" className={`${styles.qrPreview} w-full max-w-[280px] aspect-square flex items-center justify-center`}>
               {qrDataUrl ? (
                 <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
               ) : (
@@ -532,9 +533,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 2: Customization Panel */}
-          <div className="rounded-lg p-3 space-y-3 overflow-y-auto min-h-[320px]">
-            <div className="lv-premium-shade text-center py-2 px-3 rounded-md -mx-3 -mt-3" style={{ backgroundColor: "#FBF7F0" }}>
-              <h3 className="text-base font-semibold" style={{ color: "#472c1d" }}>Design Your QR Code</h3>
+          <div className={`${styles.designerPanel} rounded-lg p-3 space-y-3 overflow-y-auto min-h-[320px]`}>
+            <div className={`${styles.designerHeading} lv-premium-shade text-center py-2 px-3 rounded-md -mx-3 -mt-3`}>
+              <h3 className="text-base font-semibold">Design Your QR Code</h3>
             </div>
 
             {/* Accordions for Color, Shape, Logo */}
@@ -551,19 +552,19 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <Label className="text-sm">Background</Label>
-                      <ColorPickerPopover value={qrColors.background} onChange={(c) => updateColors({ background: c })} />
+                      <ColorPickerPopover value={qrColors.background} onChange={(c) => updateColors({ background: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Dots</Label>
-                      <ColorPickerPopover value={qrColors.dotsColor} onChange={(c) => updateColors({ dotsColor: c })} />
+                      <ColorPickerPopover value={qrColors.dotsColor} onChange={(c) => updateColors({ dotsColor: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Marker Border</Label>
-                      <ColorPickerPopover value={qrColors.markerBorderColor} onChange={(c) => updateColors({ markerBorderColor: c })} />
+                      <ColorPickerPopover value={qrColors.markerBorderColor} onChange={(c) => updateColors({ markerBorderColor: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Marker Center</Label>
-                      <ColorPickerPopover value={qrColors.markerCenterColor} onChange={(c) => updateColors({ markerCenterColor: c })} />
+                      <ColorPickerPopover value={qrColors.markerCenterColor} onChange={(c) => updateColors({ markerCenterColor: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                   </div>
                   <div className="p-1.5 rounded text-xs bg-green-50 text-green-800 border border-green-200">
@@ -720,7 +721,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 3: Action Buttons */}
-          <div className="flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+          <div className={`${styles.actionsPanel} flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
             {/* Open Live View - Full Width */}
             <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="lv-premium-shade w-full bg-green-500 hover:bg-green-600 text-white border-0">
               <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
@@ -759,7 +760,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         </div>
 
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
-        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full">
+        <Card className={`${styles.configPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full`}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground"><SlidersHorizontal strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" aria-hidden="true" />Guest Live View Configuration</CardTitle>
           </CardHeader>
@@ -1915,7 +1916,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <SongReqSelectTrigger className="w-full lv-premium-shade border-0">
                         <SongReqSelectValue />
                       </SongReqSelectTrigger>
-                      <SongReqSelectContent>
+                      <SongReqSelectContent className="ww-qr-select-menu">
                         {[1, 2, 3, 4, 5, 10].map((n) => (
                           <SongReqSelectItem key={n} value={String(n)}>{n}</SongReqSelectItem>
                         ))}

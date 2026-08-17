@@ -5,8 +5,27 @@ import '@fontsource/manrope/latin-500.css';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import managementStyles from './PhotoVideoGallery/photoVideoSharingManagement.module.css';
+import styles from './DashboardLoadingScreen.module.css';
 
-export type DashboardLoadingAppearance = 'neutral' | 'photo-video-sharing';
+export type DashboardLoadingAppearance = 'neutral' | 'core' | 'photo-video-sharing';
+
+export const CORE_DASHBOARD_LOADING_TABS = new Set([
+  'dashboard',
+  'my-events',
+  'table-list',
+  'guest-list',
+  'qr-code',
+  'signage',
+  'invitations',
+  'place-cards',
+  'individual-table-chart',
+  'floor-plan',
+  'dietary-chart',
+  'full-seating-chart',
+  'kiosk-live-view',
+  'dj-mc-questionnaire',
+  'running-sheet',
+]);
 
 interface DashboardLoadingScreenProps {
   contained?: boolean;
@@ -24,10 +43,54 @@ export const getDashboardLoadingAppearance = (
     pathname === '/dashboard'
     && new URLSearchParams(search).get('tab') === 'photo-video-gallery';
 
-  return isPhotoVideoWorkspace || isPhotoVideoDashboardTab
-    ? 'photo-video-sharing'
-    : 'neutral';
+  if (isPhotoVideoWorkspace || isPhotoVideoDashboardTab) return 'photo-video-sharing';
+
+  const dashboardTab = pathname === '/dashboard'
+    ? new URLSearchParams(search).get('tab') || 'dashboard'
+    : null;
+
+  return dashboardTab && CORE_DASHBOARD_LOADING_TABS.has(dashboardTab) ? 'core' : 'neutral';
 };
+
+const CoreDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ contained }) => (
+  <div
+    className={cn(
+      'flex w-full items-center justify-center overflow-x-hidden px-4',
+      contained ? 'fixed inset-0 z-[100] min-h-[100dvh]' : 'min-h-[100dvh]',
+      styles.coreSurface,
+    )}
+    role="status"
+    aria-live="polite"
+    data-dashboard-loading-screen
+    data-loading-appearance="core"
+  >
+    <Card
+      className={cn(
+        'w-full max-w-xs rounded-2xl p-6 text-center sm:p-7',
+        managementStyles.glassCard,
+        managementStyles.loadingGlassPanel,
+      )}
+      data-dashboard-loading-card
+    >
+      <LoaderCircle
+        aria-hidden="true"
+        className={cn(
+          'mx-auto mb-3 h-6 w-6 motion-safe:animate-spin motion-reduce:animate-none',
+          managementStyles.loadingGlassSpinner,
+        )}
+        strokeWidth={1.8}
+      />
+      <CardTitle
+        className={cn('text-lg font-medium text-white', managementStyles.loadingGlassTitle)}
+      >
+        {contained ? 'Loading Page...' : 'Loading Dashboard...'}
+      </CardTitle>
+      <CardDescription className="mt-1 text-sm">
+        Please wait while we set up your workspace
+      </CardDescription>
+    </Card>
+  </div>
+);
 
 const NeutralDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ contained }) => {
   if (contained) {
@@ -80,6 +143,10 @@ export const DashboardLoadingScreen: React.FC<DashboardLoadingScreenProps> = ({
 }) => {
   if (appearance === 'neutral') {
     return <NeutralDashboardLoadingScreen contained={contained} />;
+  }
+
+  if (appearance === 'core') {
+    return <CoreDashboardLoadingScreen contained={contained} />;
   }
 
   return (

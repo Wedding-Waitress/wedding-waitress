@@ -38,7 +38,11 @@ vi.mock('@/lib/photoBoothBackgroundTemplates', () => ({
     && (colour === 'all' || template.colour === colour)),
 }));
 vi.mock('./PhotoBoothTemplateAdminUploader', () => ({
-  PhotoBoothTemplateAdminUploader: () => <section aria-label="Photo Booth template admin upload">Uploader</section>,
+  PhotoBoothTemplateAdminUploader: ({ onComplete }: { onComplete: () => Promise<void> | void }) => (
+    <section aria-label="Photo Booth template admin upload">
+      <button type="button" onClick={() => void onComplete()}>Complete test upload</button>
+    </section>
+  ),
 }));
 
 import { PhotoBoothTemplateLibraryDialog } from './PhotoBoothTemplateLibraryDialog';
@@ -49,7 +53,7 @@ describe('PhotoBoothTemplateLibraryDialog owner/admin management', () => {
     mocks.remove.mockReset();
     mocks.update.mockReset();
     mocks.refetch.mockReset();
-    mocks.managedTemplates.splice(0, mocks.managedTemplates.length, mocks.template);
+    mocks.managedTemplates = [mocks.template];
     HTMLElement.prototype.scrollIntoView = vi.fn();
   });
   afterEach(cleanup);
@@ -114,5 +118,47 @@ describe('PhotoBoothTemplateLibraryDialog owner/admin management', () => {
     const listbox = await screen.findByRole('listbox');
     expect(within(listbox).getByRole('option', { name: 'All categories (1)' })).toBeVisible();
     expect(within(listbox).getByRole('option', { name: 'General (1)' })).toBeVisible();
+  });
+
+  it('keeps a live full-library design count through filtering, upload refreshes and deletion', async () => {
+    const uploadedTemplate = {
+      ...mocks.template,
+      id: 'managed-2',
+      name: 'Wedding 11',
+      url: 'https://cdn.example.com/originals/wedding-11.jpg',
+      thumbUrl: 'https://cdn.example.com/thumbnails/wedding-11.jpg',
+      sourceFilename: 'originals/wedding-11.jpg',
+    };
+    mocks.refetch.mockImplementation(async () => {
+      mocks.managedTemplates = [...mocks.managedTemplates, uploadedTemplate];
+    });
+    mocks.remove.mockImplementation(async (template: typeof mocks.template) => {
+      mocks.managedTemplates = mocks.managedTemplates.filter((item) => item.id !== template.id);
+    });
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    const view = render(<PhotoBoothTemplateLibraryDialog open onOpenChange={vi.fn()} selectedUrl={null} onSelect={vi.fn()} appearance="espresso-glass" />);
+
+    const count = screen.getByLabelText('1 total designs');
+    expect(count).toHaveTextContent('1 Total Designs');
+    expect(count).toHaveClass('text-[#d9b77f]');
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search templates by name' }), { target: { value: 'no matching template' } });
+    expect(screen.getByLabelText('1 total designs')).toBeVisible();
+    expect(screen.getByText('No templates match your search.')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Admin Upload' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Complete test upload' }));
+    await waitFor(() => expect(mocks.refetch).toHaveBeenCalledTimes(1));
+    view.rerender(<PhotoBoothTemplateLibraryDialog open onOpenChange={vi.fn()} selectedUrl={null} onSelect={vi.fn()} appearance="espresso-glass" />);
+    expect(screen.getByLabelText('2 total designs')).toHaveTextContent('2 Total Designs');
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Search templates by name' }), { target: { value: '' } });
+    const uploadedCard = screen.getByRole('button', { name: /Wedding 11/ }).closest('article');
+    expect(uploadedCard).not.toBeNull();
+    fireEvent.click(within(uploadedCard as HTMLElement).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(mocks.remove).toHaveBeenCalledWith(uploadedTemplate));
+    view.rerender(<PhotoBoothTemplateLibraryDialog open onOpenChange={vi.fn()} selectedUrl={null} onSelect={vi.fn()} appearance="espresso-glass" />);
+    expect(screen.getByLabelText('1 total designs')).toHaveTextContent('1 Total Designs');
   });
 });

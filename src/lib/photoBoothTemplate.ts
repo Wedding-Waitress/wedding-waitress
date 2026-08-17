@@ -10,6 +10,7 @@
 
 export const PB_CREAM = '#FBF7F0';
 export const PB_BROWN = '#967A59';
+export const PB_CANONICAL_BACKGROUND = PB_BROWN;
 export const PB_GOLD = '#C8A97E';
 export const PB_GOLD_DARK = '#B08F63';
 export const PB_INK = '#FFFFFF';
@@ -355,7 +356,7 @@ export interface PersistedPhotoBoothStripStyle extends PhotoBoothStripStyle {
 }
 
 export const PB_DEFAULT_STYLE: Required<PhotoBoothStripStyle> = {
-  bgColor: PB_BROWN,
+  bgColor: PB_CANONICAL_BACKGROUND,
   fontFamily: 'Inter',
   fontColor: '#FFFFFF',
   nameSize: 42,
@@ -618,29 +619,34 @@ const roundedRectPath = (
   ctx.closePath();
 };
 
-/** Draws one feathered, borderless canvas backdrop fully inside the footer safe area. */
+// 24px on the 1200px master renders at about 8px in the 420px organiser preview.
+export const PB_FOOTER_BACKDROP_CORNER_RADIUS = 24;
+export const PB_FOOTER_BACKDROP_MIN_WIDTH_RATIO = 0.72;
+const PB_FOOTER_BACKDROP_FEATHER = 10;
+
+/** Draws one feathered rectangular canvas backdrop fully inside the footer safe area. */
 const drawFooterTextBackdrop = (
   ctx: CanvasRenderingContext2D,
   mode: 'white' | 'black',
   rect: { x: number; y: number; w: number; h: number },
 ) => {
-  const cx = rect.x + rect.w / 2;
-  const cy = rect.y + rect.h / 2;
-  const normalizedRadius = rect.h / 2;
   const rgb = mode === 'white' ? '255,255,255' : '0,0,0';
+  const innerAlpha = mode === 'white' ? 0.76 : 0.70;
+  const layers = 6;
 
   ctx.save();
-  roundedRectPath(ctx, rect.x, rect.y, rect.w, rect.h, Math.min(22, rect.h / 3));
-  ctx.clip();
-  ctx.translate(cx, cy);
-  ctx.scale(rect.w / rect.h, 1);
-  const gradient = ctx.createRadialGradient(0, 0, normalizedRadius * 0.12, 0, 0, normalizedRadius);
-  gradient.addColorStop(0, `rgba(${rgb},${mode === 'white' ? 0.88 : 0.80})`);
-  gradient.addColorStop(0.56, `rgba(${rgb},${mode === 'white' ? 0.82 : 0.74})`);
-  gradient.addColorStop(0.84, `rgba(${rgb},0.42)`);
-  gradient.addColorStop(1, `rgba(${rgb},0)`);
-  ctx.fillStyle = gradient;
-  ctx.fillRect(-rect.h / 2, -rect.h / 2, rect.h, rect.h);
+  for (let index = 0; index < layers; index++) {
+    const progress = index / (layers - 1);
+    const inset = PB_FOOTER_BACKDROP_FEATHER * progress;
+    const width = rect.w - inset * 2;
+    const height = rect.h - inset * 2;
+    if (width <= 0 || height <= 0) continue;
+    const radius = Math.max(8, PB_FOOTER_BACKDROP_CORNER_RADIUS - inset * 0.6);
+    const alpha = index === layers - 1 ? innerAlpha : 0.055 + progress * 0.035;
+    roundedRectPath(ctx, rect.x + inset, rect.y + inset, width, height, radius);
+    ctx.fillStyle = `rgba(${rgb},${alpha})`;
+    ctx.fill();
+  }
   ctx.restore();
 };
 
@@ -705,12 +711,12 @@ const drawGeneratedStripFooter = (
     const safeTop = footerY + FOOTER_PANEL_SAFE_INSET;
     const safeWidth = halfWidth - FOOTER_PANEL_SAFE_INSET * 2;
     const safeHeight = footerHeight - FOOTER_PANEL_SAFE_INSET * 2;
-    const desiredWidth = maxTextWidth + 48;
+    const desiredWidth = maxTextWidth + 64;
     const first = lines[0];
     const last = lines[lines.length - 1];
     const desiredTop = first.y - first.lineHeight / 2 - 14;
     const desiredBottom = last.y + last.lineHeight / 2 + 14;
-    const backdropWidth = Math.min(safeWidth, Math.max(120, desiredWidth));
+    const backdropWidth = Math.min(safeWidth, Math.max(safeWidth * PB_FOOTER_BACKDROP_MIN_WIDTH_RATIO, desiredWidth));
     const backdropHeight = Math.min(safeHeight, Math.max(58, desiredBottom - desiredTop));
     const backdropY = Math.min(
       footerY + footerHeight - FOOTER_PANEL_SAFE_INSET - backdropHeight,

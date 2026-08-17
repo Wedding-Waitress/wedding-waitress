@@ -39,7 +39,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { ClipboardList, UsersRound, CalendarDays, CircleCheck, Printer, FileDown, Files, LoaderCircle, TriangleAlert, LayoutTemplate } from 'lucide-react';
+import { ClipboardList, UsersRound, CalendarDays, Printer, FileDown, Files, LoaderCircle, TriangleAlert, LayoutTemplate } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
@@ -50,7 +50,7 @@ import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
-import { GUESTS_PER_PAGE } from '@/lib/fullSeatingChartLayout';
+import { getFullSeatingChartGuestsPerPage } from '@/lib/fullSeatingChartLayout';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -106,7 +106,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
    * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
    * Must match the calculation in FullSeatingChartPreview and fullSeatingChartPdfExporter
    */
-  const guestsPerPage = GUESTS_PER_PAGE;
+  const guestsPerPage = getFullSeatingChartGuestsPerPage(settings.fontSize);
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent) return;
@@ -235,31 +235,21 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     <div className="space-y-6 full-seating-chart-dark-purple max-md:px-4">
       {/* Header */}
       <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
-        <CardHeader className="space-y-4">
-          {/* Top row: Icon, Title, and Event Name */}
-          <div className="flex items-center justify-between">
-            {/* Header Icon & Info */}
-            <div className="flex items-center gap-2">
-              <ClipboardList className="w-[25px] h-[25px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-              <div>
-                <CardTitle className="text-left font-bold text-[#472c1d]" style={{ fontSize: 24 }}>Full Seating Chart</CardTitle>
-                <CardDescription className="text-left">
-                  Complete guest list with check-off boxes
-                </CardDescription>
+        <CardHeader className="space-y-0">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] xl:gap-6 xl:items-stretch">
+            <div className="space-y-4 min-w-0">
+              <div className="flex items-start gap-2">
+                <ClipboardList className="w-[25px] h-[25px] mt-0.5 text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                <div className="min-w-0">
+                  <CardTitle className="text-left text-2xl font-bold text-[#472c1d]">Full Seating Chart</CardTitle>
+                  <CardDescription className="text-left">
+                    Complete guest list with check-off boxes
+                  </CardDescription>
+                </div>
               </div>
-            </div>
 
-            {selectedEvent && (
-              <span className="hidden lg:inline text-lg font-normal text-[#472c1d]">
-                Full Seating Chart for {selectedEvent.name}
-              </span>
-            )}
-          </div>
-
-          {/* Bottom row: Choose Event dropdown, badges, and export controls */}
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between pt-2 border-t max-lg:px-2">
-            <div className="flex flex-wrap items-center gap-3 lg:gap-4">
-              <div className="flex flex-wrap items-center gap-3 lg:space-x-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
                 <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
                   <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Choose Event:
@@ -272,7 +262,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     {events.length > 0 ? (
                       events.map((event) => (
                         <SelectItem key={event.id} value={event.id}>
-                          <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-2">
                             <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                             <span>{event.name}</span>
                           </div>
@@ -287,46 +277,34 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                 </Select>
               </div>
               {selectedEvent && (
-                <div className="flex flex-wrap items-center gap-2 max-md:w-full">
-                  <Badge 
-                    variant="outline"
-                    className="lg:ml-4 bg-white border-[#472c1d] text-[#472c1d] rounded-full"
-                  >
-                    <UsersRound className="w-4 h-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
+                <Badge
+                  variant="outline"
+                  className="w-fit max-w-full h-10 px-3 py-2 bg-white border border-[#472c1d] text-[#472c1d] rounded-md whitespace-normal"
+                >
+                    <UsersRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                    <span className="ml-1.5">
                     {guestsLoading ? "Loading..." : `${guests.length} guests`}
-                  </Badge>
-                  <Badge 
-                    variant="outline"
-                    className="bg-white border-[#472c1d] text-[#472c1d] rounded-full"
-                  >
-                    {isDataReady && hasGuests ? (
-                      <CircleCheck className="w-[15px] h-[15px] shrink-0 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
-                    ) : isDataReady ? (
-                      <TriangleAlert className="w-[15px] h-[15px] shrink-0 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
-                    ) : (
-                      <LoaderCircle className="w-[15px] h-[15px] shrink-0 mr-1.5 animate-spin" strokeWidth={1.8} aria-hidden="true" />
-                    )}
-                    {isDataReady ? (hasGuests ? 'Ready to Generate' : 'No Guests') : 'Loading Data...'}
-                  </Badge>
-                </div>
+                    </span>
+                </Badge>
               )}
+              </div>
             </div>
 
-              {/* Export Controls */}
-              {isDataReady && hasGuests && (
-                <div className="border border-[#472c1d] rounded-xl p-3 flex flex-col gap-3 w-full lg:w-auto">
-                  <div className="flex flex-wrap items-center">
+            {/* Export Controls */}
+            {isDataReady && hasGuests && (
+                <div className="bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0">
+                  <div className="text-sm space-y-1">
                     <span className="font-bold text-sm inline-flex items-center gap-1.5">
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Export Controls
                     </span>
-                    <span className="text-muted-foreground ml-2 text-sm">
-                      Download the Full Seating Chart and share it with your vendors.
-                    </span>
+                    <p className="text-muted-foreground">
+                      Download the full seating chart and share it with your vendors.
+                    </p>
                   </div>
-                  <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
                     <button
-                      className="inline-flex items-center justify-center gap-1.5 h-9 md:h-7 px-3 md:px-2.5 text-sm md:text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full md:w-auto"
+                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                       onClick={handleDownloadPdf}
                       disabled={isExporting}
                       aria-label="Download single page PDF"
@@ -339,7 +317,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                       Download single page PDF
                     </button>
                     <button
-                      className="inline-flex items-center justify-center gap-1.5 h-9 md:h-7 px-3 md:px-2.5 text-sm md:text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full md:w-auto"
+                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
                       onClick={handleDownloadPdfAll}
                       disabled={isExporting}
                       aria-label="Download all pages PDF"
@@ -353,7 +331,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                     </button>
                   </div>
                 </div>
-              )}
+            )}
           </div>
         </CardHeader>
       </Card>
@@ -361,9 +339,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       {/* Main Content */}
       {selectedEventId ? (
         isDataReady && hasGuests ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-lg:px-2">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,3fr)] gap-6 max-lg:px-2">
             {/* Customization Panel */}
-            <div className="lg:col-span-1">
+            <div className="min-w-0">
               <FullSeatingChartCustomizer
                 settings={settings}
                 onSettingsChange={updateSettings}
@@ -371,7 +349,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
 
             {/* Preview */}
-            <div className="lg:col-span-3">
+            <div className="min-w-0">
               <div className="lg:hidden overflow-x-auto -mx-2 px-2 pb-2">
                 <div className="min-w-[820px] flex justify-center">
                   <FullSeatingChartPreview 

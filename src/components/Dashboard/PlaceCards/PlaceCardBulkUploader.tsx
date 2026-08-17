@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
+import { Loader2, Upload, RotateCw, CheckCircle2, XCircle, Trash2, FolderOpen } from 'lucide-react';
 import { MAX_PLACE_CARD_UPLOAD_BYTES, prettifyPlaceCardFilename, uploadPlaceCardGalleryImage } from './placeCardUploadUtils';
 import { getReadableUploadError } from '../galleryUploadCore';
 
@@ -68,6 +68,8 @@ interface Props {
 
 export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Props>(({ defaultCategory = '', onAllDone }, ref) => {
   const { toast } = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [bulkCategory, setBulkCategory] = useState(defaultCategory || 'Uncategorized');
   const [rows, setRows] = useState<Row[]>([]);
   const [running, setRunning] = useState(false);
   const rowsRef = useRef<Row[]>([]);
@@ -94,13 +96,13 @@ export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Pro
         file,
         previewUrl: URL.createObjectURL(file),
         name: prettifyPlaceCardFilename(file.name),
-        category: defaultCategory || autoCategorize(file.name),
+        category: bulkCategory.trim() || autoCategorize(file.name),
         status: file.size > MAX_PLACE_CARD_UPLOAD_BYTES ? 'failed' : 'queued',
         error: file.size > MAX_PLACE_CARD_UPLOAD_BYTES ? `File >500 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)` : undefined,
       }));
       setRows((prev) => [...prev, ...newRows]);
     },
-    [toast, defaultCategory]
+    [toast, bulkCategory]
   );
 
   useImperativeHandle(ref, () => ({ addFiles }), [addFiles]);
@@ -193,11 +195,38 @@ export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Pro
         {CATEGORY_PRESETS.map((c) => (<option key={c} value={c} />))}
       </datalist>
 
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <Input
+          value={bulkCategory}
+          onChange={(event) => setBulkCategory(event.target.value)}
+          placeholder="Category for this upload"
+          aria-label="Category for this upload"
+          list="place-card-cat-presets"
+          disabled={running}
+        />
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+          multiple
+          className="sr-only"
+          onChange={(event) => {
+            if (event.target.files?.length) addFiles(event.target.files);
+            event.target.value = '';
+          }}
+        />
+        <Button type="button" variant="outline" onClick={() => inputRef.current?.click()} disabled={running}>
+          <FolderOpen className="h-4 w-4 mr-1" />Choose images
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">PNG or JPG · maximum 500 MB per image · existing landscape Place Card validation applies</p>
+
       {rows.length > 0 && (
         <div className="flex flex-wrap items-center gap-3 text-sm">
-          <span className="font-medium">{stats.done} / {stats.total} done</span>
-          {stats.failed > 0 && <span className="text-destructive">· {stats.failed} failed</span>}
-          {stats.uploading > 0 && <span className="text-primary">· {stats.uploading} uploading</span>}
+          <span className="font-medium">Total {stats.total}</span>
+          <span className="text-green-700">Successful {stats.done}</span>
+          <span className={stats.failed ? 'text-destructive' : 'text-muted-foreground'}>Failed {stats.failed}</span>
+          <span className="text-muted-foreground">Waiting {stats.queued + stats.uploading}</span>
           <div className="ml-auto flex gap-2">
             {stats.failed > 0 && !running && (
               <Button variant="outline" size="sm" onClick={retryFailed} className="lv-premium-shade">
@@ -247,7 +276,7 @@ export const PlaceCardBulkUploader = forwardRef<PlaceCardBulkUploaderHandle, Pro
                   />
                 </div>
                 <div className="w-72 text-xs flex items-start gap-1.5 flex-shrink-0 pt-1.5">
-                  {row.status === 'queued' && <span className="text-muted-foreground">Queued</span>}
+                  {row.status === 'queued' && <span className="text-muted-foreground">Waiting</span>}
                   {row.status === 'uploading' && (
                     <><Loader2 className="h-3.5 w-3.5 animate-spin text-primary flex-shrink-0 mt-0.5" /><span className="text-primary">Optimizing…</span></>
                   )}

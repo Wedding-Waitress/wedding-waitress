@@ -362,7 +362,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           <SelectTrigger id="dietary" className="border-primary w-full">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="ww-public-live-menu">
             {dietaryOptions.map((option) => (
               <SelectItem key={option} value={option}>{option}</SelectItem>
             ))}
@@ -487,7 +487,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   // page/card transforms, overflow clipping, or dialog primitives.
   if (isMobile && open && typeof document !== 'undefined') {
     return createPortal(
-      <div className="fixed inset-0 z-[9999] overflow-hidden" role="dialog" aria-modal="true">
+      <div className="ww-public-live-dialog fixed inset-0 z-[9999] overflow-hidden" role="dialog" aria-modal="true">
         <div
           className="fixed inset-0 bg-black/60"
           onClick={() => onOpenChange(false)}
@@ -531,7 +531,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   // DESKTOP / TABLET (>=1024px): unchanged dialog
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent className="ww-public-live-dialog sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
           <DialogTitle className="text-primary">{headerTitle}</DialogTitle>
           <DialogDescription asChild>{headerSubtitle}</DialogDescription>

@@ -81,7 +81,16 @@ export const PhotoBoothTemplateLibraryDialog: React.FC<Props> = ({ open, onOpenC
     <Dialog open={open} onOpenChange={(value) => { if (!value) { setShowUpload(false); setPreview(null); setEditing(null); } onOpenChange(value); }}>
       <DialogContent className={cn('w-[calc(100vw-2rem)] p-0 overflow-hidden', isGlass && managementStyles.guestbookDialog, isGlass && managementStyles.templateLibraryDialog)}>
         <DialogHeader className="px-5 pt-5 pb-3 pr-32 text-left relative">
-          <DialogTitle className={cn('text-lg font-bold', isGlass && managementStyles.galleryViewHeading)}>Template Library</DialogTitle>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <DialogTitle className={cn('text-lg font-bold', isGlass && managementStyles.galleryViewHeading)}>Template Library</DialogTitle>
+            <span
+              aria-live="polite"
+              aria-label={`${templates.length} total designs`}
+              className="whitespace-nowrap text-sm font-medium text-[#d9b77f] sm:text-base"
+            >
+              {templates.length} Total Designs
+            </span>
+          </div>
           <DialogDescription className={cn('text-sm', isGlass && managementStyles.gallerySecondaryText)}>Choose a Wedding Waitress photo-strip background. The guest photos and footer always stay on top.</DialogDescription>
           {isAdmin && !preview && (
             <Button type="button" size="sm" variant="outline" className={cn('absolute right-[4.5rem] top-3.5 lv-premium-shade', managementStyles.templateLibrarySecondaryAction)} onClick={() => setShowUpload((current) => !current)}>

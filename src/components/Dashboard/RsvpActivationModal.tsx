@@ -198,7 +198,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="ww-guest-list-dialog ww-rsvp-activation-dialog max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center gap-2 text-lg mt-8 text-left">
             <Mail className="w-5 h-5 text-primary" />

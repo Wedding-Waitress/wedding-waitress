@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import '@fontsource/manrope/latin-600.css';
 import ReactDOM from 'react-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -23,6 +24,7 @@ import { TimePicker } from './TimePicker';
 import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
 import { format } from 'date-fns';
+import styles from './EventCreateModal.module.css';
 
 interface EventCreateModalProps {
   isOpen: boolean;
@@ -70,6 +72,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [receptionOverrides, setReceptionOverrides] = useState<Set<string>>(new Set());
 
   const markReceptionOverride = (field: string) => {
@@ -88,6 +92,12 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     };
     document.addEventListener("focusin", onFocus);
     return () => document.removeEventListener("focusin", onFocus);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.classList.add('ww-create-event-open');
+    return () => document.body.classList.remove('ww-create-event-open');
   }, [isOpen]);
 
   useEffect(() => {
@@ -128,46 +138,57 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     return baseClass;
   }, []);
 
-  const isFormValid = useMemo(() => {
-    // Event name is required
-    if (!formData.event_name.trim()) {
-      return false;
-    }
-    
-    // At least one section must be enabled
+  const validationIssues = useMemo(() => {
+    const issues: Array<{ field: string; label: string }> = [];
+
+    if (!formData.event_name.trim()) issues.push({ field: 'event_name', label: 'Event name' });
     if (!formData.ceremony_enabled && !formData.reception_enabled) {
-      return false;
+      issues.push({ field: 'sections', label: 'Enable Ceremony or Reception' });
     }
-    
-    // Validate ceremony fields if enabled
+
     if (formData.ceremony_enabled) {
-      if (!formData.ceremony_name.trim() || 
-          !formData.ceremony_date || 
-          !formData.ceremony_venue.trim() ||
-          !formData.ceremony_start_time ||
-          !formData.ceremony_finish_time ||
-          !formData.ceremony_rsvp_deadline) {
-        return false;
-      }
+      if (!formData.ceremony_name.trim()) issues.push({ field: 'ceremony_name', label: 'Ceremony name' });
+      if (!formData.ceremony_date) issues.push({ field: 'ceremony_date', label: 'Ceremony date' });
+      if (!formData.ceremony_rsvp_deadline) issues.push({ field: 'ceremony_rsvp_deadline', label: 'Ceremony RSVP deadline' });
+      if (!formData.ceremony_venue.trim()) issues.push({ field: 'ceremony_venue', label: 'Ceremony location name' });
+      if (!formData.ceremony_start_time) issues.push({ field: 'ceremony_start_time', label: 'Ceremony start time' });
+      if (!formData.ceremony_finish_time) issues.push({ field: 'ceremony_finish_time', label: 'Ceremony finish time' });
     }
-    
-    // Validate reception fields if enabled
+
     if (formData.reception_enabled) {
-      if (!formData.name.trim() || 
-          !formData.date || 
-          !formData.venue.trim() ||
-          !formData.start_time ||
-          !formData.finish_time ||
-          !formData.rsvp_deadline) {
-        return false;
-      }
+      if (!formData.name.trim()) issues.push({ field: 'reception_name', label: 'Reception event name' });
+      if (!formData.date) issues.push({ field: 'reception_date', label: 'Reception event date' });
+      if (!formData.rsvp_deadline) issues.push({ field: 'reception_rsvp_deadline', label: 'Reception RSVP deadline' });
+      if (!formData.venue.trim()) issues.push({ field: 'reception_venue', label: 'Reception location/venue' });
+      if (!formData.start_time) issues.push({ field: 'reception_start_time', label: 'Reception start time' });
+      if (!formData.finish_time) issues.push({ field: 'reception_finish_time', label: 'Reception finish time' });
     }
-    
-    return true;
+
+    return issues;
   }, [formData]);
 
+  const isFormValid = validationIssues.length === 0;
+
+  const focusFirstInvalidField = (field: string) => {
+    const selector = field === 'sections'
+      ? '.ww-create-event-panel [role="switch"]'
+      : `.ww-create-event-panel [data-create-event-field="${field}"]`;
+    const fieldContainer = document.querySelector<HTMLElement>(selector);
+    const focusTarget = fieldContainer?.matches('input, button, [role="combobox"]')
+      ? fieldContainer
+      : fieldContainer?.querySelector<HTMLElement>('input, button, [role="combobox"]');
+
+    fieldContainer?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), 180);
+  };
+
   const handleCreate = async () => {
-    if (!isFormValid) return;
+    setSubmitAttempted(true);
+    setSubmissionError(null);
+    if (!isFormValid) {
+      focusFirstInvalidField(validationIssues[0].field);
+      return;
+    }
     
     setIsSaving(true);
     try {
@@ -216,6 +237,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Failed to create event:', error);
+      setSubmissionError('The event could not be created. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -251,6 +273,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
       rsvp_deadline: null
     });
     setReceptionOverrides(new Set());
+    setSubmitAttempted(false);
+    setSubmissionError(null);
   };
 
   const handleClose = () => {
@@ -291,9 +315,10 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
 
   const headerNode = (
     <DialogHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12">
-      <DialogTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Create Event</DialogTitle>
+      <DialogTitle className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white break-words whitespace-nowrap w-full lg:w-auto ${styles.title}`}>Create Event</DialogTitle>
       <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
         <Input
+          data-create-event-field="event_name"
           value={formData.event_name}
           onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
           placeholder="Event name - e.g., Jason & Linda's Wedding"
@@ -307,15 +332,15 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
       <Button
         onClick={handleCreate}
-        disabled={!isFormValid || isSaving}
-        className="lv-premium-shade flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
+        disabled={isSaving}
+        className={`lv-premium-shade flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
       >
         {isSaving ? 'Creating...' : 'Create Event'}
       </Button>
       <Button
         variant="destructive"
         onClick={handleClose}
-        className="lv-premium-shade flex-1 lg:flex-none lg:order-1 h-11 rounded-full max-lg:order-2 max-lg:w-full"
+        className={`lv-premium-shade flex-1 lg:flex-none lg:order-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton}`}
       >
         Cancel
       </Button>
@@ -325,15 +350,24 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   const bodyContent = (
     <>
       {/* Validation Message */}
-      {!formData.ceremony_enabled && !formData.reception_enabled && (
-        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center whitespace-pre-line">
-          {"Please enable at least one section below\n(Ceremony or Reception) \nto create an event."}
+      {((!formData.ceremony_enabled && !formData.reception_enabled) ||
+        (submitAttempted && validationIssues.length > 0) || submissionError) && (
+        <div role="alert" className={`bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center whitespace-pre-line ${styles.validation}`}>
+          {!formData.ceremony_enabled && !formData.reception_enabled &&
+            "Please enable at least one section below\n(Ceremony or Reception) \nto create an event."}
+          {submitAttempted && validationIssues.filter(({ field }) => field !== 'sections').length > 0 && (
+            <div className="mt-2 whitespace-normal">
+              <p>Please complete the following required fields:</p>
+              <p>{validationIssues.filter(({ field }) => field !== 'sections').map(({ label }) => label).join(', ')}</p>
+            </div>
+          )}
+          {submissionError && <p className="mt-2 whitespace-normal">{submissionError}</p>}
         </div>
       )}
       {/* CEREMONY SECTION */}
-      <div className="border-2 border-border rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
-          <h3 className="text-lg font-semibold text-foreground">Ceremony</h3>
+      <div className={`border-2 border-border rounded-xl overflow-hidden ${styles.section}`}>
+        <div className={`flex items-center justify-between px-4 py-3 bg-muted/50 ${styles.sectionHeader}`}>
+          <h3 className={`text-lg font-semibold text-foreground ${styles.sectionTitle}`}>Ceremony</h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{formData.ceremony_enabled ? 'Yes' : 'No'}</span>
             <button type="button" role="switch" aria-checked={formData.ceremony_enabled}
@@ -349,16 +383,16 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         {formData.ceremony_enabled ? (
           <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="ceremony_name">
                 <Label className="text-xs">Ceremony Name *</Label>
                 <EventNameCombobox mainEventName={formData.event_name} value={formData.ceremony_name}
                   onChange={(name) => setFormData(prev => ({ ...prev, ceremony_name: name }))} placeholder="e.g., Bride & Groom's Name" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="ceremony_date">
                 <Label className="text-xs">Ceremony Date *</Label>
                 <EventDatePicker value={formData.ceremony_date} onChange={(date) => setFormData(prev => ({ ...prev, ceremony_date: date }))} placeholder="Select date" filled={!!formData.ceremony_date} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="ceremony_rsvp_deadline">
                 <Label className="text-xs">RSVP Deadline *</Label>
                 <EventDatePicker value={formData.ceremony_rsvp_deadline} onChange={(date) => setFormData(prev => ({ ...prev, ceremony_rsvp_deadline: date }))} placeholder="Select deadline" filled={!!formData.ceremony_rsvp_deadline} />
               </div>
@@ -370,7 +404,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
                   placeholder="10" className={`h-10 sm:h-9 ${getInputClass(formData.ceremony_guest_limit !== '')}`} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="ceremony_venue">
                 <Label className="text-xs">Location Name *</Label>
                 <Input value={formData.ceremony_venue} onChange={(e) => setFormData(prev => ({ ...prev, ceremony_venue: e.target.value }))}
                   placeholder="e.g., Church/Venue" className={`h-10 sm:h-9 ${getInputClass(!!formData.ceremony_venue.trim())}`} />
@@ -382,11 +416,11 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="ceremony_start_time">
                 <Label className="text-xs">Start Time *</Label>
                 <TimePicker value={formData.ceremony_start_time} onChange={(time) => setFormData(prev => ({ ...prev, ceremony_start_time: time }))} placeholder="Select time" filled={!!formData.ceremony_start_time} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="ceremony_finish_time">
                 <Label className="text-xs">Finish Time *</Label>
                 <TimePicker value={formData.ceremony_finish_time} onChange={(time) => setFormData(prev => ({ ...prev, ceremony_finish_time: time }))} placeholder="Select time" filled={!!formData.ceremony_finish_time} />
               </div>
@@ -397,9 +431,9 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         )}
       </div>
       {/* RECEPTION SECTION */}
-      <div className="border-2 border-border rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
-          <h3 className="text-lg font-semibold text-foreground">Reception</h3>
+      <div className={`border-2 border-border rounded-xl overflow-hidden ${styles.section}`}>
+        <div className={`flex items-center justify-between px-4 py-3 bg-muted/50 ${styles.sectionHeader}`}>
+          <h3 className={`text-lg font-semibold text-foreground ${styles.sectionTitle}`}>Reception</h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{formData.reception_enabled ? 'Yes' : 'No'}</span>
             <button type="button" role="switch" aria-checked={formData.reception_enabled}
@@ -416,13 +450,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <div className="p-3 lg:p-4 space-y-3 lg:space-y-4">
             <div className="space-y-1.5 max-lg:mt-3 max-lg:space-y-2">
               <Label className="text-xs">Event Type *</Label>
-              <div className="lg:hidden grid grid-cols-2 gap-2 mt-2">
+              <div className={`lg:hidden grid grid-cols-2 gap-2 mt-2 ${styles.eventType}`}>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
                   className={`lv-premium-shade w-full py-3 rounded-full text-sm transition-all ${formData.event_type === 'seated' ? 'bg-green-500 text-white border-none' : 'bg-secondary border-2 border-primary text-primary'}`}>Seated Event</button>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
                   className={`lv-premium-shade w-full py-3 rounded-full text-sm transition-all ${formData.event_type === 'cocktail' ? 'bg-green-500 text-white border-none' : 'bg-secondary border-2 border-primary text-primary'}`}>Cocktail/Stand-up</button>
               </div>
-              <div className="hidden lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md">
+              <div className={`hidden lg:grid lg:grid-cols-2 lg:gap-1 bg-muted border border-border rounded-full p-1 w-full max-w-md ${styles.eventType}`}>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
                   className={`lv-premium-shade w-full h-9 rounded-full text-xs font-medium flex items-center justify-center transition-all ${formData.event_type === 'seated' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'}`}>Seated Event</button>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
@@ -431,16 +465,16 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               <p className="text-xs lg:text-xs text-muted-foreground max-lg:mt-2 max-lg:text-sm">{formData.event_type === 'seated' ? 'Guests will be assigned to tables and seats' : 'No table assignments - guests mingle freely'}</p>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="reception_name">
                 <Label className="text-xs">Event Name *</Label>
                 <EventNameCombobox mainEventName={formData.event_name} value={formData.name}
                   onChange={(name) => { markReceptionOverride('name'); setFormData(prev => ({ ...prev, name })); }} placeholder="e.g., Bride & Groom's Name" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="reception_date">
                 <Label className="text-xs">Event Date *</Label>
                 <EventDatePicker value={formData.date} onChange={(date) => { markReceptionOverride('date'); setFormData(prev => ({ ...prev, date })); }} placeholder="Select date" filled={!!formData.date} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="reception_rsvp_deadline">
                 <Label className="text-xs">RSVP Deadline *</Label>
                 <EventDatePicker value={formData.rsvp_deadline} onChange={(date) => { markReceptionOverride('rsvp_deadline'); setFormData(prev => ({ ...prev, rsvp_deadline: date })); }} placeholder="Select deadline" filled={!!formData.rsvp_deadline} />
               </div>
@@ -452,7 +486,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
                   onChange={(e) => { markReceptionOverride('guest_limit'); handleGuestLimitChange(e.target.value, 'guest_limit'); }}
                   placeholder="10" className={getInputClass(formData.guest_limit !== '')} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="reception_venue">
                 <Label className="text-xs">Location/Venue *</Label>
                 <Input value={formData.venue}
                   onChange={(e) => { markReceptionOverride('venue'); setFormData(prev => ({ ...prev, venue: e.target.value })); }}
@@ -465,11 +499,11 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="reception_start_time">
                 <Label className="text-xs">Start Time *</Label>
                 <TimePicker value={formData.start_time} onChange={(time) => setFormData(prev => ({ ...prev, start_time: time }))} placeholder="Select time" filled={!!formData.start_time} />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" data-create-event-field="reception_finish_time">
                 <Label className="text-xs">Finish Time *</Label>
                 <TimePicker value={formData.finish_time} onChange={(time) => setFormData(prev => ({ ...prev, finish_time: time }))} placeholder="Select time" filled={!!formData.finish_time} />
               </div>
@@ -489,7 +523,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className="ww-create-event-panel"
+        className={`ww-create-event-panel ${styles.drawer}`}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           width: '100%', height: '100dvh', zIndex: 9999,
@@ -500,6 +534,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           type="button"
           onClick={handleClose}
           aria-label="Close"
+          className={styles.closeButton}
           style={{
             position: 'absolute', right: 12, top: 12, zIndex: 1,
             width: 40, height: 40, borderRadius: 9999,
@@ -511,9 +546,10 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         </button>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
           <div className="flex flex-col gap-3 items-center pt-8 gap-5 pr-12">
-            <h2 className="text-xl font-medium text-primary whitespace-nowrap w-full text-center">Create Event</h2>
+            <h2 className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white break-words whitespace-nowrap w-full text-center ${styles.title}`}>Create Event</h2>
             <div className="flex-1 w-full max-w-full px-3">
               <Input
+                data-create-event-field="event_name"
                 value={formData.event_name}
                 onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
                 placeholder="Event name - e.g., Jason & Linda's Wedding"
@@ -521,11 +557,11 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
               />
             </div>
           </div>
-          <div className="space-y-4 py-3">
+          <div className={`space-y-4 py-3 ${styles.body}`}>
             {bodyContent}
           </div>
         </div>
-        <div style={{
+        <div className={styles.footer} style={{
           position: 'sticky', bottom: 0,
           padding: '16px 16px max(16px, env(safe-area-inset-bottom))',
           background: 'white', borderTop: '1px solid #eee',
@@ -533,15 +569,15 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
         }}>
           <Button
             onClick={handleCreate}
-            disabled={!isFormValid || isSaving}
-            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white"
+            disabled={isSaving}
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton}`}
           >
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
           <Button
             variant="destructive"
             onClick={handleClose}
-            className="lv-premium-shade flex-1 h-11 rounded-full"
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton}`}
           >
             Cancel
           </Button>
@@ -556,12 +592,13 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <SheetContent
         side="right"
-        className="ww-create-event-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container"
+        className={`ww-create-event-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container ${styles.drawer}`}
       >
-        <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 text-left space-y-0">
-          <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Create Event</SheetTitle>
+        <SheetHeader className={`flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 text-left space-y-0 ${styles.header}`}>
+          <SheetTitle className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white break-words whitespace-nowrap w-full lg:w-auto ${styles.title}`}>Create Event</SheetTitle>
           <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
             <Input
+              data-create-event-field="event_name"
               value={formData.event_name}
               onChange={(e) => setFormData(prev => ({ ...prev, event_name: e.target.value }))}
               placeholder="Event name - e.g., Jason & Linda's Wedding"
@@ -570,25 +607,25 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           </div>
         </SheetHeader>
 
-        <div className="space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className={`space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container ${styles.body}`}>
           {bodyContent}
         </div>
 
-        <div className="flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className={`flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))] ${styles.footer}`}>
           <Button
             onClick={handleCreate}
-            disabled={!isFormValid || isSaving}
-            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full"
+            disabled={isSaving}
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
           >
-            <CalendarPlus className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <CalendarPlus className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
           <Button
             variant="destructive"
             onClick={handleClose}
-            className="lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full max-lg:order-2 max-lg:w-full"
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton}`}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
         </div>

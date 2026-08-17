@@ -2,12 +2,14 @@ import jsPDF from 'jspdf';
 import {
   PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_LEFT_MM, MARGIN_TOP_MM,
   HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
-  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, GUESTS_PER_PAGE, COLUMN_WIDTH_MM,
+  COLUMN_WIDTH_MM,
   CONTENT_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM, FOOTER_LOGO_WIDTH_MM,
   FOOTER_META_Y_MM, FOOTER_LOGO_Y_MM, FOOTER_START_MM,
-  paginateGuests,
+  getFullSeatingChartGuestsPerColumn, getFullSeatingChartGuestsPerPage,
+  getFullSeatingChartRowHeightMm, paginateGuests,
 } from '@/lib/fullSeatingChartLayout';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
+import { FULL_SEATING_CHART_GUEST_TEXT_SIZES, FullSeatingChartColor, FullSeatingChartGuestTextSize, getFullSeatingChartGuestDetails } from '@/lib/fullSeatingChartDisplaySettings';
 
 interface Guest {
   id: string;
@@ -22,10 +24,18 @@ interface Guest {
 
 interface FullSeatingChartSettings {
   sortBy: 'firstName' | 'lastName' | 'tableNo';
-  fontSize: 'small' | 'medium' | 'large';
+  fontSize: FullSeatingChartGuestTextSize;
   showDietary: boolean;
+  showGuestNames: boolean;
+  showSeatNumbers: boolean;
+  showGuestList: boolean;
   showRsvp: boolean;
   showRelation: boolean;
+  guestNameColor: FullSeatingChartColor;
+  seatNumberColor: FullSeatingChartColor;
+  guestListColor: FullSeatingChartColor;
+  dietaryColor: FullSeatingChartColor;
+  relationshipColor: FullSeatingChartColor;
   showLogo: boolean;
   paperSize: 'A4' | 'A3' | 'A2' | 'A1';
   isBold: boolean;
@@ -46,14 +56,10 @@ interface Event {
   ceremony_finish_time?: string | null;
 }
 
-// Convert font size setting to points
-const getFontSize = (setting: 'small' | 'medium' | 'large'): number => {
-  switch (setting) {
-    case 'small': return 10.5;
-    case 'medium': return 12;
-    case 'large': return 13.5;
-  }
-};
+// One CSS pixel at 96 DPI, matching the live preview's 1px row divider.
+export const FULL_SEATING_CHART_PDF_ROW_BORDER_WIDTH_MM = 0.264583;
+export const FULL_SEATING_CHART_PDF_FOOTER_MASK_START_MM =
+  FOOTER_START_MM + FULL_SEATING_CHART_PDF_ROW_BORDER_WIDTH_MM;
 
 // Format date with ordinal suffix
 const formatDateWithOrdinal = (dateString: string | null | undefined): string => {
@@ -109,7 +115,11 @@ const formatTableAssignment = (guest: Guest, tableNameMap?: Record<number, strin
   return 'Unassigned';
 };
 
-const isGuestUnassigned = (guest: Guest): boolean => !guest.table_no && !guest.table_id;
+const hexToRgb = (hex: FullSeatingChartColor) => ({
+  r: Number.parseInt(hex.slice(1, 3), 16),
+  g: Number.parseInt(hex.slice(3, 5), 16),
+  b: Number.parseInt(hex.slice(5, 7), 16),
+});
 
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
@@ -137,25 +147,35 @@ const drawPageFooter = (
   timestamp: string,
   showLogo: boolean
 ) => {
-  // White rectangle to cover any bleeding content in footer zone
+  // Start below the final row stroke. A full 25-row column closes exactly at
+  // FOOTER_START_MM, so masking from that same coordinate erases its border.
   pdf.setFillColor(255, 255, 255);
-  pdf.rect(0, FOOTER_START_MM, PAGE_WIDTH_MM, PAGE_HEIGHT_MM - FOOTER_START_MM, 'F');
+  pdf.rect(
+    0,
+    FULL_SEATING_CHART_PDF_FOOTER_MASK_START_MM,
+    PAGE_WIDTH_MM,
+    PAGE_HEIGHT_MM - FULL_SEATING_CHART_PDF_FOOTER_MASK_START_MM,
+    'F',
+  );
 
-  // Logo centered
+  // Logo centered within the approved three-column footer.
   if (showLogo && logoBase64) {
-    const logoX = (PAGE_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
+    const logoWidth = 36;
+    const logoHeight = 10;
+    const logoX = (PAGE_WIDTH_MM - logoWidth) / 2;
+    const logoY = PAGE_HEIGHT_MM - 10 - 1 - logoHeight;
     try {
-      pdf.addImage(logoBase64, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+      pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
     } catch {
       // silently skip
     }
   }
 
-  // Page number (left) and Generated timestamp (right)
-  pdf.setFontSize(7);
-  pdf.setTextColor(170, 170, 170);
-  pdf.text(`Page ${pageNum} of ${totalPages}`, MARGIN_LEFT_MM, FOOTER_META_Y_MM);
-  pdf.text(`Generated: ${timestamp}`, PAGE_WIDTH_MM - MARGIN_LEFT_MM, FOOTER_META_Y_MM, { align: 'right' });
+  const footerBaselineY = PAGE_HEIGHT_MM - 10 - 6 + 1;
+  pdf.setFontSize(8);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(`Generated: ${timestamp}`, 12.7, footerBaselineY);
+  pdf.text(`Page ${pageNum} of ${totalPages}`, PAGE_WIDTH_MM - 12.7, footerBaselineY, { align: 'right' });
 };
 
 export const exportFullSeatingChartToPdf = async (
@@ -176,13 +196,13 @@ export const exportFullSeatingChartToPdf = async (
 
   const margin = MARGIN_LEFT_MM;
   const contentWidth = CONTENT_WIDTH_MM;
-  const rowHeight = ROW_HEIGHT_MM;
-  const guestsPerColumn = GUESTS_PER_COLUMN;
-  const guestsPerPage = GUESTS_PER_PAGE;
+  const rowHeight = getFullSeatingChartRowHeightMm(settings.fontSize);
+  const guestsPerColumn = getFullSeatingChartGuestsPerColumn(settings.fontSize);
+  const guestsPerPage = getFullSeatingChartGuestsPerPage(settings.fontSize);
   
-  const pages = paginateGuests(guests);
+  const pages = paginateGuests(guests, settings.fontSize);
   const totalPages = totalPagesOverride || pages.length;
-  const fontSize = getFontSize(settings.fontSize);
+  const fontSize = FULL_SEATING_CHART_GUEST_TEXT_SIZES[settings.fontSize];
   const timestamp = formatGeneratedTimestamp();
 
   // Load logo
@@ -191,9 +211,7 @@ export const exportFullSeatingChartToPdf = async (
     logoBase64 = await loadLogoAsBase64();
   }
 
-  const brandBrown = { r: 150, g: 122, b: 89 };
-  // Local alias kept to minimize churn in references below
-  const purple = brandBrown;
+  const black = { r: 0, g: 0, b: 0 };
 
   const startPage = pageNum || 1;
   const endPage = pageNum || totalPages;
@@ -217,7 +235,7 @@ export const exportFullSeatingChartToPdf = async (
 
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(18);
-    pdf.setTextColor(purple.r, purple.g, purple.b);
+    pdf.setTextColor(black.r, black.g, black.b);
     pdf.text(event.name, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 6;
 
@@ -228,7 +246,7 @@ export const exportFullSeatingChartToPdf = async (
     yPos += 5;
 
     pdf.setFontSize(9);
-    pdf.setTextColor(85, 85, 85);
+    pdf.setTextColor(black.r, black.g, black.b);
     if (event.ceremony_date) {
       const ceremonyLine = `Ceremony: ${formatDateWithOrdinal(event.ceremony_date)} | ${event.ceremony_venue || 'Venue TBD'} | ${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
       pdf.text(ceremonyLine, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
@@ -239,7 +257,7 @@ export const exportFullSeatingChartToPdf = async (
     pdf.text(receptionLine, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 4;
 
-    pdf.setDrawColor(purple.r, purple.g, purple.b);
+    pdf.setDrawColor(black.r, black.g, black.b);
     pdf.setLineWidth(0.5);
     pdf.line(margin, yPos, PAGE_WIDTH_MM - margin, yPos);
     yPos += 2;
@@ -259,7 +277,7 @@ export const exportFullSeatingChartToPdf = async (
     const headerBarY = yPos;
     pdf.setFillColor(243, 243, 243);
     pdf.rect(margin, headerBarY, contentWidth, headerBarHeight, 'F');
-    pdf.setDrawColor(204, 204, 204);
+    pdf.setDrawColor(black.r, black.g, black.b);
     pdf.setLineWidth(0.5);
     pdf.line(margin, headerBarY + headerBarHeight, PAGE_WIDTH_MM - margin, headerBarY + headerBarHeight);
 
@@ -285,88 +303,81 @@ export const exportFullSeatingChartToPdf = async (
 
       // Each guest row occupies [yPos .. yPos + rowHeight]
       // Name text baseline vertically centered in compact row
-      const nameBaselineY = yPos + (rowHeight * 0.55);
+      const nameBaselineY = yPos + (rowHeight / 2) + (fontSize * 0.352778 * 0.35);
       
       const drawGuest = (guest: Guest | undefined, xPos: number, baselineY: number) => {
-        if (!guest) return;
+        if (!guest || !settings.showGuestList) return;
 
-        const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none';
-        const hasRelation = settings.showRelation && guest.relation_display;
-
-        // Purple circle checkbox - vertically aligned with name
-        pdf.setDrawColor(purple.r, purple.g, purple.b);
+        // Check-off circles are always black and independent of field colours.
+        pdf.setDrawColor(black.r, black.g, black.b);
         pdf.setLineWidth(0.4);
         pdf.circle(xPos + 1.5, baselineY - 1.2, 1.5, 'S');
         
-        // Build inline info string for brackets
-        const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
-        const infoParts: string[] = [];
-        if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
-        if (hasRelation) infoParts.push(capitalizeWords(guest.relation_display || guest.relation_role || ''));
-        const inlineInfo = infoParts.join(' / ');
-
-        // Guest name + inline info in brackets on the same line
         const fontStyle = settings.isBold && settings.isItalic ? 'bolditalic' 
           : settings.isBold ? 'bold' 
           : settings.isItalic ? 'italic' 
           : 'normal';
+        const guestName = formatGuestName(guest);
+        const tableText = formatTableAssignment(guest, tableNameMap, tableIdNameMap);
+        const guestNameColor = hexToRgb(settings.guestNameColor);
+        const seatNumberColor = hexToRgb(settings.seatNumberColor);
+        const dietaryColor = hexToRgb(settings.dietaryColor);
+        const relationshipColor = hexToRgb(settings.relationshipColor);
+
         pdf.setFont('helvetica', fontStyle);
         pdf.setFontSize(fontSize);
-        pdf.setTextColor(0, 0, 0);
-        const guestName = formatGuestName(guest);
-        pdf.text(guestName, xPos + 5, baselineY);
-        
-        // Draw inline info in brackets after name
-        if (inlineInfo) {
-          const nameWidth = pdf.getTextWidth(guestName);
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 1);
-          pdf.setTextColor(102, 102, 102);
-          
-          // Table text width for max available space
-          const tableText = formatTableAssignment(guest, tableNameMap, tableIdNameMap);
-          pdf.setFont('helvetica', fontStyle);
-          pdf.setFontSize(fontSize);
-          const tableWidth = pdf.getTextWidth(tableText);
-          const maxInfoWidth = columnWidth - 5 - nameWidth - 2 - tableWidth - 2;
-          
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(fontSize - 1);
-          let bracketText = ` (${inlineInfo})`;
-          while (pdf.getTextWidth(bracketText) > maxInfoWidth && bracketText.length > 5) {
-            bracketText = bracketText.slice(0, -5) + '...)';
-          }
-          pdf.text(bracketText, xPos + 5 + nameWidth, baselineY);
+        const nameWidth = settings.showGuestNames ? pdf.getTextWidth(guestName) : 0;
+        if (settings.showGuestNames) {
+          pdf.setTextColor(guestNameColor.r, guestNameColor.g, guestNameColor.b);
+          pdf.text(guestName, xPos + 5, baselineY);
         }
-        
+
+        const tableWidth = settings.showSeatNumbers ? pdf.getTextWidth(tableText) : 0;
+        const details = getFullSeatingChartGuestDetails(guest, settings.showDietary, settings.showRelation);
+        if (details.dietary || details.relationship) {
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(fontSize);
+          const detailsStartX = xPos + 5 + nameWidth;
+          const maxDetailsX = xPos + columnWidth - tableWidth - (settings.showSeatNumbers ? 2 : 0);
+          let cursorX = detailsStartX;
+          const drawDetail = (text: string, color: { r: number; g: number; b: number }) => {
+            if (cursorX >= maxDetailsX) return;
+            let visibleText = text;
+            while (pdf.getTextWidth(visibleText) > maxDetailsX - cursorX && visibleText.length > 4) {
+              visibleText = `${visibleText.slice(0, -4)}...`;
+            }
+            pdf.setTextColor(color.r, color.g, color.b);
+            pdf.text(visibleText, cursorX, baselineY);
+            cursorX += pdf.getTextWidth(visibleText);
+          };
+          drawDetail(' (', { r: 0, g: 0, b: 0 });
+          if (details.dietary) drawDetail(details.dietary, dietaryColor);
+          if (details.dietary && details.relationship) drawDetail('/', { r: 0, g: 0, b: 0 });
+          if (details.relationship) drawDetail(details.relationship, relationshipColor);
+          drawDetail(')', { r: 0, g: 0, b: 0 });
+        }
+
         // Underline for guest name
-        if (settings.isUnderline) {
+        if (settings.showGuestNames && settings.isUnderline) {
           pdf.setFont('helvetica', fontStyle);
           pdf.setFontSize(fontSize);
-          const nameWidth = pdf.getTextWidth(guestName);
-          pdf.setDrawColor(0, 0, 0);
+          pdf.setDrawColor(guestNameColor.r, guestNameColor.g, guestNameColor.b);
           pdf.setLineWidth(0.2);
           pdf.line(xPos + 5, baselineY + 0.5, xPos + 5 + nameWidth, baselineY + 0.5);
         }
-        
+
         // Table assignment (right-aligned)
-        const tableText = formatTableAssignment(guest, tableNameMap, tableIdNameMap);
-        pdf.setFont('helvetica', fontStyle);
-        pdf.setFontSize(fontSize);
-        if (isGuestUnassigned(guest)) {
-          pdf.setTextColor(brandBrown.r, brandBrown.g, brandBrown.b);
-        } else {
-          pdf.setTextColor(0, 0, 0);
-        }
-        const tableWidth = pdf.getTextWidth(tableText);
-        const tableX = xPos + columnWidth - tableWidth;
-        pdf.text(tableText, tableX, baselineY);
-        
-        // Underline for table text
-        if (settings.isUnderline) {
-          pdf.setDrawColor(!guest.table_no ? brandBrown.r : 0, !guest.table_no ? brandBrown.g : 0, !guest.table_no ? brandBrown.b : 0);
-          pdf.setLineWidth(0.2);
-          pdf.line(tableX, baselineY + 0.5, tableX + tableWidth, baselineY + 0.5);
+        if (settings.showSeatNumbers) {
+          pdf.setFont('helvetica', fontStyle);
+          pdf.setFontSize(fontSize);
+          pdf.setTextColor(seatNumberColor.r, seatNumberColor.g, seatNumberColor.b);
+          const tableX = xPos + columnWidth - tableWidth;
+          pdf.text(tableText, tableX, baselineY);
+          if (settings.isUnderline) {
+            pdf.setDrawColor(seatNumberColor.r, seatNumberColor.g, seatNumberColor.b);
+            pdf.setLineWidth(0.2);
+            pdf.line(tableX, baselineY + 0.5, tableX + tableWidth, baselineY + 0.5);
+          }
         }
         
         pdf.setTextColor(0, 0, 0);
@@ -376,17 +387,18 @@ export const exportFullSeatingChartToPdf = async (
       drawGuest(guest2, rightColumnX, nameBaselineY);
       
       // Row border at the bottom of this row
-      const borderY = yPos + rowHeight - 0.5;
-      pdf.setDrawColor(229, 229, 229);
-      pdf.setLineWidth(0.3);
-      if (guest1) pdf.line(leftColumnX, borderY, leftColumnX + columnWidth, borderY);
-      if (guest2) pdf.line(rightColumnX, borderY, rightColumnX + columnWidth, borderY);
+      const borderY = yPos + rowHeight;
+      const guestListColor = hexToRgb(settings.guestListColor);
+      pdf.setDrawColor(guestListColor.r, guestListColor.g, guestListColor.b);
+      pdf.setLineWidth(FULL_SEATING_CHART_PDF_ROW_BORDER_WIDTH_MM);
+      if (settings.showGuestList && guest1) pdf.line(leftColumnX, borderY, leftColumnX + columnWidth, borderY);
+      if (settings.showGuestList && guest2) pdf.line(rightColumnX, borderY, rightColumnX + columnWidth, borderY);
       
       // Move to next row
       yPos += rowHeight;
     }
 
-    // Draw footer (logo centered, page left, generated right)
+    // Draw the approved footer: generated left, logo centre, page number right.
     drawPageFooter(pdf, logoBase64, currentPageNum, totalPages, timestamp, settings.showLogo);
   }
 

@@ -1,0 +1,361 @@
+.mainSurface {
+  min-height: calc(100dvh - 4rem);
+  background-color: #70452f;
+  background-image: url("../../assets/dashboard-mocha-liquid-glass.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.page {
+  color: #f3e7d8;
+}
+
+:global(#root) .mainSurface .page .countdownPanel,
+:global(#root) .mainSurface .page :global(.ww-events-table-panel) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: rgba(33, 19, 15, 0.62) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.21),
+    0 18px 42px rgba(3, 1, 1, 0.42) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-panel):global(.text-center),
+:global(#root) .mainSurface .page :global(.ww-events-table-panel):global(.text-center) * {
+  color: #f3e7d8 !important;
+}
+
+.countdownPanel {
+  container-type: inline-size;
+}
+
+.heroLayout {
+  --event-detail-card-width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+.ceremonySlot,
+.countdownSlot,
+.receptionSlot {
+  min-width: 0;
+  width: 100%;
+}
+
+.ceremonySlot,
+.receptionSlot {
+  align-self: center;
+  justify-self: center;
+  width: min(100%, var(--event-detail-card-width));
+}
+
+.countdownSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdownTimer {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+}
+
+.countdownIntro {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.countdownCircles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 5rem));
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.countdownCircleSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.countdownCircle {
+  width: 100%;
+  max-width: 5rem;
+  aspect-ratio: 1;
+  background: linear-gradient(180deg, rgba(80, 45, 32, 0.68), rgba(24, 13, 10, 0.78)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 10px 24px rgba(3, 1, 1, 0.3) !important;
+}
+
+.countdownRing circle:first-child {
+  stroke: rgba(232, 206, 170, 0.22) !important;
+}
+
+.countdownRing circle:last-child {
+  stroke: #d9b77f !important;
+}
+
+:global(#root) .mainSurface .page .countdownNumber {
+  color: #ffffff !important;
+}
+
+:global(#root) .mainSurface .page .countdownLabel,
+:global(#root) .mainSurface .page .countdownMessage,
+:global(#root) .mainSurface .page .countdownMessage *,
+:global(#root) .mainSurface .page .countdownTimer [class*="text-muted-foreground"] {
+  color: #f3e7d8 !important;
+}
+
+.countdownMessage svg {
+  color: #d9b77f;
+}
+
+:global(#root) .mainSurface .page .eventTitle,
+:global(#root) .mainSurface .page :global(.ww-events-title) {
+  color: #ffffff !important;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.012em !important;
+}
+
+.detailCard {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: linear-gradient(180deg, rgba(74, 41, 30, 0.72), rgba(25, 14, 11, 0.76)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 12px 26px rgba(3, 1, 1, 0.28) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+:global(#root) .mainSurface .page .detailHeading {
+  color: #ffffff !important;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.012em !important;
+}
+
+.detailHeading svg,
+.detailText svg {
+  color: #d9b77f !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .mainSurface .page .detailText,
+:global(#root) .mainSurface .page .detailText p {
+  color: #f3e7d8 !important;
+}
+
+:global(#root) .mainSurface .page .detailText p > span {
+  color: #ffffff !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-event-usage-pill) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: rgba(33, 19, 15, 0.7) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 8px 20px rgba(3, 1, 1, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.page :global(.ww-event-usage-pill) svg {
+  color: #d9b77f;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) {
+  color: #f3e7d8;
+  border-bottom: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: rgba(28, 14, 10, 0.72) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+}
+
+.page :global(.ww-events-title) svg {
+  color: #d9b77f;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) [class*="text-muted-foreground"] {
+  color: #f3e7d8 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) [class*="border-primary"] {
+  border-color: rgba(201, 151, 93, 0.4) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) [class*="bg-white"] {
+  color: #f3e7d8 !important;
+  border-color: rgba(201, 151, 93, 0.4) !important;
+  background: rgba(46, 25, 18, 0.72) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) button,
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button,
+:global(#root) .mainSurface .page :global(.ww-events-row) button {
+  border: 1px solid rgba(216, 173, 121, 0.55) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) button:hover:not(:disabled),
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button:hover:not(:disabled),
+:global(#root) .mainSurface .page :global(.ww-events-row) button:hover:not(:disabled) {
+  border-color: rgba(239, 197, 143, 0.85) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) button:focus-visible,
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button:focus-visible,
+:global(#root) .mainSurface .page :global(.ww-events-row) button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(201, 151, 93, 0.28) !important;
+}
+
+.page :global(.ww-events-table-panel) > div:last-of-type,
+.page :global(.ww-events-table-panel) table {
+  background: rgba(24, 13, 10, 0.58);
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-panel) thead tr {
+  border-color: rgba(201, 151, 93, 0.34) !important;
+  background: rgba(78, 43, 28, 0.88) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-panel) thead th {
+  color: #fff8ed !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row) {
+  color: #f3e7d8 !important;
+  border-color: rgba(201, 151, 93, 0.24) !important;
+  background: rgba(37, 20, 15, 0.68) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row):hover {
+  background: rgba(75, 41, 29, 0.78) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row)[class*="bg-primary/5"] {
+  border-left-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.09) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row)[class*="bg-green-500/10"] {
+  background: rgba(34, 197, 94, 0.12) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row) [class*="text-muted-foreground"],
+:global(#root) .mainSurface .page :global(.ww-events-row) td {
+  color: #f3e7d8 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row) [class*="text-green"] {
+  color: #22c55e !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-footer) {
+  border-color: rgba(201, 151, 93, 0.24) !important;
+  background: rgba(76, 43, 29, 0.9) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) {
+  color: #f3e7d8;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: rgba(37, 20, 15, 0.72) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 10px 24px rgba(3, 1, 1, 0.22);
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card)[class*="border-green-500"] {
+  border-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.1) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) h4,
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) [class*="text-muted-foreground"] {
+  color: #f3e7d8 !important;
+  opacity: 1 !important;
+}
+
+@media (min-width: 640px) {
+  .countdownCircles {
+    grid-template-columns: repeat(4, 6rem);
+    gap: 0.625rem;
+  }
+
+  .countdownCircle {
+    max-width: 6rem;
+  }
+
+  :global(#root) .mainSurface .page .eventTitle,
+  :global(#root) .mainSurface .page :global(.ww-events-title) {
+    font-size: 1.5rem !important;
+  }
+
+  :global(#root) .mainSurface .page .detailHeading {
+    font-size: 17px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .countdownCircles {
+    grid-template-columns: repeat(4, 7rem);
+    gap: 0.75rem;
+  }
+
+  .countdownCircle {
+    max-width: 7rem;
+  }
+}
+
+@container (min-width: 47rem) {
+  .heroLayout[data-layout='ceremony-only'],
+  .heroLayout[data-layout='reception-only'] {
+    --event-detail-card-width: clamp(17.5rem, calc((100cqi - 30.5rem) / 2), 32.5rem);
+    grid-template-columns: var(--event-detail-card-width) minmax(28rem, 31rem);
+    max-width: calc(var(--event-detail-card-width) + 32.25rem);
+  }
+
+  .heroLayout[data-layout='reception-only'] {
+    grid-template-columns: minmax(28rem, 31rem) var(--event-detail-card-width);
+  }
+}
+
+@container (min-width: 67rem) {
+  .heroLayout[data-layout='both'] {
+    --event-detail-card-width: clamp(17.5rem, calc((100cqi - 30.5rem) / 2), 32.5rem);
+    grid-template-columns: var(--event-detail-card-width) minmax(28rem, 1fr) var(--event-detail-card-width);
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .mainSurface {
+    min-height: calc(100dvh - 3.5rem);
+    background-position: 48% center;
+  }
+
+  .page :global(.ww-events-table-panel) {
+    overflow: hidden;
+  }
+}

@@ -24,7 +24,7 @@ export const IntelligenceSection = ({
   <AccordionItem
     value={value}
     className={cn(
-      'border border-[#ECE5D8] rounded-2xl bg-white overflow-hidden',
+      'ww-intelligence-section border border-[#ECE5D8] rounded-2xl bg-white overflow-hidden',
       'transition-shadow duration-200 data-[state=open]:shadow-[0_2px_12px_-4px_rgba(150,122,89,0.18)]'
     )}
   >

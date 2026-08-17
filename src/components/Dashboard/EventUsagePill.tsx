@@ -11,7 +11,7 @@ export const EventUsagePill: React.FC = () => {
   return (
     <div
       className={
-        'inline-flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-3.5 py-2 rounded-full border text-sm transition-colors border-[#472c1d] text-[#472c1d] ' +
+        'ww-event-usage-pill inline-flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 px-3.5 py-2 rounded-full border text-sm transition-colors border-[#472c1d] text-[#472c1d] ' +
         (nearLimit
           ? 'bg-gradient-to-r from-[#FBF1DE] to-[#F5E6C8]'
           : 'bg-[#FBF7F0]')

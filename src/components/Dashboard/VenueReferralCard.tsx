@@ -3,6 +3,7 @@ import { Building2, X, Sparkles, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InviteVenueModal } from './InviteVenueModal';
 import type { ReferralEventLite } from '@/hooks/useFirstEventReferral';
+import styles from './VenueReferralCard.module.css';
 
 interface VenueReferralCardProps {
   event: ReferralEventLite;
@@ -14,39 +15,39 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
 
   return (
     <>
-      <div className="dashboard-card relative overflow-hidden p-5">
+      <div className={`relative overflow-hidden p-5 ${styles.panel}`}>
         <button
           type="button"
           aria-label="Dismiss"
           onClick={() => onDismiss(event.id, null)}
-          className="absolute top-3 right-3 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+          className={`absolute top-3 right-3 z-10 p-1.5 rounded-full bg-transparent border-0 transition-colors ${styles.closeButton}`}
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" strokeWidth={1.8} />
         </button>
 
-        <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#967A59]/10 flex items-center justify-center shrink-0">
-            <Building2 size={22} strokeWidth={1.8} className="text-[#967A59]" />
+        <div className={`flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 ${styles.layout}`}>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${styles.iconBadge}`}>
+            <Building2 size={22} strokeWidth={1.8} className={styles.champagneIcon} />
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="text-base lg:text-lg font-semibold text-foreground flex items-center gap-2">
+            <h3 className={`text-base lg:text-lg font-semibold flex items-center gap-2 ${styles.heading}`}>
               Using a participating venue?
-              <Sparkles className="w-4 h-4 text-[#967A59]" aria-hidden />
+              <Sparkles className={`w-4 h-4 shrink-0 ${styles.champagneIcon}`} aria-hidden />
             </h3>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+            <p className={`text-sm mt-1 leading-relaxed ${styles.description}`}>
               Wedding Waitress can also help your venue streamline future weddings and events.
               Invite your venue to explore the platform and help create a more seamless planning experience.
             </p>
-            <p className="text-xs text-muted-foreground/80 mt-1 italic">
+            <p className={`text-xs mt-1 italic ${styles.note}`}>
               Built for couples, planners, and venues coordinating events together.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 w-full lg:w-auto shrink-0">
+          <div className={`flex flex-col gap-2.5 w-full lg:w-auto shrink-0 ${styles.actions}`}>
             <Button
               onClick={() => setOpen(true)}
-              className="lv-premium-shade h-11 rounded-full bg-[#967A59] hover:bg-[#7d6549] text-white w-full lg:w-auto px-6 inline-flex items-center justify-center gap-[6px]"
+              className={`h-11 rounded-full bg-[#967A59] text-white w-full lg:w-auto px-6 inline-flex items-center justify-center gap-[6px] ${styles.inviteButton}`}
             >
               <Send size={16} strokeWidth={1.8} aria-hidden />
               Invite My Venue
@@ -54,10 +55,7 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
             <Button
               variant="secondary"
               onClick={() => onDismiss(event.id, 14)}
-              className="h-11 rounded-full text-secondary-foreground hover:bg-[#E8E1D6] w-full lg:w-auto px-4 border border-[#472c1d]"
-              style={{
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65), 0 1px 0 rgba(255,255,255,0.35)',
-              }}
+              className={`h-11 rounded-full bg-transparent w-full lg:w-auto px-4 ${styles.notNowButton}`}
             >
               Not now
             </Button>

@@ -69,6 +69,7 @@ interface InvitationCardCustomizerProps {
   notesHelper?: string;
   imageUploadFolder?: string;
   storageBucket?: string;
+  galleryButtonLabel?: string;
   GalleryModalComponent?: React.ComponentType<{
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -216,6 +217,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   notesHelper,
   imageUploadFolder,
   storageBucket,
+  galleryButtonLabel = 'Template Library',
   GalleryModalComponent,
 }) => {
   const activePresetZones = presetZones || PRESET_ZONES;
@@ -583,7 +585,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                           <Images className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
-                          Image Gallery
+                          {galleryButtonLabel}
                         </Button>
                         <button
                           type="button"

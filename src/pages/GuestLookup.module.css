@@ -1,0 +1,395 @@
+.mainSurface {
+  min-height: 100dvh;
+  background-color: #70452f !important;
+  background-image: url("../assets/dashboard-mocha-liquid-glass.png") !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+.page,
+.statePage {
+  color: #f3e7d8;
+}
+
+.fallbackHero {
+  position: relative;
+  overflow: hidden;
+  background-color: #3b2018 !important;
+  background-image:
+    linear-gradient(90deg, rgba(12, 6, 5, 0.52), transparent 26%, transparent 74%, rgba(12, 6, 5, 0.52)),
+    linear-gradient(180deg, rgba(255, 224, 184, 0.1), rgba(15, 7, 5, 0.26)),
+    url("../assets/dashboard-mocha-liquid-glass.png") !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  box-shadow: inset 0 -1px 0 rgba(225, 183, 132, 0.34), 0 18px 42px rgba(3, 1, 1, 0.3);
+}
+
+.fallbackHero::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 24%, rgba(235, 180, 119, 0.12), transparent 54%);
+}
+
+.fallbackHero > div {
+  position: relative;
+  z-index: 1;
+}
+
+.heroTitleGroup {
+  transform: translateY(22px);
+}
+
+.eventDetails {
+  color: #f3e7d8;
+  border-bottom: 1px solid rgba(201, 151, 93, 0.2);
+  background: rgba(28, 15, 11, 0.46);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.09);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+:global(#root) .page .eventDetails [class*="text-foreground"],
+:global(#root) .page .eventDetails span,
+:global(#root) .page .eventDetails p {
+  color: #ffffff !important;
+}
+
+.eventDetails svg {
+  color: #d9b77f !important;
+  stroke: currentColor !important;
+}
+
+.liveContent {
+  min-width: 0;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}
+
+.moduleTray {
+  border: 1px solid rgba(201, 151, 93, 0.32);
+  background: rgba(33, 19, 15, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.15),
+    0 14px 34px rgba(3, 1, 1, 0.28);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.moduleTray button {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.5) !important;
+  background: linear-gradient(180deg, rgba(88, 49, 35, 0.68), rgba(24, 13, 10, 0.76)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.15),
+    0 9px 20px rgba(3, 1, 1, 0.22) !important;
+}
+
+.moduleTray button svg {
+  color: #d9b77f !important;
+  stroke: currentColor !important;
+}
+
+.moduleTray button:hover:not(:disabled) {
+  color: #ffffff !important;
+  border-color: rgba(235, 194, 143, 0.78) !important;
+  background: linear-gradient(180deg, rgba(111, 62, 43, 0.78), rgba(32, 17, 12, 0.84)) !important;
+  transform: translateY(-1px);
+}
+
+.moduleTray button:active:not(:disabled) {
+  transform: translateY(1px);
+  background: rgba(35, 18, 13, 0.92) !important;
+  box-shadow: inset 0 2px 5px rgba(3, 1, 1, 0.38) !important;
+}
+
+.moduleTray button:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(22, 11, 8, 0.96),
+    0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+.moduleTray button[data-state="active"] {
+  color: #dcffe8 !important;
+  border-color: rgba(74, 222, 128, 0.72) !important;
+  background: linear-gradient(180deg, rgba(30, 111, 61, 0.62), rgba(15, 62, 34, 0.74)) !important;
+}
+
+.searchCard,
+.stateCard,
+.page :global(.ww-box) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.42) !important;
+  background: rgba(33, 19, 15, 0.68) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.2),
+    0 18px 42px rgba(3, 1, 1, 0.4) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+:global(#root) .page h2,
+:global(#root) .page h3,
+:global(#root) .page h4,
+:global(#root) .page h5,
+:global(#root) .page label,
+:global(#root) .page [class*="text-foreground"],
+:global(#root) .page [class*="text-\[\#1D1D1F\]"] {
+  color: #ffffff !important;
+}
+
+:global(#root) .page p,
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-warning"]):not([class*="text-white"]) {
+  color: #d9b77f !important;
+  stroke: currentColor !important;
+}
+
+.page [class*="bg-background-subtle"],
+.page [class*="bg-gradient-card"],
+.page [class*="bg-accent"] {
+  color: #f3e7d8 !important;
+  border-color: rgba(201, 151, 93, 0.3) !important;
+  background: rgba(17, 9, 7, 0.48) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
+}
+
+.page input,
+.page textarea,
+.page button[role="combobox"] {
+  color: #ffffff !important;
+  border: 1px solid rgba(201, 151, 93, 0.54) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.06), rgba(16, 8, 6, 0.8)) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(3, 1, 1, 0.34),
+    inset 0 1px 0 rgba(255, 239, 218, 0.1) !important;
+}
+
+.page input::placeholder,
+.page textarea::placeholder {
+  color: rgba(237, 220, 199, 0.68) !important;
+}
+
+.page input:focus-visible,
+.page textarea:focus-visible,
+.page button:focus-visible,
+.page [role="button"]:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(22, 11, 8, 0.98),
+    0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]) {
+  color: #ffffff !important;
+  border: 1px solid rgba(201, 151, 93, 0.54) !important;
+  background: linear-gradient(180deg, rgba(105, 59, 41, 0.88), rgba(31, 16, 12, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.17),
+    0 8px 18px rgba(3, 1, 1, 0.25) !important;
+}
+
+.searchCard button:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.searchCard button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.searchCard button:disabled,
+.moduleTray button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5 !important;
+}
+
+.footerLogo {
+  margin-top: 7.25rem;
+}
+
+.tableBackButton {
+  color: #ffffff !important;
+  border: 1px solid rgba(217, 183, 127, 0.58) !important;
+  background: linear-gradient(180deg, rgba(101, 57, 40, 0.9), rgba(29, 15, 11, 0.96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    0 9px 20px rgba(3, 1, 1, 0.28) !important;
+}
+
+.tableBackButton:hover:not(:disabled) {
+  color: #ffffff !important;
+  border-color: rgba(239, 200, 150, 0.82) !important;
+  background: linear-gradient(180deg, rgba(121, 68, 47, 0.94), rgba(35, 18, 13, 0.98)) !important;
+  transform: translateY(-1px);
+}
+
+.tableBackButton:active:not(:disabled) {
+  transform: translateY(1px);
+  background: rgba(28, 14, 10, 0.98) !important;
+  box-shadow: inset 0 2px 5px rgba(3, 1, 1, 0.42) !important;
+}
+
+.tableBackButton:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(22, 11, 8, 0.98),
+    0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+.tableBackButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5 !important;
+}
+
+.page :global(.card-elevated) [class*="border-border"],
+.page :global(.card-elevated) [class*="border-t"] {
+  border-color: rgba(201, 151, 93, 0.32) !important;
+}
+
+.stateCard h3 {
+  color: #ffffff !important;
+}
+
+.stateCard p {
+  color: #eadbc9 !important;
+}
+
+:global(.ww-public-live-dialog) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.48) !important;
+  background: linear-gradient(180deg, rgba(67, 36, 27, 0.98), rgba(22, 11, 8, 0.99)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    0 24px 60px rgba(3, 1, 1, 0.56) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+:global(.ww-public-live-dialog) h2,
+:global(.ww-public-live-dialog) h3,
+:global(.ww-public-live-dialog) h4,
+:global(.ww-public-live-dialog) label,
+:global(.ww-public-live-dialog) [class*="text-foreground"] {
+  color: #ffffff !important;
+}
+
+:global(.ww-public-live-dialog) p,
+:global(.ww-public-live-dialog) [class*="text-muted-foreground"] {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+:global(.ww-public-live-dialog) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #d9b77f !important;
+  stroke: currentColor !important;
+}
+
+:global(.ww-public-live-dialog) input,
+:global(.ww-public-live-dialog) textarea,
+:global(.ww-public-live-dialog) button[role="combobox"],
+:global(.ww-public-live-dialog) [class*="bg-background"] {
+  color: #ffffff !important;
+  border-color: rgba(201, 151, 93, 0.44) !important;
+  background: rgba(17, 9, 7, 0.7) !important;
+}
+
+:global(.ww-public-live-dialog) input::placeholder,
+:global(.ww-public-live-dialog) textarea::placeholder {
+  color: rgba(237, 220, 199, 0.65) !important;
+}
+
+:global(.ww-public-live-dialog) button[aria-label="Close"],
+:global(.ww-public-live-dialog) > button:last-child {
+  color: #f3e7d8 !important;
+  border-color: rgba(217, 183, 127, 0.62) !important;
+  background: rgba(31, 16, 12, 0.88) !important;
+}
+
+:global(.ww-public-live-dialog) button:focus-visible,
+:global(.ww-public-live-dialog) input:focus-visible,
+:global(.ww-public-live-dialog) textarea:focus-visible,
+:global(.ww-public-live-dialog) [role="button"]:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(22, 11, 8, 0.98),
+    0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+:global(.ww-public-live-menu) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.48) !important;
+  background: linear-gradient(180deg, rgba(72, 39, 28, 0.99), rgba(25, 13, 10, 0.99)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 18px 38px rgba(3, 1, 1, 0.44) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+:global(.ww-public-live-menu) [role="option"] {
+  color: #f3e7d8 !important;
+}
+
+:global(.ww-public-live-menu) [role="option"]:focus,
+:global(.ww-public-live-menu) [role="option"][data-highlighted] {
+  color: #ffffff !important;
+  background: rgba(139, 77, 40, 0.68) !important;
+}
+
+:global(.ww-public-live-menu) svg {
+  color: #d9b77f !important;
+}
+
+@media (min-width: 768px) {
+  .footerLogo {
+    margin-top: 8.25rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .mainSurface {
+    background-position: 48% center !important;
+  }
+
+  .page,
+  .page > *,
+  .liveContent,
+  .searchCard {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .moduleTray {
+    padding: 0.5rem;
+  }
+
+  .moduleTray button {
+    min-width: 0;
+  }
+
+  .moduleTray button span {
+    max-width: 100%;
+  }
+
+  .searchCard {
+    overflow: hidden;
+  }
+
+  :global(.ww-public-live-dialog) {
+    max-width: 100vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moduleTray button,
+  .searchCard button {
+    transition: none !important;
+  }
+}

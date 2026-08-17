@@ -2,6 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   FOOTER_PANEL_HEIGHT,
   FOOTER_PANEL_SAFE_INSET,
+  PB_CANONICAL_BACKGROUND,
+  PB_DEFAULT_STYLE,
+  PB_FOOTER_BACKDROP_CORNER_RADIUS,
+  PB_FOOTER_BACKDROP_MIN_WIDTH_RATIO,
   PB_STRIP_PRINT,
   PB_STRIP_SINGLE,
   composeStrip,
@@ -12,26 +16,21 @@ type TextRecord = { text: string; x: number; y: number; font: string; fillStyle:
 
 const createCanvasHarness = () => {
   const text: TextRecord[] = [];
-  const gradients: Array<{ stops: Array<[number, string]> }> = [];
   let fillStyle: unknown = '';
   const context = {
-    drawImage: vi.fn(), fillRect: vi.fn(), strokeRect: vi.fn(), clearRect: vi.fn(),
+    drawImage: vi.fn(), fill: vi.fn(), fillRect: vi.fn(), strokeRect: vi.fn(), clearRect: vi.fn(),
     save: vi.fn(), restore: vi.fn(), beginPath: vi.fn(), closePath: vi.fn(), clip: vi.fn(),
     moveTo: vi.fn(), lineTo: vi.fn(), quadraticCurveTo: vi.fn(), translate: vi.fn(), scale: vi.fn(),
     setLineDash: vi.fn(),
     fillText: vi.fn((value: string, x: number, y: number) => text.push({ text: value, x, y, font: context.font, fillStyle })),
     measureText: (value: string) => ({ width: value.length * 13 }),
     getImageData: () => ({ data: new Uint8ClampedArray([255, 255, 255, 255]) }),
-    createRadialGradient: vi.fn(() => {
-      const gradient = { stops: [] as Array<[number, string]>, addColorStop(offset: number, color: string) { this.stops.push([offset, color]); } };
-      gradients.push(gradient);
-      return gradient;
-    }),
+    createRadialGradient: vi.fn(),
     textAlign: 'start', textBaseline: 'alphabetic', font: '', strokeStyle: '', lineWidth: 0,
   };
   Object.defineProperty(context, 'fillStyle', { get: () => fillStyle, set: value => { fillStyle = value; } });
   const canvas = { width: 0, height: 0, getContext: () => context } as unknown as HTMLCanvasElement;
-  return { canvas, context, text, gradients };
+  return { canvas, context, text };
 };
 
 describe('Photo Booth footer composition', () => {
@@ -111,18 +110,30 @@ describe('Photo Booth footer composition', () => {
   });
 
   it.each([
-    ['none', 0, null],
-    ['white', 2, '255,255,255'],
-    ['black', 2, '0,0,0'],
-  ] as const)('renders %s backdrop mode on canvas inside both footer safe areas', async (mode, expectedCount, rgb) => {
-    const { context, gradients } = await render({ templateUrl: 'https://storage.test/library-template.jpg', textBackdrop: mode });
-    expect(context.createRadialGradient).toHaveBeenCalledTimes(expectedCount);
-    expect(gradients).toHaveLength(expectedCount);
-    if (rgb) expect(gradients.every(gradient => gradient.stops[0][1].includes(rgb))).toBe(true);
-    for (const [, y] of context.translate.mock.calls) {
-      expect(y).toBeGreaterThanOrEqual(PB_STRIP_PRINT.h - FOOTER_PANEL_HEIGHT + FOOTER_PANEL_SAFE_INSET);
-      expect(y).toBeLessThanOrEqual(PB_STRIP_PRINT.h - FOOTER_PANEL_SAFE_INSET);
+    ['none', 0],
+    ['white', 12],
+    ['black', 12],
+  ] as const)('renders %s as one wide rectangular backdrop per footer column', async (mode, expectedFills) => {
+    const { context } = await render({ templateUrl: 'https://storage.test/library-template.jpg', textBackdrop: mode });
+    expect(context.createRadialGradient).not.toHaveBeenCalled();
+    expect(context.fill).toHaveBeenCalledTimes(expectedFills);
+    if (mode !== 'none') {
+      expect(PB_FOOTER_BACKDROP_CORNER_RADIUS).toBeLessThan(FOOTER_PANEL_HEIGHT / 4);
+      expect(PB_FOOTER_BACKDROP_MIN_WIDTH_RATIO).toBeGreaterThanOrEqual(0.7);
+      const footerTop = PB_STRIP_PRINT.h - FOOTER_PANEL_HEIGHT + FOOTER_PANEL_SAFE_INSET;
+      const footerBottom = PB_STRIP_PRINT.h - FOOTER_PANEL_SAFE_INSET;
+      const backdropStarts = context.moveTo.mock.calls.filter(([, y]) => y >= footerTop && y <= footerBottom);
+      expect(backdropStarts).toHaveLength(expectedFills);
+      expect(backdropStarts.some(([x]) => x < PB_STRIP_SINGLE.w)).toBe(true);
+      expect(backdropStarts.some(([x]) => x > PB_STRIP_SINGLE.w)).toBe(true);
     }
+  });
+
+  it('uses the lighter Wedding Waitress brown for initial and fallback strip settings', () => {
+    expect(PB_CANONICAL_BACKGROUND).toBe('#967A59');
+    expect(PB_DEFAULT_STYLE.bgColor).toBe('#967A59');
+    expect(resolveStripStyle(null).bgColor).toBe('#967A59');
+    expect(resolveStripStyle({ bgColor: '' }).bgColor).toBe('#967A59');
   });
 
   it('draws a complete custom footer twice above the template/photos and suppresses generated text and backdrop', async () => {

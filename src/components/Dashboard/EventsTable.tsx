@@ -145,7 +145,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
-  const selectedEvent = events.find(event => event.id === activeEventId);
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
     event: Event | null;
@@ -230,49 +229,32 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     return event.guests_count >= event.guest_limit;
   };
   if (loading) {
-    return <Card className="ww-box p-8 text-center">
+    return <Card className="ww-box ww-events-table-panel p-8 text-center">
         <div>Loading events...</div>
       </Card>;
   }
   return <>
-      <Card className="border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-0 rounded-xl">
-        <div className="px-4 sm:px-6 py-4 border-b-2 border-primary bg-white">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-lg:items-center max-lg:text-center">
-            <div className="flex-1 min-w-0 max-lg:w-full max-lg:flex max-lg:flex-col max-lg:items-center max-lg:text-center">
-              <h3 className="text-2xl font-extrabold text-foreground truncate tracking-tight max-lg:font-bold max-lg:tracking-normal flex items-center gap-2 max-lg:justify-center">
-                <CalendarDays size={22} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-                <span className="truncate">My Events{selectedEventProp?.name && !isMobile ? ` - ${selectedEventProp.name}` : ''}</span>
-              </h3>
-              <div className="flex items-start gap-2 mt-4 max-lg:justify-center">
-                <p className="text-xs sm:text-sm text-muted-foreground/80 max-lg:text-center">
-                  {isMobile ? "Create & manage events here." : (
-                    <>
-                      <span className="bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
-                      {" "}by creating & managing your events, then create the number of tables you want in the next "Tables" page.
-                    </>
-                  )}
-                </p>
-              </div>
-              {selectedEvent && !isMobile && (
-                <p className="text-xs mt-2">
-                  <span className="text-green-500">
-                    Your account was created on {formatLocalDate(selectedEvent.created_date_local, selectedEvent.created_at, selectedEvent.event_timezone)}
-                  </span>
-                  <span className="text-muted-foreground"> | </span>
-                  <span className="text-red-600">
-                    Your account will expire on {formatLocalDate(selectedEvent.expiry_date_local, null, selectedEvent.event_timezone) || getExpiryDateFallback(selectedEvent.created_at, selectedEvent.event_timezone)}
-                  </span>
-                </p>
-              )}
+      <Card className="ww-events-table-panel border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-0 rounded-xl">
+        <div className="ww-events-table-header px-4 sm:px-6 pt-4 pb-8 border-b-2 border-primary bg-white">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-3 max-lg:justify-center max-lg:text-center">
+            <h3 className="ww-events-title min-w-0 max-w-full shrink text-2xl font-extrabold text-foreground truncate tracking-tight max-lg:w-full max-lg:font-bold max-lg:tracking-normal flex items-center gap-2 max-lg:justify-center">
+              <CalendarDays size={22} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+              <span className="truncate">My Events{selectedEventProp?.name ? ` - ${selectedEventProp.name}` : ''}</span>
+            </h3>
+
+            <div className="flex min-w-0 flex-1 items-center gap-1.5 max-lg:basis-full max-lg:justify-center max-sm:items-start max-sm:text-left">
+              <span className="shrink-0 bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
+              <p className="min-w-0 text-xs sm:text-sm text-muted-foreground/80 2xl:whitespace-nowrap">
+                by creating &amp; managing your events, then create the number of tables you want in the next "Tables" page.
+              </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0 max-lg:w-full max-lg:justify-center">
-              {!isMobile && (
-                <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
-                  <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
-                  {events.length} Event{events.length !== 1 ? 's' : ''} Created
-                </Badge>
-              )}
-              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
+
+            <div className="ml-auto flex shrink-0 items-center gap-2 max-lg:ml-0 max-lg:basis-full max-lg:flex-wrap max-lg:justify-center">
+              <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
+                <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
+                {events.length} Event{events.length !== 1 ? 's' : ''} Created
+              </Badge>
+              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
                 <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
@@ -292,7 +274,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 return (
                   <div 
                     key={event.id}
-                    className={`rounded-xl border-2 overflow-hidden transition-all ${
+                    className={`ww-events-mobile-card rounded-xl border-2 overflow-hidden transition-all ${
                       isSelected ? 'border-green-500 bg-green-50' : 'border-border bg-card'
                     }`}
                   >
@@ -396,7 +378,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 {events.map(event => {
                   const isSelected = activeEventId === event.id;
                   const atCapacity = isAtCapacity(event);
-                  return <TableRow key={event.id} className={`
+                  return <TableRow key={event.id} className={`ww-events-row
                         border-card-border hover:bg-muted/30 transition-colors
                         ${isSelected ? 'bg-primary/5 border-l-4 border-l-[#22c55e]' : ''}
                         ${atCapacity ? 'bg-green-500/10 dark:bg-green-500/20' : ''}
@@ -510,7 +492,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                     </TableRow>;
                   })}
                   {/* Purple footer row - matching header background */}
-                  <TableRow className="bg-primary hover:bg-primary border-t-0">
+                  <TableRow className="ww-events-footer bg-primary hover:bg-primary border-t-0">
                     <TableCell colSpan={12} className="h-12">
                       {/* Empty footer row with same height as data rows */}
                     </TableCell>

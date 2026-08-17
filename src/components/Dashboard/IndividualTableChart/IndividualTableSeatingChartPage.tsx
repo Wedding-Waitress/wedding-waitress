@@ -34,6 +34,8 @@ import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer
 import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
+import { normalizeDietaryAccentColor } from '@/lib/dietaryChartSettings';
+import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square' | 'long';
   fontSize: 'small' | 'medium' | 'large';
@@ -47,8 +49,11 @@ export interface IndividualChartSettings {
   isUnderline: boolean;
   largerTableNames: boolean;
   guestTextSize?: 'small' | 'standard' | 'large';
-  dietaryColor?: '#000000' | '#C62828' | '#1565C0' | '#2E7D32' | null;
-  relationshipColor?: '#000000' | '#C62828' | '#1565C0' | '#2E7D32' | null;
+  guestNameColor: DietaryAccentColor;
+  seatNumberColor: DietaryAccentColor;
+  guestListColor: DietaryAccentColor;
+  dietaryColor: DietaryAccentColor;
+  relationshipColor: DietaryAccentColor;
   paperSize: 'A4';
   title: string;
   showLogo: boolean;
@@ -77,8 +82,11 @@ const defaultSettings: IndividualChartSettings = {
   isUnderline: false,
   largerTableNames: false,
   guestTextSize: 'standard',
-  dietaryColor: null,
-  relationshipColor: null,
+  guestNameColor: '#000000',
+  seatNumberColor: '#000000',
+  guestListColor: '#000000',
+  dietaryColor: '#000000',
+  relationshipColor: '#000000',
   paperSize: 'A4',
   title: '',
   showLogo: true,
@@ -101,10 +109,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         const guestTextSize = ['small', 'standard', 'large'].includes(parsed.guestTextSize)
           ? parsed.guestTextSize
           : 'standard';
-        const accentColors = ['#000000', '#C62828', '#1565C0', '#2E7D32'];
-        const dietaryColor = accentColors.includes(parsed.dietaryColor) ? parsed.dietaryColor : null;
-        const relationshipColor = accentColors.includes(parsed.relationshipColor) ? parsed.relationshipColor : null;
-        return { ...defaultSettings, ...parsed, guestTextSize, dietaryColor, relationshipColor };
+        const guestNameColor = normalizeDietaryAccentColor(parsed.guestNameColor);
+        const seatNumberColor = normalizeDietaryAccentColor(parsed.seatNumberColor);
+        const guestListColor = normalizeDietaryAccentColor(parsed.guestListColor);
+        const dietaryColor = normalizeDietaryAccentColor(parsed.dietaryColor);
+        const relationshipColor = normalizeDietaryAccentColor(parsed.relationshipColor);
+        return { ...defaultSettings, ...parsed, guestTextSize, guestNameColor, seatNumberColor, guestListColor, dietaryColor, relationshipColor };
       } catch {
         return defaultSettings;
       }

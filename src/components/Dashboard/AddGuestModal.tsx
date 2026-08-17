@@ -58,6 +58,7 @@ import { cn } from "@/lib/utils";
 import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
 import { RelationSelector } from "./RelationSelector";
+import categoryStyles from "./AddGuestModal.module.css";
 
 import { GroupTypeDialog } from "./GroupTypeDialog";
 import { RelationAssignmentDialog, RelationAssignment, PersonToAssign } from "./RelationAssignmentDialog";
@@ -1050,9 +1051,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     <Sheet open={isOpen} onOpenChange={(o) => { if (!o) handleClose(); }}>
       <SheetContent
         side="right"
-        className={cn("w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden", "ww-edit-guest-panel")}
+        className={cn("w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden", "ww-edit-guest-panel ww-guest-list-drawer")}
       >
-        <SheetHeader className="px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12">
+        <SheetHeader className={cn("px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12", isEdit && "ww-edit-guest-header")}>
           <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center inline-flex items-center gap-2 max-lg:justify-center">
             {isEdit
               ? <Pencil size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
@@ -1069,19 +1070,21 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             {!isEdit && (
               <div className="pt-1 pb-2">
                 <Label className="text-sm font-medium mb-2 block">Guest Category</Label>
-                <div className="ww-guest-category flex items-center justify-center gap-0 bg-[#967A59]/10 border-2 border-[#967A59] rounded-full p-1 w-full">
+                <div
+                  className={categoryStyles.categoryTrack}
+                  data-active-category={guestType}
+                  role="group"
+                  aria-label="Guest Category"
+                >
                   <button
                     type="button"
                     onClick={() => {
                       setGuestType('individual');
                       setPartyMembers([]);
                     }}
-                    className={cn(
-                      "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
-                      guestType === 'individual'
-                        ? "bg-[#ff1493] !text-white shadow-sm"
-                        : "!text-[#472c1d] hover:opacity-80"
-                    )}
+                    className={cn("ww-guest-category-option", categoryStyles.categoryOption)}
+                    data-active={guestType === 'individual'}
+                    aria-pressed={guestType === 'individual'}
                   >
                     Individual
                   </button>
@@ -1093,24 +1096,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         setPartyMembers([partyMembers[0]]);
                       }
                     }}
-                    className={cn(
-                      "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
-                      guestType === 'couple'
-                        ? "bg-[#FF5F1F] !text-white shadow-sm"
-                        : "!text-[#472c1d] hover:opacity-80"
-                    )}
+                    className={cn("ww-guest-category-option", categoryStyles.categoryOption)}
+                    data-active={guestType === 'couple'}
+                    aria-pressed={guestType === 'couple'}
                   >
                     Couple
                   </button>
                   <button
                     type="button"
                     onClick={() => setGuestType('family')}
-                    className={cn(
-                      "flex-1 py-1.5 px-6 rounded-full text-sm font-medium transition-all duration-200",
-                      guestType === 'family'
-                        ? "bg-[#0000FF] !text-white shadow-sm"
-                        : "!text-[#472c1d] hover:opacity-80"
-                    )}
+                    className={cn("ww-guest-category-option", categoryStyles.categoryOption)}
+                    data-active={guestType === 'family'}
+                    aria-pressed={guestType === 'family'}
                   >
                     Family
                   </button>
@@ -1295,7 +1292,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           <SelectValue placeholder="Select table" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="ww-guest-list-menu">
                         {tables.map((table) => (
                           <SelectItem key={table.id} value={table.id}>
                             {table.table_no ? `Table ${table.table_no}${table.name && table.name !== String(table.table_no) ? ` - ${table.name}` : ''}` : table.name}
@@ -1327,7 +1324,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           <SelectValue placeholder="Select seat" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="ww-guest-list-menu">
                         {form.watch('table_id') && 
                           getAvailableSeatNumbers(form.watch('table_id')!).map((seatNum) => {
                             const seatInfo = getSeatDisplayInfo(form.watch('table_id')!, seatNum);
@@ -1363,7 +1360,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="ww-guest-list-menu">
                       <SelectItem value="individual">Individual</SelectItem>
                       <SelectItem value="couple">Couple</SelectItem>
                       <SelectItem value="family">Family</SelectItem>
@@ -1381,7 +1378,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                         <SelectValue placeholder="Select partner..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="ww-guest-list-menu">
                         {eventGuestsForOverride
                           .filter(g =>
                             g.id !== editGuest.id &&
@@ -1419,7 +1416,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   <SelectTrigger className="w-[140px] h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="ww-guest-list-menu">
                     <SelectItem value="not_sent">Not Sent</SelectItem>
                     <SelectItem value="email_sent">Email Sent</SelectItem>
                     <SelectItem value="sms_sent">SMS Sent</SelectItem>
@@ -1455,7 +1452,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="rounded-full border-primary text-primary hover:bg-primary/10 max-lg:w-full max-lg:h-11"
+                      className={cn("rounded-full border-primary text-primary hover:bg-primary/10 max-lg:w-full max-lg:h-11", isEdit && "ww-edit-assign-relation")}
                       onClick={() => {
                         const firstName = form.getValues('first_name') || 'New guest';
                         const lastName = form.getValues('last_name') || '';
@@ -1492,7 +1489,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           <SelectValue placeholder="Select RSVP status" />
                         </SelectTrigger>
                       </FormControl>
-                       <SelectContent>
+                       <SelectContent className="ww-guest-list-menu">
                           <SelectItem value="Pending">Pending</SelectItem>
                           <SelectItem value="Attending">Accept</SelectItem>
                           <SelectItem value="Not Attending">Decline</SelectItem>
@@ -1518,7 +1515,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                           <SelectValue placeholder="Select dietary requirements" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="ww-guest-list-menu">
                         <SelectItem value="None">None</SelectItem>
                         <SelectItem value="Kids Meal">Kids Meal</SelectItem>
                         <SelectItem value="Pescatarian">Pescatarian</SelectItem>
@@ -1688,7 +1685,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 }
 
                 return (
-                  <FormItem>
+                  <FormItem className={cn(isEdit && "ww-edit-notes")}>
                     <FormLabel className="flex items-center gap-1.5"><StickyNote size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Notes</FormLabel>
                     <FormControl>
                       <div className="space-y-0">
@@ -1735,7 +1732,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
-            <Save size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
+            <Save size={18} strokeWidth={1.8} className={cn("hidden lg:inline-block mr-2", isEdit && "text-white")} aria-hidden="true" />
             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
           </Button>
           <Button
@@ -1746,7 +1743,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             onClick={handleClose}
             disabled={loading}
           >
-            <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
+            {isEdit
+              ? <Trash2 size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2 text-white" aria-hidden="true" />
+              : <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />}
             Cancel
           </Button>
         </div>

@@ -38,6 +38,7 @@ import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 import { ReadOnlyCeremonyFloorPlan } from '@/components/GuestView/ReadOnlyCeremonyFloorPlan';
 import { PublicAddGuestModal } from '@/components/GuestLookup/PublicAddGuestModal';
+import styles from './GuestLookup.module.css';
 
 interface Guest {
   id: string;
@@ -131,6 +132,7 @@ export const GuestLookup: React.FC = () => {
   const [activeTab, setActiveTabState] = useState('search');
   const tableTabRef = useRef<HTMLDivElement>(null);
   const searchResultsRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const setActiveTab = useCallback((tab: string) => {
     setActiveTabState(tab);
     if (tab === 'visualization') {
@@ -139,6 +141,13 @@ export const GuestLookup: React.FC = () => {
       }, 100);
     }
   }, []);
+  const returnToSearch = useCallback(() => {
+    setActiveTab('search');
+    window.setTimeout(() => {
+      searchInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      searchInputRef.current?.focus({ preventScroll: true });
+    }, 50);
+  }, [setActiveTab]);
   const [liveViewSettings, setLiveViewSettings] = useState<any>(null);
   const [moduleSettings, setModuleSettings] = useState<any>(null);
   const [songRequestSettings, setSongRequestSettings] = useState<{ enabled: boolean; max_requests_per_guest: number } | null>(null);
@@ -656,8 +665,8 @@ export const GuestLookup: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-        <Card className="ww-box w-full max-w-md">
+      <div className={`${styles.mainSurface} ${styles.statePage} min-h-screen bg-gradient-subtle flex items-center justify-center p-4`}>
+        <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading event details...</p>
@@ -669,8 +678,8 @@ export const GuestLookup: React.FC = () => {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-        <Card className="ww-box w-full max-w-md">
+      <div className={`${styles.mainSurface} ${styles.statePage} min-h-screen bg-gradient-subtle flex items-center justify-center p-4`}>
+        <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
             <CardTitle className="mb-2">Event Not Found</CardTitle>
@@ -686,7 +695,7 @@ export const GuestLookup: React.FC = () => {
   const heroImageUrl = moduleSettings?.hero_image_config?.file_url;
 
   return (
-    <div className="min-h-screen bg-gradient-subtle font-inter">
+    <div className={`${styles.mainSurface} ${styles.page} min-h-screen bg-gradient-subtle font-inter`}>
       {/* Hero Section */}
       <div className="relative">
         {heroImageUrl ? (
@@ -697,7 +706,7 @@ export const GuestLookup: React.FC = () => {
               className="w-full h-auto block"
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <div className="text-center text-white">
+              <div className={`${styles.heroTitleGroup} text-center text-white`}>
                 <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
                   You're Invited
                 </p>
@@ -708,9 +717,9 @@ export const GuestLookup: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-gradient-hero text-white">
+          <div className={`${styles.fallbackHero} bg-gradient-hero text-white`}>
             <div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
-              <div className="text-center">
+              <div className={`${styles.heroTitleGroup} text-center`}>
                 <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
                   You're Invited
                 </p>
@@ -726,7 +735,7 @@ export const GuestLookup: React.FC = () => {
       </div>
 
       {/* Event Date, Venue & Countdown - between hero and buttons */}
-      <div className="w-full py-4 px-4">
+      <div className={`${styles.eventDetails} w-full py-4 px-4`}>
         <div className="max-w-4xl mx-auto text-center space-y-2">
           <div className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
             <Calendar className="w-4 h-4 mr-2 text-primary" />
@@ -818,10 +827,10 @@ export const GuestLookup: React.FC = () => {
       </div>
 
       {/* Combined Feature Buttons + Tabs Section */}
-      <div className="w-full px-4 pt-4 pb-1">
+      <div className={`${styles.liveContent} w-full px-4 pt-4 pb-1`}>
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-             <div className="p-2.5 rounded-xl">
+             <div className={`${styles.moduleTray} p-2.5 rounded-xl`}>
               <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
                 {/* Row 1: RSVP Invite, Welcome Video, Table */}
                 {liveViewSettings?.show_rsvp_invite && (
@@ -890,12 +899,13 @@ export const GuestLookup: React.FC = () => {
             <div className="pt-3">
             <TabsContent value="search" className="mt-0">
               <p className="text-center text-base md:text-lg font-semibold text-foreground mb-3">Update & Confirm Your Details</p>
-              <Card className="ww-box card-elevated">
+              <Card className={`${styles.searchCard} ww-box card-elevated`}>
                 <CardContent className="space-y-4 pt-3">
                   {/* Search Input */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                     <Input
+                      ref={searchInputRef}
                       type="text"
                       placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
                       value={searchTerm}
@@ -989,7 +999,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
-                  <div className="flex justify-center mt-20 md:mt-24">
+                  <div className={`${styles.footerLogo} flex justify-center`}>
                     <a 
                       href="https://www.weddingwaitress.com.au/" 
                       target="_blank" 
@@ -1042,16 +1052,6 @@ export const GuestLookup: React.FC = () => {
                   </>
                 )}
 
-                {/* Home button */}
-                <div className="flex justify-center mt-4">
-                  <button
-                    onClick={() => setActiveTab('search')}
-                    className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-all"
-                  >
-                    Home
-                  </button>
-                </div>
-
                 {searchTerm.length < 2 && (
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
@@ -1061,8 +1061,8 @@ export const GuestLookup: React.FC = () => {
                         Search for your name first to see what table you are sitting on and who you are sitting with.
                       </CardDescription>
                       <button
-                        onClick={() => setActiveTab('search')}
-                        className="mt-6 mx-auto px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-md hover:opacity-90 transition-all"
+                        onClick={returnToSearch}
+                        className={`${styles.tableBackButton} mt-6 mx-auto px-6 py-3 rounded-full font-semibold text-sm transition-all`}
                       >
                         Go back to search my name
                       </button>
@@ -1159,7 +1159,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* RSVP Invite Modal */}
       <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <Mail className="w-6 h-6 text-foreground" />
@@ -1199,7 +1199,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Welcome Video Modal */}
       <Dialog open={showWelcomeVideoModal} onOpenChange={setShowWelcomeVideoModal}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="ww-public-live-dialog max-w-3xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <Video className="w-6 h-6 text-foreground" />
@@ -1238,7 +1238,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Ceremony Floor Plan Modal */}
       <Dialog open={showFloorPlanModal} onOpenChange={setShowFloorPlanModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <MapPin className="w-6 h-6 text-primary" />
@@ -1276,7 +1276,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Reception Floor Plan Modal */}
       <Dialog open={showReceptionFloorPlanModal} onOpenChange={setShowReceptionFloorPlanModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <MapPin className="w-6 h-6 text-foreground" />
@@ -1314,7 +1314,7 @@ export const GuestLookup: React.FC = () => {
 
       {/* Menu Modal */}
       <Dialog open={showMenuModal} onOpenChange={setShowMenuModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <UtensilsCrossed className="w-6 h-6 text-foreground" />

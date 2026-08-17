@@ -21,8 +21,8 @@
  *   ├─────────────────────────────┤ 38 mm  ← CONTENT_START
  *   │                             │
  *   │  CONTENT ZONE (225 mm)      │
- *   │  2 columns × 30 rows each   │
- *   │  row height = 7.5 mm        │
+ *   │  2 columns × 25 rows each   │
+ *   │  row height = 9 mm          │
  *   │                             │
  *   ├─────────────────────────────┤ 263 mm ← FOOTER_START
  *   │  GAP (2 mm)                 │
@@ -50,9 +50,28 @@ export const HEADER_HEIGHT_MM = 28;
 export const CONTENT_START_MM = MARGIN_TOP_MM + HEADER_HEIGHT_MM; // 38 mm
 export const CONTENT_HEIGHT_MM = 225; // fixed — never changes
 export const COLUMN_GAP_MM = 8;
-export const GUESTS_PER_COLUMN = 30;
-export const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 60
-export const ROW_HEIGHT_MM = CONTENT_HEIGHT_MM / GUESTS_PER_COLUMN; // 7.5 mm
+export const GUESTS_PER_COLUMN = 25;
+export const GUESTS_PER_PAGE = GUESTS_PER_COLUMN * 2; // 50
+export const ROW_HEIGHT_MM = CONTENT_HEIGHT_MM / GUESTS_PER_COLUMN; // 9 mm
+
+export type FullSeatingChartGuestTextSize = 'small' | 'standard' | 'large';
+
+// Guest Text Size changes glyph size only. Every option uses the same fixed
+// 25-position grid so preview and PDF pagination never change with typography.
+export const FULL_SEATING_CHART_ROW_HEIGHTS_MM: Record<FullSeatingChartGuestTextSize, number> = {
+  small: 9,
+  standard: 9,
+  large: 9,
+};
+
+export const getFullSeatingChartRowHeightMm = (fontSize: FullSeatingChartGuestTextSize) =>
+  FULL_SEATING_CHART_ROW_HEIGHTS_MM[fontSize];
+
+export const getFullSeatingChartGuestsPerColumn = (_fontSize?: FullSeatingChartGuestTextSize) =>
+  GUESTS_PER_COLUMN;
+
+export const getFullSeatingChartGuestsPerPage = (_fontSize?: FullSeatingChartGuestTextSize) =>
+  GUESTS_PER_PAGE;
 
 // ── Footer zone ─────────────────────────────────────────────────────────────
 export const FOOTER_START_MM = CONTENT_START_MM + CONTENT_HEIGHT_MM; // 263 mm
@@ -74,11 +93,13 @@ export interface PageSlice<T> {
   endIndex: number;
 }
 
-export function paginateGuests<T>(allGuests: T[]): PageSlice<T>[] {
+export function paginateGuests<T>(allGuests: T[], fontSize?: FullSeatingChartGuestTextSize): PageSlice<T>[] {
+  const guestsPerColumn = getFullSeatingChartGuestsPerColumn(fontSize);
+  const guestsPerPage = getFullSeatingChartGuestsPerPage(fontSize);
   const pages: PageSlice<T>[] = [];
-  for (let i = 0; i < allGuests.length; i += GUESTS_PER_PAGE) {
-    const pageGuests = allGuests.slice(i, i + GUESTS_PER_PAGE);
-    const col1Count = Math.min(GUESTS_PER_COLUMN, pageGuests.length);
+  for (let i = 0; i < allGuests.length; i += guestsPerPage) {
+    const pageGuests = allGuests.slice(i, i + guestsPerPage);
+    const col1Count = Math.min(guestsPerColumn, pageGuests.length);
     pages.push({
       guests: pageGuests,
       col1Count,

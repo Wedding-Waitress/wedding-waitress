@@ -40,7 +40,7 @@ const Pill = ({
     </span>
     <span className="min-w-0">
       <span className="block text-[13px] font-semibold text-[#1D1D1F] truncate">{title}</span>
-      <span className="block text-[11px] text-[#6E6E73] truncate">{subtitle}</span>
+      <span className="ww-command-centre-subtitle block text-[11px] text-[#6E6E73] truncate">{subtitle}</span>
     </span>
   </button>
 );

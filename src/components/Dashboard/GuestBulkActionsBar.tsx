@@ -109,7 +109,7 @@ export const GuestBulkActionsBar = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="ww-guest-list-dialog sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
           <DialogDescription className="text-sm font-medium mt-7 text-[#5C4A36] whitespace-pre-line text-left">
@@ -140,7 +140,7 @@ export const GuestBulkActionsBar = ({
               <PopoverContent
                 align="start"
                 sideOffset={6}
-                className="w-[calc(425px-3rem)] max-w-[calc(100vw-3rem)] p-0 border-2 border-[#967A59]/70 rounded-lg"
+                className="ww-guest-list-menu w-[calc(425px-3rem)] max-w-[calc(100vw-3rem)] p-0 border-2 border-[#967A59]/70 rounded-lg"
               >
                 <div className="p-2 border-b border-[#967A59]/30">
                   <div className="relative">
@@ -243,7 +243,7 @@ export const GuestBulkActionsBar = ({
                 <SelectTrigger className="h-9 text-xs border-2 border-[#967A59]/70">
                   <SelectValue placeholder="Select method..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="ww-guest-list-menu">
                   <SelectItem value="email_sent">Sent via Email</SelectItem>
                   <SelectItem value="sms_sent">Sent via SMS</SelectItem>
                   <SelectItem value="mail_sent">Sent via Physical Mail</SelectItem>

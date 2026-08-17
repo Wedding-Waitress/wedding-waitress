@@ -149,7 +149,7 @@ export const TableCard: React.FC<TableCardProps> = ({
   return (
     <>
       <Card 
-        className={`ww-box transition-all duration-300 flex flex-col min-h-fit ${
+        className={`ww-box ww-table-card transition-all duration-300 flex flex-col min-h-fit ${
           table.guest_count > table.limit_seats
             ? 'border-4 border-destructive'
             : isFull 
@@ -161,7 +161,7 @@ export const TableCard: React.FC<TableCardProps> = ({
       >
         <CardContent className="p-4 flex flex-col min-h-fit">
           {/* Table Name */}
-          <div className="text-xl font-bold text-foreground mb-3 text-center">
+          <div className="ww-table-name text-xl font-bold text-foreground mb-3 text-center">
             {table.name}
           </div>
 

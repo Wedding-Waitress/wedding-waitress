@@ -1,0 +1,46 @@
+.mainSurface {
+  min-height: calc(100dvh - 4rem);
+  background-color: #70452f;
+  background-image: url("../../assets/dashboard-mocha-liquid-glass.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.overview {
+  color: #ffffff;
+}
+
+:global(#root) .mainSurface .overview .heading {
+  color: #ffffff !important;
+}
+
+:global(#root) .mainSurface .overview .eventPanel {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: rgba(201, 151, 93, 0.4) !important;
+}
+
+:global(#root) .mainSurface .overview .eventField,
+:global(#root) .mainSurface .overview .eventField:hover,
+:global(#root) .mainSurface .overview .eventField:focus,
+:global(#root) .mainSurface .overview .eventField:focus-visible,
+:global(#root) .mainSurface .overview .eventField[data-state="open"] {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: rgba(185, 130, 77, 0.4) !important;
+}
+
+.eventMenu {
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  outline: none !important;
+  background-clip: padding-box !important;
+  box-shadow: inset 0 1px 0 rgba(255, 244, 229, 0.14) !important;
+}
+
+@media (max-width: 767px) {
+  .mainSurface {
+    min-height: calc(100dvh - 3.5rem);
+    background-position: 48% center;
+  }
+}

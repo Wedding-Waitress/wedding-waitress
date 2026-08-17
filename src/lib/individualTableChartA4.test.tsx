@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { IndividualTableChartPrintPage } from '@/components/Dashboard/IndividualTableChart/IndividualTableChartPrintPage';
+import { IndividualTableChartCustomizer } from '@/components/Dashboard/IndividualTableChart/IndividualTableChartCustomizer';
 import {
   GUEST_TEXT_SIZE_PT,
   DIAGRAM_SAFE_GAP_MM,
@@ -32,6 +33,11 @@ const settings: IndividualChartSettings = {
   isUnderline: false,
   largerTableNames: false,
   guestTextSize: 'standard',
+  guestNameColor: '#000000',
+  seatNumberColor: '#000000',
+  guestListColor: '#000000',
+  dietaryColor: '#000000',
+  relationshipColor: '#000000',
   paperSize: 'A4',
   title: 'TABLE 1',
   showLogo: true,
@@ -201,19 +207,46 @@ describe('individual table chart A4 architecture', () => {
     expect(left.map(({ labelY }) => labelY)).toEqual([310, 225, 140]);
   });
 
-  it('applies dietary and relationship accent colours independently with black defaults', () => {
-    const accented = renderPage({ dietaryColor: '#C62828', relationshipColor: '#1565C0' });
+  it('applies all five accent colours independently with black defaults', () => {
+    const accented = renderPage({ guestNameColor: '#7E57C2', seatNumberColor: '#E67E22', guestListColor: '#967A59', dietaryColor: '#C62828', relationshipColor: '#1565C0' });
+    expect(accented).toContain('data-guest-name-text="true" style="color:#7E57C2"');
+    expect(accented).toContain('data-seat="true" style="width:30px;height:30px;border:1px solid #000;border-radius:50%;background:#fff;color:#E67E22');
+    expect(accented).toContain('data-guest-list-text="true"');
+    expect(accented).toContain('color:#967A59');
     expect(accented).toContain('data-dietary-text="true" style="color:#C62828"');
     expect(accented).toContain('data-relationship-text="true" style="color:#1565C0"');
-    const defaults = renderPage({ dietaryColor: null, relationshipColor: null });
-    expect(defaults).toContain('data-dietary-text="true" style="color:#000"');
-    expect(defaults).toContain('data-relationship-text="true" style="color:#000"');
+    const defaults = renderPage();
+    expect(defaults).toContain('data-dietary-text="true" style="color:#000000"');
+    expect(defaults).toContain('data-relationship-text="true" style="color:#000000"');
     expect(toggleAccentColor(null, '#2E7D32')).toBe('#2E7D32');
-    expect(toggleAccentColor('#2E7D32', '#2E7D32')).toBeNull();
+    expect(toggleAccentColor('#2E7D32', '#2E7D32')).toBe('#2E7D32');
     expect(toggleAccentColor('#C62828', '#000000')).toBe('#000000');
     expect(toggleAccentColor('#1565C0', '#000000')).toBe('#000000');
     expect(toggleAccentColor('#2E7D32', '#000000')).toBe('#000000');
     expect(renderPage({ dietaryColor: '#000000', relationshipColor: '#000000' })).toContain('data-dietary-text="true" style="color:#000000"');
+  });
+
+  it('renders seven colour circles in the required order for all five Display Option rows', () => {
+    const markup = renderToStaticMarkup(<IndividualTableChartCustomizer settings={settings} onSettingsChange={() => undefined} />);
+    const labels = ['black', 'red', 'blue', 'green', 'Wedding Waitress gold', 'purple', 'orange'];
+    const rows = ['guest names', 'seat numbers', 'guest list', 'dietary requirements', 'relationships'];
+    for (const row of rows) {
+      const positions = labels.map(label => markup.indexOf(`aria-label="Use ${label} for ${row}"`));
+      expect(positions.every(position => position >= 0)).toBe(true);
+      expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    }
+    expect(markup.match(/h-4 w-4 rounded-full/g)).toHaveLength(35);
+  });
+
+  it.each([
+    ['guestNameColor', 'data-guest-name-text="true" style="color:', '#7E57C2', '#E67E22'],
+    ['seatNumberColor', 'data-seat="true" style="width:30px;height:30px;border:1px solid #000;border-radius:50%;background:#fff;color:', '#7E57C2', '#E67E22'],
+    ['guestListColor', 'data-guest-list="true" data-layout="paired-rows" style="display:flex;flex-direction:column;gap:4px;color:', '#7E57C2', '#E67E22'],
+    ['dietaryColor', 'data-dietary-text="true" style="color:', '#7E57C2', '#E67E22'],
+    ['relationshipColor', 'data-relationship-text="true" style="color:', '#7E57C2', '#E67E22'],
+  ] as const)('renders purple and orange independently for %s', (settingName, marker, purple, orange) => {
+    expect(renderPage({ [settingName]: purple })).toContain(`${marker}${purple}`);
+    expect(renderPage({ [settingName]: orange })).toContain(`${marker}${orange}`);
   });
 
   it('omits the outer A4 border while preserving internal separator, table and seat lines', () => {
@@ -263,18 +296,19 @@ describe('individual table chart A4 architecture', () => {
     expect(engineSource).toContain('pdf.addPage()');
     expect(pageSource).toContain('tables.findIndex((table) => table.id === selectedTableId) + 1');
     expect(pageSource).toContain('tables.length');
+    expect(pageSource).toContain('normalizeDietaryAccentColor(parsed.guestNameColor)');
+    expect(pageSource).toContain('normalizeDietaryAccentColor(parsed.seatNumberColor)');
+    expect(pageSource).toContain('normalizeDietaryAccentColor(parsed.guestListColor)');
     expect(previewSource).toContain('Math.min(1, availableWidth / A4_PX.width)');
     expect(previewSource).toContain('transform: `scale(${tabletScale})`');
     expect(previewSource).toContain('<IndividualTableChartPrintPage');
     expect(previewSource).not.toContain("height: '325mm'");
     expect(customizerSource).not.toContain('<span>Normal</span>');
     expect(customizerSource).not.toContain('<span>None</span>');
-    expect(customizerSource.match(/<ColorSwatches/g)).toHaveLength(2);
-    expect(customizerSource.indexOf("{ value: '#000000', label: 'black' }")).toBeLessThan(customizerSource.indexOf("{ value: '#C62828', label: 'red' }"));
-    expect(customizerSource.indexOf("{ value: '#C62828', label: 'red' }")).toBeLessThan(customizerSource.indexOf("{ value: '#1565C0', label: 'blue' }"));
-    expect(customizerSource.indexOf("{ value: '#1565C0', label: 'blue' }")).toBeLessThan(customizerSource.indexOf("{ value: '#2E7D32', label: 'green' }"));
+    expect(customizerSource.match(/<ColorSwatches/g)).toHaveLength(5);
+    expect(customizerSource).toContain('DIETARY_ACCENT_COLORS.map');
     expect(customizerSource).toContain('aria-pressed={isSelected}');
-    expect(customizerSource).toContain('title={`${isSelected ? \'Clear\' : \'Use\'} ${label} for ${name}`}');
+    expect(customizerSource).toContain('title={`Use ${label} for ${name}`}');
     expect(customizerSource.indexOf('<h3 className="font-semibold text-sm">End Seats</h3>')).toBeLessThan(customizerSource.indexOf('{/* Display Options */}'));
     expect(customizerSource.indexOf('<h3 className="font-semibold text-sm">Long Table Info</h3>')).toBeLessThan(customizerSource.indexOf('{/* Display Options */}'));
     expect(pageSource.split(dietaryExportButtonClass)).toHaveLength(3);

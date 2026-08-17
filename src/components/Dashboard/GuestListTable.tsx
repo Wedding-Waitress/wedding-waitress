@@ -123,6 +123,7 @@ import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import styles from './GuestListTable.module.css';
 import { AlertTriangle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -1646,16 +1647,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   if (loading) {
     return (
-      <Card className="p-8 text-center">
-        <div>Loading events...</div>
-      </Card>
+      <div className={`${styles.page} ww-guest-list-page`}>
+        <Card className={`${styles.pagePanel} p-8 text-center`}>
+          <div>Loading events...</div>
+        </Card>
+      </div>
     );
   }
 
   // No event selected - show placeholder message like Table Setup
   if (!selectedEventId) {
     return (
-      <Card>
+      <div className={`${styles.page} ww-guest-list-page`}>
+      <Card className={styles.pagePanel}>
         <div className="p-8 text-center space-y-4">
           <div className="text-muted-foreground">Select an event to view its guest list</div>
           
@@ -1665,7 +1669,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <SelectTrigger className="w-full sm:w-[300px] border-primary">
                 <SelectValue placeholder="Select an event..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="ww-guest-list-menu">
                 {events.map((event) => (
                   <SelectItem key={event.id} value={event.id}>
                     <div className="flex items-center space-x-2">
@@ -1685,12 +1689,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           )}
         </div>
       </Card>
+      </div>
     );
   }
 
   return (
-    <>
-      <Card className="border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden !p-0">
+    <div className={`${styles.page} ww-guest-list-page`}>
+      <Card className={`${styles.pagePanel} border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden !p-0`}>
         {/* Header Controls */}
         <div className="px-3 sm:px-6 py-4">
           {/* Page Title with Couple Names Section */}
@@ -1777,7 +1782,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               {/* Smart RSVP premium feature strip — sits above Step 1/2/3 */}
               {selectedEventId && (
                 <SmartRsvpFeatureStrip
-                  className="mb-4"
+                  className={`${styles.featureStrip} mb-4`}
                   onCommandCentre={() => {
                     document
                       .getElementById('smart-rsvp-command-centre')
@@ -1795,12 +1800,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   eventId={selectedEventId}
                   variant="full"
                   recipientCount={selectedGuestIds.size || undefined}
-                  className="mb-4"
+                  className={`${styles.smsPanel} mb-4`}
                 />
               )}
 
               {/* Guest Live View APP Protection. You have full control in what your guests see by switching preferences On / Off. — informational banner */}
-              <div className="bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4">
+              <div className={`${styles.protectionPanel} bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4`}>
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="bg-primary/10 text-primary rounded-full p-2.5 shrink-0">
                     <ShieldCheck size={21} strokeWidth={1.8} aria-hidden="true" />
@@ -1837,7 +1842,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </div>
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[1fr_1.3fr_1fr_1fr_0.7fr] gap-4 items-stretch">
+                <div className={`${styles.setupGrid} grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[1fr_1.3fr_1fr_1fr_0.7fr] gap-4 items-stretch`}>
                 {/* BOX 1: Step 1 - Set Up Your Event */}
                 <div className="border border-primary rounded-xl p-5 flex flex-col shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                   <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><CalendarDays size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 1: Set Up Your Event</h3>
@@ -1852,7 +1857,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <SelectTrigger className="w-full border border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
                         <SelectValue placeholder="Select an event..." />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="ww-guest-list-menu">
                         {events.map((event) => (
                           <SelectItem key={event.id} value={event.id}>
                             <div className="flex items-center space-x-2">
@@ -1874,8 +1879,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           type="button"
                           size="sm"
                           onClick={() => handleEventTypeChange('two')}
+                          aria-pressed={eventType === 'two'}
                           className={cn(
-                            "h-9 text-sm justify-start transition-all",
+                            "ww-event-type-option h-9 text-sm justify-start transition-all",
                             eventType === 'two'
                               ? "border border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
                               : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
@@ -1887,8 +1893,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           type="button"
                           size="sm"
                           onClick={() => handleEventTypeChange('single')}
+                          aria-pressed={eventType === 'single'}
                           className={cn(
-                            "h-9 text-sm justify-start transition-all",
+                            "ww-event-type-option h-9 text-sm justify-start transition-all",
                             eventType === 'single'
                               ? "border border-green-500 bg-green-50 text-green-500 shadow-md hover:bg-green-100"
                               : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
@@ -1950,8 +1957,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <div className="flex flex-col gap-2 pt-2 border-0 bg-transparent shadow-none">
                           {/* Option 1: Default names */}
                           <label
+                            data-active={useDefaultNames}
                             className={cn(
-                             "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
+                             "ww-relationship-option flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               useDefaultNames
                                 ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
                                 : "border-border bg-background text-foreground hover:bg-muted/50"
@@ -1967,8 +1975,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                           {/* Option 2: Custom names */}
                           <label
+                            data-active={!useDefaultNames}
                             className={cn(
-                             "flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
+                             "ww-relationship-option flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               !useDefaultNames
                                 ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
                                 : "border-border bg-background text-foreground hover:bg-muted/50"
@@ -2189,7 +2198,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button 
-                              className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                              className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
                               <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -2197,7 +2206,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               <ChevronDown className="w-3 h-3" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuContent align="end" className="ww-guest-list-menu w-40">
                             {SORT_OPTIONS.map((option) => (
                               <DropdownMenuItem
                                 key={option.value}
@@ -2228,7 +2237,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button 
-                              className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                              className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
                               <FileUp size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -2236,7 +2245,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               <ChevronDown className="w-3 h-3" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuContent align="end" className="ww-guest-list-menu w-48">
                             <DropdownMenuItem onClick={downloadTemplate}>
                               <Download className="w-4 h-4 mr-2" />
                               Download Template
@@ -2335,7 +2344,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   disabled={!selectedEventId}
                 >
                   <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -2343,7 +2352,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuContent align="end" className="ww-guest-list-menu w-40">
                 {SORT_OPTIONS.map((option) => (
                   <DropdownMenuItem
                     key={option.value}
@@ -2360,7 +2369,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   disabled={!selectedEventId}
                 >
                   <FileUp size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -2368,7 +2377,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="ww-guest-list-menu w-48">
                 <DropdownMenuItem onClick={downloadTemplate}>
                   <Download className="w-4 h-4 mr-2" />
                   Download Template
@@ -2390,7 +2399,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
 
         {/* MOBILE CARD VIEW (mobile + tablet < lg) */}
-        <div className="lg:hidden border-t-2 border-primary bg-[#FBF7F2]">
+        <div className={`${styles.mobileCards} lg:hidden border-t-2 border-primary bg-[#FBF7F2]`}>
           {guestsLoading ? (
             <div className="text-center py-8 text-sm text-muted-foreground">Loading guests...</div>
           ) : totalGuestCount === 0 ? (
@@ -2614,7 +2623,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
 
         {/* DESKTOP TABLE VIEW (lg and up) */}
-        <div className="hidden lg:block overflow-hidden border-t-2 border-primary">
+        <div className={`${styles.tableWrap} hidden lg:block overflow-x-auto border-t-2 border-primary`}>
           
           <Table className="w-full table-fixed border-collapse">
             <colgroup>
@@ -2622,15 +2631,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <col style={{ width: '7%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '7%' }} />
-              <col style={{ width: '9%' }} />
+              <col style={{ width: '8%' }} />
               {collectGuestAddresses && <col style={{ width: '5%' }} />}
               <col style={{ width: '6%' }} />
-              <col style={{ width: '6%' }} />
+              <col style={{ width: '8%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '5%' }} />
               <col style={{ width: '5%' }} />
-              <col style={{ width: '8%' }} />
-              <col style={{ width: '8%' }} />
+              <col style={{ width: '7.5%' }} />
+              <col style={{ width: '7.5%' }} />
               <col style={{ width: '7%' }} />
               <col style={{ width: '5%' }} />
               <col style={{ width: '6%' }} />
@@ -2692,7 +2701,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </Tooltip>
                   </TooltipProvider>
                 </TableHead>
-                <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Invite</TableHead>
+                <TableHead className="ww-rsvp-invite-column px-2 py-2 text-xs text-center align-middle">RSVP Invite</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Status</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">
                   <span className="block leading-tight">Table</span>
@@ -2768,6 +2777,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <Checkbox
                               checked={selectedGuestIds.has(guest.id)}
                               onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                              className="ww-guest-select-checkbox"
                             />
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">
@@ -2812,7 +2822,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   : "NO"}
                             </Badge>
                           </TableCell>
-                          <TableCell className="px-2 py-2 text-center align-middle">
+                          <TableCell className="ww-rsvp-invite-column px-2 py-2 text-center align-middle">
                             {(() => {
                               const status = guest.rsvp_invite_status || 'not_sent';
                               const statusConfig: Record<string, { label: string; className: string }> = {
@@ -2824,8 +2834,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
                               return (
-                                <span className="inline-flex items-center justify-center flex-wrap gap-1">
-                                  <Badge className={`text-xs lv-premium-shade ${config.className}`}>
+                                <span className="ww-rsvp-invite-stack inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap">
+                                  <Badge className={`ww-rsvp-invite-primary text-xs whitespace-nowrap break-normal lv-premium-shade ${config.className}`}>
                                     {config.label}
                                   </Badge>
                                   <GuestDeliveryBadges
@@ -2833,6 +2843,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                     rsvp={guest.rsvp}
                                     purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
                                     lowCredits={smsLowCredit}
+                                    className="ww-rsvp-invite-secondary-stack !ml-0 !flex-col !flex-nowrap !gap-1"
                                   />
                                 </span>
                               );
@@ -2961,12 +2972,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                       className="h-8 w-8 p-0 border-0 bg-green-500 hover:bg-green-600 text-white ww-guest-action-btn"
                                       onClick={() => handleEditGuest(guest)}
                                       aria-label="Edit guest"
-                                      title="Edit guest"
                                     >
                                       <Pencil size={16} strokeWidth={1.8} className="text-white" aria-hidden="true" />
                                     </Button>
                                   </TooltipTrigger>
-                                  <TooltipContent side="top"><p>Edit guest</p></TooltipContent>
+                                  <TooltipContent side="top" className="ww-guest-action-tooltip"><p>Edit Guest</p></TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                               <TooltipProvider>
@@ -3003,7 +3013,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 max-lg:flex-col max-lg:items-center max-lg:gap-2">
+        <div className={`${styles.pagination} flex items-center justify-between px-4 py-3 max-lg:flex-col max-lg:items-center max-lg:gap-2`}>
           <p className="text-sm text-muted-foreground max-lg:order-1 max-lg:text-center max-lg:whitespace-nowrap">
             Showing {((currentPage - 1) * GUESTS_PER_PAGE) + 1}–{Math.min(currentPage * GUESTS_PER_PAGE, totalFilteredGuestCount)} of {totalFilteredGuestCount} guests
           </p>
@@ -3187,7 +3197,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
         {/* Bulk Delete Confirmation */}
         <Dialog open={showBulkDeleteModal} onOpenChange={(open) => { if (!open) { setBulkDeleteConfirmText(''); } setShowBulkDeleteModal(open); }}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="ww-guest-list-dialog sm:max-w-md">
             <DialogHeader>
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -3344,6 +3354,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           variant={guestLimitDialogVariant}
           guestLimit={selectedEvent?.guest_limit || 0}
         />
-      </>
+    </div>
     );
 };

@@ -105,6 +105,9 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
   /** The library template currently applied, if any. */
   const libraryTemplate = findLibraryTemplate(tpl);
+  const activeTemplateId = libraryTemplate?.id ?? (
+    tpl && tpl === savedTemplateUrl ? persistedStyle.templateId ?? null : null
+  );
 
   /** A complete custom footer design is active — it replaces the whole text footer. */
   const footerDesignActive = !!logo;
@@ -229,7 +232,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         style: {
           ...style,
           backgroundMode: bgMode === 'colour' ? 'colour' : 'template',
-          templateId: libraryTemplate?.id ?? null,
+          templateId: activeTemplateId,
         },
       });
       toast({ title: 'Photo Booth customization saved' });
@@ -240,11 +243,82 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     }
   };
 
-  const handleReset = () => {
+  const handleBackgroundReset = async () => {
+    const previous = { tpl, customTpl, style };
+    const nextStyle: Required<PhotoBoothStripStyle> = {
+      ...style,
+      bgColor: PB_DEFAULT_STYLE.bgColor,
+    };
+
+    setTpl(null);
+    setCustomTpl(null);
+    setStyle(nextStyle);
+    if (tplInput.current) tplInput.current.value = '';
+
+    setSaving(true);
+    try {
+      await onSave('strip', {
+        bottom_text: text.trim() ? text : null,
+        logo_url: logo || null,
+        template_url: null,
+        style: {
+          ...nextStyle,
+          backgroundMode: 'colour',
+          templateId: null,
+        },
+      });
+      toast({ title: 'Photo Strip Background reset to default' });
+    } catch (e: any) {
+      setTpl(previous.tpl);
+      setCustomTpl(previous.customTpl);
+      setStyle(previous.style);
+      toast({ title: 'Could not reset background', description: e?.message || 'Try again', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFooterReset = async () => {
+    const previous = { text, logo, style };
+    const nextStyle: Required<PhotoBoothStripStyle> = {
+      ...style,
+      fontFamily: PB_DEFAULT_STYLE.fontFamily,
+      fontColor: PB_DEFAULT_STYLE.fontColor,
+      nameSize: PB_DEFAULT_STYLE.nameSize,
+      dateSize: PB_DEFAULT_STYLE.dateSize,
+      nameFontFamily: PB_DEFAULT_STYLE.nameFontFamily,
+      nameColor: PB_DEFAULT_STYLE.nameColor,
+      dateFontFamily: PB_DEFAULT_STYLE.dateFontFamily,
+      dateColor: PB_DEFAULT_STYLE.dateColor,
+      textBackdrop: PB_DEFAULT_STYLE.textBackdrop,
+    };
+
     setText('');
     setLogo(null);
-    setTpl(null);
-    setStyle({ ...PB_DEFAULT_STYLE });
+    setStyle(nextStyle);
+    if (logoInput.current) logoInput.current.value = '';
+
+    setSaving(true);
+    try {
+      await onSave('strip', {
+        bottom_text: null,
+        logo_url: null,
+        template_url: tpl || null,
+        style: {
+          ...nextStyle,
+          backgroundMode: bgMode === 'colour' ? 'colour' : 'template',
+          templateId: activeTemplateId,
+        },
+      });
+      toast({ title: 'Photo Strip Footer reset to default' });
+    } catch (e: any) {
+      setText(previous.text);
+      setLogo(previous.logo);
+      setStyle(previous.style);
+      toast({ title: 'Could not reset footer', description: e?.message || 'Try again', variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const previewOpts: ComposeOpts = {
@@ -255,14 +329,14 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
     logoUrl: logo,
     templateUrl: tpl,
     backgroundMode: bgMode === 'colour' ? 'colour' : 'template',
-    templateId: libraryTemplate?.id ?? null,
+    templateId: activeTemplateId,
     showBranding: meta.show_branding,
     style,
   };
 
-  const actionRow = (
+  const actionRow = (onReset: () => void) => (
     <div className="flex justify-between gap-2 flex-wrap pt-1">
-      <Button variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={handleReset} disabled={saving || !!uploading}>
+      <Button variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={onReset} disabled={saving || !!uploading}>
         <RotateCcw className="h-4 w-4 mr-1" /> Reset to default
       </Button>
       <Button
@@ -423,7 +497,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </div>
 
         <div className="lg:mt-auto">
-          {actionRow}
+          {actionRow(handleBackgroundReset)}
         </div>
 
         <PhotoBoothTemplateLibraryDialog
@@ -642,7 +716,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         </div>
 
 
-        {actionRow}
+        {actionRow(handleFooterReset)}
       </Card>
     </div>
   );

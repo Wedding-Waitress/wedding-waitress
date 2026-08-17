@@ -178,7 +178,7 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
 
   return (
     <Dialog open={isOpen} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="ww-guest-list-dialog ww-guest-resend-dialog max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg mt-6">
             <RefreshCw className="w-5 h-5 text-primary" />
@@ -196,7 +196,7 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
               <SelectTrigger className="lv-premium-shade">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="ww-guest-list-menu">
                 {(Object.keys(AUDIENCE_LABEL) as ResendAudience[]).map(a => (
                   <SelectItem key={a} value={a}>{AUDIENCE_LABEL[a]}</SelectItem>
                 ))}

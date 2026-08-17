@@ -7,6 +7,7 @@
 import { Card } from '@/components/ui/card';
 import { Mail, MessageSquare, Send, CheckCircle2, XCircle, Clock, Coins } from 'lucide-react';
 import { useMessagingAnalytics } from '@/hooks/useMessagingAnalytics';
+import styles from './DeliveryAnalyticsPanel.module.css';
 
 interface Props {
   eventId: string | null | undefined;
@@ -15,14 +16,14 @@ interface Props {
 const Kpi = ({
   icon, label, value, hint, accent,
 }: { icon: React.ReactNode; label: string; value: string | number; hint?: string; accent?: string }) => (
-  <div className="rounded-lg border border-border bg-card p-3 flex items-start gap-3">
-    <div className={`shrink-0 w-9 h-9 rounded-md flex items-center justify-center ${accent ?? 'bg-primary/10 text-primary'}`}>
+  <div className={`${styles.kpiCard} rounded-lg border border-border bg-card p-3 flex items-start gap-3`}>
+    <div className={`${styles.icon} shrink-0 w-9 h-9 rounded-md flex items-center justify-center ${accent ?? 'bg-primary/10 text-primary'}`}>
       {icon}
     </div>
     <div className="min-w-0">
-      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="text-lg font-semibold text-foreground leading-tight">{value}</div>
-      {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+      <div className={`${styles.label} text-[11px] uppercase tracking-wide text-muted-foreground`}>{label}</div>
+      <div className={`${styles.value} text-lg font-semibold text-foreground leading-tight`}>{value}</div>
+      {hint && <div className={`${styles.hint} text-[11px] text-muted-foreground`}>{hint}</div>}
     </div>
   </div>
 );
@@ -34,11 +35,11 @@ export const DeliveryAnalyticsPanel = ({ eventId }: Props) => {
   const responsePct = Math.round((data.responseRate || 0) * 100);
 
   return (
-    <Card className="p-4 space-y-3">
+    <Card className={`${styles.panel} p-4 space-y-3`}>
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold">Smart RSVP & Messaging — Delivery analytics</h3>
-          <p className="text-xs text-muted-foreground">Live KPIs for this event.</p>
+          <p className={`${styles.description} text-xs text-muted-foreground`}>Live KPIs for this event.</p>
         </div>
         {loading && <span className="text-xs text-muted-foreground">Loading…</span>}
       </div>

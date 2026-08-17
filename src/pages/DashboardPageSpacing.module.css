@@ -1,0 +1,10 @@
+.corePageBottomSpacing {
+  /* The former desktop gap was 24px; the approved shared gap is four times that. */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media print {
+  .corePageBottomSpacing {
+    padding-bottom: 0 !important;
+  }
+}

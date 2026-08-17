@@ -22,6 +22,8 @@ import { TimePicker } from './TimePicker';
 import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
 import { format } from 'date-fns';
+import '@fontsource/manrope/latin-600.css';
+import styles from './EventCreateModal.module.css';
 
 interface Event {
   id: string;
@@ -124,6 +126,13 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     };
     document.addEventListener("focusin", onFocus);
     return () => document.removeEventListener("focusin", onFocus);
+  }, [isOpen]);
+
+  // Share the approved Create Event portal theme while Edit Event is open.
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.classList.add('ww-create-event-open');
+    return () => document.body.classList.remove('ww-create-event-open');
   }, [isOpen]);
 
   // Auto-sync ceremony fields to reception fields (matching Create Modal pattern)
@@ -339,19 +348,19 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   const bodyContent = (
     <>
       {!formData.ceremony_enabled && !formData.reception_enabled && (
-        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center">
+        <div className={`bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive max-lg:mb-4 text-center ${styles.validation}`}>
           Please enable at least one section (Ceremony or Reception) to save.
         </div>
       )}
       {/* CEREMONY */}
-      <div className="border-2 border-border rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
-          <h3 className="text-lg font-semibold text-foreground">Ceremony</h3>
+      <div className={`border-2 border-border rounded-xl overflow-hidden ${styles.section}`}>
+        <div className={`flex items-center justify-between px-4 py-3 bg-muted/50 ${styles.sectionHeader}`}>
+          <h3 className={`text-lg font-semibold text-foreground ${styles.sectionTitle}`}>Ceremony</h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{formData.ceremony_enabled ? 'Yes' : 'No'}</span>
             <Switch className="hidden lg:inline-flex" checked={formData.ceremony_enabled}
               onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ceremony_enabled: checked }))} />
-            <button type="button" aria-label="Toggle ceremony"
+            <button type="button" role="switch" aria-checked={formData.ceremony_enabled} aria-label="Toggle ceremony"
               onClick={() => setFormData(prev => ({ ...prev, ceremony_enabled: !prev.ceremony_enabled }))}
               className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.ceremony_enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
               <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all ${formData.ceremony_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -409,14 +418,14 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         )}
       </div>
       {/* RECEPTION */}
-      <div className="border-2 border-border rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 bg-muted/50">
-          <h3 className="text-lg font-semibold text-foreground">Reception</h3>
+      <div className={`border-2 border-border rounded-xl overflow-hidden ${styles.section}`}>
+        <div className={`flex items-center justify-between px-4 py-3 bg-muted/50 ${styles.sectionHeader}`}>
+          <h3 className={`text-lg font-semibold text-foreground ${styles.sectionTitle}`}>Reception</h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{formData.reception_enabled ? 'Yes' : 'No'}</span>
             <Switch className="hidden lg:inline-flex" checked={formData.reception_enabled}
               onCheckedChange={(checked) => setFormData(prev => ({ ...prev, reception_enabled: checked }))} />
-            <button type="button" aria-label="Toggle reception"
+            <button type="button" role="switch" aria-checked={formData.reception_enabled} aria-label="Toggle reception"
               onClick={() => setFormData(prev => ({ ...prev, reception_enabled: !prev.reception_enabled }))}
               className={`lg:hidden w-12 h-6 rounded-full flex items-center px-[2px] transition-all duration-200 ${formData.reception_enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
               <span className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all ${formData.reception_enabled ? 'translate-x-6' : 'translate-x-0'}`} />
@@ -427,13 +436,13 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <div className="p-4 space-y-4">
             <div className="space-y-1.5">
               <Label className="text-xs">Event Type *</Label>
-              <div className="hidden lg:flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit">
+              <div className={`hidden lg:flex items-center gap-1 bg-muted border border-border rounded-full p-0.5 w-fit ${styles.eventType}`}>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
                   className={`lv-premium-shade px-3 py-1 rounded-full transition-all text-xs font-medium ${formData.event_type === 'seated' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'}`}>Seated Event</button>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
                   className={`lv-premium-shade px-3 py-1 rounded-full transition-all text-xs font-medium ${formData.event_type === 'cocktail' ? 'bg-green-500 text-white shadow-sm' : 'bg-transparent text-muted-foreground hover:bg-muted-foreground/10'}`}>Cocktail/Stand-up</button>
               </div>
-              <div className="lg:hidden grid grid-cols-2 gap-2 mt-1">
+              <div className={`lg:hidden grid grid-cols-2 gap-2 mt-1 ${styles.eventType}`}>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'seated' }))}
                   className={`lv-premium-shade w-full h-11 rounded-full text-sm font-medium transition-all ${formData.event_type === 'seated' ? 'bg-green-500 text-white border-2 border-green-500' : 'bg-secondary text-primary border-2 border-primary'}`}>Seated Event</button>
                 <button type="button" onClick={() => setFormData(prev => ({ ...prev, event_type: 'cocktail' }))}
@@ -510,12 +519,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   if (isMobile) {
     if (!isOpen) return null;
     return ReactDOM.createPortal(
-      <div role="dialog" aria-modal="true" className="ww-create-event-panel" style={{
+      <div role="dialog" aria-modal="true" className={`ww-create-event-panel ${styles.drawer}`} style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         width: '100%', height: '100dvh', zIndex: 9999,
         background: 'white', display: 'flex', flexDirection: 'column', overflow: 'hidden',
       }}>
-        <button type="button" onClick={onClose} aria-label="Close" style={{
+        <button type="button" onClick={onClose} aria-label="Close" className={styles.closeButton} style={{
           position: 'absolute', right: 12, top: 12, zIndex: 1,
           width: 40, height: 40, borderRadius: 9999,
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -524,8 +533,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <X className="h-4 w-4 text-primary" strokeWidth={2.5} />
         </button>
         <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-          <div className="flex flex-col gap-3 items-center pt-8 gap-5 pr-12">
-            <h2 className="text-xl font-medium text-primary whitespace-nowrap w-full text-center">Edit Event</h2>
+          <div className={`flex flex-col gap-3 items-center pt-8 gap-5 pr-12 ${styles.header}`}>
+            <h2 className={`text-xl font-medium text-primary whitespace-nowrap w-full text-center ${styles.title}`}>Edit Event</h2>
             <div className="flex-1 w-full max-w-full px-3">
               <Input
                 value={formData.event_name}
@@ -535,22 +544,22 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
               />
             </div>
           </div>
-          <div className="space-y-4 py-3">
+          <div className={`space-y-4 py-3 ${styles.body}`}>
             {bodyContent}
           </div>
         </div>
-        <div style={{
+        <div className={styles.footer} style={{
           position: 'sticky', bottom: 0,
           padding: '16px 16px max(16px, env(safe-area-inset-bottom))',
           background: 'white', borderTop: '1px solid #eee',
           display: 'flex', gap: 12,
         }}>
           <Button onClick={handleSave} disabled={!isFormValid || isSaving}
-            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white">
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton}`}>
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
           <Button variant="destructive" onClick={onClose}
-            className="lv-premium-shade flex-1 h-11 rounded-full">
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton}`}>
             Cancel
           </Button>
         </div>
@@ -563,10 +572,10 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className="ww-create-event-panel w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+        className={`ww-create-event-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container ${styles.drawer}`}
       >
-        <SheetHeader className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 px-6 pt-6">
-          <SheetTitle className="text-xl lg:text-2xl font-medium text-primary whitespace-nowrap w-full lg:w-auto">Edit Event</SheetTitle>
+        <SheetHeader className={`flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 text-left space-y-0 ${styles.header}`}>
+          <SheetTitle className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white break-words whitespace-nowrap w-full lg:w-auto ${styles.title}`}>Edit Event</SheetTitle>
           <div className="flex-1 w-full max-w-full lg:max-w-[75%] max-lg:px-3">
             <Input
               value={formData.event_name}
@@ -577,26 +586,26 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           </div>
         </SheetHeader>
 
-        <div className="space-y-4 py-3 px-6 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className={`space-y-4 py-3 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container ${styles.body}`}>
           {bodyContent}
         </div>
 
-        <div className="flex flex-row justify-end gap-2 pt-2 px-6 pb-4 border-t max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-4 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className={`flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))] ${styles.footer}`}>
           <Button
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white inline-flex items-center justify-center lg:h-12 lg:px-8 lg:text-base lg:font-semibold max-lg:order-1 max-lg:w-full max-lg:h-11"
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
           >
-            <Save className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <Save className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
           <Button
             variant="destructive"
             onClick={onClose}
-            className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white inline-flex items-center justify-center lg:h-12 lg:px-8 lg:text-base lg:font-semibold max-lg:order-2 max-lg:w-full max-lg:h-11"
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton}`}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2" />
+            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
         </div>

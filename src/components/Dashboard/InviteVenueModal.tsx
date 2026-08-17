@@ -7,6 +7,7 @@ import { Send, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { ReferralEventLite } from '@/hooks/useFirstEventReferral';
+import styles from './InviteVenueModal.module.css';
 
 interface InviteVenueModalProps {
   open: boolean;
@@ -87,47 +88,51 @@ export const InviteVenueModal: React.FC<InviteVenueModalProps> = ({ open, onOpen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-lg:p-0 max-lg:gap-0">
-        <DialogHeader className="max-lg:pt-6 max-lg:px-3">
-          <DialogTitle className="text-xl font-medium text-primary text-center lg:text-left">
+      <DialogContent
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+        data-testid="invite-venue-modal"
+      >
+        <DialogHeader className={styles.header}>
+          <DialogTitle className={styles.title}>
             Invite Your Venue
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 max-lg:gap-5 max-lg:px-3 max-lg:pt-2">
+        <div className={styles.form}>
           <div className="space-y-1.5">
-            <Label className="text-xs">Venue Email *</Label>
+            <Label className={styles.label}>Venue Email *</Label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="coordinator@venue.com"
-              className="h-11 rounded-full border-2 border-primary px-4 text-base lg:text-sm"
+              className={styles.input}
               autoComplete="email"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">Coordinator Name (optional)</Label>
+            <Label className={styles.label}>Coordinator Name (optional)</Label>
             <Input
               value={contactName}
               onChange={(e) => setContactName(e.target.value)}
               placeholder="e.g., Sarah"
-              className="h-11 rounded-full border-2 border-primary px-4 text-base lg:text-sm"
+              className={styles.input}
             />
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/40 p-3">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1">Preview</p>
-            <pre className="text-xs leading-relaxed whitespace-pre-wrap font-sans text-foreground/90">{previewBody}</pre>
+          <div className={styles.preview}>
+            <p className={styles.previewLabel}>Preview</p>
+            <pre className={styles.previewBody}>{previewBody}</pre>
           </div>
         </div>
 
-        <div className="flex flex-row gap-3 pt-4 max-lg:px-3 max-lg:pb-4">
+        <div className={styles.actions}>
           <Button
             onClick={handleSend}
             disabled={!validEmail || sending}
-            className="lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white inline-flex items-center justify-center gap-[6px]"
+            className={`${styles.actionButton} ${styles.sendButton}`}
           >
             <Send size={18} strokeWidth={1.8} aria-hidden />
             {sending ? 'Sending…' : 'Send Invitation'}
@@ -136,7 +141,7 @@ export const InviteVenueModal: React.FC<InviteVenueModalProps> = ({ open, onOpen
             variant="destructive"
             onClick={() => onOpenChange(false)}
             disabled={sending}
-            className="lv-premium-shade flex-1 h-11 rounded-full inline-flex items-center justify-center gap-[6px]"
+            className={`${styles.actionButton} ${styles.cancelButton}`}
           >
             <X size={18} strokeWidth={1.8} aria-hidden />
             Cancel

@@ -44,38 +44,43 @@ import {
   CaseSensitive,
 } from 'lucide-react';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
+import { DIETARY_ACCENT_COLORS } from '@/lib/dietaryChartSettings';
+import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
 
 interface IndividualTableChartCustomizerProps {
   settings: IndividualChartSettings;
   onSettingsChange: (settings: Partial<IndividualChartSettings>) => void;
 }
 
-export type AccentColor = NonNullable<IndividualChartSettings['dietaryColor']>;
-export const toggleAccentColor = (selected: AccentColor | null | undefined, clicked: AccentColor) =>
-  selected === clicked ? null : clicked;
-const ACCENT_COLORS: Array<{ value: AccentColor; label: string }> = [
-  { value: '#000000', label: 'black' },
-  { value: '#C62828', label: 'red' },
-  { value: '#1565C0', label: 'blue' },
-  { value: '#2E7D32', label: 'green' },
-];
+export type AccentColor = DietaryAccentColor;
+export const toggleAccentColor = (_selected: AccentColor | null | undefined, clicked: AccentColor) => clicked;
+const COLOR_LABELS: Record<AccentColor, string> = {
+  '#000000': 'black',
+  '#C62828': 'red',
+  '#1565C0': 'blue',
+  '#2E7D32': 'green',
+  '#967A59': 'Wedding Waitress gold',
+  '#7E57C2': 'purple',
+  '#E67E22': 'orange',
+};
 
 const ColorSwatches = ({ name, selected, onChange }: {
   name: string;
-  selected: AccentColor | null | undefined;
-  onChange: (color: AccentColor | null) => void;
+  selected: AccentColor;
+  onChange: (color: AccentColor) => void;
 }) => (
-  <div className="flex items-center gap-1.5 shrink-0" role="group" aria-label={`${name} colour`}>
-    {ACCENT_COLORS.map(({ value, label }) => {
-      const isSelected = (selected || '#000000') === value;
+  <div className="flex items-center gap-0.5 shrink-0" role="group" aria-label={`${name} colour`}>
+    {DIETARY_ACCENT_COLORS.map(value => {
+      const isSelected = selected === value;
+      const label = COLOR_LABELS[value];
       return (
         <button
           key={value}
           type="button"
-          aria-label={`${isSelected ? 'Clear' : 'Use'} ${label} for ${name}`}
-          title={`${isSelected ? 'Clear' : 'Use'} ${label} for ${name}`}
+          aria-label={`Use ${label} for ${name}`}
+          title={`Use ${label} for ${name}`}
           aria-pressed={isSelected}
-          onClick={() => onChange(toggleAccentColor(selected || '#000000', value))}
+          onClick={() => onChange(value)}
           className={`h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
           style={{ backgroundColor: value }}
         />
@@ -193,11 +198,12 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             Display Options
           </span>
           
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-names" className="flex items-center gap-[7px]">
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-names" className="flex flex-1 items-center gap-[7px]">
               <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Guest Names
             </Label>
+            <ColorSwatches name="guest names" selected={settings.guestNameColor} onChange={(guestNameColor) => onSettingsChange({ guestNameColor })} />
             <Switch
               id="show-names"
               checked={settings.includeNames}
@@ -207,11 +213,12 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-seat-numbers" className="flex items-center gap-[7px]">
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-seat-numbers" className="flex flex-1 items-center gap-[7px]">
               <Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Seat Numbers
             </Label>
+            <ColorSwatches name="seat numbers" selected={settings.seatNumberColor} onChange={(seatNumberColor) => onSettingsChange({ seatNumberColor })} />
             <Switch
               id="show-seat-numbers"
               checked={settings.showSeatNumbers}
@@ -221,11 +228,12 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="show-guest-list" className="flex items-center gap-[7px]">
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-guest-list" className="flex flex-1 items-center gap-[7px]">
               <ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Guest List
             </Label>
+            <ColorSwatches name="guest list" selected={settings.guestListColor} onChange={(guestListColor) => onSettingsChange({ guestListColor })} />
             <Switch
               id="show-guest-list"
               checked={settings.includeGuestList}
@@ -235,7 +243,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <Label htmlFor="show-dietary" className="flex flex-1 items-center gap-[7px]">
               <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Dietary Requirements
@@ -254,7 +262,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
             <Label htmlFor="show-relation" className="flex flex-1 items-center gap-[7px]">
               <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Relationship

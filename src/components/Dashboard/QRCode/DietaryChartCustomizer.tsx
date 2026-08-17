@@ -24,13 +24,49 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Settings2, ArrowUpDown, Eye, Type, Bold, Italic, Underline, ChevronDown, Check, ListFilter, Smartphone, HeartHandshake, Armchair, CaseSensitive } from 'lucide-react';
+import { Settings2, UtensilsCrossed, ArrowUpDown, Eye, Type, Bold, Italic, Underline, ChevronDown, Check, ListFilter, HeartHandshake, Armchair, CaseSensitive, UserRound, ListOrdered } from 'lucide-react';
 import { DietaryChartSettings } from '@/hooks/useDietaryChartSettings';
+import { DIETARY_ACCENT_COLORS, DietaryAccentColor } from '@/lib/dietaryChartSettings';
 
 interface DietaryChartCustomizerProps {
   settings: DietaryChartSettings;
   onSettingsChange: (settings: Partial<DietaryChartSettings>) => void;
 }
+
+const COLOR_LABELS: Record<DietaryAccentColor, string> = {
+  '#000000': 'black',
+  '#C62828': 'red',
+  '#1565C0': 'blue',
+  '#2E7D32': 'green',
+  '#967A59': 'Wedding Waitress gold',
+  '#7E57C2': 'purple',
+  '#E67E22': 'orange',
+};
+
+const ColorSwatches = ({ name, selected, onChange }: {
+  name: string;
+  selected: DietaryAccentColor;
+  onChange: (color: DietaryAccentColor) => void;
+}) => (
+  <div className="flex items-center gap-0.5 shrink-0" role="group" aria-label={`${name} colour`}>
+    {DIETARY_ACCENT_COLORS.map(color => {
+      const isSelected = selected === color;
+      const label = COLOR_LABELS[color];
+      return (
+        <button
+          key={color}
+          type="button"
+          aria-label={`Use ${label} for ${name}`}
+          title={`Use ${label} for ${name}`}
+          aria-pressed={isSelected}
+          onClick={() => onChange(color)}
+          className={`h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
+          style={{ backgroundColor: color }}
+        />
+      );
+    })}
+  </div>
+);
 
 export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   settings,
@@ -45,13 +81,19 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   };
 
   return (
-    <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
+    <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-8 bg-white">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings2 className="w-[22px] h-[22px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
           <CardTitle className="text-xl font-bold text-[#472c1d]">Chart Settings</CardTitle>
         </div>
-        <CardDescription className="mb-4">Customise how your dietary requirements chart is displayed and exported</CardDescription>
+        <div className="mt-2">
+          <h3 className="text-xl font-bold text-[#472c1d] flex items-center gap-2">
+            <UtensilsCrossed className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            Custom Dietary Requirements
+          </h3>
+          <CardDescription className="mt-1">Customise how your dietary requirements chart is displayed and exported</CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
         {/* Sort Order */}
@@ -84,39 +126,35 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <Separator />
 
         {/* Display Options */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Eye className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="show-mobile" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]"><Smartphone className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Mobile</Label>
-              <Switch
-                id="show-mobile"
-                checked={settings.showMobile}
-                onCheckedChange={checked => onSettingsChange({ showMobile: checked })}
-                
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="show-relation" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]"><HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Relationship</Label>
-              <Switch
-                id="show-relation"
-                checked={settings.showRelation}
-                onCheckedChange={checked => onSettingsChange({ showRelation: checked })}
-                
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="show-seat-no" className="text-xs text-[#472c1d] inline-flex items-center gap-[7px]"><Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Seat Number</Label>
-              <Switch
-                id="show-seat-no"
-                checked={settings.showSeatNo}
-                onCheckedChange={checked => onSettingsChange({ showSeatNo: checked })}
-                
-              />
-            </div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-guest-names" className="flex flex-1 items-center gap-[7px]"><UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Guest Names</Label>
+            <ColorSwatches name="guest names" selected={settings.guestNameColor} onChange={guestNameColor => onSettingsChange({ guestNameColor })} />
+            <Switch id="show-guest-names" checked={settings.showGuestNames} onCheckedChange={showGuestNames => onSettingsChange({ showGuestNames })} />
+          </div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-seat-numbers" className="flex flex-1 items-center gap-[7px]"><Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Seat Numbers</Label>
+            <ColorSwatches name="seat numbers" selected={settings.seatNumberColor} onChange={seatNumberColor => onSettingsChange({ seatNumberColor })} />
+            <Switch id="show-seat-numbers" checked={settings.showSeatNumbers} onCheckedChange={showSeatNumbers => onSettingsChange({ showSeatNumbers })} />
+          </div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-guest-list" className="flex flex-1 items-center gap-[7px]"><ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Guest List</Label>
+            <ColorSwatches name="guest list" selected={settings.guestListColor} onChange={guestListColor => onSettingsChange({ guestListColor })} />
+            <Switch id="show-guest-list" checked={settings.showGuestList} onCheckedChange={showGuestList => onSettingsChange({ showGuestList })} />
+          </div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-dietary" className="flex flex-1 items-center gap-[7px]"><UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Dietary Requirements</Label>
+            <ColorSwatches name="dietary requirements" selected={settings.dietaryColor} onChange={dietaryColor => onSettingsChange({ dietaryColor })} />
+            <Switch id="show-dietary" checked={settings.showDietary} onCheckedChange={showDietary => onSettingsChange({ showDietary })} />
+          </div>
+          <div className="flex items-center gap-1">
+            <Label htmlFor="show-relation" className="flex flex-1 items-center gap-[7px]"><HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Relationship</Label>
+            <ColorSwatches name="relationships" selected={settings.relationshipColor} onChange={relationshipColor => onSettingsChange({ relationshipColor })} />
+            <Switch id="show-relation" checked={settings.showRelation} onCheckedChange={showRelation => onSettingsChange({ showRelation })} />
           </div>
         </div>
 
@@ -127,6 +165,25 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
           <div className="flex items-center gap-2">
             <Type className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
             <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground flex items-center gap-[7px]">
+              <CaseSensitive className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Guest Text Size
+            </Label>
+            <Select
+              value={settings.fontSize}
+              onValueChange={(value: DietaryChartSettings['fontSize']) => onSettingsChange({ fontSize: value })}
+            >
+              <SelectTrigger className="w-full border-[#472c1d] focus:ring-[#472c1d]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="small">Small — 8 pt</SelectItem>
+                <SelectItem value="standard">Standard — 10 pt</SelectItem>
+                <SelectItem value="large">Large — 12 pt</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label className="text-xs text-[#472c1d] inline-flex items-center gap-1.5">

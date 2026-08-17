@@ -1,0 +1,169 @@
+.drawer .title {
+  color: #ffffff !important;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.012em !important;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: auto;
+}
+
+.drawer label,
+.drawer .fieldLabel {
+  color: #f3e7d8 !important;
+}
+
+.drawer .title svg,
+.drawer label svg {
+  color: #d9b77f !important;
+  stroke: currentColor !important;
+}
+
+.drawer.drawer input,
+.drawer.drawer textarea,
+.drawer.drawer select,
+.drawer.drawer [role="combobox"] {
+  color: #ffffff !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.06), rgba(17, 9, 7, 0.72)) !important;
+  outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 229, 0.12),
+    0 1px 3px rgba(3, 1, 1, 0.24) !important;
+}
+
+.drawer.drawer input:focus,
+.drawer.drawer input:focus-visible,
+.drawer.drawer textarea:focus,
+.drawer.drawer textarea:focus-visible,
+.drawer.drawer select:focus,
+.drawer.drawer select:focus-visible,
+.drawer.drawer [role="combobox"]:focus,
+.drawer.drawer [role="combobox"]:focus-visible,
+.drawer.drawer [role="combobox"][data-state="open"] {
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 229, 0.16),
+    0 0 0 1px rgba(201, 151, 93, 0.22) !important;
+}
+
+.drawer.drawer input::placeholder,
+.drawer.drawer textarea::placeholder {
+  color: rgba(232, 221, 210, 0.68) !important;
+  opacity: 1 !important;
+}
+
+.shapeGrid .shapeOption {
+  color: #e8ddd2 !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: linear-gradient(180deg, rgba(65, 35, 26, 0.7), rgba(19, 10, 8, 0.76)) !important;
+  outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.11),
+    0 6px 16px rgba(3, 1, 1, 0.2) !important;
+}
+
+.shapeGrid .shapeOption:hover:not(:disabled),
+.shapeGrid .shapeOption:focus-visible {
+  color: #ffffff !important;
+  border-color: rgba(226, 185, 132, 0.68) !important;
+  background: linear-gradient(180deg, rgba(84, 46, 32, 0.78), rgba(28, 14, 11, 0.84)) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(201, 151, 93, 0.22) !important;
+}
+
+.shapeGrid .shapeOption[aria-pressed="true"] {
+  color: #ffffff !important;
+  border-color: rgba(226, 185, 132, 0.82) !important;
+  background: linear-gradient(180deg, rgba(116, 65, 42, 0.82), rgba(52, 27, 19, 0.9)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.2),
+    0 0 0 1px rgba(201, 151, 93, 0.22),
+    0 8px 20px rgba(3, 1, 1, 0.24) !important;
+}
+
+.shapeGrid .shapeOption svg,
+.shapeGrid .shapeOption span {
+  color: inherit !important;
+}
+
+.shapeGrid .shapeOption[aria-pressed="true"] svg,
+.shapeGrid .shapeOption[aria-pressed="true"] .longShape {
+  color: #e1be85 !important;
+  border-color: #e1be85 !important;
+}
+
+.longShape {
+  border-color: rgba(232, 221, 210, 0.74) !important;
+}
+
+.readOnlyField {
+  color: #e8ddd2 !important;
+  border: 1px solid rgba(201, 151, 93, 0.28) !important;
+  background: rgba(20, 10, 8, 0.58) !important;
+  box-shadow: inset 0 1px 3px rgba(3, 1, 1, 0.28);
+  opacity: 0.82;
+}
+
+.capacityWarning {
+  border-width: 1px !important;
+  border-style: solid !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
+}
+
+.capacityWarning[data-tone="error"] {
+  border-color: rgba(239, 68, 68, 0.72) !important;
+  background: rgba(92, 24, 21, 0.58) !important;
+}
+
+.capacityWarning[data-tone="warning"] {
+  border-color: rgba(234, 179, 8, 0.7) !important;
+  background: rgba(92, 66, 15, 0.42) !important;
+}
+
+.portalSurface,
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog),
+:global(body.ww-table-drawer-open) [data-radix-popper-content-wrapper] > div {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  background: linear-gradient(180deg, rgba(72, 39, 28, 0.98), rgba(25, 13, 10, 0.99)) !important;
+  outline: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 18px 40px rgba(3, 1, 1, 0.42) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.portalSurface [class*="text-muted-foreground"],
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) [class*="text-muted-foreground"] {
+  color: #e8ddd2 !important;
+}
+
+.portalSurface h2,
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) h2 {
+  color: #ffffff !important;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
+}
+
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) [class*="bg-red-50"] {
+  background: rgba(92, 24, 21, 0.58) !important;
+}
+
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) [class*="bg-green-50"] {
+  background: rgba(20, 83, 45, 0.45) !important;
+}
+
+.portalSurface button,
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) button {
+  outline: none !important;
+}
+
+@media (min-width: 640px) {
+  .drawer .title {
+    font-size: 1.5rem !important;
+  }
+}

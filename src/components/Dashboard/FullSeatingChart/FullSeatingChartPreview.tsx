@@ -38,7 +38,7 @@
  * ============================================================================
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // Checkbox replaced with SVG circle to match PDF output
 import { Guest } from '@/hooks/useGuests';
@@ -50,9 +50,12 @@ import { Eye, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_TOP_MM, MARGIN_LEFT_MM,
   HEADER_HEIGHT_MM, CONTENT_START_MM, CONTENT_HEIGHT_MM, COLUMN_GAP_MM,
-  ROW_HEIGHT_MM, GUESTS_PER_COLUMN, FOOTER_START_MM, FOOTER_GAP_MM,
+  FOOTER_START_MM, getFullSeatingChartGuestsPerColumn, getFullSeatingChartRowHeightMm,
   paginateGuests,
 } from '@/lib/fullSeatingChartLayout';
+import { getFullSeatingChartGuestDetails } from '@/lib/fullSeatingChartDisplaySettings';
+import { FULL_SEATING_CHART_GUEST_TEXT_SIZES } from '@/lib/fullSeatingChartDisplaySettings';
+import { A4_PAGE_STYLE, A4_PX } from '@/lib/a4';
 
 interface FullSeatingChartPreviewProps {
   event: any;
@@ -71,6 +74,29 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 }) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const previewWrapperRef = useRef<HTMLDivElement>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  useEffect(() => {
+    const computePreviewScale = () => {
+      const availableWidth = previewWrapperRef.current?.clientWidth ?? window.innerWidth;
+      setPreviewScale(Math.min(1, availableWidth / A4_PX.width));
+    };
+
+    computePreviewScale();
+    window.addEventListener('resize', computePreviewScale);
+
+    let resizeObserver: ResizeObserver | undefined;
+    if (previewWrapperRef.current && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(computePreviewScale);
+      resizeObserver.observe(previewWrapperRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', computePreviewScale);
+      resizeObserver?.disconnect();
+    };
+  }, []);
 
   /**
    * AUTOFIT CALCULATION - Dynamic guests per page based on font size and visible fields
@@ -82,9 +108,10 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
    * Available for guests: 297 - 25.4 - 22 - 15 = 234.6mm ≈ 234mm
    */
   const paginationInfo = useMemo(() => {
-    const pages = paginateGuests(guests);
-    return { pages, guestsPerColumn: GUESTS_PER_COLUMN, guestsPerPage: GUESTS_PER_COLUMN * 2 };
-  }, [guests]);
+    const guestsPerColumn = getFullSeatingChartGuestsPerColumn(settings.fontSize);
+    const pages = paginateGuests(guests, settings.fontSize);
+    return { pages, guestsPerColumn, guestsPerPage: guestsPerColumn * 2 };
+  }, [guests, settings.fontSize]);
 
   const totalPages = paginationInfo.pages.length;
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
@@ -99,32 +126,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return 'Unassigned';
   };
 
-  const isGuestUnassigned = (guest: Guest) => !guest.table_no && !guest.table_id;
-
   // Format guest name - full name (first + last)
   const formatGuestName = (guest: Guest) => {
     return `${guest.first_name} ${guest.last_name || ''}`.trim();
   };
 
-  // Get font size class based on settings
-  const getFontSizeClass = () => {
-    switch (settings.fontSize) {
-      case 'small': return 'text-[13px]';
-      case 'large': return 'text-lg';
-      default: return 'text-base';
-    }
-  };
-
-  // Get print font sizes based on settings (in points for true-to-size printing)
-  const getPrintFontSizes = () => {
-    switch (settings.fontSize) {
-      case 'small': return { main: '10.5pt', checkbox: '9pt' };
-      case 'large': return { main: '13.5pt', checkbox: '12pt' };
-      default: return { main: '12pt', checkbox: '10.5pt' }; // medium
-    }
-  };
-
-  const printFontSizes = getPrintFontSizes();
+  const guestTextSizePt = FULL_SEATING_CHART_GUEST_TEXT_SIZES[settings.fontSize];
 
   // Safety check: return null if event is not provided
   if (!event) {
@@ -186,20 +193,24 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  const rowHeightMm = ROW_HEIGHT_MM;
-  // Capitalize each word in a string
-  const capitalizeWords = (text: string) => text.replace(/\b\w/g, c => c.toUpperCase());
+  const rowHeightMm = getFullSeatingChartRowHeightMm(settings.fontSize);
+  const GuestDetails = ({ guest, print = false }: { guest: Guest; print?: boolean }) => {
+    const { dietary, relationship } = getFullSeatingChartGuestDetails(
+      guest,
+      settings.showDietary,
+      settings.showRelation,
+    );
+    if (!dietary && !relationship) return null;
 
-  // Build inline info string for dietary and relation
-  const buildInlineInfo = (guest: Guest) => {
-    const parts: string[] = [];
-    if (settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none') {
-      parts.push(capitalizeWords(guest.dietary));
-    }
-    if (settings.showRelation && (guest.relation_display || guest.relation_role)) {
-      parts.push(capitalizeWords(guest.relation_display || guest.relation_role || ''));
-    }
-    return parts.join(' / ');
+    return (
+      <span className={print ? 'print-guest-info' : 'leading-tight'} style={print ? undefined : { fontSize: `${guestTextSizePt}pt` }}>
+        {' '}(
+        {dietary && <span data-dietary-text="true" style={{ color: settings.dietaryColor }}>{dietary}</span>}
+        {dietary && relationship && <span style={{ color: '#000000' }}>/</span>}
+        {relationship && <span data-relationship-text="true" style={{ color: settings.relationshipColor }}>{relationship}</span>}
+        )
+      </span>
+    );
   };
 
   // Build text style classes based on settings
@@ -213,62 +224,58 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   // Screen version guest row - matches PDF layout exactly
   const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
-    const inlineInfo = buildInlineInfo(guest);
     const tableText = formatTableDisplay(guest);
-    const isUnassigned = isGuestUnassigned(guest);
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
-        className="flex items-center gap-1.5 py-0 px-0.5 cursor-pointer overflow-hidden"
+        data-full-seating-guest-row="true"
+        className="flex items-center gap-1.5 px-0.5 cursor-pointer overflow-hidden box-border"
         style={{ 
-          minHeight: `${rowHeightMm * 2.65}px`,
-          borderBottom: '1px solid #e5e5e5',
+          height: `${rowHeightMm}mm`,
+          paddingTop: '3.5pt',
+          paddingBottom: '3.5pt',
+          borderBottom: `1px solid ${settings.guestListColor}`,
         }}
         onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
       >
-        {/* Purple circle checkbox matching PDF */}
+        {/* Black check-off circle; field colour controls never recolour it. */}
         <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
-          <circle cx="7" cy="7" r="5.5" fill={checkedGuests.has(guest.id) ? '#472c1d' : 'none'} stroke="#472c1d" strokeWidth="1.2" />
+          <circle cx="7" cy="7" r="5.5" fill="none" stroke="#000000" strokeWidth="1.2" />
           {checkedGuests.has(guest.id) && (
-            <path d="M4.5 7L6.5 9L9.5 5" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M4.5 7L6.5 9L9.5 5" stroke="#000000" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           )}
         </svg>
         <div className="flex-1 min-w-0 truncate">
-          <span className={`${textStyleClasses} ${getFontSizeClass()} text-foreground leading-tight`}>
-            {formatGuestName(guest)}
-          </span>
-          {inlineInfo && (
-            <span className="text-[11px] leading-tight" style={{ color: '#666' }}>
-              {' '}({inlineInfo})
+          {settings.showGuestNames && (
+            <span data-guest-name-text="true" className={`${textStyleClasses} leading-tight`} style={{ color: settings.guestNameColor, fontSize: `${guestTextSizePt}pt` }}>
+              {formatGuestName(guest)}
             </span>
           )}
+          <GuestDetails guest={guest} />
         </div>
-        <span 
-          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap ${getFontSizeClass()}`}
-          style={{ 
-            color: isUnassigned ? '#967A59' : '#000000'
-          }}
+        {settings.showSeatNumbers && <span
+          data-seat-assignment-text="true"
+          className={`${textStyleClasses} flex-shrink-0 whitespace-nowrap`}
+          style={{ color: settings.seatNumberColor, fontSize: `${guestTextSizePt}pt` }}
         >
           {tableText}
-        </span>
+        </span>}
       </div>
     );
   };
 
   // Print version guest row - single-line with inline brackets
   const PrintGuestRow = ({ guest }: { guest: Guest }) => {
-    const inlineInfo = buildInlineInfo(guest);
-    const isUnassigned = isGuestUnassigned(guest);
     return (
-      <div className="print-guest-item" style={{ borderBottom: '1px solid #e5e5e5' }}>
+      <div data-full-seating-guest-row="true" className="print-guest-item" style={{ borderBottom: `1px solid ${settings.guestListColor}` }}>
         <span className="print-checkbox">☐</span>
         <div className="print-guest-content" style={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline', flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-          <span className="print-guest-name">{formatGuestName(guest)}</span>
-          {inlineInfo && <span className="print-guest-info" style={{ display: 'inline' }}>&nbsp;({inlineInfo})</span>}
+          {settings.showGuestNames && <span className="print-guest-name" style={{ color: settings.guestNameColor }}>{formatGuestName(guest)}</span>}
+          <GuestDetails guest={guest} print />
         </div>
-        <span className={`print-table ${isUnassigned ? 'print-table-unassigned' : ''}`}>
+        {settings.showSeatNumbers && <span className="print-table" style={{ color: settings.seatNumberColor }}>
           {formatTableDisplay(guest)}
-        </span>
+        </span>}
       </div>
     );
   };
@@ -302,6 +309,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             display: flex;
             flex-direction: column;
             background-color: white !important;
+            color: #000000;
             box-sizing: border-box;
           }
           
@@ -311,34 +319,30 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         }
 
         .print-footer-section {
-          flex-shrink: 0;
-          min-height: 25mm;
-          margin-top: auto;
-          display: flex;
-          flex-direction: column;
+          position: absolute;
+          left: 12.7mm;
+          right: 12.7mm;
+          bottom: 10mm;
+          min-height: 12mm;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
           align-items: center;
+          color: #000;
+          font-size: 8pt;
+          line-height: 1;
         }
 
         .print-footer-section img {
-          height: 12mm;
-          width: auto;
+          width: 36mm;
+          height: 10mm;
           object-fit: contain;
-        }
-
-        .print-footer-meta {
-          display: flex;
-          justify-content: space-between;
-          width: 100%;
-          font-size: 7pt;
-          color: #aaa;
-          margin-top: 2mm;
         }
 
         .print-event-name {
           font-size: 22px;
           font-weight: bold;
           margin: 0 0 4px 0;
-          color: #472c1d;
+          color: #000000;
         }
 
         .print-chart-subtitle {
@@ -350,12 +354,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
         .print-detail-line {
           font-size: 12px;
-          color: #555;
+          color: #000000;
           margin: 2px 0;
         }
           
           .print-divider {
-            border-top: 2px solid #472c1d;
+            border-top: 2px solid #000000;
             margin: 8px 0 14px 0;
           }
 
@@ -364,7 +368,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             grid-template-columns: 1fr 1fr;
             column-gap: 12mm;
             background: #f3f3f3;
-            border-bottom: 2px solid #ccc;
+            border-bottom: 2px solid #000000;
             padding: 4px 2px;
             margin-bottom: 4px;
           }
@@ -394,20 +398,21 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-guest-item {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 6px;
             break-inside: avoid;
-            font-size: ${printFontSizes.main};
-            line-height: 1.2;
-            margin-bottom: 2px;
+            font-size: ${guestTextSizePt}pt;
+            line-height: 1.15;
+            height: ${rowHeightMm}mm;
+            box-sizing: border-box;
             color: #000;
-            padding: 2px 2px;
+            padding: 3.5pt 2px;
           }
           
           .print-guest-content {
             display: flex;
             flex-direction: row;
-            align-items: baseline;
+            align-items: center;
             flex: 1;
             min-width: 0;
             overflow: hidden;
@@ -417,9 +422,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           
           .print-checkbox {
             font-family: monospace;
-            font-size: ${printFontSizes.checkbox};
+            font-size: 9pt;
             flex-shrink: 0;
-            margin-top: 1px;
           }
           
           .print-guest-name {
@@ -430,8 +434,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           }
           
           .print-guest-info {
-            font-size: ${printFontSizes.checkbox};
-            color: #666;
+            font-size: ${guestTextSizePt}pt;
+            color: #000000;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -486,18 +490,37 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
         {/* A4 Paper Container - Fixed zone layout: Header | Content | Footer */}
         <div className="flex justify-center">
-          <div 
-            className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
-            style={{ 
-              width: `${PAGE_WIDTH_MM}mm`, 
-              height: '325mm',
-              minHeight: '325mm',
-              minWidth: `${PAGE_WIDTH_MM}mm`,
-              maxWidth: `${PAGE_WIDTH_MM}mm`,
-              overflow: 'hidden',
-              position: 'relative',
-            }}
+          <div
+            ref={previewWrapperRef}
+            data-a4-preview-wrapper="true"
+            className="w-full"
+            style={
+              previewScale < 1
+                ? { height: `${A4_PX.height * previewScale}px`, overflow: 'hidden', display: 'flex', justifyContent: 'center', width: '100%' }
+                : undefined
+            }
           >
+            <div
+              style={
+                previewScale < 1
+                  ? { transform: `scale(${previewScale})`, transformOrigin: 'top center', width: A4_PAGE_STYLE.width, margin: '0 auto' }
+                  : undefined
+              }
+            >
+              <div
+                data-a4-preview-page="true"
+                className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-auto"
+                style={{
+                  ...A4_PAGE_STYLE,
+                  minWidth: A4_PAGE_STYLE.width,
+                  maxWidth: A4_PAGE_STYLE.width,
+                  minHeight: A4_PAGE_STYLE.height,
+                  boxSizing: 'border-box',
+                  color: '#000000',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
             {/* ── ZONE 1: HEADER (fixed position & height) ── */}
             <div style={{
               position: 'absolute',
@@ -508,21 +531,21 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               overflow: 'hidden',
             }}>
               <div className="text-center">
-                <h1 className="font-bold" style={{ color: '#472c1d', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                <h1 className="font-bold" style={{ color: '#000000', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   {event.name}
                 </h1>
                 <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   Full Seating Chart - Total Guests: {guests.length}
                 </p>
                 {event.ceremony_date && (
-                  <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                  <p style={{ color: '#000000', fontSize: '8pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                     Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
                   </p>
                 )}
-                <p className="text-muted-foreground" style={{ fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
+                <p style={{ color: '#000000', fontSize: '8pt', marginBottom: '0', lineHeight: '1.1' }}>
                   Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
                 </p>
-                <div style={{ borderTop: '2px solid #472c1d', marginTop: '1.5mm' }}></div>
+                <div style={{ borderTop: '2px solid #000000', marginTop: '1.5mm' }}></div>
               </div>
 
               {/* Column Headers Bar */}
@@ -532,7 +555,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
                   gridTemplateColumns: '1fr 1fr', 
                   columnGap: `${COLUMN_GAP_MM}mm`,
                   backgroundColor: '#f3f3f3',
-                  borderBottom: '2px solid #ccc',
+                  borderBottom: '2px solid #000000',
                   padding: '3px 2px',
                 }}
               >
@@ -557,7 +580,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               </div>
             </div>
 
-            {/* ── ZONE 2: CONTENT (fixed position & height — 30 rows × 7.5mm) ── */}
+            {/* ── ZONE 2: CONTENT (fixed position & height — 25 rows × 9mm) ── */}
             <div style={{
               position: 'absolute',
               top: `${CONTENT_START_MM}mm`,
@@ -571,13 +594,13 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             }}>
               {/* Left Column */}
               <div style={{ overflow: 'hidden' }}>
-                {col1Guests.map((guest) => (
+                {settings.showGuestList && col1Guests.map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               {/* Right Column */}
               <div style={{ overflow: 'hidden' }}>
-                {col2Guests.map((guest) => (
+                {settings.showGuestList && col2Guests.map((guest) => (
                   <ScreenGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
@@ -586,27 +609,26 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             {/* ── ZONE 3: FOOTER (anchored to bottom printable area — master template parity) ── */}
             <div style={{
               position: 'absolute',
-              left: `${MARGIN_LEFT_MM}mm`,
-              right: `${MARGIN_LEFT_MM}mm`,
-              bottom: '12.7mm',
-              overflow: 'hidden',
+              left: '12.7mm',
+              right: '12.7mm',
+              bottom: '10mm',
+              minHeight: '12mm',
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              alignItems: 'center',
+              color: '#000',
+              fontSize: '8pt',
+              lineHeight: 1,
             }}>
-              {settings.showLogo && (
-                <div className="flex justify-center">
-                  <img 
-                    src="/wedding-waitress-logo-brown.png?v=2"
-                    alt="Wedding Waitress" 
-                    style={{ height: '12mm', width: 'auto' }}
-                    className="object-contain"
-                  />
-                </div>
-              )}
-              <div className="flex justify-between items-center px-1" style={{ fontSize: '7pt', color: '#aaa', marginTop: '1mm' }}>
-                <span>Page {currentPage} of {totalPages}</span>
-                <span>Generated: {formatGeneratedTimestamp()}</span>
-              </div>
+              <div data-footer-generated="true" style={{ justifySelf: 'start', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
+              {settings.showLogo
+                ? <img src="/wedding-waitress-logo-brown.png?v=2" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', objectFit: 'contain' }} />
+                : <div style={{ width: '36mm', height: '10mm' }} />}
+              <div data-footer-page-number="true" style={{ justifySelf: 'end', whiteSpace: 'nowrap' }}>Page {currentPage} of {totalPages}</div>
             </div>
 
+              </div>
+            </div>
           </div>
         </div>
 
@@ -678,12 +700,12 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             <div className="print-guest-list">
               <div className="print-guest-column">
-                {pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
+                {settings.showGuestList && pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
                   <PrintGuestRow key={guest.id} guest={guest} />
                 ))}
               </div>
               <div className="print-guest-column">
-                {pageInfo.guests.length > pageInfo.col1Count && (
+                {settings.showGuestList && pageInfo.guests.length > pageInfo.col1Count && (
                   <>
                     {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
                       <PrintGuestRow key={guest.id} guest={guest} />
@@ -695,13 +717,11 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             
             {/* Print Footer */}
             <div className="print-footer-section">
-              {settings.showLogo && (
-                <img src="/wedding-waitress-logo-brown.png?v=2" alt="Wedding Waitress" />
-              )}
-              <div className="print-footer-meta">
-                <span>Page {pageIndex + 1} of {paginationInfo.pages.length}</span>
-                <span>Generated: {formatGeneratedTimestamp()}</span>
-              </div>
+              <div data-footer-generated="true" style={{ justifySelf: 'start', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
+              {settings.showLogo
+                ? <img src="/wedding-waitress-logo-brown.png?v=2" alt="Wedding Waitress" />
+                : <div style={{ width: '36mm', height: '10mm' }} />}
+              <div data-footer-page-number="true" style={{ justifySelf: 'end', whiteSpace: 'nowrap' }}>Page {pageIndex + 1} of {paginationInfo.pages.length}</div>
             </div>
             
           </div>

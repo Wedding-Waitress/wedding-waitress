@@ -479,7 +479,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         <SelectTrigger className={cn(selectTriggerClasses, "h-9 text-sm", memberForm.rsvp === 'Pending' && 'text-[#FF5F1F]', memberForm.rsvp === 'Attending' && 'text-green-600', memberForm.rsvp === 'Not Attending' && 'text-red-600')}>
                           <SelectValue placeholder="Select RSVP" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-public-live-menu">
                           <SelectItem value="Pending" className="text-[#FF5F1F]">Pending</SelectItem>
                           <SelectItem value="Attending" className="text-green-600">Accept</SelectItem>
                           <SelectItem value="Not Attending" className="text-red-600">Decline</SelectItem>
@@ -493,7 +493,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                         <SelectTrigger className={cn(selectTriggerClasses, "h-9 text-sm")}>
                           <SelectValue placeholder="Select dietary" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-public-live-menu">
                           <SelectItem value="None">None</SelectItem>
                           <SelectItem value="Kids Meal">Kids Meal</SelectItem>
                           <SelectItem value="Pescatarian">Pescatarian</SelectItem>
@@ -660,7 +660,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                     <SelectTrigger className={cn(selectTriggerClasses, guest.rsvp === 'Pending' && 'text-[#FF5F1F]', guest.rsvp === 'Attending' && 'text-green-600', guest.rsvp === 'Not Attending' && 'text-red-600')}>
                       <SelectValue placeholder="Select RSVP status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="ww-public-live-menu">
                       <SelectItem value="Pending" className="text-[#FF5F1F]">Pending</SelectItem>
                       <SelectItem value="Attending" className="text-green-600">Accept</SelectItem>
                       <SelectItem value="Not Attending" className="text-red-600">Decline</SelectItem>
@@ -673,7 +673,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
                     <SelectTrigger className={selectTriggerClasses}>
                       <SelectValue placeholder="Select dietary requirements" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="ww-public-live-menu">
                       <SelectItem value="None">None</SelectItem>
                       <SelectItem value="Kids Meal">Kids Meal</SelectItem>
                       <SelectItem value="Pescatarian">Pescatarian</SelectItem>
@@ -765,7 +765,7 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
   );
 
   const mobileSheet = isMobile && open && typeof document !== 'undefined' ? createPortal(
-    <div className="fixed inset-0 z-[9999] overflow-hidden" role="dialog" aria-modal="true">
+    <div className="ww-public-live-dialog fixed inset-0 z-[9999] overflow-hidden" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-black/60" onClick={() => onOpenChange(false)} />
       <div
         className="fixed inset-x-0 top-0 bottom-0 z-[10000] flex w-full min-w-0 flex-col overflow-hidden bg-background shadow-2xl"
@@ -803,14 +803,14 @@ export const PublicAddGuestModal: React.FC<PublicAddGuestModalProps> = ({
     {mobileSheet}
     {!isMobile && (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden">
+      <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[85vh] flex flex-col px-4 sm:px-10 [&>button:last-child]:hidden">
         {desktopInner}
       </DialogContent>
     </Dialog>
     )}
       {/* Partner/Friend Prompt for Individual */}
       <Dialog open={showPartnerPrompt} onOpenChange={setShowPartnerPrompt}>
-        <DialogContent className="max-w-sm [&>button:last-child]:hidden">
+        <DialogContent className="ww-public-live-dialog max-w-sm [&>button:last-child]:hidden">
           <DialogPrimitive.Close className="absolute right-3 top-3 z-10 w-8 h-8 rounded-full bg-white border-2 border-primary flex items-center justify-center hover:opacity-90 transition-opacity">
             <X className="w-4 h-4 text-primary" />
             <span className="sr-only">Close</span>

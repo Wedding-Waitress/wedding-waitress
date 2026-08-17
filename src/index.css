@@ -1553,7 +1553,7 @@ img { content-visibility: auto; }
 .ww-edit-guest-panel select,
 .ww-edit-guest-panel [role="combobox"],
 .ww-edit-guest-panel .border-2:not([role="switch"]),
-.ww-edit-guest-panel button:not([role="switch"]):not(.lv-premium-shade):not(.ww-emboss-green):not(.ww-emboss-red):not([data-slot="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]) {
+.ww-edit-guest-panel button:not([role="switch"]):not(.lv-premium-shade):not(.ww-emboss-green):not(.ww-emboss-red):not(.ww-guest-category-option):not([data-slot="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]) {
   border-width: 1px !important;
   border-style: solid !important;
   border-color: #472c1d !important;

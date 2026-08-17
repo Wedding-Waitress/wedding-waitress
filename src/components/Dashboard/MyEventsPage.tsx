@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import '@fontsource/manrope/latin-600.css';
 import { Card } from "@/components/ui/card";
 import { EventsTable } from './EventsTable';
 import { EventUsagePill } from './EventUsagePill';
@@ -24,6 +25,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { Timer, HeartHandshake, PartyPopper, UserRound, CalendarDays, MapPin, Clock3, Users } from 'lucide-react';
+import styles from './MyEventsPage.module.css';
+import { MyEventsHeroLayout } from './MyEventsHeroLayout';
 
 const LABEL_ICON_CLS = "w-4 h-4 shrink-0 opacity-70";
 export const MyEventsPage: React.FC = () => {
@@ -329,14 +332,29 @@ export const MyEventsPage: React.FC = () => {
       }, 1000);
       return () => clearInterval(interval);
     }, [eventId, eventMap]);
-    return <div className="transition-opacity duration-300 ease-in-out">
-        {selectedEvent ? <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-16 flex-wrap">
+    return <div className={`transition-opacity duration-300 ease-in-out ${styles.countdownTimer}`}>
+        {/* Event state message */}
+        <div className={styles.countdownIntro}>
+          <p className={`text-muted-foreground text-lg ${styles.countdownMessage}`}>
+            <span className="inline-flex items-center justify-center gap-2">
+              <Timer size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+              {localEventState === 'in_progress' ? "Your event is in progress" : localEventState === 'finished' ? <span className="text-sm text-muted-foreground">Event finished</span> : "Your event details & countdown timer"}
+            </span>
+          </p>
+          {selectedEvent && (
+            <p className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight ${styles.eventTitle}`}>
+              {selectedEvent.name}
+            </p>
+          )}
+        </div>
+
+        {selectedEvent ? <div className={styles.countdownCircles}>
             <CountdownCircle key={`months-${localCountdownValues.months}`} value={localCountdownValues.months} label="Months" type="months" />
             <CountdownCircle key={`weeks-${localCountdownValues.weeks}`} value={localCountdownValues.weeks} label="Weeks" type="weeks" />
             <CountdownCircle key={`hours-${localCountdownValues.hours}`} value={localCountdownValues.hours} label="Hours" type="hours" />
             <CountdownCircle key={`seconds-${localCountdownValues.seconds}`} value={localCountdownValues.seconds} label="Seconds" type="seconds" />
           </div> : <div className="space-y-4">
-            <div className="flex justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-16 flex-wrap">
+            <div className={styles.countdownCircles}>
               <CountdownCircle value="--" label="Months" type="months" />
               <CountdownCircle value="--" label="Weeks" type="weeks" />
               <CountdownCircle value="--" label="Hours" type="hours" />
@@ -353,16 +371,6 @@ export const MyEventsPage: React.FC = () => {
                   </button>}
             </p>
           </div>}
-        
-        {/* Event state message */}
-        <div className="text-center mt-4">
-          <p className="text-muted-foreground text-lg">
-            <span className="inline-flex items-center justify-center gap-2">
-              <Timer size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-              {localEventState === 'in_progress' ? "Your event is in progress" : localEventState === 'finished' ? <span className="text-sm text-muted-foreground">Event finished</span> : "This is the countdown to your event"}
-            </span>
-          </p>
-        </div>
       </div>;
   };
   const CountdownCircle = ({
@@ -378,10 +386,10 @@ export const MyEventsPage: React.FC = () => {
     const progress = isPlaceholder ? 0 : getProgressPercentage(Number(value), 100, type);
     const circumference = 2 * Math.PI * 45; // radius = 45
     const strokeDashoffset = circumference - progress / 100 * circumference;
-    return <div className="flex flex-col items-center">
-        <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 mb-2 rounded-full lv-premium-shade">
+    return <div className={styles.countdownCircleSlot}>
+        <div className={`relative rounded-full lv-premium-shade ${styles.countdownCircle}`}>
           {/* SVG Ring */}
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          <svg className={`w-full h-full transform -rotate-90 ${styles.countdownRing}`} viewBox="0 0 100 100">
             {/* Base ring */}
             <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
             {/* Progress ring */}
@@ -390,8 +398,8 @@ export const MyEventsPage: React.FC = () => {
           
           {/* Content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground animate-fade-in">{value}</span>
-            <span className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+            <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground animate-fade-in ${styles.countdownNumber}`}>{value}</span>
+            <span className={`text-xs uppercase tracking-wide text-muted-foreground font-medium ${styles.countdownLabel}`}>
               {label}
             </span>
           </div>
@@ -421,34 +429,24 @@ export const MyEventsPage: React.FC = () => {
   };
 
   const hasCeremony = selectedEvent?.ceremony_enabled;
-  const hasReception = selectedEvent?.reception_enabled !== false; // Default to true if not set
+  const hasReception = Boolean(selectedEvent && selectedEvent.reception_enabled !== false); // Default to true for legacy events
 
-  return <div className="space-y-4 sm:space-y-6">
+  return <div className={`space-y-4 sm:space-y-6 ${styles.page}`}>
       <SeoHead
         title="Manage Your Wedding Events | Wedding Waitress"
         description="Effortlessly organize all your wedding events in one place—track guest lists, seating, and more with Wedding Waitress."
         noIndex
       />
       {/* Countdown Section */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-4 sm:p-8 mx-0">
-        <div className="text-center space-y-6">
-
-          {/* D) Countdown Circles with Timer lifecycle - use key for reset */}
-          <CountdownTimer key={activeEventId} eventId={activeEventId} />
-
-          {/* C) Event Name binding */}
-          {selectedEvent && <div className="space-y-4 transition-opacity duration-300 ease-in-out">
-                <p className="text-2xl font-medium text-[#472c1d]">
-                  {selectedEvent.name}
-                </p>
-                
-                {/* Ceremony & Reception Detail Boxes */}
-                <div className={`flex flex-col lg:flex-row justify-center gap-4 ${hasCeremony && hasReception ? '' : 'max-w-md mx-auto'}`}>
-                  {/* Ceremony Box */}
-                  {hasCeremony && (
-                    <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                      <h4 className="font-semibold text-primary mb-2 text-sm sm:text-base inline-flex items-center gap-2"><HeartHandshake size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Ceremony</h4>
-                      <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+      <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-4 sm:p-5 mx-0 ${styles.countdownPanel}`}>
+        <MyEventsHeroLayout
+          hasCeremony={Boolean(hasCeremony)}
+          hasReception={Boolean(hasReception)}
+          countdown={<CountdownTimer key={activeEventId} eventId={activeEventId} />}
+          ceremony={selectedEvent && hasCeremony ? (
+                    <div className={`min-w-0 bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${styles.detailCard}`}>
+                      <h4 className={`font-semibold text-primary mb-2 text-sm sm:text-base inline-flex items-center gap-2 ${styles.detailHeading}`}><HeartHandshake size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Ceremony</h4>
+                      <div className={`space-y-1 text-xs sm:text-sm text-muted-foreground ${styles.detailText}`}>
                         <p><span className="font-medium inline-flex items-center gap-1.5"><UserRound size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
                         <p><span className="font-medium inline-flex items-center gap-1.5"><CalendarDays size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
                         <p className="break-words"><span className="font-medium inline-flex items-center gap-1.5"><MapPin size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Location:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
@@ -456,13 +454,11 @@ export const MyEventsPage: React.FC = () => {
                         <p><span className="font-medium inline-flex items-center gap-1.5"><Users size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Guests:</span> {selectedEvent.ceremony_guest_limit || 'Not set'}</p>
                       </div>
                     </div>
-                  )}
-                  
-                  {/* Reception Box */}
-                  {hasReception && (
-                    <div className="flex-1 min-w-0 sm:min-w-[300px] sm:max-w-[560px] bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                      <h4 className="font-semibold text-primary mb-2 text-sm sm:text-base inline-flex items-center gap-2"><PartyPopper size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Reception</h4>
-                      <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
+                  ) : null}
+          reception={selectedEvent && hasReception ? (
+                    <div className={`min-w-0 bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${styles.detailCard}`}>
+                      <h4 className={`font-semibold text-primary mb-2 text-sm sm:text-base inline-flex items-center gap-2 ${styles.detailHeading}`}><PartyPopper size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Reception</h4>
+                      <div className={`space-y-1 text-xs sm:text-sm text-muted-foreground ${styles.detailText}`}>
                         <p><span className="font-medium inline-flex items-center gap-1.5"><UserRound size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Name:</span> {selectedEvent.name}</p>
                         <p><span className="font-medium inline-flex items-center gap-1.5"><CalendarDays size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Date:</span> {formatBoxDate(selectedEvent.date)}</p>
                         <p className="break-words"><span className="font-medium inline-flex items-center gap-1.5"><MapPin size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Location:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
@@ -470,10 +466,8 @@ export const MyEventsPage: React.FC = () => {
                         <p><span className="font-medium inline-flex items-center gap-1.5"><Users size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Guests:</span> {selectedEvent.guest_limit || 'Not set'}</p>
                       </div>
                     </div>
-                  )}
-                </div>
-            </div>}
-        </div>
+                  ) : null}
+        />
       </Card>
 
       {/* Events Table with controlled radios */}

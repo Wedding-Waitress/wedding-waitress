@@ -687,6 +687,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               notesHelper="This is for your reference only and won't appear on the sign."
               imageUploadFolder="signage"
               storageBucket="invitations"
+              galleryButtonLabel="Template Library"
               GalleryModalComponent={SignageGalleryAdapter}
             />
           </div>

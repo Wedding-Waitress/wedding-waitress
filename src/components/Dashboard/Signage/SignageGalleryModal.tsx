@@ -1,7 +1,8 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -11,13 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useSignageGallery, SignageGalleryImage } from '@/hooks/useSignageGallery';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useToast } from '@/hooks/use-toast';
-import { Search, ImageIcon, Loader2, Eye, Check, ArrowLeft, Upload, Layers, FolderOpen, Trash2, Tag, Plus } from 'lucide-react';
+import { Search, ImageIcon, Eye, Check, ArrowLeft, Upload, Trash2, Tag, Plus, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { SignageBulkUploader, SignageBulkUploaderHandle } from './SignageBulkUploader';
-import { MAX_SIGNAGE_UPLOAD_BYTES, prettifySignageFilename, uploadSignageGalleryImage, replaceImageCategories } from './signageUploadUtils';
+import { SignageBulkUploader } from './SignageBulkUploader';
+import { replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
-import { GalleryUploadProgress, getReadableUploadError, isSupportedGalleryImage } from '../galleryUploadCore';
 import { previewUrlFor } from '@/lib/imagePipeline';
+import styles from './SignageGalleryModal.module.css';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
   err instanceof Error ? err.message : fallback
@@ -40,18 +41,10 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewImage, setPreviewImage] = useState<SignageGalleryImage | null>(null);
+  const [selectedImage, setSelectedImage] = useState<SignageGalleryImage | null>(null);
 
   // Admin upload state
   const [showUpload, setShowUpload] = useState(false);
-  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('bulk');
-  const [uploadName, setUploadName] = useState('');
-  const [uploadCategory, setUploadCategory] = useState('');
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<GalleryUploadProgress | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const bulkRef = useRef<SignageBulkUploaderHandle>(null);
-  const bulkDropRef = useRef<HTMLInputElement>(null);
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [categorizeOpenId, setCategorizeOpenId] = useState<string | null>(null);
@@ -137,209 +130,43 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
     onOpenChange(false);
   };
 
-  const handleUpload = async () => {
-    const finalName = uploadName.trim() || (uploadFile ? prettifySignageFilename(uploadFile.name) : '');
-    const finalCategory = uploadCategory.trim() || 'Uncategorized';
-    if (!uploadFile) {
-      toast({ title: 'Choose an image', description: 'Please select a PNG or JPG file first.', variant: 'destructive' });
-      return;
-    }
-    if (!isSupportedGalleryImage(uploadFile)) {
-      toast({ title: 'Invalid file type', description: 'Please select a PNG or JPG image.', variant: 'destructive' });
-      return;
-    }
-    if (!finalName) {
-      toast({ title: 'Name required', description: 'Give the design a name.', variant: 'destructive' });
-      return;
-    }
-    if (uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES) {
-      toast({ title: 'File too large', description: `Max 500 MB per upload. This file is ${(uploadFile.size / 1024 / 1024).toFixed(1)} MB.`, variant: 'destructive' });
-      return;
-    }
-    try {
-      setUploading(true);
-      setUploadProgress({ phase: 'validating', percent: 0, message: 'Preparing image upload…' });
-      const result = await uploadSignageGalleryImage(uploadFile, finalName, finalCategory, setUploadProgress);
-      const masterKB = Math.round(result.masterBytes / 1024);
-      const thumbKB = Math.round(result.thumbBytes / 1024);
-      toast({
-        title: 'Uploaded successfully',
-        description: `Original kept for print (${masterKB} KB)${thumbKB ? ` · thumbnail ${thumbKB} KB` : ''}`,
-      });
-      setUploadName('');
-      setUploadCategory('');
-      setUploadFile(null);
-      setUploadProgress({ phase: 'complete', percent: 100, message: 'Upload complete. Gallery refreshed.' });
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      setShowUpload(false);
-      await refetch();
-    } catch (err) {
-      console.error('Signage upload failed', err);
-      toast({
-        title: 'Upload failed',
-        description: getReadableUploadError(err, 'Could not optimize and upload the image.'),
-        variant: 'destructive',
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setShowUpload(false); } onOpenChange(val); }}>
-      <DialogContent className="max-w-6xl max-h-[95vh] flex flex-col bg-white [&~[data-radix-scroll-area-viewport]]:!border-0" style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 flex-wrap max-sm:gap-1">
-            <div className="flex items-center gap-2">
+    <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setSelectedImage(null); setShowUpload(false); } onOpenChange(val); }}>
+      <DialogContent className={`${styles.libraryDialog} max-h-[95vh] flex flex-col gap-0 bg-white p-0 [&~[data-radix-scroll-area-viewport]]:!border-0`} style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
+        <DialogHeader className="shrink-0 border-b border-border px-4 py-4 pr-16 sm:px-6 sm:pr-[4.75rem]">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <DialogTitle className="flex items-center gap-2 text-left">
               <ImageIcon className="h-5 w-5 text-primary" />
-              Seating Chart Sign Image Gallery
+                Seating Chart Signs Template Library
+                <span className="text-primary font-medium">{images.length} Total Designs</span>
+              </DialogTitle>
+              <DialogDescription className="mt-1 text-left">
+                Choose a Wedding Waitress seating chart sign template for your design.
+              </DialogDescription>
             </div>
-            <span className="text-primary font-medium">{images.length} Total Designs</span>
-
-            {showCategoryDropdown && (
-              <div className="order-3 sm:order-none sm:mx-auto w-full sm:w-auto sm:min-w-[200px] sm:max-w-[260px]">
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="h-9 text-sm font-normal bg-background">
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent className="z-[120] max-h-[60vh]">
-                    <SelectItem value="all">All Categories ({images.length})</SelectItem>
-                    {categoriesWithCounts.map(({ name, count }) => (
-                      <SelectItem key={name} value={name}>
-                        {name} ({count})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             {isAdmin && !previewImage && (
               <Button
                 size="sm"
                 variant="outline"
-                className="ml-auto mr-12 lv-premium-shade"
+                className="lv-premium-shade shrink-0 self-start"
                 onClick={() => setShowUpload((s) => !s)}
               >
                 <Upload className="h-4 w-4 mr-1" />
-                {showUpload ? 'Close Upload' : 'Admin Upload'}
+                Admin Upload
               </Button>
             )}
-          </DialogTitle>
+          </div>
         </DialogHeader>
 
         {isAdmin && showUpload && !previewImage && (
-          <div className="rounded-lg border border-border bg-muted/30 p-3 flex flex-col gap-2">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <Button
-                size="sm"
-                variant={uploadMode === 'bulk' ? 'default' : 'outline'}
-                onClick={() => setUploadMode('bulk')}
-                className="lv-premium-shade"
-              >
-                <Layers className="h-4 w-4 mr-1" />
-                Bulk Upload
-              </Button>
-              <Button
-                size="sm"
-                variant={uploadMode === 'single' ? 'default' : 'outline'}
-                onClick={() => setUploadMode('single')}
-                className="lv-premium-shade"
-              >
-                <Upload className="h-4 w-4 mr-1" />
-                Single Upload
-              </Button>
-
-              {uploadMode === 'bulk' ? (
-                <div
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (e.dataTransfer.files?.length) bulkRef.current?.addFiles(e.dataTransfer.files);
-                  }}
-                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  onClick={() => bulkDropRef.current?.click()}
-                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
-                >
-                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-                  <p className="text-xs font-medium">Drag &amp; drop or click to select PNG / JPG (≤500 MB — High-resolution JPG recommended for A1 signs at 300 DPI)</p>
-                  <input
-                    ref={bulkDropRef}
-                    type="file"
-                    accept="image/png,image/jpeg"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files?.length) bulkRef.current?.addFiles(e.target.files);
-                      e.target.value = '';
-                    }}
-                  />
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 rounded-md border-2 border-dashed border-border bg-background/50 px-3 py-2 text-center cursor-pointer hover:border-primary/60 transition-colors flex items-center justify-center gap-2 min-h-[40px]"
-                >
-                  <FolderOpen className="h-4 w-4 text-primary flex-shrink-0" />
-                  <p className="text-xs font-medium truncate">
-                    {uploadFile ? `${uploadFile.name} (${(uploadFile.size / 1024 / 1024).toFixed(1)} MB)` : 'Click to select a single PNG / JPG (≤500 MB — High-resolution JPG recommended for A1 at 300 DPI)'}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {uploadMode === 'bulk' ? (
-              <SignageBulkUploader ref={bulkRef} onAllDone={() => { refetch(); }} />
-            ) : (
-              <div className="flex flex-col gap-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] ?? null;
-                    if (file && !isSupportedGalleryImage(file)) {
-                      toast({ title: 'Invalid file type', description: 'Please select a PNG or JPG image.', variant: 'destructive' });
-                      e.target.value = '';
-                      return;
-                    }
-                    setUploadProgress(null);
-                    setUploadFile(file);
-                  }}
-                  disabled={uploading}
-                  className="hidden"
-                />
-                <Button
-                  onClick={handleUpload}
-                  disabled={uploading || !uploadFile || (uploadFile?.size ?? 0) > MAX_SIGNAGE_UPLOAD_BYTES}
-                  className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade self-start"
-                >
-                  {uploading ? (
-                    <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Optimizing…</>
-                  ) : (
-                    <><Upload className="h-4 w-4 mr-1" />Optimize & Upload</>
-                  )}
-                </Button>
-                {uploading && uploadProgress && (
-                  <div className="w-full max-w-md space-y-1">
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-green-600 transition-all" style={{ width: `${uploadProgress.percent}%` }} />
-                    </div>
-                    <p className="text-xs text-muted-foreground">{uploadProgress.message}</p>
-                  </div>
-                )}
-                {uploadFile && uploadFile.size > MAX_SIGNAGE_UPLOAD_BYTES && (
-                  <p className="text-xs text-destructive">
-                    This file is {(uploadFile.size / 1024 / 1024).toFixed(1)} MB. Maximum allowed is 500 MB — please re-export at a lower quality or smaller scale.
-                  </p>
-                )}
-              </div>
-            )}
+          <div className="mx-4 mt-3 sm:mx-6">
+            <SignageBulkUploader onAllDone={() => { void refetch(); }} />
           </div>
         )}
 
         {previewImage ? (
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-2">
               <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
@@ -366,19 +193,32 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
           </div>
         ) : (
           <>
-            {!isAdmin && (
-              <div className="relative w-[75%]">
+            <div className="grid shrink-0 grid-cols-1 gap-2 px-4 pt-3 sm:px-6 md:grid-cols-[minmax(0,1fr)_minmax(210px,280px)]">
+              <div className="relative min-w-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search images..."
+                  placeholder="Search templates by name"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
-            )}
+              {showCategoryDropdown ? (
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-10 text-sm font-normal bg-background">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent className="z-[120] max-h-[60vh]">
+                    <SelectItem value="all">All Categories ({images.length})</SelectItem>
+                    {categoriesWithCounts.map(({ name, count }) => (
+                      <SelectItem key={name} value={name}>{name} ({count})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : <div />}
+            </div>
 
-            <div className="flex-1 flex flex-col min-h-0 mt-2">
+            <div className="flex-1 flex flex-col min-h-0 px-4 pb-2 pt-3 sm:px-6">
               {loading ? (
                 <div className="flex items-center justify-center h-64">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -394,36 +234,39 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   <p className="text-sm">Gallery images will be added by the admin</p>
                 </div>
               ) : (
-                <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain pr-3 custom-scrollbar [scrollbar-gutter:stable]">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pr-2 pb-3 max-sm:pb-24">
+                <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 custom-scrollbar [scrollbar-gutter:stable]">
+                  <div className={styles.templateGrid} data-testid="signage-template-grid">
                     {filteredImages.map(image => (
                       <div
                         key={image.id}
-                        className="group relative aspect-[4/5] rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all bg-muted"
+                        className={`${styles.templateCard} ${selectedImage?.id === image.id ? styles.templateCardSelected : ''}`}
                       >
-                        <img
-                          src={image.thumbnail_url || image.image_url}
-                          alt={image.name}
-                          loading="lazy"
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            const img = e.currentTarget;
-                            if (image.image_url && img.src !== image.image_url) {
-                              img.src = image.image_url;
-                            }
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                        <div className="aspect-[4/5] overflow-hidden bg-muted">
+                          <img
+                            src={image.thumbnail_url || image.image_url}
+                            alt={image.name}
+                            loading="lazy"
+                            className="h-full w-full object-contain"
+                            onError={(e) => {
+                              const img = e.currentTarget;
+                              if (image.image_url && img.src !== image.image_url) img.src = image.image_url;
+                            }}
+                          />
+                        </div>
+                        <div className="border-t border-border bg-white px-2 py-1.5">
+                          <p className="truncate text-xs font-semibold text-foreground" title={image.name}>{image.name}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5 border-t border-border bg-white p-1.5">
                           <button
                             onClick={() => setPreviewImage(image)}
-                            className="flex items-center gap-1.5 bg-white/90 text-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-white transition-colors"
+                            className={styles.cardAction}
                           >
                             <Eye className="h-3.5 w-3.5" />
                             View
                           </button>
                           <button
-                            onClick={() => handleSelectImage(image)}
-                            className="flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+                            onClick={() => setSelectedImage(image)}
+                            className={`${styles.cardAction} ${styles.selectAction}`}
                           >
                             <Check className="h-3.5 w-3.5" />
                             Select
@@ -431,7 +274,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                           {isAdmin && (
                             <button
                               onClick={() => setDeleteTarget(image)}
-                              className="flex items-center gap-1.5 bg-red-500 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-red-600 transition-colors"
+                              className={`${styles.cardAction} ${styles.deleteAction}`}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                               Delete
@@ -448,7 +291,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                               <PopoverTrigger asChild>
                                 <button
                                   onClick={(e) => e.stopPropagation()}
-                                  className="flex items-center gap-1.5 bg-amber-600 text-white rounded-full px-3 py-1.5 text-xs font-medium hover:bg-amber-700 transition-colors"
+                                  className={`${styles.cardAction} ${styles.categorizeAction}`}
                                 >
                                   <Tag className="h-3.5 w-3.5" />
                                   Categorize
@@ -542,11 +385,6 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                             </Popover>
                           )}
                         </div>
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                          <p className="text-white text-xs font-medium truncate">
-                            {image.name}
-                          </p>
-                        </div>
                       </div>
                     ))}
                   </div>
@@ -554,9 +392,17 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               )}
             </div>
 
-            <div className="flex justify-end pt-4 border-t-0 max-sm:sticky max-sm:bottom-0 max-sm:z-50 max-sm:bg-background max-sm:pb-[calc(env(safe-area-inset-bottom)+16px)]">
-              <Button className="bg-red-500 hover:bg-red-600 text-white h-8 px-4 lv-premium-shade" onClick={() => onOpenChange(false)}>
-                Cancel
+            <div className="sticky bottom-0 z-50 flex shrink-0 justify-end gap-2 border-t border-border bg-white px-4 py-3 sm:px-6">
+              <Button variant="outline" className="lv-premium-shade" onClick={() => onOpenChange(false)}>
+                Close
+              </Button>
+              <Button
+                className="bg-green-600 text-white hover:bg-green-700 lv-premium-shade"
+                disabled={!selectedImage}
+                onClick={() => selectedImage && handleSelectImage(selectedImage)}
+              >
+                <Check className="mr-1 h-4 w-4" />
+                Select Template
               </Button>
             </div>
           </>

@@ -303,7 +303,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto">
+      <SheetContent side="right" className="ww-guest-analytics-drawer w-full sm:max-w-3xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Smart RSVP Analytics</SheetTitle>
           <SheetDescription>
@@ -379,7 +379,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             </div>
             <Select value={methodFilter} onValueChange={(v) => setMethodFilter(v as MethodFilter)}>
               <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectContent className="ww-guest-list-menu">
                 <SelectItem value="all">All methods</SelectItem>
                 <SelectItem value="email">Email</SelectItem>
                 <SelectItem value="sms">SMS</SelectItem>
@@ -388,7 +388,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             </Select>
             <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
               <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectContent className="ww-guest-list-menu">
                 <SelectItem value="name">Sort: Name</SelectItem>
                 <SelectItem value="sent">Sort: Sent date</SelectItem>
                 <SelectItem value="status">Sort: Status</SelectItem>

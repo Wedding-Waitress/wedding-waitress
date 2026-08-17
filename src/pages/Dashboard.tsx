@@ -5,8 +5,10 @@ import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
+import myEventsStyles from "@/components/Dashboard/MyEventsPage.module.css";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
+import dashboardOverviewStyles from "@/components/Dashboard/DashboardOverview.module.css";
 import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
@@ -27,7 +29,11 @@ import { useProfile } from '@/hooks/useProfile';
 import { useUndoStack } from '@/hooks/useUndoStack';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
-import { DashboardLoadingScreen } from '@/components/Dashboard/DashboardLoadingScreen';
+import { DashboardLoadingScreen, getDashboardLoadingAppearance } from '@/components/Dashboard/DashboardLoadingScreen';
+import pageSpacingStyles from './DashboardPageSpacing.module.css';
+import tablesPageStyles from './TablesPage.module.css';
+import qrCodePageStyles from '@/components/Dashboard/QRCode/QRCodeSeatingChart.module.css';
+import guestListStyles from '@/components/Dashboard/GuestListTable.module.css';
 
 // Lazy-loaded tab pages for faster initial load
 const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
@@ -460,9 +466,9 @@ export const Dashboard = () => {
         );
         if (selectedEventType === 'cocktail') {
           return (
-            <>
+            <div className={tablesPageStyles.page}>
               {tablesSeo}
-            <Card className="ww-box">
+            <Card className={`ww-box ${tablesPageStyles.unavailablePanel}`}>
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Event Selector */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -471,10 +477,10 @@ export const Dashboard = () => {
                       Choose Event:
                     </label>
                     <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                      <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#967A59]">
+                    <SelectTrigger className={`w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#967A59] ${tablesPageStyles.eventField}`}>
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
-                      <SelectContent className="bg-popover border-border z-50">
+                      <SelectContent className={`bg-popover border-border z-50 ${tablesPageStyles.eventMenu}`}>
                         {events.length > 0 ? events.map(event => (
                           <SelectItem key={event.id} value={event.id}>
                             <div className="flex items-center space-x-2">
@@ -499,21 +505,21 @@ export const Dashboard = () => {
               </CardDescription>
               </CardContent>
             </Card>
-            </>
+            </div>
           );
         }
-        return <div className="space-y-6">
+        return <div className={`space-y-6 ${tablesPageStyles.page}`}>
             {tablesSeo}
-            <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+            <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${tablesPageStyles.setupPanel}`}>
               <CardHeader className="flex flex-col gap-4 pb-6 max-lg:px-4">
                 {/* Top row - Title */}
                 <div className="flex items-start gap-3">
                   {/* Left: Icon + Title + Description */}
                   <div className="flex items-start gap-3 flex-1 max-lg:flex-col max-lg:gap-2">
-                    <TableProperties size={34} strokeWidth={1.8} className="text-primary flex-shrink-0" aria-hidden="true" />
+                    <TableProperties size={34} strokeWidth={1.8} className={`text-primary flex-shrink-0 ${tablesPageStyles.setupIcon}`} aria-hidden="true" />
                     <div className="flex flex-col max-lg:w-full">
-                      <CardTitle className="mb-2 text-left text-2xl font-bold text-foreground">Table Setup</CardTitle>
-                      <div className="text-left text-sm text-muted-foreground">
+                      <CardTitle className={`mb-2 text-left text-2xl font-bold text-foreground ${tablesPageStyles.sectionHeading}`}>Table Setup</CardTitle>
+                      <div className={`text-left text-sm text-muted-foreground ${tablesPageStyles.setupCopy}`}>
                         <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
                           <li className="text-red-600 font-bold"><span className="inline-flex items-center gap-1.5"><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
                           <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
@@ -535,10 +541,10 @@ export const Dashboard = () => {
                       Choose Event:
                     </label>
                     <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
-                      <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#967A59]">
+                      <SelectTrigger className={`w-full sm:w-[300px] border-primary focus:ring-primary [&>span]:font-bold [&>span]:text-[#967A59] ${tablesPageStyles.eventField}`}>
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
-                      <SelectContent className="bg-popover border-border z-50">
+                      <SelectContent className={`bg-popover border-border z-50 ${tablesPageStyles.eventMenu}`}>
                         {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
                               <div className="flex items-center gap-[7px]">
                                 <CalendarDays size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
@@ -580,8 +586,12 @@ export const Dashboard = () => {
             </Card>
 
             {/* Tables Grid */}
-            {selectedEventId && <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <CardContent className="p-6">
+            {selectedEventId && <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${tablesPageStyles.tablesPanel}`}>
+                <CardContent className="px-6 pb-6 pt-0">
+                  <h2 className={tablesPageStyles.tablesHeading}>
+                    <TableProperties size={24} strokeWidth={1.8} aria-hidden="true" />
+                    Your Event Tables
+                  </h2>
                   {tablesLoading ? <div className="text-center py-8">
                       <div className="text-muted-foreground">Loading tables...</div>
                     </div> : tables.length > 0 ? (
@@ -595,10 +605,15 @@ export const Dashboard = () => {
                             {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} />)}
                           </div>
                       </SortableTablesGrid>
-                    ) : <div className="text-center py-8">
-                      <div className="text-muted-foreground mb-4">No tables created yet</div>
-                      <Button variant="default" size="xs" className="rounded-full flex items-center gap-2" onClick={handleCreateTable}>
-                        <Plus className="w-4 h-4" />
+                    ) : <div className={tablesPageStyles.emptyState}>
+                      <p className={tablesPageStyles.emptyStateMessage}>No tables created yet</p>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className={`rounded-full inline-flex items-center justify-center gap-2 bg-green-500 text-white ${tablesPageStyles.emptyStateAction}`}
+                        onClick={handleCreateTable}
+                      >
+                        <Plus className="w-5 h-5 text-white" aria-hidden="true" />
                         Create Your First Table
                       </Button>
                     </div>}
@@ -683,7 +698,7 @@ export const Dashboard = () => {
   if (authLoading) {
     return (
       <DashboardLoadingScreen
-        appearance={activeTab === 'photo-video-gallery' ? 'photo-video-sharing' : 'neutral'}
+        appearance={getDashboardLoadingAppearance('/dashboard', `?tab=${encodeURIComponent(activeTab)}`)}
       />
     );
   }
@@ -722,10 +737,10 @@ export const Dashboard = () => {
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}`}>
+        <main className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}`}>
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}`}>
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
               {(activeTab === 'table-list' || activeTab === 'guest-list') ? (
                   <StatsBar stats={statsData} />
               ) : (
@@ -738,7 +753,7 @@ export const Dashboard = () => {
               fallback={(
                 <DashboardLoadingScreen
                   contained
-                  appearance={activeTab === 'photo-video-gallery' ? 'photo-video-sharing' : 'neutral'}
+                  appearance={getDashboardLoadingAppearance('/dashboard', `?tab=${encodeURIComponent(activeTab)}`)}
                 />
               )}
             >

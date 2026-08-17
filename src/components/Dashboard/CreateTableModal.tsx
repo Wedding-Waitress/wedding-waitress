@@ -49,6 +49,9 @@ import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
 import { Circle, Square, Save, X, Table2, Users, TableProperties, Pencil, AlertTriangle } from 'lucide-react';
+import '@fontsource/manrope/latin-600.css';
+import eventDrawerStyles from './EventCreateModal.module.css';
+import tableDrawerStyles from './TableDrawer.module.css';
 
 export type TableType = 'round' | 'square' | 'long';
 
@@ -82,6 +85,12 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   const [showSeatLimitDialog, setShowSeatLimitDialog] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!isOpen) return;
+    document.body.classList.add('ww-table-drawer-open');
+    return () => document.body.classList.remove('ww-table-drawer-open');
+  }, [isOpen]);
+
   // Get min/max limits based on table type
   const getTableLimits = (type: TableType) => {
     if (type === 'long') {
@@ -99,7 +108,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         setLimitSeats(editingTable.limit_seats);
         setNotes(editingTable.notes || '');
         // Pre-populate table type from database, default to 'round' if null
-        setTableType((editingTable as any).table_type || 'round');
+        setTableType(editingTable.table_type || 'round');
       } else {
         setName('');
         setLimitSeats(8);
@@ -266,11 +275,17 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       if (success) {
         onClose();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setIsSubmitting(false);
+
+      const tableError = error instanceof Error
+        ? error
+        : typeof error === 'object' && error !== null
+          ? error as { code?: string; message?: string }
+          : null;
       
       // Handle unique constraint violation (23505)
-      if (error?.code === '23505' || error?.message?.includes('duplicate key')) {
+      if (tableError && ('code' in tableError && tableError.code === '23505' || tableError.message?.includes('duplicate key'))) {
         setErrors({ name: 'This table number already exists. Please choose another.' });
         setValidationState('duplicate');
       } else {
@@ -301,10 +316,10 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent
         side="right"
-        className="ww-table-panel w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden"
+        className={`ww-table-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container ${eventDrawerStyles.drawer} ${tableDrawerStyles.drawer}`}
       >
-        <SheetHeader className="px-6 pt-6 max-lg:pt-6 lg:pr-12">
-          <SheetTitle className="text-xl sm:text-2xl font-medium text-primary flex items-center gap-2">
+        <SheetHeader className={`max-lg:pt-6 lg:pr-12 text-left space-y-0 ${eventDrawerStyles.header}`}>
+          <SheetTitle className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white flex items-center gap-2 ${eventDrawerStyles.title} ${tableDrawerStyles.title}`}>
             {editingTable
               ? <Pencil size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               : <TableProperties size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />}
@@ -312,7 +327,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           </SheetTitle>
         </SheetHeader>
         
-        <div className="space-y-4 sm:space-y-6 px-6 py-4 overflow-y-auto flex-1 mobile-scroll-container">
+        <div className={`space-y-4 sm:space-y-6 py-4 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container ${eventDrawerStyles.body}`}>
           <div className="grid gap-2">
             <Label htmlFor="name" className="flex items-center gap-1.5"><Table2 size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Table Name or No *</Label>
             <Input
@@ -351,12 +366,13 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           {/* Table Type Selection */}
           <div className="grid gap-2">
             <Label>Table Shape & Max Capacity Allowed<span className="text-red-500">*</span></Label>
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className={`grid grid-cols-3 gap-2 sm:gap-3 ${tableDrawerStyles.shapeGrid}`}>
               <button
                 type="button"
+                aria-pressed={tableType === 'round'}
                 onClick={() => handleTableTypeChange('round')}
                 disabled={isSubmitting}
-                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${
+                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${tableDrawerStyles.shapeOption} ${
                   tableType === 'round'
                     ? 'border-primary bg-primary/10'
                     : 'border-border hover:border-muted-foreground'
@@ -370,9 +386,10 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               
               <button
                 type="button"
+                aria-pressed={tableType === 'square'}
                 onClick={() => handleTableTypeChange('square')}
                 disabled={isSubmitting}
-                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${
+                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${tableDrawerStyles.shapeOption} ${
                   tableType === 'square'
                     ? 'border-primary bg-primary/10'
                     : 'border-border hover:border-muted-foreground'
@@ -386,15 +403,16 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
               
               <button
                 type="button"
+                aria-pressed={tableType === 'long'}
                 onClick={() => handleTableTypeChange('long')}
                 disabled={isSubmitting}
-                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${
+                className={`flex flex-col items-center gap-1 sm:gap-1.5 p-2 sm:p-2.5 rounded-xl border-2 transition-all touch-target ${tableDrawerStyles.shapeOption} ${
                   tableType === 'long'
                     ? 'border-primary bg-primary/10'
                     : 'border-border hover:border-muted-foreground'
                 }`}
               >
-                <div className={`w-8 sm:w-10 h-3 sm:h-4 border-2 rounded-sm ${tableType === 'long' ? 'border-primary' : 'border-muted-foreground'}`} />
+                <div className={`w-8 sm:w-10 h-3 sm:h-4 border-2 rounded-sm ${tableDrawerStyles.longShape} ${tableType === 'long' ? 'border-primary' : 'border-muted-foreground'}`} />
                 <span className={`text-xs sm:text-sm font-medium ${tableType === 'long' ? 'text-primary' : 'text-muted-foreground'}`}>
                   Long
                 </span>
@@ -434,7 +452,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
 
               if (capacityInfo.wouldExceed) {
                 return (
-                  <div className="p-3 bg-red-50 border-2 border-red-500 rounded-lg">
+                  <div data-tone="error" className={`p-3 bg-red-50 border-2 border-red-500 rounded-lg ${tableDrawerStyles.capacityWarning}`}>
                     <p className="text-sm font-semibold text-red-700">
                       ⚠️ Guest Limit Exceeded
                     </p>
@@ -446,7 +464,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
                 );
               } else if (capacityInfo.guestsRemaining > 0 && capacityInfo.guestsRemaining < 10) {
                 return (
-                  <div className="p-3 bg-yellow-50 border-2 border-yellow-500 rounded-lg">
+                  <div data-tone="warning" className={`p-3 bg-yellow-50 border-2 border-yellow-500 rounded-lg ${tableDrawerStyles.capacityWarning}`}>
                     <p className="text-sm font-semibold text-yellow-700">
                       ⚡ {capacityInfo.guestsRemaining} guest slots remaining
                     </p>
@@ -477,39 +495,39 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
           {editingTable && (
             <div className="grid gap-2">
               <Label>Guests on Table</Label>
-              <div className="px-3 py-2 bg-muted rounded-md text-sm text-muted-foreground">
+              <div className={`px-3 py-2 bg-muted rounded-md text-sm text-muted-foreground ${tableDrawerStyles.readOnlyField}`}>
                 {editingTable.guest_count} guests
               </div>
             </div>
           )}
         </div>
 
-        <div className="px-6 py-4 border-t bg-background max-lg:sticky max-lg:bottom-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 lg:flex lg:justify-end lg:gap-3">
+        <div className={`py-4 border-t max-lg:sticky max-lg:bottom-0 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 lg:flex lg:justify-end lg:gap-3 ${eventDrawerStyles.footer}`}>
           <Button
             variant="default"
             size="xs"
-            className="inline-flex items-center justify-center lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
+            className={`inline-flex items-center justify-center lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold ${eventDrawerStyles.createButton}`}
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
-            <Save size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
+            <Save size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2 text-white" aria-hidden="true" />
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
           <Button
             variant="destructive"
             size="xs"
-            className="inline-flex items-center justify-center lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
+            className={`inline-flex items-center justify-center lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full max-lg:h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold ${eventDrawerStyles.cancelButton}`}
             onClick={handleClose}
             disabled={isSubmitting}
           >
-            <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />
+            <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2 text-white" aria-hidden="true" />
             Cancel
           </Button>
         </div>
       </SheetContent>
 
       <AlertDialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={tableDrawerStyles.portalSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />

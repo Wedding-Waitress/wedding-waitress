@@ -1,0 +1,459 @@
+.libraryDialog.libraryDialog {
+  display: flex;
+  width: min(1760px, calc(100vw - 2rem));
+  max-width: 1760px;
+  height: min(92vh, 980px);
+  max-height: 92vh;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(150, 122, 89, 0.72);
+  background: linear-gradient(180deg, #fffefa 0%, #fbf7ef 100%);
+  padding: 0;
+  color: #2f2118;
+  box-shadow: 0 28px 80px rgba(39, 25, 16, 0.34);
+}
+
+.libraryDialog > button[class*='absolute'] {
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #967a59;
+  border-radius: 9999px;
+  background: #fffdf9;
+  color: #6c4a34;
+  opacity: 1;
+}
+
+.libraryDialog > button[class*='absolute']:hover,
+.libraryDialog > button[class*='absolute']:focus-visible {
+  background: #f3e9dc;
+  color: #472c1d;
+}
+
+.header {
+  position: relative;
+  flex: none;
+  padding: 1.25rem 13rem 0.9rem 1.5rem;
+}
+
+.titleLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2f2118;
+}
+
+.total {
+  color: #967a59;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.description {
+  margin-top: 0.25rem;
+  color: #68594e;
+  font-size: 0.875rem;
+}
+
+.adminButton {
+  position: absolute;
+  top: 1rem;
+  right: 4.75rem;
+  min-height: 2.5rem;
+  border-color: #967a59 !important;
+  background: #f7f1e9 !important;
+  color: #472c1d !important;
+}
+
+.content {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 0 1.5rem;
+}
+
+.uploader {
+  flex: none;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(150, 122, 89, 0.58);
+  border-radius: 0.75rem;
+  background: rgba(255, 252, 247, 0.94);
+  padding: 0.85rem;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+.uploaderLabel {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.uploaderControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.categoryInput.categoryInput {
+  min-width: 0;
+  border-color: rgba(150, 122, 89, 0.58);
+  background: #fff;
+  color: #2f2118;
+}
+
+.secondaryButton.secondaryButton {
+  border-color: #967a59;
+  background: linear-gradient(180deg, #fff 0%, #f1e8dc 100%);
+  color: #472c1d;
+}
+
+.primaryButton.primaryButton {
+  background: linear-gradient(180deg, #35cf72 0%, #20af59 100%);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(27, 138, 70, 0.2);
+}
+
+.primaryButton.primaryButton:hover {
+  background: linear-gradient(180deg, #42d77c 0%, #169d4b 100%);
+}
+
+.uploadRequirements,
+.uploadSummary {
+  margin-top: 0.42rem;
+  color: #68594e;
+  font-size: 0.75rem;
+}
+
+.uploadCounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.uploadRows {
+  display: grid;
+  max-height: 7rem;
+  gap: 0.3rem;
+  overflow-y: auto;
+  margin-top: 0.45rem;
+}
+
+.uploadRow {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid rgba(150, 122, 89, 0.36);
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.75rem;
+}
+
+.uploadFileName {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.35rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uploadFileName svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+  color: #20a45a;
+}
+
+.failedStatus,
+.uploadRow .failedStatus,
+.uploadRow:has(.failedStatus) svg {
+  color: #c43d35;
+}
+
+.toolbar {
+  display: grid;
+  flex: none;
+  grid-template-columns: minmax(16rem, 1fr) minmax(13rem, auto);
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.searchWrap {
+  position: relative;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  transform: translateY(-50%);
+  color: #967a59;
+  pointer-events: none;
+}
+
+.searchInput.searchInput {
+  border-color: rgba(150, 122, 89, 0.65);
+  background: #fff;
+  padding-left: 2.25rem;
+  color: #2f2118;
+}
+
+.categorySelect.categorySelect {
+  border-color: rgba(150, 122, 89, 0.65);
+  background: #fff;
+  color: #2f2118;
+}
+
+.viewport {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #967a59 #efe6da;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.1rem 0.15rem 1rem;
+}
+
+.card {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid rgba(150, 122, 89, 0.58);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 5px 14px rgba(71, 44, 29, 0.1);
+}
+
+.cardSelected {
+  border-color: #28b961;
+  box-shadow: 0 0 0 2px rgba(40, 185, 97, 0.36), 0 8px 20px rgba(71, 44, 29, 0.12);
+}
+
+.imageButton {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  background: #f3eee7;
+  padding: 0;
+  cursor: pointer;
+}
+
+.imageFrame {
+  display: flex;
+  aspect-ratio: 3 / 4;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #f3eee7;
+}
+
+.imageFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cardName {
+  min-height: 2.35rem;
+  padding: 0.55rem 0.55rem 0.4rem;
+  color: #2f2118;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cardActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: auto;
+  padding: 0 0.4rem 0.4rem;
+}
+
+.cardAction.cardAction {
+  min-width: 0;
+  min-height: 2rem;
+  border-color: rgba(150, 122, 89, 0.66);
+  background: #fffaf3;
+  padding: 0.3rem;
+  color: #472c1d;
+  font-size: 0.7rem;
+}
+
+.cardAction svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.deleteAction.deleteAction {
+  border-color: rgba(206, 70, 61, 0.55);
+  color: #b6342e;
+}
+
+.emptyState {
+  display: grid;
+  min-height: 16rem;
+  place-items: center;
+  color: #68594e;
+  text-align: center;
+}
+
+.preview {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: 0 12px 32px rgba(71, 44, 29, 0.22);
+}
+
+.footer {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  border-top: 1px solid rgba(150, 122, 89, 0.45);
+  background: rgba(255, 252, 247, 0.98);
+  padding: 0.9rem 1.5rem;
+}
+
+.confirmOverlay {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(35, 24, 17, 0.48);
+  padding: 1rem;
+}
+
+.confirmCard {
+  width: min(28rem, 100%);
+  border: 1px solid #967a59;
+  border-radius: 0.85rem;
+  background: #fffdf9;
+  padding: 1.25rem;
+  box-shadow: 0 18px 50px rgba(40, 26, 17, 0.32);
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 420px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1320px) {
+  .grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 699px) {
+  .libraryDialog.libraryDialog {
+    width: calc(100vw - 1rem);
+    max-height: 94vh;
+  }
+
+  .header {
+    padding: 4.2rem 1rem 0.75rem;
+  }
+
+  .adminButton {
+    left: 1rem;
+    right: auto;
+  }
+
+  .content {
+    padding: 0 1rem;
+  }
+
+  .uploaderControls,
+  .toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .uploaderControls .categoryInput {
+    grid-column: 1 / -1;
+  }
+
+  .footer {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .libraryDialog *,
+  .libraryDialog *::before,
+  .libraryDialog *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

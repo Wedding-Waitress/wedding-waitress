@@ -12,6 +12,7 @@
  * Last locked: 2026-02-19
  */
 import React, { useState, useCallback, createContext, useContext, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   DndContext,
   DragOverlay,
@@ -35,6 +36,9 @@ import { SortableGuestItem } from './SortableGuestItem';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { useToast } from '@/hooks/use-toast';
+import { alignGuestOverlayAbovePointer } from './guestDragOverlayModifier';
+
+const GUEST_OVERLAY_MODIFIERS = [alignGuestOverlayAbovePointer];
 
 // Context to share drag state with children
 interface DragStateContextType {
@@ -560,9 +564,9 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         })}
       </DragStateContext.Provider>
       
-      <DragOverlay>
+      {typeof document !== 'undefined' && createPortal(<DragOverlay modifiers={GUEST_OVERLAY_MODIFIERS}>
         {activeGuest ? (
-          <div className="w-48">
+          <div className="w-48 mx-auto">
             <SortableGuestItem guest={activeGuest} isOverlay />
             {/* Show predicted seat number when over a table */}
             {overTableId && predictedSeat && (
@@ -577,7 +581,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
             )}
           </div>
         ) : null}
-      </DragOverlay>
+      </DragOverlay>, document.body)}
     </DndContext>
   );
 };
