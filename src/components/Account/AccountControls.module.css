@@ -1,0 +1,64 @@
+.primaryButton,
+.secondaryButton,
+.destructiveButton {
+  min-height: 44px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  padding: .65rem 1rem;
+  border-radius: 999px !important;
+  color: #fff !important;
+  font-weight: 650;
+  line-height: 1.1;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+.destructiveButton { border:1px solid rgba(255,190,187,.55)!important; color:#fff!important; background:linear-gradient(180deg,#d84343,#a91f26 58%,#74131a)!important; box-shadow:inset 0 1px rgba(255,255,255,.26),inset 0 -2px rgba(70,5,8,.35),0 6px 14px rgba(65,6,9,.3)!important; }
+.destructiveButton:hover:not(:disabled){background:linear-gradient(180deg,#e34e4e,#b5252c 58%,#821820)!important}.destructiveButton:focus-visible{outline:3px solid rgba(255,211,208,.94)!important;outline-offset:3px}.destructiveButton:disabled{opacity:.45;cursor:not-allowed;filter:saturate(.45)}
+
+.primaryButton {
+  border: 1px solid rgba(211, 239, 216, .42) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.2) 0%, rgba(255,255,255,0) 38%), linear-gradient(180deg, #3ca75c 0%, #278b48 55%, #176d35 100%) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.34), inset 0 -2px rgba(8,62,27,.32), 0 6px 14px rgba(10,61,29,.28) !important;
+}
+.primaryButton:hover:not(:disabled) { background: linear-gradient(180deg, rgba(255,255,255,.16), transparent 38%), linear-gradient(180deg, #329851, #217b3f 58%, #125d2c) !important; box-shadow: inset 0 1px rgba(255,255,255,.3), inset 0 -2px rgba(6,49,21,.38), 0 7px 16px rgba(8,47,23,.34) !important; }
+.primaryButton:active:not(:disabled) { background: linear-gradient(180deg, #176d35, #278b48) !important; box-shadow: inset 0 3px 7px rgba(5,43,18,.42), inset 0 1px rgba(255,255,255,.12) !important; }
+
+.secondaryButton {
+  border: 1px solid rgba(229, 191, 139, .62) !important;
+  background: linear-gradient(180deg, rgba(255,244,225,.16) 0%, transparent 38%), linear-gradient(180deg, #70452f 0%, #4a2a20 55%, #2b1712 100%) !important;
+  box-shadow: inset 0 1px rgba(255,244,225,.24), inset 0 -2px rgba(12,4,2,.38), 0 6px 14px rgba(13,5,3,.25) !important;
+}
+.secondaryButton svg { color: #e8c58f !important; }
+.secondaryButton:hover:not(:disabled) { border-color: rgba(242,211,168,.78) !important; background: linear-gradient(180deg, rgba(255,244,225,.2), transparent 38%), linear-gradient(180deg, #7b4d35, #543025 56%, #321b15) !important; }
+.secondaryButton:active:not(:disabled) { background: linear-gradient(180deg, #2d1813, #4b2b21) !important; box-shadow: inset 0 3px 7px rgba(10,3,2,.5), inset 0 1px rgba(255,255,255,.1) !important; }
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible { outline: 3px solid rgba(247, 222, 187, .92) !important; outline-offset: 3px; }
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.primaryButton[aria-disabled="true"],
+.secondaryButton[aria-disabled="true"] { opacity: .48; cursor: not-allowed; filter: saturate(.45); box-shadow: inset 0 1px rgba(255,255,255,.12) !important; }
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .42rem .78rem;
+  border: 1px solid rgba(255,232,190,.7);
+  border-radius: 999px;
+  color: #321d14;
+  background: linear-gradient(180deg, rgba(255,255,255,.38), transparent 40%), linear-gradient(135deg, #f0d39b, #c99d5d 58%, #ad7d42);
+  box-shadow: inset 0 1px rgba(255,255,255,.56), inset 0 -2px rgba(100,61,24,.2), 0 4px 10px rgba(20,8,3,.2);
+  font-size: .75rem;
+  font-weight: 750;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.statusBadge svg { width: 14px; height: 14px; color: #51301d; }
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton, .secondaryButton { transition: none; }
+}

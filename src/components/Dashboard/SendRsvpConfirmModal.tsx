@@ -42,7 +42,7 @@ interface SendRsvpConfirmModalProps {
 }
 
 const getPricingTier = (count: number) => {
-  if (count <= 100) return { price: 99, label: '1–100 guests' };
+  if (count <= 100) return { price: 100, label: '1–100 guests' };
   if (count <= 200) return { price: 129, label: '101–200 guests' };
   if (count <= 300) return { price: 149, label: '201–300 guests' };
   if (count <= 400) return { price: 159, label: '301–400 guests' };

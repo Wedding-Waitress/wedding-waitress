@@ -15,6 +15,8 @@ import { toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import premiumStyles from '../Signage/SignagePage.module.css';
+import styles from './InvitationsPage.module.css';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -254,9 +256,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 ww-invitations-brown">
+    <div className={`${premiumStyles.page} ${styles.page} space-y-6 ww-invitations-brown`}>
       {/* Combined Header Box */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${premiumStyles.mainStudio} ${styles.headerPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
             <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><MailOpen className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitations, Save the Date & Thank You Cards</h1>
@@ -267,7 +269,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
           {selectedEvent && (
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="flex-1 border border-primary rounded-xl p-4 text-sm space-y-2">
+              <div className={`${premiumStyles.guidelinesPanel} ${styles.guidelinesPanel} flex-1 border border-primary rounded-xl p-4 text-sm space-y-2`}>
                 <p className="flex items-center gap-2 font-medium text-green-600">
                   <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Manage your A4-A5 invitations and cards
@@ -291,10 +293,10 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                <SelectTrigger className={`${premiumStyles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
+                <SelectContent className="ww-invitations-premium-portal bg-popover border-border z-50">
                   {events.length > 0 ? (
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
@@ -314,7 +316,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
+              <div className={`${premiumStyles.exportPanel} border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap`}>
                 <div className="text-sm">
                   <span className="inline-flex items-center gap-1.5 font-medium"><Printer className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Export Controls</span>
                   <span className="text-muted-foreground ml-2">Download your invitations as PDF ready for printing.</span>
@@ -323,7 +325,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                   <button
                     disabled={!activeArtwork || exporting}
                     onClick={handleDownloadPDF}
-                    className="inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                    className={`${premiumStyles.exportButton} inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap`}
                   >
                     {exporting ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" /> : <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                     {exporting ? 'Exporting…' : 'Download PDF'}
@@ -347,7 +349,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {/* Artwork Management Bar */}
       {selectedEventId && selectedEvent && !settingsLoading && (
-        <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+        <Card className={`${premiumStyles.mainStudio} ${styles.managementPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
           <CardContent className="pt-6 space-y-4">
             {/* Card Type Tabs */}
             <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
@@ -359,23 +361,23 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </Tabs>
 
             {/* Artwork List */}
-            <div className="flex items-center gap-3 overflow-x-auto pb-2 max-sm:flex-col max-sm:items-stretch max-sm:overflow-visible">
+            <div className={`${styles.artworkList} flex items-center gap-3 overflow-x-auto pb-2 max-sm:flex-col max-sm:items-stretch max-sm:overflow-visible`}>
               {filteredArtworks.map(artwork => (
                 <div
                   key={artwork.id}
                   onClick={() => setActiveArtwork(artwork.id!)}
-                  className={`flex-shrink-0 w-48 p-3 rounded-xl border-2 cursor-pointer transition-all max-sm:w-full ${
+                  className={`${styles.artworkCard} ${activeArtworkId === artwork.id ? styles.artworkCardActive : ''} flex-shrink-0 w-48 p-3 rounded-xl cursor-pointer transition-all max-sm:w-full ${
                     activeArtworkId === artwork.id
                       ? 'border-primary bg-primary/5 shadow-sm'
                       : 'border-border hover:border-primary/40'
                   }`}
                 >
                   {/* Thumbnail */}
-                  <div className="h-20 max-sm:h-40 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center">
+                  <div className={`${styles.thumbnail} h-20 max-sm:h-40 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center`}>
                     {artwork.background_image_url ? (
                       <img src={artwork.background_image_url} alt={artwork.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full" style={{ backgroundColor: artwork.background_color }} />
+                      <div className={`${styles.blankThumbnail} w-full h-full`} />
                     )}
                   </div>
 
@@ -395,7 +397,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-1 mt-1" onClick={e => e.stopPropagation()}>
+                  <div className={`${styles.artworkActions} flex items-center gap-1 mt-1`} onClick={e => e.stopPropagation()}>
                     <Button
                       size="sm"
                       variant="ghost"
@@ -422,7 +424,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                           <Trash2 className="h-[15px] w-[15px] text-destructive" strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className="ww-invitations-premium-dialog">
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete "{artwork.name}"?</AlertDialogTitle>
                           <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
@@ -440,14 +442,14 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               {/* New Artwork Button */}
               <button
                 onClick={handleOpenCreateDialog}
-                className="flex-shrink-0 w-48 h-[140px] max-sm:w-full max-sm:h-[160px] rounded-xl border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-2 cursor-pointer"
+                className={`${styles.newArtwork} flex-shrink-0 w-48 h-[140px] max-sm:w-full max-sm:h-[160px] rounded-xl border-dashed transition-all flex flex-col items-center justify-center gap-2 cursor-pointer`}
               >
                 <Plus className="h-[22px] w-[22px] text-primary" strokeWidth={1.8} aria-hidden="true" />
                 <span className="text-xs font-medium text-primary">New {CARD_TYPE_LABELS[activeCardType]}</span>
               </button>
             </div>
             {filteredArtworks.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-2">
+              <p className={`${styles.emptyMessage} text-sm text-muted-foreground text-center py-2`}>
                 No {CARD_TYPE_LABELS[activeCardType].toLowerCase()} designs yet. Click the button above to create one.
               </p>
             )}
@@ -457,7 +459,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {/* Creation Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="ww-invitations-premium-dialog sm:max-w-md">
           <DialogHeader>
             <DialogTitle>New {CARD_TYPE_LABELS[activeCardType]}</DialogTitle>
             <DialogDescription>Choose a size and name for your new design.</DialogDescription>
@@ -496,7 +498,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {/* Premium info bar — mirrors Seating Chart Signs */}
       {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
-        <div className="rounded-xl border border-[hsl(var(--primary)/0.18)] bg-gradient-to-br from-[hsl(var(--primary)/0.05)] to-[hsl(var(--primary)/0.02)] shadow-soft px-5 py-4 flex items-center justify-center">
+        <div className={`${premiumStyles.infoStrip} rounded-xl shadow-soft px-5 py-4 flex items-center justify-center`}>
           <p className="text-sm text-foreground/85 font-medium text-center">
             Portrait print layouts optimised for professional wedding signage. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
           </p>
@@ -505,8 +507,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          <div className="lg:col-span-2">
+        <div className={`${premiumStyles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start`}>
+          <div className={`${premiumStyles.designerShell} 2xl:col-span-2`}>
             <InvitationCardCustomizer
               settings={activeArtwork}
               onSettingsChange={updateSettings}
@@ -516,11 +518,12 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               onQrEventChange={(eventId) => {
                 // QR generation is handled by the useEffect above
               }}
+              appearance="signage-premium"
             />
           </div>
-          <div className="ww-invitations-preview lg:col-span-3 lg:mt-12 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center">
-            <div className="max-sm:w-max md:max-lg:w-[210mm]">
-            <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto">
+          <div className={`${premiumStyles.previewStage} ww-invitations-preview 2xl:col-span-3 2xl:mt-12 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-2xl:overflow-hidden md:max-2xl:flex md:max-2xl:justify-center`}>
+            <div className="max-sm:w-max md:max-2xl:w-[210mm]">
+            <div className="max-sm:origin-top-left md:max-2xl:origin-top max-sm:w-[210mm] md:max-2xl:scale-[0.75] md:max-2xl:w-[210mm] md:max-2xl:-mb-[30%] mx-auto">
             <InvitationCardPreview
               settings={activeArtwork}
               eventData={eventData}

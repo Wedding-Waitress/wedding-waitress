@@ -1,0 +1,196 @@
+.sidebarRoot,
+.sidebarRoot :global([data-sidebar="sidebar"]) {
+  color: #f7eee3 !important;
+  border-right: 1px solid rgba(225, 190, 139, 0.62) !important;
+  background:
+    radial-gradient(circle at 52% -5%, rgba(223, 168, 105, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(56, 31, 23, 0.98) 0%, rgba(31, 15, 11, 0.99) 54%, rgba(20, 9, 7, 1) 100%) !important;
+  box-shadow:
+    inset -1px 0 0 rgba(5, 2, 1, 0.72),
+    inset 1px 0 0 rgba(255, 239, 218, 0.06),
+    14px 0 30px -22px rgba(8, 3, 2, 0.92) !important;
+  backdrop-filter: blur(18px) saturate(1.05);
+  -webkit-backdrop-filter: blur(18px) saturate(1.05);
+}
+
+.header {
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.035), transparent);
+}
+
+.logo {
+  object-fit: contain;
+  filter: drop-shadow(0 5px 12px rgba(4, 1, 1, 0.28));
+}
+
+.content {
+  scrollbar-color: rgba(213, 166, 105, 0.46) transparent;
+}
+
+.navButton {
+  color: #f4e9dc !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 90ms ease !important;
+}
+
+.navButton :global(svg) {
+  color: #dfbd88 !important;
+  stroke: currentColor !important;
+}
+
+.navButton:hover {
+  color: #ffffff !important;
+  border-color: rgba(231, 200, 157, 0.2) !important;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(227, 174, 111, 0.12), transparent 46%),
+    rgba(111, 63, 44, 0.34) !important;
+}
+
+.navButton:focus-visible {
+  color: #ffffff !important;
+  outline: 2px solid rgba(242, 221, 189, 0.7) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(220, 174, 113, 0.14) !important;
+}
+
+.navButton:active {
+  transform: scale(0.985);
+}
+
+.navButton[data-active="true"] {
+  color: #ffffff !important;
+  border: 1px solid rgba(242, 221, 189, 0.76) !important;
+  background:
+    radial-gradient(circle at 28% -18%, rgba(244, 207, 158, 0.2), transparent 48%),
+    linear-gradient(180deg, rgba(118, 67, 47, 0.92), rgba(53, 27, 19, 0.96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 229, 0.18),
+    inset 0 -1px 0 rgba(22, 10, 7, 0.7),
+    0 8px 18px rgba(3, 1, 1, 0.3) !important;
+}
+
+.navButton[data-active="true"] :global(svg) {
+  color: #f5dcae !important;
+}
+
+.specialNav {
+  border-color: rgba(230, 196, 150, 0.5) !important;
+  background:
+    linear-gradient(180deg, rgba(77, 43, 31, 0.62), rgba(30, 15, 11, 0.76)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.08),
+    0 5px 12px rgba(3, 1, 1, 0.14) !important;
+}
+
+.specialNav:hover {
+  border-color: rgba(239, 211, 172, 0.7) !important;
+}
+
+.specialText,
+.specialAction,
+.countBadge {
+  color: #ead4b5 !important;
+}
+
+.countBadge {
+  border: 1px solid rgba(226, 188, 137, 0.36);
+  background: rgba(13, 6, 5, 0.48) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.07);
+}
+
+.divider {
+  background: linear-gradient(90deg, transparent, rgba(230, 197, 153, 0.5), transparent);
+}
+
+.collapseButton {
+  color: #f4e9dc !important;
+}
+
+.footer {
+  border-color: rgba(231, 200, 158, 0.35) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.018), rgba(5, 2, 2, 0.12));
+}
+
+.accountButton {
+  color: #f7eee3 !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+}
+
+.accountButton:hover,
+.accountButton[data-state="open"] {
+  border-color: rgba(231, 200, 157, 0.28) !important;
+  background: rgba(106, 60, 43, 0.38) !important;
+}
+
+.accountName {
+  color: #ffffff !important;
+}
+
+.accountMeta {
+  color: #cdbca7 !important;
+}
+
+.accountPlan {
+  color: #ead4b5 !important;
+}
+
+.accountChevron {
+  color: #dfbd88 !important;
+}
+
+.accountMenu {
+  color: #f5eadc !important;
+  border: 1px solid rgba(239, 220, 196, 0.66) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(224, 169, 106, 0.12), transparent 42%),
+    linear-gradient(160deg, rgba(62, 34, 25, 0.98), rgba(17, 8, 6, 0.99)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 18px 44px rgba(3, 1, 1, 0.48) !important;
+}
+
+.accountMenuItem {
+  color: #f5eadc !important;
+}
+
+.accountMenuItem :global(svg) {
+  color: #e5c38e !important;
+}
+
+.accountMenuItem:focus,
+.accountMenuItem:hover {
+  color: #ffffff !important;
+  background: rgba(118, 67, 47, 0.56) !important;
+}
+
+.accountMenuSeparator {
+  background: rgba(231, 200, 157, 0.28) !important;
+}
+
+.logoutItem,
+.logoutItem :global(svg) {
+  color: #f87171 !important;
+}
+
+.logoutItem:focus,
+.logoutItem:hover {
+  color: #fecaca !important;
+  background: rgba(127, 29, 29, 0.32) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebarRoot *,
+  .sidebarRoot *::before,
+  .sidebarRoot *::after,
+  .accountMenu,
+  .accountMenu * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

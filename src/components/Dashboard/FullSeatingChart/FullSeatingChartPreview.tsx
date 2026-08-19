@@ -461,7 +461,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
       <div className="print:hidden">
         {/* Page Navigation Controls */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-4 mb-6">
+          <div data-full-seating-pagination="true" className="flex items-center justify-center gap-4 mb-6">
             <Button
               variant="outline"
               size="sm"
@@ -634,7 +634,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
         {/* Bottom Page Navigation */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-6">
+          <div data-full-seating-pagination="true" className="flex items-center justify-center gap-4 mt-6">
             <Button
               variant="outline"
               size="sm"

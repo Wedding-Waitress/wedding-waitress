@@ -46,7 +46,7 @@
 .eventDetails {
   color: #f3e7d8;
   border-bottom: 1px solid rgba(201, 151, 93, 0.2);
-  background: rgba(28, 15, 11, 0.46);
+  background: linear-gradient(180deg, rgba(88, 49, 35, 0.68), rgba(24, 13, 10, 0.76));
   box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.09);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -210,8 +210,32 @@
   opacity: 0.5 !important;
 }
 
+.searchCardContent {
+  display: grid;
+  grid-template-rows: auto minmax(4.5rem, 1fr) auto minmax(4.5rem, 1fr) auto;
+  min-height: 25rem;
+  min-width: 0;
+  padding-bottom: 1rem;
+}
+
+.searchArea {
+  grid-row: 1;
+  min-width: 0;
+}
+
+.searchArea input {
+  width: 100%;
+  min-width: 0;
+}
+
+.shareInvite {
+  grid-row: 3;
+  align-self: center;
+}
+
 .footerLogo {
-  margin-top: 7.25rem;
+  grid-row: 5;
+  align-self: end;
 }
 
 .tableBackButton {
@@ -347,12 +371,6 @@
   color: #d9b77f !important;
 }
 
-@media (min-width: 768px) {
-  .footerLogo {
-    margin-top: 8.25rem;
-  }
-}
-
 @media (max-width: 767px) {
   .mainSurface {
     background-position: 48% center !important;
@@ -379,7 +397,13 @@
   }
 
   .searchCard {
+    width: calc(100vw - 2rem);
     overflow: hidden;
+  }
+
+  .searchCardContent {
+    grid-template-rows: auto minmax(4rem, 1fr) auto minmax(4rem, 1fr) auto;
+    min-height: 23rem;
   }
 
   :global(.ww-public-live-dialog) {

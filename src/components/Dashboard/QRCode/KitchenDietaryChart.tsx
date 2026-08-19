@@ -39,6 +39,8 @@ import type { RelationPartner, RelationRole } from '@/lib/relationUtils';
 import { Event } from '@/hooks/useEvents';
 import { chunkDietaryGuests, DIETARY_GUEST_TEXT_SIZES } from '@/lib/dietaryChartSettings';
 import { DIETARY_A4_LAYOUT, DIETARY_REPORT_TEXT_COLOR } from '@/lib/dietaryChartA4Layout';
+import premiumStyles from '../Signage/SignagePage.module.css';
+import styles from './KitchenDietaryChartPage.module.css';
 
 interface KitchenDietaryChartProps {
   eventId: string | null;
@@ -516,9 +518,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         }
       `}</style>
       
-      <div className="space-y-6 kitchen-dietary-chart ww-dietary-brown">
+      <div className={`${premiumStyles.page} ${styles.page} space-y-6 kitchen-dietary-chart`}>
         {/* Header Card */}
-        <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
+        <Card className={`${premiumStyles.mainStudio} ${styles.headerPanel} print:hidden`}>
           <CardHeader className="space-y-0">
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] xl:gap-6 xl:items-stretch">
               <div className="space-y-4 min-w-0">
@@ -539,13 +541,13 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       Choose Event:
                     </label>
                     <Select value={eventId || "no-event"} onValueChange={handleEventSelect}>
-                      <SelectTrigger className="w-full sm:w-[300px] border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]">
+                      <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] font-bold`}>
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
-                      <SelectContent className="bg-popover border-border z-50">
+                      <SelectContent className={styles.portalSurface}>
                         {events.length > 0 ? (
                           events.map(event => (
-                            <SelectItem key={event.id} value={event.id}>
+                            <SelectItem className={styles.portalItem} key={event.id} value={event.id}>
                               <div className="flex items-center gap-2">
                                 <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                                 <span>{event.name}</span>
@@ -553,7 +555,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                             </SelectItem>
                           ))
                         ) : (
-                          <SelectItem value="no-events" disabled>
+                          <SelectItem className={styles.portalItem} value="no-events" disabled>
                             No events found
                           </SelectItem>
                         )}
@@ -563,7 +565,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   {currentEvent && (
                     <Badge 
                       variant="outline"
-                      className="w-fit max-w-full h-10 px-3 py-2 bg-white border border-[#472c1d] text-[#472c1d] rounded-md whitespace-normal"
+                      className={`${styles.statsPill} w-fit max-w-full h-10 px-3 py-2 whitespace-normal`}
                     >
                       <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       <span className="ml-1.5">
@@ -576,7 +578,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
               {/* Export Controls */}
               {currentEvent && dietaryGuests.length > 0 && (
-                <div className="bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0">
+                <div className={`${styles.exportPanel} rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}>
                   <div className="text-sm space-y-1">
                     <span className="font-bold text-sm inline-flex items-center gap-1.5">
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -588,7 +590,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                   </div>
                   <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
                     <button 
-                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                      className={`${styles.exportButton} ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                       onClick={handleDownloadPdf}
                       disabled={isExporting || paginatedGuests.length === 0}
                       aria-label="Download single page PDF"
@@ -601,7 +603,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       Download single page PDF
                     </button>
                     <button 
-                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                      className={`${styles.exportButton} ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                       onClick={handleDownloadPdfAll}
                       disabled={isExporting || dietaryGuests.length === 0}
                       aria-label="Download all pages PDF"
@@ -622,7 +624,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
         {/* Placeholder when no event selected */}
         {!currentEvent && (
-          <Card className="ww-box print:hidden">
+          <Card className={`${styles.emptyPanel} print:hidden`}>
             <CardContent className="p-8 text-center">
               <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
               <CardTitle className="mb-2">Select an Event</CardTitle>
@@ -646,9 +648,9 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           </div>
 
           {/* A4 Page Display (Right - 3 columns) */}
-          <div className="min-w-0 print:hidden dietary-a4-preview">
+          <div className={`${styles.previewStage} min-w-0 print:hidden dietary-a4-preview`}>
             {(guestsLoading || tablesLoading || settingsLoading) ? (
-              <Card className="ww-box">
+              <Card className={styles.emptyPanel}>
                 <CardContent className="p-6">
                   <div className="text-center py-8">
                     <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-muted border-t-primary animate-spin" />
@@ -657,7 +659,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 </CardContent>
               </Card>
             ) : dietaryGuests.length === 0 ? (
-              <Card className="ww-box">
+              <Card className={styles.emptyPanel}>
                 <CardContent className="p-6">
                   <div className="text-center py-8">
                     <TriangleAlert className="w-12 h-12 mx-auto mb-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
@@ -672,17 +674,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               <>
                 {/* Page Navigation */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-4 mb-4">
+                  <div className={`${styles.pagination} flex items-center justify-center gap-4 mb-4`}>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
+                      className={styles.paginationButton}
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                       Previous
                     </Button>
-                    <span data-dietary-pagination="true" data-page-guest-count={paginatedGuests.length} className="text-sm text-muted-foreground">
+                    <span data-dietary-pagination="true" data-page-guest-count={paginatedGuests.length} className={`${styles.paginationLabel} text-sm`}>
                       Page {currentPage} of {totalPages}
                     </span>
                     <Button
@@ -690,6 +693,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       size="sm"
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
+                      className={styles.paginationButton}
                     >
                       Next
                       <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
@@ -886,17 +890,18 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                 {/* Page Navigation Bottom */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-4 mt-4">
+                  <div className={`${styles.pagination} flex items-center justify-center gap-4 mt-4`}>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
+                      className={styles.paginationButton}
                     >
                       <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
                       Previous
                     </Button>
-                    <span className="text-sm text-muted-foreground">
+                    <span className={`${styles.paginationLabel} text-sm`}>
                       Page {currentPage} of {totalPages}
                     </span>
                     <Button
@@ -904,6 +909,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       size="sm"
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
+                      className={styles.paginationButton}
                     >
                       Next
                       <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />

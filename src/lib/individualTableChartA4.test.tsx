@@ -285,7 +285,10 @@ describe('individual table chart A4 architecture', () => {
       'utf8'
     );
     const globalStyles = readFileSync(resolve(process.cwd(), 'src/index.css'), 'utf8');
-    const dietaryExportButtonClass = 'inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none';
+    const interfaceStyles = readFileSync(
+      resolve(process.cwd(), 'src/components/Dashboard/IndividualTableChart/IndividualTableChartPage.module.css'),
+      'utf8'
+    );
     expect(previewSource).toContain('<IndividualTableChartPrintPage');
     expect(engineSource).toContain('React.createElement(IndividualTableChartPrintPage');
     expect(engineSource).toContain('renderPrintPageToCanvas(settings, table, guests, event, 1, 1)');
@@ -311,15 +314,16 @@ describe('individual table chart A4 architecture', () => {
     expect(customizerSource).toContain('title={`Use ${label} for ${name}`}');
     expect(customizerSource.indexOf('<h3 className="font-semibold text-sm">End Seats</h3>')).toBeLessThan(customizerSource.indexOf('{/* Display Options */}'));
     expect(customizerSource.indexOf('<h3 className="font-semibold text-sm">Long Table Info</h3>')).toBeLessThan(customizerSource.indexOf('{/* Display Options */}'));
-    expect(pageSource.split(dietaryExportButtonClass)).toHaveLength(3);
-    expect(dietarySource.split(dietaryExportButtonClass)).toHaveLength(3);
+    expect(dietarySource).toMatch(/mode: 'single'[\s\S]*?getPageElement: \(\) => a4PreviewRef\.current/);
+    expect(dietarySource).toMatch(/mode: 'all'[\s\S]*?getPageElement: \(\) => a4PreviewRef\.current/);
     expect(pageSource).toContain('aria-label="Download single page PDF"');
     expect(pageSource).toContain('aria-label="Download all pages PDF"');
     expect(pageSource).toContain('data-individual-chart-top-layout="true"');
     expect(pageSource).toContain('grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)]');
     expect(pageSource).toContain('data-individual-chart-existing-controls="true"');
     expect(pageSource).toContain('data-export-controls-card="true"');
-    expect(pageSource).toContain('bg-white border border-[#472c1d] rounded-xl');
+    expect(pageSource).toContain('styles.exportPanel');
+    expect(pageSource).not.toContain('bg-white border border-[#472c1d] rounded-xl');
     expect(pageSource).toContain('flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch');
     expect(pageSource.indexOf('data-individual-chart-existing-controls="true"')).toBeLessThan(pageSource.indexOf('data-export-controls-card="true"'));
     expect(pageSource).toContain('onClick={handleDownloadPdf}');
@@ -327,9 +331,13 @@ describe('individual table chart A4 architecture', () => {
     expect(pageSource).toContain('disabled={isExporting || isExportingAll}');
     expect(pageSource).toMatch(/isExportingAll\s*\?\s*<LoaderCircle/);
     expect(pageSource.match(/ww-itc-export-button/g)).toHaveLength(2);
+    expect(pageSource.match(/styles\.exportButton/g)).toHaveLength(2);
     expect(pageSource.match(/focus-visible:ring-green-500/g)).toHaveLength(2);
     expect(pageSource.match(/text-green-600" strokeWidth/g)).toHaveLength(4);
     expect(globalStyles).toContain('[class*="border-green"]:not(.ww-itc-export-button)');
     expect(globalStyles).toContain('[class*="text-green"]:not(.ww-itc-export-button)');
+    expect(interfaceStyles).toContain(':not([data-individual-table-chart-page] *)');
+    expect(interfaceStyles).toContain('.portalSurface');
+    expect(interfaceStyles).toContain('border-color: #22c55e !important');
   });
 });

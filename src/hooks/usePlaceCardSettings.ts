@@ -59,6 +59,10 @@ export interface PlaceCardSettings {
   info_italic: boolean;
   info_underline: boolean;
   info_font_color: string;
+  photo_video_qr_enabled?: boolean;
+  photo_video_qr_x?: number;
+  photo_video_qr_y?: number;
+  photo_video_qr_size?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -66,6 +70,18 @@ export interface PlaceCardSettings {
 // Module-level cache for instant loading on tab switches
 const placeCardCache = new Map<string, PlaceCardSettings>();
 registerCache(() => { placeCardCache.clear(); });
+
+const QR_KEYS = ['photo_video_qr_enabled', 'photo_video_qr_x', 'photo_video_qr_y', 'photo_video_qr_size'] as const;
+type PlaceCardQrSettings = Pick<PlaceCardSettings, (typeof QR_KEYS)[number]>;
+const qrFallbackKey = (eventId: string) => `ww:place-card-photo-video-qr:${eventId}`;
+const readQrFallback = (eventId: string): Partial<PlaceCardQrSettings> => {
+  try { return JSON.parse(localStorage.getItem(qrFallbackKey(eventId)) || '{}'); } catch { return {}; }
+};
+const writeQrFallback = (eventId: string, updates: Partial<PlaceCardSettings>) => {
+  const qrUpdates = Object.fromEntries(Object.entries(updates).filter(([key]) => QR_KEYS.includes(key as any)));
+  if (!Object.keys(qrUpdates).length) return;
+  localStorage.setItem(qrFallbackKey(eventId), JSON.stringify({ ...readQrFallback(eventId), ...qrUpdates }));
+};
 
 export const usePlaceCardSettings = (eventId: string | null) => {
   const cached = eventId ? placeCardCache.get(eventId) : undefined;
@@ -103,8 +119,11 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return;
       }
 
+      const fallback = readQrFallback(eventId);
+      const needsFallback = data && (data as any).photo_video_qr_enabled === undefined;
       setSettings(data ? {
         ...data,
+        ...(needsFallback ? fallback : {}),
         background_image_type: data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
         individual_messages: data.individual_messages as Record<string, string>
       } : null);
@@ -122,6 +141,9 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
   const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
     if (!eventId) return false;
+    writeQrFallback(eventId, newSettings);
+    const qrOnlyUpdate = Object.keys(newSettings).length > 0
+      && Object.keys(newSettings).every((key) => QR_KEYS.includes(key as any));
 
     // Increment sequence so stale responses are ignored
     const seq = ++saveSeqRef.current;
@@ -148,7 +170,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       setSettings(prev => {
         if (prev) return { ...prev, ...newSettings } as PlaceCardSettings;
         // First-save path: seed a local object so UI renders from shared state immediately
-        return { event_id: eventId || '', user_id: user.id, font_family: 'Inter', font_color: '#000000', background_color: '#ffffff', background_image_type: 'none' as const, mass_message: '', individual_messages: {}, guest_font_family: 'Great Vibes', info_font_family: 'Beauty Mountains', guest_name_bold: false, guest_name_italic: false, guest_name_underline: false, guest_name_font_size: 30, info_font_size: 16, name_spacing: 4, info_bold: false, info_italic: false, info_underline: false, info_font_color: '#000000', guest_name_offset_x: 0, guest_name_offset_y: 0, table_offset_x: 0, table_offset_y: 0, seat_offset_x: 0, seat_offset_y: 0, guest_name_rotation: 0, table_seat_rotation: 0, ...newSettings } as PlaceCardSettings;
+        return { event_id: eventId || '', user_id: user.id, font_family: 'Inter', font_color: '#000000', background_color: '#ffffff', background_image_type: 'none' as const, mass_message: '', individual_messages: {}, guest_font_family: 'Great Vibes', info_font_family: 'Beauty Mountains', guest_name_bold: false, guest_name_italic: false, guest_name_underline: false, guest_name_font_size: 30, info_font_size: 16, name_spacing: 4, info_bold: false, info_italic: false, info_underline: false, info_font_color: '#000000', guest_name_offset_x: 0, guest_name_offset_y: 0, table_offset_x: 0, table_offset_y: 0, seat_offset_x: 0, seat_offset_y: 0, guest_name_rotation: 0, table_seat_rotation: 0, photo_video_qr_enabled: false, photo_video_qr_x: 50, photo_video_qr_y: 50, photo_video_qr_size: 22, ...newSettings } as PlaceCardSettings;
       });
 
       let result;
@@ -170,6 +192,13 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       }
 
       if (result.error) {
+        const schemaMissingQrColumns = qrOnlyUpdate
+          && /photo_video_qr_|schema cache|column/i.test(result.error.message || '');
+        if (schemaMissingQrColumns) {
+          // Compatibility for a development database that has not received the
+          // companion migration yet. The migration remains authoritative once applied.
+          return true;
+        }
         console.error('Error updating place card settings:', result.error);
         toast({
           title: "Error",
@@ -190,6 +219,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
         individual_messages: result.data.individual_messages as Record<string, string>
       });
+      if (qrOnlyUpdate) localStorage.removeItem(qrFallbackKey(eventId));
       toast({
         title: "Success",
         description: "Settings saved successfully",

@@ -900,32 +900,32 @@ export const GuestLookup: React.FC = () => {
             <TabsContent value="search" className="mt-0">
               <p className="text-center text-base md:text-lg font-semibold text-foreground mb-3">Update & Confirm Your Details</p>
               <Card className={`${styles.searchCard} ww-box card-elevated`}>
-                <CardContent className="space-y-4 pt-3">
-                  {/* Search Input */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      ref={searchInputRef}
-                      type="text"
-                      placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
-                      value={searchTerm}
-                      onChange={(e) => handleSearchChange(e.target.value)}
-                      className="pl-10 text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
-                      autoFocus
-                    />
-                  </div>
-
-
-                  {/* Loading State */}
-                  {searching && (
-                    <div className="text-center py-4">
-                      <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-                      <p className="text-sm text-muted-foreground">Searching...</p>
+                <CardContent className={`${styles.searchCardContent} pt-3`}>
+                  <div className={styles.searchArea}>
+                    {/* Search Input */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
+                        value={searchTerm}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="pl-10 text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
+                        autoFocus
+                      />
                     </div>
-                  )}
 
-                  {/* Search Results */}
-                  {(() => {
+                    {/* Loading State */}
+                    {searching && (
+                      <div className="text-center py-4">
+                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p className="text-sm text-muted-foreground">Searching...</p>
+                      </div>
+                    )}
+
+                    {/* Search Results */}
+                    {(() => {
                     if (searching) return null;
                     const normalizedInput = normalize(searchTerm || '');
                     const isFullNameAttempt = normalizedInput.includes(' ');
@@ -978,10 +978,11 @@ export const GuestLookup: React.FC = () => {
                         </div>
                       </div>
                     );
-                  })()}
+                    })()}
+                  </div>
 
                   {/* Share Button */}
-                   <div className="flex justify-center mt-16">
+                  <div className={`${styles.shareInvite} flex justify-center`}>
                     <button 
                       onClick={() => {
                         if (navigator.share) {
@@ -1012,7 +1013,6 @@ export const GuestLookup: React.FC = () => {
                       />
                     </a>
                   </div>
-                  <div className="h-8"></div>
 
                 </CardContent>
               </Card>

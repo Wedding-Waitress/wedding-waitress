@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import styles from './AccountDialog.module.css';
+import controlStyles from './AccountControls.module.css';
 
 interface Props {
   open: boolean;
@@ -14,7 +16,7 @@ interface Props {
 }
 
 export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
-  const { profile } = useProfile();
+  const { profile, updateCachedProfile } = useProfile();
   const { toast } = useToast();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -47,10 +49,7 @@ export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
       .select('*')
       .eq('id', profile.id)
       .single();
-    if (fresh) {
-      // Mutate the cached profile object in place so all consumers see the new values
-      Object.assign(profile, fresh);
-    }
+    if (fresh) updateCachedProfile(fresh);
     toast({ title: 'Saved', description: 'Your details have been updated.' });
     onOpenChange(false);
     // Soft refresh — re-render consumers without full reload
@@ -59,29 +58,29 @@ export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent data-appearance="espresso-glass" className={`sm:max-w-md ${styles.dialog}`} overlayClassName={styles.overlay}>
         <DialogHeader>
-          <DialogTitle>Edit Details</DialogTitle>
+          <DialogTitle className={styles.title}>Edit Details</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 pt-2">
-          <div>
+        <div className={styles.form}>
+          <div className={styles.field}>
             <Label htmlFor="first">First name</Label>
             <Input id="first" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
           </div>
-          <div>
+          <div className={styles.field}>
             <Label htmlFor="last">Last name</Label>
             <Input id="last" value={lastName} onChange={(e) => setLastName(e.target.value)} />
           </div>
-          <div>
+          <div className={styles.field}>
             <Label htmlFor="mob">Phone</Label>
             <Input id="mob" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="+61..." />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <div className={styles.actions}>
+            <Button variant="ghost" className={controlStyles.secondaryButton} onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-[#967A59] hover:bg-[#7d6649] text-white"
+              className={controlStyles.primaryButton}
             >
               {saving ? 'Saving…' : 'Save'}
             </Button>

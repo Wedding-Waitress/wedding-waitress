@@ -58,7 +58,7 @@ export const ADDITIONAL_EVENT_AUD = {
 
 // ── RSVP Invite Bundles (one-time, per event) ──────────────────────
 export const RSVP_TIERS = [
-  { min: 1,   max: 100,  price_aud: 99,  label: '1–100 guests',    product_id: 'prod_Tyt1bSwrpOzxNd', price_id: 'price_1TSzPs5GzTmqOxGK4Ca8kAAz' },
+  { min: 1,   max: 100,  price_aud: 100, label: '1–100 guests',    product_id: 'prod_Tyt1bSwrpOzxNd', price_id: 'price_1TSzPs5GzTmqOxGK4Ca8kAAz' },
   { min: 101, max: 200,  price_aud: 129, label: '101–200 guests',  product_id: 'prod_Tyt1FzdN9h5IcQ', price_id: 'price_1TSzRu5GzTmqOxGK9gIwfeU4' },
   { min: 201, max: 300,  price_aud: 149, label: '201–300 guests',  product_id: 'prod_Tyt4UbA83epUQG', price_id: 'price_1TSzSJ5GzTmqOxGKaGm02LiC' },
   { min: 301, max: 400,  price_aud: 159, label: '301–400 guests',  product_id: 'prod_Tyt4pPolYzGjSf', price_id: 'price_1TSzSs5GzTmqOxGKMHCPxGfe' },

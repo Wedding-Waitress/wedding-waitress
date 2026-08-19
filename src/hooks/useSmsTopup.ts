@@ -42,18 +42,18 @@ export const useSmsTopup = () => {
         },
       });
       if (error) throw error;
-      const url = (data as any)?.url;
+      const url = (data as { url?: string } | null)?.url;
       if (!url) throw new Error('No checkout URL returned');
       // Keep overlay on through redirect — do NOT stopProcessing on success.
       window.location.href = url;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[useSmsTopup] failed', err);
       stopProcessing();
       inFlightRef.current = false;
       setLoading(false);
       toast({
         title: 'Could not start top-up',
-        description: err?.message ?? 'Please try again.',
+        description: err instanceof Error ? err.message : 'Please try again.',
         variant: 'destructive',
       });
     }

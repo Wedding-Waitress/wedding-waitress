@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import styles from './AccountDialog.module.css';
+import controlStyles from './AccountControls.module.css';
 
 interface Props {
   open: boolean;
@@ -42,25 +44,25 @@ export const ChangePasswordModal: React.FC<Props> = ({ open, onOpenChange }) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent data-appearance="espresso-glass" className={`sm:max-w-md ${styles.dialog}`} overlayClassName={styles.overlay}>
         <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
+          <DialogTitle className={styles.title}>Change Password</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 pt-2">
-          <div>
+        <div className={styles.form}>
+          <div className={styles.field}>
             <Label htmlFor="newpw">New password</Label>
             <Input id="newpw" type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
           </div>
-          <div>
+          <div className={styles.field}>
             <Label htmlFor="confirm">Confirm password</Label>
             <Input id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <div className={styles.actions}>
+            <Button variant="ghost" className={controlStyles.secondaryButton} onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-[#967A59] hover:bg-[#7d6649] text-white"
+              className={controlStyles.primaryButton}
             >
               {saving ? 'Saving…' : 'Update Password'}
             </Button>

@@ -75,3 +75,12 @@ verify_jwt = true
 
 [functions.verify-gallery-password]
 verify_jwt = false
+
+[functions.close-account]
+verify_jwt = true
+
+[functions.purge-closed-accounts]
+verify_jwt = false
+
+[functions.admin-account-action]
+verify_jwt = true

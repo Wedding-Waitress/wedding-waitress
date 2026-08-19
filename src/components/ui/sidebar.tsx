@@ -19,6 +19,18 @@ const SIDEBAR_WIDTH_MOBILE = "17.5rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
+const getPersistedSidebarState = (fallback: boolean) => {
+  if (typeof document === "undefined") return fallback;
+  const persisted = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+    ?.split("=")[1];
+
+  if (persisted === "true") return true;
+  if (persisted === "false") return false;
+  return fallback;
+};
+
 type SidebarContext = {
   state: "expanded" | "collapsed";
   open: boolean;
@@ -53,7 +65,7 @@ const SidebarProvider = React.forwardRef<
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const [_open, _setOpen] = React.useState(() => getPersistedSidebarState(defaultOpen));
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -156,7 +168,7 @@ const Sidebar = React.forwardRef<
         <SheetContent
           data-sidebar="sidebar"
           data-mobile="true"
-          className="w-[--sidebar-width] bg-card p-0 text-sidebar-foreground [&>button]:hidden"
+          className={cn("w-[--sidebar-width] bg-card p-0 text-sidebar-foreground [&>button]:hidden", className)}
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,

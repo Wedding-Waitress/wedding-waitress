@@ -12,6 +12,7 @@ import { useAccountSeats } from '@/hooks/useAccountSeats';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MasterOnly } from '@/components/permissions/MasterOnly';
+import controlStyles from './AccountControls.module.css';
 
 interface Props {
   icon: LucideIcon;
@@ -29,11 +30,12 @@ const formatDate = (iso: string | null) => {
 export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { plan, isTrialExpired } = useUserPlan();
   const { data: billing } = useAccountBilling();
-  const { includedEvents, additionalPurchased, remaining } = useEventLimits();
+  const { includedEvents, additionalPurchased, remaining, currentEvents } = useEventLimits();
   const { usedSeats, maxSeats } = useAccountSeats();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<string | null>(null);
+  const [totalGuests, setTotalGuests] = useState(0);
   const [busy] = useState(false);
 
   useEffect(() => {
@@ -41,14 +43,13 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data: sub } = await supabase
-        .from('user_subscriptions')
-        .select('created_at')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle();
+      const [{ data: sub }, { count: guests }] = await Promise.all([
+        supabase.from('user_subscriptions').select('created_at').eq('user_id', user.id).limit(1).maybeSingle(),
+        supabase.from('guests').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      ]);
       if (!active) return;
-      setStartDate((sub as any)?.created_at ?? user.created_at ?? null);
+      setStartDate(sub?.created_at ?? user.created_at ?? null);
+      setTotalGuests(guests ?? 0);
     })();
     return () => { active = false; };
   }, []);
@@ -101,11 +102,11 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   }
 
   const handleUpgrade = () => {
-    navigate('/dashboard/upgrade');
+    navigate('/account/plans-upgrades');
   };
 
   return (
-    <SectionCard icon={icon} title="Subscription" description="Your current plan">
+    <SectionCard icon={icon} title="Current Plan" description="Plan status, allowances and usage">
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between gap-3 py-2 border-b border-border/50">
           <div className="flex items-center gap-3 flex-wrap">
@@ -122,8 +123,10 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
             Plan inclusions
           </div>
           <Row label="Included events" value={`${includedEvents}`} />
+          <Row label="Events used" value={`${currentEvents}`} />
           <Row label="Additional events purchased" value={`${additionalPurchased}`} />
           <Row label="Remaining events" value={`${remaining}`} />
+          <Row label="Guest allowance" value={plan?.guest_limit ? `${totalGuests} / ${plan.guest_limit}` : `${totalGuests} used · Unlimited`} />
           <Row label="User seats" value={`${usedSeats} / ${maxSeats}`} />
         </div>
       </div>
@@ -132,7 +135,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           <Button
             onClick={handleUpgrade}
             disabled={busy}
-            className="lv-premium-shade bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
+            className={controlStyles.primaryButton}
             size="sm"
           >
             {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

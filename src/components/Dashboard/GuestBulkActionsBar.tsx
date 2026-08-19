@@ -129,10 +129,10 @@ export const GuestBulkActionsBar = ({
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] flex items-center gap-3 transition-colors text-left h-11 bg-background"
+                  className="ww-guest-search-trigger p-3 rounded-lg border-2 flex items-center gap-3 transition-colors text-left h-11"
                 >
-                  <Search className="w-5 h-5 text-[#967A59] shrink-0" />
-                  <span className="text-sm font-medium text-[#5C4A36]/80">
+                  <Search className="w-5 h-5 shrink-0" />
+                  <span className="text-sm font-medium">
                     Search and add guests...
                   </span>
                 </button>

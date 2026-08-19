@@ -37,7 +37,7 @@ const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
 // Smart RSVP & Messaging — SMS top-up product ($99 AUD = 250 credits)
 const SMS_TOPUP_PRODUCT_ID = "prod_UTh041rdR91og1";
 const SMS_TOPUP_CREDITS = 250;
-const SMS_INCLUDED_CREDITS = 250;
+const SMS_INCLUDED_CREDITS = 400;
 
 // Map RSVP tier product IDs -> guest limit unlocked by that tier
 const RSVP_TIER_LIMITS: Record<string, number> = {
@@ -161,6 +161,7 @@ serve(async (req) => {
       if (!eventId) throw new Error("event_id is required for RSVP purchase");
 
       const amountPaid = (session.amount_total || 0) / 100;
+      const grossAmountPaid = amountPaid;
       const tierLabel = product?.name || "";
       const purchasedLimit = RSVP_TIER_LIMITS[productId] ?? null;
       const guestCountAtPurchase = parseInt(
@@ -230,7 +231,7 @@ serve(async (req) => {
                 firstName: profile?.first_name || "",
                 guestCount: guestCountAtPurchase || 0,
                 tierLabel,
-                amount: amountPaid.toFixed(2),
+                amount: grossAmountPaid.toFixed(2),
                 isOverage: false,
               },
             },
@@ -246,7 +247,8 @@ serve(async (req) => {
         type: "rsvp",
         status: "completed",
         plan_name: tierLabel,
-        amount_paid: amountPaid,
+        amount_paid: grossAmountPaid,
+        stripe_amount_paid: amountPaid,
         purchased_limit: purchasedLimit,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -260,7 +262,7 @@ serve(async (req) => {
 
       const amountPaid = (session.amount_total || 0) / 100;
       // Quantity = number of 10-guest blocks purchased
-      const overageBlocks = lineItem?.quantity ?? parseInt(metadata.overage_blocks || "0", 10) ?? 0;
+      const overageBlocks = parseInt(metadata.overage_blocks || "0", 10) || lineItem?.quantity || 0;
       const guestCountAtPurchase = parseInt(
         metadata.guest_count_at_purchase || "0",
         10

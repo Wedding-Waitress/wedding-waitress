@@ -19,7 +19,7 @@ export const UpgradePricing: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/dashboard?tab=account')}
+          onClick={() => navigate('/account/plan-billing')}
           className="mb-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

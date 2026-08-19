@@ -15,33 +15,19 @@ import {
   Mail,
   UserCircle,
   ChevronUp,
-  Sparkles,
-  LifeBuoy,
-  Gift,
   Camera,
   Table,
   Table2,
   Signpost,
-  UtensilsCrossed
+  UtensilsCrossed,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useUserPlan } from '@/hooks/useUserPlan';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
-import { GetHelpModal } from '@/components/Support/GetHelpModal';
-import { UpgradePlanModal } from '@/components/Subscription/UpgradePlanModal';
-import { ReferralRewardsModal } from '@/components/Referral/ReferralRewardsModal';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
 // Feature flags removed
 import {
@@ -64,6 +50,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
+import styles from './AppSidebar.module.css';
+import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
 
 interface AppSidebarProps {
   activeTab: string;
@@ -98,18 +86,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onTabChange,
   onSignOut
 }) => {
-  const { open, isMobile, setOpenMobile } = useSidebar();
+  const { open, isMobile, setOpenMobile, toggleSidebar } = useSidebar();
+  const isSidebarExpanded = isMobile || open;
   const handleItemClick = React.useCallback((id: string) => {
     onTabChange(id);
     if (isMobile) setOpenMobile(false);
   }, [onTabChange, isMobile, setOpenMobile]);
   const { isAdmin } = useIsAdmin();
   const [otpOpen, setOtpOpen] = React.useState(false);
-  const [helpOpen, setHelpOpen] = React.useState(false);
-  const [upgradeOpen, setUpgradeOpen] = React.useState(false);
-  const [referralOpen, setReferralOpen] = React.useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   // isMobile already destructured from useSidebar above
   const { profile } = useProfile();
   const { plan } = useUserPlan();
@@ -120,13 +105,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     return raw;
   })();
 
-
-  const userInitials = (() => {
-    const f = profile?.first_name?.[0] || '';
-    const l = profile?.last_name?.[0] || '';
-    if (f || l) return (f + l).toUpperCase();
-    return (profile?.email?.[0] || 'U').toUpperCase();
-  })();
 
   const userDisplayName = (() => {
     const f = profile?.first_name || '';
@@ -142,17 +120,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
 
   return (
-    <Sidebar collapsible="icon" className="dashboard-sidebar border-r border-border shadow-2xl">
-      <SidebarHeader className={isMobile ? 'pt-6 pb-4' : 'pt-16 pb-12'}>
+    <Sidebar collapsible="icon" className={`dashboard-sidebar ${styles.sidebarRoot}`}>
+      <SidebarHeader className={`${styles.header} ${isMobile ? 'pt-6 pb-4' : 'pt-6 pb-12'}`}>
         <div className="flex items-center justify-center px-4">
           <img 
             src={logoImage} 
             alt="Wedding Waitress" 
-            className="h-12 sm:h-10 md:h-14 w-auto" 
+            className={`${styles.logo} h-12 sm:h-10 md:h-14 w-auto group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!w-9`}
           />
         </div>
       </SidebarHeader>
-      <SidebarContent className="pt-2">
+      <SidebarContent className={`${styles.content} pt-2`}>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
@@ -175,10 +153,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     onClick={() => handleItemClick(item.id)}
                     isActive={isActive}
                     tooltip={item.label}
-                    className={`flex items-center gap-2 ${isGreenItem ? `border border-[#967A59] rounded-md ${isActive ? '!bg-[#EDE5DB]' : '!bg-[#F5F0EB] hover:!bg-[#EDE5DB]'}` : ''} ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`${styles.navButton} ${isGreenItem ? styles.specialNav : ''} flex items-center gap-2 ${isMobile ? 'py-4' : 'py-3'}`}
                   >
-                    <Icon size={18} strokeWidth={1.8} className="!w-[18px] !h-[18px] shrink-0" style={isGreenItem ? { color: '#967A59' } : undefined} />
-                    <span className={`${isActive ? 'font-bold' : 'font-normal'} text-base`} style={isGreenItem ? { color: '#967A59' } : undefined}>
+                    <Icon size={18} strokeWidth={1.8} className="!w-[18px] !h-[18px] shrink-0" />
+                    <span className={`${isGreenItem ? styles.specialText : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {item.id === 'my-events' && (
@@ -187,17 +165,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                        </span>
                     )}
                     {item.id === 'table-list' && (
-                       <span className="text-sm font-normal ml-auto" style={{ color: '#967A59' }}>
+                       <span className={`${styles.specialAction} text-sm font-normal ml-auto`}>
                         Create
                       </span>
                     )}
                     {item.id === 'guest-list' && (
-                       <span className="text-sm font-normal ml-auto" style={{ color: '#967A59' }}>
+                       <span className={`${styles.specialAction} text-sm font-normal ml-auto`}>
                         Add
                       </span>
                     )}
                     {badgeNumber && (
-                      <span className="flex items-center justify-center w-6 h-6 bg-[#F5F0EB] rounded-full text-sm font-normal ml-1" style={{ color: '#967A59' }}>
+                      <span className={`${styles.countBadge} flex items-center justify-center w-6 h-6 rounded-full text-sm font-normal ml-1`}>
                         {badgeNumber}
                       </span>
                     )}
@@ -205,13 +183,34 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 </SidebarMenuItem>
                 );
               })}
+
+              <SidebarMenuItem aria-hidden="true" className="px-2 py-1">
+                <div className={`${styles.divider} h-px w-full`} />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={toggleSidebar}
+                  tooltip={isSidebarExpanded ? 'Collapse Menu' : 'Expand Menu'}
+                  aria-label={isSidebarExpanded ? 'Collapse Menu' : 'Expand Menu'}
+                  className={`${styles.navButton} ${styles.collapseButton} flex items-center gap-2 ${isMobile ? 'py-4' : 'py-3'}`}
+                >
+                  {isSidebarExpanded ? (
+                    <PanelLeftClose size={18} strokeWidth={1.8} className="!h-[18px] !w-[18px] shrink-0" />
+                  ) : (
+                    <PanelLeftOpen size={18} strokeWidth={1.8} className="!h-[18px] !w-[18px] shrink-0" />
+                  )}
+                  <span className="text-base font-normal">
+                    {isSidebarExpanded ? 'Collapse Menu' : 'Expand Menu'}
+                  </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               
               {/* Admin Panel moved to user dropdown; logout lives in dropdown only */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-[#E8E1D6]/70 mt-3 pt-3 p-2">
+      <SidebarFooter className={`${styles.footer} border-t mt-3 pt-3 p-2`}>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -219,76 +218,53 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 <SidebarMenuButton
                   size="lg"
                   tooltip={userDisplayName}
-                  className="data-[state=open]:bg-[#F5F0EB] hover:bg-[#F5F0EB] rounded-lg transition-colors duration-200 py-3"
+                  className={`${styles.accountButton} rounded-lg transition-colors duration-200 py-3`}
                 >
-                  <div
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white text-xs font-semibold shadow-sm"
-                    style={{ backgroundColor: '#967A59' }}
-                  >
-                    {userInitials}
-                  </div>
+                  <ProfileAvatar
+                    profile={profile}
+                    className="h-8 w-8 bg-[#967A59] text-white text-xs font-semibold shadow-sm"
+                  />
                   <div className="flex flex-col text-left leading-tight overflow-hidden">
-                    <span className="text-sm font-medium truncate text-foreground">
+                    <span className={`${styles.accountName} text-sm font-medium truncate`}>
                       {userDisplayName}
                     </span>
                     <span className="text-[11px] truncate">
-                      <span className="text-muted-foreground/80">Current Plan:</span>
-                      <span className="ml-1 text-foreground/90 font-medium">{planDisplayName}</span>
+                      <span className={styles.accountMeta}>Current Plan:</span>
+                      <span className={`${styles.accountPlan} ml-1 font-medium`}>{planDisplayName}</span>
                     </span>
                   </div>
-                  <ChevronUp className="ml-auto h-4 w-4 opacity-60" />
+                  <ChevronUp className={`${styles.accountChevron} ml-auto h-4 w-4 opacity-80`} />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
                 align="start"
                 sideOffset={8}
-                className="w-[--radix-popper-anchor-width] min-w-56 rounded-xl shadow-xl border border-[#E8E1D6]/70 p-1.5"
+                className={`${styles.accountMenu} w-[--radix-popper-anchor-width] min-w-56 rounded-xl p-1.5`}
               >
                 <DropdownMenuItem
-                  onClick={() => handleItemClick('account')}
-                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                  onClick={() => navigate('/account/account-info')}
+                  className={`${styles.accountMenuItem} cursor-pointer py-2.5 px-3 rounded-lg`}
                 >
                   <UserCircle className="mr-2 h-4 w-4" />
                   My Account
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setUpgradeOpen(true)}
-                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
-                >
-                  <Sparkles className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
-                  Upgrade Plan
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setHelpOpen(true)}
-                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
-                >
-                  <LifeBuoy className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
-                  Get Help
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setReferralOpen(true)}
-                  className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
-                >
-                  <Gift className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
-                  Referral / Affiliate Rewards
-                </DropdownMenuItem>
                 {isAdmin && (
                   <>
-                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuSeparator className={`${styles.accountMenuSeparator} my-1`} />
                     <DropdownMenuItem
                       onClick={() => setOtpOpen(true)}
-                      className="cursor-pointer py-2.5 px-3 rounded-lg focus:bg-[#F5F0EB]"
+                      className={`${styles.accountMenuItem} cursor-pointer py-2.5 px-3 rounded-lg`}
                     >
                       <Shield className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />
                       Admin Panel
                     </DropdownMenuItem>
                   </>
                 )}
-                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuSeparator className={`${styles.accountMenuSeparator} my-1`} />
                 <DropdownMenuItem
                   onClick={onSignOut}
-                  className="cursor-pointer py-2.5 px-3 rounded-lg text-destructive focus:text-destructive focus:bg-destructive/10"
+                  className={`${styles.logoutItem} cursor-pointer py-2.5 px-3 rounded-lg`}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Log Out
@@ -299,9 +275,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </SidebarMenu>
       </SidebarFooter>
       {isAdmin && <AdminOtpModal open={otpOpen} onOpenChange={setOtpOpen} />}
-      <GetHelpModal open={helpOpen} onOpenChange={setHelpOpen} />
-      <UpgradePlanModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
-      <ReferralRewardsModal open={referralOpen} onOpenChange={setReferralOpen} />
     </Sidebar>
   );
 };

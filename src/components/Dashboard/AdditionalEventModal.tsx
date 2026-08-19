@@ -44,13 +44,13 @@ export const AdditionalEventModal: React.FC<Props> = ({
         },
       });
       if (error) throw error;
-      const url = (data as any)?.url;
+      const url = (data as { url?: string } | null)?.url;
       if (!url) throw new Error("Checkout URL missing");
       window.location.href = url;
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         title: "Could not start checkout",
-        description: e?.message ?? "Please try again.",
+        description: e instanceof Error ? e.message : "Please try again.",
         variant: "destructive",
       });
       setBusy(false);

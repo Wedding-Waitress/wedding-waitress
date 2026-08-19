@@ -35,7 +35,7 @@ interface RsvpActivationModalProps {
 
 const BUNDLE_FEATURES = [
   'Unlimited Email Invitations',
-  '250 SMS Credits Included',
+  '400 SMS Credits Included',
   'Smart RSVP Tracking',
   'Guest Delivery History',
   'RSVP Response Monitoring',
@@ -143,7 +143,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
           sessionStorage.setItem('ww:returnTab', 'guest-list');
           sessionStorage.setItem('ww:rsvpSelectedCount', String(totalGuestCount ?? 0));
           sessionStorage.setItem(STORAGE_KEY, method);
-        } catch {}
+        } catch { /* popup navigation is a best-effort fallback */ }
         onClose();
         const inIframe = window.self !== window.top;
         if (inIframe) {
@@ -264,7 +264,7 @@ export const RsvpActivationModal: React.FC<RsvpActivationModalProps> = ({
             <p className="text-3xl font-bold text-primary">${pricing.price} AUD</p>
             <p className="text-xs text-foreground font-medium">One-time activation per event</p>
             <p className="text-xs text-muted-foreground">
-              Includes 250 SMS credits + unlimited email invitations.
+              Includes 400 SMS credits + unlimited email invitations.
             </p>
           </div>
 

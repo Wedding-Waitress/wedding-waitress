@@ -19,6 +19,7 @@ import { generateInvitationQR } from '@/lib/invitationQR';
 import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
 import { toast } from '@/hooks/use-toast';
 import type { TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
+import styles from './SignagePage.module.css';
 
 interface SignagePageProps {
   selectedEventId: string | null;
@@ -464,18 +465,18 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`${styles.page} space-y-6`}>
       {/* Combined Header Box — mirrors Invitations exactly */}
-      <Card className="ww-signage-brown border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${styles.mainStudio} ww-signage-brown border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardContent className="space-y-4 pt-6">
-          <div className="text-left">
+          <div className={styles.pageHeader}>
             <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><LayoutTemplate className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Wedding Waitress Signs Studio</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Create luxury wedding signage, QR seating charts, upload stations, guestbook cards, and print-ready event signage.
             </p>
           </div>
 
-          <div className="border-b border-border" />
+          <div className={styles.divider} />
 
           {!selectedEvent && (
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-1">
@@ -483,13 +484,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 Choose Event:
               </label>
               <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
                   <div className="flex items-center gap-[7px] min-w-0">
                     <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                     <SelectValue placeholder="Choose Event" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
+                <SelectContent className="ww-signage-premium-portal bg-popover border-border z-50">
                   {events.map(event => (
                     <SelectItem key={event.id} value={event.id}>
                       <div className="flex items-center space-x-2">
@@ -504,7 +505,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           )}
 
           {selectedEvent && (
-            <div className="border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-6 w-full shadow-soft bg-gradient-to-br from-background to-[hsl(var(--primary)/0.04)]">
+            <div className={`${styles.printStudio} border border-primary/60 rounded-2xl p-5 lg:p-6 flex flex-col gap-6 w-full shadow-soft`}>
               <div className="flex flex-col gap-1">
                 <h3 className="flex items-center gap-2 text-lg lg:text-xl font-semibold text-primary leading-tight">
                   <Printer className="h-[22px] w-[22px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -519,7 +520,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </p>
               </div>
 
-              <div className="w-full border border-primary/70 rounded-xl p-5 text-sm bg-gradient-to-br from-[hsl(var(--primary)/0.06)] to-[hsl(var(--primary)/0.02)] shadow-soft">
+              <div className={`${styles.guidelinesPanel} w-full border border-primary/70 rounded-xl p-5 text-sm shadow-soft`}>
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] gap-6">
                   <div>
                     <p className="ww-signage-guidelines-title flex items-center gap-2 font-semibold text-primary text-base">
@@ -538,7 +539,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                       <li>• Portrait layouts optimised for modern wedding signage</li>
                     </ul>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 content-start">
+                  <div className={`${styles.printSizeGrid} grid grid-cols-2 sm:grid-cols-4 gap-3 content-start`}>
                     {PRINT_SIZES.map((size) => {
                       const active = printSize === size.id;
                       const Icon = size.icon;
@@ -547,7 +548,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           key={size.id}
                           type="button"
                           onClick={() => setPrintSize(size.id)}
-                          className={`lv-premium-shade text-left rounded-xl border p-3 min-h-[88px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
+                          className={`${styles.printSizeCard} ${active ? styles.printSizeActive : ''} lv-premium-shade text-left rounded-xl border p-3 min-h-[88px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
                             active
                               ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
                               : 'border-primary/20 bg-[hsl(var(--primary)/0.035)] shadow-sm hover:border-primary/60 hover:bg-[hsl(var(--primary)/0.06)] hover:shadow-md'
@@ -587,19 +588,19 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 </div>
               </div>
 
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap">
-                <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
+              <div className={`${styles.exportRow} flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap`}>
+                <div className={`${styles.eventControl} flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto`}>
                   <label className="text-sm font-medium text-foreground whitespace-nowrap">
                     Choose Event:
                   </label>
                   <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
-                    <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                    <SelectTrigger className={`${styles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
                       <div className="flex items-center gap-[7px] min-w-0">
                         <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                         <SelectValue placeholder="Choose Event" />
                       </div>
                     </SelectTrigger>
-                    <SelectContent className="bg-popover border-border z-50">
+                    <SelectContent className="ww-signage-premium-portal bg-popover border-border z-50">
                       {events.map(event => (
                         <SelectItem key={event.id} value={event.id}>
                           <div className="flex items-center space-x-2">
@@ -620,7 +621,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   if (settings && !hasBackground) missing.push('Choose a background image or color');
                   const disabled = exporting !== null || missing.length > 0;
                   return (
-                    <div className="border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap">
+                    <div className={`${styles.exportPanel} border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap`}>
                       <div className="text-sm">
                         <span className="inline-flex items-center gap-1.5 font-medium"><Printer className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Export Controls</span>
                         <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
@@ -629,7 +630,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                         <button
                           disabled={disabled}
                           onClick={handleDownloadPDF}
-                          className="lv-premium-shade inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
+                          className={`${styles.exportButton} lv-premium-shade inline-flex items-center gap-2 min-h-10 px-4 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap`}
                         >
                           {exporting === 'pdf' ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" /> : <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                           {exporting === 'pdf' ? 'Exporting…' : 'Download Print-Ready PDF'}
@@ -659,7 +660,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       {/* Premium info bar — replaces the legacy Portrait/Landscape selector */}
       {selectedEventId && settings && !settingsLoading && (
-        <div className="rounded-xl border border-[hsl(var(--primary)/0.18)] bg-gradient-to-br from-[hsl(var(--primary)/0.05)] to-[hsl(var(--primary)/0.02)] shadow-soft px-5 py-4 flex items-center justify-center">
+        <div className={`${styles.infoStrip} rounded-xl border shadow-soft px-5 py-4 flex items-center justify-center`}>
           <p className="text-sm text-foreground/85 font-medium text-center">
             Portrait print layouts optimised for professional wedding signage. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
           </p>
@@ -668,8 +669,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
       {selectedEventId && settings && !settingsLoading && editorSettings && (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start lg:items-stretch">
-          <div className="ww-signage-brown lg:col-span-2 h-full">
+        <div className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start 2xl:items-stretch`}>
+          <div className={`${styles.designerShell} ww-signage-brown 2xl:col-span-2 h-full`}>
             <InvitationCardCustomizer
               settings={editorSettings}
               onSettingsChange={handleSettingsChange}
@@ -688,15 +689,16 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               imageUploadFolder="signage"
               storageBucket="invitations"
               galleryButtonLabel="Template Library"
+              appearance="signage-premium"
               GalleryModalComponent={SignageGalleryAdapter}
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
-          <div className={`lg:col-span-3 lg:h-full lg:flex lg:flex-col w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
-            orientation === 'landscape' ? 'px-4 lg:px-8' : ''
+          <div className={`${styles.previewStage} 2xl:col-span-3 2xl:h-full 2xl:flex 2xl:flex-col w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
+            orientation === 'landscape' ? 'px-4 2xl:px-8' : ''
           }`}>
-            <div className="max-sm:w-max md:max-lg:w-[210mm] lg:h-full lg:flex lg:flex-col">
-              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto lg:h-full lg:flex-1 lg:min-h-0">
+            <div className="max-sm:w-max md:max-lg:w-[210mm] 2xl:h-full 2xl:flex 2xl:flex-col">
+              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto 2xl:h-full 2xl:flex-1 2xl:min-h-0">
                 <PinchZoomContainer className="h-full" naturalWidth={orientation === 'portrait' ? 794 : 1123}>
                   <InvitationCardPreview
                     fitToContainer

@@ -1,3 +1,6 @@
+import { writeFile } from 'node:fs/promises';
+import { EOL } from 'node:os';
+
 const SITE_URL = 'https://weddingwaitress.com.au';
 
 const entries = [
@@ -52,5 +55,5 @@ ${entries
 </urlset>
 `;
 
-await Bun.write('public/sitemap.xml', xml);
+await writeFile('public/sitemap.xml', xml.replace(/\r?\n/g, EOL), 'utf8');
 console.log(`Generated public/sitemap.xml with ${entries.length} ${SITE_URL} URLs`);

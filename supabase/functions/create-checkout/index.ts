@@ -20,9 +20,9 @@ serve(async (req) => {
 
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+    { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } }
   );
-
   try {
     logStep("Function started");
 
@@ -44,6 +44,8 @@ serve(async (req) => {
       );
     }
     const user = data.user;
+    const { data: operational } = await supabaseClient.rpc("is_account_operational", { p_user_id: user.id });
+    if (operational !== true) return new Response(JSON.stringify({ error: "Account access is closed" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     if (!user?.email) {
       return new Response(
         JSON.stringify({ error: "Not authenticated. Please sign in again." }),
@@ -134,6 +136,9 @@ serve(async (req) => {
     // Source/target prices are looked up from Stripe so currency stays consistent.
     let upgradeLineItem: Stripe.Checkout.SessionCreateParams.LineItem | null = null;
     let upgradeDiffMeta = "";
+    let resolvedProductId = "";
+    let resolvedCurrency = "";
+    let originalAmountCents = 0;
     if (upgrade_from_plan) {
       const ALLOWED: Record<string, Record<string, true>> = {
         essential: { premium: true, unlimited: true },
@@ -190,6 +195,8 @@ serve(async (req) => {
       if (!targetProductId || !targetPrice.unit_amount) {
         throw new Error("Target price is missing product or amount");
       }
+      resolvedProductId = targetProductId;
+      resolvedCurrency = targetCurrency;
 
       // Find the source price in the SAME currency.
       let sourceUnitAmount: number | null = null;
@@ -225,14 +232,30 @@ serve(async (req) => {
         },
       };
       upgradeDiffMeta = String(diff);
+      originalAmountCents = diff;
       logStep("Upgrade difference computed", {
         fromKey, toKey, currency: targetCurrency, diff,
       });
     }
 
+    if (!resolvedProductId) {
+      const resolvedPrice = await stripe.prices.retrieve(price_id);
+      resolvedProductId = typeof resolvedPrice.product === "string" ? resolvedPrice.product : resolvedPrice.product?.id || "";
+      resolvedCurrency = resolvedPrice.currency;
+      originalAmountCents = (resolvedPrice.unit_amount || 0) * lineQuantity;
+    }
+    if (!resolvedProductId || !resolvedCurrency || originalAmountCents <= 0) throw new Error("Purchase price is not configured");
+
+    let checkoutLineItem: Stripe.Checkout.SessionCreateParams.LineItem = upgradeLineItem ?? { price: price_id, quantity: lineQuantity };
+    const isBaseRsvp = plan_type === "rsvp" && price_id === "price_1TSzPs5GzTmqOxGK4Ca8kAAz";
+    if (isBaseRsvp) originalAmountCents = 10000;
+    if (isBaseRsvp) {
+      checkoutLineItem = { quantity: 1, price_data: { currency: resolvedCurrency, product: resolvedProductId, unit_amount: originalAmountCents, tax_behavior: "inclusive" } };
+    }
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      line_items: [upgradeLineItem ?? { price: price_id, quantity: lineQuantity }],
+      line_items: [checkoutLineItem],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
       metadata: {
@@ -251,6 +274,7 @@ serve(async (req) => {
         from_plan: upgrade_from_plan || "",
         to_plan: upgrade_from_plan ? (plan_type || "") : "",
         upgrade_diff_amount: upgradeDiffMeta,
+        original_amount_cents: String(originalAmountCents),
       },
     };
 

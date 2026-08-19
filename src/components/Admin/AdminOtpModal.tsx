@@ -1,117 +1,18 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import React, { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Shield } from 'lucide-react';
+import logoImage from '@/assets/wedding-waitress-full-logo.png';
+import styles from './AdminOtpModal.module.css';
 
-interface AdminOtpModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export const AdminOtpModal: React.FC<AdminOtpModalProps> = ({ open, onOpenChange }) => {
-  const [sending, setSending] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [code, setCode] = useState('');
-  const [maskedPhone, setMaskedPhone] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    if (open && !sent && !sending) {
-      void sendCode();
-    }
-    if (!open) {
-      setCode('');
-      setSent(false);
-      setMaskedPhone(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const sendCode = async () => {
-    setSending(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('admin-send-otp');
-      if (error || (data as any)?.error) {
-        toast({ title: 'Could not send code', description: (data as any)?.error || error?.message || 'Try again', variant: 'destructive' });
-        onOpenChange(false);
-        return;
-      }
-      setMaskedPhone((data as any).masked_phone || null);
-      setSent(true);
-      toast({ title: 'Verification code sent', description: 'Check your phone.' });
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const verify = async () => {
-    if (!/^\d{6}$/.test(code)) {
-      toast({ title: 'Invalid code', description: 'Enter the 6-digit code.', variant: 'destructive' });
-      return;
-    }
-    setVerifying(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('admin-verify-otp', { body: { code } });
-      if (error || (data as any)?.error) {
-        toast({ title: 'Verification failed', description: (data as any)?.error || error?.message || 'Try again', variant: 'destructive' });
-        return;
-      }
-      // Store short-lived grant in sessionStorage
-      const grant = (data as any).grant;
-      const sig = (data as any).signature;
-      if (grant && sig) {
-        sessionStorage.setItem('ww_admin_grant', grant);
-        sessionStorage.setItem('ww_admin_grant_sig', sig);
-      }
-      onOpenChange(false);
-      navigate('/admin');
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5" style={{ color: '#967A59' }} />
-            Admin verification
-          </DialogTitle>
-          <DialogDescription>
-            {sending && !sent && 'Sending a verification code to your phone…'}
-            {sent && `Enter the 6-digit code sent to ${maskedPhone || 'your phone'}.`}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
-          <Input
-            inputMode="numeric"
-            pattern="\d{6}"
-            maxLength={6}
-            placeholder="000000"
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            disabled={!sent || verifying}
-            className="text-center text-2xl tracking-[0.5em] font-mono"
-          />
-
-          <div className="flex flex-col gap-2">
-            <Button onClick={verify} disabled={!sent || verifying || code.length !== 6} className="w-full">
-              {verifying ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Verifying…</> : 'Verify'}
-            </Button>
-            <Button variant="ghost" onClick={sendCode} disabled={sending} className="w-full">
-              {sending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending…</> : 'Resend code'}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+interface Props { open:boolean; onOpenChange:(open:boolean)=>void }
+export const AdminOtpModal:React.FC<Props>=({open,onOpenChange})=>{
+  const [sending,setSending]=useState(false);const [verifying,setVerifying]=useState(false);const [code,setCode]=useState('');const [phone,setPhone]=useState('');const [sent,setSent]=useState(false);const [remaining,setRemaining]=useState(0);const [error,setError]=useState('');const navigate=useNavigate();
+  const sendCode=async()=>{setSending(true);setError('');const {data,error:invokeError}=await supabase.functions.invoke('admin-send-otp');const message=(data as {error?:string}|null)?.error||invokeError?.message;if(message){setError(message);setSending(false);return;}setPhone((data as {masked_phone?:string}|null)?.masked_phone||'your verified phone');setSent(true);setRemaining(60);setSending(false);};
+  useEffect(()=>{if(open&&!sent&&!sending)void sendCode();if(!open){setCode('');setSent(false);setPhone('');setRemaining(0);setError('');}},[open]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(()=>{if(remaining<=0)return;const timer=window.setInterval(()=>setRemaining(value=>Math.max(0,value-1)),1000);return()=>window.clearInterval(timer);},[remaining]);
+  const verify=async()=>{if(!/^\d{6}$/.test(code)){setError('Enter the complete six-digit verification code.');return;}setVerifying(true);setError('');const {data,error:invokeError}=await supabase.functions.invoke('admin-verify-otp',{body:{code}});const message=(data as {error?:string}|null)?.error||invokeError?.message;if(message){setError(/expired/i.test(message)?'That code has expired. Request a new code and try again.':/invalid/i.test(message)?'That code is incorrect. Check the code and try again.':message);setVerifying(false);return;}const grant=(data as {grant?:string}|null)?.grant;const signature=(data as {signature?:string}|null)?.signature;if(!grant||!signature){setError('Verification could not be confirmed. Please try again.');setVerifying(false);return;}sessionStorage.setItem('ww_admin_grant',grant);sessionStorage.setItem('ww_admin_grant_sig',signature);setVerifying(false);onOpenChange(false);navigate('/admin/overview');};
+  const change=(value:string)=>setCode(value.replace(/\D/g,'').slice(0,6));
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className={styles.dialog}><DialogHeader><img src={logoImage} alt="Wedding Waitress" className={styles.logo}/><div className={styles.eyebrow}><ShieldCheck/>Secure administrator access</div><DialogTitle className={styles.title}>Admin Verification</DialogTitle><DialogDescription className={styles.description}>{sending&&!sent?'Sending a verification code…':sent?`Enter the six-digit code sent to ${phone}.`:'Verify your identity to continue.'}</DialogDescription></DialogHeader><div className={styles.body}><input aria-label="Six-digit verification code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" maxLength={6} value={code} onChange={e=>change(e.target.value)} onPaste={e=>{e.preventDefault();change(e.clipboardData.getData('text'));}} disabled={!sent||verifying} className={styles.code} placeholder="000000"/><p className={styles.expiry}>Codes expire after 10 minutes. Five incorrect attempts invalidate the code.</p>{error&&<p className={styles.error} role="alert">{error}</p>}<button type="button" className={styles.verify} onClick={()=>void verify()} disabled={!sent||code.length!==6||verifying}>{verifying?<><Loader2 className={styles.spinner}/>Verifying…</>:'Verify'}</button><button type="button" className={styles.resend} onClick={()=>void sendCode()} disabled={sending||remaining>0}>{sending?'Sending…':remaining>0?`Resend Code in ${remaining}s`:'Resend Code'}</button><button type="button" className={styles.return} onClick={()=>onOpenChange(false)}>Close and return to Wedding Waitress</button></div></DialogContent></Dialog>;
 };

@@ -1,0 +1,252 @@
+.page {
+  --dietary-champagne-border: rgba(239, 220, 196, 0.72);
+  --dietary-champagne-border-soft: rgba(239, 220, 196, 0.5);
+  --dietary-champagne-text: #eadbc9;
+  --dietary-champagne-icon: #f2ddbd;
+  min-width: 0;
+}
+
+.headerPanel,
+.settingsPanel,
+.emptyPanel {
+  min-width: 0;
+  color: #f3e7d8 !important;
+  border: 1px solid var(--dietary-champagne-border) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(219, 160, 99, 0.13), transparent 31%),
+    linear-gradient(145deg, rgba(79, 43, 31, 0.82), rgba(24, 12, 9, 0.91)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    inset 0 -1px 0 rgba(56, 27, 19, 0.58),
+    0 20px 44px rgba(3, 1, 1, 0.36) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.settingsPanel {
+  margin-top: 2rem;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(224, 169, 107, 0.12), transparent 34%),
+    linear-gradient(150deg, rgba(84, 46, 34, 0.88), rgba(23, 11, 8, 0.95)) !important;
+}
+
+.exportPanel,
+.statsPill,
+.displayRow {
+  color: #f3e7d8 !important;
+  border: 1px solid var(--dietary-champagne-border) !important;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(214, 155, 93, 0.09), transparent 38%),
+    linear-gradient(155deg, rgba(64, 34, 25, 0.74), rgba(16, 8, 6, 0.88)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 9px 22px rgba(3, 1, 1, 0.24);
+}
+
+.statsPill {
+  border-radius: 0.65rem;
+}
+
+.displayRow {
+  min-width: 0;
+  padding: 0.65rem 0.7rem;
+  border-radius: 0.75rem;
+  gap: 0.5rem !important;
+}
+
+.control,
+.selectTrigger,
+.paginationButton {
+  color: #ffffff !important;
+  border: 1px solid var(--dietary-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.35), inset 0 1px 0 rgba(255, 239, 218, 0.11) !important;
+}
+
+.control:hover,
+.selectTrigger:hover,
+.paginationButton:hover:not(:disabled) {
+  border-color: rgba(255, 235, 207, 0.9) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.11), rgba(22, 10, 7, 0.9)) !important;
+}
+
+.control:focus-visible,
+.selectTrigger:focus-visible,
+.paginationButton:focus-visible {
+  outline: 2px solid rgba(239, 220, 196, 0.42) !important;
+  outline-offset: 2px;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.34), 0 0 0 3px rgba(239, 220, 196, 0.14) !important;
+}
+
+.paginationButton:disabled {
+  color: rgba(234, 219, 201, 0.46) !important;
+  border-color: rgba(239, 220, 196, 0.24) !important;
+  opacity: 1 !important;
+}
+
+.sectionLabel {
+  color: #f3e7d8 !important;
+  border: 1px solid var(--dietary-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(101, 56, 40, 0.82), rgba(30, 15, 11, 0.92));
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.15), 0 6px 14px rgba(3, 1, 1, 0.22);
+}
+
+.divider {
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(239, 220, 196, 0.46) 12%, rgba(239, 220, 196, 0.46) 88%, transparent) !important;
+}
+
+.exportButton {
+  color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  background: linear-gradient(180deg, rgba(35, 132, 70, 0.9), rgba(16, 82, 40, 0.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(220, 252, 231, 0.24), 0 7px 16px rgba(10, 74, 34, 0.3) !important;
+}
+
+.exportButton:hover:not(:disabled) {
+  color: #ffffff !important;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.portalSurface {
+  z-index: 100 !important;
+  color: #f3e7d8 !important;
+  border: 1px solid var(--dietary-champagne-border) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(223, 166, 104, 0.12), transparent 34%),
+    linear-gradient(155deg, rgba(69, 37, 27, 0.98), rgba(14, 7, 5, 0.99)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 18px 42px rgba(3, 1, 1, 0.48) !important;
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+}
+
+.portalItem,
+.portalSurface [role="option"],
+.portalSurface [role="menuitem"] {
+  color: #f3e7d8 !important;
+}
+
+.portalItem svg,
+.portalSurface [role="option"] svg,
+.portalSurface [role="menuitem"] svg {
+  color: var(--dietary-champagne-icon) !important;
+  stroke: currentColor !important;
+}
+
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="option"]:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="menuitem"]:is(:hover, :focus, [data-highlighted]) {
+  color: #ffffff !important;
+  background: rgba(133, 76, 52, 0.52) !important;
+}
+
+.colorSwatch {
+  flex: 0 0 auto;
+}
+
+.colorSwatch[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px #24110c, 0 0 0 3px rgba(239, 220, 196, 0.9) !important;
+}
+
+.settingsPanel [role="switch"] {
+  border: 1px solid var(--dietary-champagne-border) !important;
+  background: rgba(17, 8, 6, 0.82) !important;
+  box-shadow: inset 0 2px 5px rgba(3, 1, 1, 0.42);
+}
+
+.settingsPanel [role="switch"][data-state="checked"] {
+  border-color: #22c55e !important;
+  background: #22c55e !important;
+}
+
+.headerPanel :is(h1, h2, h3, h4, label, strong),
+.settingsPanel :is(h1, h2, h3, h4, label, strong),
+.emptyPanel :is(h1, h2, h3, h4, label, strong) {
+  color: #ffffff !important;
+}
+
+.headerPanel :is(p, li),
+.settingsPanel :is(p, li),
+.emptyPanel :is(p, li),
+.headerPanel [data-slot="card-description"],
+.settingsPanel [data-slot="card-description"],
+.emptyPanel [data-slot="card-description"],
+.settingsPanel [class*="text-muted-foreground"],
+.paginationLabel {
+  color: var(--dietary-champagne-text) !important;
+  opacity: 1 !important;
+}
+
+.selectTrigger span,
+.control span {
+  color: #ffffff !important;
+}
+
+:global(.ww-solid-text) .settingsPanel p[class*="text-muted-foreground"],
+:global(.ww-solid-text) .headerPanel p[class*="text-muted-foreground"],
+:global(.ww-solid-text) .emptyPanel p[class*="text-muted-foreground"] {
+  color: var(--dietary-champagne-text) !important;
+}
+
+:global(#root) :global(.ww-solid-text) .settingsPanel :is(p, [class*="text-muted-foreground"]),
+:global(#root) :global(.ww-solid-text) .emptyPanel :is(p, [class*="text-muted-foreground"]) {
+  color: var(--dietary-champagne-text) !important;
+}
+
+.headerPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+.settingsPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+.emptyPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+.pagination svg {
+  color: var(--dietary-champagne-icon) !important;
+  stroke: currentColor !important;
+}
+
+.exportButton svg {
+  color: #dcfce7 !important;
+  stroke: currentColor !important;
+}
+
+.previewStage {
+  min-width: 0;
+  isolation: isolate;
+}
+
+.pagination {
+  color: var(--dietary-champagne-text);
+}
+
+@media (max-width: 1023px) {
+  .settingsPanel {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    width: calc(100% + 1.5rem) !important;
+    max-width: none !important;
+  }
+
+  .headerPanel > div,
+  .settingsPanel > div {
+    padding-inline: 1rem;
+  }
+
+  .displayRow {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+  }
+
+  .displayRow label {
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *:not([data-dietary-a4-preview="true"]):not([data-dietary-a4-preview="true"] *),
+  .portalSurface * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

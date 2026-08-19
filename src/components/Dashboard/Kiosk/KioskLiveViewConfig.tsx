@@ -29,6 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
+import styles from './KioskSetup.module.css';
 
 interface KioskLiveViewConfigProps {
   eventId: string;
@@ -164,7 +165,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
   ];
 
   return (
-    <Card id="guest-live-view-configuration" className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full scroll-mt-24">
+    <Card id="guest-live-view-configuration" className={`${styles.primaryPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full scroll-mt-24`}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
           <Settings2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -184,7 +185,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
               return (
                 <div
                   key={tile.visKey as string}
-                  className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]"
+                  className={`${styles.tile} h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}
                 >
                   <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
                     <div className="flex items-center gap-3 max-lg:items-start">
@@ -215,7 +216,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                   {enabled && (
                     <Accordion type="single" collapsible className="w-full mt-auto">
                       <AccordionItem value={`${tile.visKey}-cfg`} className="border-0">
-                        <AccordionTrigger className="text-sm py-2 px-4 rounded-full border border-[#472c1d] hover:no-underline">
+                        <AccordionTrigger className={`${styles.control} text-sm py-2 px-4 rounded-full border border-[#472c1d] hover:no-underline`}>
                           <span className="text-[#856A4C] inline-flex items-center gap-[7px]">
                             <Settings2 className="w-[15px] h-[15px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                             Configure {tile.title} Settings
@@ -224,7 +225,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                         <AccordionContent>
                           <div className="space-y-3 pt-2">
                             {conf?.file_url ? (
-                              <div className="flex items-center gap-2 p-3 bg-background rounded-md border border-[#856A4C]/45 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] max-lg:flex-wrap">
+                              <div className={`${styles.innerSurface} flex items-center gap-2 p-3 bg-background rounded-md border border-[#856A4C]/45 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] max-lg:flex-wrap`}>
                                 <div className="flex-1 min-w-0 max-lg:basis-full">
                                   <p className="text-xs font-medium truncate">{conf.file_name}</p>
                                   {conf.uploaded_at && (
@@ -236,7 +237,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  className="lv-premium-shade text-white"
+                                  className={`${styles.replaceButton} lv-premium-shade text-white`}
                                   onClick={() => triggerFile(tile.configKey, tile.bucket)}
                                 >
                                   <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
@@ -245,7 +246,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  className="lv-premium-shade text-white"
+                                  className={`${styles.removeButton} lv-premium-shade text-white`}
                                   onClick={() => handleRemove(tile.configKey, tile.bucket)}
                                 >
                                   <Trash2 className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
@@ -254,7 +255,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                               </div>
                             ) : (
                               <div
-                                className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                                className={`${styles.uploadArea} border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors`}
                                 onClick={() => triggerFile(tile.configKey, tile.bucket)}
                               >
                                 <Upload className="h-[18px] w-[18px] mx-auto mb-2 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
@@ -272,7 +273,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
             };
 
             const heroTile = (
-              <div key="hero" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div key="hero" className={`${styles.tile} h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
                 <div className="flex items-center gap-3">
                   <ImagePlus className="h-5 w-5 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <div>
@@ -287,7 +288,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 </div>
                 <Accordion type="single" collapsible className="w-full mt-auto">
                   <AccordionItem value="hero-cfg" className="border-0">
-                    <AccordionTrigger className="text-sm py-2 px-4 rounded-full border border-[#472c1d] hover:no-underline">
+                    <AccordionTrigger className={`${styles.control} text-sm py-2 px-4 rounded-full border border-[#472c1d] hover:no-underline`}>
                       <span className="text-[#856A4C] inline-flex items-center gap-[7px]">
                         <Settings2 className="w-[15px] h-[15px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                         Configure Hero Background
@@ -297,7 +298,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                       <div className="space-y-3 pt-2">
                         {(modules as any)?.hero_image_config?.file_url ? (
                           <div className="space-y-3">
-                            <div className="relative rounded-md overflow-hidden border">
+                            <div className={`${styles.mediaFrame} relative rounded-md overflow-hidden border`}>
                               <img
                                 src={(modules as any).hero_image_config.file_url}
                                 alt="Hero preview"
@@ -311,7 +312,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                               <Button
                                 size="sm"
                                 variant="default"
-                                className="lv-premium-shade text-white"
+                                className={`${styles.replaceButton} lv-premium-shade text-white`}
                                 onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                               >
                                 <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
@@ -320,7 +321,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade text-white"
+                                className={`${styles.removeButton} lv-premium-shade text-white`}
                                 onClick={() => handleRemove('hero_image_config', 'live-view-uploads')}
                               >
                                 <Trash2 className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
@@ -330,7 +331,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                           </div>
                         ) : (
                           <div
-                            className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+                            className={`${styles.uploadArea} border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors`}
                             onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                           >
                             <Upload className="h-[18px] w-[18px] mx-auto mb-2 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />
@@ -346,7 +347,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
             );
 
             const togglesTile = (
-              <div key="toggles" className="h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+              <div key="toggles" className={`${styles.tile} h-full flex flex-col space-y-3 p-4 rounded-lg border-2 border-primary bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
                 <h4 className="text-sm font-semibold flex items-center gap-[7px]">
                   <SlidersHorizontal className="h-5 w-5 text-[#856A4C] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Kiosk Display Toggles

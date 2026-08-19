@@ -457,3 +457,144 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Premium espresso appearance scoped to the Invitations & Cards library. */
+.libraryDialog.libraryDialog {
+  color: #f3e7d8;
+  border: 1px solid rgba(239, 220, 196, 0.72);
+  background:
+    radial-gradient(circle at 76% 0%, rgba(222, 165, 102, 0.14), transparent 34%),
+    linear-gradient(155deg, rgba(71, 39, 29, 0.99), rgba(18, 9, 7, 0.995));
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.17), 0 28px 78px rgba(3, 1, 1, 0.62);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.libraryDialog :is(h1, h2, h3, label, strong),
+.title {
+  color: #ffffff !important;
+}
+
+.libraryDialog p,
+.description,
+.uploadRequirements,
+.uploadSummary,
+.emptyState {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+.libraryDialog svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+.header,
+.footer {
+  border-color: rgba(239, 220, 196, 0.58) !important;
+  background: rgba(20, 10, 7, 0.82) !important;
+}
+
+.uploader,
+.uploadRow,
+.confirmCard {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.68) !important;
+  background: linear-gradient(155deg, rgba(73, 40, 30, 0.91), rgba(18, 9, 7, 0.97)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 10px 24px rgba(3, 1, 1, 0.31) !important;
+}
+
+.categoryInput.categoryInput,
+.searchInput.searchInput,
+.categorySelect.categorySelect,
+.portal input {
+  color: #ffffff !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.065), rgba(14, 7, 5, 0.86)) !important;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.34), inset 0 1px 0 rgba(255, 239, 218, 0.1) !important;
+}
+
+.categoryInput::placeholder,
+.searchInput::placeholder,
+.portal input::placeholder {
+  color: rgba(237, 220, 199, 0.64) !important;
+}
+
+.templateCard,
+.card {
+  color: #f3e7d8;
+  border: 1px solid rgba(239, 220, 196, 0.68);
+  background: linear-gradient(155deg, rgba(75, 41, 30, 0.84), rgba(21, 10, 8, 0.94));
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 8px 20px rgba(3, 1, 1, 0.3);
+}
+
+.cardSelected,
+.templateCardSelected {
+  border-color: rgb(74 222 128) !important;
+  box-shadow: 0 0 0 2px rgb(34 197 94 / 0.24), 0 10px 24px rgb(3 1 1 / 0.34) !important;
+}
+
+.cardName {
+  color: #f3e7d8;
+}
+
+.imageButton,
+.imageFrame {
+  border: 0 !important;
+  background: rgba(12, 6, 4, 0.52);
+}
+
+.imageFrame img,
+.preview img {
+  border: 0 !important;
+}
+
+.cardAction.cardAction,
+.secondaryButton.secondaryButton,
+.libraryDialog button:not(.imageButton):not(.deleteAction):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-destructive"]):not(.primaryButton) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.7) !important;
+  background: linear-gradient(180deg, rgba(101, 57, 40, 0.86), rgba(28, 14, 10, 0.94)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14) !important;
+}
+
+.primaryButton.primaryButton,
+.libraryDialog button[class*="bg-green"],
+.libraryDialog button[class*="bg-emerald"] {
+  color: #ffffff !important;
+  border-color: #22c55e !important;
+  background: linear-gradient(180deg, #4ade80, #22c55e 58%, #16a34a) !important;
+}
+
+.deleteAction.deleteAction,
+.libraryDialog button[class*="bg-red"],
+.libraryDialog button[class*="bg-rose"],
+.libraryDialog button[class*="bg-destructive"] {
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+  background: linear-gradient(180deg, #f87171, #ef4444 58%, #dc2626) !important;
+}
+
+.portal {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(76, 41, 30, 0.995), rgba(20, 10, 8, 0.995)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 20px 42px rgba(3, 1, 1, 0.52) !important;
+}
+
+.portal [role="option"],
+.portal button,
+.portal label,
+.portal p {
+  color: #f3e7d8 !important;
+}
+
+.portal [role="option"][data-highlighted],
+.portal button:hover {
+  color: #ffffff !important;
+  background: rgba(139, 77, 40, 0.72) !important;
+}
+
+.viewport {
+  scrollbar-color: rgba(239, 220, 196, 0.72) rgba(15, 7, 5, 0.52);
+}

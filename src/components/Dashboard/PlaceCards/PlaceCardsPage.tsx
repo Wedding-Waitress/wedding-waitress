@@ -28,6 +28,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import { exportPlaceCardPageToPdf, exportAllPlaceCardsToPdf } from '@/lib/placeCardsPdfExporter';
 import { exportPlaceCardPageToDocx, exportAllPlaceCardsToDocx } from '@/lib/placeCardsDocxExporter';
+import premiumStyles from '../Signage/SignagePage.module.css';
+import styles from './PlaceCardsPage.module.css';
+import { usePlaceCardPhotoVideoQr } from '@/hooks/usePlaceCardPhotoVideoQr';
 interface PlaceCardsPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
@@ -44,6 +47,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [exportTarget, setExportTarget] = useState<'single' | 'all' | null>(null);
   const [textEditMode, setTextEditMode] = useState(false);
   const [textOverflowing, setTextOverflowing] = useState(false);
+  const [qrEditMode, setQrEditMode] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return sessionStorage.getItem('ww:place_cards_selected_table') || null;
   });
@@ -52,6 +56,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
+  const photoVideoQr = usePlaceCardPhotoVideoQr(selectedEventId);
   const { toast } = useToast();
 
   // Persist table selection to sessionStorage
@@ -104,7 +109,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         description: `Creating place cards for page 1...`,
       });
 
-      await exportPlaceCardPageToPdf(settings, assignedGuests, selectedEvent, 0);
+      await exportPlaceCardPageToPdf(settings, assignedGuests, selectedEvent, 0, photoVideoQr.data?.dataUrl);
 
       toast({
         title: 'PDF Downloaded',
@@ -135,7 +140,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         description: `Creating place cards for all ${totalPages} pages...`,
       });
 
-      await exportAllPlaceCardsToPdf(settings, assignedGuests, selectedEvent, totalPages);
+      await exportAllPlaceCardsToPdf(settings, assignedGuests, selectedEvent, totalPages, photoVideoQr.data?.dataUrl);
 
       toast({
         title: 'PDF Downloaded',
@@ -256,9 +261,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 place-cards-page ww-placecards-brown">
+    <div className={`${premiumStyles.page} ${styles.page} space-y-6 place-cards-page ww-placecards-brown`}>
       {/* Combined Header Box */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${premiumStyles.mainStudio} ${styles.headerPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardContent className="space-y-4 pt-6">
           {/* Title & Subtitle - Full Width */}
           <div className="text-left">
@@ -276,7 +281,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           {selectedEvent && assignedGuests.length > 0 && (
             <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-start justify-between gap-4">
               {/* Left: Statistics Box */}
-              <div className="w-full lg:flex-1 min-w-0 border border-primary rounded-xl p-4 text-sm space-y-2">
+              <div className={`${premiumStyles.guidelinesPanel} w-full lg:flex-1 min-w-0 border border-primary rounded-xl p-4 text-sm space-y-2`}>
                 {/* Main stats line */}
                 <p className="font-medium text-green-600 flex items-start gap-2">
                   <BadgeCheck size={18} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
@@ -298,7 +303,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
               {/* Right: Card Dimensions Box - Now Aligned with Stats */}
               {!guestsLoading && !settingsLoading && (
-                <div className="w-full lg:w-auto border border-primary rounded-xl p-4 space-y-2">
+                <div className={`${premiumStyles.exportPanel} ${styles.dimensionsPanel} w-full lg:w-auto border border-primary rounded-xl p-4 space-y-2`}>
                   <div className="flex items-center gap-2">
                     <Ruler size={19} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                     <h3 className="text-sm font-medium">Card Dimensions</h3>
@@ -323,10 +328,10 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           )}
 
           {/* SEPARATOR */}
-          <div className="border-b border-border" />
+          <div className={premiumStyles.divider} />
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
+          <div className={`${premiumStyles.exportRow} ${styles.controlsRow} flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2`}>
             {/* Left side: Choose Event & Table dropdowns */}
             <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8 lg:flex-nowrap w-full lg:w-auto">
               {/* Choose Event */}
@@ -336,10 +341,10 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                   Choose Event:
                 </label>
                 <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                  <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary">
+                  <SelectTrigger className={`${premiumStyles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
                     <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
+                  <SelectContent className="ww-signage-premium-portal bg-popover border-border z-50">
                     {events.length > 0 ? (
                       events.map((event) => (
                         <SelectItem key={event.id} value={event.id}>
@@ -370,10 +375,10 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     onValueChange={setSelectedTableId}
                     disabled={!selectedEventId || tablesLoading}
                   >
-                    <SelectTrigger className="w-full lg:w-[300px] border-primary focus:ring-primary">
+                    <SelectTrigger className={`${premiumStyles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary`}>
                       <SelectValue placeholder="Select a table" />
                     </SelectTrigger>
-                    <SelectContent className="bg-popover border-border z-50">
+                    <SelectContent className="ww-signage-premium-portal bg-popover border-border z-50">
                       {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
                         const displayName = table.table_no && table.name === String(table.table_no)
                           ? `Table ${table.table_no}`
@@ -393,7 +398,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
             {/* Right side: Export Controls */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className="w-full lg:w-auto border border-primary rounded-xl p-3 flex flex-col gap-2">
+              <div className={`${premiumStyles.exportPanel} ${styles.exportPanel} w-full lg:w-auto border border-primary rounded-xl p-3 flex flex-col gap-2`}>
                 <div className="text-sm flex items-center gap-1.5 flex-wrap">
                   <Printer size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                   <span className="font-medium">Export Controls</span>
@@ -405,7 +410,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     disabled={exportTarget !== null}
                     aria-label="Download Single Page PDF"
                     title="Download Single Page PDF"
-                    className="inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                    className={`${premiumStyles.exportButton} inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2`}
                   >
                     {exportTarget === 'single' ? (
                       <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin shrink-0" aria-hidden="true" />
@@ -419,7 +424,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     disabled={exportTarget !== null}
                     aria-label="Download All Pages PDF"
                     title="Download All Pages PDF"
-                    className="inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
+                    className={`${premiumStyles.exportButton} inline-flex items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2`}
                   >
                     {exportTarget === 'all' ? (
                       <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin shrink-0" aria-hidden="true" />
@@ -437,7 +442,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
       {/* Placeholder when no event selected */}
       {!selectedEventId && (
-        <Card className="ww-box p-12 text-center">
+        <Card className={`${premiumStyles.mainStudio} ww-box p-12 text-center`}>
           <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription className="text-base">
@@ -448,7 +453,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
       {/* Placeholder when event selected but no table selected */}
       {selectedEventId && !selectedTableId && (
-        <Card className="ww-box p-12 text-center">
+        <Card className={`${premiumStyles.mainStudio} ww-box p-12 text-center`}>
           <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select a Table</CardTitle>
           <CardDescription className="text-base">
@@ -459,7 +464,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
       {/* Premium info bar — mirrors Seating Chart Signs */}
       {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-        <div className="rounded-xl border border-[hsl(var(--primary)/0.18)] bg-gradient-to-br from-[hsl(var(--primary)/0.05)] to-[hsl(var(--primary)/0.02)] shadow-soft px-5 py-4 flex items-center justify-center">
+        <div className={`${premiumStyles.infoStrip} rounded-xl border border-[hsl(var(--primary)/0.18)] shadow-soft px-5 py-4 flex items-center justify-center`}>
           <p className="text-sm text-foreground/85 font-medium text-center">
             Portrait print layouts optimised for professional wedding signage. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
           </p>
@@ -468,15 +473,20 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className={`${premiumStyles.editorLayout} grid grid-cols-1 lg:grid-cols-12 gap-6`}>
           {/* Left Panel - Customizer */}
-          <div className="lg:col-span-5 min-w-0">
+          <div className={`${premiumStyles.designerShell} ${styles.designerShell} lg:col-span-5 min-w-0`}>
             <PlaceCardCustomizer
               settings={settings}
               onSettingsChange={updateSettings}
               guests={assignedGuests}
+              eventName={selectedEvent.name}
+              photoVideoQr={photoVideoQr.data}
+              photoVideoQrLoading={photoVideoQr.loading}
+              photoVideoQrError={photoVideoQr.error}
               textEditMode={textEditMode}
               onTextEditModeChange={setTextEditMode}
+              onQrEditModeChange={setQrEditMode}
             />
 
             {/* Boundary status banner — shown below customizer when text edit mode is active */}
@@ -494,7 +504,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           </div>
 
           {/* Right Panel - Preview */}
-          <div className="ww-placecards-preview lg:col-span-7 min-w-0">
+          <div className={`${premiumStyles.previewStage} ${styles.previewStage} ww-placecards-preview lg:col-span-7 min-w-0`}>
             <PlaceCardPreview
               settings={settings}
               guests={assignedGuests}
@@ -505,6 +515,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               textEditMode={textEditMode}
               onSettingsChange={updateSettings}
               onOverflowChange={setTextOverflowing}
+              photoVideoQrDataUrl={photoVideoQr.data?.dataUrl || null}
+              qrEditMode={qrEditMode}
             />
           </div>
         </div>

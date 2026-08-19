@@ -95,8 +95,8 @@ export const UpgradeCheckout: React.FC = () => {
         }
         setClientSecret(data.client_secret);
         setPublishableKey(pk);
-      } catch (e: any) {
-        const msg = e?.message || 'Failed to start checkout';
+      } catch (error: unknown) {
+        const msg = error instanceof Error ? error.message : 'Failed to start checkout';
         setError(msg);
         toast({ title: 'Checkout error', description: msg, variant: 'destructive' });
       }
@@ -104,7 +104,7 @@ export const UpgradeCheckout: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [plan?.price_id, plan?.mode, plan?.key, isDiffUpgrade, fromPlan?.key, toast]);
+  }, [plan, isDiffUpgrade, fromPlan, toast, navigate]);
 
   if (!plan) {
     return <div className="p-8">Unknown plan.</div>;
@@ -118,7 +118,7 @@ export const UpgradeCheckout: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/dashboard/upgrade')}
+          onClick={() => navigate('/account/plans-upgrades')}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

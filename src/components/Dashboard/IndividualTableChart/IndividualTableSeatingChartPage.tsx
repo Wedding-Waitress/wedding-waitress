@@ -36,6 +36,8 @@ import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 import { normalizeDietaryAccentColor } from '@/lib/dietaryChartSettings';
 import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
+import premiumStyles from '../Signage/SignagePage.module.css';
+import styles from './IndividualTableChartPage.module.css';
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square' | 'long';
   fontSize: 'small' | 'medium' | 'large';
@@ -274,10 +276,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
   return (
-    <div className="space-y-6 ww-itc-brown">
+    <div className={`${premiumStyles.page} ${styles.page} space-y-6 ww-itc-brown`}>
       {/* Guest Limit Warning Dialog */}
       <AlertDialog open={showGuestLimitWarning} onOpenChange={setShowGuestLimitWarning}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialogPanel}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-amber-600 flex items-center gap-2">
               <TriangleAlert className="w-[18px] h-[18px]" strokeWidth={1.8} />
@@ -288,14 +290,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowGuestLimitWarning(false)}>
+            <AlertDialogAction className={styles.dialogAction} onClick={() => setShowGuestLimitWarning(false)}>
               OK, I understand
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       {/* Event and Table Selection */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${premiumStyles.mainStudio} ${styles.headerPanel}`}>
         <CardHeader className="space-y-0">
           <div
             data-individual-chart-top-layout="true"
@@ -331,10 +333,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 }}
                 disabled={eventsLoading}
               >
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
+                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] font-bold`}>
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
+                <SelectContent className={styles.portalSurface}>
                   {events.length > 0 ? (
                     events.map((event) => (
                       <SelectItem key={event.id} value={event.id}>
@@ -364,10 +366,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 onValueChange={setSelectedTableId}
                 disabled={!selectedEventId || tablesLoading}
               >
-                <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
+                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px]`}>
                   <SelectValue placeholder="Select a table" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border z-50">
+                <SelectContent className={styles.portalSurface}>
                   {tables.map((table) => (
                     <SelectItem key={table.id} value={table.id}>
                       {table.name} ({table.guest_count} of {table.limit_seats} guests)
@@ -383,7 +385,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             {isDataReady && (
               <div
                 data-export-controls-card="true"
-                className="bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0"
+                className={`${styles.exportPanel} rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}
               >
                 <div className="text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="font-bold inline-flex items-center gap-1.5">
@@ -397,7 +399,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                   onClick={handleDownloadPdf}
                   disabled={isExporting || isExportingAll}
                   aria-label="Download single page PDF"
-                  className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                  className={`${styles.exportButton} ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                 >
                   {isExporting
                     ? <LoaderCircle className="w-4 h-4 animate-spin text-green-600" strokeWidth={1.8} aria-hidden="true" />
@@ -408,7 +410,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                   onClick={handleDownloadAllPdf}
                   disabled={isExporting || isExportingAll}
                   aria-label="Download all pages PDF"
-                  className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                  className={`${styles.exportButton} ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                 >
                   {isExportingAll
                     ? <LoaderCircle className="w-4 h-4 animate-spin text-green-600" strokeWidth={1.8} aria-hidden="true" />
@@ -424,7 +426,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
       {/* Main Content */}
       {!selectedEventId && (
-        <Card className="ww-box p-8 text-center">
+        <Card className={`${styles.emptyPanel} p-8 text-center`}>
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />
           <CardTitle className="mb-2">Select an Event</CardTitle>
           <CardDescription>
@@ -434,7 +436,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       )}
 
       {selectedEventId && !selectedTableId && (
-        <Card className="ww-box p-8 text-center">
+        <Card className={`${styles.emptyPanel} p-8 text-center`}>
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />
           <CardTitle className="mb-2">Select a Table</CardTitle>
           <CardDescription>
@@ -444,7 +446,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       )}
 
       {isDataReady && !isTableTooLargeForShape && (
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,3fr)] gap-6 bg-transparent">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,3fr)] gap-6 bg-transparent min-w-0">
           {/* Customizer */}
           <div className="min-w-0">
             <IndividualTableChartCustomizer
@@ -454,7 +456,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           </div>
 
           {/* Preview */}
-          <div className="min-w-0 ww-itc-preview">
+          <div className={`${styles.previewStage} min-w-0 ww-itc-preview`}>
             <IndividualTableChartPreview
               settings={settings}
               table={selectedTable}
@@ -479,7 +481,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
           {/* Warning Message */}
           <div className="lg:col-span-3">
-            <Card className="ww-box p-8 text-center">
+            <Card className={`${styles.warningPanel} p-8 text-center`}>
               <div className="text-amber-600 mb-4">
                 <TriangleAlert className="w-16 h-16 mx-auto" strokeWidth={1.8} aria-hidden="true" />
               </div>

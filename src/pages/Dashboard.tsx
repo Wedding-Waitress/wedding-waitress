@@ -2,8 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspens
 import { useSearchParams } from 'react-router-dom';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { AppSidebar } from "@/components/Dashboard/AppSidebar";
-import { DashboardHeader } from "@/components/Dashboard/DashboardHeader";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import myEventsStyles from "@/components/Dashboard/MyEventsPage.module.css";
 import { GuestListTable } from "@/components/Dashboard/GuestListTable";
@@ -34,6 +33,7 @@ import pageSpacingStyles from './DashboardPageSpacing.module.css';
 import tablesPageStyles from './TablesPage.module.css';
 import qrCodePageStyles from '@/components/Dashboard/QRCode/QRCodeSeatingChart.module.css';
 import guestListStyles from '@/components/Dashboard/GuestListTable.module.css';
+import signagePageStyles from '@/components/Dashboard/Signage/SignagePage.module.css';
 
 // Lazy-loaded tab pages for faster initial load
 const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
@@ -54,11 +54,11 @@ const Account = lazy(() => import('@/pages/Account').then(m => ({ default: m.Acc
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import type { Session } from '@supabase/supabase-js';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
+import { useDashboardSession } from '@/hooks/useDashboardSession';
 
 /* Organiser pages that use the standardised 1px #472c1d neutral border pass.
    Photo & Video Sharing and its workspaces are intentionally excluded. */
@@ -80,10 +80,18 @@ const BROWN_OUTLINE_TABS = new Set([
   'running-sheet',
 ]);
 
+/* These redesigned workspaces share one shell-level espresso surface. Keeping the
+   background on <main> lets it cover viewport padding and all overflowing content. */
+const ESPRESSO_FULL_PAGE_TABS = new Set([
+  'signage',
+  'invitations',
+  'place-cards',
+  'individual-table-chart',
+  'dietary-chart',
+]);
+
 export const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [session, setSession] = useState<Session | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTabState] = useState(() => searchParams.get('tab') || 'dashboard');
   
   // Wrap setActiveTab to persist in URL
@@ -98,13 +106,17 @@ export const Dashboard = () => {
     if (urlTab !== activeTab) setActiveTabState(urlTab);
   }, [searchParams, activeTab]);
 
-  // Attribute pending referral on first authenticated dashboard mount
-  useEffect(() => { import('@/hooks/useReferral').then(m => m.consumePendingReferral()); }, []);
 
   
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
   const navigate = useNavigate();
+  const {
+    session,
+    loading: authLoading,
+    error: authError,
+    retry: retryAuth,
+  } = useDashboardSession();
   const { plan, isTrialExpired, isStarterPlan } = useUserPlan();
   const [showPlanExpired, setShowPlanExpired] = useState(false);
 
@@ -138,28 +150,6 @@ export const Dashboard = () => {
     loading: profileLoading,
     error: profileError
   } = useProfile();
-
-  // Check session and set up auth listener
-  useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setAuthLoading(false);
-      if (!session) {
-        navigate('/');
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate('/');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const {
     tables: rawTables,
@@ -703,6 +693,22 @@ export const Dashboard = () => {
     );
   }
 
+  if (authError) {
+    return (
+      <div className="flex min-h-[100dvh] w-full items-center justify-center bg-gradient-subtle px-4">
+        <Card className="ww-box w-full max-w-md p-8 text-center" role="alert">
+          <CardTitle className="mb-2">Dashboard couldn’t load</CardTitle>
+          <CardDescription className="mb-6">
+            {authError}
+          </CardDescription>
+          <Button variant="default" size="xs" className="w-full rounded-full" onClick={retryAuth}>
+            Try Again
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   // Show authentication error or redirect to landing
   if (!session) {
     return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
@@ -721,23 +727,27 @@ export const Dashboard = () => {
     {/* Defensive page-level noIndex — protects every dashboard tab even if a tab forgets its own SeoHead. */}
     <SeoHead title="Dashboard | Wedding Waitress" description="Wedding Waitress dashboard" noIndex />
     <div className={`dashboard-shell relative min-h-screen dashboard-surface w-full mobile-contain ${activeTab === 'my-events' ? 'ww-myevents-brown' : ''}`}>
-      {/* Universal Header - Full Width */}
-      <DashboardHeader />
-      
       {/* Expiry Warning Banner */}
       <div className="print:hidden">
         <ExpiryWarningBanner />
       </div>
+
+      {/* The sidebar is an off-screen sheet below the desktop breakpoint. */}
+      <SidebarTrigger
+        className="fixed bottom-4 left-4 z-40 h-11 w-11 rounded-full border border-[#967A59]/45 bg-card shadow-lg lg:hidden print:hidden"
+        aria-label="Open menu"
+        title="Open menu"
+      />
       
       {/* Sidebar and Main Content */}
-      <div className="flex pt-16 sm:pt-14 md:pt-16 w-full">
+      <div className="flex w-full">
         {/* Sidebar */}
         <div className="print:hidden">
           <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}`}>
+        <main className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(activeTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}`}>
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>

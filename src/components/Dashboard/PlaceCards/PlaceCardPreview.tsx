@@ -24,6 +24,7 @@ import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import { Guest } from '@/hooks/useGuests';
 import { ChevronLeft, ChevronRight, Info, FoldHorizontal, ArrowRight } from 'lucide-react';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
+import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
 import { useToast } from '@/hooks/use-toast';
 
 // Monotonic counter for re-keying interactive overlays after commit
@@ -39,6 +40,8 @@ interface PlaceCardPreviewProps {
   textEditMode?: boolean;
   onSettingsChange?: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   onOverflowChange?: (overflowing: boolean) => void;
+  photoVideoQrDataUrl?: string | null;
+  qrEditMode?: boolean;
 }
 
 interface DraftOverrides {
@@ -62,6 +65,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   textEditMode = false,
   onSettingsChange,
   onOverflowChange,
+  photoVideoQrDataUrl = null,
+  qrEditMode = false,
 }, ref) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
@@ -71,6 +76,8 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   const [textOverflowing, setTextOverflowing] = useState(false);
   const allCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const firstCardRef = useRef<HTMLDivElement | null>(null);
+  const firstBackRef = useRef<HTMLDivElement | null>(null);
+  const [qrSelected, setQrSelected] = useState(false);
   const prevSettingsRef = useRef(settings);
   const { toast } = useToast();
   const previewWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -130,6 +137,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     seat_offset_y: 0,
     guest_name_rotation: 0,
     table_seat_rotation: 0,
+    photo_video_qr_enabled: false,
+    photo_video_qr_x: 50,
+    photo_video_qr_y: 50,
+    photo_video_qr_size: 22,
   };
 
   // Get table display value - prefer table name, fall back to table_no
@@ -360,6 +371,12 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const message = individualMessage || currentSettings.mass_message || '';
 
     const isInteractive = textEditMode && isFirstCard;
+    const isQrInteractive = qrEditMode && isFirstCard && Boolean(currentSettings.photo_video_qr_enabled && photoVideoQrDataUrl);
+    const qrSize = Math.max(12, Math.min(36, Number(currentSettings.photo_video_qr_size ?? 22)));
+    const qrHalf = qrSize / 2;
+    const qrVerticalHalf = qrSize * CARD_WIDTH_MM / (FRONT_HEIGHT_MM * 2);
+    const qrX = Math.max(qrHalf, Math.min(100 - qrHalf, Number(currentSettings.photo_video_qr_x ?? 50)));
+    const qrY = Math.max(qrVerticalHalf, Math.min(100 - qrVerticalHalf, Number(currentSettings.photo_video_qr_y ?? 50)));
     // Passive cards use draft overrides for live mirroring; master card is driven by InteractiveTextOverlay DOM
     const useDraft = !isInteractive;
 
@@ -534,6 +551,60 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           )}
         </div>
 
+        {/* Existing event Photo & Video Sharing QR — shared across every card back. */}
+        {currentSettings.photo_video_qr_enabled && photoVideoQrDataUrl && (
+          <div
+            ref={isFirstCard ? firstBackRef : undefined}
+            className="absolute left-0 top-0 z-20"
+            style={{ width: '105mm', height: '49.5mm' }}
+            onClick={isQrInteractive ? (event) => { event.stopPropagation(); setQrSelected(false); } : undefined}
+          >
+            {isQrInteractive ? (
+              <InteractiveQROverlay
+                qrDataUrl={photoVideoQrDataUrl}
+                xPercent={qrX}
+                yPercent={qrY}
+                sizePercent={qrSize}
+                isSelected={qrSelected}
+                onSelect={() => setQrSelected(true)}
+                onMove={(nextX, nextY) => onSettingsChange?.({
+                  photo_video_qr_x: Math.max(qrHalf, Math.min(100 - qrHalf, nextX)),
+                  photo_video_qr_y: Math.max(qrVerticalHalf, Math.min(100 - qrVerticalHalf, nextY)),
+                })}
+                onResize={(nextSize) => {
+                  const boundedSize = Math.max(12, Math.min(36, nextSize));
+                  const half = boundedSize / 2;
+                  const verticalHalf = boundedSize * CARD_WIDTH_MM / (FRONT_HEIGHT_MM * 2);
+                  onSettingsChange?.({
+                    photo_video_qr_size: boundedSize,
+                    photo_video_qr_x: Math.max(half, Math.min(100 - half, qrX)),
+                    photo_video_qr_y: Math.max(verticalHalf, Math.min(100 - verticalHalf, qrY)),
+                  });
+                }}
+                onDelete={() => onSettingsChange?.({ photo_video_qr_enabled: false })}
+                onReset={() => onSettingsChange?.({ photo_video_qr_x: 50, photo_video_qr_y: 50, photo_video_qr_size: 22 })}
+                containerRef={firstBackRef as React.RefObject<HTMLElement>}
+                whitePlate
+              />
+            ) : (
+              <img
+                src={photoVideoQrDataUrl}
+                alt="Photo & Video Sharing QR code"
+                className="absolute select-none"
+                draggable={false}
+                style={{
+                  left: `${qrX}%`,
+                  top: `${qrY}%`,
+                  width: `${qrSize}%`,
+                  aspectRatio: '1',
+                  transform: 'translate(-50%, -50%)',
+                  background: '#ffffff',
+                }}
+              />
+            )}
+          </div>
+        )}
+
         {/* CREASE LINE at Y = 49.5mm */}
         <div 
           className="absolute left-0 right-0" 
@@ -703,10 +774,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           <div className="print:hidden">
 
             {/* TOP Pagination Controls + Master Card notice */}
-            <div className="relative flex flex-wrap items-center justify-center gap-4 mb-6">
+            <div className="ww-placecards-pagination ww-placecards-pagination-top relative flex flex-wrap items-center justify-center gap-4 mb-6">
               {/* Master Card notice — aligned to left on same row as Previous */}
               <div
-                className="hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 text-xs leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30"
+                className="ww-placecards-master-notice hidden lg:block absolute left-0 top-1/2 -translate-y-1/2 text-xs leading-tight text-primary/80 bg-background/95 rounded-md px-2.5 py-2 shadow-sm border border-primary/30"
                 style={{ maxWidth: '220px' }}
               >
                 <span className="flex items-start gap-1.5">
@@ -753,16 +824,16 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                     height: '297mm',
                   }}
                 >
-                  <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
+                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0 }}>
+                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
                     <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
                   </div>
-                  <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border inline-flex items-center gap-1"><FoldHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />Fold</span>
+                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0 }}>
+                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border inline-flex items-center gap-1"><FoldHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />Fold</span>
                     <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
                   </div>
-                  <div className="absolute flex items-center gap-1.5 overflow-visible" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
+                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0 }}>
+                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
                     <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
                   </div>
                 </div>
@@ -834,7 +905,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
 
             {/* BOTTOM Pagination Controls */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+            <div className="ww-placecards-pagination flex flex-wrap items-center justify-center gap-4 mt-6">
               <Button
                 variant="outline"
                 size="sm"

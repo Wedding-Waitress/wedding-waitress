@@ -578,20 +578,8 @@ html {
     color: #6E6E73;
   }
 
-  /* Sidebar premium polish (non-structural) */
-  .dashboard-sidebar [data-sidebar="sidebar"],
-  .dashboard-sidebar {
-    background: linear-gradient(180deg, #FBF7F0 0%, #F5EFE4 100%) !important;
-    border-right: 1px solid rgba(201, 168, 122, 0.25) !important;
-  }
-  .dashboard-sidebar [data-sidebar="menu-button"][data-active="true"] {
-    background: linear-gradient(135deg, rgba(184,148,106,0.18), rgba(150,122,89,0.12)) !important;
-    border-left: 3px solid #967A59 !important;
-    color: #5a4a36 !important;
-  }
-  .dashboard-sidebar [data-sidebar="menu-button"]:hover {
-    background: rgba(201, 168, 122, 0.10) !important;
-  }
+  /* The dashboard sidebar's route-scoped liquid-glass appearance lives with
+     AppSidebar so its desktop rail, mobile sheet and account menu stay aligned. */
 
   /* Table row polish (opt-in) */
   .dashboard-table-row {
@@ -1573,86 +1561,6 @@ img { content-visibility: auto; }
 .ww-edit-guest-panel .ww-guest-category button:not([class*="bg-"]) {
   color: #472c1d !important;
 }
-
-/* ============================================================
-   Seating Chart Signs page — solid dark-brown pass (#472c1d)
-   Scoped to .ww-signage-brown (header card + designer column).
-   The sign preview is intentionally outside this scope.
-   ============================================================ */
-.ww-signage-brown h1,
-.ww-signage-brown h2,
-.ww-signage-brown h3,
-.ww-signage-brown h4,
-.ww-signage-brown label,
-.ww-signage-brown .text-primary,
-.ww-signage-brown .text-foreground,
-.ww-signage-brown [class*="text-[#967A59]"] {
-  color: #472c1d !important;
-}
-
-/* Icons: neutral brown, leave status colours (green/red) alone */
-.ww-signage-brown svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]) {
-  color: #472c1d !important;
-}
-
-/* Neutral borders → 1px solid #472c1d */
-.ww-signage-brown input,
-.ww-signage-brown textarea,
-.ww-signage-brown select,
-.ww-signage-brown [role="combobox"],
-.ww-signage-brown [class*="border-primary"],
-.ww-signage-brown [class*="border-border"],
-.ww-signage-brown [class*="border-input"],
-.ww-signage-brown [class*="border-muted"],
-.ww-signage-brown [class*="border-[#967A59]"] {
-  border-width: 1px !important;
-  border-style: solid !important;
-  border-color: #472c1d !important;
-}
-.ww-signage-brown [class*="border-green"],
-.ww-signage-brown [class*="border-red"],
-.ww-signage-brown [class*="border-destructive"] {
-  border-color: inherit !important;
-}
-.ww-signage-brown .border-green-500 { border-color: rgb(34 197 94) !important; }
-.ww-signage-brown .border-green-300 { border-color: rgb(134 239 172) !important; }
-
-/* Print guidelines heading */
-.ww-signage-brown .ww-signage-guidelines-title {
-  font-size: 18px !important;
-  line-height: 1.3 !important;
-  font-weight: 700 !important;
-  color: #472c1d !important;
-}
-
-/* Designer tabs — selected state */
-.ww-signage-brown [role="tablist"] [role="tab"] {
-  color: #472c1d !important;
-  border: 1px solid #472c1d !important;
-}
-.ww-signage-brown [role="tablist"] [role="tab"][data-state="active"] {
-  background-color: #472c1d !important;
-  color: #ffffff !important;
-}
-.ww-signage-brown [role="tablist"] [role="tab"][data-state="active"] svg {
-  color: #ffffff !important;
-}
-
-/* Add Custom Text Zone — same selected styling */
-.ww-signage-brown .ww-signage-add-custom-zone {
-  background-color: #472c1d !important;
-  color: #ffffff !important;
-  border: 1px solid #472c1d !important;
-}
-.ww-signage-brown .ww-signage-add-custom-zone svg { color: #ffffff !important; }
-
-/* Preset-zone buttons + labels */
-.ww-signage-brown .ww-signage-preset-zones button,
-.ww-signage-brown .ww-signage-preset-zones span {
-  color: #472c1d !important;
-  border: 1px solid #472c1d !important;
-}
-.ww-signage-brown .ww-signage-preset-zones button svg { color: #472c1d !important; }
 
 /* Delete Text Zone buttons (Seating Chart Signs + Invitations & Cards) */
 .ww-zone-delete-btn,

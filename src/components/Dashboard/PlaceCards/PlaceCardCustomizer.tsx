@@ -37,6 +37,8 @@ import {
   getTemplateById,
 } from "@/lib/PlaceCardTemplates";
 import { ColorPickerPopover } from "@/components/ui/color-picker-popover";
+import { PlaceCardPhotoVideoQrPanel } from "./PlaceCardPhotoVideoQrPanel";
+import type { PlaceCardPhotoVideoQr } from "@/hooks/usePlaceCardPhotoVideoQr";
 
 interface PlaceCardCustomizerProps {
   settings: PlaceCardSettings | null;
@@ -44,6 +46,11 @@ interface PlaceCardCustomizerProps {
   guests: Guest[];
   textEditMode?: boolean;
   onTextEditModeChange?: (enabled: boolean) => void;
+  eventName: string;
+  photoVideoQr: PlaceCardPhotoVideoQr | null;
+  photoVideoQrLoading: boolean;
+  photoVideoQrError: string | null;
+  onQrEditModeChange?: (enabled: boolean) => void;
 }
 
 interface ExtendedPlaceCardSettings extends PlaceCardSettings {
@@ -58,6 +65,11 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   guests,
   textEditMode = false,
   onTextEditModeChange,
+  eventName,
+  photoVideoQr,
+  photoVideoQrLoading,
+  photoVideoQrError,
+  onQrEditModeChange,
 }) => {
   const [individualMessages, setIndividualMessages] = useState<Record<string, string>>(
     settings?.individual_messages || {},
@@ -102,6 +114,10 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     info_italic: false,
     info_underline: false,
     info_font_color: "#000000",
+    photo_video_qr_enabled: false,
+    photo_video_qr_x: 50,
+    photo_video_qr_y: 50,
+    photo_video_qr_size: 22,
   };
   const handleSettingChange = async (key: keyof PlaceCardSettings, value: any) => {
     await onSettingsChange({
@@ -265,7 +281,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   };
   return (
     <>
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
+      <Card className="ww-signage-premium-designer ww-placecards-premium-designer border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette size={22} strokeWidth={1.8} className="text-foreground shrink-0" aria-hidden="true" />
@@ -273,7 +289,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="design" className="space-y-4">
+          <Tabs defaultValue="design" className="space-y-4" onValueChange={(value) => onQrEditModeChange?.(value === 'qr-code')}>
             <TabsList className="ww-seg-tabs w-full">
               <TabsTrigger value="design" className="gap-1.5">
                 <Palette size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
@@ -324,7 +340,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           {[12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48].map((size) => (
                             <SelectItem key={size} value={size.toString()}>
                               {size}pt
@@ -342,6 +358,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       <ColorPickerPopover
                         value={currentSettings.font_color}
                         onChange={(color) => handleSettingChange("font_color", color)}
+                        contentClassName="ww-signage-premium-portal"
                       />
                     </div>
                     <div>
@@ -365,7 +382,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           <SelectItem value="default">Default</SelectItem>
                           <SelectItem value="bold">Bold</SelectItem>
                           <SelectItem value="italic">Italic</SelectItem>
@@ -401,7 +418,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24].map((size) => (
                             <SelectItem key={size} value={size.toString()}>
                               {size}pt
@@ -419,6 +436,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       <ColorPickerPopover
                         value={(currentSettings as any).info_font_color || "#000000"}
                         onChange={(color) => handleSettingChange("info_font_color" as any, color)}
+                        contentClassName="ww-signage-premium-portal"
                       />
                     </div>
                     <div>
@@ -442,7 +460,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           <SelectItem value="default">Default</SelectItem>
                           <SelectItem value="bold">Bold</SelectItem>
                           <SelectItem value="italic">Italic</SelectItem>
@@ -696,7 +714,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => (
                             <SelectItem key={val} value={String(val)}>
                               {val}%
@@ -716,7 +734,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => (
                             <SelectItem key={val} value={String(val)}>
                               {val}%
@@ -736,7 +754,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="ww-signage-premium-portal">
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => (
                             <SelectItem key={val} value={String(val)}>
                               {val}%
@@ -755,6 +773,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <ColorPickerPopover
                     value={settings?.background_color || "#ffffff"}
                     onChange={(color) => handleSettingChange("background_color", color)}
+                    contentClassName="ww-signage-premium-portal"
                   />
                 </div>
 
@@ -772,18 +791,14 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
             </TabsContent>
 
             <TabsContent value="qr-code" className="space-y-4">
-              <div className="p-6 border-2 border-dashed border-[#967A59]/40 rounded-xl bg-[#FAF7F2] text-center space-y-3">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#967A59]/10">
-                  <QrCode size={24} strokeWidth={1.8} className="text-[#967A59]" aria-hidden="true" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground">Coming Soon</h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  Photo &amp; Video Upload QR Code — guests will be able to scan the QR code on their
-                  place card to instantly upload photos and videos to your event gallery. This will
-                  work just like the QR code in the Invitations &amp; Cards page (draggable, resizable,
-                  with a white background), but linked to your shared photo &amp; video album.
-                </p>
-              </div>
+              <PlaceCardPhotoVideoQrPanel
+                eventName={eventName}
+                qr={photoVideoQr}
+                loading={photoVideoQrLoading}
+                error={photoVideoQrError}
+                settings={currentSettings}
+                onSettingsChange={onSettingsChange}
+              />
             </TabsContent>
 
             <TabsContent value="messages" className="space-y-4">

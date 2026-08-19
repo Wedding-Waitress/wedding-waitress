@@ -120,7 +120,7 @@ serve(async (req) => {
     try {
       const portal = await stripe.billingPortal.sessions.create({
         customer: customerId,
-        return_url: `${origin}/dashboard?tab=account`,
+        return_url: `${origin}/account/plan-billing`,
       });
       portalUrl = portal.url;
     } catch (e) {

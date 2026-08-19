@@ -7,6 +7,8 @@ import { SectionCard } from './SectionCard';
 import { ChangePasswordModal } from './ChangePasswordModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import controlStyles from './AccountControls.module.css';
+import { DeleteAccountDialog } from './DeleteAccountDialog';
 
 interface Props {
   icon: LucideIcon;
@@ -17,6 +19,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   const [email, setEmail] = useState<string>('');
   const [sending, setSending] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,7 +45,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
   };
 
   return (
-    <SectionCard icon={icon} title="Security" description="Password and verification">
+    <SectionCard icon={icon} title="Security & Account" description="Password, verification and account controls">
       <div className="space-y-3 text-sm">
         <Row label="Password" value="••••••••••" />
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-2">
@@ -64,7 +67,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
         <Button
           size="sm"
           onClick={() => setOpen(true)}
-          className="bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full shadow-[0_2px_8px_-2px_rgba(150,122,89,0.45)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.55)] transition-all"
+          className={controlStyles.secondaryButton}
         >
           Change Password
         </Button>
@@ -72,7 +75,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
           <Button
             size="sm"
             variant="outline"
-            className="rounded-full border-[#C9A87A]/50 text-[#7d6649] hover:bg-[#FBF3E5] hover:text-[#7d6649]"
+            className={controlStyles.secondaryButton}
             onClick={sendVerification}
             disabled={sending}
           >
@@ -81,6 +84,13 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
         )}
       </div>
       <ChangePasswordModal open={open} onOpenChange={setOpen} />
+      <div className="mt-8 rounded-2xl border border-red-400/50 bg-red-950/35 p-5">
+        <span className="text-xs font-bold uppercase tracking-widest text-red-300">Danger Zone</span>
+        <h3 className="mt-2 text-lg font-semibold text-white">Delete Account</h3>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-red-100/80">Close your Wedding Waitress account and end access to your current plan. Your eligible account and event information will be retained securely for 12 months in case you change your mind.</p>
+        <Button className={`${controlStyles.destructiveButton} mt-4`} onClick={() => setDeleteOpen(true)}>Delete Account</Button>
+      </div>
+      <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} email={email} />
     </SectionCard>
   );
 };

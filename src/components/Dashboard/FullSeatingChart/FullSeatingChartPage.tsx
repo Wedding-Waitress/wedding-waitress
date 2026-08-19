@@ -51,6 +51,7 @@ import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
 import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
 import { getFullSeatingChartGuestsPerPage } from '@/lib/fullSeatingChartLayout';
+import styles from './FullSeatingChartPage.module.css';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -232,9 +233,9 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const hasGuests = guests.length > 0;
 
   return (
-    <div className="space-y-6 full-seating-chart-dark-purple max-md:px-4">
+    <div className={`${styles.page} space-y-6 full-seating-chart-dark-purple max-md:px-4`}>
       {/* Header */}
-      <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden">
+      <Card className={`${styles.headerPanel} border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] print:hidden`}>
         <CardHeader className="space-y-0">
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] xl:gap-6 xl:items-stretch">
             <div className="space-y-4 min-w-0">
@@ -255,13 +256,13 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   Choose Event:
                 </label>
                 <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                  <SelectTrigger className="w-full sm:w-[300px] border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]">
+                  <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] border-[#472c1d] focus:ring-[#472c1d] font-bold text-[#472c1d]`}>
                     <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-50">
+                  <SelectContent className={`${styles.portalSurface} bg-popover border-border z-50`}>
                     {events.length > 0 ? (
                       events.map((event) => (
-                        <SelectItem key={event.id} value={event.id}>
+                        <SelectItem className={styles.portalItem} key={event.id} value={event.id}>
                             <div className="flex items-center gap-2">
                             <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                             <span>{event.name}</span>
@@ -269,7 +270,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value="no-events" disabled>
+                      <SelectItem className={styles.portalItem} value="no-events" disabled>
                         {eventsLoading ? "Loading events..." : "No events found"}
                       </SelectItem>
                     )}
@@ -279,7 +280,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               {selectedEvent && (
                 <Badge
                   variant="outline"
-                  className="w-fit max-w-full h-10 px-3 py-2 bg-white border border-[#472c1d] text-[#472c1d] rounded-md whitespace-normal"
+                  className={`${styles.statsPill} w-fit max-w-full h-10 px-3 py-2 bg-white border border-[#472c1d] text-[#472c1d] rounded-md whitespace-normal`}
                 >
                     <UsersRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                     <span className="ml-1.5">
@@ -292,7 +293,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
             {/* Export Controls */}
             {isDataReady && hasGuests && (
-                <div className="bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0">
+                <div className={`${styles.exportPanel} bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}>
                   <div className="text-sm space-y-1">
                     <span className="font-bold text-sm inline-flex items-center gap-1.5">
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -304,7 +305,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   </div>
                   <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
                     <button
-                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                      className={`${styles.exportButton} ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                       onClick={handleDownloadPdf}
                       disabled={isExporting}
                       aria-label="Download single page PDF"
@@ -317,7 +318,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                       Download single page PDF
                     </button>
                     <button
-                      className="ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                      className={`${styles.exportButton} ww-itc-export-button inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                       onClick={handleDownloadPdfAll}
                       disabled={isExporting}
                       aria-label="Download all pages PDF"
@@ -373,7 +374,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </div>
           </div>
         ) : isDataReady && !hasGuests ? (
-          <Card className="ww-box print:hidden">
+          <Card className={`${styles.emptyPanel} ww-box print:hidden`}>
             <CardContent className="p-8 text-center">
               <UsersRound className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
               <CardTitle className="mb-2">No Guests Found</CardTitle>
@@ -383,7 +384,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             </CardContent>
           </Card>
         ) : (
-          <Card className="ww-box print:hidden">
+          <Card className={`${styles.emptyPanel} ww-box print:hidden`}>
             <CardContent className="p-8 text-center">
               <LayoutTemplate className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
               <CardTitle className="mb-2">Loading Event Data</CardTitle>
@@ -394,7 +395,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           </Card>
         )
       ) : (
-        <Card className="ww-box print:hidden">
+        <Card className={`${styles.emptyPanel} ww-box print:hidden`}>
           <CardContent className="p-8 text-center">
             <ClipboardList className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
             <CardTitle className="mb-2">Select an Event</CardTitle>

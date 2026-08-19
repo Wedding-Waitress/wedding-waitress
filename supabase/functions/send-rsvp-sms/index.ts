@@ -28,6 +28,8 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const userId = claimsData.claims.sub as string;
+    const { data: operational } = await supabase.rpc('is_account_operational', { p_user_id: userId });
+    if (operational !== true) return new Response(JSON.stringify({ error: 'Account access is closed' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     const { event_id, guest_ids } = await req.json();
     if (!event_id || !guest_ids?.length) {

@@ -27,4 +27,24 @@ describe('DashboardOverview event selector alignment', () => {
     expect(valueRow.querySelector('svg')).toHaveClass('shrink-0');
     expect(trigger.lastElementChild?.tagName.toLowerCase()).toBe('svg');
   });
+
+  it('exposes the visible label as its accessible name while remaining blank until a Dashboard selection', () => {
+    const eventName = 'Jason & Linda\'s Wedding';
+
+    render(
+      <DashboardOverview
+        selectedEventId="event-1"
+        onEventSelect={vi.fn()}
+        events={[{ id: 'event-1', name: eventName }]}
+        guests={[]}
+      />,
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Choose Event' });
+    const valueRow = screen.getByTestId('dashboard-event-value');
+
+    expect(trigger).toHaveAccessibleName('Choose Event');
+    expect(valueRow.textContent).toBe('');
+    expect(trigger).not.toHaveTextContent(eventName);
+  });
 });

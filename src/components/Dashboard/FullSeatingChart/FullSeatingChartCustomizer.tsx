@@ -31,6 +31,7 @@ import {
   Armchair,
   ListOrdered,
 } from 'lucide-react';
+import styles from './FullSeatingChartPage.module.css';
 
 const COLOR_LABELS: Record<FullSeatingChartColor, string> = {
   '#000000': 'black',
@@ -59,7 +60,7 @@ const ColorSwatches = ({ name, selected, onChange }: {
           title={`Use ${label} for ${name}`}
           aria-pressed={isSelected}
           onClick={() => onChange(value)}
-          className={`h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
+          className={`${styles.colorSwatch} h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
           style={{ backgroundColor: value }}
         />
       );
@@ -86,7 +87,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
   };
 
   return (
-    <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
+    <Card className={`${styles.settingsPanel} border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white`}>
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -107,7 +108,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
+            <span className={`${styles.sectionLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Sort Order</span>
           </div>
           
           <div>
@@ -121,25 +122,25 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 onSettingsChange({ sortBy: value })
               }
             >
-              <SelectTrigger id="sort-by" className="w-full border-[#472c1d] focus:ring-[#472c1d]">
+              <SelectTrigger id="sort-by" className={`${styles.selectTrigger} w-full border-[#472c1d] focus:ring-[#472c1d]`}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="firstName">First Name</SelectItem>
-                <SelectItem value="lastName">Last Name</SelectItem>
-                <SelectItem value="tableNo">Table Number - Names</SelectItem>
+              <SelectContent className={`${styles.portalSurface} bg-popover border-border z-50`}>
+                <SelectItem className={styles.portalItem} value="firstName">First Name</SelectItem>
+                <SelectItem className={styles.portalItem} value="lastName">Last Name</SelectItem>
+                <SelectItem className={styles.portalItem} value="tableNo">Table Number - Names</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <Separator />
+        <Separator className={styles.divider} />
 
         {/* Display Options */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Eye className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
+            <span className={`${styles.sectionLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -188,13 +189,13 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
           </div>
         </div>
 
-        <Separator />
+        <Separator className={styles.divider} />
 
         {/* Typography */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Type className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
+            <span className={`${styles.sectionLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Typography</span>
           </div>
 
           <div className="space-y-2">
@@ -206,10 +207,10 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               value={settings.fontSize}
               onValueChange={(fontSize: FullSeatingChartSettings['fontSize']) => onSettingsChange({ fontSize })}
             >
-              <SelectTrigger className="w-full border-[#472c1d] focus:ring-[#472c1d]">
+              <SelectTrigger className={`${styles.selectTrigger} w-full border-[#472c1d] focus:ring-[#472c1d]`}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={styles.portalSurface}>
                 <SelectItem value="small">Small — 8 pt</SelectItem>
                 <SelectItem value="standard">Standard — 10 pt</SelectItem>
                 <SelectItem value="large">Large — 12 pt</SelectItem>
@@ -226,15 +227,15 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-between border-[#472c1d] focus:ring-[#472c1d] mt-1"
+                  className={`${styles.control} w-full justify-between border-[#472c1d] focus:ring-[#472c1d] mt-1`}
                 >
                   <span className="text-sm">{getTextStyleLabel()}</span>
                   <ChevronDown className="w-4 h-4 ml-2 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
+              <DropdownMenuContent className={`${styles.portalSurface} w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50`}>
                 <DropdownMenuItem 
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
+                  className={`${styles.portalItem} flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground`}
                   onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                 >
                   <div className="flex items-center gap-2">
@@ -244,7 +245,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                   {settings.isBold && <Check className="w-4 h-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
+                  className={`${styles.portalItem} flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground`}
                   onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                 >
                   <div className="flex items-center gap-2">
@@ -254,7 +255,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                   {settings.isItalic && <Check className="w-4 h-4" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
+                  className={`${styles.portalItem} flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground`}
                   onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                 >
                   <div className="flex items-center gap-2">

@@ -69,6 +69,10 @@ export const PaymentSuccess = () => {
     }
   })();
   const returnDest = (() => {
+    if (!isRsvp && returnTab === 'account') {
+      const params = new URLSearchParams({ success: 'true' });
+      return `/account/plan-billing?${params.toString()}`;
+    }
     const params = new URLSearchParams();
     params.set('tab', returnTab);
     if (isRsvp) {
@@ -87,7 +91,7 @@ export const PaymentSuccess = () => {
   useEffect(() => {
     if (status === "success" || status === "approval" || status === "pending") {
       const timer = setTimeout(() => {
-        try { sessionStorage.removeItem('ww:returnTab'); } catch {}
+        try { sessionStorage.removeItem('ww:returnTab'); } catch { /* storage may be unavailable */ }
         navigate(returnDest, { replace: true });
       }, 8000);
       return () => clearTimeout(timer);
@@ -120,7 +124,7 @@ export const PaymentSuccess = () => {
                 Valid until {new Date(details.expires_at).toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" })}
               </p>
             )}
-            <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); })()} className="rounded-full">
+            <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch { /* storage may be unavailable */ } navigate(returnDest, { replace: true }); })()} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
@@ -140,7 +144,7 @@ export const PaymentSuccess = () => {
               An admin will review and approve your account within <strong>24 hours</strong>.
               You'll receive full access once approved.
             </div>
-            <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); })()} className="rounded-full">
+            <Button onClick={() => (() => { try { sessionStorage.removeItem("ww:returnTab"); } catch { /* storage may be unavailable */ } navigate(returnDest, { replace: true }); })()} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>
@@ -156,7 +160,7 @@ export const PaymentSuccess = () => {
             <p className="text-muted-foreground">
               We're finalizing your setup. Your purchase is confirmed with Stripe — please give us a moment.
             </p>
-            <Button onClick={() => { try { sessionStorage.removeItem("ww:returnTab"); } catch {} navigate(returnDest, { replace: true }); }} className="rounded-full">
+            <Button onClick={() => { try { sessionStorage.removeItem("ww:returnTab"); } catch { /* storage may be unavailable */ } navigate(returnDest, { replace: true }); }} className="rounded-full">
               Go to Dashboard
             </Button>
             <p className="text-xs text-muted-foreground">Redirecting automatically…</p>

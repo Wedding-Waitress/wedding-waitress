@@ -1,0 +1,213 @@
+.page {
+  --kiosk-champagne-border: rgba(239, 220, 196, 0.72);
+  --kiosk-champagne-text: #eadbc9;
+  --kiosk-champagne-icon: #f2ddbd;
+  color: #f3e7d8;
+}
+
+:global(main):has(.page) {
+  background-color: #70452f;
+  background-image:
+    radial-gradient(circle at 76% 7%, rgba(235, 180, 119, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(20, 10, 7, 0.24), transparent 46%),
+    url("../../../assets/dashboard-mocha-liquid-glass.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.primaryPanel {
+  color: #f3e7d8 !important;
+  border-color: var(--kiosk-champagne-border) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(219, 160, 99, 0.13), transparent 31%),
+    linear-gradient(145deg, rgba(79, 43, 31, 0.82), rgba(24, 12, 9, 0.91)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    inset 0 -1px 0 rgba(56, 27, 19, 0.58),
+    0 20px 44px rgba(3, 1, 1, 0.36) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.innerPanel,
+.tile,
+.innerSurface,
+.urlField,
+.uploadArea {
+  color: #f3e7d8 !important;
+  border-color: var(--kiosk-champagne-border) !important;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(214, 155, 93, 0.09), transparent 38%),
+    linear-gradient(155deg, rgba(64, 34, 25, 0.74), rgba(16, 8, 6, 0.88)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    0 9px 22px rgba(3, 1, 1, 0.24) !important;
+}
+
+:global(#root) .page .urlField {
+  color: #f3e7d8 !important;
+}
+
+.control {
+  color: #ffffff !important;
+  border-color: var(--kiosk-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(3, 1, 1, 0.35),
+    inset 0 1px 0 rgba(255, 239, 218, 0.11) !important;
+}
+
+.control:hover,
+.uploadArea:hover {
+  border-color: rgba(255, 235, 207, 0.9) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.11), rgba(22, 10, 7, 0.9)) !important;
+}
+
+.control:active,
+.replaceButton:active,
+.actionGreen:active {
+  filter: brightness(0.94);
+}
+
+.control:focus-visible,
+.uploadArea:focus-visible,
+.replaceButton:focus-visible,
+.actionGreen:focus-visible {
+  outline: 2px solid rgba(239, 220, 196, 0.42) !important;
+  outline-offset: 2px;
+}
+
+:global(#root) .page .control span {
+  color: inherit !important;
+}
+
+.portalSurface {
+  color: #f3e7d8 !important;
+  border-color: var(--kiosk-champagne-border) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(223, 166, 104, 0.12), transparent 34%),
+    linear-gradient(155deg, rgba(69, 37, 27, 0.98), rgba(14, 7, 5, 0.99)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 18px 42px rgba(3, 1, 1, 0.48) !important;
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+}
+
+.portalItem,
+.portalSurface [role="option"],
+.portalSurface [role="menuitem"] {
+  color: #f3e7d8 !important;
+}
+
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="option"]:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="menuitem"]:is(:hover, :focus, [data-highlighted]) {
+  color: #ffffff !important;
+  background: rgba(133, 76, 52, 0.52) !important;
+}
+
+.divider {
+  border-color: rgba(239, 220, 196, 0.46) !important;
+}
+
+.numberBadge {
+  color: #ffffff !important;
+  border-color: var(--kiosk-champagne-border) !important;
+  background: rgba(34, 17, 12, 0.82) !important;
+}
+
+.actionGreen {
+  color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  background: linear-gradient(180deg, rgba(35, 132, 70, 0.9), rgba(16, 82, 40, 0.96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(220, 252, 231, 0.24),
+    0 7px 16px rgba(10, 74, 34, 0.3) !important;
+}
+
+:global(#root) .page .actionGreen {
+  color: #dcfce7 !important;
+}
+
+.actionGreen:hover:not(:disabled) {
+  color: #ffffff !important;
+  filter: brightness(1.08);
+}
+
+.replaceButton {
+  color: #ffffff !important;
+  border-color: var(--kiosk-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(135, 81, 57, 0.96), rgba(55, 27, 20, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.17),
+    0 7px 16px rgba(3, 1, 1, 0.25) !important;
+}
+
+.removeButton {
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+  background: linear-gradient(180deg, #ef4444, #b91c1c) !important;
+}
+
+.qrCode {
+  background: #ffffff !important;
+}
+
+.mediaFrame {
+  border-color: var(--kiosk-champagne-border) !important;
+  background: transparent !important;
+}
+
+.page [role="switch"] {
+  border-color: rgba(239, 220, 196, 0.5) !important;
+  background: rgba(17, 8, 6, 0.82) !important;
+  box-shadow: inset 0 2px 5px rgba(3, 1, 1, 0.42);
+}
+
+.page [role="switch"][data-state="checked"] {
+  border-color: #22c55e !important;
+  background: #22c55e !important;
+}
+
+:global(#root) .page :is(h1, h2, h3, h4, label, strong),
+:global(#root) .page [class*="text-foreground"] {
+  color: #ffffff !important;
+}
+
+:global(#root) .page :is(p, li):not([class*="text-red"]):not([class*="text-green"]),
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: var(--kiosk-champagne-text) !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]) {
+  color: var(--kiosk-champagne-icon) !important;
+  stroke: currentColor !important;
+}
+
+.actionGreen svg {
+  color: #dcfce7 !important;
+}
+
+.removeButton svg {
+  color: #ffffff !important;
+}
+
+:global(#root) .page .primaryPanel,
+:global(#root) .page .tile {
+  border-color: var(--kiosk-champagne-border) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after,
+  .portalSurface * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

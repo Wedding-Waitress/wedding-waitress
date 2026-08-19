@@ -77,7 +77,7 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
           sessionStorage.setItem('ww:returnTab', 'guest-list');
           // For overage, store the additional guest capacity being purchased.
           sessionStorage.setItem('ww:rsvpSelectedCount', String(extraGuests ?? 0));
-        } catch {}
+        } catch { /* popup navigation is a best-effort fallback */ }
         onClose();
         // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside
         // any iframe (e.g. the Lovable preview). Break out to the top window;

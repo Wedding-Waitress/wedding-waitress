@@ -35,6 +35,7 @@ interface PlaceCardFontPickerProps {
   value: string;
   onValueChange: (font: string) => void;
   label?: string;
+  contentClassName?: string;
 }
 
 // Group Google Fonts by category
@@ -97,6 +98,7 @@ const FontItem: React.FC<{
 export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
   value,
   onValueChange,
+  contentClassName,
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -137,7 +139,7 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
           <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start">
+      <PopoverContent className={cn("ww-signage-premium-portal w-[300px] p-0", contentClassName)} align="start">
         <Command shouldFilter={true}>
           <CommandInput
             placeholder="Search 1,500+ fonts…"

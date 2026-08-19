@@ -1,0 +1,673 @@
+.fullPageSurface {
+  min-height: 100dvh;
+  background-color: #70452f;
+  background-image:
+    radial-gradient(circle at 76% 7%, rgba(235, 180, 119, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(20, 10, 7, 0.24), transparent 46%),
+    url("../../../assets/dashboard-mocha-liquid-glass.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.page {
+  --ww-signage-champagne-border: rgba(239, 220, 196, 0.72);
+  --ww-signage-champagne-border-soft: rgba(239, 220, 196, 0.58);
+  --ww-signage-champagne-icon: #f2ddbd;
+  min-height: calc(100dvh - 4rem);
+  min-width: 0;
+  margin: -1.5rem -2rem;
+  overflow-x: clip;
+  padding: clamp(1rem, 2vw, 2rem);
+  color: #f3e7d8;
+  background: transparent;
+  isolation: isolate;
+}
+
+.mainStudio,
+.infoStrip {
+  color: #f3e7d8 !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(145deg, rgba(72, 39, 28, 0.78), rgba(20, 10, 8, 0.84)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.19),
+    inset 0 -1px 0 rgba(70, 35, 23, 0.52),
+    0 22px 52px rgba(3, 1, 1, 0.42) !important;
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+}
+
+:global(#root) .mainStudio,
+:global(#root) .infoStrip {
+  border-color: var(--ww-signage-champagne-border) !important;
+}
+
+.pageHeader {
+  padding: 0.15rem 0.1rem 0.25rem;
+}
+
+.mainStudio h1,
+.mainStudio h2,
+.mainStudio h3,
+.mainStudio h4,
+.mainStudio label,
+.mainStudio [class*="text-foreground"],
+.designerShell h1,
+.designerShell h2,
+.designerShell h3,
+.designerShell h4,
+.designerShell label,
+.designerShell [class*="text-foreground"],
+.infoStrip [class*="text-foreground"] {
+  color: #ffffff !important;
+}
+
+:global(#root) .mainStudio :is(h1, h2, h3, h4, label, strong),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) :is(h1, h2, h3, h4, label, strong) {
+  color: #ffffff !important;
+}
+
+:global(#root) .mainStudio :is(p, li, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) :is(p, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+:global(#root) .infoStrip p {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+.mainStudio p,
+.mainStudio li,
+.mainStudio [class*="text-muted-foreground"],
+.designerShell p,
+.designerShell [class*="text-muted-foreground"],
+.infoStrip p {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+.mainStudio svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]),
+.designerShell svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #d9b77f !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: var(--ww-signage-champagne-icon) !important;
+  stroke: currentColor !important;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(225, 183, 132, 0.62) 12%, rgba(225, 183, 132, 0.62) 88%, transparent);
+  box-shadow: 0 1px 0 rgba(17, 8, 6, 0.48);
+}
+
+.printStudio {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.guidelinesPanel {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.printSizeGrid {
+  min-width: 0;
+}
+
+.printSizeCard {
+  min-width: 0;
+  color: #f3e7d8 !important;
+  border-color: var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(155deg, rgba(92, 51, 36, 0.72), rgba(25, 13, 10, 0.88)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 9px 20px rgba(3, 1, 1, 0.27) !important;
+}
+
+.printSizeCard:not(.printSizeActive):hover {
+  border-color: rgba(239, 200, 150, 0.76) !important;
+  background: linear-gradient(155deg, rgba(112, 63, 43, 0.82), rgba(31, 16, 12, 0.92)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 229, 0.19),
+    0 13px 26px rgba(3, 1, 1, 0.34) !important;
+}
+
+.printSizeCard:not(.printSizeActive) span {
+  color: #f3e7d8 !important;
+}
+
+:global(#root) .mainStudio .printSizeCard:not(.printSizeActive) {
+  border-color: var(--ww-signage-champagne-border) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.printSizeActive {
+  color: #dfffea !important;
+  border-color: rgba(74, 222, 128, 0.76) !important;
+  background: linear-gradient(155deg, rgba(30, 111, 61, 0.6), rgba(12, 48, 27, 0.78)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(220, 252, 231, 0.2),
+    0 0 0 2px rgba(74, 222, 128, 0.13),
+    0 13px 28px rgba(3, 1, 1, 0.32) !important;
+}
+
+.printSizeActive [class*="text-green"] {
+  color: #bbf7d0 !important;
+}
+
+.printSizeActive [class*="bg-green"] {
+  color: #d9ffe5 !important;
+  border-color: rgba(74, 222, 128, 0.58) !important;
+  background: rgba(34, 197, 94, 0.17) !important;
+}
+
+.exportRow,
+.eventControl,
+.exportPanel {
+  min-width: 0;
+}
+
+.selectTrigger,
+.mainStudio input:not([type="color"]),
+.mainStudio textarea,
+.mainStudio button[role="combobox"] {
+  color: #ffffff !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(16, 8, 6, 0.8)) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(3, 1, 1, 0.34),
+    inset 0 1px 0 rgba(255, 239, 218, 0.11) !important;
+}
+
+:global(#root) .selectTrigger,
+:global(#root) .selectTrigger span,
+:global(#root) .mainStudio input:not([type="color"]),
+:global(#root) .mainStudio textarea,
+:global(#root) .mainStudio button[role="combobox"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+:global(#root) .mainStudio .selectTrigger,
+:global(#root) .mainStudio input:not([type="color"]),
+:global(#root) .mainStudio textarea,
+:global(#root) .mainStudio button[role="combobox"] {
+  border-color: var(--ww-signage-champagne-border) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.exportPanel {
+  border-color: var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(145deg, rgba(63, 34, 25, 0.7), rgba(19, 9, 7, 0.77));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    0 10px 24px rgba(3, 1, 1, 0.25);
+}
+
+.exportButton {
+  color: #d9ffe5 !important;
+  border-color: #22c55e !important;
+  background: linear-gradient(180deg, rgba(35, 132, 70, 0.88), rgba(16, 82, 40, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(220, 252, 231, 0.22),
+    0 8px 18px rgba(10, 74, 34, 0.3) !important;
+}
+
+.exportButton svg {
+  color: #d9ffe5 !important;
+}
+
+.exportButton:not(:disabled):hover {
+  background: linear-gradient(180deg, rgba(42, 157, 82, 0.95), rgba(18, 99, 47, 0.98)) !important;
+}
+
+.infoStrip {
+  padding-block: 1rem;
+  border-color: var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(90deg, rgba(37, 19, 14, 0.74), rgba(90, 49, 34, 0.66), rgba(37, 19, 14, 0.74)) !important;
+}
+
+.editorLayout,
+.designerShell,
+.previewStage {
+  min-width: 0;
+}
+
+.designerShell :global(.ww-signage-premium-designer) {
+  overflow: hidden;
+  color: #f3e7d8 !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background:
+    radial-gradient(circle at 78% 0%, rgba(217, 164, 105, 0.12), transparent 31%),
+    linear-gradient(155deg, rgba(70, 38, 28, 0.88), rgba(19, 9, 7, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    0 22px 50px rgba(3, 1, 1, 0.43) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.designerShell :global(.ww-signage-premium-designer) > div:first-child {
+  border-bottom: 1px solid rgba(201, 151, 93, 0.34);
+  background: linear-gradient(180deg, rgba(113, 63, 43, 0.38), rgba(35, 18, 13, 0.22));
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tablist"] {
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: rgba(14, 7, 5, 0.64) !important;
+  box-shadow:
+    inset 0 2px 7px rgba(3, 1, 1, 0.37),
+    inset 0 1px 0 rgba(255, 239, 218, 0.08) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"] {
+  color: #d9c4aa !important;
+  border: 1px solid var(--ww-signage-champagne-border-soft) !important;
+  background: transparent !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"] svg {
+  color: var(--ww-signage-champagne-icon) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"]:hover {
+  color: #ffffff !important;
+  background: rgba(112, 63, 43, 0.45) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  border-color: var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(122, 68, 47, 0.9), rgba(47, 24, 17, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.2),
+    0 7px 16px rgba(3, 1, 1, 0.29) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] svg {
+  color: var(--ww-signage-champagne-icon) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) input:not([type="color"]),
+.designerShell :global(.ww-signage-premium-designer) textarea,
+.designerShell :global(.ww-signage-premium-designer) button[role="combobox"] {
+  color: #ffffff !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.065), rgba(14, 7, 5, 0.78)) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(3, 1, 1, 0.35),
+    inset 0 1px 0 rgba(255, 239, 218, 0.09) !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) input:not([type="color"]),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) textarea,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[role="combobox"],
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[role="combobox"] span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) input:not([type="color"]),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) textarea,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[role="combobox"] {
+  border-color: var(--ww-signage-champagne-border) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) input::placeholder,
+.designerShell :global(.ww-signage-premium-designer) textarea::placeholder {
+  color: rgba(237, 220, 199, 0.62) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [class*="bg-muted"],
+.designerShell :global(.ww-signage-premium-designer) [class*="border-accent"],
+.designerShell :global(.ww-signage-premium-designer) [class*="border-dashed"] {
+  color: #f3e7d8 !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(145deg, rgba(60, 32, 24, 0.65), rgba(17, 8, 6, 0.74)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.11),
+    0 8px 19px rgba(3, 1, 1, 0.22);
+}
+
+.designerShell :global(.ww-signage-premium-designer) [class*="border-t"] {
+  border-color: rgba(201, 151, 93, 0.34) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-preset-zones) > span {
+  color: #efd3a6 !important;
+  border-color: rgba(225, 183, 132, 0.6) !important;
+  background: rgba(20, 10, 7, 0.45);
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-preset-zones) button {
+  color: #f3e7d8 !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(103, 57, 40, 0.75), rgba(27, 14, 10, 0.87)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.13), 0 6px 13px rgba(3, 1, 1, 0.22) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-preset-zones) button svg {
+  color: var(--ww-signage-champagne-icon) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-add-custom-zone) {
+  color: #ffffff !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(180deg, #805139, #4a291d) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.2), 0 9px 20px rgba(3, 1, 1, 0.29) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) button:not([role="tab"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([style]) {
+  color: #f3e7d8 !important;
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(99, 55, 39, 0.82), rgba(27, 14, 10, 0.91)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 7px 16px rgba(3, 1, 1, 0.24) !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button:not([role="switch"]):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-destructive"]):not(:global(.ww-zone-delete-btn)),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) [class*="border-border"]:not([class*="border-green"]):not([class*="border-emerald"]):not([class*="border-red"]):not([class*="border-rose"]):not([class*="border-destructive"]) {
+  border-color: var(--ww-signage-champagne-border) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) button:not(:disabled):not([role="tab"]):not([role="switch"]):hover {
+  filter: brightness(1.09);
+}
+
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-green"] {
+  color: #ffffff !important;
+  border-color: #22c55e !important;
+  background: linear-gradient(180deg, #4ade80, #22c55e 58%, #16a34a) !important;
+}
+
+:global(#root) .printSizeActive [class*="text-green"] {
+  color: #bbf7d0 !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[class*="bg-green"],
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[class*="bg-red"],
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[class*="bg-destructive"],
+:global(#root) .designerShell :global(.ww-signage-premium-designer) :global(.ww-zone-delete-btn) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-red"],
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-destructive"],
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-zone-delete-btn) {
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+  background: linear-gradient(180deg, #f87171, #ef4444 58%, #dc2626) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 7px 16px rgba(127, 29, 29, 0.27) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-green"] svg,
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-red"] svg,
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-destructive"] svg,
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-zone-delete-btn) svg {
+  color: #ffffff !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[class*="bg-green"] svg,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[class*="bg-red"] svg,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[class*="bg-destructive"] svg,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) :global(.ww-zone-delete-btn) svg {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) [class*="text-green"] svg,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) svg[class*="text-green"] {
+  color: #86efac !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) [class*="text-red"] svg,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) [class*="text-destructive"] svg,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) svg[class*="text-red"],
+:global(#root) .designerShell :global(.ww-signage-premium-designer) svg[class*="text-destructive"] {
+  color: #f87171 !important;
+  stroke: currentColor !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="switch"][data-state="checked"] {
+  border: 1px solid rgba(74, 222, 128, 0.72) !important;
+  background: #22c55e !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="switch"][data-state="unchecked"] {
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: rgba(102, 71, 55, 0.96) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="radio"] {
+  border-color: var(--ww-signage-champagne-border) !important;
+  background: rgba(15, 7, 5, 0.72) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="radio"][data-state="checked"] {
+  color: #22c55e !important;
+  border-color: #4ade80 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="slider"] > span:first-child {
+  background: rgba(217, 183, 127, 0.28) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="slider"] span[role="slider"] {
+  border-color: #d9b77f !important;
+  background: #f3e7d8 !important;
+  box-shadow: 0 0 0 3px rgba(217, 183, 127, 0.15);
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-qr-preview) {
+  border: 1px solid var(--ww-signage-champagne-border) !important;
+  background: rgba(12, 6, 4, 0.56) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-qr-preview) img {
+  box-sizing: content-box;
+  padding: 0.5rem;
+  border: 1px solid rgba(217, 183, 127, 0.46);
+  border-radius: 0.5rem;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(3, 1, 1, 0.32);
+}
+
+.designerShell :global(.ww-signage-premium-designer) ::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.designerShell :global(.ww-signage-premium-designer) ::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(15, 7, 5, 0.52);
+}
+
+.designerShell :global(.ww-signage-premium-designer) ::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(15, 7, 5, 0.52);
+  border-radius: 999px;
+  background: rgba(201, 151, 93, 0.72);
+}
+
+.mainStudio button:focus-visible,
+.mainStudio input:focus-visible,
+.mainStudio textarea:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) button:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) input:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) textarea:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) [role="button"]:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 2px rgba(20, 10, 7, 0.98),
+    0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+:global(.ww-signage-premium-portal) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(76, 41, 30, 0.99), rgba(21, 10, 8, 0.99)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.15),
+    0 20px 44px rgba(3, 1, 1, 0.5) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+:global(.ww-signage-premium-portal) [cmdk-root],
+:global(.ww-signage-premium-portal) [cmdk-list],
+:global(.ww-signage-premium-portal) [cmdk-group],
+:global(.ww-signage-premium-portal) [cmdk-input-wrapper] {
+  color: #f3e7d8 !important;
+  background: transparent !important;
+}
+
+:global(.ww-signage-premium-portal) input {
+  color: #ffffff !important;
+  border-color: rgba(239, 220, 196, 0.72) !important;
+  background: rgba(13, 6, 5, 0.62) !important;
+}
+
+:global(.ww-signage-premium-portal) input::placeholder {
+  color: rgba(237, 220, 199, 0.6) !important;
+}
+
+:global(.ww-signage-premium-portal) p,
+:global(.ww-signage-premium-portal) [cmdk-group-heading] {
+  color: #e4caa6 !important;
+}
+
+:global(.ww-signage-premium-portal) [role="option"],
+:global(.ww-signage-premium-portal) [cmdk-item] {
+  color: #f3e7d8 !important;
+  border-radius: 0.45rem;
+}
+
+:global(.ww-signage-premium-portal) [role="option"]:focus,
+:global(.ww-signage-premium-portal) [role="option"][data-highlighted],
+:global(.ww-signage-premium-portal) [cmdk-item][data-selected="true"] {
+  color: #ffffff !important;
+  background: rgba(139, 77, 40, 0.72) !important;
+}
+
+:global(.ww-signage-premium-portal) svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+:global(.ww-signage-premium-portal) button[style] {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 1023px) {
+  .page {
+    margin: -1.5rem -1.5rem;
+    padding: 1.5rem;
+  }
+
+  .designerShell :global(.ww-signage-premium-designer) {
+    position: relative;
+    top: auto;
+    margin-top: 0;
+  }
+
+  .exportPanel {
+    white-space: normal !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .fullPageSurface {
+    background-position: 48% center;
+  }
+
+  .page {
+    min-height: calc(100dvh - 3.5rem);
+    margin: -1rem -0.75rem;
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .page,
+  .page > *,
+  .mainStudio,
+  .printStudio,
+  .guidelinesPanel,
+  .editorLayout,
+  .designerShell,
+  .previewStage {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .mainStudio > div,
+  .designerShell :global(.ww-signage-premium-designer) > div {
+    padding-inline: 1rem;
+  }
+
+  .printStudio,
+  .guidelinesPanel {
+    padding: 1rem !important;
+  }
+
+  .exportButton {
+    width: 100%;
+    min-height: 2.75rem;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .designerShell :global(.ww-signage-premium-designer) button:not([style]),
+  .designerShell :global(.ww-signage-premium-designer) input,
+  .designerShell :global(.ww-signage-premium-designer) textarea,
+  .designerShell :global(.ww-signage-premium-designer) [role="combobox"] {
+    max-width: 100%;
+  }
+
+  :global(.ww-signage-premium-portal) {
+    max-width: calc(100vw - 1rem) !important;
+  }
+}
+
+@media (max-width: 479px) {
+  .printSizeGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .designerShell :global(.ww-signage-premium-designer) [class*="grid-cols-2"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .designerShell :global(.ww-signage-premium-designer) [role="tab"] {
+    min-height: 3.25rem;
+    padding-inline: 0.18rem !important;
+    font-size: 0.62rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after,
+  :global(.ww-signage-premium-portal),
+  :global(.ww-signage-premium-portal) * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

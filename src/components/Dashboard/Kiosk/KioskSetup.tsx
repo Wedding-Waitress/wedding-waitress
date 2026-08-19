@@ -32,6 +32,7 @@ import { buildKioskUrl } from '@/lib/urlUtils';
 import { KioskLiveViewConfig } from './KioskLiveViewConfig';
 import { KioskAutoProtection } from './KioskAutoProtection';
 import QRCode from 'qrcode';
+import styles from './KioskSetup.module.css';
 
 interface KioskSetupProps {
   selectedEventId: string | null;
@@ -118,9 +119,9 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
   }, [kioskUrl]);
 
   return (
-    <div className="space-y-6 md:max-lg:space-y-8 md:max-lg:px-2">
+    <div className={`${styles.page} space-y-6 md:max-lg:space-y-8 md:max-lg:px-2`}>
       {/* Consolidated header + Event Selection + Kiosk URL & Controls */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${styles.primaryPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardHeader>
           {/* Kiosk Live View Setup heading + description on one row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
@@ -145,13 +146,13 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
               Choose Event:
             </label>
             <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
-              <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]">
+              <SelectTrigger className={`${styles.control} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
                 <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
+              <SelectContent className={`${styles.portalSurface} bg-popover border-border z-50`}>
                 {events.length > 0 ? (
                   events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
+                    <SelectItem className={styles.portalItem} key={event.id} value={event.id}>
                       <div className="flex items-center space-x-2">
                         <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                         <span>{event.name}</span>
@@ -159,7 +160,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="no-events" disabled>
+                  <SelectItem className={styles.portalItem} value="no-events" disabled>
                     {eventsLoading ? "Loading events..." : "No events found"}
                   </SelectItem>
                 )}
@@ -168,12 +169,12 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
           </div>
 
           {/* Full-width divider */}
-          <hr className="w-full border-t border-[#472c1d]" />
+          <hr className={`${styles.divider} w-full border-t border-[#472c1d]`} />
 
           {/* Three equal boxes: Kiosk URL & Controls | Setup Instructions | 7-Day Auto-Protection */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
             {/* LEFT: Kiosk URL & Controls */}
-            <div className="h-full rounded-lg border border-[#472c1d] p-4 space-y-3">
+            <div className={`${styles.innerPanel} h-full rounded-lg border border-[#472c1d] p-4 space-y-3`}>
               <div>
                 <h3 className="flex items-center gap-2 text-[20px] font-bold text-[#472c1d]">
                   <Link2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -200,7 +201,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                       <img
                         src={qrCodeDataUrl}
                         alt="Kiosk QR Code"
-                        className="w-[180px] h-[180px] rounded-md border border-[#472c1d] bg-white"
+                        className={`${styles.qrCode} w-[180px] h-[180px] rounded-md border border-[#472c1d] bg-white`}
                       />
                     ) : (
                       <div className="w-[180px] h-[180px] rounded-md border border-[#472c1d] flex items-center justify-center text-xs text-muted-foreground">
@@ -214,10 +215,10 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
                   {/* URL + Actions — stacked full-width */}
                   <div className="flex flex-col gap-2 w-full">
-                    <code className="text-xs break-all block p-2 bg-muted rounded-md">{kioskUrl}</code>
+                    <code className={`${styles.urlField} text-xs break-all block p-2 bg-muted rounded-md border`}>{kioskUrl}</code>
                     <button
                       onClick={handleCopyUrl}
-                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full"
+                      className={`${styles.actionGreen} lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors w-full`}
                       aria-label="Copy kiosk URL"
                     >
                       {copied ? (
@@ -232,7 +233,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                       onClick={handleOpenKiosk}
                       disabled={isOpeningKiosk}
                       aria-label="Open kiosk in a new tab"
-                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full"
+                      className={`${styles.actionGreen} lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full`}
                     >
                       {isOpeningKiosk ? (
                         <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
@@ -244,7 +245,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
                     <button
                       onClick={handleFullscreen}
-                      className="lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full"
+                      className={`${styles.actionGreen} lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full`}
                     >
                       <Maximize className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                       Launch Fullscreen
@@ -256,7 +257,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
 
             {/* RIGHT: Setup Instructions */}
-            <div className="h-full rounded-lg border border-[#472c1d] p-5 space-y-4">
+            <div className={`${styles.innerPanel} h-full rounded-lg border border-[#472c1d] p-5 space-y-4`}>
               <h3 className="flex items-center gap-2 text-[20px] font-bold text-[#472c1d]">
                 <TabletSmartphone className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Setup Instructions
@@ -264,7 +265,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
 
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Badge variant="outline" className="mt-1">1</Badge>
+                  <Badge variant="outline" className={`${styles.numberBadge} mt-1`}>1</Badge>
                   <MonitorSmartphone className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-sm">
                     <strong>Choose your device:</strong> Use a tablet, laptop, or desktop computer for the kiosk
@@ -272,7 +273,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Badge variant="outline" className="mt-1">2</Badge>
+                  <Badge variant="outline" className={`${styles.numberBadge} mt-1`}>2</Badge>
                   <Link2 className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-sm">
                     <strong>Open the kiosk URL:</strong> Navigate to the kiosk URL on your chosen device
@@ -280,7 +281,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Badge variant="outline" className="mt-1">3</Badge>
+                  <Badge variant="outline" className={`${styles.numberBadge} mt-1`}>3</Badge>
                   <Maximize className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-sm">
                     <strong>Go fullscreen:</strong> Use the "Launch Fullscreen" button or press F11 on desktop
@@ -288,7 +289,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Badge variant="outline" className="mt-1">4</Badge>
+                  <Badge variant="outline" className={`${styles.numberBadge} mt-1`}>4</Badge>
                   <MapPin className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-sm">
                     <strong>Position the device:</strong> Place the device at your event entrance where guests can easily access it
@@ -296,7 +297,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Badge variant="outline" className="mt-1">5</Badge>
+                  <Badge variant="outline" className={`${styles.numberBadge} mt-1`}>5</Badge>
                   <SearchCheck className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-sm">
                     <strong>Test the interface:</strong> Try searching for a few guest names to ensure everything works properly
@@ -304,7 +305,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                 </div>
               </div>
 
-              <div className="p-4 bg-[#FAF6F0] rounded-lg border border-[#472c1d]">
+              <div className={`${styles.innerSurface} p-4 bg-[#FAF6F0] rounded-lg border border-[#472c1d]`}>
                 <div className="flex items-start gap-2">
                   <Info className="w-[18px] h-[18px] text-primary mt-0.5 flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   <div>
@@ -321,7 +322,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
             </div>
 
             {/* THIRD: 7-Day Auto-Protection */}
-            <div className="h-full rounded-lg border border-[#472c1d] p-4 md:col-span-2 xl:col-span-1">
+            <div className={`${styles.innerPanel} h-full rounded-lg border border-[#472c1d] p-4 md:col-span-2 xl:col-span-1`}>
               {selectedEvent ? (
                 <KioskAutoProtection eventId={selectedEvent.id} />
               ) : (

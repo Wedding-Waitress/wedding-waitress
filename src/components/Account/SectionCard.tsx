@@ -20,6 +20,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
 }) => {
   return (
     <section
+      data-account-section
       className={cn(
         'bg-gradient-to-b from-white to-[#FBF7F0] rounded-2xl border border-[#E8E1D6]/70 p-6 sm:p-8 transition-shadow shadow-[0_2px_8px_-2px_rgba(150,122,89,0.10),0_8px_24px_-12px_rgba(150,122,89,0.18)] hover:shadow-[0_4px_12px_-2px_rgba(150,122,89,0.14),0_12px_32px_-12px_rgba(150,122,89,0.26)]',
         className

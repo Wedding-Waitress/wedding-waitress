@@ -1,0 +1,348 @@
+.page {
+  --inv-segment-frame-border: rgba(239, 220, 196, 0.72);
+  --inv-segment-frame-background: rgba(14, 7, 5, 0.66);
+  --inv-segment-frame-shadow: inset 0 2px 7px rgba(3, 1, 1, 0.38), inset 0 1px 0 rgba(255, 239, 218, 0.08);
+  --inv-segment-inactive-border: #472c1d;
+  --inv-segment-active-background: linear-gradient(180deg, rgba(122, 68, 47, 0.9), rgba(47, 24, 17, 0.94));
+  --inv-segment-active-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.2), 0 7px 16px rgba(3, 1, 1, 0.29);
+  min-width: 0;
+}
+
+.headerPanel,
+.managementPanel {
+  min-width: 0;
+}
+
+:global(#root) .page :is(h1, h2, h3, h4, label, strong),
+:global(#root) .page [class*="text-foreground"] {
+  color: #ffffff !important;
+}
+
+:global(#root) .page :is(p, li),
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page svg:not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) [class*="border-[#967A59]"] {
+  color: #f2ddbd !important;
+  border-color: rgba(239, 220, 196, 0.72) !important;
+}
+
+.guidelinesPanel {
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+}
+
+:global(#root) .guidelinesPanel [class*="text-green"] {
+  color: #86efac !important;
+}
+
+:global(#root) .guidelinesPanel [class*="text-green"] svg {
+  color: #86efac !important;
+  stroke: currentColor !important;
+}
+
+.managementPanel [role="tablist"] {
+  height: auto !important;
+  gap: 0.35rem;
+  border: 1px solid var(--inv-segment-frame-border) !important;
+  border-radius: 999px;
+  background: var(--inv-segment-frame-background) !important;
+  padding: 0.25rem !important;
+  box-shadow: var(--inv-segment-frame-shadow);
+}
+
+.managementPanel [role="tab"] {
+  min-width: 0;
+  color: #d9c4aa !important;
+  border: 1px solid var(--inv-segment-inactive-border) !important;
+  border-radius: 999px;
+  background: transparent !important;
+}
+
+:global(#root) .managementPanel [role="tab"],
+:global(#root) .managementPanel [role="tab"] span {
+  color: #d9c4aa !important;
+}
+
+.managementPanel [role="tab"] svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .managementPanel [role="tab"] svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+.managementPanel [role="tab"]:hover {
+  color: #ffffff !important;
+  background: rgba(112, 63, 43, 0.45) !important;
+}
+
+.managementPanel [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  border-color: var(--inv-segment-frame-border) !important;
+  background: var(--inv-segment-active-background) !important;
+  box-shadow: var(--inv-segment-active-shadow) !important;
+}
+
+:global(#root) .managementPanel [role="tab"][data-state="active"],
+:global(#root) .managementPanel [role="tab"][data-state="active"] span {
+  color: #ffffff !important;
+}
+
+.artworkList {
+  scrollbar-color: rgba(239, 220, 196, 0.72) rgba(15, 7, 5, 0.52);
+}
+
+.artworkCard,
+.newArtwork {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(155deg, rgba(79, 43, 32, 0.82), rgba(20, 10, 8, 0.93)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.13), 0 9px 22px rgba(3, 1, 1, 0.29) !important;
+}
+
+.artworkCard:hover,
+.newArtwork:hover {
+  border-color: rgba(255, 235, 207, 0.9) !important;
+  background: linear-gradient(155deg, rgba(103, 57, 40, 0.88), rgba(27, 13, 10, 0.96)) !important;
+  transform: translateY(-1px);
+}
+
+.artworkCardActive {
+  border-color: rgba(239, 220, 196, 0.92) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 247, 235, 0.2), 0 0 0 2px rgba(239, 220, 196, 0.12), 0 12px 28px rgba(3, 1, 1, 0.34) !important;
+}
+
+.thumbnail {
+  border: 1px solid rgba(239, 220, 196, 0.58);
+  background: rgba(12, 6, 4, 0.62) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
+}
+
+.thumbnail img {
+  border: 0 !important;
+}
+
+.blankThumbnail {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(239, 202, 154, 0.13), transparent 58%),
+    linear-gradient(155deg, rgba(76, 41, 30, 0.9), rgba(17, 8, 6, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.14),
+    inset 0 -12px 24px rgba(3, 1, 1, 0.22);
+}
+
+.artworkCard p,
+.newArtwork span {
+  color: #f3e7d8 !important;
+}
+
+:global(#root) .artworkCard p,
+:global(#root) .newArtwork span {
+  color: #f3e7d8 !important;
+}
+
+.artworkActions button {
+  color: #f2ddbd !important;
+  border: 1px solid rgba(239, 220, 196, 0.66) !important;
+  background: rgba(20, 10, 7, 0.58) !important;
+}
+
+.artworkActions button svg,
+.newArtwork svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .artworkActions button:not([aria-label="Delete card"]),
+:global(#root) .artworkActions button:not([aria-label="Delete card"]) svg,
+:global(#root) .newArtwork svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+.artworkActions button[aria-label="Delete card"] {
+  color: #fecaca !important;
+  border-color: #ef4444 !important;
+  background: rgba(127, 29, 29, 0.42) !important;
+}
+
+.artworkActions button[aria-label="Delete card"] svg {
+  color: #f87171 !important;
+}
+
+:global(#root) .artworkActions button[aria-label="Delete card"],
+:global(#root) .artworkActions button[aria-label="Delete card"] svg {
+  color: #f87171 !important;
+  stroke: currentColor !important;
+}
+
+.newArtwork {
+  border-style: dashed !important;
+}
+
+.emptyMessage {
+  color: #eadbc9 !important;
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) > div:first-child {
+  background: transparent !important;
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) [role="tablist"] {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  height: auto !important;
+  gap: 0.35rem !important;
+  padding: 0.25rem !important;
+  border: 1px solid var(--inv-segment-frame-border) !important;
+  border-radius: 999px !important;
+  background: var(--inv-segment-frame-background) !important;
+  box-shadow: var(--inv-segment-frame-shadow) !important;
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"] {
+  min-width: 0;
+  min-height: 0 !important;
+  height: auto !important;
+  flex-direction: row !important;
+  gap: 0.375rem !important;
+  padding: 0.375rem 1rem !important;
+  border: 1px solid var(--inv-segment-inactive-border) !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #d9c4aa !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.25rem !important;
+  white-space: nowrap !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"] svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+/* The shared designer control skin intentionally gives every ordinary button a
+   champagne border. These tabs are the invitations segmented-control exception:
+   only the selected segment uses that border, exactly like the gallery selector. */
+:global(#root) .page.page.page.page.page.page.page.page :global(.ww-signage-premium-designer) [role="tab"][data-state="inactive"] {
+  border-color: var(--inv-segment-inactive-border) !important;
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"]:hover {
+  color: #ffffff !important;
+  border-color: var(--inv-segment-inactive-border) !important;
+  background: rgba(112, 63, 43, 0.45) !important;
+}
+
+:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  border-color: var(--inv-segment-frame-border) !important;
+  background: var(--inv-segment-active-background) !important;
+  box-shadow: var(--inv-segment-active-shadow) !important;
+}
+
+:global(.ww-invitations-premium-dialog) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(155deg, rgba(76, 41, 30, 0.995), rgba(19, 9, 7, 0.995)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.16), 0 24px 60px rgba(3, 1, 1, 0.58) !important;
+}
+
+:global(.ww-invitations-premium-dialog) :is(h2, h3, label) {
+  color: #ffffff !important;
+}
+
+:global(.ww-invitations-premium-dialog) p {
+  color: #eadbc9 !important;
+}
+
+:global(.ww-invitations-premium-dialog) input,
+:global(.ww-invitations-premium-dialog) button:not([class*="bg-red"]):not([class*="bg-destructive"]) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(91, 49, 35, 0.88), rgba(20, 10, 7, 0.96)) !important;
+}
+
+:global(.ww-invitations-premium-dialog) button[class*="bg-red"],
+:global(.ww-invitations-premium-dialog) button[class*="bg-destructive"] {
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+  background: linear-gradient(180deg, #f87171, #ef4444 58%, #dc2626) !important;
+}
+
+:global(.ww-invitations-premium-portal) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(76, 41, 30, 0.995), rgba(20, 10, 8, 0.995)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.15), 0 20px 44px rgba(3, 1, 1, 0.52) !important;
+}
+
+:global(.ww-invitations-premium-portal) [role="option"] {
+  color: #f3e7d8 !important;
+}
+
+:global(.ww-invitations-premium-portal) [role="option"][data-highlighted] {
+  color: #ffffff !important;
+  background: rgba(139, 77, 40, 0.72) !important;
+}
+
+:global(.ww-invitations-premium-portal) svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+@media (max-width: 767px) {
+  .managementPanel [role="tab"] {
+    min-height: 3rem;
+    padding-inline: 0.3rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .artworkCard,
+  .newArtwork {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(#root) .page :global(.ww-signage-premium-designer) [role="tab"] {
+    min-height: 3.25rem !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+    padding: 0.5rem 0.125rem !important;
+    font-size: 0.65625rem !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+
+  :global(#root) .page :global(.ww-signage-premium-designer) [role="tab"] svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after,
+  :global(.ww-invitations-premium-dialog),
+  :global(.ww-invitations-premium-dialog) *,
+  :global(.ww-invitations-premium-portal),
+  :global(.ww-invitations-premium-portal) * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

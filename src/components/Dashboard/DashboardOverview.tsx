@@ -74,12 +74,13 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
       {events.length > 0 && (
         <Card className={`p-4 ${GLASS_PANEL_CLASS_NAME} ${styles.eventPanel}`} style={GLASS_PANEL_STYLE}>
-          <label className="text-sm font-medium text-white flex items-center gap-2 mb-2">
+          <label id="dashboard-event-selector-label" className="text-sm font-medium text-white flex items-center gap-2 mb-2">
             <CalendarDays size={18} strokeWidth={1.8} className="text-[#d9b77f] shrink-0" aria-hidden />
-            Choose Event:
+            <span>Choose Event<span aria-hidden>:</span></span>
           </label>
           <Select value={dashboardEventId} onValueChange={handleDashboardEventSelect}>
             <SelectTrigger
+              aria-labelledby="dashboard-event-selector-label"
               className={`h-11 text-sm font-medium text-white border-[#b9824d]/40 [&>svg]:text-[#ead8bd] [&>svg]:opacity-100 ${styles.eventField}`}
               style={EVENT_FIELD_GLASS_STYLE}
             >

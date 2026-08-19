@@ -1,0 +1,201 @@
+.page {
+  --place-segment-frame-border: rgba(239, 220, 196, 0.72);
+  --place-segment-frame-background: rgba(14, 7, 5, 0.66);
+  --place-segment-frame-shadow: inset 0 2px 7px rgba(3, 1, 1, 0.38), inset 0 1px 0 rgba(255, 239, 218, 0.08);
+  --place-segment-inactive-border: #472c1d;
+  --place-segment-active-background: linear-gradient(180deg, rgba(122, 68, 47, 0.9), rgba(47, 24, 17, 0.94));
+  --place-segment-active-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.2), 0 7px 16px rgba(3, 1, 1, 0.29);
+}
+
+.headerPanel,
+.dimensionsPanel,
+.designerShell,
+.previewStage {
+  min-width: 0;
+}
+
+:global(#root) .page :is(h1, h2, h3, h4, label, strong):not([data-page] *),
+:global(#root) .page [class*="text-foreground"]:not([data-page] *) {
+  color: #ffffff !important;
+}
+
+:global(#root) .page :is(p, li):not([data-page] *),
+:global(#root) .page [class*="text-muted-foreground"]:not([data-page] *) {
+  color: #eadbc9 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page svg:not([data-page] *):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .page [class*="text-green"] {
+  color: #86efac !important;
+}
+
+:global(#root) .page [class*="text-green"] svg {
+  color: #86efac !important;
+  stroke: currentColor !important;
+}
+
+.dimensionsPanel {
+  align-self: stretch;
+}
+
+@media (min-width: 1024px) and (max-width: 1535px) {
+  .controlsRow {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .exportPanel {
+    width: 100% !important;
+  }
+
+  .previewStage :global(.ww-placecards-pagination-top) :global(.ww-placecards-master-notice) {
+    position: static !important;
+    transform: none !important;
+  }
+
+  .previewStage :global(.ww-placecards-guide-row) {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(#root) .page.page.page.page.page.page.page.page :global(.ww-placecards-premium-designer) [role="tab"] {
+    padding-inline: 0.1rem !important;
+    font-size: 0.546875rem !important;
+    line-height: 1.1 !important;
+  }
+
+  :global(#root) .page.page.page.page.page.page.page.page :global(.ww-placecards-premium-designer) [role="tab"] svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) > div:first-child {
+  background: transparent !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [class~="bg-white"] {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(217, 164, 105, 0.1), transparent 32%),
+    linear-gradient(150deg, rgba(70, 38, 28, 0.72), rgba(16, 8, 6, 0.88)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 10px 24px rgba(3, 1, 1, 0.25) !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [class*="border-primary"]:not([class*="border-green"]):not([class*="border-red"]):not([class*="border-destructive"]),
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [class*="border-accent"]:not([class*="border-green"]):not([class*="border-red"]):not([class*="border-destructive"]),
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [class*="border-border"]:not([class*="border-green"]):not([class*="border-red"]):not([class*="border-destructive"]) {
+  border-color: rgba(239, 220, 196, 0.72) !important;
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [role="tablist"] {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
+  height: auto !important;
+  gap: 0.35rem !important;
+  padding: 0.25rem !important;
+  overflow: hidden;
+  border: 1px solid var(--place-segment-frame-border) !important;
+  border-radius: 999px !important;
+  background: var(--place-segment-frame-background) !important;
+  box-shadow: var(--place-segment-frame-shadow) !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [role="tab"] {
+  min-width: 0 !important;
+  color: #d9c4aa !important;
+  border: 1px solid var(--place-segment-inactive-border) !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The shared liquid-glass control rule gives ordinary buttons champagne
+   borders. Inactive segmented tabs deliberately use the approved dark divider. */
+:global(#root) .page.page.page.page.page.page.page.page :global(.ww-placecards-premium-designer) [role="tab"][data-state="inactive"] {
+  border-color: var(--place-segment-inactive-border) !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [role="tab"] svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [role="tab"]:hover {
+  color: #ffffff !important;
+  border-color: var(--place-segment-inactive-border) !important;
+  background: rgba(112, 63, 43, 0.45) !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  border-color: var(--place-segment-frame-border) !important;
+  background: var(--place-segment-active-background) !important;
+  box-shadow: var(--place-segment-active-shadow) !important;
+}
+
+:global(#root) .designerShell :global(.ww-placecards-premium-designer) [role="tab"][data-state="active"] svg {
+  color: #ffffff !important;
+}
+
+.previewStage :global(.ww-placecards-pagination) {
+  color: #ffffff;
+}
+
+.previewStage :global(.ww-placecards-pagination) button,
+.previewStage :global(.ww-placecards-master-notice),
+.previewStage :global(.ww-placecards-guide-label) {
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(91, 49, 35, 0.88), rgba(20, 10, 7, 0.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 7px 16px rgba(3, 1, 1, 0.24) !important;
+}
+
+.previewStage :global(.ww-placecards-pagination) button:not(:disabled):hover {
+  filter: brightness(1.1);
+}
+
+.previewStage :global(.ww-placecards-pagination) button:disabled {
+  color: rgba(234, 219, 201, 0.5) !important;
+  opacity: 0.72;
+}
+
+.previewStage :global(.ww-placecards-pagination) svg,
+.previewStage :global(.ww-placecards-master-notice) svg,
+.previewStage :global(.ww-placecards-guide-label) svg,
+.previewStage :global(.ww-placecards-guide-label) + svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+@media (max-width: 767px) {
+  .headerPanel > div {
+    padding-inline: 1rem;
+  }
+
+  .previewStage,
+  .designerShell {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  .page *::before,
+  .page *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

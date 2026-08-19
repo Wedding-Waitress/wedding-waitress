@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -11,6 +11,31 @@ export type Database = {
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.4"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -50,9 +75,79 @@ export type Database = {
         }
         Relationships: []
       }
+      account_lifecycle: {
+        Row: {
+          account_owner_id: string
+          audit_metadata: Json
+          deleted_by_user_id: string | null
+          deletion_processing_error: string | null
+          deletion_requested_at: string | null
+          purge_after: string | null
+          reactivated_at: string | null
+          status: string
+          stripe_cancellation_at: string | null
+          stripe_cancellation_succeeded: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          account_owner_id: string
+          audit_metadata?: Json
+          deleted_by_user_id?: string | null
+          deletion_processing_error?: string | null
+          deletion_requested_at?: string | null
+          purge_after?: string | null
+          reactivated_at?: string | null
+          status?: string
+          stripe_cancellation_at?: string | null
+          stripe_cancellation_succeeded?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          account_owner_id?: string
+          audit_metadata?: Json
+          deleted_by_user_id?: string | null
+          deletion_processing_error?: string | null
+          deletion_requested_at?: string | null
+          purge_after?: string | null
+          reactivated_at?: string | null
+          status?: string
+          stripe_cancellation_at?: string | null
+          stripe_cancellation_succeeded?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      account_lifecycle_audit: {
+        Row: {
+          account_owner_id: string | null
+          action: string
+          actor_user_id: string | null
+          id: string
+          metadata: Json
+          occurred_at: string
+        }
+        Insert: {
+          account_owner_id?: string | null
+          action: string
+          actor_user_id?: string | null
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+        }
+        Update: {
+          account_owner_id?: string | null
+          action?: string
+          actor_user_id?: string | null
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+        }
+        Relationships: []
+      }
       account_members: {
         Row: {
           accepted_at: string | null
+          access_disabled_at: string | null
           account_owner_id: string
           created_at: string
           id: string
@@ -62,6 +157,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          access_disabled_at?: string | null
           account_owner_id: string
           created_at?: string
           id?: string
@@ -71,6 +167,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          access_disabled_at?: string | null
           account_owner_id?: string
           created_at?: string
           id?: string
@@ -123,6 +220,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      admin_account_controls: {
+        Row: {
+          account_owner_id: string
+          changed_at: string
+          changed_by: string | null
+          reason: string | null
+          status: string
+        }
+        Insert: {
+          account_owner_id: string
+          changed_at?: string
+          changed_by?: string | null
+          reason?: string | null
+          status?: string
+        }
+        Update: {
+          account_owner_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          reason?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      admin_action_audit: {
+        Row: {
+          action: string
+          administrator_id: string | null
+          created_at: string
+          id: string
+          new_state: Json
+          previous_state: Json
+          reason: string
+          result: string
+          safe_error_reference: string | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action: string
+          administrator_id?: string | null
+          created_at?: string
+          id?: string
+          new_state?: Json
+          previous_state?: Json
+          reason: string
+          result: string
+          safe_error_reference?: string | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action?: string
+          administrator_id?: string | null
+          created_at?: string
+          id?: string
+          new_state?: Json
+          previous_state?: Json
+          reason?: string
+          result?: string
+          safe_error_reference?: string | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
       }
       admin_otp_codes: {
         Row: {
@@ -2713,6 +2876,48 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_booth_background_templates: {
+        Row: {
+          category: string
+          colour: string
+          created_at: string
+          id: string
+          image_url: string
+          name: string
+          original_path: string
+          sort_order: number
+          thumbnail_path: string
+          thumbnail_url: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          colour?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          name: string
+          original_path: string
+          sort_order?: number
+          thumbnail_path: string
+          thumbnail_url: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          colour?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          name?: string
+          original_path?: string
+          sort_order?: number
+          thumbnail_path?: string
+          thumbnail_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       place_card_categories: {
         Row: {
           created_at: string
@@ -2842,6 +3047,10 @@ export type Database = {
           message_italic: boolean
           message_underline: boolean
           name_spacing: number | null
+          photo_video_qr_enabled: boolean
+          photo_video_qr_size: number
+          photo_video_qr_x: number
+          photo_video_qr_y: number
           seat_offset_x: number
           seat_offset_y: number
           table_offset_x: number
@@ -2894,6 +3103,10 @@ export type Database = {
           message_italic?: boolean
           message_underline?: boolean
           name_spacing?: number | null
+          photo_video_qr_enabled?: boolean
+          photo_video_qr_size?: number
+          photo_video_qr_x?: number
+          photo_video_qr_y?: number
           seat_offset_x?: number
           seat_offset_y?: number
           table_offset_x?: number
@@ -2946,6 +3159,10 @@ export type Database = {
           message_italic?: boolean
           message_underline?: boolean
           name_spacing?: number | null
+          photo_video_qr_enabled?: boolean
+          photo_video_qr_size?: number
+          photo_video_qr_x?: number
+          photo_video_qr_y?: number
           seat_offset_x?: number
           seat_offset_y?: number
           table_offset_x?: number
@@ -2967,6 +3184,10 @@ export type Database = {
           id: string
           last_name: string | null
           mobile: string | null
+          profile_image_fit: string
+          profile_image_path: string | null
+          profile_image_position_x: number
+          profile_image_position_y: number
         }
         Insert: {
           account_id?: string
@@ -2978,6 +3199,10 @@ export type Database = {
           id?: string
           last_name?: string | null
           mobile?: string | null
+          profile_image_fit?: string
+          profile_image_path?: string | null
+          profile_image_position_x?: number
+          profile_image_position_y?: number
         }
         Update: {
           account_id?: string
@@ -2989,6 +3214,10 @@ export type Database = {
           id?: string
           last_name?: string | null
           mobile?: string | null
+          profile_image_fit?: string
+          profile_image_path?: string | null
+          profile_image_position_x?: number
+          profile_image_position_y?: number
         }
         Relationships: [
           {
@@ -4410,6 +4639,29 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_force_account_sign_out: {
+        Args: { p_actor: string; p_reason: string; p_target: string }
+        Returns: undefined
+      }
+      admin_lifecycle_action: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_reason: string
+          p_target: string
+        }
+        Returns: Json
+      }
+      admin_set_account_control: {
+        Args: {
+          p_action: string
+          p_actor: string
+          p_reason: string
+          p_safe_error_reference?: string
+          p_target: string
+        }
+        Returns: Json
+      }
       can_access_event: {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
@@ -4432,6 +4684,10 @@ export type Database = {
       clear_dj_mc_section_items_by_token: {
         Args: { p_section_id: string; share_token: string }
         Returns: boolean
+      }
+      complete_account_purge: {
+        Args: { p_metadata?: Json; p_user_id: string }
+        Returns: undefined
       }
       consume_sms_credit: {
         Args: {
@@ -4550,6 +4806,22 @@ export type Database = {
       }
       generate_short_slug: { Args: never; Returns: string }
       generate_slug: { Args: { input_text: string }; Returns: string }
+      get_account_closure_admin_summary: {
+        Args: never
+        Returns: {
+          account_owner_id: string
+          deletion_processing_error: string
+          deletion_requested_at: string
+          email: string
+          full_name: string
+          plan_status: string
+          purge_after: string
+          reactivated_at: string
+          status: string
+          stripe_cancellation_succeeded: boolean
+        }[]
+      }
+      get_admin_centre_snapshot: { Args: never; Returns: Json }
       get_dj_mc_questionnaire_by_token: {
         Args: { share_token: string }
         Returns: {
@@ -4567,6 +4839,28 @@ export type Database = {
           sections: Json
           start_time: string
         }[]
+      }
+      get_due_account_purges: {
+        Args: { p_limit?: number }
+        Returns: {
+          account_owner_id: string
+          audit_metadata: Json
+          deleted_by_user_id: string | null
+          deletion_processing_error: string | null
+          deletion_requested_at: string | null
+          purge_after: string | null
+          reactivated_at: string | null
+          status: string
+          stripe_cancellation_at: string | null
+          stripe_cancellation_succeeded: boolean | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "account_lifecycle"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_event_id_for_media_token: {
         Args: { _token: string }
@@ -4805,6 +5099,7 @@ export type Database = {
           status: string
         }[]
       }
+      get_my_account_lifecycle: { Args: never; Returns: Json }
       get_my_credit_transactions: {
         Args: { p_limit?: number }
         Returns: {
@@ -5007,8 +5302,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_owner_admin: { Args: never; Returns: boolean }
       is_account_master: { Args: { _user_id: string }; Returns: boolean }
+      is_account_operational: { Args: { p_user_id?: string }; Returns: boolean }
+      is_owner_admin: { Args: never; Returns: boolean }
       is_pending_event_media_path: { Args: { _path: string }; Returns: boolean }
       log_guest_activity: {
         Args: {
@@ -5048,6 +5344,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      reactivate_my_account: { Args: never; Returns: Json }
       record_media_password_attempt: {
         Args: {
           _device_key: string
@@ -5134,6 +5431,15 @@ export type Database = {
           event_slug: string
           qr_code_id: string
         }[]
+      }
+      schedule_account_closure: {
+        Args: {
+          p_metadata?: Json
+          p_processing_error?: string
+          p_stripe_cancelled: boolean
+          p_user_id: string
+        }
+        Returns: Json
       }
       set_event_media_album: {
         Args: { _album: string; _item_id: string }
@@ -5579,6 +5885,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: [

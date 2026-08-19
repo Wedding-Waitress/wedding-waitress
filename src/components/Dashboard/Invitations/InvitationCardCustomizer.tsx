@@ -70,6 +70,7 @@ interface InvitationCardCustomizerProps {
   imageUploadFolder?: string;
   storageBucket?: string;
   galleryButtonLabel?: string;
+  appearance?: 'default' | 'signage-premium';
   GalleryModalComponent?: React.ComponentType<{
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -218,6 +219,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   imageUploadFolder,
   storageBucket,
   galleryButtonLabel = 'Template Library',
+  appearance = 'default',
   GalleryModalComponent,
 }) => {
   const activePresetZones = presetZones || PRESET_ZONES;
@@ -227,6 +229,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const [localNotes, setLocalNotes] = useState('');
   const { toast } = useToast();
+  const signagePremium = appearance === 'signage-premium';
+  const portalClassName = signagePremium ? 'ww-signage-premium-portal' : undefined;
 
   const currentSettings: InvitationCardSettings = settings || {
     event_id: '',
@@ -326,7 +330,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
   return (
     <>
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
+      <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white${signagePremium ? ' ww-signage-premium-designer' : ''}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette className="h-[22px] w-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -422,13 +426,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <PlaceCardFontPicker
                             value={zone.font_family}
                             onValueChange={(v) => updateZone(zone.id, { font_family: v })}
+                            contentClassName={portalClassName}
                           />
                         </div>
                         <div>
                           <Label className="text-xs inline-flex items-center gap-1.5"><Scaling className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Size (px)</Label>
                           <Select value={zone.font_size.toString()} onValueChange={(v) => updateZone(zone.id, { font_size: parseInt(v) })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className={portalClassName}>
                               {[12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96, 120, 150].map(s => (
                                 <SelectItem key={s} value={s.toString()}>{s}px</SelectItem>
                               ))}
@@ -443,13 +448,14 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <ColorPickerPopover
                             value={zone.font_color}
                             onChange={(color) => updateZone(zone.id, { font_color: color })}
+                            contentClassName={portalClassName}
                           />
                         </div>
                         <div>
                           <Label className="text-xs">Text Style</Label>
                           <Select value={zone.font_style || 'default'} onValueChange={(v) => updateZone(zone.id, { font_style: v })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className={portalClassName}>
                               <SelectItem value="default">Default</SelectItem>
                               <SelectItem value="bold">Bold</SelectItem>
                               <SelectItem value="italic">Italic</SelectItem>
@@ -464,7 +470,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <Label className="text-xs inline-flex items-center gap-1.5"><AlignCenter className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Align</Label>
                           <Select value={zone.text_align} onValueChange={(v) => updateZone(zone.id, { text_align: v })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className={portalClassName}>
                               <SelectItem value="left">Left</SelectItem>
                               <SelectItem value="center">Center</SelectItem>
                               <SelectItem value="right">Right</SelectItem>
@@ -475,7 +481,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           <Label className="text-xs inline-flex items-center gap-1.5"><CaseUpper className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Text Case</Label>
                           <Select value={zone.text_case} onValueChange={(v) => updateZone(zone.id, { text_case: v })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className={portalClassName}>
                               <SelectItem value="default">Default</SelectItem>
                               <SelectItem value="uppercase">UPPERCASE</SelectItem>
                               <SelectItem value="lowercase">lowercase</SelectItem>
@@ -633,7 +639,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className={portalClassName}>
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
                             <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
                           ))}
@@ -646,6 +652,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     <ColorPickerPopover
                       value={currentSettings.background_color}
                       onChange={(color) => handleSettingChange('background_color', color)}
+                      contentClassName={portalClassName}
                     />
                   </div>
                 </div>
@@ -698,7 +705,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     <SelectTrigger className="w-full border-primary">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-popover border-border z-50">
+                    <SelectContent className={`${portalClassName || ''} bg-popover border-border z-50`}>
                       <SelectItem value="none">No QR Code</SelectItem>
                       {events.map(ev => (
                         <SelectItem key={ev.id} value={ev.id}>{ev.name}</SelectItem>
@@ -723,7 +730,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     </div>
 
                     {qrDataUrl && (
-                      <div className="flex justify-center p-4 bg-muted/30 rounded-lg">
+                      <div className="ww-signage-qr-preview flex justify-center p-4 bg-muted/30 rounded-lg">
                         <img src={qrDataUrl} alt="QR Preview" className="w-32 h-32" />
                       </div>
                     )}

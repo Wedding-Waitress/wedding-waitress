@@ -17,6 +17,8 @@ const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 // Lazy: split everything else into separate chunks for instant initial load
 const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
+const Account = lazy(() => import("./pages/Account").then(m => ({ default: m.Account })));
+const AccountRecovery = lazy(() => import("./pages/AccountRecovery"));
 const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeaturePage").then(m => ({ default: m.GalleryUploadFeaturePage })));
 const GalleryViewFeaturePage = lazy(() => import("./pages/GalleryViewFeaturePage").then(m => ({ default: m.GalleryViewFeaturePage })));
 const GalleryPhotoBoothFeaturePage = lazy(() => import("./pages/GalleryPhotoBoothFeaturePage").then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
@@ -38,7 +40,6 @@ const ReceptionFloorPlanShareView = lazy(() => import("./pages/ReceptionFloorPla
 const VenueDirectory = lazy(() => import("./pages/VenueDirectory").then(m => ({ default: m.VenueDirectory })));
 const VenueDetail = lazy(() => import("./pages/VenueDetail").then(m => ({ default: m.VenueDetail })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
-const UpgradePricing = lazy(() => import("./pages/UpgradePricing").then(m => ({ default: m.UpgradePricing })));
 const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
 const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default: m.QRRedirect })));
 
@@ -125,7 +126,7 @@ const ScrollToTop = () => {
 const RouteTracker = () => {
   const location = useLocation();
   useEffect(() => {
-    const w = window as any;
+    const w = window as Window & { gtag?: (...args: unknown[]) => void };
     if (typeof w.gtag === 'function') {
       w.gtag('event', 'page_view', {
         page_path: location.pathname + location.search,
@@ -162,6 +163,9 @@ const App = () => (
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/account/:section" element={<Account />} />
+          <Route path="/account-recovery" element={<AccountRecovery />} />
           <Route path="/dashboard/photo-video-gallery/photo-video-sharing" element={<GalleryUploadFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
           <Route path="/dashboard/photo-video-gallery/digital-photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
@@ -175,10 +179,11 @@ const App = () => (
           <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
           <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
 
-          <Route path="/dashboard/upgrade" element={<UpgradePricing />} />
+          <Route path="/dashboard/upgrade" element={<Navigate to="/account/plans-upgrades" replace />} />
           <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
           {/* Running Sheet is now a dashboard tab, no standalone route */}
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/:section" element={<Admin />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />

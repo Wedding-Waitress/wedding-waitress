@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { RSVP_OVERAGE } from '@/lib/stripePrices';
 
 const getPricingTier = (count: number) => {
-  if (count <= 100) return { price: 99, label: '1–100 guests', max: 100 };
+  if (count <= 100) return { price: 100, label: '1–100 guests', max: 100 };
   if (count <= 200) return { price: 129, label: '101–200 guests', max: 200 };
   if (count <= 300) return { price: 149, label: '201–300 guests', max: 300 };
   if (count <= 400) return { price: 159, label: '301–400 guests', max: 400 };

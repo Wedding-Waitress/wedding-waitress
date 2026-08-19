@@ -208,7 +208,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   <SelectTrigger className="h-10 text-sm font-normal bg-background">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
-                  <SelectContent className="z-[120] max-h-[60vh]">
+                  <SelectContent className={`${styles.portal} z-[120] max-h-[60vh]`}>
                     <SelectItem value="all">All Categories ({images.length})</SelectItem>
                     {categoriesWithCounts.map(({ name, count }) => (
                       <SelectItem key={name} value={name}>{name} ({count})</SelectItem>
@@ -298,7 +298,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent
-                                className="w-64 p-2 z-[130]"
+                                className={`${styles.portal} w-64 p-2 z-[130]`}
                                 align="center"
                                 onClick={(e) => e.stopPropagation()}
                               >

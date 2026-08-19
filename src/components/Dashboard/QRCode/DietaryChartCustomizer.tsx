@@ -27,6 +27,7 @@ import {
 import { Settings2, UtensilsCrossed, ArrowUpDown, Eye, Type, Bold, Italic, Underline, ChevronDown, Check, ListFilter, HeartHandshake, Armchair, CaseSensitive, UserRound, ListOrdered } from 'lucide-react';
 import { DietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DIETARY_ACCENT_COLORS, DietaryAccentColor } from '@/lib/dietaryChartSettings';
+import styles from './KitchenDietaryChartPage.module.css';
 
 interface DietaryChartCustomizerProps {
   settings: DietaryChartSettings;
@@ -60,7 +61,7 @@ const ColorSwatches = ({ name, selected, onChange }: {
           title={`Use ${label} for ${name}`}
           aria-pressed={isSelected}
           onClick={() => onChange(color)}
-          className={`h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
+          className={`${styles.colorSwatch} h-4 w-4 rounded-full border border-black/30 transition-shadow ${isSelected ? 'ring-2 ring-offset-1 ring-foreground' : 'hover:ring-1 hover:ring-foreground/60'}`}
           style={{ backgroundColor: color }}
         />
       );
@@ -81,7 +82,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
   };
 
   return (
-    <Card className="border border-[#472c1d] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-8 bg-white">
+    <Card className={`${styles.settingsPanel} h-fit sticky top-0`}>
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings2 className="w-[22px] h-[22px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
@@ -100,7 +101,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Sort Order</span>
+            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Sort Order</span>
           </div>
           <div>
             <Label htmlFor="sort-by" className="text-xs text-[#472c1d] inline-flex items-center gap-1.5">
@@ -110,61 +111,61 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
             <Select value={settings.sortBy} onValueChange={value => onSettingsChange({
               sortBy: value as DietaryChartSettings['sortBy']
             })}>
-              <SelectTrigger id="sort-by" className="border-[#472c1d] focus:ring-[#472c1d]">
+              <SelectTrigger id="sort-by" className={styles.selectTrigger}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border z-50">
-                <SelectItem value="firstName">First Name</SelectItem>
-                <SelectItem value="lastName">Last Name</SelectItem>
-                <SelectItem value="tableNo">Table Number - Name</SelectItem>
-                <SelectItem value="dietary">Dietary Requirements</SelectItem>
+              <SelectContent className={styles.portalSurface}>
+                <SelectItem className={styles.portalItem} value="firstName">First Name</SelectItem>
+                <SelectItem className={styles.portalItem} value="lastName">Last Name</SelectItem>
+                <SelectItem className={styles.portalItem} value="tableNo">Table Number - Name</SelectItem>
+                <SelectItem className={styles.portalItem} value="dietary">Dietary Requirements</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <Separator />
+        <Separator className={styles.divider} />
 
         {/* Display Options */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Eye className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Display Options</span>
+            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-guest-names" className="flex flex-1 items-center gap-[7px]"><UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Guest Names</Label>
             <ColorSwatches name="guest names" selected={settings.guestNameColor} onChange={guestNameColor => onSettingsChange({ guestNameColor })} />
             <Switch id="show-guest-names" checked={settings.showGuestNames} onCheckedChange={showGuestNames => onSettingsChange({ showGuestNames })} />
           </div>
-          <div className="flex items-center gap-1">
+          <div className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-seat-numbers" className="flex flex-1 items-center gap-[7px]"><Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Seat Numbers</Label>
             <ColorSwatches name="seat numbers" selected={settings.seatNumberColor} onChange={seatNumberColor => onSettingsChange({ seatNumberColor })} />
             <Switch id="show-seat-numbers" checked={settings.showSeatNumbers} onCheckedChange={showSeatNumbers => onSettingsChange({ showSeatNumbers })} />
           </div>
-          <div className="flex items-center gap-1">
+          <div className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-guest-list" className="flex flex-1 items-center gap-[7px]"><ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Guest List</Label>
             <ColorSwatches name="guest list" selected={settings.guestListColor} onChange={guestListColor => onSettingsChange({ guestListColor })} />
             <Switch id="show-guest-list" checked={settings.showGuestList} onCheckedChange={showGuestList => onSettingsChange({ showGuestList })} />
           </div>
-          <div className="flex items-center gap-1">
+          <div className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-dietary" className="flex flex-1 items-center gap-[7px]"><UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Dietary Requirements</Label>
             <ColorSwatches name="dietary requirements" selected={settings.dietaryColor} onChange={dietaryColor => onSettingsChange({ dietaryColor })} />
             <Switch id="show-dietary" checked={settings.showDietary} onCheckedChange={showDietary => onSettingsChange({ showDietary })} />
           </div>
-          <div className="flex items-center gap-1">
+          <div className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-relation" className="flex flex-1 items-center gap-[7px]"><HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Relationship</Label>
             <ColorSwatches name="relationships" selected={settings.relationshipColor} onChange={relationshipColor => onSettingsChange({ relationshipColor })} />
             <Switch id="show-relation" checked={settings.showRelation} onCheckedChange={showRelation => onSettingsChange({ showRelation })} />
           </div>
         </div>
 
-        <Separator />
+        <Separator className={styles.divider} />
 
         {/* Typography */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Type className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-            <span className="text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold">Typography</span>
+            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Typography</span>
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground flex items-center gap-[7px]">
@@ -175,10 +176,10 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               value={settings.fontSize}
               onValueChange={(value: DietaryChartSettings['fontSize']) => onSettingsChange({ fontSize: value })}
             >
-              <SelectTrigger className="w-full border-[#472c1d] focus:ring-[#472c1d]">
+              <SelectTrigger className={`${styles.selectTrigger} w-full`}>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={styles.portalSurface}>
                 <SelectItem value="small">Small — 8 pt</SelectItem>
                 <SelectItem value="standard">Standard — 10 pt</SelectItem>
                 <SelectItem value="large">Large — 12 pt</SelectItem>
@@ -194,15 +195,15 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-between border-[#472c1d] focus:ring-[#472c1d] mt-1"
+                  className={`${styles.control} w-full justify-between mt-1`}
                 >
                   <span className="text-sm">{getTextStyleLabel()}</span>
                   <ChevronDown className="w-4 h-4 ml-2 opacity-50" strokeWidth={1.8} aria-hidden="true" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50">
+              <DropdownMenuContent className={`${styles.portalSurface} w-[var(--radix-dropdown-menu-trigger-width)]`}>
                 <DropdownMenuItem
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
+                  className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
                   onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                 >
                   <div className="flex items-center gap-2">
@@ -212,7 +213,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                   {settings.isBold && <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
+                  className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
                   onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                 >
                   <div className="flex items-center gap-2">
@@ -222,7 +223,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                   {settings.isItalic && <Check className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground"
+                  className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
                   onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                 >
                   <div className="flex items-center gap-2">

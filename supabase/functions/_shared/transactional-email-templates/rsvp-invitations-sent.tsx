@@ -87,7 +87,7 @@ export const template = {
     firstName: 'Jane',
     guestCount: 78,
     tierLabel: '1–100 Guests',
-    amount: '99.00',
+    amount: '100.00',
     isOverage: false,
   },
 } satisfies TemplateEntry
