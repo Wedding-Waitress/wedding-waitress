@@ -107,6 +107,52 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [downloading, setDownloading] = useState<'png' | 'jpg' | null>(null);
+  const [linkingReceptionFloorPlan, setLinkingReceptionFloorPlan] = useState(false);
+
+  const linkExistingReceptionFloorPlan = useCallback(async () => {
+    if (!eventId || linkingReceptionFloorPlan) return;
+    setLinkingReceptionFloorPlan(true);
+    try {
+      const { data, error } = await supabase
+        .from('reception_floor_plans')
+        .select('share_enabled, share_token')
+        .eq('event_id', eventId)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        toast({
+          title: 'No reception floor plan found',
+          description: 'Create and save a reception floor plan before displaying it to guests.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (!data.share_enabled || !data.share_token) {
+        toast({
+          title: 'Enable the read-only floor plan link first',
+          description: 'Open Floor Plan → Reception, enable the read-only link, then select this option again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      await updateModuleConfig('reception_floor_plan_config', {
+        ...moduleSettings?.reception_floor_plan_config,
+        source: 'existing',
+        share_token: data.share_token,
+      });
+    } catch (error) {
+      console.error('Error linking reception floor plan:', error);
+      toast({
+        title: 'Could not link reception floor plan',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLinkingReceptionFloorPlan(false);
+    }
+  }, [eventId, linkingReceptionFloorPlan, moduleSettings?.reception_floor_plan_config, toast, updateModuleConfig]);
 
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
@@ -1413,12 +1459,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             {/* Use Existing Floor Plan Option */}
                             <button
                               type="button"
-                              onClick={() => {
-                                updateModuleConfig('reception_floor_plan_config', {
-                                  ...moduleSettings?.reception_floor_plan_config,
-                                  source: 'existing'
-                                });
-                              }}
+                              onClick={() => void linkExistingReceptionFloorPlan()}
+                              disabled={linkingReceptionFloorPlan}
                               className={`p-4 rounded-lg border-2 text-left transition-all ${
                                 moduleSettings?.reception_floor_plan_config?.source === 'existing'
                                   ? 'border-amber-500 bg-amber-50'
@@ -1554,7 +1596,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             </div>
                           )}
 
-                          {/* Coming soon message when 'existing' is selected */}
+                          {/* Confirm the secure existing-plan link. */}
                           {moduleSettings?.reception_floor_plan_config?.source === 'existing' && (
                             <div className="mt-3 p-3 bg-amber-50 rounded-md border border-amber-200">
                               <div className="flex items-center gap-2">
@@ -1564,7 +1606,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     Using existing floor plan
                                   </p>
                                   <p className="text-xs text-amber-700 mt-0.5">
-                                    Coming soon — Reception floor plan configuration is not yet available.
+                                    Guests will see the current read-only dashboard floor plan. Revoking its share link removes public access immediately.
                                   </p>
                                 </div>
                               </div>

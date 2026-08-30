@@ -37,6 +37,7 @@ import { TableVisualization } from '@/components/GuestLookup/TableVisualization'
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 import { ReadOnlyCeremonyFloorPlan } from '@/components/GuestView/ReadOnlyCeremonyFloorPlan';
+import { ReadOnlyReceptionFloorPlan } from '@/components/GuestView/ReadOnlyReceptionFloorPlan';
 import { PublicAddGuestModal } from '@/components/GuestLookup/PublicAddGuestModal';
 import styles from './GuestLookup.module.css';
 import { resolveWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
@@ -1293,15 +1294,9 @@ export const GuestLookup: React.FC = () => {
                 className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
               />
             ) : moduleSettings?.reception_floor_plan_config?.source === 'existing' ? (
-              <div className="text-center py-12">
-                <MapPin className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground text-lg">
-                  Coming soon
-                </p>
-                <p className="text-muted-foreground text-sm mt-2">
-                  Reception floor plan configuration is not yet available.
-                </p>
-              </div>
+              <ReadOnlyReceptionFloorPlan
+                token={moduleSettings.reception_floor_plan_config.share_token}
+              />
             ) : (
               <div className="text-center py-12">
                 <MapPin className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
